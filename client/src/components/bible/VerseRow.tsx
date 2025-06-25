@@ -191,30 +191,30 @@ export function VerseRow({
       )}
       
       {/* Prophecy Column */}
-      {showProphecy && (
-        <div className="w-60 flex-shrink-0">
+      {preferences.showProphecy && (
+        <div className="w-64 flex-shrink-0">
           <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {verse.prophecy ? (
               <div className="space-y-2">
                 {verse.prophecy.predictions && verse.prophecy.predictions.length > 0 && (
                   <div>
-                    <div className="font-medium text-green-600">Predictions:</div>
-                    {verse.prophecy.predictions.map((pred, i) => (
-                      <div key={i} className="text-green-700 break-words">{pred}</div>
+                    <div className="font-medium text-blue-600 dark:text-blue-400 text-xs">Predictions:</div>
+                    {verse.prophecy.predictions.slice(0, 2).map((pred, idx) => (
+                      <div key={idx} className="text-muted-foreground text-xs">{pred.substring(0, 80)}...</div>
                     ))}
                   </div>
                 )}
                 {verse.prophecy.fulfillments && verse.prophecy.fulfillments.length > 0 && (
                   <div>
-                    <div className="font-medium text-blue-600">Fulfillments:</div>
-                    {verse.prophecy.fulfillments.map((ful, i) => (
-                      <div key={i} className="text-blue-700 break-words">{ful}</div>
+                    <div className="font-medium text-green-600 dark:text-green-400 text-xs">Fulfillments:</div>
+                    {verse.prophecy.fulfillments.slice(0, 2).map((ful, idx) => (
+                      <div key={idx} className="text-muted-foreground text-xs">{ful.substring(0, 80)}...</div>
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <span className="text-muted-foreground italic">No prophecy data</span>
+              <span className="text-muted-foreground italic">Loading prophecy data...</span>
             )}
           </div>
         </div>
