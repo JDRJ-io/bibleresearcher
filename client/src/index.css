@@ -1,0 +1,316 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* Bible Theme Variables */
+  --font-size-base: 16px;
+  --font-size-scale: 1;
+  --spacing-unit: 0.5rem;
+  --transition-speed: 0.3s;
+  --row-height-base: 120px;
+  --header-height: 60px;
+  --footer-height: 50px;
+  --button-radius: 8px;
+  --button-size: 40px;
+  --popup-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+/* Bible Theme Classes */
+body.light-mode {
+  --bg-color: hsl(0, 0%, 100%);
+  --text-color: hsl(0, 0%, 10%);
+  --header-bg: hsl(210, 40%, 98%);
+  --border-color: hsl(210, 16%, 93%);
+  --column-bg: hsl(210, 17%, 96%);
+  --link-color: hsl(199, 89%, 48%);
+  --hover-bg: hsla(199, 89%, 48%, 0.1);
+  --button-hover: hsl(199, 100%, 92%);
+  --accent-color: hsl(199, 89%, 48%);
+  --success-color: hsl(142, 71%, 45%);
+  --warning-color: hsl(38, 92%, 50%);
+  --error-color: hsl(0, 84%, 60%);
+}
+
+body.dark-mode {
+  --bg-color: hsl(222, 84%, 5%);
+  --text-color: hsl(210, 40%, 90%);
+  --header-bg: hsl(222, 47%, 11%);
+  --border-color: hsl(215, 28%, 17%);
+  --column-bg: hsl(222, 47%, 11%);
+  --link-color: hsl(210, 98%, 78%);
+  --hover-bg: hsla(210, 98%, 78%, 0.2);
+  --button-hover: hsl(215, 28%, 17%);
+  --accent-color: hsl(210, 98%, 78%);
+  --success-color: hsl(142, 71%, 45%);
+  --warning-color: hsl(38, 92%, 50%);
+  --error-color: hsl(0, 84%, 60%);
+}
+
+body.sepia-mode {
+  --bg-color: hsl(45, 56%, 94%);
+  --text-color: hsl(28, 29%, 18%);
+  --header-bg: hsl(45, 29%, 91%);
+  --border-color: hsl(45, 29%, 81%);
+  --column-bg: hsl(45, 26%, 88%);
+  --link-color: hsl(20, 79%, 52%);
+  --hover-bg: hsla(20, 79%, 52%, 0.1);
+  --button-hover: hsl(54, 77%, 75%);
+  --accent-color: hsl(20, 79%, 52%);
+  --success-color: hsl(28, 45%, 34%);
+  --warning-color: hsl(38, 67%, 52%);
+  --error-color: hsl(20, 45%, 52%);
+}
+
+body.aurora-mode {
+  --bg-color: hsl(240, 63%, 7%);
+  --text-color: hsl(190, 100%, 94%);
+  --header-bg: hsl(240, 37%, 13%);
+  --border-color: hsl(240, 43%, 35%);
+  --column-bg: hsla(240, 78%, 32%, 0.5);
+  --link-color: hsl(159, 100%, 67%);
+  --hover-bg: hsla(159, 100%, 67%, 0.2);
+  --button-hover: hsl(240, 37%, 22%);
+  --accent-color: hsl(159, 100%, 67%);
+  --success-color: hsl(120, 100%, 50%);
+  --warning-color: hsl(51, 100%, 50%);
+  --error-color: hsl(9, 100%, 64%);
+}
+
+body.electric-mode {
+  --bg-color: hsl(240, 63%, 15%);
+  --text-color: hsl(218, 27%, 94%);
+  --header-bg: hsl(240, 53%, 20%);
+  --border-color: hsl(231, 48%, 48%);
+  --column-bg: hsl(237, 71%, 29%);
+  --link-color: hsl(56, 94%, 59%);
+  --hover-bg: hsla(56, 94%, 59%, 0.2);
+  --button-hover: hsl(231, 48%, 48%);
+  --accent-color: hsl(56, 94%, 59%);
+  --success-color: hsl(120, 100%, 63%);
+  --warning-color: hsl(36, 100%, 50%);
+  --error-color: hsl(4, 90%, 58%);
+}
+
+body.fireworks-mode {
+  --bg-color: hsl(0, 0%, 10%);
+  --text-color: hsl(0, 0%, 100%);
+  --header-bg: hsl(0, 0%, 18%);
+  --border-color: hsl(0, 0%, 27%);
+  --column-bg: hsla(0, 0%, 23%, 0.8);
+  --link-color: hsl(25, 100%, 59%);
+  --hover-bg: hsla(25, 100%, 59%, 0.2);
+  --button-hover: hsl(55, 100%, 50%);
+  --accent-color: hsl(25, 100%, 59%);
+  --success-color: hsl(120, 61%, 50%);
+  --warning-color: hsl(39, 100%, 50%);
+  --error-color: hsl(14, 100%, 57%);
+}
+
+/* Theme Animations */
+body.fireworks-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: twinkle 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.aurora-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+              linear-gradient(-45deg, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+  background-size: 200% 200%;
+  animation: aurora-flow 15s ease infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes aurora-flow {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+
+@keyframes verseExpand {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes highlightFlash {
+  0% { background-color: var(--accent-color); opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes themeTransition {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--column-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--link-color);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--button-hover);
+}
+
+/* Base Typography and Layout */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Roboto', sans-serif;
+    font-size: calc(var(--font-size-base) * var(--font-size-scale));
+    line-height: 1.6;
+    transition: all var(--transition-speed) ease;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    :root {
+      --header-height: 70px;
+      --font-size-base: 14px;
+    }
+  }
+}
+
+/* Label Effects */
+.label-who { @apply font-bold; }
+.label-what { @apply outline outline-1 shadow-sm; }
+.label-where::before { content: '{'; }
+.label-where::after { content: '}'; }
+.label-when { @apply underline; }
+.label-why { font-family: cursive; }
+.label-action { @apply italic; }
+.label-seed::before { content: '*'; @apply text-xs align-super; }
+.label-harvest::before { content: '='; @apply text-xs align-super; }
+.label-prediction::before { content: '~'; @apply text-xs align-super; }
+
+/* Bible Table Cell Styling */
+.bible-cell {
+  height: var(--row-height-base);
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.bible-cell-content {
+  line-height: 1.4;
+  padding: 8px;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+
+.verse-text {
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Custom scrollbar for cells */
+.bible-cell::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bible-cell::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bible-cell::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.bible-cell::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
