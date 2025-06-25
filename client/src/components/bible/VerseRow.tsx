@@ -132,22 +132,35 @@ export function VerseRow({
         </div>
       </div>
 
-      {/* Strong's Column - Fixed Width */}
-      <div className="w-60 flex-shrink-0 border-r">
-        <div className="h-[120px] overflow-y-auto p-3 text-xs">
-          {verse.strongsWords && verse.strongsWords.length > 0 ? (
-            verse.strongsWords.map((word, index) => (
-              <div key={index} className="mb-2">
-                <div className="font-medium text-purple-600">{word.strongs}</div>
-                <div className="text-sm">{word.original}</div>
-                <div className="text-muted-foreground">{word.definition}</div>
+      {/* Prophecy Column - Only show if enabled */}
+      {preferences.showProphecy && (
+        <div className="w-64 flex-shrink-0 border-r">
+          <div className="h-[120px] overflow-y-auto p-3 text-xs">
+            {verse.prophecy ? (
+              <div className="space-y-2">
+                {verse.prophecy.predictions && verse.prophecy.predictions.length > 0 && (
+                  <div>
+                    <div className="font-medium text-blue-600 dark:text-blue-400 text-xs">Predictions:</div>
+                    {verse.prophecy.predictions.slice(0, 2).map((pred, idx) => (
+                      <div key={idx} className="text-muted-foreground text-xs">{pred.substring(0, 80)}...</div>
+                    ))}
+                  </div>
+                )}
+                {verse.prophecy.fulfillments && verse.prophecy.fulfillments.length > 0 && (
+                  <div>
+                    <div className="font-medium text-green-600 dark:text-green-400 text-xs">Fulfillments:</div>
+                    {verse.prophecy.fulfillments.slice(0, 2).map((ful, idx) => (
+                      <div key={idx} className="text-muted-foreground text-xs">{ful.substring(0, 80)}...</div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))
-          ) : (
-            <span className="text-muted-foreground italic">No Strong's data</span>
-          )}
+            ) : (
+              <span className="text-muted-foreground italic">Loading prophecy data...</span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Additional Translation Columns */}
       {activeTranslations.filter(t => t.id !== 'KJV').map(translation => (
