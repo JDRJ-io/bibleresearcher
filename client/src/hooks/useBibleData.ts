@@ -3,32 +3,256 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
 
-// Load Bible data with immediate fallback and background Supabase loading
+// Load Bible data from your Supabase storage files
 const loadBibleData = async (): Promise<BibleVerse[]> => {
-  console.log('Loading Bible data...');
+  console.log('Loading Bible data from Supabase storage...');
   
-  // Return demonstration data immediately while attempting Supabase in background
-  const demonstrationData = generateExtendedFallbackVerses();
-  
-  // Attempt Supabase loading in background (non-blocking)
-  setTimeout(async () => {
-    try {
-      const { data: testData, error: testError } = await supabase.storage
-        .from('anointed')
-        .list('translations', { limit: 1 });
-      
-      if (!testError && testData) {
-        console.info('Supabase storage accessible, files available:', testData.length);
-        // In production, this would trigger a data refresh
-      } else {
-        console.info('Supabase storage not accessible or empty, using demonstration data');
-      }
-    } catch (error) {
-      console.info('Using demonstration data due to storage configuration');
+  try {
+    // Load KJV as primary translation
+    const { data: kjvData, error: kjvError } = await supabase.storage
+      .from('anointed')
+      .download('translations/KJV.txt');
+    
+    if (kjvError) {
+      console.error('Error loading KJV:', kjvError);
+      return generateExtendedFallbackVerses();
     }
-  }, 100);
+
+    const kjvText = await kjvData.text();
+    console.log('KJV loaded, parsing verses...');
+    const verses = parseTranslationFile(kjvText, 'KJV');
+    
+    // Load additional translations in parallel
+    const translationPromises = ['ESV', 'NIV', 'NKJV', 'NLT', 'AMP', 'CSB', 'BSB', 'NASB', 'YLT', 'WEB', 'NRSV'].map(async (translation) => {
+      try {
+        const { data, error } = await supabase.storage
+          .from('anointed')
+          .download(`translations/${translation}.txt`);
+        
+        if (!error && data) {
+          const text = await data.text();
+          return { translation, text };
+        }
+      } catch (err) {
+        console.warn(`Could not load ${translation}:`, err);
+      }
+      return null;
+    });
+
+    const translationResults = await Promise.all(translationPromises);
+    
+    // Merge loaded translations
+    translationResults.forEach(result => {
+      if (result) {
+        mergeTranslation(verses, result.text, result.translation);
+        console.log(`Merged ${result.translation} translation`);
+      }
+    });
+
+    // Load cross references
+    try {
+      const { data: crossRefData } = await supabase.storage
+        .from('anointed')
+        .download('references/cf1.txt');
+      
+      if (crossRefData) {
+        const crossRefText = await crossRefData.text();
+        mergeCrossReferences(verses, crossRefText);
+        console.log('Cross references loaded');
+      }
+    } catch (err) {
+      console.warn('Could not load cross references:', err);
+    }
+
+    // Load Strong's data
+    try {
+      const { data: strongsData } = await supabase.storage
+        .from('anointed')
+        .download('strongs/strongsVerses.txt');
+      
+      if (strongsData) {
+        const strongsText = await strongsData.text();
+        mergeStrongsData(verses, strongsText);
+        console.log('Strong\'s data loaded');
+      }
+    } catch (err) {
+      console.warn('Could not load Strong\'s data:', err);
+    }
+
+    // Load prophecy data
+    try {
+      const { data: prophecyData } = await supabase.storage
+        .from('anointed')
+        .download('prophecy-file.txt');
+      
+      if (prophecyData) {
+        const prophecyText = await prophecyData.text();
+        mergeProphecyData(verses, prophecyText);
+        console.log('Prophecy data loaded');
+      }
+    } catch (err) {
+      console.warn('Could not load prophecy data:', err);
+    }
+
+    // Load context groups
+    try {
+      const { data: contextData } = await supabase.storage
+        .from('anointed')
+        .download('metadata/context_groups.json');
+      
+      if (contextData) {
+        const contextText = await contextData.text();
+        const contextGroups = JSON.parse(contextText);
+        mergeContextGroups(verses, contextGroups);
+        console.log('Context groups loaded');
+      }
+    } catch (err) {
+      console.warn('Could not load context groups:', err);
+    }
+
+    console.log(`Loaded ${verses.length} verses with translations`);
+    return verses.length > 0 ? verses : generateExtendedFallbackVerses();
+    
+  } catch (error) {
+    console.error('Error loading Bible data:', error);
+    return generateExtendedFallbackVerses();
+  }
+};
+
+const parseTranslationFile = (text: string, translation: string): BibleVerse[] => {
+  const verses: BibleVerse[] = [];
+  const lines = text.split('\n').filter(line => line.trim());
   
-  return demonstrationData;
+  lines.forEach((line) => {
+    // Parse various formats: "Gen 1:1 text" or "Genesis 1:1 text" 
+    const match = line.match(/^(\w+)\s+(\d+):(\d+)\s+(.+)$/);
+    if (match) {
+      const [, book, chapter, verse, verseText] = match;
+      const reference = `${book} ${chapter}:${verse}`;
+      
+      verses.push({
+        id: `${book.toLowerCase()}-${chapter}-${verse}`,
+        book: book,
+        chapter: parseInt(chapter),
+        verse: parseInt(verse),
+        reference,
+        text: { [translation]: verseText.trim() },
+        crossReferences: [],
+        strongsWords: [],
+        labels: [],
+        contextGroup: undefined
+      });
+    }
+  });
+  
+  return verses;
+};
+
+const mergeTranslation = (verses: BibleVerse[], text: string, translation: string) => {
+  const lines = text.split('\n').filter(line => line.trim());
+  
+  lines.forEach(line => {
+    const match = line.match(/^(\w+)\s+(\d+):(\d+)\s+(.+)$/);
+    if (match) {
+      const [, book, chapter, verse, verseText] = match;
+      const verseId = `${book.toLowerCase()}-${chapter}-${verse}`;
+      
+      const existingVerse = verses.find(v => v.id === verseId);
+      if (existingVerse) {
+        existingVerse.text[translation] = verseText.trim();
+      }
+    }
+  });
+};
+
+const mergeCrossReferences = (verses: BibleVerse[], crossRefText: string) => {
+  const lines = crossRefText.split('\n').filter(line => line.trim());
+  
+  lines.forEach(line => {
+    // Parse cross reference format from your files
+    const parts = line.split('\t');
+    if (parts.length >= 2) {
+      const [reference, crossRefs] = parts;
+      const verse = verses.find(v => v.reference.replace(/\s/g, '') === reference.replace(/\s/g, ''));
+      if (verse) {
+        if (!verse.crossReferences) verse.crossReferences = [];
+        
+        // Parse multiple cross references separated by semicolons
+        const refs = crossRefs.split(';').map(ref => ref.trim()).filter(ref => ref);
+        refs.forEach(ref => {
+          verse.crossReferences!.push({
+            reference: ref,
+            text: `Cross reference to ${ref}`
+          });
+        });
+      }
+    }
+  });
+};
+
+const mergeStrongsData = (verses: BibleVerse[], strongsText: string) => {
+  const lines = strongsText.split('\n').filter(line => line.trim());
+  
+  lines.forEach(line => {
+    // Parse Strong's format from your files
+    const parts = line.split('\t');
+    if (parts.length >= 4) {
+      const [reference, original, strongs, definition] = parts;
+      const verse = verses.find(v => v.reference.replace(/\s/g, '') === reference.replace(/\s/g, ''));
+      if (verse) {
+        if (!verse.strongsWords) verse.strongsWords = [];
+        verse.strongsWords.push({
+          original: original.trim(),
+          strongs: strongs.trim(),
+          transliteration: '', // Would need transliteration file
+          definition: definition.trim(),
+          instances: [reference]
+        });
+      }
+    }
+  });
+};
+
+const mergeProphecyData = (verses: BibleVerse[], prophecyText: string) => {
+  const lines = prophecyText.split('\n').filter(line => line.trim());
+  
+  lines.forEach(line => {
+    // Parse prophecy format from your files
+    const parts = line.split('\t');
+    if (parts.length >= 4) {
+      const [reference, type, content, verification] = parts;
+      const verse = verses.find(v => v.reference.replace(/\s/g, '') === reference.replace(/\s/g, ''));
+      if (verse) {
+        if (!verse.prophecy) {
+          verse.prophecy = {
+            predictions: [],
+            fulfillments: [],
+            verifications: []
+          };
+        }
+        
+        if (type.toLowerCase() === 'prediction') {
+          verse.prophecy.predictions?.push(content.trim());
+        } else if (type.toLowerCase() === 'fulfillment') {
+          verse.prophecy.fulfillments?.push(content.trim());
+        } else if (type.toLowerCase() === 'verification') {
+          verse.prophecy.verifications?.push(verification.trim());
+        }
+      }
+    }
+  });
+};
+
+const mergeContextGroups = (verses: BibleVerse[], contextGroups: any) => {
+  Object.keys(contextGroups).forEach(groupName => {
+    const references = contextGroups[groupName];
+    references.forEach((ref: string) => {
+      const verse = verses.find(v => v.reference.replace(/\s/g, '') === ref.replace(/\s/g, ''));
+      if (verse) {
+        verse.contextGroup = groupName;
+      }
+    });
+  });
 };
 
 

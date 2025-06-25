@@ -100,9 +100,27 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - **Production**: `npm run build && npm run start` - builds and serves optimized app
 - **Database**: Drizzle migrations via `npm run db:push`
 
-# Changelog
-- June 25, 2025. Initial setup
+# Recent Changes
+
+## June 25, 2025 - Supabase Integration & Enhanced Bible Interface
+- Connected to user's actual Supabase storage with Bible translation files
+- Implemented fixed row heights (120px) with text wrapping and scrollbars
+- Added comprehensive file loading system for translations, cross-references, Strong's data, and prophecy information
+- Enhanced column layout matching user's reference image specifications
+- Integrated all 12 Bible translations (KJV, ESV, NIV, NKJV, NLT, AMP, CSB, BSB, NASB, YLT, WEB, NRSV)
+- Added prophecy data loading with predictions, fulfillments, and verifications
+- Implemented context groups for verse organization
+- Enhanced Strong's concordance integration with original language support
+
+## Current Status
+- Bible website fully operational with proper column structure
+- Supabase storage integration working with user's actual Bible files
+- All themes functional (light, dark, sepia, aurora, electric, fireworks)
+- User authentication system ready for personal notes and bookmarks
+- Foundation prepared for complete feature implementation per user's blueprint
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+Project focus: Excel-style Bible interface with comprehensive study tools and multi-translation support.
+Data source: User's Supabase storage containing actual Bible translations and reference materials.
