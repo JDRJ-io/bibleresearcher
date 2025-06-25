@@ -89,17 +89,34 @@ export function BibleTable({
     return userHighlights.filter((highlight: Highlight) => highlight.verseRef === verseRef);
   };
 
+  console.log('BibleTable render:', { 
+    versesCount: verses.length, 
+    selectedTranslations: selectedTranslations.length,
+    firstVerse: verses[0] 
+  });
+
+  if (verses.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <div className="text-lg mb-2">No verses loaded</div>
+          <div className="text-sm">Check console for loading details</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-hidden flex flex-col">
       <ColumnHeaders
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
       />
       
-      <ScrollArea className="h-full">
-        <div className="min-w-max">
-          {verses.map((verse) => (
+      <div className="flex-1 overflow-auto">
+        <div className="min-w-full">
+          {verses.slice(0, 100).map((verse) => (
             <VerseRow
               key={verse.id}
               verse={verse}
@@ -115,7 +132,7 @@ export function BibleTable({
             />
           ))}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

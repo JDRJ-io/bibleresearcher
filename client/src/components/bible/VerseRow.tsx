@@ -88,76 +88,101 @@ export function VerseRow({
   };
 
   const activeTranslations = selectedTranslations.filter(t => t.selected);
-
+  
   return (
     <div 
       data-verse-ref={verse.reference}
-      className="grid grid-cols-[80px_1fr_1fr_auto] gap-2 px-4 py-2 border-b hover:bg-muted/50"
+      className="flex min-w-full border-b hover:bg-muted/50"
+      style={{ height: '120px' }}
     >
-      {/* Index */}
-      <div className="text-sm text-muted-foreground flex items-center">
-        {verse.book} {verse.chapter}:{verse.verse}
+      {/* Reference Column - Fixed Width */}
+      <div className="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 text-sm font-medium">
+        {verse.reference}
       </div>
 
-      {/* Verse Column */}
-      <div className="h-[120px] overflow-y-auto border rounded p-2 text-xs">
-        <div className="whitespace-pre-wrap break-words leading-relaxed">
-          {verse.text['KJV'] || (
-            <span className="text-muted-foreground italic">Loading verse...</span>
+      {/* KJV Text Column - Fixed Width */}
+      <div className="w-80 flex-shrink-0 border-r">
+        <div className="h-[120px] overflow-y-auto p-3 text-sm">
+          <div className="whitespace-pre-wrap break-words leading-relaxed">
+            {verse.text['KJV'] || (
+              <span className="text-muted-foreground italic">Loading verse...</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Cross References Column - Fixed Width */}
+      <div className="w-60 flex-shrink-0 border-r">
+        <div className="h-[120px] overflow-y-auto p-3 text-xs">
+          {verse.crossReferences && verse.crossReferences.length > 0 ? (
+            verse.crossReferences.map((ref, index) => (
+              <div key={index} className="mb-2">
+                <button 
+                  onClick={() => onNavigateToVerse(ref.reference)}
+                  className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                >
+                  {ref.reference}
+                </button>
+                <div className="text-muted-foreground break-words mt-1">{ref.text}</div>
+              </div>
+            ))
+          ) : (
+            <span className="text-muted-foreground italic">No cross references</span>
           )}
         </div>
       </div>
 
-      {/* Cross References */}
-      <div className="h-[120px] overflow-y-auto border rounded p-2 text-xs">
-        {verse.crossReferences && verse.crossReferences.length > 0 ? (
-          verse.crossReferences.map((ref, index) => (
-            <div key={index} className="mb-1">
-              <button 
-                onClick={() => onNavigateToVerse(ref.reference)}
-                className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-              >
-                {ref.reference}
-              </button>
-              <div className="text-muted-foreground break-words">{ref.text}</div>
-            </div>
-          ))
-        ) : (
-          <span className="text-muted-foreground italic">No cross references</span>
-        )}
+      {/* Strong's Column - Fixed Width */}
+      <div className="w-60 flex-shrink-0 border-r">
+        <div className="h-[120px] overflow-y-auto p-3 text-xs">
+          {verse.strongsWords && verse.strongsWords.length > 0 ? (
+            verse.strongsWords.map((word, index) => (
+              <div key={index} className="mb-2">
+                <div className="font-medium text-purple-600">{word.strongs}</div>
+                <div className="text-sm">{word.original}</div>
+                <div className="text-muted-foreground">{word.definition}</div>
+              </div>
+            ))
+          ) : (
+            <span className="text-muted-foreground italic">No Strong's data</span>
+          )}
+        </div>
       </div>
 
-      {/* Translation Columns */}
-      <div className="flex gap-2">
-        {selectedTranslations.map(translation => {
-          const verseText = verse.text[translation.id];
-          return (
-            <div key={translation.id} className="min-w-[120px] h-[120px] overflow-y-auto border rounded p-2 text-xs">
-              <div className="whitespace-pre-wrap break-words">
-                {verseText ? (
-                  <span className="leading-relaxed">{verseText}</span>
-                ) : (
-                  <span className="text-muted-foreground italic">No text available</span>
-                )}
-              </div>
+      {/* Additional Translation Columns */}
+      {activeTranslations.filter(t => t.id !== 'KJV').map(translation => (
+        <div key={translation.id} className="w-80 flex-shrink-0 border-r">
+          <div className="h-[120px] overflow-y-auto p-3 text-sm">
+            <div className="whitespace-pre-wrap break-words leading-relaxed">
+              {verse.text[translation.id] ? (
+                verse.text[translation.id]
+              ) : (
+                <span className="text-muted-foreground italic">No {translation.abbreviation} text</span>
+              )}
             </div>
-          );
-        })}
-        
-        {showNotes && (
-          <div className="min-w-[120px] h-[120px] overflow-y-auto border rounded p-2 text-xs">
+          </div>
+        </div>
+      ))}
+      
+      {/* Notes Column */}
+      {showNotes && (
+        <div className="w-60 flex-shrink-0 border-r">
+          <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {userNote ? (
               <div className="whitespace-pre-wrap break-words">{userNote.note}</div>
             ) : (
-              <span className="text-muted-foreground italic">No notes</span>
+              <span className="text-muted-foreground italic">Add notes...</span>
             )}
           </div>
-        )}
-        
-        {showProphecy && (
-          <div className="min-w-[120px] h-[120px] overflow-y-auto border rounded p-2 text-xs">
+        </div>
+      )}
+      
+      {/* Prophecy Column */}
+      {showProphecy && (
+        <div className="w-60 flex-shrink-0">
+          <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {verse.prophecy ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {verse.prophecy.predictions && verse.prophecy.predictions.length > 0 && (
                   <div>
                     <div className="font-medium text-green-600">Predictions:</div>
@@ -179,8 +204,8 @@ export function VerseRow({
               <span className="text-muted-foreground italic">No prophecy data</span>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

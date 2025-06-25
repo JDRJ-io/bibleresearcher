@@ -162,6 +162,13 @@ export default function BiblePage() {
     );
   }
 
+  console.log('BiblePage render:', { 
+    versesCount: verses.length, 
+    filteredCount: filteredVerses.length,
+    isLoading,
+    firstVerse: verses[0]
+  });
+
   return (
     <div 
       className="min-h-screen flex flex-col transition-all duration-300"
