@@ -10,27 +10,26 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy }:
   const activeTranslations = selectedTranslations.filter(t => t.selected);
   
   return (
-    <div className="sticky top-0 z-10 bg-background border-b">
-      <div className="flex min-w-full" style={{ height: '48px' }}>
-        {/* Reference Column Header */}
-        <div className="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 font-semibold text-sm bg-muted/50">
-          Reference
-        </div>
+    <div className="flex min-w-max bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" style={{ height: '48px' }}>
+      {/* Reference Column Header */}
+      <div className="w-24 flex-shrink-0 flex items-center justify-center border-r border-gray-200 dark:border-gray-700 px-2 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+        Reference
+      </div>
 
-        {/* KJV Header */}
-        <div className="w-80 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-muted/50">
-          KJV - King James Version
-        </div>
+      {/* KJV Header */}
+      <div className="w-80 flex-shrink-0 flex items-center px-3 border-r border-gray-200 dark:border-gray-700 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+        KJV - King James Version
+      </div>
 
-        {/* Cross References Header */}
-        <div className="w-60 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-muted/50">
-          Cross References
-        </div>
+      {/* Cross References Header */}
+      <div className="w-60 flex-shrink-0 flex items-center px-3 border-r border-gray-200 dark:border-gray-700 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+        Cross References
+      </div>
 
-        {/* Strong's Header */}
-        <div className="w-60 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-muted/50">
-          Strong's Concordance
-        </div>
+      {/* Strong's Header */}
+      <div className="w-60 flex-shrink-0 flex items-center px-3 border-r border-gray-200 dark:border-gray-700 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+        Strong's Concordance
+      </div>
 
         {/* Additional Translation Headers */}
         {activeTranslations.filter(t => t.id !== 'KJV').map(translation => (

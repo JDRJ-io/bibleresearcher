@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { TopHeader } from '@/components/bible/TopHeader';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { BibleTable } from '@/components/bible/BibleTable';
+import { ColumnHeaders } from '@/components/bible/ColumnHeaders';
 import { ExpandedVerseOverlay } from '@/components/bible/ExpandedVerseOverlay';
 import { AuthModal } from '@/components/bible/AuthModal';
 import { Button } from '@/components/ui/button';

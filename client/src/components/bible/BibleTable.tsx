@@ -108,32 +108,22 @@ export function BibleTable({
   }
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col">
-      <ColumnHeaders
-        selectedTranslations={selectedTranslations}
-        showNotes={preferences.showNotes}
-        showProphecy={preferences.showProphecy}
-      />
-      
-      <div className="flex-1 overflow-auto">
-        <div className="min-w-full">
-          {verses.slice(0, 50).map((verse) => (
-            <VerseRow
-              key={verse.id}
-              verse={verse}
-              selectedTranslations={selectedTranslations}
-              showNotes={preferences.showNotes}
-              showProphecy={preferences.showProphecy}
-              showContext={preferences.showContext}
-              userNote={getUserNoteForVerse(verse.reference)}
-              highlights={getHighlightsForVerse(verse.reference)}
-              onExpandVerse={onExpandVerse}
-              onHighlight={handleHighlight}
-              onNavigateToVerse={onNavigateToVerse}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="h-full min-w-max">
+      {verses.map((verse, index) => (
+        <VerseRow
+          key={verse.id}
+          verse={verse}
+          selectedTranslations={selectedTranslations}
+          showNotes={preferences.showNotes}
+          showProphecy={preferences.showProphecy}
+          showContext={preferences.showContext}
+          userNote={getUserNoteForVerse(verse.reference)}
+          highlights={getHighlightsForVerse(verse.reference)}
+          onExpandVerse={onExpandVerse}
+          onHighlight={handleHighlight}
+          onNavigateToVerse={onNavigateToVerse}
+        />
+      ))}
     </div>
   );
 }
