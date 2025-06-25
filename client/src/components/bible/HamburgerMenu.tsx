@@ -53,7 +53,7 @@ export function HamburgerMenu({
   const { data: bookmarks = [] } = useQuery({
     queryKey: [`/api/users/${user?.id}/bookmarks`],
     enabled: !!user?.id,
-  });
+  }) as { data: BookmarkType[] };
 
   const deleteBmMutation = useMutation({
     mutationFn: async (bookmarkId: number) => {

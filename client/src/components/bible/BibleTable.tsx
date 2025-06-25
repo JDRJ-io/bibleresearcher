@@ -32,6 +32,7 @@ export function BibleTable({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const { data: userNotes = [] } = useQuery({
     queryKey: [`/api/users/${user?.id}/notes`],
