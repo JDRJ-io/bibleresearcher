@@ -72,20 +72,53 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
     // Load KJV translation from Supabase storage
     const { data: kjvData, error: kjvError } = await supabase.storage
       .from('anointed')
-      .download('translations/KJV.txt');
+      .download('translations/kjv/KJV.txt');
     
     if (kjvError) {
-      console.error('Error loading KJV:', kjvError);
-      console.log('Falling back to local data...');
-      return generateFallbackVerses();
+      console.error('Error loading KJV from translations/kjv/KJV.txt:', kjvError);
+      // Try alternative path
+      const { data: kjvData2, error: kjvError2 } = await supabase.storage
+        .from('anointed')
+        .download('translations/KJV.txt');
+      
+      if (kjvError2) {
+        console.error('Error loading KJV from translations/KJV.txt:', kjvError2);
+        return generateFallbackVerses();
+      }
+      
+      const kjvTextData = await kjvData2.text();
+      console.log('KJV loaded from translations/KJV.txt');
+      console.log('Sample KJV content:', kjvTextData.substring(0, 200));
+      const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
+      return finalizeBibleData(verses);
     }
 
     const kjvTextData = await kjvData.text();
-    console.log('KJV translation successfully loaded from Supabase');
+    console.log('KJV loaded from translations/kjv/KJV.txt');
+    console.log('Sample KJV content:', kjvTextData.substring(0, 200));
     
-    console.log('Parsing Bible verses from your files...');
-    const verses = parseTranslationFileWithKeys(kjvTextData, 'KJV', verseKeys);
+    const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
     
+    // Load cross references and Strong's data
+    await loadAdditionalData(verses);
+    
+    console.log(`Successfully loaded ${verses.length} verses from your Supabase files`);
+    
+    if (verses.length === 0) {
+      console.warn('No verses loaded, using fallback data');
+      return generateFallbackVerses();
+    }
+    
+    console.log('Returning verses from loadBibleData:', verses.length);
+    console.log('First 3 verses with text:', verses.slice(0, 3));
+    return verses;
+  } catch (error) {
+    console.error('Error loading Bible data:', error);
+    return generateFallbackVerses();
+  }
+};
+
+const loadAdditionalData = async (verses: BibleVerse[]): Promise<void> => {
     // Load cross references from Supabase
     try {
       const { data: crossRefData } = await supabase.storage
@@ -99,7 +132,6 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
       }
     } catch (err) {
       console.warn('Could not load cross references, adding sample data');
-      addSampleCrossReferences(verses);
     }
 
     // Load Strong's data from Supabase
@@ -116,24 +148,70 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
     } catch (err) {
       console.warn('Could not load Strong\'s data:', err);
     }
+};
 
-    console.log(`Successfully loaded ${verses.length} verses from your Supabase files`);
-    
-    if (verses.length === 0) {
-      console.warn('No verses loaded, using fallback data');
-      const fallbackVerses = generateFallbackVerses();
-      console.log('Generated fallback verses:', fallbackVerses.length);
-      return fallbackVerses;
+const parseActualSupabaseKJV = (content: string, verseKeys: string[]): BibleVerse[] => {
+  console.log(`Parsing actual KJV content with ${verseKeys.length} verse keys`);
+  
+  const verses: BibleVerse[] = [];
+  const lines = content.split('\n').filter(line => line.trim());
+  
+  console.log(`Processing ${lines.length} lines from KJV file`);
+  console.log('First 10 lines:', lines.slice(0, 10));
+  
+  // Create a map for quick text lookup
+  const textMap = new Map<string, string>();
+  
+  lines.forEach((line, index) => {
+    // Pattern: "Gen.1:1#In the beginning God created the heaven and the earth."
+    const match = line.match(/^([^#]+)#(.+)$/);
+    if (match) {
+      const [, reference, text] = match;
+      const cleanRef = reference.trim();
+      const cleanText = text.trim();
+      textMap.set(cleanRef, cleanText);
+      
+      if (index < 5) {
+        console.log(`Parsed line ${index + 1}: ${cleanRef} -> ${cleanText.substring(0, 80)}...`);
+      }
     }
-    
-    console.log('Returning verses from loadBibleData:', verses.length);
-    console.log('First 3 verses:', verses.slice(0, 3));
-    return verses;
-    
-  } catch (error) {
-    console.error('Error loading Bible data:', error);
-    return generateFallbackVerses();
-  }
+  });
+
+  console.log(`Created text map with ${textMap.size} entries from KJV file`);
+  
+  // Now create verses using the verse keys and matching text
+  let versesWithText = 0;
+  verseKeys.forEach((key, index) => {
+    const match = key.match(/^(\w+)\.(\d+):(\d+)$/);
+    if (match) {
+      const [, book, chapter, verse] = match;
+      const reference = `${book} ${chapter}:${verse}`;
+      const verseText = textMap.get(key); // Use exact key match
+      
+      if (verseText) {
+        verses.push({
+          id: `${book.toLowerCase()}-${chapter}-${verse}`,
+          book: book,
+          chapter: parseInt(chapter),
+          verse: parseInt(verse),
+          reference,
+          text: { KJV: verseText },
+          crossReferences: [],
+          strongsWords: [],
+          labels: [],
+          contextGroup: undefined
+        });
+        versesWithText++;
+        
+        if (index < 5) {
+          console.log(`Created verse ${index + 1}: ${reference} -> ${verseText.substring(0, 80)}...`);
+        }
+      }
+    }
+  });
+  
+  console.log(`Generated ${verses.length} verses with actual KJV text from your Supabase files`);
+  return verses;
 };
 
 const generateFallbackVerses = (): BibleVerse[] => {
