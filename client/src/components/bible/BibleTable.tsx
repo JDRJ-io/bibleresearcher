@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { ColumnHeaders } from './ColumnHeaders';
 import { VerseRow } from './VerseRow';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 
 interface BibleTableProps {
@@ -37,12 +36,12 @@ export function BibleTable({
   const { data: userNotes = [] } = useQuery({
     queryKey: [`/api/users/${user?.id}/notes`],
     enabled: !!user?.id,
-  });
+  }) as { data: UserNote[] };
 
   const { data: userHighlights = [] } = useQuery({
     queryKey: [`/api/users/${user?.id}/highlights`],
     enabled: !!user?.id,
-  });
+  }) as { data: Highlight[] };
 
   const createHighlightMutation = useMutation({
     mutationFn: async (highlightData: {
@@ -83,10 +82,12 @@ export function BibleTable({
   };
 
   const getUserNoteForVerse = (verseRef: string): UserNote | undefined => {
+    if (!userNotes || !Array.isArray(userNotes)) return undefined;
     return (userNotes as UserNote[]).find((note: UserNote) => note.verseRef === verseRef);
   };
 
   const getHighlightsForVerse = (verseRef: string): Highlight[] => {
+    if (!userHighlights || !Array.isArray(userHighlights)) return [];
     return (userHighlights as Highlight[]).filter((highlight: Highlight) => highlight.verseRef === verseRef);
   };
 

@@ -33,6 +33,15 @@ export function VerseRow({
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [noteText, setNoteText] = useState(userNote?.note || '');
+  
+  // Create preferences object for consistency
+  const preferences = {
+    showNotes,
+    showProphecy,
+    showContext,
+  };
+
+
 
   const saveNoteMutation = useMutation({
     mutationFn: async ({ verseRef, note }: { verseRef: string; note: string }) => {
@@ -86,8 +95,6 @@ export function VerseRow({
 
     return styledText;
   };
-
-  const activeTranslations = selectedTranslations.filter(t => t.selected);
   
   return (
     <div 
@@ -163,7 +170,7 @@ export function VerseRow({
       )}
 
       {/* Additional Translation Columns */}
-      {activeTranslations.filter(t => t.id !== 'KJV').map(translation => (
+      {selectedTranslations.filter(t => t.selected && t.id !== 'KJV').map(translation => (
         <div key={translation.id} className="w-80 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-y-auto p-3 text-sm">
             <div className="whitespace-pre-wrap break-words leading-relaxed">
