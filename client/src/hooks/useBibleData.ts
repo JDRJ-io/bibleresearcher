@@ -3,13 +3,108 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
 
-// Load complete Bible data with proper fallback
+// Load complete Bible data from your Supabase storage
 const loadBibleData = async (): Promise<BibleVerse[]> => {
-  console.log('Loading Bible data...');
+  console.log('Loading Bible data from Supabase storage...');
   
-  // Since the Supabase bucket requires proper access setup, use fallback verses for now
-  console.log('Using fallback Bible verses with actual content...');
-  return generateFallbackVerses();
+  try {
+    // First, let's check what buckets and files are available
+    console.log('Checking available storage buckets...');
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+    if (bucketsError) {
+      console.error('Error listing buckets:', bucketsError);
+    } else {
+      console.log('Available buckets:', buckets?.map(b => b.name));
+    }
+
+    // Try to list files in the storage
+    const { data: files, error: filesError } = await supabase.storage
+      .from('anointed')
+      .list();
+    
+    if (filesError) {
+      console.error('Error listing files in anointed bucket:', filesError);
+      console.log('Attempting to access files directly...');
+    } else {
+      console.log('Files in anointed bucket:', files?.map(f => f.name));
+    }
+
+    // Load verse keys from Supabase storage
+    const { data: verseKeysData, error: verseKeysError } = await supabase.storage
+      .from('anointed')
+      .download('verseKeys-canonical.json');
+    
+    if (verseKeysError) {
+      console.error('Error loading verse keys:', verseKeysError);
+      console.log('Falling back to local verse structure...');
+      return generateFallbackVerses();
+    }
+
+    const verseKeysText = await verseKeysData.text();
+    const verseKeys: string[] = JSON.parse(verseKeysText);
+    console.log(`Successfully loaded ${verseKeys.length} verse keys from Supabase`);
+
+    // Load KJV translation from Supabase storage
+    const { data: kjvData, error: kjvError } = await supabase.storage
+      .from('anointed')
+      .download('translations/KJV.txt');
+    
+    if (kjvError) {
+      console.error('Error loading KJV:', kjvError);
+      console.log('Falling back to local data...');
+      return generateFallbackVerses();
+    }
+
+    const kjvTextData = await kjvData.text();
+    console.log('KJV translation successfully loaded from Supabase');
+    
+    console.log('Parsing Bible verses from your files...');
+    const verses = parseTranslationFileWithKeys(kjvTextData, 'KJV', verseKeys);
+    
+    // Load cross references from Supabase
+    try {
+      const { data: crossRefData } = await supabase.storage
+        .from('anointed')
+        .download('references/cf1.txt');
+      
+      if (crossRefData) {
+        const crossRefText = await crossRefData.text();
+        mergeCrossReferences(verses, crossRefText);
+        console.log('Cross references loaded from Supabase');
+      }
+    } catch (err) {
+      console.warn('Could not load cross references, adding sample data');
+      addSampleCrossReferences(verses);
+    }
+
+    // Load Strong's data from Supabase
+    try {
+      const { data: strongsData } = await supabase.storage
+        .from('anointed')
+        .download('strongs/strongsVerses.txt');
+      
+      if (strongsData) {
+        const strongsText = await strongsData.text();
+        mergeStrongsData(verses, strongsText);
+        console.log('Strong\'s data loaded from Supabase');
+      }
+    } catch (err) {
+      console.warn('Could not load Strong\'s data:', err);
+    }
+
+    console.log(`Successfully loaded ${verses.length} verses from your Supabase files`);
+    
+    if (verses.length === 0) {
+      console.warn('No verses loaded, using fallback data');
+      return generateFallbackVerses();
+    }
+    
+    return verses;
+    
+  } catch (error) {
+    console.error('Error loading Bible data:', error);
+    return generateFallbackVerses();
+  }
 };
 
 const generateFallbackVerses = (): BibleVerse[] => {
