@@ -1,0 +1,117 @@
+supabase sql
+
+enable rls
+
+-- NOTES
+drop policy if exists notes_select  on public.user_notes;
+drop policy if exists notes_crud    on public.user_notes;
+create policy notes_select
+  on public.user_notes
+  for select using (true);
+create policy notes_crud
+  on public.user_notes
+  for all
+  using  (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- BOOKMARKS
+drop policy if exists bms_select    on public.bookmarks;
+drop policy if exists bms_crud      on public.bookmarks;
+create policy bms_select
+  on public.bookmarks
+  for select using (user_id = auth.uid());
+create policy bms_crud
+  on public.bookmarks
+  for all
+  using  (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- HIGHLIGHTS
+drop policy if exists hl_select     on public.highlights;
+drop policy if exists hl_crud       on public.highlights;
+create policy hl_select
+  on public.highlights
+  for select using (user_id = auth.uid());
+create policy hl_crud
+  on public.highlights
+  for all
+  using  (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- FORUM POSTS
+drop policy if exists forum_read    on public.forum_posts;
+drop policy if exists forum_write   on public.forum_posts;
+create policy forum_read
+  on public.forum_posts
+  for select using (true);
+create policy forum_write
+  on public.forum_posts
+  for all
+  using  (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- FORUM VOTES
+drop policy if exists forum_vote    on public.forum_votes;
+create policy forum_vote
+  on public.forum_votes
+  for all
+  using  (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- PUBLIC READ-ONLY STORAGE
+drop policy if exists anon_read_anointed
+  on storage.objects;
+create policy anon_read_anointed
+  on storage.objects
+  for select
+  using (bucket_id = 'anointed');
+
+forum
+
+create table public.forum_posts (
+  id         bigserial primary key,
+  user_id    uuid references auth.users(id) on delete cascade,
+  body       text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table public.forum_votes (
+  user_id uuid references auth.users(id) on delete cascade,
+  post_id bigint references forum_posts(id) on delete cascade,
+  value   smallint check (value in (1,-1)),
+  primary key (user_id, post_id)
+);
+
+core tables
+
+-- 1. NOTES  (per-user verse notes)
+create table public.user_notes (
+  user_id    uuid references auth.users(id) on delete cascade,
+  verse_ref  text not null,
+  note       text default '',
+  updated_at timestamptz default now(),
+  primary key (user_id, verse_ref)
+);
+
+-- 2. BOOKMARKS  (center index + color)
+create table public.bookmarks (
+  user_id     uuid references auth.users(id) on delete cascade,
+  name        text,
+  index_value integer,
+  color       text default '#f00',
+  primary key (user_id, name)
+);
+
+-- 3. HIGHLIGHTS  (one row per contiguous span)
+create table public.highlights (
+  user_id    uuid references auth.users(id) on delete cascade,
+  verse_ref  text,
+  start_idx  smallint,
+  end_idx    smallint,
+  color      text,
+  primary key (user_id, verse_ref, start_idx)
+);
+
+
+
