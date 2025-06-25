@@ -96,6 +96,8 @@ export function BibleTable({
     firstVerseText: verses[0]?.text?.KJV
   });
 
+  console.log('BibleTable: verses.length =', verses.length);
+  
   if (verses.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">

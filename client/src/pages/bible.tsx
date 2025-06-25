@@ -152,12 +152,12 @@ export default function BiblePage() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || verses.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg">Loading Bible...</div>
-          <div className="text-sm opacity-75 mt-2">Preparing your study session</div>
+          <div className="text-sm opacity-75 mt-2">Loading {verses.length} verses from Supabase</div>
         </div>
       </div>
     );
