@@ -127,26 +127,26 @@ const loadAdditionalData = async (verses: BibleVerse[]): Promise<void> => {
       
       if (crossRefData) {
         const crossRefText = await crossRefData.text();
-        mergeCrossReferences(verses, crossRefText);
+        parseAndMergeCrossReferences(verses, crossRefText);
         console.log('Cross references loaded from Supabase');
       }
     } catch (err) {
-      console.warn('Could not load cross references, adding sample data');
+      console.warn('Could not load cross references');
     }
 
-    // Load Strong's data from Supabase
+    // Load prophecy data from Supabase
     try {
-      const { data: strongsData } = await supabase.storage
+      const { data: prophecyData } = await supabase.storage
         .from('anointed')
-        .download('strongs/strongsVerses.txt');
+        .download('references/prophecy-file.txt');
       
-      if (strongsData) {
-        const strongsText = await strongsData.text();
-        mergeStrongsData(verses, strongsText);
-        console.log('Strong\'s data loaded from Supabase');
+      if (prophecyData) {
+        const prophecyText = await prophecyData.text();
+        parseAndMergeProphecyData(verses, prophecyText);
+        console.log('Prophecy data loaded from Supabase');
       }
     } catch (err) {
-      console.warn('Could not load Strong\'s data:', err);
+      console.warn('Could not load prophecy data:', err);
     }
 };
 
@@ -163,12 +163,13 @@ const parseActualSupabaseKJV = (content: string, verseKeys: string[]): BibleVers
   const textMap = new Map<string, string>();
   
   lines.forEach((line, index) => {
-    // Pattern: "Gen.1:1#In the beginning God created the heaven and the earth."
-    const match = line.match(/^([^#]+)#(.+)$/);
+    // Pattern: "Gen.1:1 #In the beginning God created the heaven and the earth."
+    // Handle both formats: with space before # and without space
+    const match = line.match(/^([^#]+)\s*#(.+)$/);
     if (match) {
       const [, reference, text] = match;
       const cleanRef = reference.trim();
-      const cleanText = text.trim();
+      const cleanText = text.trim().replace(/\r/g, ''); // Remove carriage returns
       textMap.set(cleanRef, cleanText);
       
       if (index < 5) {
