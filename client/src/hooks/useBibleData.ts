@@ -157,31 +157,59 @@ const parseActualSupabaseKJV = (content: string, verseKeys: string[]): BibleVers
   const lines = content.split('\n').filter(line => line.trim());
   
   console.log(`Processing ${lines.length} lines from KJV file`);
-  console.log('First 10 lines:', lines.slice(0, 10));
+  console.log('First 5 lines for parsing test:', lines.slice(0, 5));
+  
+  // Test the exact parsing on first line
+  if (lines.length > 0) {
+    const testLine = lines[0].trim().replace(/\r/g, '');
+    console.log(`Testing first line: "${testLine}"`);
+    const testMatch = testLine.match(/^([^#]+)\s*#(.+)$/);
+    console.log('Test match result:', testMatch ? 'SUCCESS' : 'FAILED');
+    if (testMatch) {
+      console.log('  Reference:', `"${testMatch[1].trim()}"`);
+      console.log('  Text:', `"${testMatch[2].trim()}"`);
+    }
+  }
   
   // Create a map for quick text lookup
   const textMap = new Map<string, string>();
   
   lines.forEach((line, index) => {
+    // Clean the line first
+    const cleanLine = line.trim().replace(/\r/g, '');
+    
     // Pattern: "Gen.1:1 #In the beginning God created the heaven and the earth."
-    // Handle both formats: with space before # and without space
-    const match = line.match(/^([^#]+)\s*#(.+)$/);
+    const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
     if (match) {
       const [, reference, text] = match;
       const cleanRef = reference.trim();
-      const cleanText = text.trim().replace(/\r/g, ''); // Remove carriage returns
+      const cleanText = text.trim();
       textMap.set(cleanRef, cleanText);
       
-      if (index < 5) {
-        console.log(`Parsed line ${index + 1}: ${cleanRef} -> ${cleanText.substring(0, 80)}...`);
+      if (index < 10) {
+        console.log(`✓ Parsed line ${index + 1}: "${cleanRef}" -> "${cleanText.substring(0, 60)}..."`);
       }
+    } else if (index < 10) {
+      console.log(`✗ Failed to parse line ${index + 1}: "${cleanLine}"`);
     }
   });
 
   console.log(`Created text map with ${textMap.size} entries from KJV file`);
   
+  if (textMap.size === 0) {
+    console.error('❌ No entries parsed from KJV file! Check the format.');
+    // Show some sample lines for debugging
+    console.log('Sample lines for debugging:', lines.slice(0, 3));
+    return verses; // Return empty array, will trigger fallback
+  }
+  
+  // Show sample entries from the map
+  console.log('Sample text map entries:', Array.from(textMap.entries()).slice(0, 3));
+  
   // Now create verses using the verse keys and matching text
   let versesWithText = 0;
+  let missingCount = 0;
+  
   verseKeys.forEach((key, index) => {
     const match = key.match(/^(\w+)\.(\d+):(\d+)$/);
     if (match) {
@@ -205,11 +233,18 @@ const parseActualSupabaseKJV = (content: string, verseKeys: string[]): BibleVers
         versesWithText++;
         
         if (index < 5) {
-          console.log(`Created verse ${index + 1}: ${reference} -> ${verseText.substring(0, 80)}...`);
+          console.log(`✓ Created verse ${index + 1}: ${reference} -> ${verseText.substring(0, 60)}...`);
+        }
+      } else {
+        missingCount++;
+        if (index < 5) {
+          console.log(`✗ Missing text for verse ${index + 1}: ${key} (looking for "${key}")`);
         }
       }
     }
   });
+  
+  console.log(`📊 Results: ${versesWithText} verses with text, ${missingCount} missing`);
   
   console.log(`Generated ${verses.length} verses with actual KJV text from your Supabase files`);
   return verses;
