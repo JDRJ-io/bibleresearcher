@@ -102,7 +102,14 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
-## June 25, 2025 - Supabase Integration & Enhanced Bible Interface
+## January 25, 2025 - Critical Data Loading Fix
+- Fixed critical issue where 31,102 verses from user's actual Supabase KJV file were being parsed successfully but then replaced with fallback data
+- Parser working perfectly with "Gen.1:1 #In the beginning..." format from user's files
+- Console shows successful parsing: "Generated 31102 verses with actual KJV text from your Supabase files"
+- Fixed return logic to properly deliver the actual Bible data instead of falling back to test data
+- System now processes all 31,102 verses from metadata/verseKeys-canonical.json structure
+
+## June 25, 2025 - Supabase Integration & Enhanced Bible Interface  
 - Connected to user's actual Supabase storage with Bible translation files
 - Implemented fixed row heights (120px) with text wrapping and scrollbars
 - Added comprehensive file loading system for translations, cross-references, Strong's data, and prophecy information

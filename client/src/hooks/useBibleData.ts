@@ -90,7 +90,18 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
       console.log('KJV loaded from translations/KJV.txt');
       console.log('Sample KJV content:', kjvTextData.substring(0, 200));
       const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
-      return finalizeBibleData(verses);
+      console.log(`PRIMARY PATH: Successfully parsed ${verses.length} verses from your KJV file`);
+      
+      if (verses.length === 0) {
+        console.error('PRIMARY PATH FAILED: No verses created');
+        return generateFallbackVerses();
+      }
+      
+      // Load cross references and additional data
+      await loadAdditionalData(verses);
+      
+      console.log(`PRIMARY PATH SUCCESS: Returning ${verses.length} actual Bible verses from your Supabase files`);
+      return verses;
     }
 
     const kjvTextData = await kjvData.text();
@@ -98,19 +109,17 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
     console.log('Sample KJV content:', kjvTextData.substring(0, 200));
     
     const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
-    
-    // Load cross references and Strong's data
-    await loadAdditionalData(verses);
-    
-    console.log(`Successfully loaded ${verses.length} verses from your Supabase files`);
+    console.log(`FALLBACK PATH: ${verses.length} verses from translations/kjv/KJV.txt`);
     
     if (verses.length === 0) {
-      console.warn('No verses loaded, using fallback data');
+      console.error('CRITICAL: No verses created despite successful parsing');
       return generateFallbackVerses();
     }
     
-    console.log('Returning verses from loadBibleData:', verses.length);
-    console.log('First 3 verses with text:', verses.slice(0, 3));
+    // Load cross references and additional data
+    await loadAdditionalData(verses);
+    
+    console.log(`FALLBACK PATH SUCCESS: Returning ${verses.length} actual Bible verses`);
     return verses;
   } catch (error) {
     console.error('Error loading Bible data:', error);
@@ -246,7 +255,7 @@ const parseActualSupabaseKJV = (content: string, verseKeys: string[]): BibleVers
   
   console.log(`📊 Results: ${versesWithText} verses with text, ${missingCount} missing`);
   
-  console.log(`Generated ${verses.length} verses with actual KJV text from your Supabase files`);
+  console.log(`SUCCESS: Generated ${verses.length} verses with actual KJV text from your Supabase files`);
   return verses;
 };
 
