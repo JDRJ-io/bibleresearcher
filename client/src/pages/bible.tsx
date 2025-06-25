@@ -175,12 +175,13 @@ export default function BiblePage() {
   }
 
   // Show actual verses for debugging
-  console.log('BiblePage RENDER STATE:', { 
+  console.log('BiblePage READY TO RENDER:', { 
     versesCount: verses.length, 
     filteredCount: filteredVerses.length,
     isLoading,
     shouldShowContent: !isLoading && verses.length > 0,
-    firstVerseText: verses[0]?.text?.KJV
+    firstVerseText: verses[0]?.text?.KJV,
+    aboutToRenderContent: true
   });
 
   return (
