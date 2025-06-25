@@ -128,8 +128,8 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 ## Current Status
 - Bible website fully operational with Excel-style layout and fixed 120px row heights
-- Complete Bible loading implemented with all 31,102 verses from user's actual Supabase KJV file
-- Sticky column headers now synchronized with horizontal scrolling for perfect alignment
+- Complete Bible loading implemented with thousands of verses
+- Sticky column headers that remain visible while scrolling
 - Clickable cross-reference navigation with smooth scrolling and highlighting
 - PostgreSQL database configured and ready for user data
 - All themes functional (light, dark, sepia, aurora, electric, fireworks)

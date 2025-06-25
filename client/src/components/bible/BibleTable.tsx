@@ -82,11 +82,11 @@ export function BibleTable({
   };
 
   const getUserNoteForVerse = (verseRef: string): UserNote | undefined => {
-    return (userNotes as UserNote[] || []).find((note: UserNote) => note.verseRef === verseRef);
+    return userNotes.find((note: UserNote) => note.verseRef === verseRef);
   };
 
   const getHighlightsForVerse = (verseRef: string): Highlight[] => {
-    return (userHighlights as Highlight[] || []).filter((highlight: Highlight) => highlight.verseRef === verseRef);
+    return userHighlights.filter((highlight: Highlight) => highlight.verseRef === verseRef);
   };
 
   console.log('BibleTable render:', { 
@@ -96,8 +96,6 @@ export function BibleTable({
     firstVerseText: verses[0]?.text?.KJV
   });
 
-  console.log('BibleTable: verses.length =', verses.length);
-  
   if (verses.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -110,22 +108,32 @@ export function BibleTable({
   }
 
   return (
-    <div className="h-full min-w-max">
-      {verses.map((verse, index) => (
-        <VerseRow
-          key={verse.id}
-          verse={verse}
-          selectedTranslations={selectedTranslations}
-          showNotes={preferences.showNotes}
-          showProphecy={preferences.showProphecy}
-          showContext={preferences.showContext}
-          userNote={getUserNoteForVerse(verse.reference)}
-          highlights={getHighlightsForVerse(verse.reference)}
-          onExpandVerse={onExpandVerse}
-          onHighlight={handleHighlight}
-          onNavigateToVerse={onNavigateToVerse}
-        />
-      ))}
+    <div className="flex-1 overflow-hidden flex flex-col">
+      <ColumnHeaders
+        selectedTranslations={selectedTranslations}
+        showNotes={preferences.showNotes}
+        showProphecy={preferences.showProphecy}
+      />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="min-w-full">
+          {verses.slice(0, 50).map((verse) => (
+            <VerseRow
+              key={verse.id}
+              verse={verse}
+              selectedTranslations={selectedTranslations}
+              showNotes={preferences.showNotes}
+              showProphecy={preferences.showProphecy}
+              showContext={preferences.showContext}
+              userNote={getUserNoteForVerse(verse.reference)}
+              highlights={getHighlightsForVerse(verse.reference)}
+              onExpandVerse={onExpandVerse}
+              onHighlight={handleHighlight}
+              onNavigateToVerse={onNavigateToVerse}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

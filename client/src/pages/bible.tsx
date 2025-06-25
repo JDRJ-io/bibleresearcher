@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { TopHeader } from '@/components/bible/TopHeader';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { BibleTable } from '@/components/bible/BibleTable';
-import { ColumnHeaders } from '@/components/bible/ColumnHeaders';
 import { ExpandedVerseOverlay } from '@/components/bible/ExpandedVerseOverlay';
 import { AuthModal } from '@/components/bible/AuthModal';
 import { Button } from '@/components/ui/button';
@@ -157,32 +156,23 @@ export default function BiblePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg">Loading Bible...</div>
-          <div className="text-sm opacity-75 mt-2">Loading {verses.length} verses from Supabase</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (verses.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg">No Bible Data Found</div>
-          <div className="text-sm opacity-75 mt-2">Please check your Supabase connection</div>
+          <div className="text-sm opacity-75 mt-2">Preparing your study session</div>
         </div>
       </div>
     );
   }
 
   // Show actual verses for debugging
-  console.log('BiblePage READY TO RENDER:', { 
-    versesCount: verses.length, 
-    filteredCount: filteredVerses.length,
-    isLoading,
-    shouldShowContent: !isLoading && verses.length > 0,
-    firstVerseText: verses[0]?.text?.KJV,
-    aboutToRenderContent: true
-  });
+  if (verses.length > 0) {
+    console.log('BiblePage HAS VERSES:', { 
+      versesCount: verses.length, 
+      filteredCount: filteredVerses.length,
+      firstVerse: verses[0],
+      firstVerseText: verses[0]?.text?.KJV
+    });
+  } else {
+    console.log('BiblePage NO VERSES:', { isLoading, versesLength: verses.length });
+  }
 
   return (
     <div 
@@ -215,45 +205,14 @@ export default function BiblePage() {
         onSaveBookmark={handleSaveBookmark}
       />
 
-      <div className="bible-content flex-1 overflow-hidden flex flex-col">
-        {/* Sticky Header */}
-        <div className="sticky-header bg-background border-b shadow-sm z-20">
-          <div 
-            className="header-scroll-container overflow-x-auto scrollbar-hide"
-            ref={(el) => {
-              if (el) {
-                (window as any).headerScrollRef = el;
-              }
-            }}
-          >
-            <ColumnHeaders 
-              selectedTranslations={selectedTranslations}
-              showNotes={preferences.showNotes}
-              showProphecy={preferences.showProphecy}
-            />
-          </div>
-        </div>
-        
-        {/* Main Content */}
-        <div 
-          className="flex-1 overflow-auto"
-          onScroll={(e) => {
-            const scrollLeft = e.currentTarget.scrollLeft;
-            if ((window as any).headerScrollRef) {
-              (window as any).headerScrollRef.scrollLeft = scrollLeft;
-            }
-          }}
-        >
-          <BibleTable
-            verses={filteredVerses}
-            translations={translations}
-            selectedTranslations={selectedTranslations}
-            preferences={preferences}
-            onExpandVerse={expandVerse}
-            onNavigateToVerse={navigateToVerse}
-          />
-        </div>
-      </div>
+      <BibleTable
+        verses={filteredVerses}
+        translations={translations}
+        selectedTranslations={selectedTranslations}
+        preferences={preferences}
+        onExpandVerse={expandVerse}
+        onNavigateToVerse={navigateToVerse}
+      />
 
       <ExpandedVerseOverlay
         verse={expandedVerse}
