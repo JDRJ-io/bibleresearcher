@@ -17,28 +17,56 @@ export default function BiblePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const {
-    verses,
-    translations,
-    isLoading,
-    searchQuery,
-    setSearchQuery,
-    expandedVerse,
-    goBack,
-    goForward,
-    expandVerse,
-    closeExpandedVerse,
-    canGoBack,
-    canGoForward,
-  } = useBibleData();
+  const { data: verses = [], isLoading } = useBibleData();
+  const translations = [
+    { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
+    { id: 'ESV', name: 'English Standard Version', abbreviation: 'ESV', selected: false },
+    { id: 'NIV', name: 'New International Version', abbreviation: 'NIV', selected: false }
+  ];
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedVerse, setExpandedVerse] = useState<any>(null);
+  const [canGoBack, setCanGoBack] = useState(false);
+  const [canGoForward, setCanGoForward] = useState(false);
+
+  const expandVerse = (verse: any) => setExpandedVerse(verse);
+  const closeExpandedVerse = () => setExpandedVerse(null);
+  const goBack = () => console.log('Go back');
+  const goForward = () => console.log('Go forward');
+
+  const navigateToVerse = (reference: string) => {
+    const normalizedRef = reference.replace(/\s+/g, ' ').trim();
+    const element = document.querySelector(`[data-verse-ref="${normalizedRef}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('bg-yellow-200');
+      setTimeout(() => element.classList.remove('bg-yellow-200'), 2000);
+    } else {
+      toast({
+        title: "Verse not found",
+        description: `Could not find ${reference}`,
+        variant: "destructive",
+      });
+    }
+  };
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
   
-  const [selectedTranslations, setSelectedTranslations] = useState<Translation[]>(
-    translations.map(t => ({ ...t, selected: t.id === 'KJV' }))
-  );
+  const [selectedTranslations, setSelectedTranslations] = useState<Translation[]>(translations);
+
+  // Filter verses based on search query
+  const filteredVerses = verses.filter(verse => {
+    if (!searchQuery) return true;
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      verse.reference.toLowerCase().includes(searchLower) ||
+      Object.values(verse.text).some(text => 
+        text.toLowerCase().includes(searchLower)
+      )
+    );
+  });
 
   const [preferences, setPreferences] = useState<AppPreferences>({
     theme: 'light-mode',
@@ -166,11 +194,12 @@ export default function BiblePage() {
       />
 
       <BibleTable
-        verses={verses}
+        verses={filteredVerses}
         translations={translations}
         selectedTranslations={selectedTranslations}
         preferences={preferences}
         onExpandVerse={expandVerse}
+        onNavigateToVerse={navigateToVerse}
       />
 
       <ExpandedVerseOverlay

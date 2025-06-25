@@ -18,6 +18,7 @@ interface BibleTableProps {
     showContext: boolean;
   };
   onExpandVerse: (verse: BibleVerse) => void;
+  onNavigateToVerse: (reference: string) => void;
 }
 
 export function BibleTable({
@@ -26,6 +27,7 @@ export function BibleTable({
   selectedTranslations,
   preferences,
   onExpandVerse,
+  onNavigateToVerse,
 }: BibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -109,6 +111,7 @@ export function BibleTable({
               highlights={getHighlightsForVerse(verse.reference)}
               onExpandVerse={onExpandVerse}
               onHighlight={handleHighlight}
+              onNavigateToVerse={onNavigateToVerse}
             />
           ))}
         </div>

@@ -15,6 +15,7 @@ interface VerseRowProps {
   highlights: Highlight[];
   onExpandVerse: (verse: BibleVerse) => void;
   onHighlight: (verseRef: string, selection: Selection) => void;
+  onNavigateToVerse: (reference: string) => void;
 }
 
 export function VerseRow({
@@ -27,6 +28,7 @@ export function VerseRow({
   highlights,
   onExpandVerse,
   onHighlight,
+  onNavigateToVerse,
 }: VerseRowProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -88,111 +90,97 @@ export function VerseRow({
   const activeTranslations = selectedTranslations.filter(t => t.selected);
 
   return (
-    <>
-      {/* Context Boundary (when enabled) */}
-      {showContext && verse.contextGroup && (
-        <div 
-          className="my-2 mx-4 border-l-4 pl-4 py-2"
-          style={{ 
-            borderColor: 'var(--accent-color)', 
-            backgroundColor: 'var(--hover-bg)' 
-          }}
-        >
-          <div className="text-xs font-medium opacity-75">
-            Context: {verse.contextGroup.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-          </div>
+    <div 
+      data-verse-ref={verse.reference}
+      className="grid grid-cols-[80px_1fr_1fr_auto] gap-2 px-4 py-2 border-b hover:bg-muted/50"
+    >
+      {/* Index */}
+      <div className="text-sm text-muted-foreground flex items-center">
+        {verse.book} {verse.chapter}:{verse.verse}
+      </div>
+
+      {/* Verse Column */}
+      <div className="h-[120px] overflow-y-auto border rounded p-2 text-xs">
+        <div className="whitespace-pre-wrap break-words leading-relaxed">
+          {verse.text['KJV'] || (
+            <span className="text-muted-foreground italic">Loading verse...</span>
+          )}
         </div>
-      )}
-      
-      <div
-        className="flex border-b hover:bg-opacity-50 transition-all duration-200 group min-w-max"
-        style={{ borderColor: 'var(--border-color)', height: 'var(--row-height-base)' }}
-        data-verse-id={verse.id}
-      >
-        {/* Notes Column (when enabled) */}
-        {showNotes && (
-          <div className="w-48 border-r flex-shrink-0 bible-cell" style={{ borderColor: 'var(--border-color)' }}>
-            <div className="bible-cell-content">
-              <Textarea
-                placeholder="Add personal notes..."
-                value={noteText}
-                onChange={(e) => handleNoteChange(e.target.value)}
-                onBlur={handleNoteBlur}
-                className="w-full h-full resize-none border-0 bg-transparent text-sm"
-                style={{ color: 'var(--text-color)' }}
-              />
-            </div>
-          </div>
-        )}
+      </div>
 
-        {/* Index Column */}
-        <div className="w-24 border-r flex items-center justify-center font-medium text-sm flex-shrink-0 bible-cell" style={{ borderColor: 'var(--border-color)' }}>
-          <span style={{ color: 'var(--accent-color)' }}>
-            {verse.reference}
-          </span>
-        </div>
-
-        {/* Verse Text Columns */}
-        {activeTranslations.map((translation) => (
-          <div
-            key={translation.id}
-            className="flex-1 min-w-96 border-r flex-shrink-0 bible-cell"
-            style={{ borderColor: 'var(--border-color)' }}
-          >
-            <div className="bible-cell-content">
-              <div
-                className="verse-text text-sm cursor-pointer select-text"
-                onDoubleClick={handleDoubleClick}
-                onMouseUp={handleMouseUp}
-                dangerouslySetInnerHTML={{
-                  __html: applyLabels(verse.text[translation.id] || '', verse.labels)
-                }}
-              />
+      {/* Cross References */}
+      <div className="h-[120px] overflow-y-auto border rounded p-2 text-xs">
+        {verse.crossReferences && verse.crossReferences.length > 0 ? (
+          verse.crossReferences.map((ref, index) => (
+            <div key={index} className="mb-1">
+              <button 
+                onClick={() => onNavigateToVerse(ref.reference)}
+                className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+              >
+                {ref.reference}
+              </button>
+              <div className="text-muted-foreground break-words">{ref.text}</div>
             </div>
-          </div>
-        ))}
-
-        {/* Cross References Column */}
-        <div className="w-80 border-r flex-shrink-0 bible-cell" style={{ borderColor: 'var(--border-color)' }}>
-          <div className="bible-cell-content">
-            <div className="space-y-1 text-sm w-full">
-              {verse.crossReferences?.map((ref, index) => (
-                <div key={index}>
-                  <div className="text-xs font-medium opacity-75">{ref.reference}</div>
-                  <div className="text-xs leading-relaxed">{ref.text}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Prophecy Columns (when enabled) */}
-        {showProphecy && (
-          <>
-            <div className="w-64 border-r flex-shrink-0 bible-cell" style={{ borderColor: 'var(--border-color)' }}>
-              <div className="bible-cell-content">
-                <div className="text-xs opacity-75 w-full">
-                  {verse.prophecy?.predictions?.join(', ') || ''}
-                </div>
-              </div>
-            </div>
-            <div className="w-64 border-r flex-shrink-0 bible-cell" style={{ borderColor: 'var(--border-color)' }}>
-              <div className="bible-cell-content">
-                <div className="text-xs opacity-75 w-full">
-                  {verse.prophecy?.fulfillments?.join(', ') || ''}
-                </div>
-              </div>
-            </div>
-            <div className="w-64 flex-shrink-0 bible-cell">
-              <div className="bible-cell-content">
-                <div className="text-xs opacity-75 w-full">
-                  {verse.prophecy?.verifications?.join(', ') || ''}
-                </div>
-              </div>
-            </div>
-          </>
+          ))
+        ) : (
+          <span className="text-muted-foreground italic">No cross references</span>
         )}
       </div>
-    </>
+
+      {/* Translation Columns */}
+      <div className="flex gap-2">
+        {selectedTranslations.map(translation => {
+          const verseText = verse.text[translation.id];
+          return (
+            <div key={translation.id} className="min-w-[120px] h-[120px] overflow-y-auto border rounded p-2 text-xs">
+              <div className="whitespace-pre-wrap break-words">
+                {verseText ? (
+                  <span className="leading-relaxed">{verseText}</span>
+                ) : (
+                  <span className="text-muted-foreground italic">No text available</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        
+        {showNotes && (
+          <div className="min-w-[120px] h-[120px] overflow-y-auto border rounded p-2 text-xs">
+            {userNote ? (
+              <div className="whitespace-pre-wrap break-words">{userNote.note}</div>
+            ) : (
+              <span className="text-muted-foreground italic">No notes</span>
+            )}
+          </div>
+        )}
+        
+        {showProphecy && (
+          <div className="min-w-[120px] h-[120px] overflow-y-auto border rounded p-2 text-xs">
+            {verse.prophecy ? (
+              <div className="space-y-1">
+                {verse.prophecy.predictions && verse.prophecy.predictions.length > 0 && (
+                  <div>
+                    <div className="font-medium text-green-600">Predictions:</div>
+                    {verse.prophecy.predictions.map((pred, i) => (
+                      <div key={i} className="text-green-700 break-words">{pred}</div>
+                    ))}
+                  </div>
+                )}
+                {verse.prophecy.fulfillments && verse.prophecy.fulfillments.length > 0 && (
+                  <div>
+                    <div className="font-medium text-blue-600">Fulfillments:</div>
+                    {verse.prophecy.fulfillments.map((ful, i) => (
+                      <div key={i} className="text-blue-700 break-words">{ful}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className="text-muted-foreground italic">No prophecy data</span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

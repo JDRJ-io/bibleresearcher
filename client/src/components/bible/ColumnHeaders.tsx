@@ -1,4 +1,3 @@
-import { Hash, BookOpen, Link, Gem, CheckCircle, IdCard, StickyNote } from 'lucide-react';
 import type { Translation } from '@/types/bible';
 
 interface ColumnHeadersProps {
@@ -9,63 +8,19 @@ interface ColumnHeadersProps {
 
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy }: ColumnHeadersProps) {
   return (
-    <div
-      className="sticky z-20 border-b flex min-w-max"
-      style={{
-        backgroundColor: 'var(--column-bg)',
-        borderColor: 'var(--border-color)',
-        top: 'var(--header-height)',
-      }}
-    >
-      {/* Notes Column Header (when enabled) */}
-      {showNotes && (
-        <div className="w-48 px-4 py-3 border-r font-semibold text-sm flex items-center justify-center">
-          <StickyNote className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-          Notes
-        </div>
-      )}
-
-      {/* Index Column Header */}
-      <div className="w-24 px-4 py-3 border-r font-semibold text-sm flex items-center justify-center">
-        <Hash className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-        Ref
+    <div className="sticky top-0 z-20 grid grid-cols-[80px_1fr_1fr_auto] gap-2 px-4 py-2 bg-background/95 backdrop-blur-sm border-b font-semibold text-sm shadow-sm">
+      <div>Index</div>
+      <div>Verse</div>
+      <div>Cross References</div>
+      <div className="flex gap-2">
+        {selectedTranslations.map(translation => (
+          <div key={translation.id} className="min-w-[120px]">
+            {translation.abbreviation}
+          </div>
+        ))}
+        {showNotes && <div className="min-w-[120px]">Notes</div>}
+        {showProphecy && <div className="min-w-[120px]">Prophecy</div>}
       </div>
-
-      {/* Verse Column Headers (dynamic based on selected translations) */}
-      {selectedTranslations.filter(t => t.selected).map((translation) => (
-        <div
-          key={translation.id}
-          className="flex-1 min-w-96 px-4 py-3 border-r font-semibold text-sm flex items-center justify-center"
-          style={{ borderColor: 'var(--border-color)' }}
-        >
-          <BookOpen className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-          {translation.abbreviation}
-        </div>
-      ))}
-
-      {/* Cross References Header */}
-      <div className="w-80 px-4 py-3 border-r font-semibold text-sm flex items-center justify-center">
-        <Link className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-        Cross Refs
-      </div>
-
-      {/* Prophecy Headers (when enabled) */}
-      {showProphecy && (
-        <>
-          <div className="w-64 px-4 py-3 border-r font-semibold text-sm flex items-center justify-center">
-            <Gem className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-            Predictions
-          </div>
-          <div className="w-64 px-4 py-3 border-r font-semibold text-sm flex items-center justify-center">
-            <CheckCircle className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-            Fulfillments
-          </div>
-          <div className="w-64 px-4 py-3 font-semibold text-sm flex items-center justify-center">
-            <IdCard className="w-4 h-4 mr-2" style={{ color: 'var(--accent-color)' }} />
-            Verifications
-          </div>
-        </>
-      )}
     </div>
   );
 }
