@@ -206,14 +206,45 @@ export default function BiblePage() {
         onSaveBookmark={handleSaveBookmark}
       />
 
-      <BibleTable
-        verses={filteredVerses}
-        translations={translations}
-        selectedTranslations={selectedTranslations}
-        preferences={preferences}
-        onExpandVerse={expandVerse}
-        onNavigateToVerse={navigateToVerse}
-      />
+      <div className="bible-content flex-1 overflow-hidden flex flex-col">
+        {/* Sticky Header */}
+        <div className="sticky-header bg-background border-b shadow-sm z-20">
+          <div 
+            className="header-scroll-container overflow-x-auto scrollbar-hide"
+            ref={(el) => {
+              if (el) {
+                (window as any).headerScrollRef = el;
+              }
+            }}
+          >
+            <ColumnHeaders 
+              selectedTranslations={selectedTranslations}
+              showNotes={preferences.showNotes}
+              showProphecy={preferences.showProphecy}
+            />
+          </div>
+        </div>
+        
+        {/* Main Content */}
+        <div 
+          className="flex-1 overflow-auto"
+          onScroll={(e) => {
+            const scrollLeft = e.currentTarget.scrollLeft;
+            if ((window as any).headerScrollRef) {
+              (window as any).headerScrollRef.scrollLeft = scrollLeft;
+            }
+          }}
+        >
+          <BibleTable
+            verses={filteredVerses}
+            translations={translations}
+            selectedTranslations={selectedTranslations}
+            preferences={preferences}
+            onExpandVerse={expandVerse}
+            onNavigateToVerse={navigateToVerse}
+          />
+        </div>
+      </div>
 
       <ExpandedVerseOverlay
         verse={expandedVerse}

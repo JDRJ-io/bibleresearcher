@@ -92,11 +92,11 @@ export function VerseRow({
   return (
     <div 
       data-verse-ref={verse.reference}
-      className="flex min-w-full border-b hover:bg-muted/50"
+      className="flex min-w-max border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
       style={{ height: '120px' }}
     >
       {/* Reference Column - Fixed Width */}
-      <div className="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 text-sm font-medium">
+      <div className="w-24 flex-shrink-0 flex items-center justify-center border-r border-gray-200 dark:border-gray-700 px-2 text-sm font-medium text-gray-600 dark:text-gray-400">
         {verse.reference}
       </div>
 

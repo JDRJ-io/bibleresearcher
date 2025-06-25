@@ -31,27 +31,26 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy }:
         Strong's Concordance
       </div>
 
-        {/* Additional Translation Headers */}
-        {activeTranslations.filter(t => t.id !== 'KJV').map(translation => (
-          <div key={translation.id} className="w-80 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-muted/50">
-            {translation.abbreviation} - {translation.name}
-          </div>
-        ))}
-        
-        {/* Notes Header */}
-        {showNotes && (
-          <div className="w-60 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-muted/50">
-            Personal Notes
-          </div>
-        )}
-        
-        {/* Prophecy Header */}
-        {showProphecy && (
-          <div className="w-60 flex-shrink-0 flex items-center px-3 font-semibold text-sm bg-muted/50">
-            Prophecy & Fulfillment
-          </div>
-        )}
-      </div>
+      {/* Additional Translation Headers */}
+      {activeTranslations.filter(t => t.id !== 'KJV').map(translation => (
+        <div key={translation.id} className="w-80 flex-shrink-0 flex items-center px-3 border-r border-gray-200 dark:border-gray-700 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+          {translation.abbreviation} - {translation.name}
+        </div>
+      ))}
+      
+      {/* Notes Header */}
+      {showNotes && (
+        <div className="w-60 flex-shrink-0 flex items-center px-3 border-r border-gray-200 dark:border-gray-700 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+          Personal Notes
+        </div>
+      )}
+      
+      {/* Prophecy Header */}
+      {showProphecy && (
+        <div className="w-60 flex-shrink-0 flex items-center px-3 border-r border-gray-200 dark:border-gray-700 font-semibold text-sm bg-gray-100 dark:bg-gray-700">
+          Prophecy & Fulfillment
+        </div>
+      )}
     </div>
   );
 }

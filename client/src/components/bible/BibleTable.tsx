@@ -82,11 +82,11 @@ export function BibleTable({
   };
 
   const getUserNoteForVerse = (verseRef: string): UserNote | undefined => {
-    return userNotes.find((note: UserNote) => note.verseRef === verseRef);
+    return (userNotes as UserNote[] || []).find((note: UserNote) => note.verseRef === verseRef);
   };
 
   const getHighlightsForVerse = (verseRef: string): Highlight[] => {
-    return userHighlights.filter((highlight: Highlight) => highlight.verseRef === verseRef);
+    return (userHighlights as Highlight[] || []).filter((highlight: Highlight) => highlight.verseRef === verseRef);
   };
 
   console.log('BibleTable render:', { 
