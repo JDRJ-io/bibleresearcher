@@ -152,7 +152,7 @@ export default function BiblePage() {
     });
   };
 
-  if (isLoading || verses.length === 0) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -163,17 +163,25 @@ export default function BiblePage() {
     );
   }
 
-  // Show actual verses for debugging
-  if (verses.length > 0) {
-    console.log('BiblePage HAS VERSES:', { 
-      versesCount: verses.length, 
-      filteredCount: filteredVerses.length,
-      firstVerse: verses[0],
-      firstVerseText: verses[0]?.text?.KJV
-    });
-  } else {
-    console.log('BiblePage NO VERSES:', { isLoading, versesLength: verses.length });
+  if (verses.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg">No Bible Data Found</div>
+          <div className="text-sm opacity-75 mt-2">Please check your Supabase connection</div>
+        </div>
+      </div>
+    );
   }
+
+  // Show actual verses for debugging
+  console.log('BiblePage RENDER STATE:', { 
+    versesCount: verses.length, 
+    filteredCount: filteredVerses.length,
+    isLoading,
+    shouldShowContent: !isLoading && verses.length > 0,
+    firstVerseText: verses[0]?.text?.KJV
+  });
 
   return (
     <div 
