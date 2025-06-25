@@ -4,10 +4,9 @@ interface ColumnHeadersProps {
   selectedTranslations: Translation[];
   showNotes: boolean;
   showProphecy: boolean;
-  showContext: boolean;
 }
 
-export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, showContext }: ColumnHeadersProps) {
+export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy }: ColumnHeadersProps) {
   const activeTranslations = selectedTranslations.filter(t => t.selected);
   
   return (
