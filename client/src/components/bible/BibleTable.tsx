@@ -90,6 +90,11 @@ export function BibleTable({
     return userHighlights.filter((highlight: Highlight) => highlight.verseRef === verseRef);
   };
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollLeft = e.currentTarget.scrollLeft;
+    setScrollLeft(scrollLeft);
+  };
+
   console.log('BibleTable render:', { 
     versesCount: verses.length, 
     selectedTranslations: selectedTranslations.length,
@@ -129,13 +134,14 @@ export function BibleTable({
               key={verse.id}
               verse={verse}
               selectedTranslations={selectedTranslations}
-              preferences={preferences}
-              userNote={getNoteForVerse(verse.reference)}
+              showNotes={preferences.showNotes}
+              showProphecy={preferences.showProphecy}
+              showContext={preferences.showContext}
+              userNote={getUserNoteForVerse(verse.reference)}
               highlights={getHighlightsForVerse(verse.reference)}
               onExpandVerse={onExpandVerse}
               onHighlight={handleHighlight}
               onNavigateToVerse={onNavigateToVerse}
-              index={index}
             />
           ))}
         </div>
