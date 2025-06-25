@@ -162,12 +162,17 @@ export default function BiblePage() {
     );
   }
 
-  console.log('BiblePage render:', { 
-    versesCount: verses.length, 
-    filteredCount: filteredVerses.length,
-    isLoading,
-    firstVerse: verses[0]
-  });
+  // Show actual verses for debugging
+  if (verses.length > 0) {
+    console.log('BiblePage HAS VERSES:', { 
+      versesCount: verses.length, 
+      filteredCount: filteredVerses.length,
+      firstVerse: verses[0],
+      firstVerseText: verses[0]?.text?.KJV
+    });
+  } else {
+    console.log('BiblePage NO VERSES:', { isLoading, versesLength: verses.length });
+  }
 
   return (
     <div 

@@ -121,9 +121,13 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
     
     if (verses.length === 0) {
       console.warn('No verses loaded, using fallback data');
-      return generateFallbackVerses();
+      const fallbackVerses = generateFallbackVerses();
+      console.log('Generated fallback verses:', fallbackVerses.length);
+      return fallbackVerses;
     }
     
+    console.log('Returning verses from loadBibleData:', verses.length);
+    console.log('First 3 verses:', verses.slice(0, 3));
     return verses;
     
   } catch (error) {
@@ -436,11 +440,18 @@ export function useBibleData() {
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [expandedVerse, setExpandedVerse] = useState<BibleVerse | null>(null);
 
-  const { data: verses = [], isLoading } = useQuery({
+  const { data: verses = [], isLoading, error } = useQuery({
     queryKey: ['/api/bible/verses'],
     queryFn: loadBibleData,
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  console.log('useBibleData hook:', { 
+    versesCount: verses.length, 
+    isLoading, 
+    error,
+    firstVerse: verses[0] 
   });
 
   const { data: translations = [] } = useQuery({
@@ -454,7 +465,7 @@ export function useBibleData() {
       // Random verse functionality
       return Math.random() < 0.1; // Show ~10% of verses randomly
     }
-    return verse.text.KJV.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    return verse.text.KJV?.toLowerCase().includes(searchQuery.toLowerCase()) ||
            verse.reference.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -483,19 +494,20 @@ export function useBibleData() {
   };
 
   return {
-    verses: filteredVerses,
-    translations,
+    data: verses, // Return all verses - BiblePage expects 'data' property
     isLoading,
+    translations,
     searchQuery,
     setSearchQuery,
     currentVerseIndex,
+    setCurrentVerseIndex,
     expandedVerse,
+    expandVerse,
+    closeExpandedVerse: () => setExpandedVerse(null),
     goToVerse,
     goBack,
     goForward,
-    expandVerse,
-    closeExpandedVerse,
     canGoBack: currentVerseIndex > 0,
-    canGoForward: currentVerseIndex < filteredVerses.length - 1,
+    canGoForward: currentVerseIndex < verses.length - 1,
   };
 }

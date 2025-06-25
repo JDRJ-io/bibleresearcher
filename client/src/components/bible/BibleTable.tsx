@@ -92,15 +92,16 @@ export function BibleTable({
   console.log('BibleTable render:', { 
     versesCount: verses.length, 
     selectedTranslations: selectedTranslations.length,
-    firstVerse: verses[0] 
+    firstVerse: verses[0],
+    firstVerseText: verses[0]?.text?.KJV
   });
 
   if (verses.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center text-muted-foreground">
-          <div className="text-lg mb-2">No verses loaded</div>
-          <div className="text-sm">Check console for loading details</div>
+          <div className="text-lg mb-2">Loading Bible verses...</div>
+          <div className="text-sm">Your Supabase data is being processed</div>
         </div>
       </div>
     );
@@ -116,7 +117,7 @@ export function BibleTable({
       
       <div className="flex-1 overflow-auto">
         <div className="min-w-full">
-          {verses.slice(0, 100).map((verse) => (
+          {verses.slice(0, 50).map((verse) => (
             <VerseRow
               key={verse.id}
               verse={verse}
