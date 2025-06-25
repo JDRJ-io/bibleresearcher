@@ -29,15 +29,40 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
       console.log('Files in anointed bucket:', files?.map(f => f.name));
     }
 
-    // Load verse keys from Supabase storage
-    const { data: verseKeysData, error: verseKeysError } = await supabase.storage
+    // Check metadata folder for verse keys
+    const { data: metadataFiles, error: metadataError } = await supabase.storage
       .from('anointed')
-      .download('verseKeys-canonical.json');
+      .list('metadata');
     
-    if (verseKeysError) {
-      console.error('Error loading verse keys:', verseKeysError);
-      console.log('Falling back to local verse structure...');
-      return generateFallbackVerses();
+    console.log('Files in metadata folder:', metadataFiles?.map(f => f.name));
+
+    // Try loading verse keys from metadata folder
+    let verseKeysData, verseKeysError;
+    
+    // Try different possible locations for verse keys
+    const possiblePaths = [
+      'metadata/verseKeys-canonical.json',
+      'verseKeys-canonical.json',
+      'metadata/verseKeys.json'
+    ];
+    
+    for (const path of possiblePaths) {
+      const result = await supabase.storage.from('anointed').download(path);
+      if (!result.error) {
+        verseKeysData = result.data;
+        console.log(`Found verse keys at: ${path}`);
+        break;
+      } else {
+        console.log(`Verse keys not found at: ${path}`);
+      }
+    }
+    
+    if (!verseKeysData) {
+      console.error('Could not find verse keys file in any location');
+      console.log('Loading from attached file structure...');
+      // Use the verse keys from your attached file
+      const verseKeys = await loadVerseKeysFromAttached();
+      return await loadBibleWithKeys(verseKeys);
     }
 
     const verseKeysText = await verseKeysData.text();
@@ -154,6 +179,8 @@ const generateFallbackVerses = (): BibleVerse[] => {
     }
   });
 
+  addSampleCrossReferences(verses);
+  console.log(`Generated ${verses.length} fallback verses`);
   return verses;
 };
 
