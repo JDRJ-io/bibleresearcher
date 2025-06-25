@@ -5,6 +5,9 @@ import {
   type ForumPost, type InsertForumPost, type ForumVote, type InsertForumVote,
   type UserPreferences, type InsertUserPreferences
 } from "@shared/schema";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // User management
@@ -266,4 +269,166 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Initialize database connection
+const connectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_Lzti68bNZocj@ep-jolly-violet-a6br36sf.us-west-2.aws.neon.tech:5432/neondb?sslmode=require";
+const sql = neon(connectionString);
+const db = drizzle(sql);
+
+export class PostgreSQLStorage implements IStorage {
+  // User management
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  // User notes
+  async getUserNotes(userId: string): Promise<UserNote[]> {
+    return await db.select().from(userNotes).where(eq(userNotes.userId, userId));
+  }
+
+  async getUserNoteByVerse(userId: string, verseRef: string): Promise<UserNote | undefined> {
+    const result = await db.select().from(userNotes)
+      .where(and(eq(userNotes.userId, userId), eq(userNotes.verseRef, verseRef)))
+      .limit(1);
+    return result[0];
+  }
+
+  async createUserNote(insertNote: InsertUserNote): Promise<UserNote> {
+    const result = await db.insert(userNotes).values(insertNote).returning();
+    return result[0];
+  }
+
+  async updateUserNote(id: number, note: string): Promise<UserNote> {
+    const result = await db.update(userNotes)
+      .set({ note, updatedAt: new Date() })
+      .where(eq(userNotes.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteUserNote(id: number): Promise<void> {
+    await db.delete(userNotes).where(eq(userNotes.id, id));
+  }
+
+  // Bookmarks
+  async getUserBookmarks(userId: string): Promise<Bookmark[]> {
+    return await db.select().from(bookmarks).where(eq(bookmarks.userId, userId));
+  }
+
+  async createBookmark(insertBookmark: InsertBookmark): Promise<Bookmark> {
+    const result = await db.insert(bookmarks).values(insertBookmark).returning();
+    return result[0];
+  }
+
+  async deleteBookmark(id: number): Promise<void> {
+    await db.delete(bookmarks).where(eq(bookmarks.id, id));
+  }
+
+  // Highlights
+  async getUserHighlights(userId: string): Promise<Highlight[]> {
+    return await db.select().from(highlights).where(eq(highlights.userId, userId));
+  }
+
+  async getHighlightsByVerse(userId: string, verseRef: string): Promise<Highlight[]> {
+    return await db.select().from(highlights)
+      .where(and(eq(highlights.userId, userId), eq(highlights.verseRef, verseRef)));
+  }
+
+  async createHighlight(insertHighlight: InsertHighlight): Promise<Highlight> {
+    const result = await db.insert(highlights).values(insertHighlight).returning();
+    return result[0];
+  }
+
+  async deleteHighlight(id: number): Promise<void> {
+    await db.delete(highlights).where(eq(highlights.id, id));
+  }
+
+  // Forum
+  async getForumPosts(): Promise<ForumPost[]> {
+    return await db.select().from(forumPosts);
+  }
+
+  async getForumPost(id: number): Promise<ForumPost | undefined> {
+    const result = await db.select().from(forumPosts).where(eq(forumPosts.id, id)).limit(1);
+    return result[0];
+  }
+
+  async createForumPost(insertPost: InsertForumPost): Promise<ForumPost> {
+    const result = await db.insert(forumPosts).values(insertPost).returning();
+    return result[0];
+  }
+
+  async updateForumPost(id: number, title: string, body: string): Promise<ForumPost> {
+    const result = await db.update(forumPosts)
+      .set({ title, body, updatedAt: new Date() })
+      .where(eq(forumPosts.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteForumPost(id: number): Promise<void> {
+    await db.delete(forumPosts).where(eq(forumPosts.id, id));
+  }
+
+  // Forum votes
+  async getForumVotes(postId: number): Promise<ForumVote[]> {
+    return await db.select().from(forumVotes).where(eq(forumVotes.postId, postId));
+  }
+
+  async getUserVote(userId: string, postId: number): Promise<ForumVote | undefined> {
+    const result = await db.select().from(forumVotes)
+      .where(and(eq(forumVotes.userId, userId), eq(forumVotes.postId, postId)))
+      .limit(1);
+    return result[0];
+  }
+
+  async createForumVote(insertVote: InsertForumVote): Promise<ForumVote> {
+    const result = await db.insert(forumVotes).values(insertVote).returning();
+    return result[0];
+  }
+
+  async updateForumVote(id: number, value: number): Promise<ForumVote> {
+    const result = await db.update(forumVotes)
+      .set({ value })
+      .where(eq(forumVotes.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteForumVote(id: number): Promise<void> {
+    await db.delete(forumVotes).where(eq(forumVotes.id, id));
+  }
+
+  // User preferences
+  async getUserPreferences(userId: string): Promise<UserPreferences | undefined> {
+    const result = await db.select().from(userPreferences)
+      .where(eq(userPreferences.userId, userId))
+      .limit(1);
+    return result[0];
+  }
+
+  async createUserPreferences(insertPreferences: InsertUserPreferences): Promise<UserPreferences> {
+    const result = await db.insert(userPreferences).values(insertPreferences).returning();
+    return result[0];
+  }
+
+  async updateUserPreferences(userId: string, updates: Partial<UserPreferences>): Promise<UserPreferences> {
+    const result = await db.update(userPreferences)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userPreferences.userId, userId))
+      .returning();
+    return result[0];
+  }
+}
+
+export const storage = new PostgreSQLStorage();
