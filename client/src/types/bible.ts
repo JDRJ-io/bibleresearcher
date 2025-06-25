@@ -81,6 +81,13 @@ export interface AppPreferences {
   lastVersePosition?: string;
   columnLayout?: string;
   layoutLocked: boolean;
+  crossRefSet: 'cf1' | 'cf2';
+  enabledLabels: string[];
+}
+
+export interface NavigationHistory {
+  history: string[];
+  currentIndex: number;
 }
 
 export interface SearchHistory {

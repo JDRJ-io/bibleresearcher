@@ -1,300 +1,275 @@
 import { useState } from 'react';
+import { Settings, X, Book, Tag, Eye, Lock, RotateCcw, Bookmark, User, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Book, Tags, Settings, Layout, Bookmark, Plus, 
-  Lock, RotateCcw, MessageSquare, LogOut, LogIn, UserPlus 
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import type { Translation, Bookmark as BookmarkType } from '@/types/bible';
+import { Translation } from '@/types/bible';
 
 interface HamburgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  onShowAuth: () => void;
-  onShowForum: () => void;
   translations: Translation[];
-  onTranslationToggle: (translationId: string) => void;
+  selectedTranslations: Translation[];
+  onTranslationToggle: (translation: Translation) => void;
   preferences: {
     showNotes: boolean;
     showProphecy: boolean;
     showContext: boolean;
     layoutLocked: boolean;
+    crossRefSet: 'cf1' | 'cf2';
   };
-  onPreferenceChange: (key: string, value: boolean) => void;
-  onResetLayout: () => void;
-  onSaveBookmark: () => void;
+  onPreferenceChange: (key: string, value: any) => void;
+  onReset: () => void;
+  onAuthClick: () => void;
+  isAuthenticated: boolean;
+  userBookmarks: any[];
+  onBookmarkSelect: (bookmark: any) => void;
 }
 
 export function HamburgerMenu({
   isOpen,
   onClose,
-  onShowAuth,
-  onShowForum,
   translations,
+  selectedTranslations,
   onTranslationToggle,
   preferences,
   onPreferenceChange,
-  onResetLayout,
-  onSaveBookmark,
+  onReset,
+  onAuthClick,
+  isAuthenticated,
+  userBookmarks,
+  onBookmarkSelect
 }: HamburgerMenuProps) {
-  const { user, isLoggedIn, signOut } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: bookmarks = [] } = useQuery({
-    queryKey: [`/api/users/${user?.id}/bookmarks`],
-    enabled: !!user?.id,
-  });
-
-  const deleteBmMutation = useMutation({
-    mutationFn: async (bookmarkId: number) => {
-      await apiRequest('DELETE', `/api/bookmarks/${bookmarkId}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/bookmarks`] });
-      toast({ title: "Bookmark deleted successfully" });
-    },
-  });
-
-  const labels = [
-    { id: 'who', name: 'Who (Bold)' },
-    { id: 'what', name: 'What (Outline)' },
-    { id: 'where', name: 'Where {Brackets}' },
-    { id: 'when', name: 'When (Underline)' },
-    { id: 'why', name: 'Why (Handwritten)' },
-    { id: 'action', name: 'Action (Italics)' },
-    { id: 'seed', name: 'Seed (*prefix)' },
-    { id: 'harvest', name: 'Harvest (=prefix)' },
-    { id: 'prediction', name: 'Prediction (~prefix)' },
-  ];
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const toggleSection = (section: string) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose}>
       <div 
-        className="fixed top-16 right-4 w-80 max-w-sm rounded-xl shadow-2xl border max-h-[90vh] overflow-auto"
-        style={{ 
-          backgroundColor: 'var(--header-bg)', 
-          borderColor: 'var(--border-color)' 
-        }}
+        className="fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-900 shadow-xl transform transition-transform duration-300 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 space-y-6">
-          
-          {/* Translation Settings */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
-              <Book className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
-              Translations
-            </h3>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {translations.map((translation) => (
-                <div key={translation.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={translation.id}
-                    checked={translation.selected}
-                    onCheckedChange={() => onTranslationToggle(translation.id)}
-                  />
-                  <Label htmlFor={translation.id} className="text-sm cursor-pointer">
-                    {translation.name} ({translation.abbreviation})
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Settings
+          </h2>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
 
-          <Separator />
-
-          {/* Labels & Effects */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
-              <Tags className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
-              Labels & Effects
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {labels.map((label) => (
-                <div key={label.id} className="flex items-center space-x-2">
-                  <Checkbox id={label.id} />
-                  <Label htmlFor={label.id} className="cursor-pointer text-xs">
-                    {label.name}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Extra Details */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
-              <Settings className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
-              Extra Details
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Cross References</Label>
-                <Checkbox defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Prophecy Columns</Label>
-                <Checkbox
-                  checked={preferences.showProphecy}
-                  onCheckedChange={(checked) => onPreferenceChange('showProphecy', !!checked)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Personal Notes</Label>
-                <Checkbox
-                  checked={preferences.showNotes}
-                  onCheckedChange={(checked) => onPreferenceChange('showNotes', !!checked)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Context Boundaries</Label>
-                <Checkbox
-                  checked={preferences.showContext}
-                  onCheckedChange={(checked) => onPreferenceChange('showContext', !!checked)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Layout Controls */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
-              <Layout className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
-              Layout
-            </h3>
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() => onPreferenceChange('layoutLocked', !preferences.layoutLocked)}
-              >
-                <Lock className="w-4 h-4 mr-1" />
-                {preferences.layoutLocked ? 'Unlock' : 'Lock'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={onResetLayout}
-              >
-                <RotateCcw className="w-4 h-4 mr-1" />
-                Reset
-              </Button>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Bookmarks */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
-              <Bookmark className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
-              Bookmarks
-            </h3>
-            <ScrollArea className="max-h-32">
-              <div className="space-y-1">
-                {bookmarks.map((bookmark: BookmarkType) => (
-                  <div
-                    key={bookmark.id}
-                    className="flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-200"
-                    style={{ backgroundColor: 'var(--column-bg)' }}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: bookmark.color }}
-                      />
-                      <span className="text-sm">{bookmark.name}</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0"
-                      onClick={() => deleteBmMutation.mutate(bookmark.id)}
-                    >
-                      ×
-                    </Button>
+        <div className="p-4 space-y-4">
+          {/* Translations Section */}
+          <div className="space-y-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-between"
+              onClick={() => toggleSection('translations')}
+            >
+              <span className="flex items-center gap-2">
+                <Book className="w-4 h-4" />
+                Translations ({selectedTranslations.length})
+              </span>
+            </Button>
+            
+            {expandedSection === 'translations' && (
+              <div className="pl-6 space-y-2 max-h-48 overflow-y-auto">
+                {translations.map((translation) => (
+                  <div key={translation.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={translation.id}
+                      checked={selectedTranslations.some(t => t.id === translation.id)}
+                      onCheckedChange={() => onTranslationToggle(translation)}
+                    />
+                    <Label htmlFor={translation.id} className="text-sm">
+                      {translation.name} ({translation.abbreviation})
+                    </Label>
                   </div>
                 ))}
               </div>
-            </ScrollArea>
-            <Button
-              variant="default"
-              size="sm"
-              className="w-full"
-              onClick={onSaveBookmark}
-              disabled={!isLoggedIn}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Save Current Position
-            </Button>
+            )}
           </div>
 
-          <Separator />
-
-          {/* Authentication */}
-          <div className="space-y-3">
-            {!isLoggedIn ? (
-              <div className="flex space-x-2">
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="flex-1"
-                  onClick={onShowAuth}
-                >
-                  <LogIn className="w-4 h-4 mr-1" />
-                  Sign In
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={onShowAuth}
-                >
-                  <UserPlus className="w-4 h-4 mr-1" />
-                  Sign Up
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={onShowForum}
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Community Forum
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={signOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
+          {/* Labels Section */}
+          <div className="space-y-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-between"
+              onClick={() => toggleSection('labels')}
+            >
+              <span className="flex items-center gap-2">
+                <Tag className="w-4 h-4" />
+                Labels
+              </span>
+            </Button>
+            
+            {expandedSection === 'labels' && (
+              <div className="pl-6 space-y-2">
+                {['who', 'what', 'where', 'when', 'why', 'action', 'seed', 'harvest', 'prediction'].map((label) => (
+                  <div key={label} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={label}
+                      checked={false} // TODO: Connect to state
+                    />
+                    <Label htmlFor={label} className="text-sm capitalize">
+                      {label}
+                    </Label>
+                  </div>
+                ))}
               </div>
             )}
           </div>
+
+          {/* Extra Details Section */}
+          <div className="space-y-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-between"
+              onClick={() => toggleSection('details')}
+            >
+              <span className="flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Extra Details
+              </span>
+            </Button>
+            
+            {expandedSection === 'details' && (
+              <div className="pl-6 space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showNotes"
+                    checked={preferences.showNotes}
+                    onCheckedChange={(checked) => onPreferenceChange('showNotes', checked)}
+                  />
+                  <Label htmlFor="showNotes" className="text-sm">Notes Column</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showProphecy"
+                    checked={preferences.showProphecy}
+                    onCheckedChange={(checked) => onPreferenceChange('showProphecy', checked)}
+                  />
+                  <Label htmlFor="showProphecy" className="text-sm">Prophecy Columns</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="showContext"
+                    checked={preferences.showContext}
+                    onCheckedChange={(checked) => onPreferenceChange('showContext', checked)}
+                  />
+                  <Label htmlFor="showContext" className="text-sm">Context Boundaries</Label>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm">Cross Reference Set</Label>
+                  <Select 
+                    value={preferences.crossRefSet}
+                    onValueChange={(value) => onPreferenceChange('crossRefSet', value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cf1">Cross References 1</SelectItem>
+                      <SelectItem value="cf2">Cross References 2</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Layout Controls */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="layoutLocked"
+                checked={preferences.layoutLocked}
+                onCheckedChange={(checked) => onPreferenceChange('layoutLocked', checked)}
+              />
+              <Label htmlFor="layoutLocked" className="text-sm flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Lock Layout
+              </Label>
+            </div>
+            
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={onReset}
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset to Default
+            </Button>
+          </div>
+
+          {/* Bookmarks Section */}
+          {isAuthenticated && (
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                className="w-full justify-between"
+                onClick={() => toggleSection('bookmarks')}
+              >
+                <span className="flex items-center gap-2">
+                  <Bookmark className="w-4 h-4" />
+                  Bookmarks ({userBookmarks.length})
+                </span>
+              </Button>
+              
+              {expandedSection === 'bookmarks' && (
+                <div className="pl-6 space-y-2 max-h-32 overflow-y-auto">
+                  {userBookmarks.map((bookmark) => (
+                    <Button
+                      key={bookmark.id}
+                      variant="ghost"
+                      className="w-full justify-start text-sm"
+                      onClick={() => onBookmarkSelect(bookmark)}
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: bookmark.color }}
+                      />
+                      {bookmark.name}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Authentication */}
+          <div className="pt-4 border-t">
+            <Button
+              variant={isAuthenticated ? "outline" : "default"}
+              className="w-full justify-start"
+              onClick={onAuthClick}
+            >
+              <User className="w-4 h-4 mr-2" />
+              {isAuthenticated ? 'Profile' : 'Sign In / Sign Up'}
+            </Button>
+          </div>
+
+          {/* Forum Access */}
+          {isAuthenticated && (
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Community Forum
+            </Button>
+          )}
         </div>
       </div>
     </div>
