@@ -109,28 +109,33 @@ export function BibleTable({
   }
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col">
-      <ColumnHeaders
+    <div className="flex-1 flex flex-col h-full relative">
+      <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
+        showContext={preferences.showContext}
+        scrollLeft={scrollLeft}
       />
       
-      <div className="flex-1 overflow-auto">
-        <div className="min-w-full">
-          {verses.slice(0, 50).map((verse) => (
+      <div 
+        className="flex-1 overflow-auto"
+        style={{ height: 'calc(100vh - 112px)', marginTop: '48px' }}
+        onScroll={handleScroll}
+      >
+        <div className="min-w-max">
+          {verses.map((verse, index) => (
             <VerseRow
               key={verse.id}
               verse={verse}
               selectedTranslations={selectedTranslations}
-              showNotes={preferences.showNotes}
-              showProphecy={preferences.showProphecy}
-              showContext={preferences.showContext}
-              userNote={getUserNoteForVerse(verse.reference)}
+              preferences={preferences}
+              userNote={getNoteForVerse(verse.reference)}
               highlights={getHighlightsForVerse(verse.reference)}
               onExpandVerse={onExpandVerse}
               onHighlight={handleHighlight}
               onNavigateToVerse={onNavigateToVerse}
+              index={index}
             />
           ))}
         </div>

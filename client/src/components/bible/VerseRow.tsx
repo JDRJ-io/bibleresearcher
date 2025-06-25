@@ -178,7 +178,7 @@ export function VerseRow({
       ))}
       
       {/* Notes Column */}
-      {showNotes && (
+      {preferences.showNotes && (
         <div className="w-60 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {userNote ? (
