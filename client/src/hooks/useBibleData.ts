@@ -925,21 +925,33 @@ export function useBibleData() {
           console.warn('KJV file access limited, using placeholder system');
         }
         
-        // Use the existing data structure we already have
-        const verseKeys = data.map(verse => `${verse.book}.${verse.chapter}:${verse.verse}`);
+        // Extract canonical verse keys from the loaded data for proper KJV text population
+        const canonicalVerseKeys = data.map(verse => {
+          // Convert to the exact format used in your KJV file: "Gen.1:1"
+          return `${verse.book}.${verse.chapter}:${verse.verse}`;
+        });
         
-        // Replace placeholder data with full Bible text
-        const fullBibleWithText = await createFullBibleWithHeights(verseKeys);
+        console.log(`📝 Extracted ${canonicalVerseKeys.length} canonical verse keys for KJV text loading`);
+        console.log(`First 5 keys: ${canonicalVerseKeys.slice(0, 5).join(', ')}`);
+        
+        // Replace placeholder data with full Bible text using canonical keys
+        const fullBibleWithText = await createFullBibleWithHeights(canonicalVerseKeys);
         
         // Set full verse index for navigation
         setVerses(fullBibleWithText);
         
-        // Load initial verse range around the beginning
+        // Load initial verse range around the beginning  
         const initialCenter = Math.min(10, fullBibleWithText.length - 1);
         loadVerseRange(fullBibleWithText, initialCenter);
         
-        // Ensure verses are updated with actual KJV text
-        setDisplayVerses(fullBibleWithText.slice(0, Math.min(5, fullBibleWithText.length)));
+        // Test verse loading at different Bible locations
+        console.log(`📍 Testing verse locations:`);
+        console.log(`Genesis 1:1 (index 0): ${fullBibleWithText[0]?.text?.KJV?.substring(0, 50)}...`);
+        console.log(`Genesis 1:10 (index 9): ${fullBibleWithText[9]?.text?.KJV?.substring(0, 50)}...`);
+        const midPoint = Math.floor(fullBibleWithText.length / 2);
+        console.log(`Mid-Bible (index ${midPoint}): ${fullBibleWithText[midPoint]?.reference} - ${fullBibleWithText[midPoint]?.text?.KJV?.substring(0, 50)}...`);
+        const endPoint = fullBibleWithText.length - 1;
+        console.log(`Revelation 22:21 (index ${endPoint}): ${fullBibleWithText[endPoint]?.reference} - ${fullBibleWithText[endPoint]?.text?.KJV?.substring(0, 50)}...`);
         
         console.log('✓ Bible study platform ready!', {
           totalVerses: data.length,
