@@ -497,11 +497,12 @@ const mockTranslations: Translation[] = [
 
 export function useBibleData() {
   const [isLoading, setIsLoading] = useState(true);
-  const [verses, setVerses] = useState<BibleVerse[]>([]);
-  const [displayVerses, setDisplayVerses] = useState<BibleVerse[]>([]);
+  const [verses, setVerses] = useState<BibleVerse[]>([]); // Full verse index for navigation
+  const [displayVerses, setDisplayVerses] = useState<BibleVerse[]>([]); // Currently rendered verses
+  const [loadedVerseRanges, setLoadedVerseRanges] = useState<Set<number>>(new Set()); // Track loaded verse ranges
+  const [centerVerseIndex, setCenterVerseIndex] = useState(0); // Current center position
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [expandedVerse, setExpandedVerse] = useState<BibleVerse | null>(null);
   const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
@@ -509,6 +510,11 @@ export function useBibleData() {
     stage: 'initializing',
     percentage: 0
   });
+  const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
+
+  // Virtual scrolling constants
+  const VERSE_BUFFER = 200; // Load 200 verses above and below visible area
+  const VISIBLE_RANGE = 50; // Approximate verses visible on screen
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
@@ -534,10 +540,62 @@ export function useBibleData() {
     setMultiTranslationMode(!multiTranslationMode);
   };
 
+  // Load verses for a specific range with smooth animation
+  const loadVerseRange = (allVerses: BibleVerse[], centerIndex: number) => {
+    const startIndex = Math.max(0, centerIndex - VERSE_BUFFER);
+    const endIndex = Math.min(allVerses.length - 1, centerIndex + VERSE_BUFFER);
+    
+    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${centerIndex}, total: ${allVerses.length})`);
+    
+    // Get the verse range
+    const newVerses = allVerses.slice(startIndex, endIndex + 1);
+    
+    // Set display verses immediately for smooth experience
+    setDisplayVerses(newVerses);
+    setCenterVerseIndex(centerIndex);
+    
+    console.log(`✓ Loaded ${newVerses.length} verses around index ${centerIndex}`);
+    return newVerses;
+  };
+
   const { data: translations = [] } = useQuery({
     queryKey: ['/api/bible/translations'],
     queryFn: () => Promise.resolve(mockTranslations),
   });
+
+  // Scroll-based dynamic loading for smooth experience
+  useEffect(() => {
+    if (!verses.length) return;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Calculate approximate verse position based on scroll
+      const scrollProgress = scrollY / (documentHeight - windowHeight);
+      const estimatedVerseIndex = Math.floor(scrollProgress * verses.length);
+      
+      // Load new range if we've scrolled significantly from center
+      const currentDistance = Math.abs(estimatedVerseIndex - centerVerseIndex);
+      if (currentDistance > VISIBLE_RANGE) {
+        loadVerseRange(verses, estimatedVerseIndex);
+      }
+    };
+
+    // Throttle scroll events for performance
+    let scrollTimeout: NodeJS.Timeout;
+    const throttledScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleScroll, 150);
+    };
+
+    window.addEventListener('scroll', throttledScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', throttledScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [verses.length, centerVerseIndex]);
 
   // Load Bible data on mount
   useEffect(() => {
@@ -562,16 +620,17 @@ export function useBibleData() {
         
         setLoadingProgress({ stage: 'complete', percentage: 100 });
         
-        // Set verses and display verses
+        // Set full verse index for navigation
         setVerses(data);
-        const initialDisplayVerses = data.slice(0, 50);
-        setDisplayVerses(initialDisplayVerses);
+        
+        // Load initial verse range around the beginning
+        const initialCenter = Math.min(10, data.length - 1);
+        loadVerseRange(data, initialCenter);
         
         console.log('✓ Bible study platform ready!', {
-          versesCount: data.length,
-          displayCount: initialDisplayVerses.length,
-          isLoading: false,
-          error: null,
+          totalVerses: data.length,
+          displayedVerses: data.slice(0, Math.min(VERSE_BUFFER * 2, data.length)).length,
+          centerIndex: initialCenter,
           firstVerse: data[0]
         });
         
@@ -613,28 +672,54 @@ export function useBibleData() {
     if (targetVerse) {
       console.log('Found target verse in dataset:', targetVerse);
       
-      // Update display verses to show context around the target verse
+      // Get the target verse index for dynamic loading
       const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
-      const startIndex = Math.max(0, targetIndex - 25); // Show 25 verses before
-      const endIndex = Math.min(verses.length, targetIndex + 26); // Show 25 verses after + target
-      const contextVerses = verses.slice(startIndex, endIndex);
       
-      console.log(`Loading context: verses ${startIndex}-${endIndex} (${contextVerses.length} verses)`);
-      setDisplayVerses(contextVerses);
+      // Load 200 verses around the target with smooth animation
+      loadVerseRange(verses, targetIndex);
       
-      // Scroll to the verse after the display updates
+      // Aesthetic scroll and highlight - like keys rising into harmony
       setTimeout(() => {
         const verseElement = document.querySelector(`[data-verse-ref="${normalizedRef}"]`);
         if (verseElement) {
+          // Smooth scroll to center the verse
           verseElement.scrollIntoView({ 
             behavior: 'smooth', 
-            block: 'center' 
+            block: 'center',
+            inline: 'nearest'
           });
-          // Add highlight effect
-          verseElement.classList.add('bg-yellow-100', 'dark:bg-yellow-900');
+          
+          // Aesthetic highlight animation - subtle and memorable
+          verseElement.classList.add(
+            'bg-gradient-to-r', 
+            'from-amber-50', 
+            'to-orange-50', 
+            'dark:from-amber-900/30', 
+            'dark:to-orange-900/30',
+            'border-l-4', 
+            'border-amber-400',
+            'transform', 
+            'transition-all', 
+            'duration-700',
+            'ease-out'
+          );
+          
+          // Remove highlight after gentle delay
           setTimeout(() => {
-            verseElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900');
-          }, 2000);
+            verseElement.classList.remove(
+              'bg-gradient-to-r', 
+              'from-amber-50', 
+              'to-orange-50', 
+              'dark:from-amber-900/30', 
+              'dark:to-orange-900/30',
+              'border-l-4', 
+              'border-amber-400',
+              'transform', 
+              'transition-all', 
+              'duration-700',
+              'ease-out'
+            );
+          }, 2500);
         }
       }, 200);
     } else {
