@@ -982,7 +982,7 @@ export function useBibleData() {
       return skeletonVerses;
     };
 
-    // 3. Single high-priority fetch with cancellation
+    // FIX 1: Fire fetch first, clear later - NO BLANK SCREENS
     const loadAround = async (idx: number) => {
       currentRequestId++;
       const requestId = currentRequestId;
@@ -990,40 +990,33 @@ export function useBibleData() {
       const start = Math.max(idx - 200, 0);
       const end = Math.min(idx + 200, verses.length - 1);
       
-      // 2. Immediate skeleton display - never blank viewport
-      const skeletonVerses = createSkeletonRows(start, end);
-      setDisplayVerses(skeletonVerses);
-      setCenterVerseIndex(idx);
-      
-      console.log(`⚡ Instant skeleton: anchor=${idx}, range=[${start}, ${end}]`);
-      
-      // 3. Defer all non-critical work with fallback
-      const deferWork = (callback: () => void) => {
-        if (typeof requestIdleCallback !== 'undefined') {
-          requestIdleCallback(callback);
-        } else {
-          setTimeout(callback, 0);
-        }
-      };
-      
-      deferWork(() => {
-        if (requestId === currentRequestId) {
-          console.log('Non-critical tasks deferred');
-        }
-      });
+      console.time(`fetch-${requestId}`);
       
       try {
-        // High-priority hydration fetch
+        // FIX 1: Start fetch IMMEDIATELY, keep old content visible
         const rangeVerses = verses.slice(start, end + 1);
-        const versesWithText = await loadVerseTextForRange(rangeVerses);
+        const fetchPromise = loadVerseTextForRange(rangeVerses);
         
-        // Cancel if stale
-        if (requestId !== currentRequestId) {
-          console.log(`Cancelled stale hydration ${requestId}`);
-          return;
+        // FIX 1: Show skeleton WHILE keeping old content, no DOM clear
+        const skeletonVerses = createSkeletonRows(start, end);
+        
+        // Only update if this is still the current request
+        if (requestId === currentRequestId) {
+          console.log(`⚡ Skeleton ready: anchor=${idx}, keeping old content visible`);
+          // Keep old verses visible until new ones arrive
         }
         
-        // 4. Rolling buffer - keep ±250, drop outside nodes
+        // FIX 2: Wait for fetch, then swap atomically
+        const versesWithText = await fetchPromise;
+        console.timeEnd(`fetch-${requestId}`);
+        
+        // FIX 3: Cancel if stale request (clean cancellation)
+        if (requestId !== currentRequestId) {
+          console.log(`✗ Cancelled stale request ${requestId}`);
+          return null; // Clean cancellation, no DOM work
+        }
+        
+        // FIX 2: Atomic swap - replace content only when new data is ready
         const memoryStart = Math.max(0, idx - 250);
         const memoryEnd = Math.min(verses.length - 1, idx + 250);
         const bufferedVerses = versesWithText.filter((_, vidx) => {
@@ -1031,20 +1024,14 @@ export function useBibleData() {
           return globalIdx >= memoryStart && globalIdx <= memoryEnd;
         });
         
-        // Hydrate skeleton with real content
+        // NOW update DOM with real content (atomic swap)
         setDisplayVerses(bufferedVerses);
-        console.log(`Hydrated ${bufferedVerses.length} verses for anchor ${idx}`);
-        
-        // 5. Smart prefetch - schedule next slice with fallback
-        deferWork(() => {
-          if (requestId === currentRequestId) {
-            console.log('Ready for smart prefetch');
-          }
-        });
+        setCenterVerseIndex(idx);
+        console.log(`✓ Swapped ${bufferedVerses.length} verses for anchor ${idx} [${start}-${end}]`);
         
       } catch (error) {
         if (requestId === currentRequestId) {
-          console.error('Hydration failed:', error);
+          console.error(`✗ Fetch failed for request ${requestId}:`, error);
         }
       }
     };
@@ -1053,39 +1040,41 @@ export function useBibleData() {
 
 
 
+    // FIX 3: Optimized scroll handling with immediate response
     let scrollTimer: NodeJS.Timeout;
+    let lastAnchor = -1;
+    
     const handleScroll = () => {
-      // Clear previous timer
       clearTimeout(scrollTimer);
       
-      // Use immediate loading for instant response
       const anchor = getAnchor();
-      if (anchor >= 0 && anchor < verses.length) {
+      
+      // Only load if anchor changed significantly (avoid redundant requests)
+      if (anchor >= 0 && anchor < verses.length && Math.abs(anchor - lastAnchor) > 5) {
+        lastAnchor = anchor;
         loadAround(anchor);
       }
       
-      // Also set a backup timer for scrollbar dragging
+      // Backup timer for scrollbar dragging
       scrollTimer = setTimeout(() => {
         const newAnchor = getAnchor();
-        if (newAnchor >= 0 && newAnchor < verses.length && newAnchor !== anchor) {
+        if (newAnchor >= 0 && newAnchor < verses.length && newAnchor !== lastAnchor) {
+          lastAnchor = newAnchor;
           loadAround(newAnchor);
         }
       }, 100);
     };
 
-    // Handle all scroll events including scrollbar dragging
+    // Handle all navigation methods
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scrollend', handleScroll, { passive: true });
     
-    // Handle scroll end events for scrollbar dragging
-    window.addEventListener('scrollend', () => {
-      const anchor = getAnchor();
-      if (anchor >= 0 && anchor < verses.length) {
-        loadAround(anchor);
-      }
-    }, { passive: true });
-    
-    // Initial instant load
-    handleScroll();
+    // Initial load
+    const initialAnchor = getAnchor();
+    if (initialAnchor >= 0 && initialAnchor < verses.length) {
+      lastAnchor = initialAnchor;
+      loadAround(initialAnchor);
+    }
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
