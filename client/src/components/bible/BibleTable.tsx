@@ -177,6 +177,7 @@ export function BibleTable({
               <VerseRow
                 key={verse.id}
                 verse={verse}
+                verseIndex={index}
                 selectedTranslations={selectedTranslations}
                 showNotes={preferences.showNotes}
                 showProphecy={preferences.showProphecy}

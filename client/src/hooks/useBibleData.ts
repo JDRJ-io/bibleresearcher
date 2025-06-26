@@ -770,9 +770,9 @@ export function useBibleData() {
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
-  const VIEWPORT_BUFFER = 100; // Keep 100 verses above and below viewport (200 total) for smooth scrolling
-  const INSTANT_JUMP_BUFFER = 50; // When jumping far, load 50 verses around target first
-  const SCROLL_THRESHOLD = 30; // Load more verses when within 30 verses of buffer edge
+  const VIEWPORT_BUFFER = 200; // Keep 200 verses above and below viewport (400 total) for smooth scrolling
+  const INSTANT_JUMP_BUFFER = 200; // When jumping far, load 200 verses around target first
+  const SCROLL_THRESHOLD = 60; // Load more verses when within 30 verses of buffer edge
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
@@ -939,58 +939,85 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // High-precision scroll synchronization for mobile and fast scrolling
+  // Anchor-based viewport tracking for accurate verse loading
   useEffect(() => {
     if (!verses.length || !displayVerses.length) return;
 
     let isScrolling = false;
-    let lastScrollUpdate = 0;
+    let lastAnchorIndex = -1;
 
-    const handleScroll = () => {
-      const now = Date.now();
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
+    const findViewportAnchor = () => {
+      // Find the verse element that's roughly centered in the viewport
+      const viewportCenter = window.scrollY + (window.innerHeight / 2);
       
-      // Calculate precise scroll position within virtual Bible space
-      const scrollableHeight = documentHeight - windowHeight;
-      if (scrollableHeight <= 0) return;
-      
-      const scrollProgress = Math.max(0, Math.min(1, scrollY / scrollableHeight));
-      const targetVerseIndex = Math.floor(scrollProgress * verses.length);
-      
-      // Immediate loading for fast scrolling (mobile flicks, scrollbar drags)
-      const scrollSpeed = Math.abs(targetVerseIndex - centerVerseIndex);
-      const isRapidScroll = scrollSpeed > 50 || (now - lastScrollUpdate < 50);
-      
-      if (isRapidScroll) {
-        // For rapid scrolling: load immediately at exact target position
-        console.log(`Fast scroll detected: jumping to index ${targetVerseIndex}`);
-        loadVerseRange(verses, targetVerseIndex);
-        lastScrollUpdate = now;
-        return;
-      }
-      
-      // Normal scrolling: check buffer boundaries
-      const currentDisplayStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
-      const currentDisplayEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
-      
-      const distanceFromStart = targetVerseIndex - currentDisplayStart;
-      const distanceFromEnd = currentDisplayEnd - targetVerseIndex;
-      
-      // Load new content when approaching buffer edges
-      if (distanceFromStart < SCROLL_THRESHOLD || distanceFromEnd < SCROLL_THRESHOLD) {
-        const newCenter = Math.max(0, Math.min(verses.length - 1, targetVerseIndex));
-        if (Math.abs(newCenter - centerVerseIndex) > 5) {
-          console.log(`Buffer edge loading: center ${centerVerseIndex} -> ${newCenter}`);
-          loadVerseRange(verses, newCenter);
+      // Get all verse elements currently in DOM
+      const verseElements = document.querySelectorAll('[data-verse-index]');
+      if (verseElements.length === 0) return -1;
+
+      let closestElement: Element | null = null;
+      let closestDistance = Infinity;
+
+      verseElements.forEach(element => {
+        const rect = element.getBoundingClientRect();
+        const elementCenter = window.scrollY + rect.top + (rect.height / 2);
+        const distance = Math.abs(elementCenter - viewportCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestElement = element;
+        }
+      });
+
+      if (closestElement) {
+        const dataAttr = (closestElement as HTMLElement).dataset.verseIndex;
+        if (dataAttr) {
+          const verseIndex = parseInt(dataAttr);
+          return verseIndex;
         }
       }
-      
-      lastScrollUpdate = now;
+
+      return -1;
     };
 
-    // Use requestAnimationFrame for smooth scroll tracking
+    const handleScroll = () => {
+      const currentAnchor = findViewportAnchor();
+      
+      if (currentAnchor === -1 || currentAnchor === lastAnchorIndex) {
+        return; // No valid anchor or anchor hasn't changed
+      }
+
+      // Map display verse index back to full verses array index
+      const firstDisplayIndex = displayVerses.length > 0 ? 
+        verses.findIndex(v => v.id === displayVerses[0].id) : 0;
+      
+      const actualVerseIndex = firstDisplayIndex + currentAnchor;
+      
+      console.log(`📍 Anchor changed: display[${currentAnchor}] -> verse[${actualVerseIndex}] (${verses[actualVerseIndex]?.reference})`);
+      
+      // Check if we need to load a new window around this anchor
+      const currentWindowStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
+      const currentWindowEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
+      
+      // Load new window if anchor is outside current buffer or near edges
+      const bufferEdgeThreshold = VIEWPORT_BUFFER * 0.3; // 30% of buffer size
+      const distanceFromStart = actualVerseIndex - currentWindowStart;
+      const distanceFromEnd = currentWindowEnd - actualVerseIndex;
+      
+      console.log(`📊 Buffer analysis: center=${centerVerseIndex}, window=[${currentWindowStart}-${currentWindowEnd}], anchor=${actualVerseIndex}, distances=[${distanceFromStart}, ${distanceFromEnd}], threshold=${bufferEdgeThreshold}`);
+      
+      if (distanceFromStart < bufferEdgeThreshold || 
+          distanceFromEnd < bufferEdgeThreshold || 
+          actualVerseIndex < currentWindowStart || 
+          actualVerseIndex > currentWindowEnd) {
+        
+        console.log(`🔄 Loading new window around anchor ${actualVerseIndex} (${verses[actualVerseIndex]?.reference})`);
+        loadVerseRange(verses, actualVerseIndex);
+      }
+      
+      lastAnchorIndex = currentAnchor;
+    };
+
+    // Use requestAnimationFrame for smooth anchor tracking
     const smoothScrollHandler = () => {
       if (!isScrolling) {
         isScrolling = true;

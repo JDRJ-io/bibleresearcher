@@ -7,6 +7,7 @@ import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible
 
 interface VerseRowProps {
   verse: BibleVerse;
+  verseIndex: number;
   selectedTranslations: Translation[];
   showNotes: boolean;
   showProphecy: boolean;
@@ -20,6 +21,7 @@ interface VerseRowProps {
 
 export function VerseRow({
   verse,
+  verseIndex,
   selectedTranslations,
   showNotes,
   showProphecy,
@@ -100,6 +102,7 @@ export function VerseRow({
     <div 
       id={`verse-${verse.id}`}
       data-verse-ref={verse.reference}
+      data-verse-index={verseIndex}
       className="verse-row flex min-w-full border-b transition-colors duration-200 cursor-pointer"
       style={{ height: '120px' }}
       onDoubleClick={handleDoubleClick}
