@@ -17,7 +17,7 @@ export default function BiblePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const { data: verses = [], isLoading } = useBibleData();
+  const { data: verses = [], isLoading, loadingProgress, navigateToVerse } = useBibleData();
   const translations = [
     { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
     { id: 'ESV', name: 'English Standard Version', abbreviation: 'ESV', selected: false },
@@ -34,21 +34,7 @@ export default function BiblePage() {
   const goBack = () => console.log('Go back');
   const goForward = () => console.log('Go forward');
 
-  const navigateToVerse = (reference: string) => {
-    const normalizedRef = reference.replace(/\s+/g, ' ').trim();
-    const element = document.querySelector(`[data-verse-ref="${normalizedRef}"]`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      element.classList.add('bg-yellow-200');
-      setTimeout(() => element.classList.remove('bg-yellow-200'), 2000);
-    } else {
-      toast({
-        title: "Verse not found",
-        description: `Could not find ${reference}`,
-        variant: "destructive",
-      });
-    }
-  };
+
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -153,10 +139,57 @@ export default function BiblePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg">Loading Bible...</div>
-          <div className="text-sm opacity-75 mt-2">Preparing your study session</div>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="max-w-md w-full p-6">
+          <div className="text-center mb-6">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-4 mx-auto"></div>
+            <h2 className="text-xl font-semibold mb-2">Loading Bible Study Platform</h2>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mb-4">
+            <div className="flex justify-between text-sm text-muted-foreground mb-1">
+              <span>{loadingProgress?.stage || 'Loading...'}</span>
+              <span>{loadingProgress?.progress || 0}%</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2.5">
+              <div 
+                className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${loadingProgress?.progress || 0}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          {/* Feature Details */}
+          <div className="text-center text-sm text-muted-foreground">
+            <p className="mb-2">{loadingProgress?.details || 'Initializing components...'}</p>
+          </div>
+          
+          {/* Features Being Set Up */}
+          <div className="mt-6 text-xs text-muted-foreground">
+            <div className="space-y-1">
+              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 10 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.progress || 0) >= 10 ? '✓' : '○'}</span>
+                Verse structure (31,102 references)
+              </div>
+              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 30 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.progress || 0) >= 30 ? '✓' : '○'}</span>
+                KJV Bible text from Supabase
+              </div>
+              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 60 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.progress || 0) >= 60 ? '✓' : '○'}</span>
+                Cross-references with navigation
+              </div>
+              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 90 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.progress || 0) >= 90 ? '✓' : '○'}</span>
+                Sticky headers and Excel layout
+              </div>
+              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 100 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.progress || 0) >= 100 ? '✓' : '○'}</span>
+                Prophecy data and user features
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

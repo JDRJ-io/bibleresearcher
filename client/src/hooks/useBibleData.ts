@@ -116,8 +116,7 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
       return generateFallbackVerses();
     }
     
-    // Load cross references and additional data
-    await loadAdditionalData(verses);
+    // Cross references will be loaded by the main query function
     
     console.log(`FALLBACK PATH SUCCESS: Returning ${verses.length} actual Bible verses`);
     return verses;
