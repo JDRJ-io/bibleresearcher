@@ -162,8 +162,8 @@ export default function BiblePage() {
     loadingPercentage: loadingProgress?.percentage 
   });
 
-  // Only show loading if we're actually loading AND don't have verses yet
-  const shouldShowLoading = isLoading && verses.length === 0;
+  // Show loading only if we don't have verses yet OR if explicitly loading
+  const shouldShowLoading = isLoading || verses.length === 0;
 
   console.log('Loading condition check:', {
     isLoading,

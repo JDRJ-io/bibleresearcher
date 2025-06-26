@@ -622,10 +622,8 @@ export function useBibleData() {
         // Set verses first, then clear loading state
         setVerses(data);
         
-        // Small delay to ensure UI updates, then clear loading
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 100);
+        // Force immediate state update to clear loading screen
+        setIsLoading(false);
         console.log('✓ Bible study platform ready!', {
           versesCount: data.length,
           isLoading: false,
