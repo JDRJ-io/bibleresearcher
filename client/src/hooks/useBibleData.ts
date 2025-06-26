@@ -3,9 +3,58 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
 
-// Load complete Bible index from Supabase canonical reference
+// Global KJV text map for dynamic verse text loading
+let globalKjvTextMap: Map<string, string> | null = null;
+
+// Load KJV text map once and store globally
+const loadKJVTextMap = async (): Promise<void> => {
+  if (globalKjvTextMap) return; // Already loaded
+  
+  try {
+    console.log('Loading KJV text map from Supabase...');
+    const kjvResponse = await fetch('https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/KJV.txt');
+    if (!kjvResponse.ok) {
+      throw new Error('Failed to load KJV text from Supabase');
+    }
+    
+    const kjvTextData = await kjvResponse.text();
+    const lines = kjvTextData.split('\n').filter(line => line.trim());
+    
+    const textMap = new Map<string, string>();
+    lines.forEach((line) => {
+      const cleanLine = line.trim().replace(/\r/g, '');
+      const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
+      if (match) {
+        const [, reference, text] = match;
+        const cleanRef = reference.trim();
+        const cleanText = text.trim();
+        
+        // Store multiple key formats for maximum compatibility
+        textMap.set(cleanRef, cleanText); // "Gen.1:1"
+        textMap.set(cleanRef.replace('.', ' '), cleanText); // "Gen 1:1"
+        
+        // Parse for additional format variations
+        const refMatch = cleanRef.match(/^(\w+)\.(\d+):(\d+)$/);
+        if (refMatch) {
+          const [, book, chapter, verse] = refMatch;
+          textMap.set(`${book} ${chapter}:${verse}`, cleanText);
+          textMap.set(`${book}.${chapter}.${verse}`, cleanText);
+        }
+      }
+    });
+    
+    globalKjvTextMap = textMap;
+    console.log(`KJV text map loaded with ${textMap.size} entries`);
+    
+  } catch (error) {
+    console.error('Failed to load KJV text map:', error);
+    globalKjvTextMap = new Map(); // Empty map to prevent repeated attempts
+  }
+};
+
+// Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
 const loadFullBibleIndex = async (progressCallback?: (progress: any) => void): Promise<BibleVerse[]> => {
-  console.log('🚀 Loading full Bible index from Supabase canonical references...');
+  console.log('Loading complete Bible index (references only) from Supabase...');
   
   if (progressCallback) {
     progressCallback({ stage: 'structure', percentage: 10 });
@@ -13,41 +62,44 @@ const loadFullBibleIndex = async (progressCallback?: (progress: any) => void): P
   
   try {
     // Load complete canonical verse reference list from Supabase
-    console.log('📋 Loading complete verse index from Supabase...');
+    console.log('Loading canonical verse references from Supabase...');
     const verseKeysResponse = await fetch('https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/metadata/verseKeys-canonical.json');
     if (!verseKeysResponse.ok) {
       throw new Error('Failed to load verse keys from Supabase');
     }
     
     const verseKeys: string[] = await verseKeysResponse.json();
-    console.log(`✅ Loaded ${verseKeys.length} canonical verse references from Supabase`);
+    console.log(`Loaded ${verseKeys.length} canonical verse references from Supabase`);
     
     if (progressCallback) {
       progressCallback({ stage: 'index', percentage: 50 });
     }
     
-    // Create full Bible index with placeholders for complete navigation
-    const fullBibleIndex = createFullBibleIndex(verseKeys);
-    console.log(`🎯 Created complete Bible index with ${fullBibleIndex.length} verse placeholders`);
-    console.log(`📖 FULL BIBLE INDEX LOADED: All hyperlinks will now work correctly`);
+    // Load KJV text map for dynamic verse loading
+    await loadKJVTextMap();
+    
+    // Create full Bible index with placeholder text only
+    const fullBibleIndex = createFullBibleIndexWithoutText(verseKeys);
+    console.log(`Created complete Bible index with ${fullBibleIndex.length} verse references (no text loaded yet)`);
+    console.log(`All verse references loaded for proper height mapping and navigation`);
     
     if (progressCallback) {
       progressCallback({ stage: 'finalizing', percentage: 95 });
     }
     
-    console.log(`🏆 SUCCESS: Complete Bible index ready for navigation`);
+    console.log(`Complete Bible index ready - text will load dynamically around scroll position`);
     return fullBibleIndex;
     
   } catch (error) {
-    console.error('❌ Error loading from Supabase canonical references:', error);
-    console.log('🔄 Falling back to limited dataset...');
+    console.error('Error loading from Supabase canonical references:', error);
+    console.log('Falling back to limited dataset...');
     return generateExtendedFallbackVerses();
   }
 };
 
-// Create full Bible index from canonical verse keys
-const createFullBibleIndex = (verseKeys: string[]): BibleVerse[] => {
-  console.log(`Creating full Bible index from ${verseKeys.length} canonical references...`);
+// Create full Bible index with EMPTY TEXT for height mapping only
+const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
+  console.log(`Creating full Bible index (references only) from ${verseKeys.length} canonical references...`);
   
   return verseKeys.map((key, index) => {
     // Handle different possible formats of canonical keys
@@ -449,6 +501,9 @@ const createFullBibleWithHeights = async (verseKeys: string[]): Promise<BibleVer
 
   console.log(`✓ Created comprehensive text map with ${textMap.size} entries from Supabase KJV`);
   
+  // Store the text map globally for dynamic loading
+  globalKjvTextMap = textMap;
+  
   // Create verses with actual text and calculated heights
   let versesWithText = 0;
   let totalHeight = 0;
@@ -807,6 +862,48 @@ export function useBibleData() {
     }
   };
 
+  // Load actual verse text for a specific range of verses
+  const loadVerseTextForRange = async (verses: BibleVerse[]): Promise<BibleVerse[]> => {
+    if (!globalKjvTextMap || globalKjvTextMap.size === 0) {
+      console.log('KJV text map not available, keeping placeholder text');
+      return verses;
+    }
+
+    return verses.map(verse => {
+      // Try multiple reference formats to find the text
+      const referenceFormats = [
+        verse.reference,
+        `${verse.book}.${verse.chapter}:${verse.verse}`,
+        `${verse.book}.${verse.chapter}.${verse.verse}`,
+        `${verse.book} ${verse.chapter}:${verse.verse}`
+      ];
+
+      let kjvText = null;
+      for (const ref of referenceFormats) {
+        kjvText = globalKjvTextMap?.get(ref);
+        if (kjvText) break;
+      }
+
+      if (kjvText) {
+        return {
+          ...verse,
+          text: {
+            KJV: kjvText,
+            ESV: `[${verse.reference} - ESV loading...]`,
+            NIV: `[${verse.reference} - NIV loading...]`,
+            NKJV: `[${verse.reference} - NKJV loading...]`
+          },
+          labels: ['kjv-loaded'],
+          contextGroup: 'standard',
+          height: Math.max(40, Math.min(120, kjvText.length / 10)) // Dynamic height based on text length
+        };
+      }
+
+      // Keep placeholder if text not found
+      return verse;
+    });
+  };
+
   // Load verses for a specific range with smooth animation
   const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number) => {
     // Ensure centerIndex is within valid bounds
@@ -833,12 +930,15 @@ export function useBibleData() {
       return [];
     }
     
-    // Set display verses immediately for smooth experience
-    setDisplayVerses(newVerses);
+    // Load actual text for these verses
+    const versesWithText = await loadVerseTextForRange(newVerses);
+    
+    // Set display verses with loaded text
+    setDisplayVerses(versesWithText);
     setCenterVerseIndex(safeCenterIndex);
     
-    console.log(`✓ Loaded ${newVerses.length} verses around index ${safeCenterIndex}`);
-    return newVerses;
+    console.log(`✓ Loaded ${versesWithText.length} verses with text around index ${safeCenterIndex}`);
+    return versesWithText;
   };
 
   const { data: translations = [] } = useQuery({
