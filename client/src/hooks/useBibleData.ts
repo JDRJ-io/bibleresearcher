@@ -621,7 +621,8 @@ export function useBibleData() {
         await new Promise(resolve => setTimeout(resolve, 200));
 
         setVerses(data);
-        console.log('useBibleData hook:', {
+        setIsLoading(false);
+        console.log('✓ Bible study platform ready!', {
           versesCount: data.length,
           isLoading: false,
           error: null,
@@ -630,7 +631,6 @@ export function useBibleData() {
       } catch (err) {
         console.error('Error in useBibleData:', err);
         setError(err instanceof Error ? err.message : 'Failed to load Bible data');
-      } finally {
         setIsLoading(false);
       }
     };

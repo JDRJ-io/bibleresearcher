@@ -137,6 +137,25 @@ export default function BiblePage() {
     });
   };
 
+  const getLoadingMessage = () => {
+    switch (loadingProgress?.stage) {
+      case 'structure':
+        return 'Loading 31,102 verse references from metadata';
+      case 'text':
+        return 'Fetching KJV text from Supabase storage';
+      case 'cross-refs':
+        return 'Parsing cross-reference data with Gen.1:1 format';
+      case 'finalizing':
+        return 'Finalizing Bible study platform';
+      case 'complete':
+        return 'Ready to explore Scripture';
+      default:
+        return 'Initializing Bible study platform...';
+    }
+  };
+
+  console.log('BiblePage render state:', { isLoading, versesLength: verses.length });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -162,7 +181,7 @@ export default function BiblePage() {
           
           {/* Feature Details */}
           <div className="text-center text-sm text-muted-foreground">
-            <p className="mb-2">{loadingProgress?.details || 'Initializing components...'}</p>
+            <p className="mb-2">{getLoadingMessage()}</p>
           </div>
           
           {/* Features Being Set Up */}
