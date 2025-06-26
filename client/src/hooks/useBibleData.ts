@@ -768,9 +768,10 @@ export function useBibleData() {
   });
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
 
-  // Optimized for instant hyperlink navigation - small buffers for fast loading
-  const VERSE_BUFFER = 25; // Load only 25 verses above and below center (50 total) for instant navigation
-  const VISIBLE_RANGE = 15; // Small range for fast transitions
+  // Optimized windowed virtualization for smooth scrolling and instant navigation
+  const VIEWPORT_BUFFER = 100; // Keep 100 verses above and below viewport (200 total) for smooth scrolling
+  const INSTANT_JUMP_BUFFER = 50; // When jumping far, load 50 verses around target first
+  const SCROLL_THRESHOLD = 30; // Load more verses when within 30 verses of buffer edge
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
@@ -904,36 +905,27 @@ export function useBibleData() {
     });
   };
 
-  // Load verses for a specific range with smooth animation
-  const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number) => {
-    // Ensure centerIndex is within valid bounds
+  // Intelligent verse loading with viewport-aware buffering
+  const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number, isInstantJump = false) => {
     const safeCenterIndex = Math.max(0, Math.min(allVerses.length - 1, centerIndex));
     
-    // Calculate start and end indices with proper bounds checking
-    const startIndex = Math.max(0, safeCenterIndex - VERSE_BUFFER);
-    const endIndex = Math.min(allVerses.length - 1, safeCenterIndex + VERSE_BUFFER);
+    // Use different buffer sizes based on operation type
+    const bufferSize = isInstantJump ? INSTANT_JUMP_BUFFER : VIEWPORT_BUFFER;
     
-    // Validate the range calculations
-    if (startIndex < 0 || endIndex >= allVerses.length || startIndex > endIndex) {
-      console.warn(`Invalid verse range: start=${startIndex}, end=${endIndex}, total=${allVerses.length}`);
-      return [];
-    }
+    const startIndex = Math.max(0, safeCenterIndex - bufferSize);
+    const endIndex = Math.min(allVerses.length - 1, safeCenterIndex + bufferSize);
     
-    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, total: ${allVerses.length})`);
+    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize}, total: ${allVerses.length})`);
     
-    // Get the verse range with bounds safety
     const newVerses = allVerses.slice(startIndex, endIndex + 1);
     
-    // Ensure we have valid verses
     if (newVerses.length === 0) {
       console.warn('No verses loaded in range');
       return [];
     }
     
-    // Load actual text for these verses
     const versesWithText = await loadVerseTextForRange(newVerses);
     
-    // Set display verses with loaded text
     setDisplayVerses(versesWithText);
     setCenterVerseIndex(safeCenterIndex);
     
@@ -946,8 +938,52 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // Disabled scroll-based loading for instant hyperlink navigation performance
-  // Navigation now uses direct verse targeting with minimal loading
+  // Intelligent scroll-based virtualization with viewport buffering
+  useEffect(() => {
+    if (!verses.length || !displayVerses.length) return;
+
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Calculate current viewport position in the virtual scroll space
+      const scrollableHeight = documentHeight - windowHeight;
+      if (scrollableHeight <= 0) return;
+      
+      const scrollProgress = Math.max(0, Math.min(1, scrollY / scrollableHeight));
+      const targetVerseIndex = Math.floor(scrollProgress * verses.length);
+      
+      // Check if we need to load more verses (approaching buffer edge)
+      const currentDisplayStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
+      const currentDisplayEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
+      
+      // Load more verses if we're approaching the edge of our buffer
+      const distanceFromStart = targetVerseIndex - currentDisplayStart;
+      const distanceFromEnd = currentDisplayEnd - targetVerseIndex;
+      
+      if (distanceFromStart < SCROLL_THRESHOLD || distanceFromEnd < SCROLL_THRESHOLD) {
+        const newCenter = Math.max(0, Math.min(verses.length - 1, targetVerseIndex));
+        if (Math.abs(newCenter - centerVerseIndex) > 10) {
+          console.log(`Scroll loading: Moving center from ${centerVerseIndex} to ${newCenter}`);
+          loadVerseRange(verses, newCenter);
+        }
+      }
+    };
+
+    // Throttle scroll events for performance
+    let scrollTimeout: NodeJS.Timeout;
+    const throttledScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleScroll, 100);
+    };
+
+    window.addEventListener('scroll', throttledScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', throttledScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [verses.length, displayVerses.length, centerVerseIndex]);
 
   // Load Bible data on mount
   useEffect(() => {
@@ -1001,7 +1037,7 @@ export function useBibleData() {
         
         // Load initial verse range around the beginning  
         const initialCenter = Math.min(10, fullBibleWithText.length - 1);
-        loadVerseRange(fullBibleWithText, initialCenter);
+        await loadVerseRange(fullBibleWithText, initialCenter);
         
         // Test verse loading at different Bible locations
         console.log(`📍 Testing verse locations:`);
@@ -1014,7 +1050,7 @@ export function useBibleData() {
         
         console.log('✓ Bible study platform ready!', {
           totalVerses: data.length,
-          displayedVerses: data.slice(0, Math.min(VERSE_BUFFER * 2, data.length)).length,
+          displayedVerses: VIEWPORT_BUFFER * 2,
           centerIndex: initialCenter,
           firstVerse: data[0]
         });
@@ -1063,24 +1099,10 @@ export function useBibleData() {
       console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
       
       if (targetIndex !== -1) {
-        // INSTANT LOAD: Load only 50 verses around target (25 above, 25 below)
-        const INSTANT_BUFFER = 25;
-        const startIndex = Math.max(0, targetIndex - INSTANT_BUFFER);
-        const endIndex = Math.min(verses.length - 1, targetIndex + INSTANT_BUFFER);
+        // Use instant jump loading for far navigation
+        await loadVerseRange(verses, targetIndex, true);
         
-        console.log(`⚡ INSTANT LOAD: Loading ${endIndex - startIndex + 1} verses around target`);
-        
-        // Get minimal verse range for instant display
-        const instantVerses = verses.slice(startIndex, endIndex + 1);
-        
-        // Load text for these verses immediately
-        const versesWithText = await loadVerseTextForRange(instantVerses);
-        
-        // Update display instantly
-        setDisplayVerses(versesWithText);
-        setCenterVerseIndex(targetIndex);
-        
-        console.log(`✅ INSTANT NAVIGATION COMPLETE: Loaded ${versesWithText.length} verses`);
+        console.log(`✅ INSTANT NAVIGATION COMPLETE: Loaded verses around ${targetVerse.reference}`);
         
         // Scroll to target verse instantly
         setTimeout(() => {
