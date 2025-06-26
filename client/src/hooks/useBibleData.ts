@@ -952,32 +952,31 @@ export function useBibleData() {
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
       
-      // Use a much simpler approach: scroll position to verse calculation
-      // Each verse has approximately 120px height on average
-      const averageVerseHeight = 120;
-      const estimatedScrolledVerses = Math.floor(scrollY / averageVerseHeight);
+      // Calculate scroll progress as a percentage of total scrollable area
+      const scrollableHeight = documentHeight - windowHeight;
+      if (scrollableHeight <= 0) return;
       
-      // Add a small offset to current center for gradual movement
+      const scrollProgress = Math.max(0, Math.min(1, scrollY / scrollableHeight));
+      
+      // Map scroll progress to position in the entire Bible
+      const targetVerseIndex = Math.floor(scrollProgress * verses.length);
       const currentCenter = centerVerseIndex;
-      let newCenter = currentCenter;
       
-      // Calculate direction and distance of scroll
-      const expectedCenter = estimatedScrolledVerses;
-      const scrollDirection = expectedCenter > currentCenter ? 1 : -1;
-      const scrollDistance = Math.abs(expectedCenter - currentCenter);
+      // Calculate if we need to move the center
+      const distance = Math.abs(targetVerseIndex - currentCenter);
       
-      // Only move center if we've scrolled significantly (more than visible range)
-      if (scrollDistance > VISIBLE_RANGE) {
-        // Move incrementally in the scroll direction for smoother experience
-        const maxIncrement = 10; // Reduced maximum verses to jump at once for smoother scrolling
-        const increment = Math.min(maxIncrement, Math.max(5, Math.floor(scrollDistance / 5)));
-        newCenter = currentCenter + (scrollDirection * increment);
+      // Only update if we've scrolled significantly from the current center
+      if (distance > VISIBLE_RANGE) {
+        // Move in smaller increments toward the target for smooth scrolling
+        const direction = targetVerseIndex > currentCenter ? 1 : -1;
+        const maxStep = 20; // Maximum verses to move at once
+        const step = Math.min(maxStep, Math.ceil(distance / 3));
+        const newCenter = Math.max(0, Math.min(verses.length - 1, currentCenter + (direction * step)));
         
-        // Ensure the new center is within bounds
-        newCenter = Math.max(0, Math.min(verses.length - 1, newCenter));
-        
-        console.log(`Scroll detected: moving from ${currentCenter} to ${newCenter} (direction: ${scrollDirection}, increment: ${increment})`);
+        console.log(`Scroll detected: target=${targetVerseIndex}, moving from ${currentCenter} to ${newCenter} (step: ${step})`);
         loadVerseRange(verses, newCenter);
       }
     };
