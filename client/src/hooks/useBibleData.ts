@@ -997,8 +997,16 @@ export function useBibleData() {
       
       console.log(`⚡ Instant skeleton: anchor=${idx}, range=[${start}, ${end}]`);
       
-      // 3. Defer all non-critical work
-      requestIdleCallback(() => {
+      // 3. Defer all non-critical work with fallback
+      const deferWork = (callback: () => void) => {
+        if (typeof requestIdleCallback !== 'undefined') {
+          requestIdleCallback(callback);
+        } else {
+          setTimeout(callback, 0);
+        }
+      };
+      
+      deferWork(() => {
         if (requestId === currentRequestId) {
           console.log('Non-critical tasks deferred');
         }
@@ -1027,8 +1035,8 @@ export function useBibleData() {
         setDisplayVerses(bufferedVerses);
         console.log(`Hydrated ${bufferedVerses.length} verses for anchor ${idx}`);
         
-        // 5. Smart prefetch - schedule next slice
-        requestIdleCallback(() => {
+        // 5. Smart prefetch - schedule next slice with fallback
+        deferWork(() => {
           if (requestId === currentRequestId) {
             console.log('Ready for smart prefetch');
           }
