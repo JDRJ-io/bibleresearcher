@@ -296,10 +296,11 @@ export default function BiblePage() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col transition-all duration-300"
+      className="min-h-screen relative transition-all duration-300"
       style={{ 
         backgroundColor: 'var(--bg-color)', 
-        color: 'var(--text-color)' 
+        color: 'var(--text-color)',
+        paddingBottom: '70px' // Reserve space for sticky footer
       }}
     >
       {/* Sticky Top Header */}
@@ -398,9 +399,9 @@ export default function BiblePage() {
         onClose={() => setIsAuthOpen(false)}
       />
 
-      {/* Footer */}
+      {/* Sticky Footer - Fixed to bottom of viewport */}
       <footer 
-        className="border-t py-4 px-4"
+        className="fixed bottom-0 left-0 right-0 z-30 border-t py-4 px-4"
         style={{ 
           backgroundColor: 'var(--header-bg)', 
           borderColor: 'var(--border-color)' 
