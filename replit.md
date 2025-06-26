@@ -102,6 +102,14 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
+## June 26, 2025 - Instant Hyperlink Navigation Performance Fix
+- **PERFORMANCE FREEZE RESOLVED**: Fixed app freezing when jumping between distant Bible locations (Gen 1:1 to John 3:16)
+- **OPTIMIZED NAVIGATION SYSTEM**: Replaced heavy scroll-based loading with instant verse targeting using minimal 50-verse windows
+- **REDUCED VERSE BUFFER**: Decreased loading buffer from 200 verses to 50 verses (25 above/below target) for instant navigation
+- **DISABLED SCROLL INTERFERENCE**: Removed scroll-based dynamic loading that was causing performance issues during hyperlink clicks
+- **INSTANT VERSE JUMPING**: Navigation now loads only essential verses around target location for immediate display
+- Cross-reference hyperlinks and Bible location jumps now work instantly without spacing issues or performance freezes
+
 ## June 26, 2025 - Complete KJV Bible Text Loading & Optimized Virtual Scrolling
 - **COMPLETE KJV TEXT LOADED**: Successfully integrated all 31,102 verses from Supabase storage (4.5M characters)
 - **OPTIMIZED VIRTUAL SCROLLING**: Increased VERSE_BUFFER from 2 to 100 verses (200+ total) for smooth scrolling throughout entire Bible

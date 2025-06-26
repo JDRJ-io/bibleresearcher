@@ -768,9 +768,9 @@ export function useBibleData() {
   });
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
 
-  // Virtual scrolling constants - matching original smooth scrolling behavior
-  const VERSE_BUFFER = 100; // Load 100 verses above and below center (200 total) for smooth scrolling
-  const VISIBLE_RANGE = 50; // Larger range for smooth loading transitions
+  // Optimized for instant hyperlink navigation - small buffers for fast loading
+  const VERSE_BUFFER = 25; // Load only 25 verses above and below center (50 total) for instant navigation
+  const VISIBLE_RANGE = 15; // Small range for fast transitions
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
@@ -946,54 +946,8 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // Scroll-based dynamic loading for smooth experience
-  useEffect(() => {
-    if (!verses.length) return;
-
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Calculate scroll progress as a percentage of total scrollable area
-      const scrollableHeight = documentHeight - windowHeight;
-      if (scrollableHeight <= 0) return;
-      
-      const scrollProgress = Math.max(0, Math.min(1, scrollY / scrollableHeight));
-      
-      // Map scroll progress to position in the entire Bible
-      const targetVerseIndex = Math.floor(scrollProgress * verses.length);
-      const currentCenter = centerVerseIndex;
-      
-      // Calculate if we need to move the center
-      const distance = Math.abs(targetVerseIndex - currentCenter);
-      
-      // Only update if we've scrolled significantly from the current center
-      if (distance > VISIBLE_RANGE) {
-        // Move in smaller increments toward the target for smooth scrolling
-        const direction = targetVerseIndex > currentCenter ? 1 : -1;
-        const maxStep = 20; // Maximum verses to move at once
-        const step = Math.min(maxStep, Math.ceil(distance / 3));
-        const newCenter = Math.max(0, Math.min(verses.length - 1, currentCenter + (direction * step)));
-        
-        console.log(`Scroll detected: target=${targetVerseIndex}, moving from ${currentCenter} to ${newCenter} (step: ${step})`);
-        loadVerseRange(verses, newCenter);
-      }
-    };
-
-    // Throttle scroll events for performance
-    let scrollTimeout: NodeJS.Timeout;
-    const throttledScroll = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(handleScroll, 150);
-    };
-
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', throttledScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, [verses.length, centerVerseIndex]);
+  // Disabled scroll-based loading for instant hyperlink navigation performance
+  // Navigation now uses direct verse targeting with minimal loading
 
   // Load Bible data on mount
   useEffect(() => {
@@ -1086,7 +1040,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log('Navigating to verse:', reference);
+    console.log('🚀 INSTANT NAVIGATION to:', reference);
     
     // Add to history
     const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
@@ -1095,9 +1049,8 @@ export function useBibleData() {
     
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, ' ').trim();
-    console.log('Looking for verse with reference:', normalizedRef);
     
-    // Try multiple format matches for the complete dataset
+    // Find target verse in complete Bible index
     const targetVerse = verses.find(v => 
       v.reference === normalizedRef ||
       v.reference.replace(/\s+/g, ' ') === normalizedRef ||
@@ -1106,43 +1059,30 @@ export function useBibleData() {
     );
     
     if (targetVerse) {
-      console.log('Found target verse in dataset:', targetVerse);
-      
-      // Get the target verse index for dynamic loading
       const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
+      console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
       
       if (targetIndex !== -1) {
-        // Load verse range around the target
-        await loadVerseRange(verses, targetIndex);
+        // INSTANT LOAD: Load only 50 verses around target (25 above, 25 below)
+        const INSTANT_BUFFER = 25;
+        const startIndex = Math.max(0, targetIndex - INSTANT_BUFFER);
+        const endIndex = Math.min(verses.length - 1, targetIndex + INSTANT_BUFFER);
         
-        // Load actual text for the target verse if it's a placeholder
-        if (targetVerse.labels?.includes('placeholder')) {
-          try {
-            const actualText = await loadActualVerseText(targetVerse.reference);
-            
-            // Update the verse with real text
-            const updatedVerse = {
-              ...targetVerse,
-              text: {
-                KJV: actualText,
-                ESV: actualText,
-                NIV: actualText,
-                NKJV: actualText
-              },
-              labels: ['loaded']
-            };
-            
-            // Update the main verses array
-            verses[targetIndex] = updatedVerse;
-            setVerses([...verses]);
-            
-            console.log('Loaded actual text for verse:', updatedVerse.reference);
-          } catch (error) {
-            console.warn('Failed to load text for target verse:', error);
-          }
-        }
+        console.log(`⚡ INSTANT LOAD: Loading ${endIndex - startIndex + 1} verses around target`);
         
-        // Scroll to the verse
+        // Get minimal verse range for instant display
+        const instantVerses = verses.slice(startIndex, endIndex + 1);
+        
+        // Load text for these verses immediately
+        const versesWithText = await loadVerseTextForRange(instantVerses);
+        
+        // Update display instantly
+        setDisplayVerses(versesWithText);
+        setCenterVerseIndex(targetIndex);
+        
+        console.log(`✅ INSTANT NAVIGATION COMPLETE: Loaded ${versesWithText.length} verses`);
+        
+        // Scroll to target verse instantly
         setTimeout(() => {
           const verseElement = document.getElementById(`verse-${targetVerse.id}`);
           if (verseElement) {
@@ -1156,11 +1096,13 @@ export function useBibleData() {
             setTimeout(() => {
               verseElement.classList.remove('verse-highlight');
             }, 2000);
+          } else {
+            console.log('📍 Verse element not found, using fallback scroll');
           }
         }, 100);
       }
     } else {
-      console.warn('Verse not found in dataset for reference:', normalizedRef);
+      console.warn('❌ Verse not found for reference:', normalizedRef);
     }
   };
 
