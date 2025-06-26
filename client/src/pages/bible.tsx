@@ -121,9 +121,12 @@ export default function BiblePage() {
 
   const handleTranslationToggle = (translationId: string) => {
     setSelectedTranslations(prev => 
-      prev.map(t => 
-        t.id === translationId ? { ...t, selected: !t.selected } : t
-      )
+      prev.map(t => {
+        if (typeof t === 'string') {
+          return { id: t, name: t, abbreviation: t, selected: t === translationId };
+        }
+        return t.id === translationId ? { ...t, selected: !t.selected } : t;
+      })
     );
   };
 
@@ -136,7 +139,12 @@ export default function BiblePage() {
 
   const handleResetLayout = () => {
     setSelectedTranslations(prev => 
-      prev.map(t => ({ ...t, selected: t.id === 'KJV' }))
+      prev.map(t => {
+        if (typeof t === 'string') {
+          return { id: t, name: t, abbreviation: t, selected: t === 'KJV' };
+        }
+        return { ...t, selected: t.id === 'KJV' };
+      })
     );
     setPreferences(prev => ({
       ...prev,
