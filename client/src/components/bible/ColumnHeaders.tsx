@@ -11,8 +11,12 @@ interface ColumnHeadersProps {
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
   return (
     <div 
-      className="fixed top-16 left-0 right-0 z-30 bg-background border-b shadow-sm"
-      style={{ height: '48px' }}
+      className="sticky top-16 left-0 right-0 z-30 border-b shadow-sm"
+      style={{ 
+        height: '48px',
+        backgroundColor: 'var(--header-bg)',
+        borderBottomColor: 'var(--border-color)'
+      }}
     >
       <div className="overflow-hidden w-full h-full">
         <div 

@@ -714,8 +714,8 @@ export function useBibleData() {
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
 
   // Virtual scrolling constants - matching original smooth scrolling behavior
-  const VERSE_BUFFER = 2; // Load only 2 verses above and below for smooth incremental scrolling
-  const VISIBLE_RANGE = 5; // Small range for immediate loading updates
+  const VERSE_BUFFER = 100; // Load 100 verses above and below center (200 total) for smooth scrolling
+  const VISIBLE_RANGE = 50; // Larger range for smooth loading transitions
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
