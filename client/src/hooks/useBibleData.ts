@@ -605,7 +605,7 @@ export function useBibleData() {
         setLoadingProgress({ stage: 'structure', percentage: 10 });
 
         const data = await loadBibleData((progress) => {
-          setLoadingProgress({ stage: progress.stage, percentage: progress.percentage });
+          setLoadingProgress(progress);
         });
 
         setLoadingProgress({ stage: 'cross-refs', percentage: 80 });

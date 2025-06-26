@@ -150,12 +150,12 @@ export default function BiblePage() {
           <div className="mb-4">
             <div className="flex justify-between text-sm text-muted-foreground mb-1">
               <span>{loadingProgress?.stage || 'Loading...'}</span>
-              <span>{loadingProgress?.progress || 0}%</span>
+              <span>{loadingProgress?.percentage || 0}%</span>
             </div>
             <div className="w-full bg-muted rounded-full h-2.5">
               <div 
                 className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${loadingProgress?.progress || 0}%` }}
+                style={{ width: `${loadingProgress?.percentage || 0}%` }}
               ></div>
             </div>
           </div>
@@ -168,24 +168,24 @@ export default function BiblePage() {
           {/* Features Being Set Up */}
           <div className="mt-6 text-xs text-muted-foreground">
             <div className="space-y-1">
-              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 10 ? 'text-green-600 dark:text-green-400' : ''}`}>
-                <span className="mr-2">{(loadingProgress?.progress || 0) >= 10 ? '✓' : '○'}</span>
+              <div className={`flex items-center ${(loadingProgress?.percentage || 0) >= 10 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.percentage || 0) >= 10 ? '✓' : '○'}</span>
                 Verse structure (31,102 references)
               </div>
-              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 30 ? 'text-green-600 dark:text-green-400' : ''}`}>
-                <span className="mr-2">{(loadingProgress?.progress || 0) >= 30 ? '✓' : '○'}</span>
+              <div className={`flex items-center ${(loadingProgress?.percentage || 0) >= 30 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.percentage || 0) >= 30 ? '✓' : '○'}</span>
                 KJV Bible text from Supabase
               </div>
-              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 60 ? 'text-green-600 dark:text-green-400' : ''}`}>
-                <span className="mr-2">{(loadingProgress?.progress || 0) >= 60 ? '✓' : '○'}</span>
+              <div className={`flex items-center ${(loadingProgress?.percentage || 0) >= 60 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.percentage || 0) >= 60 ? '✓' : '○'}</span>
                 Cross-references with navigation
               </div>
-              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 90 ? 'text-green-600 dark:text-green-400' : ''}`}>
-                <span className="mr-2">{(loadingProgress?.progress || 0) >= 90 ? '✓' : '○'}</span>
+              <div className={`flex items-center ${(loadingProgress?.percentage || 0) >= 90 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.percentage || 0) >= 90 ? '✓' : '○'}</span>
                 Sticky headers and Excel layout
               </div>
-              <div className={`flex items-center ${(loadingProgress?.progress || 0) >= 100 ? 'text-green-600 dark:text-green-400' : ''}`}>
-                <span className="mr-2">{(loadingProgress?.progress || 0) >= 100 ? '✓' : '○'}</span>
+              <div className={`flex items-center ${(loadingProgress?.percentage || 0) >= 100 ? 'text-green-600 dark:text-green-400' : ''}`}>
+                <span className="mr-2">{(loadingProgress?.percentage || 0) >= 100 ? '✓' : '○'}</span>
                 Prophecy data and user features
               </div>
             </div>
