@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,6 +32,35 @@ export function BibleTable({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [scrollLeft, setScrollLeft] = useState(0);
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    
+    const handleScroll = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      
+      animationFrameId = requestAnimationFrame(() => {
+        if (tableRef.current) {
+          const newScrollLeft = tableRef.current.scrollLeft;
+          setScrollLeft(newScrollLeft);
+        }
+      });
+    };
+
+    const tableElement = tableRef.current;
+    if (tableElement) {
+      tableElement.addEventListener('scroll', handleScroll, { passive: true });
+      return () => {
+        tableElement.removeEventListener('scroll', handleScroll);
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+      };
+    }
+  }, []);
 
   const { data: userNotes = [] } = useQuery({
     queryKey: [`/api/users/${user?.id}/notes`],
