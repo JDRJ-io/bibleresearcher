@@ -926,16 +926,19 @@ export function useBibleData() {
   useEffect(() => {
     if (!verses.length) return;
 
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
+    const handleScroll = (event: Event) => {
+      const tableContainer = event.target as HTMLElement;
+      if (!tableContainer) return;
+      
+      const scrollY = tableContainer.scrollTop;
       const verseHeight = 120; // Fixed verse height matching CSS
       
       // Calculate which verse should be at the top of the viewport
       const topVerseIndex = Math.floor(scrollY / verseHeight);
       
       // Calculate center verse (what user is primarily viewing)
-      const viewportHeight = window.innerHeight;
-      const versesInViewport = Math.ceil(viewportHeight / verseHeight);
+      const containerHeight = tableContainer.clientHeight;
+      const versesInViewport = Math.ceil(containerHeight / verseHeight);
       const centerIndex = Math.max(0, Math.min(
         topVerseIndex + Math.floor(versesInViewport / 2),
         verses.length - 1
@@ -944,23 +947,21 @@ export function useBibleData() {
       // Only trigger new loading if we've moved significantly from current center
       const distance = Math.abs(centerIndex - centerVerseIndex);
       if (distance >= VERSE_BUFFER) {
-        console.log(`Scroll triggered: center ${centerVerseIndex} → ${centerIndex} (distance: ${distance})`);
+        console.log(`Scroll triggered: center ${centerVerseIndex} → ${centerIndex} (distance: ${distance}, scrollTop: ${scrollY})`);
         loadVerseRange(verses, centerIndex);
       }
     };
 
     // Throttle scroll events for performance with shorter delay for responsiveness
-    let scrollTimeout: NodeJS.Timeout;
-    const throttledScroll = () => {
+    let scrollTimeout: number;
+    const throttledScroll = (event: Event) => {
       clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(handleScroll, 50); // Faster response for smooth scrolling
+      scrollTimeout = window.setTimeout(() => handleScroll(event), 50); // Faster response for smooth scrolling
     };
 
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', throttledScroll);
-      clearTimeout(scrollTimeout);
-    };
+    // The scroll container will be set up by the BibleTable component
+    // This effect will be triggered by changes in verses or centerVerseIndex
+    return () => clearTimeout(scrollTimeout);
   }, [verses.length, centerVerseIndex]);
 
   // Load Bible data on mount

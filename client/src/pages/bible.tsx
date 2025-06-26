@@ -302,61 +302,116 @@ export default function BiblePage() {
         color: 'var(--text-color)' 
       }}
     >
-      {/* Compact Top Header */}
-      <div className="sticky top-0 z-40 flex items-center justify-between px-3 py-2 border-b" style={{ 
+      {/* Responsive Adaptive Header */}
+      <div className="sticky top-0 z-40 border-b" style={{ 
         backgroundColor: 'var(--header-bg)', 
         borderBottomColor: 'var(--border-color)',
-        height: 'var(--header-height)'
+        minHeight: 'var(--header-height)'
       }}>
-        {/* Left side - Back/Forward buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={goBack}
-            disabled={!canGoBack}
-            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Go back"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={goForward}
-            disabled={!canGoForward}
-            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Go forward"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+        {/* Portrait Mode - Single Row with Essential Controls */}
+        <div className="md:hidden flex items-center justify-between px-2 py-2 gap-2">
+          {/* Back/Forward arrows */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={goBack}
+              disabled={!canGoBack}
+              className="p-1.5 hover:bg-muted rounded transition-colors disabled:opacity-50"
+              aria-label="Go back"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={goForward}
+              disabled={!canGoForward}
+              className="p-1.5 hover:bg-muted rounded transition-colors disabled:opacity-50"
+              aria-label="Go forward"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
 
-        {/* Center - Navigation and Search */}
-        <div className="flex-1 flex items-center gap-4 mx-4">
+          {/* Go To button */}
           <VerseSelector onNavigate={navigateToVerse} />
-          
-          <div className="flex-1 max-w-md">
+
+          {/* Search bar - flexible width */}
+          <div className="flex-1 min-w-0 mx-2">
             <input
               type="text"
-              placeholder="Search verses, references, or topics..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-2 py-1.5 text-sm bg-muted border rounded focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
+
+          {/* Hamburger menu */}
+          <button 
+            onClick={() => setIsMenuOpen(true)}
+            className="p-1.5 hover:bg-muted rounded transition-colors"
+            aria-label="Menu"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
 
-        {/* Right side - Menu */}
-        <button 
-          onClick={() => setIsMenuOpen(true)}
-          className="p-2 hover:bg-muted rounded-md transition-colors"
-          aria-label="Open menu"
-        >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        {/* Landscape Mode - Full Header with All Controls */}
+        <div className="hidden md:flex items-center justify-between px-3 py-2">
+          {/* Left side - Back/Forward buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={goBack}
+              disabled={!canGoBack}
+              className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Go back"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={goForward}
+              disabled={!canGoForward}
+              className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Go forward"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Center - Navigation and Search */}
+          <div className="flex-1 flex items-center gap-4 mx-4">
+            <VerseSelector onNavigate={navigateToVerse} />
+            
+            <div className="flex-1 max-w-md">
+              <input
+                type="text"
+                placeholder="Search verses, references, or topics..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+
+          {/* Right side - Menu */}
+          <button 
+            onClick={() => setIsMenuOpen(true)}
+            className="p-2 hover:bg-muted rounded-md transition-colors"
+            aria-label="Open menu"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <HamburgerMenu
