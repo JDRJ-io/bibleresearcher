@@ -18,7 +18,20 @@ export default function BiblePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const { verses = [], isLoading, loadingProgress, navigateToVerse, totalBibleHeight, scrollOffset } = useBibleData();
+  const { 
+    verses = [], 
+    isLoading, 
+    loadingProgress, 
+    navigateToVerse, 
+    totalBibleHeight, 
+    scrollOffset,
+    searchQuery,
+    setSearchQuery,
+    goBack: hookGoBack,
+    goForward: hookGoForward,
+    canGoBack: hookCanGoBack,
+    canGoForward: hookCanGoForward
+  } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
     { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
@@ -36,15 +49,11 @@ export default function BiblePage() {
   const [multiTranslationMode, setMultiTranslationMode] = useState(false);
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
   
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedVerse, setExpandedVerse] = useState<any>(null);
-  const [canGoBack, setCanGoBack] = useState(false);
-  const [canGoForward, setCanGoForward] = useState(false);
 
-  const expandVerse = (verse: any) => setExpandedVerse(verse);
-  const closeExpandedVerse = () => setExpandedVerse(null);
-  const goBack = () => console.log('Go back');
-  const goForward = () => console.log('Go forward');
+  const [localExpandedVerse, setLocalExpandedVerse] = useState<any>(null);
+
+  const localExpandVerse = (verse: any) => setLocalExpandedVerse(verse);
+  const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
 
 
 
@@ -121,12 +130,9 @@ export default function BiblePage() {
 
   const handleTranslationToggle = (translationId: string) => {
     setSelectedTranslations(prev => 
-      prev.map(t => {
-        if (typeof t === 'string') {
-          return { id: t, name: t, abbreviation: t, selected: t === translationId };
-        }
-        return t.id === translationId ? { ...t, selected: !t.selected } : t;
-      })
+      prev.includes(translationId) 
+        ? prev.filter(id => id !== translationId)
+        : [...prev, translationId]
     );
   };
 
@@ -138,14 +144,7 @@ export default function BiblePage() {
   };
 
   const handleResetLayout = () => {
-    setSelectedTranslations(prev => 
-      prev.map(t => {
-        if (typeof t === 'string') {
-          return { id: t, name: t, abbreviation: t, selected: t === 'KJV' };
-        }
-        return { ...t, selected: t.id === 'KJV' };
-      })
-    );
+    setSelectedTranslations(['KJV']);
     setPreferences(prev => ({
       ...prev,
       showNotes: false,
@@ -311,8 +310,8 @@ export default function BiblePage() {
         {/* Left side - Back/Forward buttons */}
         <div className="flex items-center gap-2">
           <button
-            onClick={goBack}
-            disabled={!canGoBack}
+            onClick={hookGoBack}
+            disabled={!hookCanGoBack}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Go back"
           >
@@ -321,8 +320,8 @@ export default function BiblePage() {
             </svg>
           </button>
           <button
-            onClick={goForward}
-            disabled={!canGoForward}
+            onClick={hookGoForward}
+            disabled={!hookCanGoForward}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Go forward"
           >
@@ -384,15 +383,15 @@ export default function BiblePage() {
         selectedTranslations={displayTranslations}
         preferences={preferences}
         mainTranslation={mainTranslation}
-        onExpandVerse={expandVerse}
+        onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
         totalBibleHeight={totalBibleHeight}
         startOffset={scrollOffset}
       />
 
       <ExpandedVerseOverlay
-        verse={expandedVerse}
-        onClose={closeExpandedVerse}
+        verse={localExpandedVerse}
+        onClose={closeLocalExpandedVerse}
         onStrongsClick={handleStrongsClick}
       />
 

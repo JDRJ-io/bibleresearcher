@@ -759,6 +759,7 @@ export function useBibleData() {
   const [centerVerseIndex, setCenterVerseIndex] = useState(0); // Current center position
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
   const [expandedVerse, setExpandedVerse] = useState<BibleVerse | null>(null);
   const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
@@ -938,50 +939,71 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // Intelligent scroll-based virtualization with viewport buffering
+  // High-precision scroll synchronization for mobile and fast scrolling
   useEffect(() => {
     if (!verses.length || !displayVerses.length) return;
 
+    let isScrolling = false;
+    let lastScrollUpdate = 0;
+
     const handleScroll = () => {
+      const now = Date.now();
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       
-      // Calculate current viewport position in the virtual scroll space
+      // Calculate precise scroll position within virtual Bible space
       const scrollableHeight = documentHeight - windowHeight;
       if (scrollableHeight <= 0) return;
       
       const scrollProgress = Math.max(0, Math.min(1, scrollY / scrollableHeight));
       const targetVerseIndex = Math.floor(scrollProgress * verses.length);
       
-      // Check if we need to load more verses (approaching buffer edge)
+      // Immediate loading for fast scrolling (mobile flicks, scrollbar drags)
+      const scrollSpeed = Math.abs(targetVerseIndex - centerVerseIndex);
+      const isRapidScroll = scrollSpeed > 50 || (now - lastScrollUpdate < 50);
+      
+      if (isRapidScroll) {
+        // For rapid scrolling: load immediately at exact target position
+        console.log(`Fast scroll detected: jumping to index ${targetVerseIndex}`);
+        loadVerseRange(verses, targetVerseIndex);
+        lastScrollUpdate = now;
+        return;
+      }
+      
+      // Normal scrolling: check buffer boundaries
       const currentDisplayStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
       const currentDisplayEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
       
-      // Load more verses if we're approaching the edge of our buffer
       const distanceFromStart = targetVerseIndex - currentDisplayStart;
       const distanceFromEnd = currentDisplayEnd - targetVerseIndex;
       
+      // Load new content when approaching buffer edges
       if (distanceFromStart < SCROLL_THRESHOLD || distanceFromEnd < SCROLL_THRESHOLD) {
         const newCenter = Math.max(0, Math.min(verses.length - 1, targetVerseIndex));
-        if (Math.abs(newCenter - centerVerseIndex) > 10) {
-          console.log(`Scroll loading: Moving center from ${centerVerseIndex} to ${newCenter}`);
+        if (Math.abs(newCenter - centerVerseIndex) > 5) {
+          console.log(`Buffer edge loading: center ${centerVerseIndex} -> ${newCenter}`);
           loadVerseRange(verses, newCenter);
         }
       }
+      
+      lastScrollUpdate = now;
     };
 
-    // Throttle scroll events for performance
-    let scrollTimeout: NodeJS.Timeout;
-    const throttledScroll = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(handleScroll, 100);
+    // Use requestAnimationFrame for smooth scroll tracking
+    const smoothScrollHandler = () => {
+      if (!isScrolling) {
+        isScrolling = true;
+        requestAnimationFrame(() => {
+          handleScroll();
+          isScrolling = false;
+        });
+      }
     };
 
-    window.addEventListener('scroll', throttledScroll, { passive: true });
+    window.addEventListener('scroll', smoothScrollHandler, { passive: true });
     return () => {
-      window.removeEventListener('scroll', throttledScroll);
-      clearTimeout(scrollTimeout);
+      window.removeEventListener('scroll', smoothScrollHandler);
     };
   }, [verses.length, displayVerses.length, centerVerseIndex]);
 
@@ -1147,6 +1169,82 @@ export function useBibleData() {
   const canGoBack = currentHistoryIndex > 0;
   const canGoForward = currentHistoryIndex < navigationHistory.length - 1;
 
+  // Comprehensive search functionality
+  const performSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const searchTerm = query.toLowerCase().trim();
+    console.log(`Searching for: "${searchTerm}"`);
+
+    // Check if it's a Bible reference (Gen 1:1, John 3:16, etc.)
+    const referencePatterns = [
+      /^(\w+)\s*(\d+):(\d+)$/i,           // "Gen 1:1", "John 3:16"
+      /^(\w+)\.(\d+):(\d+)$/i,            // "Gen.1:1"
+      /^(\w+)\s*(\d+)$/i,                 // "Gen 1" (chapter)
+      /^(\w+)$/i                          // "Genesis" (book)
+    ];
+
+    for (const pattern of referencePatterns) {
+      const match = searchTerm.match(pattern);
+      if (match) {
+        // It's a reference search - navigate directly
+        const [, book, chapter, verse] = match;
+        let targetRef = '';
+        
+        if (chapter && verse) {
+          targetRef = `${book} ${chapter}:${verse}`;
+        } else if (chapter) {
+          targetRef = `${book} ${chapter}:1`; // Go to first verse of chapter
+        } else {
+          targetRef = `${book} 1:1`; // Go to first verse of book
+        }
+        
+        console.log(`Reference search: navigating to ${targetRef}`);
+        await navigateToVerse(targetRef);
+        return;
+      }
+    }
+
+    // Text search across all verses
+    const results = verses.filter(verse => {
+      const searchableText = [
+        verse.reference,
+        verse.text.KJV || '',
+        verse.text.ESV || '',
+        verse.text.NIV || '',
+        verse.text.NKJV || '',
+        ...(verse.crossReferences?.map(cr => cr.text) || [])
+      ].join(' ').toLowerCase();
+
+      return searchableText.includes(searchTerm);
+    });
+
+    console.log(`Text search found ${results.length} results for "${searchTerm}"`);
+    setSearchResults(results.slice(0, 100)); // Limit to first 100 results
+
+    // If we have results, navigate to the first one
+    if (results.length > 0) {
+      await navigateToVerse(results[0].reference);
+    }
+  };
+
+  // Handle search query changes with debouncing
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      performSearch(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, verses.length]);
+
 // Function to load cross-references from attached assets
 const loadCrossReferencesFromAssets = async (verses: BibleVerse[]) => {
   try {
@@ -1306,6 +1404,11 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     displayTranslations,
     toggleTranslation,
     toggleMultiTranslationMode,
+    // Search functionality
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    performSearch,
     // Virtual scrolling properties to prevent page jumping
     totalBibleHeight,
     scrollOffset
