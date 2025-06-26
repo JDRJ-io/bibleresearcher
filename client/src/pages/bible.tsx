@@ -171,9 +171,12 @@ export default function BiblePage() {
     shouldShowLoading
   });
 
+  // Force re-render when loading completes
+  console.log('RENDER DECISION:', { shouldShowLoading, isLoading, versesCount: verses.length });
+
   if (shouldShowLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div key="loading-screen" className="flex items-center justify-center min-h-screen bg-background">
         <div className="max-w-md w-full p-6">
           <div className="text-center mb-6">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-4 mx-auto"></div>

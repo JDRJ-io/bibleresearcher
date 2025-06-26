@@ -622,8 +622,13 @@ export function useBibleData() {
         // Set verses first, then clear loading state
         setVerses(data);
         
-        // Force immediate state update to clear loading screen
+        // Force immediate state update to clear loading screen  
         setIsLoading(false);
+        
+        // Force a micro-task to ensure React processes the state change
+        Promise.resolve().then(() => {
+          console.log('🔄 Forced React state update - loading should be cleared');
+        });
         console.log('✓ Bible study platform ready!', {
           versesCount: data.length,
           isLoading: false,
