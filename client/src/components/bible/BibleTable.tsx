@@ -38,6 +38,14 @@ export function BibleTable({
   const queryClient = useQueryClient();
   const [scrollLeft, setScrollLeft] = useState(0);
   const tableRef = useRef<HTMLDivElement>(null);
+  const [previousVerses, setPreviousVerses] = useState<BibleVerse[]>([]);
+
+  // Keep track of verses to prevent blank screens during navigation
+  useEffect(() => {
+    if (verses.length > 0) {
+      setPreviousVerses(verses);
+    }
+  }, [verses]);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -127,14 +135,20 @@ export function BibleTable({
 
   // Scroll handling moved to useEffect with requestAnimationFrame for better performance
 
+  // Use current verses if available, otherwise use previous verses to prevent blank screens
+  const versesToRender = verses.length > 0 ? verses : previousVerses;
+  
   console.log('BibleTable render:', { 
     versesCount: verses.length, 
+    previousVersesCount: previousVerses.length,
+    renderingCount: versesToRender.length,
     selectedTranslations: selectedTranslations.length,
-    firstVerse: verses[0],
-    firstVerseText: verses[0]?.text?.KJV
+    firstVerse: versesToRender[0],
+    firstVerseText: versesToRender[0]?.text?.KJV
   });
 
-  if (verses.length === 0) {
+  // Only show loading state if we have no verses at all (initial load)
+  if (versesToRender.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center text-muted-foreground">
@@ -173,7 +187,7 @@ export function BibleTable({
               width: '100%'
             }}
           >
-            {verses.map((verse, index) => (
+            {versesToRender.map((verse, index) => (
               <VerseRow
                 key={verse.id}
                 verse={verse}
