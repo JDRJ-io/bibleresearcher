@@ -346,7 +346,7 @@ const mergeTranslationWithKeys = (verses: BibleVerse[], text: string, translatio
 };
 
 // Create complete Bible with actual text and concrete heights for stable scrolling
-const createFullBibleWithHeights = async (verseKeys: string[], kjvTextData: string): Promise<BibleVerse[]> => {
+const createFullBibleWithHeights = async (verseKeys: string[]): Promise<BibleVerse[]> => {
   console.log('Creating complete Bible with concrete heights for stable scrolling...');
   
   const verses: BibleVerse[] = [];
@@ -359,10 +359,26 @@ const createFullBibleWithHeights = async (verseKeys: string[], kjvTextData: stri
     const lines = Math.ceil(words / wordsPerLine);
     return Math.max(baseHeight, lines * 20 + 20); // 20px per line + padding
   };
+
+  // Load complete KJV text from Supabase storage
+  let kjvTextData = '';
   
-  if (!kjvTextData) {
-    // Create verses with fixed heights for placeholders
+  try {
+    console.log('Fetching complete KJV Bible from Supabase storage...');
+    const kjvUrl = 'https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/KJV.txt';
+    const response = await fetch(kjvUrl);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    kjvTextData = await response.text();
+    console.log(`✓ Successfully loaded KJV text from Supabase (${kjvTextData.length} characters)`);
+    
+  } catch (error) {
+    console.error('Failed to load KJV from Supabase:', error);
     console.log('Creating Bible with placeholder text and fixed heights');
+    
     return verseKeys.map((key, index) => {
       const match = key.match(/^(\w+)\.(\d+):(\d+)$/);
       let book = 'Gen', chapter = 1, verse = 1;
@@ -397,9 +413,9 @@ const createFullBibleWithHeights = async (verseKeys: string[], kjvTextData: stri
   
   console.log('Parsing KJV text with format: "Gen.1:1 #In the beginning..."');
   const lines = kjvTextData.split('\n').filter(line => line.trim());
-  console.log(`Found ${lines.length} lines in KJV text`);
+  console.log(`Found ${lines.length} lines in KJV text from Supabase`);
   
-  // Create a map for quick text lookup
+  // Create a map for quick text lookup with comprehensive key formats
   const textMap = new Map<string, string>();
   
   lines.forEach((line, index) => {
@@ -412,25 +428,26 @@ const createFullBibleWithHeights = async (verseKeys: string[], kjvTextData: stri
       const cleanRef = reference.trim();
       const cleanText = text.trim();
       
-      // Store multiple key formats for maximum compatibility with verse reference patterns
+      // Store multiple key formats for maximum compatibility
       textMap.set(cleanRef, cleanText); // "Gen.1:1"
       textMap.set(cleanRef.replace('.', ' '), cleanText); // "Gen 1:1"
       
-      // Also try parsing the reference parts for additional format compatibility
+      // Parse reference components for additional format variations
       const refMatch = cleanRef.match(/^(\w+)\.(\d+):(\d+)$/);
       if (refMatch) {
         const [, book, chapter, verse] = refMatch;
         textMap.set(`${book} ${chapter}:${verse}`, cleanText); // "Gen 1:1"
         textMap.set(`${book}.${chapter}.${verse}`, cleanText); // "Gen.1.1"
+        textMap.set(`${book}${chapter}:${verse}`, cleanText); // "Gen1:1"
       }
       
       if (index < 5) {
-        console.log(`Parsed: "${cleanRef}" -> "${cleanText.substring(0, 40)}..."`);
+        console.log(`✓ Parsed: "${cleanRef}" -> "${cleanText.substring(0, 50)}..."`);
       }
     }
   });
 
-  console.log(`Created text map with ${textMap.size} entries from KJV file`);
+  console.log(`✓ Created comprehensive text map with ${textMap.size} entries from Supabase KJV`);
   
   // Create verses with actual text and calculated heights
   let versesWithText = 0;
@@ -890,7 +907,7 @@ export function useBibleData() {
         const verseKeys = data.map(verse => `${verse.book}.${verse.chapter}:${verse.verse}`);
         
         // Replace placeholder data with full Bible text
-        const fullBibleWithText = await createFullBibleWithHeights(verseKeys, kjvTextData);
+        const fullBibleWithText = await createFullBibleWithHeights(verseKeys);
         
         // Set full verse index for navigation
         setVerses(fullBibleWithText);
@@ -898,6 +915,9 @@ export function useBibleData() {
         // Load initial verse range around the beginning
         const initialCenter = Math.min(10, fullBibleWithText.length - 1);
         loadVerseRange(fullBibleWithText, initialCenter);
+        
+        // Ensure verses are updated with actual KJV text
+        setDisplayVerses(fullBibleWithText.slice(0, Math.min(5, fullBibleWithText.length)));
         
         console.log('✓ Bible study platform ready!', {
           totalVerses: data.length,

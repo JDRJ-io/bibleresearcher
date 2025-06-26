@@ -102,6 +102,14 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
+## June 26, 2025 - Complete KJV Bible Text Loading & Smooth Scrolling Implementation
+- **COMPLETE KJV TEXT LOADED**: Successfully integrated all 31,102 verses from Supabase storage (4.5M characters)
+- Fixed critical scrolling granularity: Changed VERSE_BUFFER from 200 to 2 verses for smooth incremental movement
+- Implemented direct Supabase integration: Fetches complete KJV.txt from https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/KJV.txt
+- Created comprehensive text mapping with 124,408 entries for robust verse lookup across multiple reference formats
+- Added cursor hover highlighting with CSS transition animations matching original design aesthetics
+- All verses now display actual Bible content instead of placeholders, ready for multi-translation expansion
+
 ## June 26, 2025 - Virtual Scrolling & Full Bible Index Implementation
 - **COMPLETE BIBLE INDEX LOADED**: Successfully implemented full 31,102 verse index from Supabase canonical references
 - Added virtual scrolling system with 200-verse dynamic loading buffer for optimal performance
