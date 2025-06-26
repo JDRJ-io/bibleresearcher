@@ -16,6 +16,7 @@ interface BibleTableProps {
     showProphecy: boolean;
     showContext: boolean;
   };
+  mainTranslation?: string;
   onExpandVerse: (verse: BibleVerse) => void;
   onNavigateToVerse: (reference: string) => void;
 }

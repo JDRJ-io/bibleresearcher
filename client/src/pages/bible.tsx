@@ -19,11 +19,21 @@ export default function BiblePage() {
   
   const { data: verses = [], isLoading, loadingProgress, navigateToVerse } = useBibleData();
   const error = null; // No error state needed for now
-  const translations = [
+  const allTranslations = [
     { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
     { id: 'ESV', name: 'English Standard Version', abbreviation: 'ESV', selected: false },
-    { id: 'NIV', name: 'New International Version', abbreviation: 'NIV', selected: false }
+    { id: 'NIV', name: 'New International Version', abbreviation: 'NIV', selected: false },
+    { id: 'NKJV', name: 'New King James Version', abbreviation: 'NKJV', selected: false },
+    { id: 'NLT', name: 'New Living Translation', abbreviation: 'NLT', selected: false },
+    { id: 'AMP', name: 'Amplified Bible', abbreviation: 'AMP', selected: false },
+    { id: 'CSB', name: 'Christian Standard Bible', abbreviation: 'CSB', selected: false },
+    { id: 'NASB', name: 'New American Standard Bible', abbreviation: 'NASB', selected: false }
   ];
+
+  // Translation state management
+  const [mainTranslation, setMainTranslation] = useState('KJV');
+  const [multiTranslationMode, setMultiTranslationMode] = useState(false);
+  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedVerse, setExpandedVerse] = useState<any>(null);
@@ -41,7 +51,35 @@ export default function BiblePage() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
   
-  const [selectedTranslations, setSelectedTranslations] = useState<Translation[]>(translations);
+  // Translation helper functions
+  const toggleTranslation = (translationId: string) => {
+    if (multiTranslationMode) {
+      setSelectedTranslations(prev => 
+        prev.includes(translationId) 
+          ? prev.filter(id => id !== translationId)
+          : [...prev, translationId]
+      );
+    } else {
+      setMainTranslation(translationId);
+      setSelectedTranslations([translationId]);
+    }
+  };
+
+  const toggleMultiTranslationMode = () => {
+    setMultiTranslationMode(!multiTranslationMode);
+    if (!multiTranslationMode) {
+      // Entering multi-translation mode - keep current main as selected
+      setSelectedTranslations([mainTranslation]);
+    } else {
+      // Exiting multi-translation mode - keep only main
+      setSelectedTranslations([mainTranslation]);
+    }
+  };
+
+  // Get translations for display
+  const displayTranslations = multiTranslationMode 
+    ? allTranslations.filter(t => selectedTranslations.includes(t.id))
+    : allTranslations.filter(t => t.id === mainTranslation);
 
   // Filter verses based on search query
   const filteredVerses = verses.filter(verse => {
@@ -255,22 +293,89 @@ export default function BiblePage() {
         color: 'var(--text-color)' 
       }}
     >
-      <TopHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onBack={goBack}
-        onForward={goForward}
-        canGoBack={canGoBack}
-        canGoForward={canGoForward}
-        onMenuToggle={() => setIsMenuOpen(!isMenuOpen)}
-      />
+      <div className="flex items-center justify-between p-4 border-b" style={{ 
+        backgroundColor: 'var(--header-bg)', 
+        borderBottomColor: 'var(--border-color)' 
+      }}>
+        {/* Left side - Search */}
+        <div className="flex-1 max-w-md">
+          <input
+            type="text"
+            placeholder="Search verses, references, or topics..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+
+        {/* Center - Translation Controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleMultiTranslationMode}
+            className={`px-3 py-1 text-xs rounded-md transition-colors ${
+              multiTranslationMode 
+                ? 'bg-primary text-primary-foreground' 
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            {multiTranslationMode ? 'Multi' : 'Single'}
+          </button>
+          
+          <div className="flex items-center gap-1">
+            {multiTranslationMode ? (
+              <div className="flex gap-1">
+                {allTranslations.slice(0, 4).map(translation => (
+                  <button
+                    key={translation.id}
+                    onClick={() => toggleTranslation(translation.id)}
+                    className={`px-2 py-1 text-xs rounded transition-colors ${
+                      selectedTranslations.includes(translation.id)
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {translation.abbreviation}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <select
+                value={mainTranslation}
+                onChange={(e) => toggleTranslation(e.target.value)}
+                className="px-2 py-1 text-xs bg-muted border rounded"
+              >
+                {allTranslations.map(translation => (
+                  <option key={translation.id} value={translation.id}>
+                    {translation.abbreviation}
+                  </option>
+                ))}
+              </select>
+            )}
+            
+            <span className="text-xs text-muted-foreground ml-2">
+              Main: {mainTranslation}
+            </span>
+          </div>
+        </div>
+
+        {/* Right side - Menu */}
+        <button 
+          onClick={() => setIsMenuOpen(true)}
+          className="p-2 hover:bg-muted rounded-md transition-colors ml-4"
+          aria-label="Open menu"
+        >
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
 
       <HamburgerMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         onShowAuth={() => setIsAuthOpen(true)}
         onShowForum={() => setIsForumOpen(true)}
-        translations={selectedTranslations}
+        translations={displayTranslations}
         onTranslationToggle={handleTranslationToggle}
         preferences={preferences}
         onPreferenceChange={handlePreferenceChange}
@@ -280,9 +385,10 @@ export default function BiblePage() {
 
       <BibleTable
         verses={filteredVerses}
-        translations={translations}
-        selectedTranslations={selectedTranslations}
+        translations={displayTranslations}
+        selectedTranslations={displayTranslations}
         preferences={preferences}
+        mainTranslation={mainTranslation}
         onExpandVerse={expandVerse}
         onNavigateToVerse={navigateToVerse}
       />
