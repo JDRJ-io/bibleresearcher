@@ -768,10 +768,6 @@ export function useBibleData() {
     percentage: 0
   });
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
-  const [isLoadingNewWindow, setIsLoadingNewWindow] = useState(false);
-  const [currentRequestId, setCurrentRequestId] = useState(0);
-  const [skeletonRange, setSkeletonRange] = useState<{start: number, end: number} | null>(null);
-  const [inMemoryVerses, setInMemoryVerses] = useState<Map<number, BibleVerse>>(new Map()); // Track window loading state
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
   const VIEWPORT_BUFFER = 200; // Keep 200 verses above and below viewport (400 total) for smooth scrolling
@@ -910,13 +906,9 @@ export function useBibleData() {
     });
   };
 
-  // Intelligent verse loading with viewport-aware buffering and immediate loading indicators
+  // Intelligent verse loading with viewport-aware buffering
   const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number, isInstantJump = false) => {
     const safeCenterIndex = Math.max(0, Math.min(allVerses.length - 1, centerIndex));
-    
-    // Set loading state immediately
-    setIsLoadingNewWindow(true);
-    const startTime = performance.now();
     
     // Use different buffer sizes based on operation type
     const bufferSize = isInstantJump ? INSTANT_JUMP_BUFFER : VIEWPORT_BUFFER;
@@ -924,26 +916,21 @@ export function useBibleData() {
     const startIndex = Math.max(0, safeCenterIndex - bufferSize);
     const endIndex = Math.min(allVerses.length - 1, safeCenterIndex + bufferSize);
     
-    console.log(`⚡ Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize}, total: ${allVerses.length})`);
+    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize}, total: ${allVerses.length})`);
     
     const newVerses = allVerses.slice(startIndex, endIndex + 1);
     
     if (newVerses.length === 0) {
       console.warn('No verses loaded in range');
-      setIsLoadingNewWindow(false);
       return [];
     }
     
-    // Load verse text with timing
     const versesWithText = await loadVerseTextForRange(newVerses);
-    
-    const loadTime = performance.now() - startTime;
-    console.log(`✓ Loaded ${versesWithText.length} verses with text around index ${safeCenterIndex} in ${Math.round(loadTime)}ms`);
     
     setDisplayVerses(versesWithText);
     setCenterVerseIndex(safeCenterIndex);
-    setIsLoadingNewWindow(false);
     
+    console.log(`✓ Loaded ${versesWithText.length} verses with text around index ${safeCenterIndex}`);
     return versesWithText;
   };
 
@@ -952,136 +939,100 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // INSTANT-FEEL SCROLLING: 5-step implementation
+  // Anchor-based viewport tracking for accurate verse loading
   useEffect(() => {
-    if (!verses.length) return;
+    if (!verses.length || !displayVerses.length) return;
 
-    let currentRequestId = 0;
-    const ROW_HEIGHT = 120; // Fixed row height from CSS
+    let isScrolling = false;
+    let lastAnchorIndex = -1;
 
-    // 1. Predict first, fetch second - instant anchor calculation
-    const getAnchor = () => {
-      const scrollTop = window.scrollY;
-      const viewportCenter = scrollTop + window.innerHeight / 2;
-      return Math.floor(viewportCenter / ROW_HEIGHT);
-    };
+    const findViewportAnchor = () => {
+      // Find the verse element that's roughly centered in the viewport
+      const viewportCenter = window.scrollY + (window.innerHeight / 2);
+      
+      // Get all verse elements currently in DOM
+      const verseElements = document.querySelectorAll('[data-verse-index]');
+      if (verseElements.length === 0) return -1;
 
-    // 2. Paint now, hydrate later - immediate skeleton placeholders
-    const createSkeletonRows = (start: number, end: number) => {
-      const skeletonVerses = [];
-      for (let i = start; i <= end; i++) {
-        if (i < verses.length) {
-          skeletonVerses.push({
-            ...verses[i],
-            text: { KJV: '[Loading...]', ESV: '[Loading...]', NIV: '[Loading...]', NKJV: '[Loading...]' },
-            labels: ['skeleton-loading'],
-            height: ROW_HEIGHT
-          });
+      let closestElement: Element | null = null;
+      let closestDistance = Infinity;
+
+      verseElements.forEach(element => {
+        const rect = element.getBoundingClientRect();
+        const elementCenter = window.scrollY + rect.top + (rect.height / 2);
+        const distance = Math.abs(elementCenter - viewportCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestElement = element;
+        }
+      });
+
+      if (closestElement) {
+        const dataAttr = (closestElement as HTMLElement).dataset.verseIndex;
+        if (dataAttr) {
+          const verseIndex = parseInt(dataAttr);
+          return verseIndex;
         }
       }
-      return skeletonVerses;
+
+      return -1;
     };
 
-    // FIX 1: Fire fetch first, clear later - NO BLANK SCREENS
-    const loadAround = async (idx: number) => {
-      currentRequestId++;
-      const requestId = currentRequestId;
-      
-      const start = Math.max(idx - 200, 0);
-      const end = Math.min(idx + 200, verses.length - 1);
-      
-      console.time(`fetch-${requestId}`);
-      
-      try {
-        // FIX 1: Start fetch IMMEDIATELY, keep old content visible
-        const rangeVerses = verses.slice(start, end + 1);
-        const fetchPromise = loadVerseTextForRange(rangeVerses);
-        
-        // FIX 1: Show skeleton WHILE keeping old content, no DOM clear
-        const skeletonVerses = createSkeletonRows(start, end);
-        
-        // Only update if this is still the current request
-        if (requestId === currentRequestId) {
-          console.log(`⚡ Skeleton ready: anchor=${idx}, keeping old content visible`);
-          // Keep old verses visible until new ones arrive
-        }
-        
-        // FIX 2: Wait for fetch, then swap atomically
-        const versesWithText = await fetchPromise;
-        console.timeEnd(`fetch-${requestId}`);
-        
-        // FIX 3: Cancel if stale request (clean cancellation)
-        if (requestId !== currentRequestId) {
-          console.log(`✗ Cancelled stale request ${requestId}`);
-          return null; // Clean cancellation, no DOM work
-        }
-        
-        // FIX 2: Atomic swap - replace content only when new data is ready
-        const memoryStart = Math.max(0, idx - 250);
-        const memoryEnd = Math.min(verses.length - 1, idx + 250);
-        const bufferedVerses = versesWithText.filter((_, vidx) => {
-          const globalIdx = start + vidx;
-          return globalIdx >= memoryStart && globalIdx <= memoryEnd;
-        });
-        
-        // NOW update DOM with real content (atomic swap)
-        setDisplayVerses(bufferedVerses);
-        setCenterVerseIndex(idx);
-        console.log(`✓ Swapped ${bufferedVerses.length} verses for anchor ${idx} [${start}-${end}]`);
-        
-      } catch (error) {
-        if (requestId === currentRequestId) {
-          console.error(`✗ Fetch failed for request ${requestId}:`, error);
-        }
-      }
-    };
-
-
-
-
-
-    // FIX 3: Optimized scroll handling with immediate response
-    let scrollTimer: NodeJS.Timeout;
-    let lastAnchor = -1;
-    
     const handleScroll = () => {
-      clearTimeout(scrollTimer);
+      const currentAnchor = findViewportAnchor();
       
-      const anchor = getAnchor();
+      if (currentAnchor === -1 || currentAnchor === lastAnchorIndex) {
+        return; // No valid anchor or anchor hasn't changed
+      }
+
+      // Map display verse index back to full verses array index
+      const firstDisplayIndex = displayVerses.length > 0 ? 
+        verses.findIndex(v => v.id === displayVerses[0].id) : 0;
       
-      // Only load if anchor changed significantly (avoid redundant requests)
-      if (anchor >= 0 && anchor < verses.length && Math.abs(anchor - lastAnchor) > 5) {
-        lastAnchor = anchor;
-        loadAround(anchor);
+      const actualVerseIndex = firstDisplayIndex + currentAnchor;
+      
+      console.log(`📍 Anchor changed: display[${currentAnchor}] -> verse[${actualVerseIndex}] (${verses[actualVerseIndex]?.reference})`);
+      
+      // Check if we need to load a new window around this anchor
+      const currentWindowStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
+      const currentWindowEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
+      
+      // Load new window if anchor is outside current buffer or near edges
+      const bufferEdgeThreshold = VIEWPORT_BUFFER * 0.3; // 30% of buffer size
+      const distanceFromStart = actualVerseIndex - currentWindowStart;
+      const distanceFromEnd = currentWindowEnd - actualVerseIndex;
+      
+      console.log(`📊 Buffer analysis: center=${centerVerseIndex}, window=[${currentWindowStart}-${currentWindowEnd}], anchor=${actualVerseIndex}, distances=[${distanceFromStart}, ${distanceFromEnd}], threshold=${bufferEdgeThreshold}`);
+      
+      if (distanceFromStart < bufferEdgeThreshold || 
+          distanceFromEnd < bufferEdgeThreshold || 
+          actualVerseIndex < currentWindowStart || 
+          actualVerseIndex > currentWindowEnd) {
+        
+        console.log(`🔄 Loading new window around anchor ${actualVerseIndex} (${verses[actualVerseIndex]?.reference})`);
+        loadVerseRange(verses, actualVerseIndex);
       }
       
-      // Backup timer for scrollbar dragging
-      scrollTimer = setTimeout(() => {
-        const newAnchor = getAnchor();
-        if (newAnchor >= 0 && newAnchor < verses.length && newAnchor !== lastAnchor) {
-          lastAnchor = newAnchor;
-          loadAround(newAnchor);
-        }
-      }, 100);
+      lastAnchorIndex = currentAnchor;
     };
 
-    // Handle all navigation methods
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('scrollend', handleScroll, { passive: true });
-    
-    // Initial load
-    const initialAnchor = getAnchor();
-    if (initialAnchor >= 0 && initialAnchor < verses.length) {
-      lastAnchor = initialAnchor;
-      loadAround(initialAnchor);
-    }
+    // Use requestAnimationFrame for smooth anchor tracking
+    const smoothScrollHandler = () => {
+      if (!isScrolling) {
+        isScrolling = true;
+        requestAnimationFrame(() => {
+          handleScroll();
+          isScrolling = false;
+        });
+      }
+    };
 
+    window.addEventListener('scroll', smoothScrollHandler, { passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('scrollend', handleScroll);
-      clearTimeout(scrollTimer);
+      window.removeEventListener('scroll', smoothScrollHandler);
     };
-  }, [verses.length]);
+  }, [verses.length, displayVerses.length, centerVerseIndex]);
 
   // Load Bible data on mount
   useEffect(() => {
@@ -1174,10 +1125,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log('⚡ PRIORITY NAVIGATION to:', reference);
-    
-    // Set priority loading flag to suspend background tasks
-    setIsLoadingNewWindow(true);
+    console.log('🚀 INSTANT NAVIGATION to:', reference);
     
     // Add to history
     const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
@@ -1197,18 +1145,13 @@ export function useBibleData() {
     
     if (targetVerse) {
       const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
-      console.log(`🎯 PRIORITY TARGET at index ${targetIndex}:`, targetVerse.reference);
+      console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
       
       if (targetIndex !== -1) {
-        // Immediate priority loading with minimal delay
-        const startTime = Date.now();
+        // Use instant jump loading for far navigation
         await loadVerseRange(verses, targetIndex, true);
-        const loadTime = Date.now() - startTime;
         
-        console.log(`⚡ PRIORITY LOAD COMPLETE in ${loadTime}ms: ${targetVerse.reference}`);
-        
-        // Clear priority loading flag with slight delay for smooth transition
-        setTimeout(() => setIsLoadingNewWindow(false), 100);
+        console.log(`✅ INSTANT NAVIGATION COMPLETE: Loaded verses around ${targetVerse.reference}`);
         
         // Scroll to target verse instantly
         setTimeout(() => {
@@ -1467,54 +1410,6 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
   const totalBibleHeight = verses.reduce((total, verse) => total + (verse.height || 120), 0);
   const scrollOffset = calculateScrollOffset();
 
-  // URL monitoring for instant direct-link recognition
-  useEffect(() => {
-    const handleURLChange = () => {
-      const hash = window.location.hash;
-      const pathname = window.location.pathname;
-      
-      // Check for verse references in URL hash (#gen-1-1) or pathname
-      let targetReference = null;
-      
-      if (hash) {
-        // Parse hash format: #gen-1-1, #john-3-16, etc.
-        const hashMatch = hash.match(/^#([a-zA-Z]+)-(\d+)-(\d+)$/);
-        if (hashMatch) {
-          const [, book, chapter, verse] = hashMatch;
-          targetReference = `${book.charAt(0).toUpperCase() + book.slice(1)} ${chapter}:${verse}`;
-        }
-      }
-      
-      if (pathname && pathname !== '/') {
-        // Parse pathname format: /book/chapter/verse or /gen/1/1
-        const pathMatch = pathname.match(/^\/([a-zA-Z]+)\/(\d+)\/(\d+)$/);
-        if (pathMatch) {
-          const [, book, chapter, verse] = pathMatch;
-          targetReference = `${book.charAt(0).toUpperCase() + book.slice(1)} ${chapter}:${verse}`;
-        }
-      }
-      
-      if (targetReference && verses.length > 0) {
-        console.log('🔗 INSTANT URL RECOGNITION:', targetReference);
-        navigateToVerse(targetReference);
-      }
-    };
-
-    // Listen for hash changes and popstate events
-    window.addEventListener('hashchange', handleURLChange);
-    window.addEventListener('popstate', handleURLChange);
-    
-    // Check initial URL on mount
-    if (verses.length > 0) {
-      handleURLChange();
-    }
-
-    return () => {
-      window.removeEventListener('hashchange', handleURLChange);
-      window.removeEventListener('popstate', handleURLChange);
-    };
-  }, [verses.length]);
-
   return {
     verses: displayVerses, // Return display verses for rendering
     allVerses: verses, // Keep full dataset available
@@ -1543,8 +1438,6 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     performSearch,
     // Virtual scrolling properties to prevent page jumping
     totalBibleHeight,
-    scrollOffset,
-    // Loading state for new window content
-    isLoadingNewWindow
+    scrollOffset
   };
 }

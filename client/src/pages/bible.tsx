@@ -30,8 +30,7 @@ export default function BiblePage() {
     goBack: hookGoBack,
     goForward: hookGoForward,
     canGoBack: hookCanGoBack,
-    canGoForward: hookCanGoForward,
-    isLoadingNewWindow
+    canGoForward: hookCanGoForward
   } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
@@ -378,53 +377,17 @@ export default function BiblePage() {
         onToggleTranslation={toggleTranslation}
       />
 
-      <div className="relative">
-        <BibleTable
-          verses={filteredVerses}
-          translations={displayTranslations}
-          selectedTranslations={displayTranslations}
-          preferences={preferences}
-          mainTranslation={mainTranslation}
-          onExpandVerse={localExpandVerse}
-          onNavigateToVerse={navigateToVerse}
-          totalBibleHeight={totalBibleHeight}
-          startOffset={scrollOffset}
-        />
-        
-        {/* Instant skeleton placeholder for page-turn feel */}
-        {isLoadingNewWindow && (
-          <div className="absolute inset-0 bg-background z-50">
-            <div className="p-4 space-y-4">
-              {/* Header skeleton */}
-              <div className="h-12 bg-muted/30 rounded animate-pulse"></div>
-              
-              {/* Verse skeleton rows */}
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex gap-4">
-                    <div className="w-20 h-6 bg-muted/40 rounded animate-pulse"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted/30 rounded animate-pulse w-full"></div>
-                      <div className="h-4 bg-muted/30 rounded animate-pulse w-4/5"></div>
-                      {Math.random() > 0.5 && (
-                        <div className="h-4 bg-muted/30 rounded animate-pulse w-3/4"></div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {/* Loading indicator in corner */}
-              <div className="fixed top-4 right-4 bg-background border rounded-lg p-3 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                  <span className="text-sm text-muted-foreground">Loading...</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <BibleTable
+        verses={filteredVerses}
+        translations={displayTranslations}
+        selectedTranslations={displayTranslations}
+        preferences={preferences}
+        mainTranslation={mainTranslation}
+        onExpandVerse={localExpandVerse}
+        onNavigateToVerse={navigateToVerse}
+        totalBibleHeight={totalBibleHeight}
+        startOffset={scrollOffset}
+      />
 
       <ExpandedVerseOverlay
         verse={localExpandedVerse}
