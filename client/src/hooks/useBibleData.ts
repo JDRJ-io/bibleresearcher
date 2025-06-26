@@ -167,8 +167,8 @@ const loadAdditionalData = async (verses: BibleVerse[]): Promise<void> => {
       
       if (crossRefData) {
         const crossRefText = await crossRefData.text();
-        parseAndMergeCrossReferences(verses, crossRefText);
-        console.log('Cross references loaded from Supabase');
+        // Cross references will be loaded separately
+        console.log('Cross references found in Supabase');
       }
     } catch (err) {
       console.warn('Could not load cross references');
@@ -182,8 +182,8 @@ const loadAdditionalData = async (verses: BibleVerse[]): Promise<void> => {
       
       if (prophecyData) {
         const prophecyText = await prophecyData.text();
-        parseAndMergeProphecyData(verses, prophecyText);
-        console.log('Prophecy data loaded from Supabase');
+        // Prophecy data will be loaded separately
+        console.log('Prophecy data found in Supabase');
       }
     } catch (err) {
       console.warn('Could not load prophecy data:', err);
@@ -590,6 +590,9 @@ const mockTranslations: Translation[] = [
 ];
 
 export function useBibleData() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [verses, setVerses] = useState<BibleVerse[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [expandedVerse, setExpandedVerse] = useState<BibleVerse | null>(null);
@@ -599,46 +602,53 @@ export function useBibleData() {
     details: 'Starting Bible data loading process'
   });
 
-  const { data: verses = [], isLoading, error } = useQuery({
-    queryKey: ['/api/bible/verses'],
-    queryFn: async () => {
-      setLoadingProgress({
-        stage: 'Loading verse structure...',
-        progress: 10,
-        details: 'Fetching 31,102 verse references from metadata'
-      });
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        
+        setLoadingProgress({
+          stage: 'Loading verse structure...',
+          progress: 10,
+          details: 'Fetching 31,102 verse references from metadata'
+        });
 
-      const data = await loadBibleData((progress) => {
-        setLoadingProgress(progress);
-      });
+        const data = await loadBibleData((progress) => {
+          setLoadingProgress(progress);
+        });
 
-      setLoadingProgress({
-        stage: 'Loading cross-references...',
-        progress: 80,
-        details: 'Parsing cross-reference data with Gen.1:1 format'
-      });
+        setLoadingProgress({
+          stage: 'Loading cross-references...',
+          progress: 80,
+          details: 'Parsing cross-reference data with Gen.1:1 format'
+        });
 
-      // Load cross-references with correct format
-      await loadCrossReferences(data);
+        // Load cross-references with correct format
+        await loadCrossReferencesFromAssets(data);
 
-      setLoadingProgress({
-        stage: 'Complete!',
-        progress: 100,
-        details: `Successfully loaded ${data.length} verses with cross-references`
-      });
+        setLoadingProgress({
+          stage: 'Complete!',
+          progress: 100,
+          details: `Successfully loaded ${data.length} verses with cross-references`
+        });
 
-      return data;
-    },
-    retry: 1,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+        setVerses(data);
+        console.log('useBibleData hook:', {
+          versesCount: data.length,
+          isLoading: false,
+          error: null,
+          firstVerse: data[0]
+        });
+      } catch (err) {
+        console.error('Error in useBibleData:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load Bible data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  console.log('useBibleData hook:', { 
-    versesCount: verses.length, 
-    isLoading, 
-    error,
-    firstVerse: verses[0] 
-  });
+    loadData();
+  }, []);
 
   const { data: translations = [] } = useQuery({
     queryKey: ['/api/bible/translations'],
@@ -679,11 +689,106 @@ export function useBibleData() {
     setExpandedVerse(null);
   };
 
+// Function to load cross-references from attached assets
+const loadCrossReferencesFromAssets = async (verses: BibleVerse[]) => {
+  try {
+    const response = await fetch('/attached_assets/Pasted-Gen-1-1-John-1-1-John-1-2-John-1-3-Heb-11-3-Isa-45-18-Rev-4-11-Heb-1-10-Col-1-16-Col-1-17-Isa-42-5--1750893815435_1750893815436.txt');
+    if (response.ok) {
+      const text = await response.text();
+      console.log(`✓ Loading cross-references from attached assets`);
+      console.log(`Cross-reference sample:`, text.substring(0, 200));
+      
+      const crossRefMap = parseCrossReferences(text);
+      applyCrossReferences(verses, crossRefMap);
+      return;
+    }
+  } catch (err) {
+    console.log('Cross-references not found in attached assets');
+  }
+};
+
+const parseCrossReferences = (text: string) => {
+  const crossRefMap: Record<string, any[]> = {};
+  
+  console.log('Parsing cross-references with Gen.1:1 format...');
+  const lines = text.split('\n').filter(line => line.trim());
+  console.log(`Found ${lines.length} cross-reference lines`);
+  
+  lines.forEach((line, index) => {
+    if (line.includes('$$')) {
+      const [mainRef, crossRefsText] = line.split('$$');
+      // Keep the exact Gen.1:1 format - don't convert to spaces
+      const cleanMainRef = mainRef.trim();
+      
+      if (crossRefsText) {
+        // Split by $ to get different reference groups, then by # for sequential verses
+        const refGroups = crossRefsText.split('$');
+        const crossRefs: any[] = [];
+        
+        refGroups.forEach(group => {
+          if (group.trim()) {
+            const seqRefs = group.split('#');
+            seqRefs.forEach(ref => {
+              if (ref.trim()) {
+                // Keep the exact format: John.1:1, don't convert to spaces
+                const cleanRef = ref.trim();
+                crossRefs.push({
+                  reference: cleanRef,
+                  text: '' // Will be populated with actual verse text
+                });
+              }
+            });
+          }
+        });
+        
+        crossRefMap[cleanMainRef] = crossRefs;
+        
+        if (index < 5) {
+          console.log(`✓ Parsed cross-ref ${index + 1}: ${cleanMainRef} -> ${crossRefs.length} references`);
+        }
+      }
+    }
+  });
+  
+  console.log(`📊 Cross-reference results: ${Object.keys(crossRefMap).length} verses with cross-references`);
+  return crossRefMap;
+};
+
+const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, any[]>) => {
+  // Helper function to get verse text from the Bible data using Gen.1:1 format
+  const getVerseText = (dotReference: string): string => {
+    // Convert Gen.1:1 format to "Gen 1:1" format to match our verse data
+    const spaceReference = dotReference.replace(/\./g, ' ');
+    const verse = verses.find(v => v.reference === spaceReference);
+    return verse?.text?.KJV || '';
+  };
+  
+  // Apply cross-references to verses with actual text content
+  let crossRefCount = 0;
+  verses.forEach(verse => {
+    // Convert verse reference back to Gen.1:1 format to match crossRefMap keys
+    const dotFormat = verse.reference.replace(/\s/g, '.');
+    const crossRefs = crossRefMap[dotFormat];
+    
+    if (crossRefs && crossRefs.length > 0) {
+      verse.crossReferences = crossRefs.slice(0, 6).map(ref => ({ // Limit to first 6 for display
+        ...ref,
+        text: getVerseText(ref.reference) || 'Text not found'
+      }));
+      crossRefCount++;
+    }
+  });
+  
+  console.log(`✓ Applied cross-references to ${crossRefCount} verses using Gen.1:1 format`);
+};
+
   const navigateToVerse = (reference: string) => {
     console.log('Navigating to verse:', reference);
     
-    // Find the verse element and scroll to it
-    const verseElement = document.querySelector(`[data-verse-ref="${reference}"]`);
+    // Convert Gen.1:1 format to Gen 1:1 format for element search
+    const spaceReference = reference.replace(/\./g, ' ');
+    const verseElement = document.querySelector(`[data-verse-ref="${spaceReference}"]`);
+    
     if (verseElement) {
       verseElement.scrollIntoView({ 
         behavior: 'smooth', 
@@ -697,7 +802,7 @@ export function useBibleData() {
         verseElement.classList.remove('bg-yellow-200', 'dark:bg-yellow-800');
       }, 2000);
     } else {
-      console.warn(`Verse element not found for reference: ${reference}`);
+      console.warn(`Verse element not found for reference: ${reference} (converted to ${spaceReference})`);
     }
   };
 
