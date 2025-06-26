@@ -809,24 +809,36 @@ export function useBibleData() {
 
   // Load verses for a specific range with smooth animation
   const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number) => {
-    const startIndex = Math.max(0, centerIndex - VERSE_BUFFER);
-    const endIndex = Math.min(allVerses.length - 1, centerIndex + VERSE_BUFFER);
+    // Ensure centerIndex is within valid bounds
+    const safeCenterIndex = Math.max(0, Math.min(allVerses.length - 1, centerIndex));
     
-    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${centerIndex}, total: ${allVerses.length})`);
+    // Calculate start and end indices with proper bounds checking
+    const startIndex = Math.max(0, safeCenterIndex - VERSE_BUFFER);
+    const endIndex = Math.min(allVerses.length - 1, safeCenterIndex + VERSE_BUFFER);
     
-    // Get the verse range
+    // Validate the range calculations
+    if (startIndex < 0 || endIndex >= allVerses.length || startIndex > endIndex) {
+      console.warn(`Invalid verse range: start=${startIndex}, end=${endIndex}, total=${allVerses.length}`);
+      return [];
+    }
+    
+    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, total: ${allVerses.length})`);
+    
+    // Get the verse range with bounds safety
     const newVerses = allVerses.slice(startIndex, endIndex + 1);
     
-    // For now, keep using placeholders for smooth performance
-    // Actual text loading will be implemented when individual verses are accessed
-    const finalVerses = newVerses;
+    // Ensure we have valid verses
+    if (newVerses.length === 0) {
+      console.warn('No verses loaded in range');
+      return [];
+    }
     
     // Set display verses immediately for smooth experience
-    setDisplayVerses(finalVerses);
-    setCenterVerseIndex(centerIndex);
+    setDisplayVerses(newVerses);
+    setCenterVerseIndex(safeCenterIndex);
     
-    console.log(`✓ Loaded ${finalVerses.length} verses around index ${centerIndex}`);
-    return finalVerses;
+    console.log(`✓ Loaded ${newVerses.length} verses around index ${safeCenterIndex}`);
+    return newVerses;
   };
 
   const { data: translations = [] } = useQuery({
@@ -843,14 +855,24 @@ export function useBibleData() {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       
-      // Calculate approximate verse position based on scroll
-      const scrollProgress = scrollY / (documentHeight - windowHeight);
+      // Prevent division by zero and ensure valid calculations
+      if (documentHeight <= windowHeight || verses.length === 0) {
+        return;
+      }
+      
+      // Calculate scroll progress with bounds checking
+      const scrollableHeight = documentHeight - windowHeight;
+      const scrollProgress = Math.max(0, Math.min(1, scrollY / scrollableHeight));
       const estimatedVerseIndex = Math.floor(scrollProgress * verses.length);
       
+      // Ensure the estimated index is within bounds
+      const boundedIndex = Math.max(0, Math.min(verses.length - 1, estimatedVerseIndex));
+      
       // Load new range if we've scrolled significantly from center
-      const currentDistance = Math.abs(estimatedVerseIndex - centerVerseIndex);
+      const currentDistance = Math.abs(boundedIndex - centerVerseIndex);
       if (currentDistance > VISIBLE_RANGE) {
-        loadVerseRange(verses, estimatedVerseIndex);
+        console.log(`Scroll detected: loading around verse ${boundedIndex}, scrollTop: ${scrollY}`);
+        loadVerseRange(verses, boundedIndex);
       }
     };
 
