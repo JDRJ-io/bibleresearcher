@@ -5,152 +5,61 @@ import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
 
 // Load complete Bible data from your Supabase storage
 const loadBibleData = async (progressCallback?: (progress: any) => void): Promise<BibleVerse[]> => {
-  console.log('Loading Bible data from Supabase storage...');
+  console.log('🚀 Loading Bible data directly from attached files...');
   
   if (progressCallback) {
-    progressCallback({
-      stage: 'Connecting to Supabase...',
-      progress: 5,
-      details: 'Establishing connection to your Bible data'
-    });
+    progressCallback({ stage: 'structure', percentage: 10 });
   }
   
   try {
-    // First, let's check what buckets and files are available
-    console.log('Checking available storage buckets...');
-    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-    if (bucketsError) {
-      console.error('Error listing buckets:', bucketsError);
-    } else {
-      console.log('Available buckets:', buckets?.map(b => b.name));
-    }
-
-    // Try to list files in the storage
-    const { data: files, error: filesError } = await supabase.storage
-      .from('anointed')
-      .list();
-    
-    if (filesError) {
-      console.error('Error listing files in anointed bucket:', filesError);
-      console.log('Attempting to access files directly...');
-    } else {
-      console.log('Files in anointed bucket:', files?.map(f => f.name));
-    }
-
-    // Check metadata folder for verse keys
-    const { data: metadataFiles, error: metadataError } = await supabase.storage
-      .from('anointed')
-      .list('metadata');
-    
-    console.log('Files in metadata folder:', metadataFiles?.map(f => f.name));
-
-    // Try loading verse keys from metadata folder
-    let verseKeysData, verseKeysError;
-    
-    // Try different possible locations for verse keys
-    const possiblePaths = [
-      'metadata/verseKeys-canonical.json',
-      'verseKeys-canonical.json',
-      'metadata/verseKeys.json'
-    ];
-    
-    for (const path of possiblePaths) {
-      const result = await supabase.storage.from('anointed').download(path);
-      if (!result.error) {
-        verseKeysData = result.data;
-        console.log(`Found verse keys at: ${path}`);
-        break;
-      } else {
-        console.log(`Verse keys not found at: ${path}`);
-      }
+    // Load verse keys directly from attached file
+    console.log('📋 Loading verse structure from attached verseKeys-canonical.json...');
+    const verseKeysResponse = await fetch('/attached_assets/verseKeys-canonical_1750866553828.json');
+    if (!verseKeysResponse.ok) {
+      throw new Error('Failed to load verse keys from attached file');
     }
     
-    if (!verseKeysData) {
-      console.error('Could not find verse keys file in any location');
-      console.log('Loading from attached file structure...');
-      
-      if (progressCallback) {
-        progressCallback({
-          stage: 'Loading fallback structure...',
-          progress: 15,
-          details: 'Using backup verse structure from attached files'
-        });
-      }
-      
-      // Generate fallback verses
-      return generateFallbackVerses();
-    }
-
-    const verseKeysText = await verseKeysData.text();
-    const verseKeys: string[] = JSON.parse(verseKeysText);
-    console.log(`Successfully loaded ${verseKeys.length} verse keys from Supabase`);
+    const verseKeys: string[] = await verseKeysResponse.json();
+    console.log(`✅ Loaded ${verseKeys.length} verse keys from attached file`);
     
     if (progressCallback) {
-      progressCallback({ stage: 'text', percentage: 25 });
+      progressCallback({ stage: 'text', percentage: 30 });
     }
-
-    // Load KJV translation from Supabase storage
-    const { data: kjvData, error: kjvError } = await supabase.storage
-      .from('anointed')
-      .download('translations/kjv/KJV.txt');
     
-    if (kjvError) {
-      console.error('Error loading KJV from translations/kjv/KJV.txt:', kjvError);
-      // Try alternative path
-      const { data: kjvData2, error: kjvError2 } = await supabase.storage
-        .from('anointed')
-        .download('translations/KJV.txt');
-      
-      if (kjvError2) {
-        console.error('Error loading KJV from translations/KJV.txt:', kjvError2);
-        return generateFallbackVerses();
-      }
-      
-      const kjvTextData = await kjvData2.text();
-      console.log('KJV loaded from translations/KJV.txt');
-      console.log('Sample KJV content:', kjvTextData.substring(0, 200));
-      const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
-      console.log(`PRIMARY PATH: Successfully parsed ${verses.length} verses from your KJV file`);
-      
-      if (verses.length === 0) {
-        console.error('PRIMARY PATH FAILED: No verses created');
-        return generateFallbackVerses();
-      }
-      
-      // Load cross references and additional data
-      await loadAdditionalData(verses);
-      
-      console.log(`PRIMARY PATH SUCCESS: Returning ${verses.length} actual Bible verses from your Supabase files`);
-      return verses;
+    // Load KJV text directly from attached file
+    console.log('📖 Loading KJV text from attached KJV.txt...');
+    const kjvResponse = await fetch('/attached_assets/KJV_1750866662491.txt');
+    if (!kjvResponse.ok) {
+      throw new Error('Failed to load KJV text from attached file');
     }
-
-    const kjvTextData = await kjvData.text();
-    console.log('KJV loaded from translations/kjv/KJV.txt');
-    console.log('Sample KJV content:', kjvTextData.substring(0, 200));
     
-    const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
-    console.log(`FALLBACK PATH: ${verses.length} verses from translations/kjv/KJV.txt`);
+    const kjvText = await kjvResponse.text();
+    console.log('✅ KJV text loaded successfully');
+    console.log('Sample KJV content:', kjvText.substring(0, 200));
     
     if (progressCallback) {
-      progressCallback({
-        stage: 'Processing Bible text...',
-        progress: 70,
-        details: `Successfully parsed ${verses.length} verses from KJV`
-      });
+      progressCallback({ stage: 'cross-refs', percentage: 60 });
     }
+    
+    // Parse the Bible verses using your actual data
+    const verses = parseActualSupabaseKJV(kjvText, verseKeys);
+    console.log(`🎯 Successfully parsed ${verses.length} verses from your actual files`);
     
     if (verses.length === 0) {
-      console.error('CRITICAL: No verses created despite successful parsing');
-      return generateFallbackVerses();
+      throw new Error('No verses created from your files');
     }
     
-    // Cross references will be loaded by the main query function
+    if (progressCallback) {
+      progressCallback({ stage: 'finalizing', percentage: 95 });
+    }
     
-    console.log(`FALLBACK PATH SUCCESS: Returning ${verses.length} actual Bible verses`);
+    console.log(`🏆 SUCCESS: Returning ${verses.length} actual Bible verses from your attached files`);
     return verses;
+    
   } catch (error) {
-    console.error('Error loading Bible data:', error);
-    return generateFallbackVerses();
+    console.error('❌ Error loading from attached files:', error);
+    console.log('🔄 Falling back to embedded data...');
+    return generateExtendedFallbackVerses();
   }
 };
 

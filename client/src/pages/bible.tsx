@@ -162,8 +162,8 @@ export default function BiblePage() {
     loadingPercentage: loadingProgress?.percentage 
   });
 
-  // TEMPORARILY BYPASS LOADING SCREEN TO TEST MAIN INTERFACE
-  const shouldShowLoading = false; // Force bypass for testing
+  // Show loading only when we don't have verses yet
+  const shouldShowLoading = isLoading && verses.length === 0;
   
   console.log('🚫 LOADING BYPASSED FOR TESTING:', {
     originalIsLoading: isLoading,
