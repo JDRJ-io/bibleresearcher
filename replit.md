@@ -102,6 +102,15 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
+## June 26, 2025 - Anchor-Based Loading with Instant Response System
+- **ANCHOR-BASED VIEWPORT TRACKING**: Implemented intelligent anchor detection that identifies the verse centered in viewport
+- **IMMEDIATE LOADING TRIGGERS**: Fetch requests now trigger instantly when scrolling settles (100ms timeout) or significant position changes occur
+- **SNAPPY LOADING INDICATORS**: Added smooth loading overlay with spinner and status text during verse window fetching
+- **OPTIMIZED BUFFER MANAGEMENT**: Increased buffer to 400 verses (200 above/below anchor) with 25% edge threshold for faster triggering
+- **ELIMINATED BLANK VIEWPORT ISSUE**: System now loads content around actual user position instead of defaulting to verse #1
+- **PERFORMANCE TIMING**: Added load time tracking with console logging for optimization monitoring
+- Loading experience now feels instant with immediate visual feedback and proper content positioning
+
 ## June 26, 2025 - Instant Hyperlink Navigation Performance Fix
 - **PERFORMANCE FREEZE RESOLVED**: Fixed app freezing when jumping between distant Bible locations (Gen 1:1 to John 3:16)
 - **OPTIMIZED NAVIGATION SYSTEM**: Replaced heavy scroll-based loading with instant verse targeting using minimal 50-verse windows

@@ -768,6 +768,7 @@ export function useBibleData() {
     percentage: 0
   });
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
+  const [isLoadingNewWindow, setIsLoadingNewWindow] = useState(false); // Track window loading state
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
   const VIEWPORT_BUFFER = 200; // Keep 200 verses above and below viewport (400 total) for smooth scrolling
@@ -906,9 +907,13 @@ export function useBibleData() {
     });
   };
 
-  // Intelligent verse loading with viewport-aware buffering
+  // Intelligent verse loading with viewport-aware buffering and immediate loading indicators
   const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number, isInstantJump = false) => {
     const safeCenterIndex = Math.max(0, Math.min(allVerses.length - 1, centerIndex));
+    
+    // Set loading state immediately
+    setIsLoadingNewWindow(true);
+    const startTime = performance.now();
     
     // Use different buffer sizes based on operation type
     const bufferSize = isInstantJump ? INSTANT_JUMP_BUFFER : VIEWPORT_BUFFER;
@@ -916,21 +921,26 @@ export function useBibleData() {
     const startIndex = Math.max(0, safeCenterIndex - bufferSize);
     const endIndex = Math.min(allVerses.length - 1, safeCenterIndex + bufferSize);
     
-    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize}, total: ${allVerses.length})`);
+    console.log(`⚡ Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize}, total: ${allVerses.length})`);
     
     const newVerses = allVerses.slice(startIndex, endIndex + 1);
     
     if (newVerses.length === 0) {
       console.warn('No verses loaded in range');
+      setIsLoadingNewWindow(false);
       return [];
     }
     
+    // Load verse text with timing
     const versesWithText = await loadVerseTextForRange(newVerses);
+    
+    const loadTime = performance.now() - startTime;
+    console.log(`✓ Loaded ${versesWithText.length} verses with text around index ${safeCenterIndex} in ${Math.round(loadTime)}ms`);
     
     setDisplayVerses(versesWithText);
     setCenterVerseIndex(safeCenterIndex);
+    setIsLoadingNewWindow(false);
     
-    console.log(`✓ Loaded ${versesWithText.length} verses with text around index ${safeCenterIndex}`);
     return versesWithText;
   };
 
@@ -939,12 +949,13 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // Anchor-based viewport tracking for accurate verse loading
+  // Optimized anchor-based viewport tracking with immediate loading triggers
   useEffect(() => {
     if (!verses.length || !displayVerses.length) return;
 
     let isScrolling = false;
     let lastAnchorIndex = -1;
+    let scrollTimeout: number | null = null;
 
     const findViewportAnchor = () => {
       // Find the verse element that's roughly centered in the viewport
@@ -979,58 +990,85 @@ export function useBibleData() {
       return -1;
     };
 
-    const handleScroll = () => {
-      const currentAnchor = findViewportAnchor();
-      
-      if (currentAnchor === -1 || currentAnchor === lastAnchorIndex) {
-        return; // No valid anchor or anchor hasn't changed
-      }
-
-      // Map display verse index back to full verses array index
-      const firstDisplayIndex = displayVerses.length > 0 ? 
-        verses.findIndex(v => v.id === displayVerses[0].id) : 0;
-      
-      const actualVerseIndex = firstDisplayIndex + currentAnchor;
-      
-      console.log(`📍 Anchor changed: display[${currentAnchor}] -> verse[${actualVerseIndex}] (${verses[actualVerseIndex]?.reference})`);
-      
+    const triggerLoadIfNeeded = (actualVerseIndex: number) => {
       // Check if we need to load a new window around this anchor
       const currentWindowStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
       const currentWindowEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
       
       // Load new window if anchor is outside current buffer or near edges
-      const bufferEdgeThreshold = VIEWPORT_BUFFER * 0.3; // 30% of buffer size
+      const bufferEdgeThreshold = VIEWPORT_BUFFER * 0.25; // 25% of buffer size for faster triggering
       const distanceFromStart = actualVerseIndex - currentWindowStart;
       const distanceFromEnd = currentWindowEnd - actualVerseIndex;
-      
-      console.log(`📊 Buffer analysis: center=${centerVerseIndex}, window=[${currentWindowStart}-${currentWindowEnd}], anchor=${actualVerseIndex}, distances=[${distanceFromStart}, ${distanceFromEnd}], threshold=${bufferEdgeThreshold}`);
       
       if (distanceFromStart < bufferEdgeThreshold || 
           distanceFromEnd < bufferEdgeThreshold || 
           actualVerseIndex < currentWindowStart || 
           actualVerseIndex > currentWindowEnd) {
         
-        console.log(`🔄 Loading new window around anchor ${actualVerseIndex} (${verses[actualVerseIndex]?.reference})`);
+        console.log(`⚡ Immediate load trigger: anchor=${actualVerseIndex} (${verses[actualVerseIndex]?.reference})`);
         loadVerseRange(verses, actualVerseIndex);
+        return true;
       }
-      
-      lastAnchorIndex = currentAnchor;
+      return false;
     };
 
-    // Use requestAnimationFrame for smooth anchor tracking
-    const smoothScrollHandler = () => {
+    const handleScroll = () => {
+      const currentAnchor = findViewportAnchor();
+      
+      if (currentAnchor === -1) return;
+
+      // Map display verse index back to full verses array index
+      const firstDisplayIndex = displayVerses.length > 0 ? 
+        verses.findIndex(v => v.id === displayVerses[0].id) : 0;
+      
+      const actualVerseIndex = firstDisplayIndex + currentAnchor;
+
+      // Immediate trigger for significant anchor changes
+      if (Math.abs(actualVerseIndex - lastAnchorIndex) > 10) {
+        const loaded = triggerLoadIfNeeded(actualVerseIndex);
+        if (loaded) {
+          lastAnchorIndex = actualVerseIndex;
+          return;
+        }
+      }
+
+      // Standard anchor change handling
+      if (currentAnchor !== lastAnchorIndex) {
+        triggerLoadIfNeeded(actualVerseIndex);
+        lastAnchorIndex = actualVerseIndex;
+      }
+    };
+
+    const handleScrollEnd = () => {
+      // Clear any existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      
+      // Set a short timeout to handle scroll settling
+      scrollTimeout = window.setTimeout(() => {
+        handleScroll();
+      }, 100); // Very short delay for immediate response
+    };
+
+    // Use immediate scroll handling for rapid response
+    const immediateScrollHandler = () => {
       if (!isScrolling) {
         isScrolling = true;
+        handleScroll(); // Immediate trigger
+        handleScrollEnd(); // Settled trigger
         requestAnimationFrame(() => {
-          handleScroll();
           isScrolling = false;
         });
       }
     };
 
-    window.addEventListener('scroll', smoothScrollHandler, { passive: true });
+    window.addEventListener('scroll', immediateScrollHandler, { passive: true });
     return () => {
-      window.removeEventListener('scroll', smoothScrollHandler);
+      window.removeEventListener('scroll', immediateScrollHandler);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
     };
   }, [verses.length, displayVerses.length, centerVerseIndex]);
 
@@ -1438,6 +1476,8 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     performSearch,
     // Virtual scrolling properties to prevent page jumping
     totalBibleHeight,
-    scrollOffset
+    scrollOffset,
+    // Loading state for new window content
+    isLoadingNewWindow
   };
 }

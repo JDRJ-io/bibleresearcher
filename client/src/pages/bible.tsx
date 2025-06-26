@@ -30,7 +30,8 @@ export default function BiblePage() {
     goBack: hookGoBack,
     goForward: hookGoForward,
     canGoBack: hookCanGoBack,
-    canGoForward: hookCanGoForward
+    canGoForward: hookCanGoForward,
+    isLoadingNewWindow
   } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
@@ -377,17 +378,34 @@ export default function BiblePage() {
         onToggleTranslation={toggleTranslation}
       />
 
-      <BibleTable
-        verses={filteredVerses}
-        translations={displayTranslations}
-        selectedTranslations={displayTranslations}
-        preferences={preferences}
-        mainTranslation={mainTranslation}
-        onExpandVerse={localExpandVerse}
-        onNavigateToVerse={navigateToVerse}
-        totalBibleHeight={totalBibleHeight}
-        startOffset={scrollOffset}
-      />
+      <div className="relative">
+        <BibleTable
+          verses={filteredVerses}
+          translations={displayTranslations}
+          selectedTranslations={displayTranslations}
+          preferences={preferences}
+          mainTranslation={mainTranslation}
+          onExpandVerse={localExpandVerse}
+          onNavigateToVerse={navigateToVerse}
+          totalBibleHeight={totalBibleHeight}
+          startOffset={scrollOffset}
+        />
+        
+        {/* Loading indicator for new window content */}
+        {isLoadingNewWindow && (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-background border rounded-lg p-6 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div>
+                  <div className="font-medium">Loading verses...</div>
+                  <div className="text-sm text-muted-foreground">Fetching content for your location</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <ExpandedVerseOverlay
         verse={localExpandedVerse}
