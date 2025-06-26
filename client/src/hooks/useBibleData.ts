@@ -715,7 +715,7 @@ export function useBibleData() {
 
   // Virtual scrolling constants - matching original smooth scrolling behavior
   const VERSE_BUFFER = 2; // Load only 2 verses above and below for smooth incremental scrolling
-  const SCROLL_THRESHOLD = 120; // Pixels to scroll before triggering new verse load
+  const VISIBLE_RANGE = 5; // Small range for immediate loading updates
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
@@ -723,110 +723,22 @@ export function useBibleData() {
   const [mainTranslation, setMainTranslation] = useState('KJV');
 
   const allTranslations = mockTranslations;
-  
-  // Cache for translation texts
-  const translationCache = new Map<string, Map<string, string>>();
-  
-  // Load translation text from Supabase storage
-  const loadTranslationText = async (translationId: string): Promise<Map<string, string>> => {
-    const cacheKey = translationId.toUpperCase();
-    
-    if (translationCache.has(cacheKey)) {
-      return translationCache.get(cacheKey)!;
-    }
-    
-    try {
-      console.log(`Loading ${cacheKey} translation from Supabase...`);
-      const url = `https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/${cacheKey}.txt`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load ${cacheKey}: ${response.status}`);
-      }
-      
-      const text = await response.text();
-      const textMap = new Map<string, string>();
-      const lines = text.split('\n').filter(line => line.trim());
-      
-      lines.forEach(line => {
-        const match = line.match(/^([^#]+)\s*#(.+)$/);
-        if (match) {
-          const [, reference, verseText] = match;
-          const cleanRef = reference.trim();
-          const cleanText = verseText.trim();
-          
-          // Store multiple reference formats
-          textMap.set(cleanRef, cleanText);
-          textMap.set(cleanRef.replace('.', ' '), cleanText);
-          
-          const refMatch = cleanRef.match(/^(\w+)\.(\d+):(\d+)$/);
-          if (refMatch) {
-            const [, book, chapter, verse] = refMatch;
-            textMap.set(`${book} ${chapter}:${verse}`, cleanText);
-          }
-        }
-      });
-      
-      translationCache.set(cacheKey, textMap);
-      console.log(`✓ Loaded ${cacheKey} with ${textMap.size} verses`);
-      return textMap;
-      
-    } catch (error) {
-      console.warn(`Failed to load ${cacheKey} translation:`, error);
-      return new Map();
-    }
-  };
   const displayTranslations = multiTranslationMode ? selectedTranslations : [mainTranslation];
 
-  const toggleTranslation = async (translationId: string) => {
-    console.log(`Toggling translation: ${translationId}`);
-    
+  const toggleTranslation = (translationId: string) => {
     if (multiTranslationMode) {
-      if (selectedTranslations.includes(translationId)) {
-        // Remove translation
-        setSelectedTranslations(prev => prev.filter(t => t !== translationId));
-      } else {
-        // Add translation - load it dynamically
-        await loadTranslationForVerses(translationId);
-        setSelectedTranslations(prev => [...prev, translationId]);
-      }
+      setSelectedTranslations(prev => 
+        prev.includes(translationId) 
+          ? prev.filter(t => t !== translationId)
+          : [...prev, translationId]
+      );
     } else {
-      // Single translation mode - load and set as main
-      await loadTranslationForVerses(translationId);
       setMainTranslation(translationId);
     }
   };
 
   const toggleMultiTranslationMode = () => {
     setMultiTranslationMode(!multiTranslationMode);
-  };
-  
-  // Load translation text for currently displayed verses
-  const loadTranslationForVerses = async (translationId: string) => {
-    try {
-      const translationMap = await loadTranslationText(translationId);
-      
-      // Update displayed verses with new translation text
-      const updatedVerses = displayVerses.map(verse => {
-        const verseKey = `${verse.book}.${verse.chapter}:${verse.verse}`;
-        const spaceRef = verse.reference;
-        const translationText = translationMap.get(verseKey) || translationMap.get(spaceRef) || `[${verse.reference} - ${translationId} loading...]`;
-        
-        return {
-          ...verse,
-          text: {
-            ...verse.text,
-            [translationId]: translationText
-          }
-        };
-      });
-      
-      setDisplayVerses(updatedVerses);
-      console.log(`✓ Loaded ${translationId} text for ${updatedVerses.length} verses`);
-      
-    } catch (error) {
-      console.error(`Failed to load ${translationId} translation:`, error);
-    }
   };
 
   // Cache for loaded verse texts to avoid repeated fetches
@@ -926,42 +838,34 @@ export function useBibleData() {
   useEffect(() => {
     if (!verses.length) return;
 
-    const handleScroll = (event: Event) => {
-      const tableContainer = event.target as HTMLElement;
-      if (!tableContainer) return;
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
       
-      const scrollY = tableContainer.scrollTop;
-      const verseHeight = 120; // Fixed verse height matching CSS
+      // Calculate approximate verse position based on scroll
+      const scrollProgress = scrollY / (documentHeight - windowHeight);
+      const estimatedVerseIndex = Math.floor(scrollProgress * verses.length);
       
-      // Calculate which verse should be at the top of the viewport
-      const topVerseIndex = Math.floor(scrollY / verseHeight);
-      
-      // Calculate center verse (what user is primarily viewing)
-      const containerHeight = tableContainer.clientHeight;
-      const versesInViewport = Math.ceil(containerHeight / verseHeight);
-      const centerIndex = Math.max(0, Math.min(
-        topVerseIndex + Math.floor(versesInViewport / 2),
-        verses.length - 1
-      ));
-      
-      // Only trigger new loading if we've moved significantly from current center
-      const distance = Math.abs(centerIndex - centerVerseIndex);
-      if (distance >= VERSE_BUFFER) {
-        console.log(`Scroll triggered: center ${centerVerseIndex} → ${centerIndex} (distance: ${distance}, scrollTop: ${scrollY})`);
-        loadVerseRange(verses, centerIndex);
+      // Load new range if we've scrolled significantly from center
+      const currentDistance = Math.abs(estimatedVerseIndex - centerVerseIndex);
+      if (currentDistance > VISIBLE_RANGE) {
+        loadVerseRange(verses, estimatedVerseIndex);
       }
     };
 
-    // Throttle scroll events for performance with shorter delay for responsiveness
-    let scrollTimeout: number;
-    const throttledScroll = (event: Event) => {
+    // Throttle scroll events for performance
+    let scrollTimeout: NodeJS.Timeout;
+    const throttledScroll = () => {
       clearTimeout(scrollTimeout);
-      scrollTimeout = window.setTimeout(() => handleScroll(event), 50); // Faster response for smooth scrolling
+      scrollTimeout = setTimeout(handleScroll, 150);
     };
 
-    // The scroll container will be set up by the BibleTable component
-    // This effect will be triggered by changes in verses or centerVerseIndex
-    return () => clearTimeout(scrollTimeout);
+    window.addEventListener('scroll', throttledScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', throttledScroll);
+      clearTimeout(scrollTimeout);
+    };
   }, [verses.length, centerVerseIndex]);
 
   // Load Bible data on mount
@@ -1278,7 +1182,6 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     multiTranslationMode,
     displayTranslations,
     toggleTranslation,
-    toggleMultiTranslationMode,
-    loadTranslationForVerses
+    toggleMultiTranslationMode
   };
 }

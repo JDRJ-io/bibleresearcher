@@ -37,7 +37,6 @@ export function BibleTable({
 
   useEffect(() => {
     let animationFrameId: number;
-    let scrollTimeout: number;
     
     const handleScroll = () => {
       if (animationFrameId) {
@@ -48,28 +47,6 @@ export function BibleTable({
         if (tableRef.current) {
           const newScrollLeft = tableRef.current.scrollLeft;
           setScrollLeft(newScrollLeft);
-          
-          // Handle vertical scrolling for verse loading
-          const scrollTop = tableRef.current.scrollTop;
-          const containerHeight = tableRef.current.clientHeight;
-          const verseHeight = 120; // Fixed verse height
-          
-          const topVerseIndex = Math.floor(scrollTop / verseHeight);
-          const versesInViewport = Math.ceil(containerHeight / verseHeight);
-          const centerIndex = Math.max(0, Math.min(
-            topVerseIndex + Math.floor(versesInViewport / 2),
-            verses.length - 1
-          ));
-          
-          // Trigger verse loading via onNavigateToVerse if we've moved significantly
-          clearTimeout(scrollTimeout);
-          scrollTimeout = window.setTimeout(() => {
-            if (verses[centerIndex] && Math.abs(centerIndex - 0) >= 2) {
-              console.log(`Scroll detected: loading around verse ${centerIndex}, scrollTop: ${scrollTop}`);
-              // Use the verse reference to trigger loading
-              onNavigateToVerse(verses[centerIndex].reference);
-            }
-          }, 100);
         }
       });
     };
@@ -82,10 +59,9 @@ export function BibleTable({
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
         }
-        clearTimeout(scrollTimeout);
       };
     }
-  }, [verses.length, onNavigateToVerse]);
+  }, []);
 
   const { data: userNotes = [] } = useQuery({
     queryKey: [`/api/users/${user?.id}/notes`],
@@ -166,7 +142,7 @@ export function BibleTable({
   }
 
   return (
-    <div className="h-full flex flex-col relative">
+    <div className="flex-1 flex flex-col h-full relative">
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
@@ -177,6 +153,7 @@ export function BibleTable({
       
       <div 
         className="flex-1 overflow-auto"
+        style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
         ref={tableRef}
       >
         <div className="min-w-max">

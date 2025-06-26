@@ -296,122 +296,66 @@ export default function BiblePage() {
 
   return (
     <div 
-      className="h-screen flex flex-col transition-all duration-300"
+      className="min-h-screen flex flex-col transition-all duration-300"
       style={{ 
         backgroundColor: 'var(--bg-color)', 
         color: 'var(--text-color)' 
       }}
     >
-      {/* Responsive Adaptive Header */}
-      <div className="sticky top-0 z-40 border-b" style={{ 
+      {/* Sticky Top Header */}
+      <div className="sticky top-0 z-40 flex items-center justify-between p-4 border-b" style={{ 
         backgroundColor: 'var(--header-bg)', 
-        borderBottomColor: 'var(--border-color)',
-        minHeight: 'var(--header-height)'
+        borderBottomColor: 'var(--border-color)' 
       }}>
-        {/* Portrait Mode - Single Row with Essential Controls */}
-        <div className="md:hidden flex items-center justify-between px-2 py-2 gap-2">
-          {/* Back/Forward arrows */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={goBack}
-              disabled={!canGoBack}
-              className="p-1.5 hover:bg-muted rounded transition-colors disabled:opacity-50"
-              aria-label="Go back"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={goForward}
-              disabled={!canGoForward}
-              className="p-1.5 hover:bg-muted rounded transition-colors disabled:opacity-50"
-              aria-label="Go forward"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Go To button */}
-          <VerseSelector onNavigate={navigateToVerse} />
-
-          {/* Search bar - flexible width */}
-          <div className="flex-1 min-w-0 mx-2">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-2 py-1.5 text-sm bg-muted border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
-          {/* Hamburger menu */}
-          <button 
-            onClick={() => setIsMenuOpen(true)}
-            className="p-1.5 hover:bg-muted rounded transition-colors"
-            aria-label="Menu"
+        {/* Left side - Back/Forward buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={goBack}
+            disabled={!canGoBack}
+            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Go back"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-        </div>
-
-        {/* Landscape Mode - Full Header with All Controls */}
-        <div className="hidden md:flex items-center justify-between px-3 py-2">
-          {/* Left side - Back/Forward buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={goBack}
-              disabled={!canGoBack}
-              className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Go back"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={goForward}
-              disabled={!canGoForward}
-              className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Go forward"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Center - Navigation and Search */}
-          <div className="flex-1 flex items-center gap-4 mx-4">
-            <VerseSelector onNavigate={navigateToVerse} />
-            
-            <div className="flex-1 max-w-md">
-              <input
-                type="text"
-                placeholder="Search verses, references, or topics..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-          </div>
-
-          {/* Right side - Menu */}
-          <button 
-            onClick={() => setIsMenuOpen(true)}
-            className="p-2 hover:bg-muted rounded-md transition-colors"
-            aria-label="Open menu"
+          <button
+            onClick={goForward}
+            disabled={!canGoForward}
+            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Go forward"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
+
+        {/* Center - Navigation and Search */}
+        <div className="flex-1 flex items-center gap-4 mx-4">
+          <VerseSelector onNavigate={navigateToVerse} />
+          
+          <div className="flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="Search verses, references, or topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+
+        {/* Right side - Menu */}
+        <button 
+          onClick={() => setIsMenuOpen(true)}
+          className="p-2 hover:bg-muted rounded-md transition-colors"
+          aria-label="Open menu"
+        >
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
 
       <HamburgerMenu
@@ -433,18 +377,15 @@ export default function BiblePage() {
         onToggleTranslation={toggleTranslation}
       />
 
-      {/* Main Content Area - flex-1 takes remaining space */}
-      <div className="flex-1 overflow-hidden">
-        <BibleTable
-          verses={filteredVerses}
-          translations={displayTranslations}
-          selectedTranslations={displayTranslations}
-          preferences={preferences}
-          mainTranslation={mainTranslation}
-          onExpandVerse={expandVerse}
-          onNavigateToVerse={navigateToVerse}
-        />
-      </div>
+      <BibleTable
+        verses={filteredVerses}
+        translations={displayTranslations}
+        selectedTranslations={displayTranslations}
+        preferences={preferences}
+        mainTranslation={mainTranslation}
+        onExpandVerse={expandVerse}
+        onNavigateToVerse={navigateToVerse}
+      />
 
       <ExpandedVerseOverlay
         verse={expandedVerse}
@@ -457,13 +398,12 @@ export default function BiblePage() {
         onClose={() => setIsAuthOpen(false)}
       />
 
-      {/* Compact Footer - Always Visible */}
+      {/* Footer */}
       <footer 
-        className="border-t py-2 px-4 flex-shrink-0"
+        className="border-t py-4 px-4"
         style={{ 
           backgroundColor: 'var(--header-bg)', 
-          borderColor: 'var(--border-color)',
-          height: 'var(--footer-height)'
+          borderColor: 'var(--border-color)' 
         }}
       >
         <div className="flex flex-wrap justify-center items-center space-x-6 text-sm">
