@@ -1163,7 +1163,10 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log('🚀 INSTANT NAVIGATION to:', reference);
+    console.log('⚡ PRIORITY NAVIGATION to:', reference);
+    
+    // Set priority loading flag to suspend background tasks
+    setIsLoadingNewWindow(true);
     
     // Add to history
     const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
@@ -1183,13 +1186,18 @@ export function useBibleData() {
     
     if (targetVerse) {
       const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
-      console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
+      console.log(`🎯 PRIORITY TARGET at index ${targetIndex}:`, targetVerse.reference);
       
       if (targetIndex !== -1) {
-        // Use instant jump loading for far navigation
+        // Immediate priority loading with minimal delay
+        const startTime = Date.now();
         await loadVerseRange(verses, targetIndex, true);
+        const loadTime = Date.now() - startTime;
         
-        console.log(`✅ INSTANT NAVIGATION COMPLETE: Loaded verses around ${targetVerse.reference}`);
+        console.log(`⚡ PRIORITY LOAD COMPLETE in ${loadTime}ms: ${targetVerse.reference}`);
+        
+        // Clear priority loading flag with slight delay for smooth transition
+        setTimeout(() => setIsLoadingNewWindow(false), 100);
         
         // Scroll to target verse instantly
         setTimeout(() => {
@@ -1447,6 +1455,54 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
 
   const totalBibleHeight = verses.reduce((total, verse) => total + (verse.height || 120), 0);
   const scrollOffset = calculateScrollOffset();
+
+  // URL monitoring for instant direct-link recognition
+  useEffect(() => {
+    const handleURLChange = () => {
+      const hash = window.location.hash;
+      const pathname = window.location.pathname;
+      
+      // Check for verse references in URL hash (#gen-1-1) or pathname
+      let targetReference = null;
+      
+      if (hash) {
+        // Parse hash format: #gen-1-1, #john-3-16, etc.
+        const hashMatch = hash.match(/^#([a-zA-Z]+)-(\d+)-(\d+)$/);
+        if (hashMatch) {
+          const [, book, chapter, verse] = hashMatch;
+          targetReference = `${book.charAt(0).toUpperCase() + book.slice(1)} ${chapter}:${verse}`;
+        }
+      }
+      
+      if (pathname && pathname !== '/') {
+        // Parse pathname format: /book/chapter/verse or /gen/1/1
+        const pathMatch = pathname.match(/^\/([a-zA-Z]+)\/(\d+)\/(\d+)$/);
+        if (pathMatch) {
+          const [, book, chapter, verse] = pathMatch;
+          targetReference = `${book.charAt(0).toUpperCase() + book.slice(1)} ${chapter}:${verse}`;
+        }
+      }
+      
+      if (targetReference && verses.length > 0) {
+        console.log('🔗 INSTANT URL RECOGNITION:', targetReference);
+        navigateToVerse(targetReference);
+      }
+    };
+
+    // Listen for hash changes and popstate events
+    window.addEventListener('hashchange', handleURLChange);
+    window.addEventListener('popstate', handleURLChange);
+    
+    // Check initial URL on mount
+    if (verses.length > 0) {
+      handleURLChange();
+    }
+
+    return () => {
+      window.removeEventListener('hashchange', handleURLChange);
+      window.removeEventListener('popstate', handleURLChange);
+    };
+  }, [verses.length]);
 
   return {
     verses: displayVerses, // Return display verses for rendering
