@@ -162,17 +162,14 @@ export default function BiblePage() {
     loadingPercentage: loadingProgress?.percentage 
   });
 
-  // Show loading only if we don't have verses yet OR if explicitly loading
-  const shouldShowLoading = isLoading || verses.length === 0;
-
-  console.log('Loading condition check:', {
-    isLoading,
+  // TEMPORARILY BYPASS LOADING SCREEN TO TEST MAIN INTERFACE
+  const shouldShowLoading = false; // Force bypass for testing
+  
+  console.log('🚫 LOADING BYPASSED FOR TESTING:', {
+    originalIsLoading: isLoading,
     versesLength: verses.length,
-    shouldShowLoading
+    forcedShouldShowLoading: shouldShowLoading
   });
-
-  // Force re-render when loading completes
-  console.log('RENDER DECISION:', { shouldShowLoading, isLoading, versesCount: verses.length });
 
   if (shouldShowLoading) {
     return (
