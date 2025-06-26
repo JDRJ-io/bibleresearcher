@@ -98,9 +98,12 @@ export function VerseRow({
   
   return (
     <div 
+      id={`verse-${verse.id}`}
       data-verse-ref={verse.reference}
-      className="flex min-w-full border-b hover:bg-muted/50"
+      className="verse-row flex min-w-full border-b transition-colors duration-200 cursor-pointer"
       style={{ height: '120px' }}
+      onDoubleClick={handleDoubleClick}
+      onMouseUp={handleMouseUp}
     >
       {/* Reference Column - Fixed Width */}
       <div className="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 text-sm font-medium">

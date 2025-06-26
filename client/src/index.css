@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Verse hover and highlight animations matching original design */
+@keyframes highlight-anim {
+  0% { background-color: gold; }
+  100% { background-color: transparent; }
+}
+
+.verse-highlight {
+  animation: highlight-anim 2s ease-out;
+}
+
+.verse-row:hover {
+  background-color: rgba(2, 136, 209, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+/* Smooth scrolling behavior for verse navigation */
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);
