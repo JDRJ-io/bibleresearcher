@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
@@ -906,7 +906,10 @@ export function useBibleData() {
     });
   };
 
-  // Intelligent verse loading with viewport-aware buffering
+  // Current request tracking for seamless loading
+  const currentRequestRef = useRef(0);
+
+  // Intelligent verse loading with seamless content swapping
   const loadVerseRange = async (allVerses: BibleVerse[], centerIndex: number, isInstantJump = false) => {
     const safeCenterIndex = Math.max(0, Math.min(allVerses.length - 1, centerIndex));
     
@@ -916,7 +919,11 @@ export function useBibleData() {
     const startIndex = Math.max(0, safeCenterIndex - bufferSize);
     const endIndex = Math.min(allVerses.length - 1, safeCenterIndex + bufferSize);
     
-    console.log(`Loading verse range: ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize}, total: ${allVerses.length})`);
+    // Generate unique request ID to prevent race conditions
+    const requestId = ++currentRequestRef.current;
+    
+    console.time(`fetch-${requestId}`);
+    console.log(`🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize})`);
     
     const newVerses = allVerses.slice(startIndex, endIndex + 1);
     
@@ -924,13 +931,25 @@ export function useBibleData() {
       console.warn('No verses loaded in range');
       return [];
     }
+
+    // Show skeleton/keep old content visible during fetch
+    console.log(`⚡ Skeleton ready: anchor=${safeCenterIndex}, keeping old content visible`);
     
+    // Fetch new content in background
     const versesWithText = await loadVerseTextForRange(newVerses);
     
+    // Check if this request is still current (not superseded by newer request)
+    if (requestId !== currentRequestRef.current) {
+      console.log(`🚫 Request ${requestId} cancelled, newer request ${currentRequestRef.current} in progress`);
+      return [];
+    }
+    
+    // Seamlessly swap content
     setDisplayVerses(versesWithText);
     setCenterVerseIndex(safeCenterIndex);
     
-    console.log(`✓ Loaded ${versesWithText.length} verses with text around index ${safeCenterIndex}`);
+    console.timeEnd(`fetch-${requestId}`);
+    console.log(`✓ Swapped ${versesWithText.length} verses for anchor ${safeCenterIndex} [${startIndex}-${endIndex}]`);
     return versesWithText;
   };
 
@@ -1125,12 +1144,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log('🚀 INSTANT NAVIGATION to:', reference);
-    
-    // Add to history
-    const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
-    setNavigationHistory(newHistory);
-    setCurrentHistoryIndex(newHistory.length - 1);
+    console.log('🚀 SEAMLESS NAVIGATION to:', reference);
     
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, ' ').trim();
@@ -1148,29 +1162,49 @@ export function useBibleData() {
       console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
       
       if (targetIndex !== -1) {
-        // Use instant jump loading for far navigation
-        await loadVerseRange(verses, targetIndex, true);
+        // Generate unique navigation request ID
+        const navRequestId = ++currentRequestRef.current;
+        console.log(`🚀 Navigation request ${navRequestId} for ${reference} at index ${targetIndex}`);
         
-        console.log(`✅ INSTANT NAVIGATION COMPLETE: Loaded verses around ${targetVerse.reference}`);
+        // Add to history immediately
+        const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
+        setNavigationHistory(newHistory);
+        setCurrentHistoryIndex(newHistory.length - 1);
         
-        // Scroll to target verse instantly
-        setTimeout(() => {
-          const verseElement = document.getElementById(`verse-${targetVerse.id}`);
-          if (verseElement) {
-            verseElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'center' 
-            });
-            
-            // Add highlight animation
-            verseElement.classList.add('verse-highlight');
-            setTimeout(() => {
-              verseElement.classList.remove('verse-highlight');
-            }, 2000);
-          } else {
-            console.log('📍 Verse element not found, using fallback scroll');
-          }
-        }, 100);
+        // Start loading in background while keeping current content visible
+        const loadPromise = loadVerseRange(verses, targetIndex, true);
+        
+        // Wait for content to load
+        const loadedVerses = await loadPromise;
+        
+        // Check if this navigation is still current
+        if (navRequestId !== currentRequestRef.current) {
+          console.log(`🚫 Navigation ${navRequestId} superseded by newer request`);
+          return;
+        }
+        
+        // Only scroll after content is loaded and current
+        if (loadedVerses.length > 0) {
+          setTimeout(() => {
+            const verseElement = document.getElementById(`verse-${targetVerse.id}`);
+            if (verseElement) {
+              verseElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+              });
+              
+              // Add highlight animation
+              verseElement.classList.add('verse-highlight');
+              setTimeout(() => {
+                verseElement.classList.remove('verse-highlight');
+              }, 2000);
+            } else {
+              console.log('📍 Verse element not found after load');
+            }
+          }, 50);
+        }
+        
+        console.log(`✅ SEAMLESS NAVIGATION COMPLETE: ${targetVerse.reference}`);
       }
     } else {
       console.warn('❌ Verse not found for reference:', normalizedRef);
