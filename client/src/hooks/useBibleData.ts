@@ -1301,6 +1301,26 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
   console.log(`✓ Applied cross-references to ${crossRefCount} verses using Gen.1:1 format`);
 };
 
+  // Calculate virtual scrolling offsets to prevent page jumping
+  const calculateScrollOffset = () => {
+    if (verses.length === 0 || displayVerses.length === 0) return 0;
+    
+    // Find the starting index of displayed verses in the full verses array
+    const firstDisplayedIndex = verses.findIndex(v => v.id === displayVerses[0]?.id);
+    if (firstDisplayedIndex === -1) return 0;
+    
+    // Calculate cumulative height from start to the first displayed verse
+    let offset = 0;
+    for (let i = 0; i < firstDisplayedIndex; i++) {
+      offset += verses[i]?.height || 120; // Use verse height or default
+    }
+    
+    return offset;
+  };
+
+  const totalBibleHeight = verses.reduce((total, verse) => total + (verse.height || 120), 0);
+  const scrollOffset = calculateScrollOffset();
+
   return {
     verses: displayVerses, // Return display verses for rendering
     allVerses: verses, // Keep full dataset available
@@ -1321,6 +1341,9 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     multiTranslationMode,
     displayTranslations,
     toggleTranslation,
-    toggleMultiTranslationMode
+    toggleMultiTranslationMode,
+    // Virtual scrolling properties to prevent page jumping
+    totalBibleHeight,
+    scrollOffset
   };
 }

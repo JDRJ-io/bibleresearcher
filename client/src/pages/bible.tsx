@@ -18,7 +18,7 @@ export default function BiblePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const { verses = [], isLoading, loadingProgress, navigateToVerse } = useBibleData();
+  const { verses = [], isLoading, loadingProgress, navigateToVerse, totalBibleHeight, scrollOffset } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
     { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
@@ -386,6 +386,8 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
         onExpandVerse={expandVerse}
         onNavigateToVerse={navigateToVerse}
+        totalBibleHeight={totalBibleHeight}
+        startOffset={scrollOffset}
       />
 
       <ExpandedVerseOverlay

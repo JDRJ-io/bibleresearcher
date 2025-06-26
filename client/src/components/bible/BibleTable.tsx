@@ -19,6 +19,8 @@ interface BibleTableProps {
   mainTranslation?: string;
   onExpandVerse: (verse: BibleVerse) => void;
   onNavigateToVerse: (reference: string) => void;
+  totalBibleHeight?: number;
+  startOffset?: number;
 }
 
 export function BibleTable({
@@ -28,6 +30,8 @@ export function BibleTable({
   preferences,
   onExpandVerse,
   onNavigateToVerse,
+  totalBibleHeight = 2500000, // Default total height for all verses
+  startOffset = 0, // Default offset
 }: BibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -156,22 +160,35 @@ export function BibleTable({
         style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
         ref={tableRef}
       >
-        <div className="min-w-max">
-          {verses.map((verse, index) => (
-            <VerseRow
-              key={verse.id}
-              verse={verse}
-              selectedTranslations={selectedTranslations}
-              showNotes={preferences.showNotes}
-              showProphecy={preferences.showProphecy}
-              showContext={preferences.showContext}
-              userNote={getUserNoteForVerse(verse.reference)}
-              highlights={getHighlightsForVerse(verse.reference)}
-              onExpandVerse={onExpandVerse}
-              onHighlight={handleHighlight}
-              onNavigateToVerse={onNavigateToVerse}
-            />
-          ))}
+        <div 
+          className="min-w-max relative"
+          style={{ 
+            height: `${totalBibleHeight}px` // Fixed total height for entire Bible
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: `${startOffset}px`, // Offset for current verse range
+              width: '100%'
+            }}
+          >
+            {verses.map((verse, index) => (
+              <VerseRow
+                key={verse.id}
+                verse={verse}
+                selectedTranslations={selectedTranslations}
+                showNotes={preferences.showNotes}
+                showProphecy={preferences.showProphecy}
+                showContext={preferences.showContext}
+                userNote={getUserNoteForVerse(verse.reference)}
+                highlights={getHighlightsForVerse(verse.reference)}
+                onExpandVerse={onExpandVerse}
+                onHighlight={handleHighlight}
+                onNavigateToVerse={onNavigateToVerse}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
