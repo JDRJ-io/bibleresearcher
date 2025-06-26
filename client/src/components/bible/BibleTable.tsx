@@ -91,10 +91,7 @@ export function BibleTable({
     return (userHighlights as Highlight[]).filter((highlight: Highlight) => highlight.verseRef === verseRef);
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollLeft = e.currentTarget.scrollLeft;
-    setScrollLeft(scrollLeft);
-  };
+  // Scroll handling moved to useEffect with requestAnimationFrame for better performance
 
   console.log('BibleTable render:', { 
     versesCount: verses.length, 

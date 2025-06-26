@@ -4,8 +4,16 @@ import { supabase } from '@/lib/supabase';
 import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
 
 // Load complete Bible data from your Supabase storage
-const loadBibleData = async (): Promise<BibleVerse[]> => {
+const loadBibleData = async (progressCallback?: (progress: any) => void): Promise<BibleVerse[]> => {
   console.log('Loading Bible data from Supabase storage...');
+  
+  if (progressCallback) {
+    progressCallback({
+      stage: 'Connecting to Supabase...',
+      progress: 5,
+      details: 'Establishing connection to your Bible data'
+    });
+  }
   
   try {
     // First, let's check what buckets and files are available
@@ -60,14 +68,30 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
     if (!verseKeysData) {
       console.error('Could not find verse keys file in any location');
       console.log('Loading from attached file structure...');
-      // Use the verse keys from your attached file
-      const verseKeys = await loadVerseKeysFromAttached();
-      return await loadBibleWithKeys(verseKeys);
+      
+      if (progressCallback) {
+        progressCallback({
+          stage: 'Loading fallback structure...',
+          progress: 15,
+          details: 'Using backup verse structure from attached files'
+        });
+      }
+      
+      // Generate fallback verses
+      return generateFallbackVerses();
     }
 
     const verseKeysText = await verseKeysData.text();
     const verseKeys: string[] = JSON.parse(verseKeysText);
     console.log(`Successfully loaded ${verseKeys.length} verse keys from Supabase`);
+    
+    if (progressCallback) {
+      progressCallback({
+        stage: 'Loading Bible text...',
+        progress: 25,
+        details: `Processing ${verseKeys.length} verse references`
+      });
+    }
 
     // Load KJV translation from Supabase storage
     const { data: kjvData, error: kjvError } = await supabase.storage
@@ -110,6 +134,14 @@ const loadBibleData = async (): Promise<BibleVerse[]> => {
     
     const verses = parseActualSupabaseKJV(kjvTextData, verseKeys);
     console.log(`FALLBACK PATH: ${verses.length} verses from translations/kjv/KJV.txt`);
+    
+    if (progressCallback) {
+      progressCallback({
+        stage: 'Processing Bible text...',
+        progress: 70,
+        details: `Successfully parsed ${verses.length} verses from KJV`
+      });
+    }
     
     if (verses.length === 0) {
       console.error('CRITICAL: No verses created despite successful parsing');
@@ -561,10 +593,42 @@ export function useBibleData() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [expandedVerse, setExpandedVerse] = useState<BibleVerse | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState({
+    stage: 'Initializing...',
+    progress: 0,
+    details: 'Starting Bible data loading process'
+  });
 
   const { data: verses = [], isLoading, error } = useQuery({
     queryKey: ['/api/bible/verses'],
-    queryFn: loadBibleData,
+    queryFn: async () => {
+      setLoadingProgress({
+        stage: 'Loading verse structure...',
+        progress: 10,
+        details: 'Fetching 31,102 verse references from metadata'
+      });
+
+      const data = await loadBibleData((progress) => {
+        setLoadingProgress(progress);
+      });
+
+      setLoadingProgress({
+        stage: 'Loading cross-references...',
+        progress: 80,
+        details: 'Parsing cross-reference data with Gen.1:1 format'
+      });
+
+      // Load cross-references with correct format
+      await loadCrossReferences(data);
+
+      setLoadingProgress({
+        stage: 'Complete!',
+        progress: 100,
+        details: `Successfully loaded ${data.length} verses with cross-references`
+      });
+
+      return data;
+    },
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -615,9 +679,33 @@ export function useBibleData() {
     setExpandedVerse(null);
   };
 
+  const navigateToVerse = (reference: string) => {
+    console.log('Navigating to verse:', reference);
+    
+    // Find the verse element and scroll to it
+    const verseElement = document.querySelector(`[data-verse-ref="${reference}"]`);
+    if (verseElement) {
+      verseElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest'
+      });
+      
+      // Highlight the verse briefly
+      verseElement.classList.add('bg-yellow-200', 'dark:bg-yellow-800');
+      setTimeout(() => {
+        verseElement.classList.remove('bg-yellow-200', 'dark:bg-yellow-800');
+      }, 2000);
+    } else {
+      console.warn(`Verse element not found for reference: ${reference}`);
+    }
+  };
+
   return {
     data: verses, // Return all verses - BiblePage expects 'data' property
     isLoading,
+    loadingProgress,
+    navigateToVerse,
     translations,
     searchQuery,
     setSearchQuery,

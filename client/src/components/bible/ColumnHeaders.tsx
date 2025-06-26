@@ -16,8 +16,11 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
     >
       <div className="overflow-hidden w-full h-full">
         <div 
-          className="flex min-w-max h-full transition-transform duration-75 ease-out"
-          style={{ transform: `translateX(-${scrollLeft}px)` }}
+          className="flex min-w-max h-full"
+          style={{ 
+            transform: `translateX(-${Math.round(scrollLeft)}px)`,
+            willChange: 'transform'
+          }}
         >
           {/* Reference Column Header */}
           <div className="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 font-semibold text-sm bg-background">
