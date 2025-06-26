@@ -1053,21 +1053,44 @@ export function useBibleData() {
 
 
 
+    let scrollTimer: NodeJS.Timeout;
     const handleScroll = () => {
+      // Clear previous timer
+      clearTimeout(scrollTimer);
+      
+      // Use immediate loading for instant response
       const anchor = getAnchor();
       if (anchor >= 0 && anchor < verses.length) {
         loadAround(anchor);
       }
+      
+      // Also set a backup timer for scrollbar dragging
+      scrollTimer = setTimeout(() => {
+        const newAnchor = getAnchor();
+        if (newAnchor >= 0 && newAnchor < verses.length && newAnchor !== anchor) {
+          loadAround(newAnchor);
+        }
+      }, 100);
     };
 
-    // Optimized scroll handling with instant response
+    // Handle all scroll events including scrollbar dragging
     window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Handle scroll end events for scrollbar dragging
+    window.addEventListener('scrollend', () => {
+      const anchor = getAnchor();
+      if (anchor >= 0 && anchor < verses.length) {
+        loadAround(anchor);
+      }
+    }, { passive: true });
     
     // Initial instant load
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scrollend', handleScroll);
+      clearTimeout(scrollTimer);
     };
   }, [verses.length]);
 

@@ -90,6 +90,11 @@ export interface SearchHistory {
   resultCount: number;
 }
 
+export interface LoadingProgress {
+  stage: string;
+  percentage: number;
+}
+
 export interface ForumPost {
   id: number;
   userId: string;
