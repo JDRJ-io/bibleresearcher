@@ -9,6 +9,7 @@ import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { BibleTable } from '@/components/bible/BibleTable';
 import { ExpandedVerseOverlay } from '@/components/bible/ExpandedVerseOverlay';
 import { AuthModal } from '@/components/bible/AuthModal';
+import { VerseSelector } from '@/components/bible/VerseSelector';
 import { Button } from '@/components/ui/button';
 import type { AppPreferences, Translation } from '@/types/bible';
 
@@ -322,15 +323,19 @@ export default function BiblePage() {
           </button>
         </div>
 
-        {/* Center - Search */}
-        <div className="flex-1 max-w-md mx-4">
-          <input
-            type="text"
-            placeholder="Search verses, references, or topics..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+        {/* Center - Navigation and Search */}
+        <div className="flex-1 flex items-center gap-4 mx-4">
+          <VerseSelector onNavigate={navigateToVerse} />
+          
+          <div className="flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="Search verses, references, or topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
         </div>
 
         {/* Right side - Menu */}

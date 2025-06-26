@@ -41,9 +41,10 @@ const loadBibleData = async (progressCallback?: (progress: any) => void): Promis
       progressCallback({ stage: 'cross-refs', percentage: 60 });
     }
     
-    // Parse the Bible verses using your actual data
+    // Parse ALL Bible verses from your actual data  
     const verses = parseActualSupabaseKJV(kjvText, verseKeys);
     console.log(`🎯 Successfully parsed ${verses.length} verses from your actual files`);
+    console.log(`📖 COMPLETE BIBLE LOADED: Ready for navigation to any verse`);
     
     if (verses.length === 0) {
       throw new Error('No verses created from your files');
@@ -559,29 +560,33 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  const filteredVerses = verses.filter(verse => {
-    if (!searchQuery) return true;
-    if (searchQuery === '%') {
-      // Random verse functionality
-      return Math.random() < 0.1; // Show ~10% of verses randomly
-    }
-    return verse.text.KJV?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           verse.reference.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  // Load Bible data on mount
+  useEffect(() => {
+    loadBibleData();
+  }, []);
 
-  const goToVerse = (index: number) => {
-    setCurrentVerseIndex(Math.max(0, Math.min(index, filteredVerses.length - 1)));
-  };
-
-  const goBack = () => {
-    if (currentVerseIndex > 0) {
-      setCurrentVerseIndex(currentVerseIndex - 1);
-    }
-  };
-
-  const goForward = () => {
-    if (currentVerseIndex < filteredVerses.length - 1) {
-      setCurrentVerseIndex(currentVerseIndex + 1);
+  const loadBibleData = async () => {
+    try {
+      setIsLoading(true);
+      const loadedVerses = await loadActualBibleData((progress) => {
+        setLoadingProgress(progress);
+      });
+      
+      if (loadedVerses.length > 0) {
+        setVerses(loadedVerses);
+        // Set display verses to first 50 initially for performance
+        const initialDisplayVerses = loadedVerses.slice(0, 50);
+        setDisplayVerses(initialDisplayVerses);
+        console.log(`Display set to first ${initialDisplayVerses.length} verses, ${loadedVerses.length} total available`);
+        
+        setLoadingProgress({ stage: 'complete', percentage: 100 });
+        setIsLoading(false);
+        console.log('Forced React state update - loading should be cleared');
+      }
+    } catch (err) {
+      console.error('Failed to load Bible data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load Bible data');
+      setIsLoading(false);
     }
   };
 
@@ -592,6 +597,84 @@ export function useBibleData() {
   const closeExpandedVerse = () => {
     setExpandedVerse(null);
   };
+
+  const navigateToVerse = (reference: string) => {
+    console.log('Navigating to verse:', reference);
+    
+    // Add to history
+    const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
+    setNavigationHistory(newHistory);
+    setCurrentHistoryIndex(newHistory.length - 1);
+    
+    // Parse the reference to find the verse in our complete dataset
+    const normalizedRef = reference.replace(/\s+/g, ' ').trim();
+    console.log('Looking for verse with reference:', normalizedRef);
+    
+    // Find the verse in our complete dataset
+    const targetVerse = verses.find(v => v.reference === normalizedRef);
+    
+    if (targetVerse) {
+      console.log('Found target verse in dataset:', targetVerse);
+      
+      // Update display verses to show context around the target verse
+      const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
+      const startIndex = Math.max(0, targetIndex - 25); // Show 25 verses before
+      const endIndex = Math.min(verses.length, targetIndex + 26); // Show 25 verses after + target
+      const contextVerses = verses.slice(startIndex, endIndex);
+      
+      console.log(`Loading context: verses ${startIndex}-${endIndex} (${contextVerses.length} verses)`);
+      setDisplayVerses(contextVerses);
+      
+      // Scroll to the verse after the display updates
+      setTimeout(() => {
+        const verseElement = document.querySelector(`[data-verse-ref="${normalizedRef}"]`);
+        if (verseElement) {
+          verseElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          // Add highlight effect
+          verseElement.classList.add('bg-yellow-100', 'dark:bg-yellow-900');
+          setTimeout(() => {
+            verseElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900');
+          }, 2000);
+        }
+      }, 200);
+    } else {
+      console.warn('Verse not found in dataset for reference:', normalizedRef);
+      // Try to scroll to existing element anyway
+      setTimeout(() => {
+        const verseElement = document.querySelector(`[data-verse-ref="${normalizedRef}"]`);
+        if (verseElement) {
+          verseElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        } else {
+          console.warn('Verse element not found for reference:', normalizedRef);
+        }
+      }, 100);
+    }
+  };
+
+  const goBack = () => {
+    if (currentHistoryIndex > 0) {
+      const previousRef = navigationHistory[currentHistoryIndex - 1];
+      setCurrentHistoryIndex(currentHistoryIndex - 1);
+      navigateToVerse(previousRef);
+    }
+  };
+
+  const goForward = () => {
+    if (currentHistoryIndex < navigationHistory.length - 1) {
+      const nextRef = navigationHistory[currentHistoryIndex + 1];
+      setCurrentHistoryIndex(currentHistoryIndex + 1);
+      navigateToVerse(nextRef);
+    }
+  };
+
+  const canGoBack = currentHistoryIndex > 0;
+  const canGoForward = currentHistoryIndex < navigationHistory.length - 1;
 
 // Function to load cross-references from attached assets
 const loadCrossReferencesFromAssets = async (verses: BibleVerse[]) => {
@@ -736,22 +819,25 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
   };
 
   return {
-    data: verses, // Return all verses - BiblePage expects 'data' property
+    verses: displayVerses, // Return display verses for rendering
+    allVerses: verses, // Keep full dataset available
     isLoading,
-    loadingProgress,
-    navigateToVerse,
-    translations,
-    searchQuery,
-    setSearchQuery,
-    currentVerseIndex,
-    setCurrentVerseIndex,
+    error,
     expandedVerse,
     expandVerse,
-    closeExpandedVerse: () => setExpandedVerse(null),
-    goToVerse,
+    closeExpandedVerse,
+    navigateToVerse,
     goBack,
     goForward,
-    canGoBack: currentVerseIndex > 0,
-    canGoForward: currentVerseIndex < verses.length - 1,
+    canGoBack,
+    canGoForward,
+    loadingProgress,
+    allTranslations,
+    mainTranslation,
+    selectedTranslations,
+    multiTranslationMode,
+    displayTranslations,
+    toggleTranslation,
+    toggleMultiTranslationMode
   };
 }
