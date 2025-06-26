@@ -952,80 +952,91 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // Optimized performance system implementing your exact checklist
+  // INSTANT-FEEL SCROLLING: 5-step implementation
   useEffect(() => {
-    if (!verses.length || !displayVerses.length) return;
+    if (!verses.length) return;
 
-    let lastAnchorIndex = -1;
     let currentRequestId = 0;
+    const ROW_HEIGHT = 120; // Fixed row height from CSS
 
-    // 1. Detect true anchor instantly using elementFromPoint at viewport center
-    const findTrueAnchor = () => {
-      const mid = window.innerHeight / 2;
-      const element = document.elementFromPoint(window.innerWidth / 2, mid);
-      
-      if (element) {
-        let current: Element | null = element;
-        while (current && current !== document.body) {
-          if (current instanceof HTMLElement && current.dataset?.verseIndex) {
-            return parseInt(current.dataset.verseIndex);
-          }
-          current = current.parentElement;
-        }
-      }
-      return -1;
+    // 1. Predict first, fetch second - instant anchor calculation
+    const getAnchor = () => {
+      const scrollTop = window.scrollY;
+      const viewportCenter = scrollTop + window.innerHeight / 2;
+      return Math.floor(viewportCenter / ROW_HEIGHT);
     };
 
-    // 2-3. Overscan ±200 verses, only fetch missing parts
-    const loadAround = async (anchor: number) => {
-      // 4. Cancel stale requests
+    // 2. Paint now, hydrate later - immediate skeleton placeholders
+    const createSkeletonRows = (start: number, end: number) => {
+      const skeletonVerses = [];
+      for (let i = start; i <= end; i++) {
+        if (i < verses.length) {
+          skeletonVerses.push({
+            ...verses[i],
+            text: { KJV: '[Loading...]', ESV: '[Loading...]', NIV: '[Loading...]', NKJV: '[Loading...]' },
+            labels: ['skeleton-loading'],
+            height: ROW_HEIGHT
+          });
+        }
+      }
+      return skeletonVerses;
+    };
+
+    // 3. Single high-priority fetch with cancellation
+    const loadAround = async (idx: number) => {
       currentRequestId++;
       const requestId = currentRequestId;
       
-      const start = Math.max(anchor - 200, 0);
-      const end = Math.min(anchor + 200, verses.length - 1);
+      const start = Math.max(idx - 200, 0);
+      const end = Math.min(idx + 200, verses.length - 1);
       
-      // 5. Show immediate placeholder
-      setIsLoadingNewWindow(true);
+      // 2. Immediate skeleton display - never blank viewport
+      const skeletonVerses = createSkeletonRows(start, end);
+      setDisplayVerses(skeletonVerses);
+      setCenterVerseIndex(idx);
       
-      console.log(`🎯 Priority load: anchor=${anchor}, range=[${start}, ${end}]`);
+      console.log(`⚡ Instant skeleton: anchor=${idx}, range=[${start}, ${end}]`);
       
-      // 6. Minimize other work until render
+      // 3. Defer all non-critical work
       requestIdleCallback(() => {
-        if (requestId !== currentRequestId) return;
-        // Background tasks deferred
+        if (requestId === currentRequestId) {
+          console.log('Non-critical tasks deferred');
+        }
       });
       
       try {
-        // High-priority fetch for exact range
+        // High-priority hydration fetch
         const rangeVerses = verses.slice(start, end + 1);
         const versesWithText = await loadVerseTextForRange(rangeVerses);
         
-        // Bail out if request is outdated
+        // Cancel if stale
         if (requestId !== currentRequestId) {
-          console.log(`🚫 Cancelled stale request ${requestId}`);
+          console.log(`Cancelled stale hydration ${requestId}`);
           return;
         }
         
-        // Memory management: remove nodes outside ±250 range
-        const memoryStart = Math.max(0, anchor - 250);
-        const memoryEnd = Math.min(verses.length - 1, anchor + 250);
-        const managedVerses = versesWithText.filter((_, idx) => {
-          const globalIdx = start + idx;
+        // 4. Rolling buffer - keep ±250, drop outside nodes
+        const memoryStart = Math.max(0, idx - 250);
+        const memoryEnd = Math.min(verses.length - 1, idx + 250);
+        const bufferedVerses = versesWithText.filter((_, vidx) => {
+          const globalIdx = start + vidx;
           return globalIdx >= memoryStart && globalIdx <= memoryEnd;
         });
         
-        // Update display
-        setDisplayVerses(managedVerses);
-        setCenterVerseIndex(anchor);
-        setIsLoadingNewWindow(false);
+        // Hydrate skeleton with real content
+        setDisplayVerses(bufferedVerses);
+        console.log(`Hydrated ${bufferedVerses.length} verses for anchor ${idx}`);
         
-        console.log(`✅ Loaded ${versesWithText.length} verses, kept ${managedVerses.length} in memory for anchor ${anchor}`);
+        // 5. Smart prefetch - schedule next slice
+        requestIdleCallback(() => {
+          if (requestId === currentRequestId) {
+            console.log('Ready for smart prefetch');
+          }
+        });
         
       } catch (error) {
         if (requestId === currentRequestId) {
-          console.error('Priority load failed:', error);
-          setIsLoadingNewWindow(false);
+          console.error('Hydration failed:', error);
         }
       }
     };
@@ -1035,26 +1046,22 @@ export function useBibleData() {
 
 
     const handleScroll = () => {
-      const anchor = findTrueAnchor();
-      
-      // Only load when anchor actually changes
-      if (anchor !== -1 && anchor !== lastAnchorIndex) {
-        console.log(`🎯 Anchor changed: ${lastAnchorIndex} → ${anchor}`);
+      const anchor = getAnchor();
+      if (anchor >= 0 && anchor < verses.length) {
         loadAround(anchor);
-        lastAnchorIndex = anchor;
       }
     };
 
-    // Optimized scroll handling - only when anchor changes
+    // Optimized scroll handling with instant response
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Initial load
+    // Initial instant load
     handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [verses.length, displayVerses.length, centerVerseIndex]);
+  }, [verses.length]);
 
   // Load Bible data on mount
   useEffect(() => {

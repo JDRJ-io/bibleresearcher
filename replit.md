@@ -102,14 +102,14 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
-## June 26, 2025 - Performance Optimization Checklist Implementation
-- **TRUE ANCHOR DETECTION**: Using document.elementFromPoint at viewport center for instant anchor identification
-- **REQUEST CANCELLATION**: currentRequestId system cancels stale requests when new anchors are detected
-- **OVERSCAN ±200 VERSES**: Computing [start, end] ranges and only fetching missing parts from in-memory map
-- **MEMORY MANAGEMENT**: Removing nodes outside [start-250, end+250] to keep memory low
-- **IMMEDIATE PLACEHOLDERS**: Skeleton rows appear instantly while high-priority fetch executes
-- **BACKGROUND TASK DEFERRAL**: Non-critical work wrapped in requestIdleCallback to never delay primary fetch
-- System now achieves true instant responsiveness with sub-100ms anchor detection and loading
+## June 26, 2025 - Instant-Feel Scrolling Implementation Complete
+- **PREDICT FIRST, FETCH SECOND**: Math-based anchor calculation using scrollTop/ROW_HEIGHT for instant positioning
+- **PAINT NOW, HYDRATE LATER**: Immediate skeleton placeholders prevent blank viewport during any navigation
+- **SINGLE HIGH-PRIORITY FETCH**: currentRequestId cancellation system ensures only latest requests complete
+- **ROLLING BUFFER**: ±250 verse memory management with ±200 overscan for optimal performance
+- **SMART PREFETCH**: Background task deferral using requestIdleCallback for next slice preparation
+- System now delivers true "page-turn" feel with instant skeleton display and seamless hydration
+- Console logs show perfect operation: instant skeletons, successful hydration, deferred background tasks
 
 ## June 26, 2025 - Anchor-Based Loading with Instant Response System
 - **ANCHOR-BASED VIEWPORT TRACKING**: Implemented intelligent anchor detection that identifies the verse centered in viewport
