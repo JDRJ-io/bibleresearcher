@@ -154,9 +154,17 @@ export default function BiblePage() {
     }
   };
 
-  console.log('BiblePage render state:', { isLoading, versesLength: verses.length });
+  console.log('BiblePage render state:', { 
+    isLoading, 
+    versesLength: verses.length,
+    loadingStage: loadingProgress?.stage,
+    loadingPercentage: loadingProgress?.percentage 
+  });
 
-  if (isLoading) {
+  // Force transition when we have verses and complete loading
+  const shouldShowLoading = isLoading || (verses.length === 0 && !error);
+
+  if (shouldShowLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="max-w-md w-full p-6">

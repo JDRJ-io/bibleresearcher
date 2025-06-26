@@ -618,10 +618,14 @@ export function useBibleData() {
         }
         
         setLoadingProgress({ stage: 'complete', percentage: 100 });
-        await new Promise(resolve => setTimeout(resolve, 200));
-
+        
+        // Set verses first, then clear loading state
         setVerses(data);
-        setIsLoading(false);
+        
+        // Small delay to ensure UI updates, then clear loading
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 100);
         console.log('✓ Bible study platform ready!', {
           versesCount: data.length,
           isLoading: false,
