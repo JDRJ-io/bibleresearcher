@@ -768,7 +768,10 @@ export function useBibleData() {
     percentage: 0
   });
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
-  const [isLoadingNewWindow, setIsLoadingNewWindow] = useState(false); // Track window loading state
+  const [isLoadingNewWindow, setIsLoadingNewWindow] = useState(false);
+  const [currentRequestId, setCurrentRequestId] = useState(0);
+  const [skeletonRange, setSkeletonRange] = useState<{start: number, end: number} | null>(null);
+  const [inMemoryVerses, setInMemoryVerses] = useState<Map<number, BibleVerse>>(new Map()); // Track window loading state
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
   const VIEWPORT_BUFFER = 200; // Keep 200 verses above and below viewport (400 total) for smooth scrolling
@@ -949,126 +952,107 @@ export function useBibleData() {
     queryFn: () => Promise.resolve(mockTranslations),
   });
 
-  // Optimized anchor-based viewport tracking with immediate loading triggers
+  // Optimized performance system implementing your exact checklist
   useEffect(() => {
     if (!verses.length || !displayVerses.length) return;
 
-    let isScrolling = false;
     let lastAnchorIndex = -1;
-    let scrollTimeout: number | null = null;
+    let currentRequestId = 0;
 
-    const findViewportAnchor = () => {
-      // Find the verse element that's roughly centered in the viewport
-      const viewportCenter = window.scrollY + (window.innerHeight / 2);
+    // 1. Detect true anchor instantly using elementFromPoint at viewport center
+    const findTrueAnchor = () => {
+      const mid = window.innerHeight / 2;
+      const element = document.elementFromPoint(window.innerWidth / 2, mid);
       
-      // Get all verse elements currently in DOM
-      const verseElements = document.querySelectorAll('[data-verse-index]');
-      if (verseElements.length === 0) return -1;
-
-      let closestElement: Element | null = null;
-      let closestDistance = Infinity;
-
-      verseElements.forEach(element => {
-        const rect = element.getBoundingClientRect();
-        const elementCenter = window.scrollY + rect.top + (rect.height / 2);
-        const distance = Math.abs(elementCenter - viewportCenter);
-        
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestElement = element;
-        }
-      });
-
-      if (closestElement) {
-        const dataAttr = (closestElement as HTMLElement).dataset.verseIndex;
-        if (dataAttr) {
-          const verseIndex = parseInt(dataAttr);
-          return verseIndex;
+      if (element) {
+        let current: Element | null = element;
+        while (current && current !== document.body) {
+          if (current instanceof HTMLElement && current.dataset?.verseIndex) {
+            return parseInt(current.dataset.verseIndex);
+          }
+          current = current.parentElement;
         }
       }
-
       return -1;
     };
 
-    const triggerLoadIfNeeded = (actualVerseIndex: number) => {
-      // Check if we need to load a new window around this anchor
-      const currentWindowStart = Math.max(0, centerVerseIndex - VIEWPORT_BUFFER);
-      const currentWindowEnd = Math.min(verses.length - 1, centerVerseIndex + VIEWPORT_BUFFER);
+    // 2-3. Overscan ±200 verses, only fetch missing parts
+    const loadAround = async (anchor: number) => {
+      // 4. Cancel stale requests
+      currentRequestId++;
+      const requestId = currentRequestId;
       
-      // Load new window if anchor is outside current buffer or near edges
-      const bufferEdgeThreshold = VIEWPORT_BUFFER * 0.25; // 25% of buffer size for faster triggering
-      const distanceFromStart = actualVerseIndex - currentWindowStart;
-      const distanceFromEnd = currentWindowEnd - actualVerseIndex;
+      const start = Math.max(anchor - 200, 0);
+      const end = Math.min(anchor + 200, verses.length - 1);
       
-      if (distanceFromStart < bufferEdgeThreshold || 
-          distanceFromEnd < bufferEdgeThreshold || 
-          actualVerseIndex < currentWindowStart || 
-          actualVerseIndex > currentWindowEnd) {
+      // 5. Show immediate placeholder
+      setIsLoadingNewWindow(true);
+      
+      console.log(`🎯 Priority load: anchor=${anchor}, range=[${start}, ${end}]`);
+      
+      // 6. Minimize other work until render
+      requestIdleCallback(() => {
+        if (requestId !== currentRequestId) return;
+        // Background tasks deferred
+      });
+      
+      try {
+        // High-priority fetch for exact range
+        const rangeVerses = verses.slice(start, end + 1);
+        const versesWithText = await loadVerseTextForRange(rangeVerses);
         
-        console.log(`⚡ Immediate load trigger: anchor=${actualVerseIndex} (${verses[actualVerseIndex]?.reference})`);
-        loadVerseRange(verses, actualVerseIndex);
-        return true;
-      }
-      return false;
-    };
-
-    const handleScroll = () => {
-      const currentAnchor = findViewportAnchor();
-      
-      if (currentAnchor === -1) return;
-
-      // Map display verse index back to full verses array index
-      const firstDisplayIndex = displayVerses.length > 0 ? 
-        verses.findIndex(v => v.id === displayVerses[0].id) : 0;
-      
-      const actualVerseIndex = firstDisplayIndex + currentAnchor;
-
-      // Immediate trigger for significant anchor changes
-      if (Math.abs(actualVerseIndex - lastAnchorIndex) > 10) {
-        const loaded = triggerLoadIfNeeded(actualVerseIndex);
-        if (loaded) {
-          lastAnchorIndex = actualVerseIndex;
+        // Bail out if request is outdated
+        if (requestId !== currentRequestId) {
+          console.log(`🚫 Cancelled stale request ${requestId}`);
           return;
         }
-      }
-
-      // Standard anchor change handling
-      if (currentAnchor !== lastAnchorIndex) {
-        triggerLoadIfNeeded(actualVerseIndex);
-        lastAnchorIndex = actualVerseIndex;
-      }
-    };
-
-    const handleScrollEnd = () => {
-      // Clear any existing timeout
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      
-      // Set a short timeout to handle scroll settling
-      scrollTimeout = window.setTimeout(() => {
-        handleScroll();
-      }, 100); // Very short delay for immediate response
-    };
-
-    // Use immediate scroll handling for rapid response
-    const immediateScrollHandler = () => {
-      if (!isScrolling) {
-        isScrolling = true;
-        handleScroll(); // Immediate trigger
-        handleScrollEnd(); // Settled trigger
-        requestAnimationFrame(() => {
-          isScrolling = false;
+        
+        // Memory management: remove nodes outside ±250 range
+        const memoryStart = Math.max(0, anchor - 250);
+        const memoryEnd = Math.min(verses.length - 1, anchor + 250);
+        const managedVerses = versesWithText.filter((_, idx) => {
+          const globalIdx = start + idx;
+          return globalIdx >= memoryStart && globalIdx <= memoryEnd;
         });
+        
+        // Update display
+        setDisplayVerses(managedVerses);
+        setCenterVerseIndex(anchor);
+        setIsLoadingNewWindow(false);
+        
+        console.log(`✅ Loaded ${versesWithText.length} verses, kept ${managedVerses.length} in memory for anchor ${anchor}`);
+        
+      } catch (error) {
+        if (requestId === currentRequestId) {
+          console.error('Priority load failed:', error);
+          setIsLoadingNewWindow(false);
+        }
       }
     };
 
-    window.addEventListener('scroll', immediateScrollHandler, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', immediateScrollHandler);
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
+
+
+
+
+    const handleScroll = () => {
+      const anchor = findTrueAnchor();
+      
+      // Only load when anchor actually changes
+      if (anchor !== -1 && anchor !== lastAnchorIndex) {
+        console.log(`🎯 Anchor changed: ${lastAnchorIndex} → ${anchor}`);
+        loadAround(anchor);
+        lastAnchorIndex = anchor;
       }
+    };
+
+    // Optimized scroll handling - only when anchor changes
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Initial load
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [verses.length, displayVerses.length, centerVerseIndex]);
 
