@@ -18,6 +18,7 @@ export default function BiblePage() {
   const queryClient = useQueryClient();
   
   const { data: verses = [], isLoading, loadingProgress, navigateToVerse } = useBibleData();
+  const error = null; // No error state needed for now
   const translations = [
     { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
     { id: 'ESV', name: 'English Standard Version', abbreviation: 'ESV', selected: false },
@@ -161,8 +162,14 @@ export default function BiblePage() {
     loadingPercentage: loadingProgress?.percentage 
   });
 
-  // Force transition when we have verses and complete loading
-  const shouldShowLoading = isLoading || (verses.length === 0 && !error);
+  // Only show loading if we're actually loading AND don't have verses yet
+  const shouldShowLoading = isLoading && verses.length === 0;
+
+  console.log('Loading condition check:', {
+    isLoading,
+    versesLength: verses.length,
+    shouldShowLoading
+  });
 
   if (shouldShowLoading) {
     return (
@@ -223,15 +230,21 @@ export default function BiblePage() {
   }
 
   // Show actual verses for debugging
-  if (verses.length > 0) {
-    console.log('BiblePage HAS VERSES:', { 
+  // Show main interface when we have verses and not loading
+  if (verses.length > 0 && !shouldShowLoading) {
+    console.log('BiblePage SHOWING INTERFACE:', { 
       versesCount: verses.length, 
       filteredCount: filteredVerses.length,
       firstVerse: verses[0],
-      firstVerseText: verses[0]?.text?.KJV
+      isLoading,
+      shouldShowLoading
     });
   } else {
-    console.log('BiblePage NO VERSES:', { isLoading, versesLength: verses.length });
+    console.log('BiblePage SHOWING LOADING:', { 
+      isLoading, 
+      versesLength: verses.length,
+      shouldShowLoading
+    });
   }
 
   return (
