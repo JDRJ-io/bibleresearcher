@@ -142,7 +142,7 @@ export function BibleTable({
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full relative">
+    <div className="h-full flex flex-col relative">
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
@@ -153,7 +153,6 @@ export function BibleTable({
       
       <div 
         className="flex-1 overflow-auto"
-        style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
         ref={tableRef}
       >
         <div className="min-w-max">

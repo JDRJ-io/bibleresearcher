@@ -296,16 +296,17 @@ export default function BiblePage() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col transition-all duration-300"
+      className="h-screen flex flex-col transition-all duration-300"
       style={{ 
         backgroundColor: 'var(--bg-color)', 
         color: 'var(--text-color)' 
       }}
     >
-      {/* Sticky Top Header */}
-      <div className="sticky top-0 z-40 flex items-center justify-between p-4 border-b" style={{ 
+      {/* Compact Top Header */}
+      <div className="sticky top-0 z-40 flex items-center justify-between px-3 py-2 border-b" style={{ 
         backgroundColor: 'var(--header-bg)', 
-        borderBottomColor: 'var(--border-color)' 
+        borderBottomColor: 'var(--border-color)',
+        height: 'var(--header-height)'
       }}>
         {/* Left side - Back/Forward buttons */}
         <div className="flex items-center gap-2">
@@ -377,15 +378,18 @@ export default function BiblePage() {
         onToggleTranslation={toggleTranslation}
       />
 
-      <BibleTable
-        verses={filteredVerses}
-        translations={displayTranslations}
-        selectedTranslations={displayTranslations}
-        preferences={preferences}
-        mainTranslation={mainTranslation}
-        onExpandVerse={expandVerse}
-        onNavigateToVerse={navigateToVerse}
-      />
+      {/* Main Content Area - flex-1 takes remaining space */}
+      <div className="flex-1 overflow-hidden">
+        <BibleTable
+          verses={filteredVerses}
+          translations={displayTranslations}
+          selectedTranslations={displayTranslations}
+          preferences={preferences}
+          mainTranslation={mainTranslation}
+          onExpandVerse={expandVerse}
+          onNavigateToVerse={navigateToVerse}
+        />
+      </div>
 
       <ExpandedVerseOverlay
         verse={expandedVerse}
@@ -398,12 +402,13 @@ export default function BiblePage() {
         onClose={() => setIsAuthOpen(false)}
       />
 
-      {/* Footer */}
+      {/* Compact Footer - Always Visible */}
       <footer 
-        className="border-t py-4 px-4"
+        className="border-t py-2 px-4 flex-shrink-0"
         style={{ 
           backgroundColor: 'var(--header-bg)', 
-          borderColor: 'var(--border-color)' 
+          borderColor: 'var(--border-color)',
+          height: 'var(--footer-height)'
         }}
       >
         <div className="flex flex-wrap justify-center items-center space-x-6 text-sm">
