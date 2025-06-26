@@ -10,6 +10,7 @@ export interface BibleVerse {
   prophecy?: ProphecyData;
   labels?: string[];
   contextGroup?: string;
+  height?: number; // For stable virtual scrolling
 }
 
 export interface CrossReference {

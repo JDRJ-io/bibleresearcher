@@ -345,6 +345,150 @@ const mergeTranslationWithKeys = (verses: BibleVerse[], text: string, translatio
   });
 };
 
+// Create complete Bible with actual text and concrete heights for stable scrolling
+const createFullBibleWithHeights = async (verseKeys: string[], kjvTextData: string): Promise<BibleVerse[]> => {
+  console.log('Creating complete Bible with concrete heights for stable scrolling...');
+  
+  const verses: BibleVerse[] = [];
+  
+  // Calculate text heights for stable virtual scrolling
+  const calculateTextHeight = (text: string): number => {
+    const baseHeight = 40; // Minimum row height
+    const wordsPerLine = 12; // Average words per line in verse column
+    const words = text.split(' ').length;
+    const lines = Math.ceil(words / wordsPerLine);
+    return Math.max(baseHeight, lines * 20 + 20); // 20px per line + padding
+  };
+  
+  if (!kjvTextData) {
+    // Create verses with fixed heights for placeholders
+    console.log('Creating Bible with placeholder text and fixed heights');
+    return verseKeys.map((key, index) => {
+      const match = key.match(/^(\w+)\.(\d+):(\d+)$/);
+      let book = 'Gen', chapter = 1, verse = 1;
+      
+      if (match) {
+        book = match[1];
+        chapter = parseInt(match[2]);
+        verse = parseInt(match[3]);
+      }
+      
+      const reference = `${book} ${chapter}:${verse}`;
+      return {
+        id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`,
+        book: book,
+        chapter: chapter,
+        verse: verse,
+        reference: reference,
+        text: {
+          KJV: `[Verse ${reference} - Loading...]`,
+          ESV: `[Verse ${reference} - ESV loading...]`,
+          NIV: `[Verse ${reference} - NIV loading...]`,
+          NKJV: `[Verse ${reference} - NKJV loading...]`
+        },
+        crossReferences: [],
+        strongsWords: [],
+        labels: ['placeholder'],
+        contextGroup: 'loading',
+        height: 120 // Fixed height for stable scrolling
+      };
+    });
+  }
+  
+  console.log('Parsing KJV text with format: "Gen.1:1 #In the beginning..."');
+  const lines = kjvTextData.split('\n').filter(line => line.trim());
+  console.log(`Found ${lines.length} lines in KJV text`);
+  
+  // Create a map for quick text lookup
+  const textMap = new Map<string, string>();
+  
+  lines.forEach((line, index) => {
+    const cleanLine = line.trim().replace(/\r/g, '');
+    
+    // Pattern: "Gen.1:1 #In the beginning God created the heaven and the earth."
+    const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
+    if (match) {
+      const [, reference, text] = match;
+      const cleanRef = reference.trim();
+      const cleanText = text.trim();
+      
+      // Store multiple key formats for maximum compatibility
+      textMap.set(cleanRef, cleanText); // "Gen.1:1"
+      textMap.set(cleanRef.replace('.', ' ').replace(':', ':'), cleanText); // "Gen 1:1"
+      
+      if (index < 5) {
+        console.log(`Parsed: "${cleanRef}" -> "${cleanText.substring(0, 40)}..."`);
+      }
+    }
+  });
+
+  console.log(`Created text map with ${textMap.size} entries from KJV file`);
+  
+  // Create verses with actual text and calculated heights
+  let versesWithText = 0;
+  let totalHeight = 0;
+  
+  verseKeys.forEach((key, index) => {
+    const match = key.match(/^(\w+)\.(\d+):(\d+)$/);
+    if (match) {
+      const [, book, chapter, verse] = match;
+      const reference = `${book} ${chapter}:${verse}`;
+      const verseText = textMap.get(key);
+      
+      if (verseText) {
+        const height = calculateTextHeight(verseText);
+        totalHeight += height;
+        
+        verses.push({
+          id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`,
+          book: book,
+          chapter: parseInt(chapter),
+          verse: parseInt(verse),
+          reference: reference,
+          text: {
+            KJV: verseText,
+            ESV: `[${reference} - ESV loading...]`, // Will be loaded dynamically
+            NIV: `[${reference} - NIV loading...]`, // Will be loaded dynamically
+            NKJV: `[${reference} - NKJV loading...]` // Will be loaded dynamically
+          },
+          crossReferences: [],
+          strongsWords: [],
+          labels: ['kjv-loaded'],
+          contextGroup: 'standard',
+          height: height // Concrete height for stable scrolling
+        });
+        versesWithText++;
+      } else {
+        // Create placeholder with fixed height
+        verses.push({
+          id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`,
+          book: book,
+          chapter: parseInt(chapter),
+          verse: parseInt(verse),
+          reference: reference,
+          text: {
+            KJV: `[Verse ${reference} - Text not found]`,
+            ESV: `[Verse ${reference} - Text not found]`,
+            NIV: `[Verse ${reference} - Text not found]`,
+            NKJV: `[Verse ${reference} - Text not found]`
+          },
+          crossReferences: [],
+          strongsWords: [],
+          labels: ['missing-text'],
+          contextGroup: 'error',
+          height: 120 // Fixed height
+        });
+      }
+    }
+  });
+  
+  console.log(`Created complete Bible with ${verses.length} verses`);
+  console.log(`Statistics: ${versesWithText} verses with KJV text loaded`);
+  console.log(`Total calculated height: ${totalHeight}px for stable scrolling`);
+  
+  return verses;
+};
+
 const mergeCrossReferences = (verses: BibleVerse[], crossRefText: string) => {
   const lines = crossRefText.split('\n').filter(line => line.trim());
   
@@ -722,12 +866,30 @@ export function useBibleData() {
         
         setLoadingProgress({ stage: 'complete', percentage: 100 });
         
+        // Load KJV text data for complete Bible loading
+        let kjvTextData = '';
+        try {
+          const kjvResponse = await fetch('/attached_assets/KJV_1750866662491.txt');
+          if (kjvResponse.ok) {
+            kjvTextData = await kjvResponse.text();
+            console.log('Complete KJV Bible text loaded from your file');
+          }
+        } catch (error) {
+          console.warn('KJV file access limited, using placeholder system');
+        }
+        
+        // Use the existing data structure we already have
+        const verseKeys = data.map(verse => `${verse.book}.${verse.chapter}:${verse.verse}`);
+        
+        // Replace placeholder data with full Bible text
+        const fullBibleWithText = await createFullBibleWithHeights(verseKeys, kjvTextData);
+        
         // Set full verse index for navigation
-        setVerses(data);
+        setVerses(fullBibleWithText);
         
         // Load initial verse range around the beginning
-        const initialCenter = Math.min(10, data.length - 1);
-        loadVerseRange(data, initialCenter);
+        const initialCenter = Math.min(10, fullBibleWithText.length - 1);
+        loadVerseRange(fullBibleWithText, initialCenter);
         
         console.log('✓ Bible study platform ready!', {
           totalVerses: data.length,
