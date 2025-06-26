@@ -498,15 +498,48 @@ const mockTranslations: Translation[] = [
 export function useBibleData() {
   const [isLoading, setIsLoading] = useState(true);
   const [verses, setVerses] = useState<BibleVerse[]>([]);
+  const [displayVerses, setDisplayVerses] = useState<BibleVerse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [expandedVerse, setExpandedVerse] = useState<BibleVerse | null>(null);
+  const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
   const [loadingProgress, setLoadingProgress] = useState({
     stage: 'initializing',
     percentage: 0
   });
 
+  // Translation state
+  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
+  const [multiTranslationMode, setMultiTranslationMode] = useState(false);
+  const [mainTranslation, setMainTranslation] = useState('KJV');
+
+  const allTranslations = mockTranslations;
+  const displayTranslations = multiTranslationMode ? selectedTranslations : [mainTranslation];
+
+  const toggleTranslation = (translationId: string) => {
+    if (multiTranslationMode) {
+      setSelectedTranslations(prev => 
+        prev.includes(translationId) 
+          ? prev.filter(t => t !== translationId)
+          : [...prev, translationId]
+      );
+    } else {
+      setMainTranslation(translationId);
+    }
+  };
+
+  const toggleMultiTranslationMode = () => {
+    setMultiTranslationMode(!multiTranslationMode);
+  };
+
+  const { data: translations = [] } = useQuery({
+    queryKey: ['/api/bible/translations'],
+    queryFn: () => Promise.resolve(mockTranslations),
+  });
+
+  // Load Bible data on mount
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -529,22 +562,21 @@ export function useBibleData() {
         
         setLoadingProgress({ stage: 'complete', percentage: 100 });
         
-        // Set verses first, then clear loading state
+        // Set verses and display verses
         setVerses(data);
+        const initialDisplayVerses = data.slice(0, 50);
+        setDisplayVerses(initialDisplayVerses);
         
-        // Force immediate state update to clear loading screen  
-        setIsLoading(false);
-        
-        // Force a micro-task to ensure React processes the state change
-        Promise.resolve().then(() => {
-          console.log('🔄 Forced React state update - loading should be cleared');
-        });
         console.log('✓ Bible study platform ready!', {
           versesCount: data.length,
+          displayCount: initialDisplayVerses.length,
           isLoading: false,
           error: null,
           firstVerse: data[0]
         });
+        
+        // Force immediate state update to clear loading screen  
+        setIsLoading(false);
       } catch (err) {
         console.error('Error in useBibleData:', err);
         setError(err instanceof Error ? err.message : 'Failed to load Bible data');
@@ -554,41 +586,6 @@ export function useBibleData() {
 
     loadData();
   }, []);
-
-  const { data: translations = [] } = useQuery({
-    queryKey: ['/api/bible/translations'],
-    queryFn: () => Promise.resolve(mockTranslations),
-  });
-
-  // Load Bible data on mount
-  useEffect(() => {
-    loadBibleData();
-  }, []);
-
-  const loadBibleData = async () => {
-    try {
-      setIsLoading(true);
-      const loadedVerses = await loadActualBibleData((progress) => {
-        setLoadingProgress(progress);
-      });
-      
-      if (loadedVerses.length > 0) {
-        setVerses(loadedVerses);
-        // Set display verses to first 50 initially for performance
-        const initialDisplayVerses = loadedVerses.slice(0, 50);
-        setDisplayVerses(initialDisplayVerses);
-        console.log(`Display set to first ${initialDisplayVerses.length} verses, ${loadedVerses.length} total available`);
-        
-        setLoadingProgress({ stage: 'complete', percentage: 100 });
-        setIsLoading(false);
-        console.log('Forced React state update - loading should be cleared');
-      }
-    } catch (err) {
-      console.error('Failed to load Bible data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load Bible data');
-      setIsLoading(false);
-    }
-  };
 
   const expandVerse = (verse: BibleVerse) => {
     setExpandedVerse(verse);
@@ -793,30 +790,6 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
   
   console.log(`✓ Applied cross-references to ${crossRefCount} verses using Gen.1:1 format`);
 };
-
-  const navigateToVerse = (reference: string) => {
-    console.log('Navigating to verse:', reference);
-    
-    // Convert Gen.1:1 format to Gen 1:1 format for element search
-    const spaceReference = reference.replace(/\./g, ' ');
-    const verseElement = document.querySelector(`[data-verse-ref="${spaceReference}"]`);
-    
-    if (verseElement) {
-      verseElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center',
-        inline: 'nearest'
-      });
-      
-      // Highlight the verse briefly
-      verseElement.classList.add('bg-yellow-200', 'dark:bg-yellow-800');
-      setTimeout(() => {
-        verseElement.classList.remove('bg-yellow-200', 'dark:bg-yellow-800');
-      }, 2000);
-    } else {
-      console.warn(`Verse element not found for reference: ${reference} (converted to ${spaceReference})`);
-    }
-  };
 
   return {
     verses: displayVerses, // Return display verses for rendering
