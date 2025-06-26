@@ -153,7 +153,7 @@ export function BibleTable({
       
       <div 
         className="flex-1 overflow-auto"
-        style={{ height: 'calc(100vh - 112px)', marginTop: '48px' }}
+        style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
         ref={tableRef}
       >
         <div className="min-w-max">

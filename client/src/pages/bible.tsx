@@ -293,12 +293,37 @@ export default function BiblePage() {
         color: 'var(--text-color)' 
       }}
     >
-      <div className="flex items-center justify-between p-4 border-b" style={{ 
+      {/* Sticky Top Header */}
+      <div className="sticky top-0 z-40 flex items-center justify-between p-4 border-b" style={{ 
         backgroundColor: 'var(--header-bg)', 
         borderBottomColor: 'var(--border-color)' 
       }}>
-        {/* Left side - Search */}
-        <div className="flex-1 max-w-md">
+        {/* Left side - Back/Forward buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={goBack}
+            disabled={!canGoBack}
+            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Go back"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={goForward}
+            disabled={!canGoForward}
+            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Go forward"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Center - Search */}
+        <div className="flex-1 max-w-md mx-4">
           <input
             type="text"
             placeholder="Search verses, references, or topics..."
@@ -308,60 +333,10 @@ export default function BiblePage() {
           />
         </div>
 
-        {/* Center - Translation Controls */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleMultiTranslationMode}
-            className={`px-3 py-1 text-xs rounded-md transition-colors ${
-              multiTranslationMode 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            }`}
-          >
-            {multiTranslationMode ? 'Multi' : 'Single'}
-          </button>
-          
-          <div className="flex items-center gap-1">
-            {multiTranslationMode ? (
-              <div className="flex gap-1">
-                {allTranslations.slice(0, 4).map(translation => (
-                  <button
-                    key={translation.id}
-                    onClick={() => toggleTranslation(translation.id)}
-                    className={`px-2 py-1 text-xs rounded transition-colors ${
-                      selectedTranslations.includes(translation.id)
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    {translation.abbreviation}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <select
-                value={mainTranslation}
-                onChange={(e) => toggleTranslation(e.target.value)}
-                className="px-2 py-1 text-xs bg-muted border rounded"
-              >
-                {allTranslations.map(translation => (
-                  <option key={translation.id} value={translation.id}>
-                    {translation.abbreviation}
-                  </option>
-                ))}
-              </select>
-            )}
-            
-            <span className="text-xs text-muted-foreground ml-2">
-              Main: {mainTranslation}
-            </span>
-          </div>
-        </div>
-
         {/* Right side - Menu */}
         <button 
           onClick={() => setIsMenuOpen(true)}
-          className="p-2 hover:bg-muted rounded-md transition-colors ml-4"
+          className="p-2 hover:bg-muted rounded-md transition-colors"
           aria-label="Open menu"
         >
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,6 +356,12 @@ export default function BiblePage() {
         onPreferenceChange={handlePreferenceChange}
         onResetLayout={handleResetLayout}
         onSaveBookmark={handleSaveBookmark}
+        mainTranslation={mainTranslation}
+        multiTranslationMode={multiTranslationMode}
+        selectedTranslations={selectedTranslations}
+        allTranslations={allTranslations}
+        onToggleMultiTranslationMode={toggleMultiTranslationMode}
+        onToggleTranslation={toggleTranslation}
       />
 
       <BibleTable
