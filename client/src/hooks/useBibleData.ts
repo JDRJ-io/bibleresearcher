@@ -1103,10 +1103,11 @@ export function useBibleData() {
         // Set full verse index for navigation
         setVerses(fullBibleWithText);
         
-        // Load ALL verses at once for instant navigation
-        console.log('🚀 Loading complete Bible for instant access...');
-        const allVersesWithText = await loadVerseTextForRange(fullBibleWithText);
-        setDisplayVerses(allVersesWithText);
+        // Load initial verses only - virtual scrolling will handle the rest
+        console.log('🚀 Loading initial verses for smart virtual scrolling...');
+        const initialVerses = fullBibleWithText.slice(0, 100); // Start with just 100 verses
+        const initialVersesWithText = await loadVerseTextForRange(initialVerses);
+        setDisplayVerses(initialVersesWithText);
         setCenterVerseIndex(10);
         
         // Test verse loading at different Bible locations
@@ -1120,9 +1121,9 @@ export function useBibleData() {
         
         console.log('✓ Bible study platform ready!', {
           totalVerses: fullBibleWithText.length,
-          displayedVerses: allVersesWithText.length,
+          displayedVerses: initialVersesWithText.length,
           centerIndex: 10,
-          firstVerse: allVersesWithText[0]
+          firstVerse: initialVersesWithText[0]
         });
         
         // Force immediate state update to clear loading screen  
@@ -1146,7 +1147,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log('🚀 INSTANT NAVIGATION to:', reference);
+    console.log('🚀 SMART NAVIGATION to:', reference);
     
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, ' ').trim();
@@ -1160,14 +1161,18 @@ export function useBibleData() {
     );
     
     if (targetVerse) {
-      console.log(`🎯 Found target:`, targetVerse.reference);
+      const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
+      console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
       
       // Add to history immediately
       const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
       setNavigationHistory(newHistory);
       setCurrentHistoryIndex(newHistory.length - 1);
       
-      // Since all verses are loaded, just scroll immediately
+      // Load verses around target location
+      await loadVerseRange(verses, targetIndex, true);
+      
+      // Scroll to target verse
       setTimeout(() => {
         const verseElement = document.getElementById(`verse-${targetVerse.id}`);
         if (verseElement) {
@@ -1181,12 +1186,10 @@ export function useBibleData() {
           setTimeout(() => {
             verseElement.classList.remove('verse-highlight');
           }, 2000);
-        } else {
-          console.log('📍 Verse element not found');
         }
-      }, 50);
+      }, 100);
       
-      console.log(`✅ INSTANT NAVIGATION COMPLETE: ${targetVerse.reference}`);
+      console.log(`✅ SMART NAVIGATION COMPLETE: ${targetVerse.reference}`);
     } else {
       console.warn('❌ Verse not found for reference:', normalizedRef);
     }

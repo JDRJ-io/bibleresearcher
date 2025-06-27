@@ -176,21 +176,21 @@ export function BibleTable({
       >
         <div className="min-w-max">
           {versesToRender.map((verse, index) => (
-              <VerseRow
-                key={verse.id}
-                verse={verse}
-                verseIndex={index}
-                selectedTranslations={selectedTranslations}
-                showNotes={preferences.showNotes}
-                showProphecy={preferences.showProphecy}
-                showContext={preferences.showContext}
-                userNote={getUserNoteForVerse(verse.reference)}
-                highlights={getHighlightsForVerse(verse.reference)}
-                onExpandVerse={onExpandVerse}
-                onHighlight={handleHighlight}
-                onNavigateToVerse={onNavigateToVerse}
-              />
-            ))}
+            <VerseRow
+              key={verse.id}
+              verse={verse}
+              verseIndex={index}
+              selectedTranslations={selectedTranslations}
+              showNotes={preferences.showNotes}
+              showProphecy={preferences.showProphecy}
+              showContext={preferences.showContext}
+              userNote={getUserNoteForVerse(verse.reference)}
+              highlights={getHighlightsForVerse(verse.reference)}
+              onExpandVerse={onExpandVerse}
+              onHighlight={handleHighlight}
+              onNavigateToVerse={onNavigateToVerse}
+            />
+          ))}
         </div>
       </div>
     </div>
