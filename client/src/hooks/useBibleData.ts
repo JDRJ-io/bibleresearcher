@@ -1103,9 +1103,11 @@ export function useBibleData() {
         // Set full verse index for navigation
         setVerses(fullBibleWithText);
         
-        // Load initial verse range around the beginning  
-        const initialCenter = Math.min(10, fullBibleWithText.length - 1);
-        await loadVerseRange(fullBibleWithText, initialCenter);
+        // Load ALL verses at once for instant navigation
+        console.log('🚀 Loading complete Bible for instant access...');
+        const allVersesWithText = await loadVerseTextForRange(fullBibleWithText);
+        setDisplayVerses(allVersesWithText);
+        setCenterVerseIndex(10);
         
         // Test verse loading at different Bible locations
         console.log(`📍 Testing verse locations:`);
@@ -1117,10 +1119,10 @@ export function useBibleData() {
         console.log(`Revelation 22:21 (index ${endPoint}): ${fullBibleWithText[endPoint]?.reference} - ${fullBibleWithText[endPoint]?.text?.KJV?.substring(0, 50)}...`);
         
         console.log('✓ Bible study platform ready!', {
-          totalVerses: data.length,
-          displayedVerses: VIEWPORT_BUFFER * 2,
-          centerIndex: initialCenter,
-          firstVerse: data[0]
+          totalVerses: fullBibleWithText.length,
+          displayedVerses: allVersesWithText.length,
+          centerIndex: 10,
+          firstVerse: allVersesWithText[0]
         });
         
         // Force immediate state update to clear loading screen  
@@ -1144,7 +1146,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log('🚀 SEAMLESS NAVIGATION to:', reference);
+    console.log('🚀 INSTANT NAVIGATION to:', reference);
     
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, ' ').trim();
@@ -1158,54 +1160,33 @@ export function useBibleData() {
     );
     
     if (targetVerse) {
-      const targetIndex = verses.findIndex(v => v.id === targetVerse.id);
-      console.log(`🎯 Found target at index ${targetIndex}:`, targetVerse.reference);
+      console.log(`🎯 Found target:`, targetVerse.reference);
       
-      if (targetIndex !== -1) {
-        // Generate unique navigation request ID
-        const navRequestId = ++currentRequestRef.current;
-        console.log(`🚀 Navigation request ${navRequestId} for ${reference} at index ${targetIndex}`);
-        
-        // Add to history immediately
-        const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
-        setNavigationHistory(newHistory);
-        setCurrentHistoryIndex(newHistory.length - 1);
-        
-        // Start loading in background while keeping current content visible
-        const loadPromise = loadVerseRange(verses, targetIndex, true);
-        
-        // Wait for content to load
-        const loadedVerses = await loadPromise;
-        
-        // Check if this navigation is still current
-        if (navRequestId !== currentRequestRef.current) {
-          console.log(`🚫 Navigation ${navRequestId} superseded by newer request`);
-          return;
-        }
-        
-        // Only scroll after content is loaded and current
-        if (loadedVerses.length > 0) {
+      // Add to history immediately
+      const newHistory = [...navigationHistory.slice(0, currentHistoryIndex + 1), reference];
+      setNavigationHistory(newHistory);
+      setCurrentHistoryIndex(newHistory.length - 1);
+      
+      // Since all verses are loaded, just scroll immediately
+      setTimeout(() => {
+        const verseElement = document.getElementById(`verse-${targetVerse.id}`);
+        if (verseElement) {
+          verseElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          
+          // Add highlight animation
+          verseElement.classList.add('verse-highlight');
           setTimeout(() => {
-            const verseElement = document.getElementById(`verse-${targetVerse.id}`);
-            if (verseElement) {
-              verseElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-              });
-              
-              // Add highlight animation
-              verseElement.classList.add('verse-highlight');
-              setTimeout(() => {
-                verseElement.classList.remove('verse-highlight');
-              }, 2000);
-            } else {
-              console.log('📍 Verse element not found after load');
-            }
-          }, 50);
+            verseElement.classList.remove('verse-highlight');
+          }, 2000);
+        } else {
+          console.log('📍 Verse element not found');
         }
-        
-        console.log(`✅ SEAMLESS NAVIGATION COMPLETE: ${targetVerse.reference}`);
-      }
+      }, 50);
+      
+      console.log(`✅ INSTANT NAVIGATION COMPLETE: ${targetVerse.reference}`);
     } else {
       console.warn('❌ Verse not found for reference:', normalizedRef);
     }

@@ -174,20 +174,8 @@ export function BibleTable({
         style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
         ref={tableRef}
       >
-        <div 
-          className="min-w-max relative"
-          style={{ 
-            height: `${totalBibleHeight}px` // Fixed total height for entire Bible
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: `${startOffset}px`, // Offset for current verse range
-              width: '100%'
-            }}
-          >
-            {versesToRender.map((verse, index) => (
+        <div className="min-w-max">
+          {versesToRender.map((verse, index) => (
               <VerseRow
                 key={verse.id}
                 verse={verse}
@@ -203,7 +191,6 @@ export function BibleTable({
                 onNavigateToVerse={onNavigateToVerse}
               />
             ))}
-          </div>
         </div>
       </div>
     </div>
