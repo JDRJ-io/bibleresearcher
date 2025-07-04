@@ -1,0 +1,76 @@
+1 Load & normalise the data  (Worker thread)
+| Object you need | Source data | Normalisation rules |
+|‑|‑|‑|
+| translations    { code → { verseKey → text } } | any text‑file Bible you load | keep keys in the form Gen.1:1 for direct look‑ups. |
+| crossRefs    { verse → [ lines ] } | two reference lists | • split on ~ and # so Ps.136:7#Ps.136:8 becomes two refs . |
+| prophecyByVerse    { verse → { pred:[], ful:[], ver:[], titles:[] } } | prophecy list with 5 fields | • split each of the three verse fields on ,.<br>• push the summary title (e.g. “8 – God will bless Abram”) into the matching entry’s titles array .<br>• For every prediction verse, also insert all fulfillments & verifications, and vice‑versa, so each row can render the other two columns without searching back. |
+
+When the worker is done, post the three objects back with transferable buffers so nothing is cloned.
+
+2 Store once in memory (main thread)
+js
+Copy
+window.translationData   = translations;        // one per code
+window.crossRefSets      = { default: crossRefs };
+window.prophecyByVerse   = prophecyByVerse;
+Each is a singleton so you never duplicate 600‑KB strings.
+
+3 Row creation routine (virtual list)
+For the row that corresponds to verseKey:
+
+Reference column – just the verseKey.
+
+Verse text column(s) – read straight from translationData[activeCode][verseKey].
+
+Cross‑reference column
+
+js
+Copy
+const lines   = crossRefSets[activeSet][verseKey] || [];
+colCross.innerHTML = lines
+  .flatMap(l => l.split(/[~#]/))   // handles both separators
+  .filter(Boolean)
+  .map(ref => `<div>${makeLinkWithPreview(ref)}</div>`)
+  .join("");
+Prophecy columns
+
+js
+Copy
+const info = prophecyByVerse[verseKey] || {};
+colPred.innerHTML = buildProphecyHTML(info.pred, info.titles);
+colFul.innerHTML  = buildProphecyHTML(info.ful, info.titles);
+colVer.innerHTML  = buildProphecyHTML(info.ver, info.titles);
+buildProphecyHTML() prepends each distinct title as a <strong> line and then lists its verses.
+
+4 Helper: turn a plain reference into a clickable link
+js
+Copy
+function makeClickableRef(ref){
+  if(/^1?Macc/.test(ref)) return ref;          // skip Maccabees
+  const id = ref.replace(/[.:]/g,"_");
+  return `<a href="#" onclick="jumpToVerse('${id}')">${ref}</a>`;
+}
+5 Helper: attach verse‑text preview once
+js
+Copy
+function makeLinkWithPreview(ref){
+  const html = makeClickableRef(ref);
+  const txt  = translationData[activeCode]?.[ref] || "";
+  return txt ? `${html}: ${txt}` : html;
+}
+Because this runs only for rows in the visible window (± buffer rows), you don’t create thousands of extra <span> nodes and memory stays low.
+
+6 Hyperlink behaviour
+jumpToVerse(id) converts the id back to Book.Ch:V, finds its index in the master array, and scrolls to index × ROW_HEIGHT—so links always jump to the precise spot even though only ~120 rows are actually in the DOM .
+
+7 Keep memory under 300 MB
+Placeholder height – set verseContainer.style.height = totalRows × ROW_HEIGHT right after you calculate totalRows. This gives the browser a full‑length scrollbar without laying out 31 000 rows.
+
+Early‑exit guard – if startIndex/endIndex hasn’t changed, return immediately; this prevents accidental full re‑render on every scroll .
+
+Recycle rows – pool ± 120 elements and just mutate their top and innerHTML.
+
+---
+
+One last tip
+Do all splitting and mapping once (in the worker) and keep only the structured objects in memory; every DOM helper should just read those maps. That single discipline is what lets the UI stay fast even when you add more reference sets, more prophecy columns, or more translations.
