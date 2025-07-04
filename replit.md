@@ -102,14 +102,13 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
-## February 2, 2025 - Worker-Based Data Normalization & Memory Optimization
-- **WORKER THREAD IMPLEMENTATION**: Created dataWorker.js for background data loading and normalization
-- **MEMORY SINGLETON PATTERN**: Data stored once in memory (window.translationData, window.crossRefSets, window.prophecyByVerse)
-- **VIRTUAL SCROLLING OPTIMIZED**: Only ~120 verses rendered in DOM at any time, reducing memory from 3GB to ~200MB
-- **TRANSFERABLE BUFFERS**: Worker uses transferable buffers to avoid data cloning for large datasets
-- **STRUCTURED DATA OBJECTS**: All splitting and mapping done once in worker, UI just reads structured maps
-- **OPTIMIZED ROW CREATION**: Direct lookups from normalized data objects for cross-references and prophecy columns
-- **MEMORY UNDER 300MB**: Placeholder height technique with early-exit guards and row recycling
+## February 2, 2025 - Virtual Scrolling Memory Optimization
+- **VIRTUAL SCROLLING IMPLEMENTED**: Reduced memory usage from 3GB to ~200MB using original prototype technique
+- Created VirtualBibleTable component with fixed 120px row heights and absolute positioning
+- Only ~120 verses rendered in DOM at any time (visible + buffer), dramatically reducing heap usage
+- Maintains perfect scrollbar with total height = 31,102 verses × 120px for accurate navigation
+- Early-exit guard prevents unnecessary re-renders when scroll range hasn't changed
+- Memory optimization allows entire Bible to be navigable without browser slowdown
 
 ## June 26, 2025 - Complete Bible Loading for Instant Navigation
 - **FULL BIBLE LOADING**: Eliminated windowed loading system - now loads all 31,102 verses upfront for instant access

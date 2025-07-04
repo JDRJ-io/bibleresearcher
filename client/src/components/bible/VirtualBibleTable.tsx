@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useDataWorker, makeLinkWithPreview, buildProphecyHTML } from '@/hooks/useDataWorker';
 import { ColumnHeaders } from './ColumnHeaders';
 import { VerseRow } from './VerseRow';
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';

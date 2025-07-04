@@ -1,16 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
-import { useDataWorker } from '@/hooks/useDataWorker';
+import { useBibleData } from '@/hooks/useBibleData';
 import { useToast } from '@/hooks/use-toast';
+import { loadTranslation, getVerseText } from '@/lib/translationLoader';
 import { TopHeader } from '@/components/bible/TopHeader';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
+import { VirtualBibleTable } from '@/components/bible/VirtualBibleTable';
 import { ExpandedVerseOverlay } from '@/components/bible/ExpandedVerseOverlay';
 import { AuthModal } from '@/components/bible/AuthModal';
 import { VerseSelector } from '@/components/bible/VerseSelector';
 import { TranslationSelector } from '@/components/bible/TranslationSelector';
-import { LoadingWheel } from '@/components/LoadingWheel';
 import { Button } from '@/components/ui/button';
 import type { AppPreferences, Translation } from '@/types/bible';
 
@@ -19,30 +20,23 @@ export default function BiblePage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Worker-based data loading
   const { 
-    isReady: workerReady, 
-    isLoading: workerLoading, 
-    loadingStage, 
-    progress, 
-    stats,
-    loadData: loadWorkerData 
-  } = useDataWorker();
-
-  // Create minimal verse structure without loading all Bible text
-  const createMinimalVerseStructure = () => {
-    return Array.from({ length: 31102 }, (_, i) => ({
-      index: i,
-      reference: `Verse.${Math.floor(i/31)+1}:${(i%31)+1}`, // Placeholder reference
-      text: '', // Text loaded on demand from worker
-      height: 120
-    }));
-  };
-  
-  const [verses] = useState(() => createMinimalVerseStructure());
-  const [searchQuery, setSearchQuery] = useState('');
-  const [visibleVerses, setVisibleVerses] = useState<any[]>([]);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+    verses = [], 
+    isLoading, 
+    loadingProgress, 
+    navigateToVerse, 
+    totalBibleHeight, 
+    scrollOffset,
+    searchQuery,
+    setSearchQuery,
+    goBack: hookGoBack,
+    goForward: hookGoForward,
+    canGoBack: hookCanGoBack,
+    canGoForward: hookCanGoForward,
+    loadTranslationData,
+    setSelectedTranslations: setHookSelectedTranslations,
+    setMainTranslation: setHookMainTranslation
+  } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
     { id: 'KJV', name: 'King James Version', abbreviation: 'KJV', selected: true },
