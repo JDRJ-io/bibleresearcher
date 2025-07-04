@@ -42,6 +42,7 @@ export default function BiblePage() {
     loadBothCrossReferenceSets,
   } = useBibleData();
   const error = null; // No error state needed for now
+  const totalRows = allVerses.length;
   const allTranslations = [
     {
       id: "KJV",

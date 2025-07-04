@@ -14,7 +14,6 @@ import type {
 
 interface VirtualBibleTableProps {
   verses: BibleVerse[];
-  translations: Translation[];
   selectedTranslations: Translation[];
   preferences: {
     showNotes: boolean;
@@ -37,7 +36,6 @@ const BUFFER_SIZE = 20; // Number of verses to render above/below viewport
 
 export function VirtualBibleTable({
   verses,
-  translations,
   selectedTranslations,
   preferences,
   onExpandVerse,
@@ -75,14 +73,14 @@ export function VirtualBibleTable({
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
-    const scrollTop = scrollRef.current.scrollTop;
+    const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
     // Calculate which verses should be visible
-    const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER_SIZE);
+    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
     const end = Math.min(
       verses.length - 1,
-      Math.ceil((scrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
+    Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
     );
 
     // Early exit if range hasn't changed (key optimization from original)
@@ -156,17 +154,6 @@ export function VirtualBibleTable({
     },
   });
 
-  const updateNoteMutation = useMutation({
-    mutationFn: async ({ id, note }: { id: number; note: string }) => {
-      const res = await apiRequest("PATCH", `/api/notes/${id}`, { note });
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/notes"] });
-      toast({ title: "Note updated" });
-    },
-  });
-
   const handleHighlight = (verseRef: string, selection: Selection) => {
     if (!user) {
       toast({
@@ -206,8 +193,8 @@ export function VirtualBibleTable({
         >
           {/* Render only visible verses with absolute positioning */}
           {visibleVerses.map((verse, index) => {
-            const actualIndex = verse.index ?? visibleRange.start + index;
-            return (
+          const actualIndex = visibleRange.start + index;            
+          return (
               <div
                 key={verse.id}
                 className="verse-row absolute left-0 right-0"

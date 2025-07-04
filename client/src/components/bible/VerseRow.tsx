@@ -1,8 +1,3 @@
-import { useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useAuth } from '@/hooks/useAuth';
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 
 interface VerseRowProps {
@@ -32,45 +27,12 @@ export function VerseRow({
   onHighlight,
   onNavigateToVerse,
 }: VerseRowProps) {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [noteText, setNoteText] = useState(userNote?.note || '');
   
   // Create preferences object for consistency
   const preferences = {
     showNotes,
     showProphecy,
     showContext,
-  };
-
-
-
-  const saveNoteMutation = useMutation({
-    mutationFn: async ({ verseRef, note }: { verseRef: string; note: string }) => {
-      if (userNote) {
-        return apiRequest('PUT', `/api/notes/${userNote.id}`, { note });
-      } else {
-        return apiRequest('POST', '/api/notes', {
-          userId: user?.id,
-          verseRef,
-          note,
-        });
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/notes`] });
-    },
-  });
-
-  const handleNoteChange = (value: string) => {
-    setNoteText(value);
-    // Debounced save could be implemented here
-  };
-
-  const handleNoteBlur = () => {
-    if (noteText !== (userNote?.note || '')) {
-      saveNoteMutation.mutate({ verseRef: verse.reference, note: noteText });
-    }
   };
 
   const handleDoubleClick = () => {
@@ -84,20 +46,6 @@ export function VerseRow({
     }
   };
 
-  const applyLabels = (text: string, labels: string[] = []) => {
-    let styledText = text;
-    
-    // Apply label effects (simplified for this example)
-    labels.forEach(label => {
-      // In a real implementation, this would be more sophisticated
-      if (label === 'who') {
-        styledText = `<strong>${styledText}</strong>`;
-      }
-    });
-
-    return styledText;
-  };
-  
   return (
     <div 
       id={`verse-${verse.id}`}

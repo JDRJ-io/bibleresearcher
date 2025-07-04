@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -6,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronLeft, ChevronRight, Search, Menu } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/hooks/useAuth';
-import type { BibleVerse } from '@/types/bible';
 
 interface TopHeaderProps {
   searchQuery: string;

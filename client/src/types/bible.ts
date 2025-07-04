@@ -1,6 +1,9 @@
 export interface BibleVerse {
   id: string;
-  index?: number; // Position in full Bible sequence
+  /**
+   * Optional numerical index used by virtualized tables
+   */
+  index?: number;
   book: string;
   chapter: number;
   verse: number;

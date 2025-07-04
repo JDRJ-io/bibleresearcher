@@ -1,29 +1,41 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Book, Tags, Settings, Layout, Bookmark, Plus, 
-  Lock, RotateCcw, MessageSquare, LogOut, LogIn, UserPlus 
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
-import type { Translation, Bookmark as BookmarkType } from '@/types/bible';
-import { CrossReferenceSwitcher } from './CrossReferenceSwitcher';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Book,
+  Tags,
+  Settings,
+  Layout,
+  Bookmark,
+  Plus,
+  Lock,
+  RotateCcw,
+  MessageSquare,
+  LogOut,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
+import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 
 interface HamburgerMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onShowAuth: () => void;
   onShowForum: () => void;
-  translations: Translation[];
-  onTranslationToggle: (translationId: string) => void;
   preferences: {
     showNotes: boolean;
     showProphecy: boolean;
@@ -39,8 +51,8 @@ interface HamburgerMenuProps {
   allTranslations: Translation[];
   onToggleMultiTranslationMode: () => void;
   onToggleTranslation: (translationId: string) => void;
-  crossRefSet: 'cf1' | 'cf2';
-  onCrossRefSetChange: (set: 'cf1' | 'cf2') => void;
+  crossRefSet: "cf1" | "cf2";
+  onCrossRefSetChange: (set: "cf1" | "cf2") => void;
 }
 
 export function HamburgerMenu({
@@ -48,8 +60,6 @@ export function HamburgerMenu({
   onClose,
   onShowAuth,
   onShowForum,
-  translations,
-  onTranslationToggle,
   preferences,
   onPreferenceChange,
   onResetLayout,
@@ -74,47 +84,51 @@ export function HamburgerMenu({
 
   const deleteBmMutation = useMutation({
     mutationFn: async (bookmarkId: number) => {
-      await apiRequest('DELETE', `/api/bookmarks/${bookmarkId}`);
+      await apiRequest("DELETE", `/api/bookmarks/${bookmarkId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/bookmarks`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/users/${user?.id}/bookmarks`],
+      });
       toast({ title: "Bookmark deleted successfully" });
     },
   });
 
   const labels = [
-    { id: 'who', name: 'Who (Bold)' },
-    { id: 'what', name: 'What (Outline)' },
-    { id: 'where', name: 'Where {Brackets}' },
-    { id: 'when', name: 'When (Underline)' },
-    { id: 'why', name: 'Why (Handwritten)' },
-    { id: 'action', name: 'Action (Italics)' },
-    { id: 'seed', name: 'Seed (*prefix)' },
-    { id: 'harvest', name: 'Harvest (=prefix)' },
-    { id: 'prediction', name: 'Prediction (~prefix)' },
+    { id: "who", name: "Who (Bold)" },
+    { id: "what", name: "What (Outline)" },
+    { id: "where", name: "Where {Brackets}" },
+    { id: "when", name: "When (Underline)" },
+    { id: "why", name: "Why (Handwritten)" },
+    { id: "action", name: "Action (Italics)" },
+    { id: "seed", name: "Seed (*prefix)" },
+    { id: "harvest", name: "Harvest (=prefix)" },
+    { id: "prediction", name: "Prediction (~prefix)" },
   ];
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose}>
-      <div 
+      <div
         className="fixed top-16 right-4 w-80 max-w-sm rounded-xl shadow-2xl border max-h-[90vh] overflow-auto"
-        style={{ 
-          backgroundColor: 'var(--header-bg)', 
-          borderColor: 'var(--border-color)' 
+        style={{
+          backgroundColor: "var(--header-bg)",
+          borderColor: "var(--border-color)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 space-y-6">
-          
           {/* Translation Settings */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
-              <Book className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
+              <Book
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
               Translations
             </h3>
-            
+
             {/* Mode Toggle */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -122,19 +136,24 @@ export function HamburgerMenu({
                 <button
                   onClick={onToggleMultiTranslationMode}
                   className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                    multiTranslationMode 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    multiTranslationMode
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {multiTranslationMode ? 'Multi' : 'Single'}
+                  {multiTranslationMode ? "Multi" : "Single"}
                 </button>
               </div>
-              
+
               {/* Main Translation Selector */}
               <div className="space-y-2">
-                <Label className="text-sm">Main Translation (controls cross-refs & prophecy)</Label>
-                <Select value={mainTranslation} onValueChange={onToggleTranslation}>
+                <Label className="text-sm">
+                  Main Translation (controls cross-refs & prophecy)
+                </Label>
+                <Select
+                  value={mainTranslation}
+                  onValueChange={onToggleTranslation}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -147,20 +166,30 @@ export function HamburgerMenu({
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {/* Additional Translations (Multi Mode) */}
               {multiTranslationMode && (
                 <div className="space-y-2">
                   <Label className="text-sm">Additional Translations</Label>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {allTranslations.map((translation) => (
-                      <div key={translation.id} className="flex items-center space-x-2">
+                      <div
+                        key={translation.id}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox
                           id={`multi-${translation.id}`}
-                          checked={selectedTranslations.includes(translation.id)}
-                          onCheckedChange={() => onToggleTranslation(translation.id)}
+                          checked={selectedTranslations.includes(
+                            translation.id,
+                          )}
+                          onCheckedChange={() =>
+                            onToggleTranslation(translation.id)
+                          }
                         />
-                        <Label htmlFor={`multi-${translation.id}`} className="text-sm cursor-pointer">
+                        <Label
+                          htmlFor={`multi-${translation.id}`}
+                          className="text-sm cursor-pointer"
+                        >
                           {translation.abbreviation}
                         </Label>
                       </div>
@@ -176,7 +205,10 @@ export function HamburgerMenu({
           {/* Labels & Effects */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
-              <Tags className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
+              <Tags
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
               Labels & Effects
             </h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -196,7 +228,10 @@ export function HamburgerMenu({
           {/* Extra Details */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
-              <Settings className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
+              <Settings
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
               Extra Details
             </h3>
             <div className="space-y-2">
@@ -205,7 +240,7 @@ export function HamburgerMenu({
                 <Checkbox defaultChecked />
               </div>
               <div className="ml-4">
-                <CrossReferenceSwitcher 
+                <CrossReferenceSwitcher
                   currentSet={crossRefSet}
                   onSetChange={onCrossRefSetChange}
                 />
@@ -214,21 +249,27 @@ export function HamburgerMenu({
                 <Label className="text-sm">Prophecy Columns</Label>
                 <Checkbox
                   checked={preferences.showProphecy}
-                  onCheckedChange={(checked) => onPreferenceChange('showProphecy', !!checked)}
+                  onCheckedChange={(checked) =>
+                    onPreferenceChange("showProphecy", !!checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Personal Notes</Label>
                 <Checkbox
                   checked={preferences.showNotes}
-                  onCheckedChange={(checked) => onPreferenceChange('showNotes', !!checked)}
+                  onCheckedChange={(checked) =>
+                    onPreferenceChange("showNotes", !!checked)
+                  }
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Context Boundaries</Label>
                 <Checkbox
                   checked={preferences.showContext}
-                  onCheckedChange={(checked) => onPreferenceChange('showContext', !!checked)}
+                  onCheckedChange={(checked) =>
+                    onPreferenceChange("showContext", !!checked)
+                  }
                 />
               </div>
             </div>
@@ -239,7 +280,10 @@ export function HamburgerMenu({
           {/* Layout Controls */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
-              <Layout className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
+              <Layout
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
               Layout
             </h3>
             <div className="flex space-x-2">
@@ -247,10 +291,12 @@ export function HamburgerMenu({
                 variant="outline"
                 size="sm"
                 className="flex-1"
-                onClick={() => onPreferenceChange('layoutLocked', !preferences.layoutLocked)}
+                onClick={() =>
+                  onPreferenceChange("layoutLocked", !preferences.layoutLocked)
+                }
               >
                 <Lock className="w-4 h-4 mr-1" />
-                {preferences.layoutLocked ? 'Unlock' : 'Lock'}
+                {preferences.layoutLocked ? "Unlock" : "Lock"}
               </Button>
               <Button
                 variant="outline"
@@ -269,7 +315,10 @@ export function HamburgerMenu({
           {/* Bookmarks */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
-              <Bookmark className="w-5 h-5 mr-2" style={{ color: 'var(--accent-color)' }} />
+              <Bookmark
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
               Bookmarks
             </h3>
             <ScrollArea className="max-h-32">
@@ -278,11 +327,11 @@ export function HamburgerMenu({
                   <div
                     key={bookmark.id}
                     className="flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-200"
-                    style={{ backgroundColor: 'var(--column-bg)' }}
+                    style={{ backgroundColor: "var(--column-bg)" }}
                   >
                     <div className="flex items-center space-x-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
+                      <div
+                        className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: bookmark.color }}
                       />
                       <span className="text-sm">{bookmark.name}</span>

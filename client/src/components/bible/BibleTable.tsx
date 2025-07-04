@@ -1,15 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { ColumnHeaders } from './ColumnHeaders';
-import { VerseRow } from './VerseRow';
-import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
+import { useState, useRef, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { ColumnHeaders } from "./ColumnHeaders";
+import { VerseRow } from "./VerseRow";
+import type {
+  BibleVerse,
+  Translation,
+  UserNote,
+  Highlight,
+} from "@/types/bible";
 
 interface BibleTableProps {
   verses: BibleVerse[];
-  translations: Translation[];
   selectedTranslations: Translation[];
   preferences: {
     showNotes: boolean;
@@ -19,19 +23,14 @@ interface BibleTableProps {
   mainTranslation?: string;
   onExpandVerse: (verse: BibleVerse) => void;
   onNavigateToVerse: (reference: string) => void;
-  totalBibleHeight?: number;
-  startOffset?: number;
 }
 
 export function BibleTable({
   verses,
-  translations,
   selectedTranslations,
   preferences,
   onExpandVerse,
   onNavigateToVerse,
-  totalBibleHeight = 2500000, // Default total height for all verses
-  startOffset = 0, // Default offset
 }: BibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -49,12 +48,12 @@ export function BibleTable({
 
   useEffect(() => {
     let animationFrameId: number;
-    
+
     const handleScroll = () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
-      
+
       animationFrameId = requestAnimationFrame(() => {
         if (tableRef.current) {
           const newScrollLeft = tableRef.current.scrollLeft;
@@ -65,9 +64,9 @@ export function BibleTable({
 
     const tableElement = tableRef.current;
     if (tableElement) {
-      tableElement.addEventListener('scroll', handleScroll, { passive: true });
+      tableElement.addEventListener("scroll", handleScroll, { passive: true });
       return () => {
-        tableElement.removeEventListener('scroll', handleScroll);
+        tableElement.removeEventListener("scroll", handleScroll);
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
         }
@@ -93,10 +92,12 @@ export function BibleTable({
       endIdx: number;
       color: string;
     }) => {
-      return apiRequest('POST', '/api/highlights', highlightData);
+      return apiRequest("POST", "/api/highlights", highlightData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/highlights`] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/users/${user?.id}/highlights`],
+      });
       toast({ title: "Text highlighted successfully" });
     },
   });
@@ -117,7 +118,7 @@ export function BibleTable({
       verseRef,
       startIdx: range.startOffset,
       endIdx: range.endOffset,
-      color: '#ffeb3b', // Default yellow highlight
+      color: "#ffeb3b", // Default yellow highlight
     };
 
     createHighlightMutation.mutate(highlightData);
@@ -125,26 +126,30 @@ export function BibleTable({
 
   const getUserNoteForVerse = (verseRef: string): UserNote | undefined => {
     if (!userNotes || !Array.isArray(userNotes)) return undefined;
-    return (userNotes as UserNote[]).find((note: UserNote) => note.verseRef === verseRef);
+    return (userNotes as UserNote[]).find(
+      (note: UserNote) => note.verseRef === verseRef,
+    );
   };
 
   const getHighlightsForVerse = (verseRef: string): Highlight[] => {
     if (!userHighlights || !Array.isArray(userHighlights)) return [];
-    return (userHighlights as Highlight[]).filter((highlight: Highlight) => highlight.verseRef === verseRef);
+    return (userHighlights as Highlight[]).filter(
+      (highlight: Highlight) => highlight.verseRef === verseRef,
+    );
   };
 
   // Scroll handling moved to useEffect with requestAnimationFrame for better performance
 
   // Use current verses if available, otherwise use previous verses to prevent blank screens
   const versesToRender = verses.length > 0 ? verses : previousVerses;
-  
-  console.log('BibleTable render:', { 
-    versesCount: verses.length, 
+
+  console.log("BibleTable render:", {
+    versesCount: verses.length,
     previousVersesCount: previousVerses.length,
     renderingCount: versesToRender.length,
     selectedTranslations: selectedTranslations.length,
     firstVerse: versesToRender[0],
-    firstVerseText: versesToRender[0]?.text?.KJV
+    firstVerseText: versesToRender[0]?.text?.KJV,
   });
 
   // Only show loading state if we have no verses at all (initial load)
@@ -161,17 +166,17 @@ export function BibleTable({
 
   return (
     <div className="flex-1 flex flex-col h-full relative">
-      <ColumnHeaders 
+      <ColumnHeaders
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
         showContext={preferences.showContext}
         scrollLeft={scrollLeft}
       />
-      
-      <div 
+
+      <div
         className="flex-1 overflow-auto"
-        style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
+        style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
         ref={tableRef}
       >
         <div className="min-w-max">
