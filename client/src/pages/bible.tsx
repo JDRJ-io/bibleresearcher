@@ -135,7 +135,7 @@ export default function BiblePage() {
     }
   };
 
-  // Get translations for display
+  // Get translations for display - ensure KJV is always selected by default
   const displayTranslations = multiTranslationMode
     ? allTranslations.filter((t) => selectedTranslations.includes(t.id))
     : allTranslations.filter((t) => t.id === mainTranslation);
@@ -517,7 +517,7 @@ export default function BiblePage() {
         onClose={() => setIsMenuOpen(false)}
         onShowAuth={() => setIsAuthOpen(true)}
         onShowForum={() => setIsForumOpen(true)}
-        translations={displayTranslations}
+        allTranslations={allTranslations}
         onTranslationToggle={handleTranslationToggle}
         preferences={preferences}
         onPreferenceChange={handlePreferenceChange}
@@ -526,7 +526,6 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
         multiTranslationMode={multiTranslationMode}
         selectedTranslations={selectedTranslations}
-        allTranslations={allTranslations}
         onToggleMultiTranslationMode={toggleMultiTranslationMode}
         onToggleTranslation={async (translationId: string) => {
           if (!selectedTranslations.includes(translationId)) {
@@ -552,18 +551,19 @@ export default function BiblePage() {
 
       <VirtualBibleTable
         verses={filteredVerses}
-        translations={displayTranslations}
         selectedTranslations={displayTranslations}
         preferences={preferences}
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
+        totalRows={totalRows}
       />
 
       <ExpandedVerseOverlay
         verse={localExpandedVerse}
         onClose={closeLocalExpandedVerse}
         onStrongsClick={handleStrongsClick}
+        mainTranslation={mainTranslation}
       />
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
