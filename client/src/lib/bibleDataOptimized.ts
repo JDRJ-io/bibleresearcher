@@ -2,6 +2,7 @@ import {
   loadTranslationSecure,
   loadCrossReferences,
   loadContextGroups,
+  loadStrongsData,
 } from "./supabaseLoader";
 import { getVerseKeys, parseVerseKey } from "./verseKeysLoader";
 import type { BibleVerse } from "@/types/bible";
@@ -134,6 +135,31 @@ export async function populateCrossReferences(
     console.log("Cross-references populated");
   } catch (error) {
     console.error("Failed to populate cross-references:", error);
+  }
+}
+
+// Populate Strong's words for expanded verse analysis
+export async function populateStrongsWords(
+  verses: BibleVerse[],
+): Promise<void> {
+  try {
+    console.log("Loading Strong's words...");
+
+    const strongsData = await loadStrongsData();
+    if (!strongsData) return;
+
+    verses.forEach((verse) => {
+      const key = `${verse.book}.${verse.chapter}:${verse.verse}`;
+      const strongsWords = strongsData.get(key);
+      
+      if (strongsWords && strongsWords.length > 0) {
+        verse.strongsWords = strongsWords;
+      }
+    });
+
+    console.log("Strong's words populated");
+  } catch (error) {
+    console.error("Failed to populate Strong's words:", error);
   }
 }
 

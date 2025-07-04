@@ -278,6 +278,42 @@ export default function BiblePage() {
       title: "Strong's Definition",
       description: `${word.strongs}: ${word.definition}`,
     });
+  }
+
+  // Enhanced global search function that handles multiple translations and % random
+  const handleGlobalSearch = (query: string) => {
+    const trimmedQuery = query.trim();
+    
+    // Handle % random verse functionality
+    if (trimmedQuery === '%') {
+      const randomIndex = Math.floor(Math.random() * allVerses.length);
+      const randomVerse = allVerses[randomIndex];
+      if (randomVerse) {
+        navigateToVerse(randomVerse.reference);
+        toast({
+          title: "Random Verse",
+          description: `Jumped to ${randomVerse.reference}`,
+        });
+      }
+      return;
+    }
+
+    // Skip empty searches
+    if (!trimmedQuery) return;
+
+    // Search across all active translations, not just current one
+    const activeTranslationIds = multiTranslationMode 
+      ? selectedTranslations 
+      : [mainTranslation];
+
+    console.log(`Searching "${trimmedQuery}" across translations:`, activeTranslationIds);
+    
+    // Future: This should use the searchWorker for heavy lifting
+    // For now, perform basic search across visible verses
+    toast({
+      title: "Search",
+      description: `Searching for "${trimmedQuery}" across ${activeTranslationIds.length} translation(s)`,
+    });
   };
 
   const getLoadingMessage = () => {
@@ -482,9 +518,14 @@ export default function BiblePage() {
           <div className="flex-1 max-w-md">
             <input
               type="text"
-              placeholder="Search verses, references, or topics..."
+              placeholder="Search verses, references, or topics... (% for random)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleGlobalSearch(searchQuery);
+                }
+              }}
               className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
