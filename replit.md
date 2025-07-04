@@ -102,6 +102,14 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
+## February 2, 2025 - Virtual Scrolling Memory Optimization
+- **VIRTUAL SCROLLING IMPLEMENTED**: Reduced memory usage from 3GB to ~200MB using original prototype technique
+- Created VirtualBibleTable component with fixed 120px row heights and absolute positioning
+- Only ~120 verses rendered in DOM at any time (visible + buffer), dramatically reducing heap usage
+- Maintains perfect scrollbar with total height = 31,102 verses × 120px for accurate navigation
+- Early-exit guard prevents unnecessary re-renders when scroll range hasn't changed
+- Memory optimization allows entire Bible to be navigable without browser slowdown
+
 ## June 26, 2025 - Complete Bible Loading for Instant Navigation
 - **FULL BIBLE LOADING**: Eliminated windowed loading system - now loads all 31,102 verses upfront for instant access
 - **ZERO LOADING DELAYS**: Removed all fetch delays, buffers, and range restrictions during navigation

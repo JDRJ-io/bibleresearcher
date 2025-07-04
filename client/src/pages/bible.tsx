@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { loadTranslation, getVerseText } from '@/lib/translationLoader';
 import { TopHeader } from '@/components/bible/TopHeader';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
-import { BibleTable } from '@/components/bible/BibleTable';
+import { VirtualBibleTable } from '@/components/bible/VirtualBibleTable';
 import { ExpandedVerseOverlay } from '@/components/bible/ExpandedVerseOverlay';
 import { AuthModal } from '@/components/bible/AuthModal';
 import { VerseSelector } from '@/components/bible/VerseSelector';
@@ -434,7 +434,7 @@ export default function BiblePage() {
         }}
       />
 
-      <BibleTable
+      <VirtualBibleTable
         verses={filteredVerses}
         translations={displayTranslations}
         selectedTranslations={displayTranslations}
@@ -442,8 +442,6 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
-        totalBibleHeight={totalBibleHeight}
-        startOffset={scrollOffset}
       />
 
       <ExpandedVerseOverlay

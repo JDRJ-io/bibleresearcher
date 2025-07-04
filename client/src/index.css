@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Virtual scrolling styles for optimal performance */
+.verse-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  box-sizing: border-box;
+}
+
 /* Verse hover and highlight animations matching original design */
 @keyframes highlight-anim {
   0% { background-color: gold; }
