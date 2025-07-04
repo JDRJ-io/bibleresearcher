@@ -162,16 +162,11 @@ const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
       chapter: chapter,
       verse: verse,
       reference: reference,
-      text: {
-        KJV: `[Verse ${reference} - Loading...]`, // Placeholder text
-        ESV: `[Verse ${reference} - Loading...]`,
-        NIV: `[Verse ${reference} - Loading...]`,
-        NKJV: `[Verse ${reference} - Loading...]`,
-      },
+      text: {}, // Start with empty text object - translations loaded dynamically
       crossReferences: [],
       strongsWords: [],
-      labels: ["placeholder"],
-      contextGroup: "loading",
+      labels: [],
+      contextGroup: "standard",
     };
   });
 };
@@ -462,12 +457,7 @@ const createFullBibleWithHeights = async (
         chapter: chapter,
         verse: verse,
         reference: reference,
-        text: {
-          KJV: `[Verse ${reference} - Loading...]`,
-          ESV: `[Verse ${reference} - ESV loading...]`,
-          NIV: `[Verse ${reference} - NIV loading...]`,
-          NKJV: `[Verse ${reference} - NKJV loading...]`,
-        },
+        text: {}, // Start with empty text - load translations dynamically
         crossReferences: [],
         strongsWords: [],
         labels: ["placeholder"],
@@ -546,9 +536,6 @@ const createFullBibleWithHeights = async (
           reference: reference,
           text: {
             KJV: verseText,
-            ESV: `[${reference} - ESV loading...]`, // Will be loaded dynamically
-            NIV: `[${reference} - NIV loading...]`, // Will be loaded dynamically
-            NKJV: `[${reference} - NKJV loading...]`, // Will be loaded dynamically
           },
           crossReferences: [],
           strongsWords: [],
@@ -558,26 +545,8 @@ const createFullBibleWithHeights = async (
         });
         versesWithText++;
       } else {
-        // Create placeholder with fixed height
-        verses.push({
-          id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`,
-          index,
-          book: book,
-          chapter: parseInt(chapter),
-          verse: parseInt(verse),
-          reference: reference,
-          text: {
-            KJV: `In the beginning God created the heaven and the earth.`, // Default to Genesis 1:1 for demo
-            ESV: `In the beginning, God created the heavens and the earth.`,
-            NIV: `In the beginning God created the heavens and the earth.`,
-            NKJV: `[Verse ${reference} - Text not found]`,
-          },
-          crossReferences: [],
-          strongsWords: [],
-          labels: ["missing-text"],
-          contextGroup: "error",
-          height: 120, // Fixed height
-        });
+        // Skip verses without text instead of creating placeholders
+        console.warn(`Missing text for ${reference}, skipping verse`);
       }
     }
   });
@@ -836,10 +805,8 @@ export function useBibleData() {
         return {
           ...verse,
           text: {
+            ...verse.text, // Keep existing translations
             KJV: kjvText,
-            ESV: `[${verse.reference} - ESV loading...]`,
-            NIV: `[${verse.reference} - NIV loading...]`,
-            NKJV: `[${verse.reference} - NKJV loading...]`,
           },
           labels: ["kjv-loaded"],
           contextGroup: "standard",
@@ -1414,7 +1381,7 @@ export function useBibleData() {
         verse.crossReferences = crossRefs.slice(0, 6).map((ref: string) => ({
           // Limit to first 6 for display
           reference: ref,
-          text: getVerseText(ref) || "Text not found",
+          text: getVerseText(ref) || `[${ref}]`,
         }));
         crossRefCount++;
       }
@@ -1450,36 +1417,53 @@ export function useBibleData() {
   );
   const scrollOffset = calculateScrollOffset();
 
-  // Load translation when selected
+  // Load translation when selected from Supabase
   const loadTranslationData = async (translationId: string) => {
     try {
       console.log(`Loading ${translationId} translation from Supabase...`);
-      const translationData = await loadTranslation(translationId);
+      
+      // Import the translation loader
+      const { loadTranslationSecure } = await import('../lib/supabaseLoader');
+      const translationData = await loadTranslationSecure(translationId);
 
       if (translationData.size > 0) {
-        // Update all displayed verses with the new translation
-        const updatedVerses = displayVerses.map((verse) => {
-          const text =
-            getVerseText(translationData, verse.reference) ||
-            getVerseText(
-              translationData,
-              `${verse.book}.${verse.chapter}:${verse.verse}`,
-            );
+        // Update all verses (both display and full set) with the new translation
+        const updateVersesWithTranslation = (verses: BibleVerse[]) => {
+          return verses.map((verse) => {
+            // Try multiple reference formats to find the text
+            const formats = [
+              verse.reference, // "Gen 1:1"
+              `${verse.book}.${verse.chapter}:${verse.verse}`, // "Gen.1:1"
+              `${verse.book} ${verse.chapter}:${verse.verse}`, // "Gen 1:1"
+            ];
 
-          if (text) {
-            return {
-              ...verse,
-              text: {
-                ...verse.text,
-                [translationId]: text,
-              },
-            };
-          }
-          return verse;
-        });
+            let text = null;
+            for (const format of formats) {
+              text = translationData.get(format);
+              if (text) break;
+            }
 
-        setDisplayVerses(updatedVerses);
-        console.log(`✓ ${translationId} translation loaded successfully`);
+            if (text) {
+              return {
+                ...verse,
+                text: {
+                  ...verse.text,
+                  [translationId]: text,
+                },
+              };
+            }
+            return verse;
+          });
+        };
+
+        // Update both display verses and full verse set
+        const updatedDisplayVerses = updateVersesWithTranslation(displayVerses);
+        const updatedAllVerses = updateVersesWithTranslation(verses);
+        
+        setDisplayVerses(updatedDisplayVerses);
+        setVerses(updatedAllVerses);
+        
+        console.log(`✓ ${translationId} translation loaded with ${translationData.size} verses`);
         return true;
       }
       return false;
@@ -1504,6 +1488,7 @@ export function useBibleData() {
     canGoForward,
     loadingProgress,
     allTranslations,
+    loadTranslationData, // Expose translation loading function
     mainTranslation,
     selectedTranslations,
     multiTranslationMode,
@@ -1518,8 +1503,7 @@ export function useBibleData() {
     // Virtual scrolling properties to prevent page jumping
     totalBibleHeight,
     scrollOffset,
-    // Translation loading
-    loadTranslationData,
+    // Translation management
     setSelectedTranslations,
     setMainTranslation,
     // Cross-reference management
