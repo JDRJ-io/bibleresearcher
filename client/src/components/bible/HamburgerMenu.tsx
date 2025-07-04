@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import type { Translation, Bookmark as BookmarkType } from '@/types/bible';
+import { CrossReferenceSwitcher } from './CrossReferenceSwitcher';
 
 interface HamburgerMenuProps {
   isOpen: boolean;
@@ -38,6 +39,8 @@ interface HamburgerMenuProps {
   allTranslations: Translation[];
   onToggleMultiTranslationMode: () => void;
   onToggleTranslation: (translationId: string) => void;
+  crossRefSet: 'cf1' | 'cf2';
+  onCrossRefSetChange: (set: 'cf1' | 'cf2') => void;
 }
 
 export function HamburgerMenu({
@@ -57,6 +60,8 @@ export function HamburgerMenu({
   allTranslations,
   onToggleMultiTranslationMode,
   onToggleTranslation,
+  crossRefSet,
+  onCrossRefSetChange,
 }: HamburgerMenuProps) {
   const { user, isLoggedIn, signOut } = useAuth();
   const { toast } = useToast();
@@ -198,6 +203,12 @@ export function HamburgerMenu({
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Cross References</Label>
                 <Checkbox defaultChecked />
+              </div>
+              <div className="ml-4">
+                <CrossReferenceSwitcher 
+                  currentSet={crossRefSet}
+                  onSetChange={onCrossRefSetChange}
+                />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Prophecy Columns</Label>

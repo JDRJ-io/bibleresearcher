@@ -195,19 +195,25 @@ Preferred communication style: Simple, everyday language.
 Project focus: Excel-style Bible interface with comprehensive study tools and multi-translation support.
 Data source: User's Supabase storage containing actual Bible translations and reference materials.
 
-# Implementation Status (February 2025)
+# Implementation Status (July 2025)
+
+## Recently Completed Features
+1. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
+   - cf1 (Standard): 29,315 cross-references loaded
+   - cf2 (Extended): 30,692 cross-references loaded
+   - Cross-references automatically apply when switching sets
+   - Cross-references display in verse rows with truncated text previews
 
 ## Missing Core Features (Per User Analysis)
 1. **Multi-Translation Columns**: Currently only toggles KJV/AMP - needs dynamic column injection for up to 12 translations
 2. **Prophecy Verification Column**: Missing 3rd column and summary titles  
-3. **Cross-ref Set Switcher**: Only loads cf1, needs radio switcher for cf1/cf2
-4. **Chronological Order**: Button exists but doesn't reorder verses
-5. **Legend Word Highlighting**: Checkboxes exist but no event listeners or word markup
-6. **Context Borders**: toggle exists but context_groups.json never fetched
-7. **Global Search**: Only searches current translation, % random verse not handled
-8. **Strong's Overlay**: Opens but no word boxes or worker integration
-9. **Web Worker**: searchWorker.js exists but not connected
-10. **Drag Column Reordering**: No drag listeners, lock flag unused
-11. **Bookmark Delete**: Only adds, no delete functionality
-12. **Forum Vote Guard**: No duplicate vote prevention
-13. **Load Speed**: All translations load on main thread causing 5-10s stall
+3. **Chronological Order**: Button exists but doesn't reorder verses
+4. **Legend Word Highlighting**: Checkboxes exist but no event listeners or word markup
+5. **Context Borders**: toggle exists but context_groups.json never fetched
+6. **Global Search**: Only searches current translation, % random verse not handled
+7. **Strong's Overlay**: Opens but no word boxes or worker integration
+8. **Web Worker**: searchWorker.js exists but not connected
+9. **Drag Column Reordering**: No drag listeners, lock flag unused
+10. **Bookmark Delete**: Only adds, no delete functionality
+11. **Forum Vote Guard**: No duplicate vote prevention
+12. **Load Speed**: All translations load on main thread causing 5-10s stall

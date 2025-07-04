@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,7 +35,10 @@ export default function BiblePage() {
     canGoForward: hookCanGoForward,
     loadTranslationData,
     setSelectedTranslations: setHookSelectedTranslations,
-    setMainTranslation: setHookMainTranslation
+    setMainTranslation: setHookMainTranslation,
+    crossRefSet,
+    setCrossRefSet,
+    loadBothCrossReferenceSets
   } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
@@ -95,6 +98,11 @@ export default function BiblePage() {
   const displayTranslations = multiTranslationMode 
     ? allTranslations.filter(t => selectedTranslations.includes(t.id))
     : allTranslations.filter(t => t.id === mainTranslation);
+
+  // Load both cross-reference sets on mount
+  useEffect(() => {
+    loadBothCrossReferenceSets();
+  }, [loadBothCrossReferenceSets]);
 
   // Filter verses based on search query
   const filteredVerses = verses.filter(verse => {
@@ -432,6 +440,8 @@ export default function BiblePage() {
             toggleTranslation(translationId);
           }
         }}
+        crossRefSet={crossRefSet}
+        onCrossRefSetChange={setCrossRefSet}
       />
 
       <VirtualBibleTable

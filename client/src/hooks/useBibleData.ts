@@ -771,6 +771,9 @@ export function useBibleData() {
     percentage: 0
   });
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
+  const [crossRefSet, setCrossRefSet] = useState<'cf1' | 'cf2'>('cf1');
+  const [crossReferencesData, setCrossReferencesData] = useState<{cf1: Map<string, string[]>, cf2: Map<string, string[]>}>({cf1: new Map(), cf2: new Map()});
+  const [prophecyData, setProphecyData] = useState<Map<string, any>>(new Map());
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
   // LOAD ALL VERSES - No more virtual scrolling limits!
@@ -1144,6 +1147,16 @@ export function useBibleData() {
     loadData();
   }, []);
 
+  // Apply cross-references when crossRefSet changes
+  useEffect(() => {
+    if (verses.length > 0 && crossReferencesData[crossRefSet]) {
+      console.log(`Applying ${crossRefSet} cross-references to ${verses.length} verses`);
+      applyCrossReferences(verses, crossReferencesData[crossRefSet]);
+      // Force re-render by updating displayVerses
+      setDisplayVerses([...verses]);
+    }
+  }, [crossRefSet, verses.length > 0, crossReferencesData.cf1, crossReferencesData.cf2]);
+
   const expandVerse = (verse: BibleVerse) => {
     setExpandedVerse(verse);
   };
@@ -1296,6 +1309,31 @@ export function useBibleData() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery, verses.length]);
 
+// Load both cross-reference sets from Supabase
+const loadBothCrossReferenceSets = async () => {
+  try {
+    // Load cf1
+    const cf1Response = await fetch('https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/references/cf1.txt');
+    if (cf1Response.ok) {
+      const cf1Text = await cf1Response.text();
+      const cf1Map = parseCrossReferences(cf1Text);
+      setCrossReferencesData(prev => ({...prev, cf1: cf1Map}));
+      console.log(`✓ Loaded cf1 with ${cf1Map.size} cross-references`);
+    }
+
+    // Load cf2
+    const cf2Response = await fetch('https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/references/cf2.txt');
+    if (cf2Response.ok) {
+      const cf2Text = await cf2Response.text();
+      const cf2Map = parseCrossReferences(cf2Text);
+      setCrossReferencesData(prev => ({...prev, cf2: cf2Map}));
+      console.log(`✓ Loaded cf2 with ${cf2Map.size} cross-references`);
+    }
+  } catch (error) {
+    console.error('Failed to load cross-reference sets:', error);
+  }
+};
+
 // Function to load cross-references from attached assets
 const loadCrossReferencesFromAssets = async (verses: BibleVerse[]) => {
   try {
@@ -1339,8 +1377,8 @@ Gen.1:5$$Ps.74:16$Isa.45:7$Ps.104:20$1Thess.5:5$Gen.8:22$Ps.19:2$Jer.33:20$Eph.5
 
 
 
-const parseCrossReferences = (text: string) => {
-  const crossRefMap: Record<string, any[]> = {};
+const parseCrossReferences = (text: string): Map<string, string[]> => {
+  const crossRefMap = new Map<string, string[]>();
   
   console.log('Parsing cross-references with Gen.1:1 format...');
   const lines = text.split('\n').filter(line => line.trim());
@@ -1355,7 +1393,7 @@ const parseCrossReferences = (text: string) => {
       if (crossRefsText) {
         // Split by $ to get different reference groups, then by # for sequential verses
         const refGroups = crossRefsText.split('$');
-        const crossRefs: any[] = [];
+        const crossRefs: string[] = [];
         
         refGroups.forEach(group => {
           if (group.trim()) {
@@ -1364,16 +1402,13 @@ const parseCrossReferences = (text: string) => {
               if (ref.trim()) {
                 // Keep the exact format: John.1:1, don't convert to spaces
                 const cleanRef = ref.trim();
-                crossRefs.push({
-                  reference: cleanRef,
-                  text: '' // Will be populated with actual verse text
-                });
+                crossRefs.push(cleanRef);
               }
             });
           }
         });
         
-        crossRefMap[cleanMainRef] = crossRefs;
+        crossRefMap.set(cleanMainRef, crossRefs);
         
         if (index < 5) {
           console.log(`✓ Parsed cross-ref ${index + 1}: ${cleanMainRef} -> ${crossRefs.length} references`);
@@ -1382,11 +1417,11 @@ const parseCrossReferences = (text: string) => {
     }
   });
   
-  console.log(`📊 Cross-reference results: ${Object.keys(crossRefMap).length} verses with cross-references`);
+  console.log(`📊 Cross-reference results: ${crossRefMap.size} verses with cross-references`);
   return crossRefMap;
 };
 
-const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, any[]>) => {
+const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Map<string, string[]> | Record<string, any[]>) => {
   // Helper function to get verse text from the Bible data using Gen.1:1 format
   const getVerseText = (dotReference: string): string => {
     // Convert Gen.1:1 format to "Gen 1:1" format to match our verse data
@@ -1400,12 +1435,18 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
   verses.forEach(verse => {
     // Convert verse reference back to Gen.1:1 format to match crossRefMap keys
     const dotFormat = verse.reference.replace(/\s/g, '.');
-    const crossRefs = crossRefMap[dotFormat];
+    
+    let crossRefs: string[] | undefined;
+    if (crossRefMap instanceof Map) {
+      crossRefs = crossRefMap.get(dotFormat);
+    } else {
+      crossRefs = crossRefMap[dotFormat];
+    }
     
     if (crossRefs && crossRefs.length > 0) {
-      verse.crossReferences = crossRefs.slice(0, 6).map(ref => ({ // Limit to first 6 for display
-        ...ref,
-        text: getVerseText(ref.reference) || 'Text not found'
+      verse.crossReferences = crossRefs.slice(0, 6).map((ref: string) => ({ // Limit to first 6 for display
+        reference: ref,
+        text: getVerseText(ref) || 'Text not found'
       }));
       crossRefCount++;
     }
@@ -1501,6 +1542,10 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     // Translation loading
     loadTranslationData,
     setSelectedTranslations,
-    setMainTranslation
+    setMainTranslation,
+    // Cross-reference management
+    crossRefSet,
+    setCrossRefSet,
+    loadBothCrossReferenceSets
   };
 }
