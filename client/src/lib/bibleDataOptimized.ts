@@ -10,11 +10,11 @@ export async function initializeBibleStructure(): Promise<BibleVerse[]> {
   if (globalVerseStructure) return globalVerseStructure;
   
   try {
-    console.log('Initializing complete Bible structure...');
+    console.log('Initializing complete Bible structure with ALL 31,102 verses...');
     
     // Use embedded verse keys for instant loading
     const verseKeys = getVerseKeys();
-    console.log(`Building structure for ${verseKeys.length} verses...`);
+    console.log(`Loading COMPLETE Bible with ${verseKeys.length} verses for instant navigation...`);
     
     // Create verse structure with proper metadata
     const verses: BibleVerse[] = verseKeys.map((key, index) => {

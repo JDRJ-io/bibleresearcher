@@ -25,13 +25,8 @@ async function loadTranslation(translationId) {
   try {
     console.log(`Worker loading ${translationId}...`);
     
-    // Download from private bucket with authentication
-    const response = await fetch(`${supabaseUrl}/storage/v1/object/authenticated/anointed/translations/${translationId}.txt`, {
-      headers: {
-        'Authorization': `Bearer ${supabaseKey}`,
-        'apikey': supabaseKey
-      }
-    });
+    // Download from PUBLIC bucket - no authentication needed
+    const response = await fetch(`${supabaseUrl}/storage/v1/object/public/anointed/translations/${translationId}.txt`);
     
     if (!response.ok) {
       throw new Error(`Failed to load ${translationId}: ${response.status}`);

@@ -773,8 +773,9 @@ export function useBibleData() {
   const [loadingVerses, setLoadingVerses] = useState<Set<number>>(new Set()); // Track verses being loaded
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
-  const VIEWPORT_BUFFER = 200; // Keep 200 verses above and below viewport (400 total) for smooth scrolling
-  const INSTANT_JUMP_BUFFER = 200; // When jumping far, load 200 verses around target first
+  // LOAD ALL VERSES - No more virtual scrolling limits!
+  const VIEWPORT_BUFFER = 31102; // Load ALL verses for instant navigation
+  const INSTANT_JUMP_BUFFER = 31102; // Full Bible always available
   const SCROLL_THRESHOLD = 60; // Load more verses when within 30 verses of buffer edge
 
   // Translation state
@@ -1107,11 +1108,11 @@ export function useBibleData() {
         setVerses(fullBibleWithText);
         
         // Load initial verses only - virtual scrolling will handle the rest
-        console.log('🚀 Loading initial verses for smart virtual scrolling...');
-        const initialVerses = fullBibleWithText.slice(0, 100); // Start with just 100 verses
-        const initialVersesWithText = await loadVerseTextForRange(initialVerses);
+        console.log('🚀 Loading ALL 31,102 verses for instant navigation...');
+        // LOAD ALL VERSES - No more limits!
+        const initialVersesWithText = await loadVerseTextForRange(fullBibleWithText);
         setDisplayVerses(initialVersesWithText);
-        setCenterVerseIndex(10);
+        setCenterVerseIndex(15551); // Start at middle of Bible (Psalms)
         
         // Test verse loading at different Bible locations
         console.log(`📍 Testing verse locations:`);
@@ -1122,11 +1123,13 @@ export function useBibleData() {
         const endPoint = fullBibleWithText.length - 1;
         console.log(`Revelation 22:21 (index ${endPoint}): ${fullBibleWithText[endPoint]?.reference} - ${fullBibleWithText[endPoint]?.text?.KJV?.substring(0, 50)}...`);
         
-        console.log('✓ Bible study platform ready!', {
+        console.log('✓ COMPLETE BIBLE LOADED!', {
           totalVerses: fullBibleWithText.length,
           displayedVerses: initialVersesWithText.length,
-          centerIndex: 10,
-          firstVerse: initialVersesWithText[0]
+          allVersesLoaded: initialVersesWithText.length === fullBibleWithText.length,
+          centerIndex: centerVerseIndex,
+          firstVerse: initialVersesWithText[0],
+          lastVerse: initialVersesWithText[initialVersesWithText.length - 1]
         });
         
         // Force immediate state update to clear loading screen  
@@ -1431,6 +1434,41 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
   const totalBibleHeight = verses.reduce((total, verse) => total + (verse.height || 120), 0);
   const scrollOffset = calculateScrollOffset();
 
+  // Load translation when selected
+  const loadTranslationData = async (translationId: string) => {
+    try {
+      console.log(`Loading ${translationId} translation from Supabase...`);
+      const translationData = await loadTranslation(translationId);
+      
+      if (translationData.size > 0) {
+        // Update all displayed verses with the new translation
+        const updatedVerses = displayVerses.map(verse => {
+          const text = getVerseText(translationData, verse.reference) ||
+                      getVerseText(translationData, `${verse.book}.${verse.chapter}:${verse.verse}`);
+          
+          if (text) {
+            return {
+              ...verse,
+              text: {
+                ...verse.text,
+                [translationId]: text
+              }
+            };
+          }
+          return verse;
+        });
+        
+        setDisplayVerses(updatedVerses);
+        console.log(`✓ ${translationId} translation loaded successfully`);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error(`Failed to load ${translationId}:`, error);
+      return false;
+    }
+  };
+
   return {
     verses: displayVerses, // Return display verses for rendering
     allVerses: verses, // Keep full dataset available
@@ -1459,6 +1497,10 @@ const applyCrossReferences = (verses: BibleVerse[], crossRefMap: Record<string, 
     performSearch,
     // Virtual scrolling properties to prevent page jumping
     totalBibleHeight,
-    scrollOffset
+    scrollOffset,
+    // Translation loading
+    loadTranslationData,
+    setSelectedTranslations,
+    setMainTranslation
   };
 }

@@ -32,7 +32,10 @@ export default function BiblePage() {
     goBack: hookGoBack,
     goForward: hookGoForward,
     canGoBack: hookCanGoBack,
-    canGoForward: hookCanGoForward
+    canGoForward: hookCanGoForward,
+    loadTranslationData,
+    setSelectedTranslations: setHookSelectedTranslations,
+    setMainTranslation: setHookMainTranslation
   } = useBibleData();
   const error = null; // No error state needed for now
   const allTranslations = [
@@ -414,7 +417,21 @@ export default function BiblePage() {
         selectedTranslations={selectedTranslations}
         allTranslations={allTranslations}
         onToggleMultiTranslationMode={toggleMultiTranslationMode}
-        onToggleTranslation={toggleTranslation}
+        onToggleTranslation={async (translationId: string) => {
+          if (!selectedTranslations.includes(translationId)) {
+            // Load translation before adding
+            toast({ title: `Loading ${translationId} translation...` });
+            const success = await loadTranslationData(translationId);
+            if (success) {
+              toggleTranslation(translationId);
+              toast({ title: `${translationId} loaded successfully` });
+            } else {
+              toast({ title: `Failed to load ${translationId}`, variant: "destructive" });
+            }
+          } else {
+            toggleTranslation(translationId);
+          }
+        }}
       />
 
       <BibleTable
