@@ -204,6 +204,14 @@ Data source: User's Supabase storage containing actual Bible translations and re
    - Cross-references automatically apply when switching sets
    - Cross-references display in verse rows with truncated text previews
 
+2. **Supabase-Only Data Loading**: ✓ Removed all mock/fallback data and implemented pure Supabase approach
+   - Removed generateFallbackVerses, generateExtendedFallbackVerses, addSampleCrossReferences functions
+   - Replaced mockTranslations with dynamic translation loading from Supabase storage
+   - loadFullBibleIndex now throws error instead of falling back to mock data
+   - All Bible verses, cross-references, and translations now come exclusively from Supabase
+   - Added proper error handling for Supabase connection failures
+   - Updated translation loading to fetch available translations from Supabase storage bucket
+
 ## Missing Core Features (Per User Analysis)
 1. **Multi-Translation Columns**: Currently only toggles KJV/AMP - needs dynamic column injection for up to 12 translations
 2. **Prophecy Verification Column**: Missing 3rd column and summary titles  

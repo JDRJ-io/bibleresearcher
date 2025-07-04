@@ -1,5 +1,6 @@
 export interface BibleVerse {
   id: string;
+  index?: number; // Position in full Bible sequence
   book: string;
   chapter: number;
   verse: number;

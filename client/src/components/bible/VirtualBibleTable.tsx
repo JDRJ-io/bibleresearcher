@@ -1,11 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { ColumnHeaders } from './ColumnHeaders';
-import { VerseRow } from './VerseRow';
-import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
+import { useState, useRef, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { ColumnHeaders } from "./ColumnHeaders";
+import { VerseRow } from "./VerseRow";
+import type {
+  BibleVerse,
+  Translation,
+  UserNote,
+  Highlight,
+} from "@/types/bible";
 
 interface VirtualBibleTableProps {
   verses: BibleVerse[];
@@ -19,6 +24,12 @@ interface VirtualBibleTableProps {
   mainTranslation?: string;
   onExpandVerse: (verse: BibleVerse) => void;
   onNavigateToVerse: (reference: string) => void;
+  /**
+   * Total number of verse rows in the full Bible.
+   * Used to set the placeholder container height so the
+   * scroll bar spans the entire Bible length.
+   */
+  totalRows: number;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
@@ -31,6 +42,7 @@ export function VirtualBibleTable({
   preferences,
   onExpandVerse,
   onNavigateToVerse,
+  totalRows,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -39,38 +51,38 @@ export function VirtualBibleTable({
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Virtual scrolling state
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
   const [currentStartIndex, setCurrentStartIndex] = useState(0);
   const [currentEndIndex, setCurrentEndIndex] = useState(-1);
 
-  // Calculate total height for scrollbar
-  const totalHeight = verses.length * ROW_HEIGHT;
+  // Calculate total height for scrollbar using the full verse count
+  const totalHeight = totalRows * ROW_HEIGHT;
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
-    queryKey: ['/api/notes'],
+    queryKey: ["/api/notes"],
     enabled: !!user,
   });
 
   const { data: highlights = [] } = useQuery<Highlight[]>({
-    queryKey: ['/api/highlights'],
+    queryKey: ["/api/highlights"],
     enabled: !!user,
   });
 
   // Update visible range based on scroll position
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
-    
+
     const scrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
-    
+
     // Calculate which verses should be visible
     const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER_SIZE);
     const end = Math.min(
-      verses.length - 1, 
-      Math.ceil((scrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE
+      verses.length - 1,
+      Math.ceil((scrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
     );
 
     // Early exit if range hasn't changed (key optimization from original)
@@ -84,12 +96,12 @@ export function VirtualBibleTable({
   // Handle scroll events
   useEffect(() => {
     let animationFrameId: number;
-    
+
     const handleScroll = () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
-      
+
       animationFrameId = requestAnimationFrame(() => {
         if (scrollRef.current) {
           setScrollTop(scrollRef.current.scrollTop);
@@ -101,14 +113,14 @@ export function VirtualBibleTable({
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
       // Initial update
       updateVisibleRows();
     }
 
     return () => {
       if (scrollElement) {
-        scrollElement.removeEventListener('scroll', handleScroll);
+        scrollElement.removeEventListener("scroll", handleScroll);
       }
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
@@ -125,48 +137,48 @@ export function VirtualBibleTable({
 
   // Helper functions
   const getUserNoteForVerse = (reference: string) => {
-    return userNotes.find(note => note.verseRef === reference);
+    return userNotes.find((note) => note.verseRef === reference);
   };
 
   const getHighlightsForVerse = (reference: string) => {
-    return highlights.filter(h => h.verseRef === reference);
+    return highlights.filter((h) => h.verseRef === reference);
   };
 
   // Note mutations
   const createNoteMutation = useMutation({
     mutationFn: async (data: { verseRef: string; note: string }) => {
-      const res = await apiRequest('POST', '/api/notes', data);
+      const res = await apiRequest("POST", "/api/notes", data);
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
-      toast({ title: 'Note saved' });
+      queryClient.invalidateQueries({ queryKey: ["/api/notes"] });
+      toast({ title: "Note saved" });
     },
   });
 
   const updateNoteMutation = useMutation({
     mutationFn: async ({ id, note }: { id: number; note: string }) => {
-      const res = await apiRequest('PATCH', `/api/notes/${id}`, { note });
+      const res = await apiRequest("PATCH", `/api/notes/${id}`, { note });
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
-      toast({ title: 'Note updated' });
+      queryClient.invalidateQueries({ queryKey: ["/api/notes"] });
+      toast({ title: "Note updated" });
     },
   });
 
   const handleHighlight = (verseRef: string, selection: Selection) => {
     if (!user) {
-      toast({ 
-        title: 'Sign in required', 
-        description: 'Please sign in to highlight verses',
-        variant: 'destructive'
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to highlight verses",
+        variant: "destructive",
       });
       return;
     }
 
     // Handle highlight logic here if needed
-    console.log('Highlight requested for', verseRef, selection);
+    console.log("Highlight requested for", verseRef, selection);
   };
 
   // Only render verses in visible range
@@ -174,34 +186,34 @@ export function VirtualBibleTable({
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
-      <ColumnHeaders 
+      <ColumnHeaders
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
         showContext={preferences.showContext}
         scrollLeft={scrollLeft}
       />
-      
-      <div 
+
+      <div
         className="flex-1 overflow-auto"
-        style={{ height: 'calc(100vh - 160px)', marginTop: '48px' }}
+        style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
         ref={scrollRef}
       >
         {/* Virtual scroll container with total height */}
-        <div 
+        <div
           className="relative min-w-max"
           style={{ height: `${totalHeight}px` }}
         >
           {/* Render only visible verses with absolute positioning */}
           {visibleVerses.map((verse, index) => {
-            const actualIndex = visibleRange.start + index;
+            const actualIndex = verse.index ?? visibleRange.start + index;
             return (
               <div
                 key={verse.id}
                 className="verse-row absolute left-0 right-0"
-                style={{ 
+                style={{
                   top: `${actualIndex * ROW_HEIGHT}px`,
-                  height: `${ROW_HEIGHT}px`
+                  height: `${ROW_HEIGHT}px`,
                 }}
               >
                 <VerseRow
