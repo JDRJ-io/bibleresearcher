@@ -31,11 +31,17 @@ export interface StrongsWord {
 }
 
 export interface ProphecyData {
-  predictions?: string[];
-  fulfillments?: string[];
-  verifications?: string[];
+  predictions?: ProphecyReference[];
+  fulfillments?: ProphecyReference[];
+  evidence?: ProphecyReference[];
   summary?: string;
-  number?: number;
+  number?: string;
+  title?: string;
+}
+
+export interface ProphecyReference {
+  reference: string;
+  text: string;
 }
 
 export interface Translation {

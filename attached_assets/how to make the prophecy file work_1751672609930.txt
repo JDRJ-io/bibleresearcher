@@ -1,0 +1,20 @@
+The implementation for the prophecy file is not complex, it takes the file organized in parts 1/2/3/4/5
+
+1 is the number of prophecy
+2 is the prediction verses
+3 is the fulfillment verses
+4 is the evidence verses
+5 is the summary of the prophecy
+
+The goal for this is as simple as the cross references. Every verse in the prediction, fulfillment & evidence gives us the row where we will plug in our information. So let's say a verse appears in predictions. In that row, we fill the cell in the column of prediction with all other prediction verses for that prophecy, then the fulfillment cell, we fill all the fulfillment verses in here in that prophecy, and we do the same for the evidence. 
+
+Take parts 1 & 5
+ Join them together as the title. 
+
+And we put a little title in each of those cells showing that these verses relate in the context of this main prophecy. 
+
+And we do this same strategy for every verse mentioned in sections 2, 3, 4. We plug in all of the other verses to the respective cells that are in eqch row of each verse mentioned. Aligning the other correlating verses in the cell of each column with prediction, fulfillment, evidence
+
+& we want these prophecy cells the same way as the cross reference cells are, hyperlink b.c:v markers, and full verse text for each of these
+
+Dont worry about explaining different verses from different books, the user will understand because Holy Spirit is the author of all bible books. 

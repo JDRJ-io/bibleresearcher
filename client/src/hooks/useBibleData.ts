@@ -11,6 +11,7 @@ import {
   loadVerseKeys,
   loadTranslationSecure,
   loadCrossReferences,
+  loadProphecyData,
 } from "@/lib/supabaseLoader";
 
 // Global KJV text map for dynamic verse text loading
@@ -613,36 +614,73 @@ const mergeStrongsData = (verses: BibleVerse[], strongsText: string) => {
   });
 };
 
-const mergeProphecyData = (verses: BibleVerse[], prophecyText: string) => {
-  const lines = prophecyText.split("\n").filter((line) => line.trim());
-
-  lines.forEach((line) => {
-    // Parse prophecy format from your files
-    const parts = line.split("\t");
-    if (parts.length >= 4) {
-      const [reference, type, content, verification] = parts;
-      const verse = verses.find(
-        (v) => v.reference.replace(/\s/g, "") === reference.replace(/\s/g, ""),
-      );
-      if (verse) {
-        if (!verse.prophecy) {
+// Apply prophecy data to verses from Supabase
+const applyProphecyData = async (verses: BibleVerse[]) => {
+  try {
+    console.log("Loading prophecy data from Supabase...");
+    const prophecies = await loadProphecyData();
+    
+    if (!prophecies || prophecies.length === 0) {
+      console.log("No prophecy data loaded");
+      return;
+    }
+    
+    console.log(`Applying prophecy data from ${prophecies.length} prophecies`);
+    
+    // For each prophecy, apply data to all mentioned verses
+    prophecies.forEach((prophecy: any) => {
+      const { title, predictions, fulfillments, evidence, summary } = prophecy;
+      
+      // Get all verses mentioned in this prophecy
+      const allVerseRefs = [
+        ...predictions,
+        ...fulfillments, 
+        ...evidence
+      ];
+      
+      // Apply prophecy data to each mentioned verse
+      allVerseRefs.forEach((verseRef) => {
+        const verse = verses.find((v) => 
+          v.reference === verseRef || 
+          v.reference.replace(/\s/g, '.') === verseRef ||
+          `${v.book}.${v.chapter}:${v.verse}` === verseRef
+        );
+        
+        if (verse) {
           verse.prophecy = {
-            predictions: [],
-            fulfillments: [],
-            verifications: [],
+            title,
+            summary,
+            predictions: predictions.map((ref: any) => ({
+              reference: ref,
+              text: getVerseTextForRef(verses, ref) || `[${ref}]`
+            })),
+            fulfillments: fulfillments.map((ref: any) => ({
+              reference: ref,
+              text: getVerseTextForRef(verses, ref) || `[${ref}]`
+            })),
+            evidence: evidence.map((ref: any) => ({
+              reference: ref,
+              text: getVerseTextForRef(verses, ref) || `[${ref}]`
+            }))
           };
         }
+      });
+    });
+    
+    console.log("✓ Applied prophecy data to verses");
+  } catch (error) {
+    console.error("Failed to apply prophecy data:", error);
+  }
+};
 
-        if (type.toLowerCase() === "prediction") {
-          verse.prophecy.predictions?.push(content.trim());
-        } else if (type.toLowerCase() === "fulfillment") {
-          verse.prophecy.fulfillments?.push(content.trim());
-        } else if (type.toLowerCase() === "verification") {
-          verse.prophecy.verifications?.push(verification.trim());
-        }
-      }
-    }
-  });
+// Helper to get verse text for reference
+const getVerseTextForRef = (verses: BibleVerse[], ref: string): string | null => {
+  const verse = verses.find((v) => 
+    v.reference === ref || 
+    v.reference.replace(/\s/g, '.') === ref ||
+    `${v.book}.${v.chapter}:${v.verse}` === ref
+  );
+  return verse?.text?.KJV || null;
 };
 
 // Removed addSampleCrossReferences - only use Supabase data
@@ -1051,6 +1089,16 @@ export function useBibleData() {
         try {
           // Load cross-references from Supabase only
           await loadBothCrossReferenceSets();
+          setLoadingProgress({ stage: "prophecy", percentage: 85 });
+          
+          // Try to load prophecy data from Supabase - fail silently if not available
+          try {
+            await applyProphecyData(data);
+            console.log("✓ Prophecy data loaded successfully");
+          } catch (prophecyError) {
+            console.log("⚠️ Prophecy data not available, skipping:", prophecyError.message);
+          }
+          
           setLoadingProgress({ stage: "finalizing", percentage: 95 });
           await new Promise((resolve) => setTimeout(resolve, 300));
         } catch (error) {

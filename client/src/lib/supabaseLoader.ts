@@ -245,6 +245,73 @@ export async function loadContextGroups(): Promise<Map<string, string>> {
   }
 }
 
+// Load prophecy data from private bucket
+export async function loadProphecyData(): Promise<any> {
+  if (resourceCache.has("prophecy")) {
+    return resourceCache.get("prophecy");
+  }
+
+  try {
+    console.log("Loading prophecy data from private bucket...");
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("prophecy/prophecy.txt");
+
+    if (error) {
+      console.error("Error downloading prophecy data:", error);
+      throw error;
+    }
+
+    const text = await data.text();
+    
+    // Parse prophecy data into structured format
+    const prophecies = parseProphecyFile(text);
+    
+    resourceCache.set("prophecy", prophecies);
+    console.log(`Prophecy data loaded: ${prophecies.length} prophecies from private bucket`);
+
+    return prophecies;
+  } catch (error) {
+    console.error("Failed to load prophecy data:", error);
+    return [];
+  }
+}
+
+// Parse prophecy file into structured data
+function parseProphecyFile(text: string): any[] {
+  const prophecies = [];
+  const sections = text.split(/(?=^\d+$)/m).filter(section => section.trim());
+  
+  for (const section of sections) {
+    const lines = section.split('\n').filter(line => line.trim());
+    if (lines.length < 5) continue;
+    
+    const prophecyNumber = lines[0].trim();
+    const predictions = parseVerseList(lines[1]);
+    const fulfillments = parseVerseList(lines[2]);
+    const evidence = parseVerseList(lines[3]);
+    const summary = lines[4].trim();
+    
+    prophecies.push({
+      number: prophecyNumber,
+      title: `${prophecyNumber}: ${summary}`,
+      predictions,
+      fulfillments,
+      evidence,
+      summary
+    });
+  }
+  
+  console.log(`Parsed ${prophecies.length} prophecies from file`);
+  return prophecies;
+}
+
+// Parse comma-separated verse list into array
+function parseVerseList(line: string): string[] {
+  return line.split(',').map(verse => verse.trim()).filter(verse => verse);
+}
+
 // Get all available translations from bucket
 export async function getAvailableTranslations(): Promise<string[]> {
   try {

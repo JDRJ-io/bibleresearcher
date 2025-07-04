@@ -97,34 +97,93 @@ export function VerseRow({
         </div>
       </div>
 
-      {/* Prophecy Column - Only show if enabled */}
+      {/* Prophecy Columns - 3 separate columns */}
       {preferences.showProphecy && (
-        <div className="w-64 flex-shrink-0 border-r">
-          <div className="h-[120px] overflow-y-auto p-3 text-xs">
-            {verse.prophecy ? (
-              <div className="space-y-2">
-                {verse.prophecy.predictions && verse.prophecy.predictions.length > 0 && (
-                  <div>
-                    <div className="font-medium text-blue-600 dark:text-blue-400 text-xs">Predictions:</div>
-                    {verse.prophecy.predictions.slice(0, 2).map((pred, idx) => (
-                      <div key={idx} className="text-muted-foreground text-xs">{pred.substring(0, 80)}...</div>
-                    ))}
+        <>
+          {/* Predictions Column */}
+          <div className="w-64 flex-shrink-0 border-r">
+            <div className="h-[120px] overflow-y-auto p-3 text-xs">
+              {verse.prophecy?.predictions && verse.prophecy.predictions.length > 0 ? (
+                <div>
+                  <div className="font-medium text-blue-600 dark:text-blue-400 text-xs mb-2">
+                    {verse.prophecy.title ? `${verse.prophecy.title} - Predictions` : "Predictions"}
                   </div>
-                )}
-                {verse.prophecy.fulfillments && verse.prophecy.fulfillments.length > 0 && (
-                  <div>
-                    <div className="font-medium text-green-600 dark:text-green-400 text-xs">Fulfillments:</div>
-                    {verse.prophecy.fulfillments.slice(0, 2).map((ful, idx) => (
-                      <div key={idx} className="text-muted-foreground text-xs">{ful.substring(0, 80)}...</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-muted-foreground italic">Loading prophecy data...</span>
-            )}
+                  {verse.prophecy.predictions.slice(0, 6).map((pred, idx) => (
+                    <div key={idx} className="mb-1">
+                      <button
+                        onClick={() => onNavigateToVerse(pred.reference)}
+                        className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                      >
+                        {pred.reference}
+                      </button>
+                      <div className="text-muted-foreground text-xs">
+                        {pred.text && pred.text.length > 60 ? `${pred.text.substring(0, 60)}...` : pred.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-muted-foreground italic text-xs">No predictions</span>
+              )}
+            </div>
           </div>
-        </div>
+
+          {/* Fulfillments Column */}
+          <div className="w-64 flex-shrink-0 border-r">
+            <div className="h-[120px] overflow-y-auto p-3 text-xs">
+              {verse.prophecy?.fulfillments && verse.prophecy.fulfillments.length > 0 ? (
+                <div>
+                  <div className="font-medium text-green-600 dark:text-green-400 text-xs mb-2">
+                    {verse.prophecy.title ? `${verse.prophecy.title} - Fulfillments` : "Fulfillments"}
+                  </div>
+                  {verse.prophecy.fulfillments.slice(0, 6).map((ful, idx) => (
+                    <div key={idx} className="mb-1">
+                      <button
+                        onClick={() => onNavigateToVerse(ful.reference)}
+                        className="text-green-600 dark:text-green-400 hover:underline text-xs font-medium"
+                      >
+                        {ful.reference}
+                      </button>
+                      <div className="text-muted-foreground text-xs">
+                        {ful.text && ful.text.length > 60 ? `${ful.text.substring(0, 60)}...` : ful.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-muted-foreground italic text-xs">No fulfillments</span>
+              )}
+            </div>
+          </div>
+
+          {/* Evidence Column */}
+          <div className="w-64 flex-shrink-0 border-r">
+            <div className="h-[120px] overflow-y-auto p-3 text-xs">
+              {verse.prophecy?.evidence && verse.prophecy.evidence.length > 0 ? (
+                <div>
+                  <div className="font-medium text-purple-600 dark:text-purple-400 text-xs mb-2">
+                    {verse.prophecy.title ? `${verse.prophecy.title} - Evidence` : "Evidence"}
+                  </div>
+                  {verse.prophecy.evidence.slice(0, 6).map((ev, idx) => (
+                    <div key={idx} className="mb-1">
+                      <button
+                        onClick={() => onNavigateToVerse(ev.reference)}
+                        className="text-purple-600 dark:text-purple-400 hover:underline text-xs font-medium"
+                      >
+                        {ev.reference}
+                      </button>
+                      <div className="text-muted-foreground text-xs">
+                        {ev.text && ev.text.length > 60 ? `${ev.text.substring(0, 60)}...` : ev.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-muted-foreground italic text-xs">No evidence</span>
+              )}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Additional Translation Columns */}
@@ -155,35 +214,7 @@ export function VerseRow({
         </div>
       )}
       
-      {/* Prophecy Column */}
-      {preferences.showProphecy && (
-        <div className="w-64 flex-shrink-0">
-          <div className="h-[120px] overflow-y-auto p-3 text-xs">
-            {verse.prophecy ? (
-              <div className="space-y-2">
-                {verse.prophecy.predictions && verse.prophecy.predictions.length > 0 && (
-                  <div>
-                    <div className="font-medium text-blue-600 dark:text-blue-400 text-xs">Predictions:</div>
-                    {verse.prophecy.predictions.slice(0, 2).map((pred, idx) => (
-                      <div key={idx} className="text-muted-foreground text-xs">{pred.substring(0, 80)}...</div>
-                    ))}
-                  </div>
-                )}
-                {verse.prophecy.fulfillments && verse.prophecy.fulfillments.length > 0 && (
-                  <div>
-                    <div className="font-medium text-green-600 dark:text-green-400 text-xs">Fulfillments:</div>
-                    {verse.prophecy.fulfillments.slice(0, 2).map((ful, idx) => (
-                      <div key={idx} className="text-muted-foreground text-xs">{ful.substring(0, 80)}...</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-muted-foreground italic">Loading prophecy data...</span>
-            )}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

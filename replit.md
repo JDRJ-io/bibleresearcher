@@ -212,6 +212,15 @@ Data source: User's Supabase storage containing actual Bible translations and re
    - Added proper error handling for Supabase connection failures
    - Updated translation loading to fetch available translations from Supabase storage bucket
 
+3. **Prophecy Columns Implementation**: ✓ Added 3-column prophecy system with Supabase integration
+   - **3 Separate Columns**: Predictions, Fulfillments, Evidence with distinct color coding (blue, green, purple)
+   - **Prophecy Data Loader**: Integrated prophecy.txt file parser from Supabase storage  
+   - **Hyperlinked References**: Each prophecy verse reference is clickable and navigates to target verse
+   - **Text Previews**: Displays truncated verse text (60 characters) with full titles from prophecy file
+   - **Graceful Fallback**: System continues loading if prophecy data unavailable (storage permissions)
+   - **Part 1&5 Titles**: Uses prophecy number and summary as column headers as specified
+   - **Cross-Verse Application**: Applies prophecy data to all verses mentioned in sections 2, 3, 4
+
 ## Missing Core Features (Per User Analysis)
 1. **Multi-Translation Columns**: Currently only toggles KJV/AMP - needs dynamic column injection for up to 12 translations
 2. **Prophecy Verification Column**: Missing 3rd column and summary titles  
