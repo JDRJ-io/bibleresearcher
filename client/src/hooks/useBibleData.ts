@@ -1375,12 +1375,26 @@ export function useBibleData() {
     verses: BibleVerse[],
     crossRefMap: Map<string, string[]> | Record<string, any[]>,
   ) => {
-    // Helper function to get verse text from the Bible data using Gen.1:1 format
+    // Helper function to get verse text from the global KJV text map
     const getVerseText = (dotReference: string): string => {
-      // Convert Gen.1:1 format to "Gen 1:1" format to match our verse data
-      const spaceReference = dotReference.replace(/\./g, " ");
-      const verse = verses.find((v) => v.reference === spaceReference);
-      return verse?.text?.KJV || "";
+      if (!globalKjvTextMap) return "";
+      
+      // Try multiple formats to find the text
+      const formats = [
+        dotReference, // Gen.1:1
+        dotReference.replace(/\./g, " "), // Gen 1:1
+        dotReference.replace(/\./g, " ").replace(":", "."), // Gen 1.1
+      ];
+      
+      for (const format of formats) {
+        const text = globalKjvTextMap.get(format);
+        if (text) {
+          // Truncate long verses for cross-reference display
+          return text.length > 100 ? text.substring(0, 100) + "..." : text;
+        }
+      }
+      
+      return "";
     };
 
     // Apply cross-references to verses with actual text content
