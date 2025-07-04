@@ -145,17 +145,8 @@ export default function BiblePage() {
     loadBothCrossReferenceSets();
   }, [loadBothCrossReferenceSets]);
 
-  // Filter verses based on search query
-  const filteredVerses = verses.filter((verse) => {
-    if (!searchQuery) return true;
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      verse.reference.toLowerCase().includes(searchLower) ||
-      Object.values(verse.text).some((text) =>
-        text.toLowerCase().includes(searchLower),
-      )
-    );
-  });
+  // No real-time filtering - search only triggers on Enter/button click
+  const filteredVerses = verses;
 
   const [preferences, setPreferences] = useState<AppPreferences>({
     theme: "light-mode",
@@ -290,6 +281,8 @@ export default function BiblePage() {
       const randomVerse = allVerses[randomIndex];
       if (randomVerse) {
         console.log(`Random verse: jumping to ${randomVerse.reference} (index ${randomIndex})`);
+        // Clear the search box after random verse
+        setSearchQuery('');
         navigateToVerse(randomVerse.reference);
         toast({
           title: "Random Verse",
@@ -309,6 +302,8 @@ export default function BiblePage() {
     if (match) {
       // It's a verse reference - navigate directly
       console.log(`Verse reference detected: ${trimmedQuery}`);
+      // Clear the search box after navigation
+      setSearchQuery('');
       navigateToVerse(trimmedQuery);
       toast({
         title: "Navigate to Verse",
@@ -355,7 +350,9 @@ export default function BiblePage() {
       
       if (results.length > 0) {
         console.log(`Found ${results.length} search results for "${trimmedQuery}"`);
-        // Navigate to first result
+        // For now, navigate to first result - later we'll show a modal
+        // Clear the search box after navigation
+        setSearchQuery('');
         navigateToVerse(results[0].reference);
         toast({
           title: "Search Results",
@@ -575,7 +572,7 @@ export default function BiblePage() {
         <div className="flex-1 flex items-center gap-4 mx-4">
           <VerseSelector onNavigate={navigateToVerse} />
 
-          <div className="flex-1 max-w-md">
+          <div className="flex-1 max-w-md flex gap-2">
             <input
               type="text"
               placeholder="Search verses, references, or topics... (% for random)"
@@ -586,8 +583,14 @@ export default function BiblePage() {
                   handleGlobalSearch(searchQuery);
                 }
               }}
-              className="w-full px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
             />
+            <button
+              onClick={() => handleGlobalSearch(searchQuery)}
+              className="px-3 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
+            >
+              Search
+            </button>
           </div>
         </div>
 
