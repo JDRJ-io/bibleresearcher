@@ -113,16 +113,20 @@ export function VerseRow({
         {verse.reference}
       </div>
 
-      {/* KJV Text Column - Fixed Width */}
-      <div className="w-80 flex-shrink-0 border-r">
-        <div className="h-[120px] overflow-y-auto p-3 text-sm">
-          <div className="whitespace-pre-wrap break-words leading-relaxed">
-            {verse.text['KJV'] || (
-              <span className="text-muted-foreground italic">Loading verse...</span>
-            )}
+      {/* Translation Text Columns - Dynamic based on selected translations */}
+      {selectedTranslations.map((translation) => (
+        <div key={translation.id} className="w-80 flex-shrink-0 border-r">
+          <div className="h-[120px] overflow-y-auto p-3 text-sm">
+            <div className="whitespace-pre-wrap break-words leading-relaxed">
+              {verse.text[translation.id] || (
+                <span className="text-muted-foreground italic">
+                  [{verse.reference} - {translation.abbreviation} loading...]
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      ))}
 
       {/* Cross References Column - Fixed Width */}
       <div className="w-60 flex-shrink-0 border-r">

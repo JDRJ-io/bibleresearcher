@@ -31,10 +31,15 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
             Reference
           </div>
 
-          {/* KJV Header */}
-          <div className="w-80 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-background">
-            KJV - King James Version
-          </div>
+          {/* Translation Headers - Dynamic based on selected translations */}
+          {selectedTranslations.map((translation) => (
+            <div 
+              key={translation.id}
+              className="w-80 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-background"
+            >
+              {translation.abbreviation} - {translation.name}
+            </div>
+          ))}
 
           {/* Cross References Header */}
           <div className="w-60 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-background">

@@ -2,9 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { BibleVerse, Translation, AppPreferences } from '@/types/bible';
+import { loadTranslation, loadMultipleTranslations, getVerseText } from '@/lib/translationLoader';
 
 // Global KJV text map for dynamic verse text loading
 let globalKjvTextMap: Map<string, string> | null = null;
+// Cache for all loaded translations
+const translationCache = new Map<string, Map<string, string>>();
 
 // Load KJV text map once and store globally
 const loadKJVTextMap = async (): Promise<void> => {

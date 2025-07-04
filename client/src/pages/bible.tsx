@@ -4,12 +4,14 @@ import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useToast } from '@/hooks/use-toast';
+import { loadTranslation, getVerseText } from '@/lib/translationLoader';
 import { TopHeader } from '@/components/bible/TopHeader';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { BibleTable } from '@/components/bible/BibleTable';
 import { ExpandedVerseOverlay } from '@/components/bible/ExpandedVerseOverlay';
 import { AuthModal } from '@/components/bible/AuthModal';
 import { VerseSelector } from '@/components/bible/VerseSelector';
+import { TranslationSelector } from '@/components/bible/TranslationSelector';
 import { Button } from '@/components/ui/button';
 import type { AppPreferences, Translation } from '@/types/bible';
 
@@ -128,12 +130,50 @@ export default function BiblePage() {
     },
   });
 
-  const handleTranslationToggle = (translationId: string) => {
-    setSelectedTranslations(prev => 
-      prev.includes(translationId) 
-        ? prev.filter(id => id !== translationId)
-        : [...prev, translationId]
-    );
+  const handleTranslationToggle = async (translationId: string) => {
+    // Check if translation is being added
+    if (!selectedTranslations.includes(translationId)) {
+      // Load the translation data before adding it to selected
+      console.log(`Loading ${translationId} translation...`);
+      
+      // Show loading state for this translation
+      toast({ title: `Loading ${translationId} translation...` });
+      
+      try {
+        // Load the translation data
+        const translationData = await loadTranslation(translationId);
+        
+        if (translationData.size > 0) {
+          // Update verses with the new translation data
+          if (verses.length > 0) {
+            verses.forEach(verse => {
+              const text = getVerseText(translationData, verse.reference);
+              if (text && !text.includes('Loading...')) {
+                verse.text[translationId] = text;
+              }
+            });
+          }
+          
+          // Add to selected translations
+          setSelectedTranslations(prev => [...prev, translationId]);
+          toast({ title: `${translationId} translation loaded successfully` });
+        } else {
+          toast({ 
+            title: `Failed to load ${translationId} translation`,
+            variant: "destructive" 
+          });
+        }
+      } catch (error) {
+        console.error(`Error loading ${translationId}:`, error);
+        toast({ 
+          title: `Error loading ${translationId} translation`,
+          variant: "destructive" 
+        });
+      }
+    } else {
+      // Remove translation
+      setSelectedTranslations(prev => prev.filter(id => id !== translationId));
+    }
   };
 
   const handlePreferenceChange = (key: string, value: boolean) => {

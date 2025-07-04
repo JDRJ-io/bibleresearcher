@@ -30,6 +30,8 @@ export interface ProphecyData {
   predictions?: string[];
   fulfillments?: string[];
   verifications?: string[];
+  summary?: string;
+  number?: number;
 }
 
 export interface Translation {
