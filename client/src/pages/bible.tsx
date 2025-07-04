@@ -281,7 +281,7 @@ export default function BiblePage() {
   }
 
   // Enhanced global search function that handles multiple translations and % random
-  const handleGlobalSearch = (query: string) => {
+  const handleGlobalSearch = async (query: string) => {
     const trimmedQuery = query.trim();
     
     // Handle % random verse functionality
@@ -289,6 +289,7 @@ export default function BiblePage() {
       const randomIndex = Math.floor(Math.random() * allVerses.length);
       const randomVerse = allVerses[randomIndex];
       if (randomVerse) {
+        console.log(`Random verse: jumping to ${randomVerse.reference} (index ${randomIndex})`);
         navigateToVerse(randomVerse.reference);
         toast({
           title: "Random Verse",
@@ -301,19 +302,78 @@ export default function BiblePage() {
     // Skip empty searches
     if (!trimmedQuery) return;
 
-    // Search across all active translations, not just current one
+    // Check if it's a verse reference (like "John 3:16", "Gen 1:1", etc.)
+    const verseReferencePattern = /^(\d?\w+)\s*(\d+):(\d+)$/i;
+    const match = trimmedQuery.match(verseReferencePattern);
+    
+    if (match) {
+      // It's a verse reference - navigate directly
+      console.log(`Verse reference detected: ${trimmedQuery}`);
+      navigateToVerse(trimmedQuery);
+      toast({
+        title: "Navigate to Verse",
+        description: `Jumping to ${trimmedQuery}`,
+      });
+      return;
+    }
+
+    // It's a word/phrase search - search across all translations
     const activeTranslationIds = multiTranslationMode 
       ? selectedTranslations 
       : [mainTranslation];
 
-    console.log(`Searching "${trimmedQuery}" across translations:`, activeTranslationIds);
+    console.log(`Performing text search for "${trimmedQuery}" across translations:`, activeTranslationIds);
     
-    // Future: This should use the searchWorker for heavy lifting
-    // For now, perform basic search across visible verses
-    toast({
-      title: "Search",
-      description: `Searching for "${trimmedQuery}" across ${activeTranslationIds.length} translation(s)`,
-    });
+    // Perform comprehensive search across all verses
+    try {
+      console.log(`Searching "${trimmedQuery}" across ${allVerses.length} verses`);
+      const results = [];
+      const lowercaseQuery = trimmedQuery.toLowerCase();
+      
+      // Search through all verses in the canonical database
+      for (let i = 0; i < allVerses.length; i++) {
+        const verse = allVerses[i];
+        let found = false;
+        
+        // Search in each active translation
+        for (const translationId of activeTranslationIds) {
+          const text = verse.text?.[translationId];
+          if (text && text.toLowerCase().includes(lowercaseQuery)) {
+            found = true;
+            break;
+          }
+        }
+        
+        if (found) {
+          results.push({
+            index: i,
+            reference: verse.reference,
+            verse: verse
+          });
+        }
+      }
+      
+      if (results.length > 0) {
+        console.log(`Found ${results.length} search results for "${trimmedQuery}"`);
+        // Navigate to first result
+        navigateToVerse(results[0].reference);
+        toast({
+          title: "Search Results",
+          description: `Found ${results.length} results for "${trimmedQuery}". Jumped to first result.`,
+        });
+      } else {
+        toast({
+          title: "No Results",
+          description: `No verses found containing "${trimmedQuery}"`,
+        });
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      toast({
+        title: "Search Error",
+        description: `Failed to search for "${trimmedQuery}"`,
+      });
+    }
   };
 
   const getLoadingMessage = () => {

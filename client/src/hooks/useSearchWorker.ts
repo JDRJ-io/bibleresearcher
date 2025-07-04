@@ -134,3 +134,43 @@ export function useSearchWorker() {
     getRandomVerse
   };
 }
+
+// Direct search function for immediate use without worker
+export async function performSearch({ query, translations, allVerses }: {
+  query: string;
+  translations: string[];
+  allVerses: any[];
+}): Promise<SearchResult[]> {
+  console.log(`Performing direct search for "${query}" across ${translations.length} translations in ${allVerses.length} verses`);
+  
+  const results: SearchResult[] = [];
+  const lowercaseQuery = query.toLowerCase();
+  
+  // Search through all verses, not just visible ones
+  for (let i = 0; i < allVerses.length; i++) {
+    const verse = allVerses[i];
+    const matches: Record<string, string> = {};
+    
+    // Search in each active translation
+    for (const translationId of translations) {
+      const text = verse.text?.[translationId];
+      if (text && text.toLowerCase().includes(lowercaseQuery)) {
+        // Highlight the match
+        const regex = new RegExp(`(${query})`, 'gi');
+        matches[translationId] = text.replace(regex, '<mark>$1</mark>');
+      }
+    }
+    
+    // If we found matches in any translation, add to results
+    if (Object.keys(matches).length > 0) {
+      results.push({
+        index: i,
+        reference: verse.reference,
+        matches
+      });
+    }
+  }
+  
+  console.log(`Found ${results.length} verses containing "${query}"`);
+  return results;
+}
