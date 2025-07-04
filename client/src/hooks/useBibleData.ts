@@ -836,10 +836,13 @@ export function useBibleData() {
     // Use different buffer sizes based on operation type
     const bufferSize = isInstantJump ? INSTANT_JUMP_BUFFER : VIEWPORT_BUFFER;
 
-    const startIndex = Math.max(0, safeCenterIndex - bufferSize);
+    // For instant jumps, ensure target verse is positioned in upper portion of range
+    // to prevent blank space at bottom
+    const targetOffset = isInstantJump ? Math.floor(bufferSize * 0.3) : bufferSize;
+    const startIndex = Math.max(0, safeCenterIndex - targetOffset);
     const endIndex = Math.min(
       allVerses.length - 1,
-      safeCenterIndex + bufferSize,
+      safeCenterIndex + (bufferSize * 2 - targetOffset),
     );
 
     // Generate unique request ID to prevent race conditions
@@ -1134,16 +1137,17 @@ export function useBibleData() {
       setNavigationHistory(newHistory);
       setCurrentHistoryIndex(newHistory.length - 1);
 
-      // Load verses around target location
+      // Load verses around target location with better positioning
       await loadVerseRange(verses, targetIndex, true);
 
-      // Scroll to target verse
+      // Improved scroll positioning to prevent blank space at bottom
       setTimeout(() => {
         const verseElement = document.getElementById(`verse-${targetVerse.id}`);
         if (verseElement) {
+          // Position verse at the top third of viewport to avoid blank space issues
           verseElement.scrollIntoView({
             behavior: "smooth",
-            block: "center",
+            block: "start",
           });
 
           // Add highlight animation
@@ -1152,7 +1156,7 @@ export function useBibleData() {
             verseElement.classList.remove("verse-highlight");
           }, 2000);
         }
-      }, 100);
+      }, 200);
 
       console.log(`✅ SMART NAVIGATION COMPLETE: ${targetVerse.reference}`);
     } else {
