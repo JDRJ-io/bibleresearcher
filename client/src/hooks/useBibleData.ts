@@ -836,13 +836,13 @@ export function useBibleData() {
     // Use different buffer sizes based on operation type
     const bufferSize = isInstantJump ? INSTANT_JUMP_BUFFER : VIEWPORT_BUFFER;
 
-    // For instant jumps, ensure target verse is positioned in upper portion of range
-    // to prevent blank space at bottom
-    const targetOffset = isInstantJump ? Math.floor(bufferSize * 0.3) : bufferSize;
-    const startIndex = Math.max(0, safeCenterIndex - targetOffset);
+    // For instant jumps, ensure target verse can be perfectly centered
+    // Load equal amounts above and below target for proper centering
+    const halfBuffer = Math.floor(bufferSize);
+    const startIndex = Math.max(0, safeCenterIndex - halfBuffer);
     const endIndex = Math.min(
       allVerses.length - 1,
-      safeCenterIndex + (bufferSize * 2 - targetOffset),
+      safeCenterIndex + halfBuffer,
     );
 
     // Generate unique request ID to prevent race conditions
@@ -1140,14 +1140,15 @@ export function useBibleData() {
       // Load verses around target location with better positioning
       await loadVerseRange(verses, targetIndex, true);
 
-      // Improved scroll positioning to prevent blank space at bottom
+      // Precise center positioning for all navigation types
       setTimeout(() => {
         const verseElement = document.getElementById(`verse-${targetVerse.id}`);
         if (verseElement) {
-          // Position verse at the top third of viewport to avoid blank space issues
+          // Always center the target verse precisely in the viewport
           verseElement.scrollIntoView({
             behavior: "smooth",
-            block: "start",
+            block: "center",
+            inline: "nearest",
           });
 
           // Add highlight animation
@@ -1156,7 +1157,7 @@ export function useBibleData() {
             verseElement.classList.remove("verse-highlight");
           }, 2000);
         }
-      }, 200);
+      }, 300);
 
       console.log(`✅ SMART NAVIGATION COMPLETE: ${targetVerse.reference}`);
     } else {
