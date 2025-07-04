@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/bible/ThemeProvider";
-import BiblePage from "@/pages/bible";
+import BiblePage from "@/pages/bibleLite";
 import NotFound from "@/pages/not-found";
 
 function Router() {
