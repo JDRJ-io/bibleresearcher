@@ -175,36 +175,7 @@ export async function loadCrossReferences(
   }
 }
 
-// Load Strong's data from private bucket
-export async function loadStrongsData(): Promise<any> {
-  if (resourceCache.has("strongs")) {
-    return resourceCache.get("strongs");
-  }
 
-  try {
-    console.log("Loading Strong's data from private bucket...");
-
-    const { data, error } = await supabase.storage
-      .from("anointed")
-      .download("strongs/strongs-hebrew-greek.json");
-
-    if (error) {
-      console.error("Error downloading Strong's data:", error);
-      throw error;
-    }
-
-    const text = await data.text();
-    const strongsData = JSON.parse(text);
-
-    resourceCache.set("strongs", strongsData);
-    console.log("Strong's data loaded from private bucket");
-
-    return strongsData;
-  } catch (error) {
-    console.error("Failed to load Strong's data:", error);
-    return null;
-  }
-}
 
 // Load context groups from private bucket
 export async function loadContextGroups(): Promise<Map<string, string>> {
@@ -256,7 +227,7 @@ export async function loadProphecyData(): Promise<any> {
 
     const { data, error } = await supabase.storage
       .from("anointed")
-      .download("prophecy/prophecy.txt");
+      .download("references/prophecy-file.txt");
 
     if (error) {
       console.error("Error downloading prophecy data:", error);
@@ -281,17 +252,18 @@ export async function loadProphecyData(): Promise<any> {
 // Parse prophecy file into structured data
 function parseProphecyFile(text: string): any[] {
   const prophecies = [];
-  const sections = text.split(/(?=^\d+$)/m).filter(section => section.trim());
+  const lines = text.split('\n').filter(line => line.trim());
   
-  for (const section of sections) {
-    const lines = section.split('\n').filter(line => line.trim());
-    if (lines.length < 5) continue;
+  for (const line of lines) {
+    // Format: prophecy number$prediction verses$fulfillment verses$evidence verses$summary of prophecy
+    const parts = line.split('$');
+    if (parts.length < 5) continue;
     
-    const prophecyNumber = lines[0].trim();
-    const predictions = parseVerseList(lines[1]);
-    const fulfillments = parseVerseList(lines[2]);
-    const evidence = parseVerseList(lines[3]);
-    const summary = lines[4].trim();
+    const prophecyNumber = parts[0].trim();
+    const predictions = parseVerseList(parts[1]);
+    const fulfillments = parseVerseList(parts[2]);
+    const evidence = parseVerseList(parts[3]);
+    const summary = parts[4].trim();
     
     prophecies.push({
       number: prophecyNumber,
@@ -310,6 +282,177 @@ function parseProphecyFile(text: string): any[] {
 // Parse comma-separated verse list into array
 function parseVerseList(line: string): string[] {
   return line.split(',').map(verse => verse.trim()).filter(verse => verse);
+}
+
+// Load chronological verse order from Supabase
+export async function loadChronologicalOrder(): Promise<string[]> {
+  if (resourceCache.has("chronological-order")) {
+    return resourceCache.get("chronological-order");
+  }
+
+  try {
+    console.log("Loading chronological verse order from Supabase...");
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("metadata/verseKeys-chronological.json");
+
+    if (error) {
+      console.error("Error downloading chronological order:", error);
+      throw error;
+    }
+
+    const text = await data.text();
+    const chronologicalOrder = JSON.parse(text);
+    resourceCache.set("chronological-order", chronologicalOrder);
+    console.log(`Chronological order loaded: ${chronologicalOrder.length} verses from Supabase`);
+
+    return chronologicalOrder;
+  } catch (error) {
+    console.error("Failed to load chronological order:", error);
+    return [];
+  }
+}
+
+// Load date information for verses
+export async function loadChronologicalDates(): Promise<Map<string, string>> {
+  if (resourceCache.has("chronological-dates")) {
+    return resourceCache.get("chronological-dates");
+  }
+
+  try {
+    console.log("Loading chronological dates from Supabase...");
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("metadata/dates-chronological.txt");
+
+    if (error) {
+      console.error("Error downloading chronological dates:", error);
+      throw error;
+    }
+
+    const text = await data.text();
+    const dateMap = new Map<string, string>();
+    
+    const lines = text.split('\n').filter(line => line.trim());
+    lines.forEach(line => {
+      const match = line.match(/^([^#]+)\s*#(.+)$/);
+      if (match) {
+        const [, reference, date] = match;
+        dateMap.set(reference.trim(), date.trim());
+      }
+    });
+
+    resourceCache.set("chronological-dates", dateMap);
+    console.log(`Chronological dates loaded: ${dateMap.size} entries from Supabase`);
+
+    return dateMap;
+  } catch (error) {
+    console.error("Failed to load chronological dates:", error);
+    return new Map();
+  }
+}
+
+// Load canonical dates
+export async function loadCanonicalDates(): Promise<Map<string, string>> {
+  if (resourceCache.has("canonical-dates")) {
+    return resourceCache.get("canonical-dates");
+  }
+
+  try {
+    console.log("Loading canonical dates from Supabase...");
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("metadata/dates-canonical.txt");
+
+    if (error) {
+      console.error("Error downloading canonical dates:", error);
+      throw error;
+    }
+
+    const text = await data.text();
+    const dateMap = new Map<string, string>();
+    
+    const lines = text.split('\n').filter(line => line.trim());
+    lines.forEach(line => {
+      const match = line.match(/^([^#]+)\s*#(.+)$/);
+      if (match) {
+        const [, reference, date] = match;
+        dateMap.set(reference.trim(), date.trim());
+      }
+    });
+
+    resourceCache.set("canonical-dates", dateMap);
+    console.log(`Canonical dates loaded: ${dateMap.size} entries from Supabase`);
+
+    return dateMap;
+  } catch (error) {
+    console.error("Failed to load canonical dates:", error);
+    return new Map();
+  }
+}
+
+// Load Strong's concordance data
+export async function loadStrongsData(): Promise<any> {
+  if (resourceCache.has("strongs")) {
+    return resourceCache.get("strongs");
+  }
+
+  try {
+    console.log("Loading Strong's data from Supabase...");
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("strongs/strongsIndex.json");
+
+    if (error) {
+      console.error("Error downloading Strong's data:", error);
+      throw error;
+    }
+
+    const text = await data.text();
+    const strongsData = JSON.parse(text);
+    resourceCache.set("strongs", strongsData);
+    console.log(`Strong's data loaded from Supabase`);
+
+    return strongsData;
+  } catch (error) {
+    console.error("Failed to load Strong's data:", error);
+    return {};
+  }
+}
+
+// Load verse labels for specific translation
+export async function loadVerseLabels(translationId: string): Promise<any> {
+  const cacheKey = `labels-${translationId}`;
+  if (resourceCache.has(cacheKey)) {
+    return resourceCache.get(cacheKey);
+  }
+
+  try {
+    console.log(`Loading ${translationId} verse labels from Supabase...`);
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download(`labels/${translationId}/ALL.json`);
+
+    if (error) {
+      console.error(`Error downloading ${translationId} labels:`, error);
+      throw error;
+    }
+
+    const text = await data.text();
+    const labels = JSON.parse(text);
+    resourceCache.set(cacheKey, labels);
+    console.log(`${translationId} labels loaded from Supabase`);
+
+    return labels;
+  } catch (error) {
+    console.error(`Failed to load ${translationId} labels:`, error);
+    return {};
+  }
 }
 
 // Get all available translations from bucket

@@ -1095,8 +1095,8 @@ export function useBibleData() {
           try {
             await applyProphecyData(data);
             console.log("✓ Prophecy data loaded successfully");
-          } catch (prophecyError) {
-            console.log("⚠️ Prophecy data not available, skipping:", prophecyError.message);
+          } catch (prophecyError: any) {
+            console.log("⚠️ Prophecy data not available, skipping:", prophecyError?.message || prophecyError);
           }
           
           setLoadingProgress({ stage: "finalizing", percentage: 95 });
