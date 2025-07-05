@@ -108,14 +108,16 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Switch to center-based slice math as specified
-    const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
-    const start = Math.max(0, centerIdx - BUFFER_SIZE);
-    const end = Math.min(totalRows - 1, centerIdx + BUFFER_SIZE);
+    // 🔥 Use TOTAL rows, not the currently-loaded rows
+    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
+    const end = Math.min(totalRows - 1, 
+      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE);
+    
+    // Note: visibleVerses is now calculated in render using the same index-based approach
     
     // Pull-ahead loader: trigger loading for center verse (global index)
     if (verses.length > 0 && onCenterVerseChange) {
-      // centerIdx is now a true Bible index (no more firstDisplayIndex fudge)
+      const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
       onCenterVerseChange(centerIdx);
     }
 
@@ -213,7 +215,11 @@ export function VirtualBibleTable({
   };
 
   // Only render verses in visible range
-  const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
+  // 🔥 Build visible rows by index, not by slice length (same as in updateVisibleRows)
+  const visibleVerses = Array.from(
+    { length: visibleRange.end - visibleRange.start + 1 },
+    (_, i) => verses[visibleRange.start + i]
+  ).filter(Boolean);
   
   // Remove the problematic lazy loading useEffect that was causing infinite loops
 
