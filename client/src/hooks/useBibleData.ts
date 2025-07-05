@@ -625,51 +625,86 @@ const applyProphecyData = async (verses: BibleVerse[]) => {
       return;
     }
     
-    console.log(`Applying prophecy data from ${prophecies.length} prophecies`);
+    console.log(`Applying prophecy data from ${prophecies.length} prophecies to all referenced verses`);
     
-    // For each prophecy, apply data to all mentioned verses
-    prophecies.forEach((prophecy: any) => {
-      const { title, predictions, fulfillments, evidence, summary } = prophecy;
+    // Helper to find verse by reference
+    const findVerseByRef = (ref: string) => {
+      const normalizedRef = ref.trim();
+      return verses.find((v) => {
+        const vRef = v.reference;
+        const vRefDot = `${v.book}.${v.chapter}:${v.verse}`;
+        return vRef === normalizedRef || 
+               vRefDot === normalizedRef ||
+               vRef.replace(/\s/g, '.') === normalizedRef ||
+               vRefDot.replace(/\s/g, '.') === normalizedRef;
+      });
+    };
+
+    // Helper to get actual verse text from KJV
+    const getActualVerseText = (ref: string): string => {
+      const verse = findVerseByRef(ref);
+      if (verse && verse.text && verse.text.KJV) {
+        return verse.text.KJV.substring(0, 60) + "..."; // Truncate for display
+      }
+      return `[${ref}] - text loading...`;
+    };
+    
+    // For each prophecy, apply data to ALL mentioned verses
+    prophecies.forEach((prophecy: any, prophecyIndex: number) => {
+      const { number, title, predictions, fulfillments, evidence, summary } = prophecy;
       
-      // Get all verses mentioned in this prophecy
-      const allVerseRefs = [
-        ...predictions,
-        ...fulfillments, 
-        ...evidence
-      ];
+      console.log(`Processing prophecy ${prophecyIndex + 1}: ${title}`);
+      
+      // Get all unique verses mentioned in this prophecy
+      const allVerseRefs = new Set([
+        ...(predictions || []),
+        ...(fulfillments || []), 
+        ...(evidence || [])
+      ]);
+      
+      console.log(`Prophecy ${prophecyIndex + 1} references ${allVerseRefs.size} verses`);
       
       // Apply prophecy data to each mentioned verse
       allVerseRefs.forEach((verseRef) => {
-        const verse = verses.find((v) => 
-          v.reference === verseRef || 
-          v.reference.replace(/\s/g, '.') === verseRef ||
-          `${v.book}.${v.chapter}:${v.verse}` === verseRef
-        );
+        const verse = findVerseByRef(verseRef);
         
         if (verse) {
-          verse.prophecy = {
+          // Initialize prophecy array if it doesn't exist
+          if (!verse.prophecies) {
+            verse.prophecies = [];
+          }
+          
+          // Add this prophecy to the verse's prophecy data
+          verse.prophecies.push({
+            number,
             title,
             summary,
-            predictions: predictions.map((ref: any) => ({
+            predictions: (predictions || []).map((ref: string) => ({
               reference: ref,
-              text: getVerseTextForRef(verses, ref) || `[${ref}]`
+              text: getActualVerseText(ref)
             })),
-            fulfillments: fulfillments.map((ref: any) => ({
+            fulfillments: (fulfillments || []).map((ref: string) => ({
               reference: ref,
-              text: getVerseTextForRef(verses, ref) || `[${ref}]`
+              text: getActualVerseText(ref)
             })),
-            evidence: evidence.map((ref: any) => ({
+            evidence: (evidence || []).map((ref: string) => ({
               reference: ref,
-              text: getVerseTextForRef(verses, ref) || `[${ref}]`
+              text: getActualVerseText(ref)
             }))
-          };
+          });
+        } else {
+          console.warn(`Could not find verse for reference: ${verseRef}`);
         }
       });
     });
     
-    console.log("✓ Applied prophecy data to verses");
+    // Count how many verses got prophecy data
+    const versesWithProphecy = verses.filter(v => v.prophecies && v.prophecies.length > 0);
+    console.log(`✓ Applied prophecy data to ${versesWithProphecy.length} verses from ${prophecies.length} prophecies`);
+    
   } catch (error) {
     console.error("Failed to apply prophecy data:", error);
+    throw error; // Re-throw to show user that prophecy loading failed
   }
 };
 
@@ -1089,6 +1124,11 @@ export function useBibleData() {
         try {
           // Load cross-references from Supabase only
           await loadBothCrossReferenceSets();
+          
+          setLoadingProgress({ stage: "prophecy", percentage: 85 });
+          // Load prophecy data and apply to all referenced verses
+          await applyProphecyData(data);
+          
           setLoadingProgress({ stage: "finalizing", percentage: 95 });
           await new Promise((resolve) => setTimeout(resolve, 300));
         } catch (error) {
