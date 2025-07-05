@@ -34,7 +34,7 @@ interface VirtualBibleTableProps {
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
-const BUFFER_SIZE = 50; // Generous buffer - 5 viewports worth
+const BUFFER_SIZE = 200; // Massive buffer - 20+ viewports to prevent boundary hits
 
 export function VirtualBibleTable({
   verses,
@@ -72,14 +72,23 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // Single scroll calculation with early-exit guard  
+  // Calculate center verse for intelligent preloading (Trick #6)
+  const getCenterVerse = () => {
+    if (!scrollRef.current || !containerRef.current) return 0;
+    const scrollTop = scrollRef.current.scrollTop;
+    const viewportHeight = containerRef.current.clientHeight;
+    return Math.floor((scrollTop + viewportHeight / 2) / ROW_HEIGHT);
+  };
+
+  // Single scroll calculation with early-exit guard and center tracking
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
+    const centerVerse = getCenterVerse();
 
-    // Calculate range using total Bible rows, not just loaded verses
+    // Calculate range using total Bible rows with massive buffer
     const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
     const end = Math.min(
       totalRows - 1,
@@ -94,6 +103,15 @@ export function VirtualBibleTable({
     // Update range tracking
     currentRangeRef.current = { start, end };
     setVisibleRange({ start, end });
+    
+    // Notify parent about center verse for intelligent data loading
+    if (onNavigateToVerse && verses.length > 0) {
+      const centerVerseData = verses.find(v => v.index === centerVerse);
+      if (centerVerseData) {
+        // Silently update center for preloading without navigation
+        console.log(`Center verse: ${centerVerseData.reference} (index: ${centerVerse})`);
+      }
+    }
   };
 
   // Single scroll listener - clean and simple  

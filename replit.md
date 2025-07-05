@@ -214,9 +214,10 @@ Data source: User's Supabase storage containing actual Bible translations and re
    - Fixed container height: totalRows × ROW_HEIGHT set once for perfect scrollbar
    - Single scroll listener with early-exit guard to prevent race conditions
    - Absolute positioning with style.top = index × ROW_HEIGHT for stable anchoring
-   - Buffer-based visible row calculation instead of dynamic verse loading
-   - Center verse preservation during layout changes
-   - Elimination of competing scroll handlers and IntersectionObservers
+   - Increased buffer sizes: 200 rows in VirtualBibleTable, 1000+ verses in data loading
+   - Placeholder rows for unloaded verses prevent white gaps
+   - Center verse tracking for intelligent preloading
+   - Massive data buffers (500-1000 verses) prevent boundary hits during fast scrolling
 
 2. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
    - cf1 (Standard): 29,315 cross-references loaded

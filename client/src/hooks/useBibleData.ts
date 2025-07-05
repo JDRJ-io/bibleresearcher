@@ -704,11 +704,10 @@ export function useBibleData() {
   }>({ cf1: new Map(), cf2: new Map() });
   const [prophecyData, setProphecyData] = useState<Map<string, any>>(new Map());
 
-  // Optimized windowed virtualization for smooth scrolling and instant navigation
-  // LOAD ALL VERSES - No more virtual scrolling limits!
-  const VIEWPORT_BUFFER = 60; // Load ALL verses for instant navigation
-  const INSTANT_JUMP_BUFFER = 120; // Full Bible always available
-  const SCROLL_THRESHOLD = 30; // Load more verses when within 30 verses of buffer edge
+  // Massive buffers for seamless scrolling - prevent boundary hits
+  const VIEWPORT_BUFFER = 500; // Load 1000+ verses (10x improvement)
+  const INSTANT_JUMP_BUFFER = 1000; // Load 2000+ verses for instant jumps
+  const SCROLL_THRESHOLD = 200; // Preload when within 200 verses of edge
 
   // Translation state
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>([
