@@ -1089,16 +1089,6 @@ export function useBibleData() {
         try {
           // Load cross-references from Supabase only
           await loadBothCrossReferenceSets();
-          setLoadingProgress({ stage: "prophecy", percentage: 85 });
-          
-          // Try to load prophecy data from Supabase - fail silently if not available
-          try {
-            await applyProphecyData(data);
-            console.log("✓ Prophecy data loaded successfully");
-          } catch (prophecyError: any) {
-            console.log("⚠️ Prophecy data not available, skipping:", prophecyError?.message || prophecyError);
-          }
-          
           setLoadingProgress({ stage: "finalizing", percentage: 95 });
           await new Promise((resolve) => setTimeout(resolve, 300));
         } catch (error) {
