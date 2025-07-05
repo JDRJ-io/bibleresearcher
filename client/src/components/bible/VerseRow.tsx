@@ -1,4 +1,5 @@
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
+import { ProphecyColumns } from './ProphecyColumns';
 
 interface VerseRowProps {
   verse: BibleVerse;
@@ -12,6 +13,7 @@ interface VerseRowProps {
   onExpandVerse: (verse: BibleVerse) => void;
   onHighlight: (verseRef: string, selection: Selection) => void;
   onNavigateToVerse: (reference: string) => void;
+  getProphecyDataForVerse?: (verseKey: string) => any[];
 }
 
 export function VerseRow({
@@ -26,6 +28,7 @@ export function VerseRow({
   onExpandVerse,
   onHighlight,
   onNavigateToVerse,
+  getProphecyDataForVerse,
 }: VerseRowProps) {
   
   // Create preferences object for consistency

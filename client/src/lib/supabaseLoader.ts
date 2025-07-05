@@ -216,73 +216,85 @@ export async function loadContextGroups(): Promise<Map<string, string>> {
   }
 }
 
-// Load prophecy data from private bucket
-export async function loadProphecyData(): Promise<any> {
-  if (resourceCache.has("prophecy")) {
-    return resourceCache.get("prophecy");
+// Load prophecy index from private bucket
+export async function loadProphecyIndex(): Promise<Map<string, Array<{id: string, role: string}>>> {
+  if (resourceCache.has("prophecy-index")) {
+    return resourceCache.get("prophecy-index");
   }
 
   try {
-    console.log("Loading prophecy data from private bucket...");
+    console.log("Loading prophecy index from private bucket...");
 
     const { data, error } = await supabase.storage
       .from("anointed")
-      .download("references/prophecy-file.txt");
+      .download("references/prophecy_index.txt");
 
     if (error) {
-      console.error("Error downloading prophecy data:", error);
+      console.error("Error downloading prophecy index:", error);
       throw error;
     }
 
     const text = await data.text();
+    const indexMap = new Map<string, Array<{id: string, role: string}>>();
     
-    // Parse prophecy data into structured format
-    const prophecies = parseProphecyFile(text);
+    // Parse format: Gen.6:3$2:P,2:V
+    const lines = text.split('\n').filter(line => line.trim());
     
-    resourceCache.set("prophecy", prophecies);
-    console.log(`Prophecy data loaded: ${prophecies.length} prophecies from private bucket`);
+    for (const line of lines) {
+      const [verseKey, prophecyData] = line.split('$');
+      if (!verseKey || !prophecyData) continue;
+      
+      const prophecyRefs = prophecyData.split(',').map(ref => {
+        const [id, role] = ref.split(':');
+        return { id: id.trim(), role: role.trim() };
+      });
+      
+      indexMap.set(verseKey.trim(), prophecyRefs);
+    }
+    
+    resourceCache.set("prophecy-index", indexMap);
+    console.log(`Prophecy index loaded: ${indexMap.size} verses with prophecy data`);
 
-    return prophecies;
+    return indexMap;
   } catch (error) {
-    console.error("Failed to load prophecy data:", error);
-    return [];
+    console.error("Failed to load prophecy index:", error);
+    return new Map();
   }
 }
 
-// Parse prophecy file into structured data
-function parseProphecyFile(text: string): any[] {
-  const prophecies = [];
-  const lines = text.split('\n').filter(line => line.trim());
-  
-  for (const line of lines) {
-    // Format: prophecy number$prediction verses$fulfillment verses$evidence verses$summary of prophecy
-    const parts = line.split('$');
-    if (parts.length < 5) continue;
-    
-    const prophecyNumber = parts[0].trim();
-    const predictions = parseVerseList(parts[1]);
-    const fulfillments = parseVerseList(parts[2]);
-    const evidence = parseVerseList(parts[3]);
-    const summary = parts[4].trim();
-    
-    prophecies.push({
-      number: prophecyNumber,
-      title: `${prophecyNumber}: ${summary}`,
-      predictions,
-      fulfillments,
-      evidence,
-      summary
-    });
+// Load prophecy rows data from private bucket
+export async function loadProphecyRows(): Promise<Record<string, any>> {
+  if (resourceCache.has("prophecy-rows")) {
+    return resourceCache.get("prophecy-rows");
   }
-  
-  console.log(`Parsed ${prophecies.length} prophecies from file`);
-  return prophecies;
+
+  try {
+    console.log("Loading prophecy rows from private bucket...");
+
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("references/prophecy_rows.json");
+
+    if (error) {
+      console.error("Error downloading prophecy rows:", error);
+      throw error;
+    }
+
+    const text = await data.text();
+    const prophecyRows = JSON.parse(text);
+    
+    resourceCache.set("prophecy-rows", prophecyRows);
+    console.log(`Prophecy rows loaded: ${Object.keys(prophecyRows).length} prophecy definitions`);
+
+    return prophecyRows;
+  } catch (error) {
+    console.error("Failed to load prophecy rows:", error);
+    return {};
+  }
 }
 
 // Parse comma-separated verse list into array
-function parseVerseList(line: string): string[] {
-  return line.split(',').map(verse => verse.trim()).filter(verse => verse);
-}
+
 
 // Load chronological verse order from Supabase
 export async function loadChronologicalOrder(): Promise<string[]> {

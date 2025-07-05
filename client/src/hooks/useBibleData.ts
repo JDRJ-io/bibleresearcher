@@ -11,7 +11,8 @@ import {
   loadVerseKeys,
   loadTranslationSecure,
   loadCrossReferences,
-  loadProphecyData,
+  loadProphecyIndex,
+  loadProphecyRows,
 } from "@/lib/supabaseLoader";
 
 // Global KJV text map for dynamic verse text loading
@@ -614,73 +615,60 @@ const mergeStrongsData = (verses: BibleVerse[], strongsText: string) => {
   });
 };
 
-// Apply prophecy data to verses from Supabase
-const applyProphecyData = async (verses: BibleVerse[]) => {
+// Global prophecy data caches
+let prophecyIndex: Map<string, Array<{id: string, role: string}>> | null = null;
+let prophecyRows: Record<string, any> | null = null;
+
+// Load prophecy data on-demand when prophecy columns are enabled
+const loadProphecyDataOnDemand = async () => {
+  if (prophecyIndex && prophecyRows) {
+    return { index: prophecyIndex, rows: prophecyRows };
+  }
+
   try {
-    console.log("Loading prophecy data from Supabase...");
-    const prophecies = await loadProphecyData();
+    console.log("Loading prophecy data on-demand from Supabase...");
     
-    if (!prophecies || prophecies.length === 0) {
-      console.log("No prophecy data loaded");
-      return;
-    }
+    // Load both prophecy files
+    const [index, rows] = await Promise.all([
+      loadProphecyIndex(),
+      loadProphecyRows()
+    ]);
     
-    console.log(`Applying prophecy data from ${prophecies.length} prophecies`);
+    prophecyIndex = index;
+    prophecyRows = rows;
     
-    // For each prophecy, apply data to all mentioned verses
-    prophecies.forEach((prophecy: any) => {
-      const { title, predictions, fulfillments, evidence, summary } = prophecy;
-      
-      // Get all verses mentioned in this prophecy
-      const allVerseRefs = [
-        ...predictions,
-        ...fulfillments, 
-        ...evidence
-      ];
-      
-      // Apply prophecy data to each mentioned verse
-      allVerseRefs.forEach((verseRef) => {
-        const verse = verses.find((v) => 
-          v.reference === verseRef || 
-          v.reference.replace(/\s/g, '.') === verseRef ||
-          `${v.book}.${v.chapter}:${v.verse}` === verseRef
-        );
-        
-        if (verse) {
-          verse.prophecy = {
-            title,
-            summary,
-            predictions: predictions.map((ref: any) => ({
-              reference: ref,
-              text: getVerseTextForRef(verses, ref) || `[${ref}]`
-            })),
-            fulfillments: fulfillments.map((ref: any) => ({
-              reference: ref,
-              text: getVerseTextForRef(verses, ref) || `[${ref}]`
-            })),
-            evidence: evidence.map((ref: any) => ({
-              reference: ref,
-              text: getVerseTextForRef(verses, ref) || `[${ref}]`
-            }))
-          };
-        }
-      });
-    });
-    
-    console.log("✓ Applied prophecy data to verses");
+    console.log(`Prophecy data loaded: ${index.size} verses indexed, ${Object.keys(rows).length} prophecies`);
+    return { index, rows };
   } catch (error) {
-    console.error("Failed to apply prophecy data:", error);
+    console.error("Failed to load prophecy data:", error);
+    return { index: new Map(), rows: {} };
   }
 };
 
-// Helper to get verse text for reference
-const getVerseTextForRef = (verses: BibleVerse[], ref: string): string | null => {
-  const verse = verses.find((v) => 
-    v.reference === ref || 
-    v.reference.replace(/\s/g, '.') === ref ||
-    `${v.book}.${v.chapter}:${v.verse}` === ref
-  );
-  return verse?.text?.KJV || null;
+// Get prophecy data for a specific verse
+const getProphecyDataForVerse = (verseKey: string) => {
+  if (!prophecyIndex || !prophecyRows) {
+    return [];
+  }
+
+  // Try different formats of the verse key
+  const possibleKeys = [
+    verseKey,
+    verseKey.replace(' ', '.').replace(':', ':'), // Gen 1:1 -> Gen.1:1
+    verseKey.replace('.', ' '), // Gen.1:1 -> Gen 1:1
+  ];
+
+  for (const key of possibleKeys) {
+    const prophecyRefs = prophecyIndex.get(key);
+    if (prophecyRefs && prophecyRefs.length > 0) {
+      return prophecyRefs.map(ref => ({
+        ...ref,
+        data: prophecyRows![ref.id] || null
+      })).filter(p => p.data);
+    }
+  }
+
+  return [];
 };
 
 // Removed addSampleCrossReferences - only use Supabase data
@@ -1553,5 +1541,8 @@ export function useBibleData() {
     crossRefSet,
     setCrossRefSet,
     loadBothCrossReferenceSets,
+    // Prophecy management
+    loadProphecyDataOnDemand,
+    getProphecyDataForVerse,
   };
 }
