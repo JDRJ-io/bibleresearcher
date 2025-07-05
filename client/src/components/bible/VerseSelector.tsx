@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Sparkles } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthModals } from '@/components/auth/AuthModals';
 
 interface VerseSelectorProps {
   onNavigate: (reference: string) => void;
@@ -91,6 +93,9 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
   const [selectedChapter, setSelectedChapter] = useState<string>('1');
   const [selectedVerse, setSelectedVerse] = useState<string>('1');
   const [isOpen, setIsOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const { user, loading } = useAuth();
 
   const selectedBookData = BIBLE_BOOKS.find(book => book.abbrev === selectedBook);
   const maxChapter = selectedBookData?.chapters || 1;
@@ -121,100 +126,138 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
           <ChevronDown className="h-3 w-3 ml-1" />
         </Button>
         
-        {/* Quick navigation buttons */}
+        {/* Authentication buttons or Quick navigation buttons */}
         <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleQuickNavigate('Gen 1:1')}
-            className="text-xs px-2 py-1 h-7 hover:bg-muted"
-          >
-            Gen 1:1
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleQuickNavigate('Psa 23:1')}
-            className="text-xs px-2 py-1 h-7 hover:bg-muted"
-          >
-            Psa 23
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleQuickNavigate('John 3:16')}
-            className="text-xs px-2 py-1 h-7 hover:bg-muted"
-          >
-            John 3:16
-          </Button>
+          {loading ? (
+            <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+              <div className="w-3 h-3 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs">Loading...</span>
+            </div>
+          ) : user ? (
+            // Logged in: Show original Bible shortcuts
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleQuickNavigate('Gen 1:1')}
+                className="text-xs px-2 py-1 h-7 hover:bg-muted"
+              >
+                Gen 1:1
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleQuickNavigate('Psa 23:1')}
+                className="text-xs px-2 py-1 h-7 hover:bg-muted"
+              >
+                Psa 23
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleQuickNavigate('John 3:16')}
+                className="text-xs px-2 py-1 h-7 hover:bg-muted"
+              >
+                John 3:16
+              </Button>
+            </>
+          ) : (
+            // Logged out: Show authentication buttons
+            <>
+              <Button
+                onClick={() => setIsSignUpOpen(true)}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg transition-all duration-300 hover:shadow-amber-300/50 text-xs px-3 py-1 h-7"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Sign Up
+              </Button>
+              <Button
+                onClick={() => setIsSignInOpen(true)}
+                variant="outline"
+                className="border-amber-300 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all duration-300 text-xs px-3 py-1 h-7"
+              >
+                Sign In
+              </Button>
+            </>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
-      {/* Book Selector */}
-      <Select value={selectedBook} onValueChange={setSelectedBook}>
-        <SelectTrigger className="w-32 h-8 text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="max-h-60 overflow-y-auto">
-          {BIBLE_BOOKS.map((book) => (
-            <SelectItem key={book.abbrev} value={book.abbrev}>
-              {book.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <>
+      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+        {/* Book Selector */}
+        <Select value={selectedBook} onValueChange={setSelectedBook}>
+          <SelectTrigger className="w-32 h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {BIBLE_BOOKS.map((book) => (
+              <SelectItem key={book.abbrev} value={book.abbrev}>
+                {book.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {/* Chapter Selector */}
-      <Select value={selectedChapter} onValueChange={setSelectedChapter}>
-        <SelectTrigger className="w-16 h-8 text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="max-h-60 overflow-y-auto">
-          {Array.from({ length: maxChapter }, (_, i) => i + 1).map((chapter) => (
-            <SelectItem key={chapter} value={chapter.toString()}>
-              {chapter}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        {/* Chapter Selector */}
+        <Select value={selectedChapter} onValueChange={setSelectedChapter}>
+          <SelectTrigger className="w-16 h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {Array.from({ length: maxChapter }, (_, i) => i + 1).map((chapter) => (
+              <SelectItem key={chapter} value={chapter.toString()}>
+                {chapter}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <span className="text-xs text-muted-foreground">:</span>
+        <span className="text-xs text-muted-foreground">:</span>
 
-      {/* Verse Selector */}
-      <Select value={selectedVerse} onValueChange={setSelectedVerse}>
-        <SelectTrigger className="w-16 h-8 text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent className="max-h-60 overflow-y-auto">
-          {Array.from({ length: maxVerse }, (_, i) => i + 1).map((verse) => (
-            <SelectItem key={verse} value={verse.toString()}>
-              {verse}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        {/* Verse Selector */}
+        <Select value={selectedVerse} onValueChange={setSelectedVerse}>
+          <SelectTrigger className="w-16 h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {Array.from({ length: maxVerse }, (_, i) => i + 1).map((verse) => (
+              <SelectItem key={verse} value={verse.toString()}>
+                {verse}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {/* Action Buttons */}
-      <Button
-        onClick={handleNavigate}
-        size="sm"
-        className="h-8 px-3 text-xs"
-      >
-        Go
-      </Button>
+        {/* Action Buttons */}
+        <Button
+          onClick={handleNavigate}
+          size="sm"
+          className="h-8 px-3 text-xs"
+        >
+          Go
+        </Button>
+        
+        <Button
+          variant="ghost"
+          onClick={() => setIsOpen(false)}
+          size="sm"
+          className="h-8 px-2 text-xs"
+        >
+          ✕
+        </Button>
+      </div>
       
-      <Button
-        variant="ghost"
-        onClick={() => setIsOpen(false)}
-        size="sm"
-        className="h-8 px-2 text-xs"
-      >
-        ✕
-      </Button>
-    </div>
+      {/* Auth Modals */}
+      <AuthModals
+        isSignUpOpen={isSignUpOpen}
+        isSignInOpen={isSignInOpen}
+        onCloseSignUp={() => setIsSignUpOpen(false)}
+        onCloseSignIn={() => setIsSignInOpen(false)}
+      />
+    </>
   );
 }
