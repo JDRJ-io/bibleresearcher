@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useBibleData } from "@/hooks/useBibleData";
 import { useToast } from "@/hooks/use-toast";
 import { loadTranslation, getVerseText } from "@/lib/translationLoader";
