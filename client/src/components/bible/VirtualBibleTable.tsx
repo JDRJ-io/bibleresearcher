@@ -231,7 +231,7 @@ export function VirtualBibleTable({
   };
 
   // Only render verses in visible range
-  // 🔥 Build visible rows by index, not by slice length (same as in updateVisibleRows)
+  // 🔥 Use the fixed-length array with no holes - always safe to access verse.reference
   const safeVisibleRange = {
     start: Math.max(0, visibleRange.start),
     end: Math.min(totalRows - 1, visibleRange.end)
@@ -241,8 +241,14 @@ export function VirtualBibleTable({
     { length: Math.max(1, safeVisibleRange.end - safeVisibleRange.start + 1) },
     (_, i) => {
       const globalIndex = safeVisibleRange.start + i;
-      // Use the passed verses if available, otherwise use the global template
-      return verses[globalIndex] || globalVerses[globalIndex];
+      // Always use the global fixed-length array - never undefined
+      const baseVerse = globalVerses[globalIndex];
+      // Merge with any loaded text from the verses prop
+      const loadedVerse = verses[globalIndex];
+      if (loadedVerse?.text && Object.keys(loadedVerse.text).length > 0) {
+        return { ...baseVerse, text: loadedVerse.text };
+      }
+      return baseVerse;
     }
   );
   
