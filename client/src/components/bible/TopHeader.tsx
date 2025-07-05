@@ -72,38 +72,7 @@ export function TopHeader({
           </Button>
         </div>
 
-        {/* Living Entrance Section - Auth State */}
-        <div className="flex items-center space-x-2 ml-4 bg-red-500 p-2 rounded">
-          <div className="text-white text-xs">DEBUG: loading={loading ? 'true' : 'false'}, user={user ? 'exists' : 'null'}</div>
-          {loading ? (
-            <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
-              <div className="w-4 h-4 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm">Loading...</span>
-            </div>
-          ) : isLoggedOut ? (
-            // Logged Out State: Show Opal-styled Auth Buttons
-            <div className="flex items-center space-x-2">
-              <Button
-                onClick={() => setIsSignUpOpen(true)}
-                className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-              >
-                <Sparkles className="w-3 h-3 mr-1" />
-                Sign Up
-              </Button>
-              <Button
-                onClick={() => setIsSignInOpen(true)}
-                variant="outline"
-                className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-              >
-                <KeyRound className="w-3 h-3 mr-1" />
-                Sign In
-              </Button>
-            </div>
-          ) : (
-            // Logged In State: Show User Profile
-            <UserProfile />
-          )}
-        </div>
+
       </div>
 
       {/* Center Section: Search Bar */}
@@ -127,6 +96,36 @@ export function TopHeader({
 
       {/* Right Section: Controls */}
       <div className="flex items-center space-x-3">
+        {/* Authentication Buttons */}
+        {loading ? (
+          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+            <div className="w-4 h-4 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm">Loading...</span>
+          </div>
+        ) : isLoggedOut ? (
+          // Logged Out State: Show Opal-styled Auth Buttons
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={() => setIsSignUpOpen(true)}
+              className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              Sign Up
+            </Button>
+            <Button
+              onClick={() => setIsSignInOpen(true)}
+              variant="outline"
+              className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
+            >
+              <KeyRound className="w-3 h-3 mr-1" />
+              Sign In
+            </Button>
+          </div>
+        ) : (
+          // Logged In State: Show User Profile
+          <UserProfile />
+        )}
+
         {/* Theme Toggle */}
         <div className="hidden sm:flex">
           <Select value={theme} onValueChange={setTheme}>
