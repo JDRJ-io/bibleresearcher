@@ -14,12 +14,15 @@ interface ProphecyData {
 }
 
 interface ProphecyColumnsProps {
-  prophecyData: ProphecyData[];
+  prophecyData: ProphecyData[] | undefined;
   onVerseClick: (reference: string) => void;
 }
 
 export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsProps) {
   const [collapsedProphecies, setCollapsedProphecies] = useState<Set<string>>(new Set());
+
+  // Debug logging
+  console.log("ProphecyColumns received data:", prophecyData);
 
   const toggleProphecy = (prophecyId: string) => {
     const newCollapsed = new Set(collapsedProphecies);
@@ -63,7 +66,7 @@ export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsP
       <div className="border border-gray-200 dark:border-gray-700 p-1 overflow-y-auto max-h-[120px]">
         <div className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Predictions</div>
         <div className="space-y-2">
-          {prophecyData.map((prophecy) => {
+          {(prophecyData || []).map((prophecy) => {
             const isCollapsed = collapsedProphecies.has(prophecy.id);
             return (
               <div key={`pred-${prophecy.id}`} className="border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0">
@@ -107,7 +110,7 @@ export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsP
       <div className="border border-gray-200 dark:border-gray-700 p-1 overflow-y-auto max-h-[120px]">
         <div className="text-xs font-medium text-green-600 dark:text-green-400 mb-1">Fulfillments</div>
         <div className="space-y-2">
-          {prophecyData.map((prophecy) => {
+          {(prophecyData || []).map((prophecy) => {
             const isCollapsed = collapsedProphecies.has(prophecy.id);
             return (
               <div key={`fulf-${prophecy.id}`} className="border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0">
@@ -148,7 +151,7 @@ export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsP
       <div className="border border-gray-200 dark:border-gray-700 p-1 overflow-y-auto max-h-[120px]">
         <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1">Evidence</div>
         <div className="space-y-2">
-          {prophecyData.map((prophecy) => {
+          {(prophecyData || []).map((prophecy) => {
             const isCollapsed = collapsedProphecies.has(prophecy.id);
             return (
               <div key={`evid-${prophecy.id}`} className="border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0">

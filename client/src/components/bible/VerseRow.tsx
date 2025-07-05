@@ -104,7 +104,7 @@ export function VerseRow({
       {showProphecy && (
         <div className="w-[480px] flex-shrink-0 border-r">
           <ProphecyColumns
-            prophecyData={getProphecyDataForVerse ? getProphecyDataForVerse(verse.reference) : []}
+            prophecyData={getProphecyDataForVerse ? (getProphecyDataForVerse(verse.reference) || []) : []}
             onVerseClick={onNavigateToVerse}
           />
         </div>
