@@ -730,7 +730,7 @@ export default function BiblePage() {
         onNavigateToVerse={navigateToVerse}
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
-        totalRows={31102} // Total Bible verse count
+        totalRows={verses.length}
         onCenterVerseChange={(globalCenterIndex) => {
           // Throttle loading to prevent infinite loops
           if (Math.abs(globalCenterIndex - lastLoadedCenter) > 50) {
@@ -743,10 +743,6 @@ export default function BiblePage() {
         }}
         centerVerseIndex={centerVerseIndex}
         onPreserveAnchor={(callback) => setPreserveAnchor(() => callback)}
-        onScrollTopChange={(scrollTop) => {
-          // Step 4: Pass scroll position if someone needs it
-          console.log(`Scroll position: ${scrollTop}`);
-        }}
       />
 
       <ExpandedVerseOverlay

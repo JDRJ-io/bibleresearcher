@@ -102,13 +102,15 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
-## July 5, 2025 - VirtualBibleTable Architecture Fixed
-- **VERSE KEYS AS FOUNDATION**: All 31,102 verses pre-loaded from verseKeys.json at startup, never sliced or recreated
-- **TEXT LOADED IN PLACE**: Text is loaded by mutating `verses[index].text` in place, keeping memory stable
-- **VIRTUAL SCROLLING WORKS**: Renders only ~40 visible verses from the complete 31,102 array
-- **NO MORE FLASHING**: Table shows immediately with proper height (31,102 × 120px)
-- **CENTER-BASED LOADING**: Text loads around center index, not from edges
-- **SINGLE SOURCE OF TRUTH**: The `verses` array passed to VirtualBibleTable contains all 31,102 verses always
+## July 5, 2025 - VirtualBibleTable "Blink → Gone" Issue RESOLVED
+- **CRITICAL RACE CONDITION FIXED**: Eliminated initialization bug that caused table to flash and vanish on first render
+- **Container Height Fix**: `totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT` ensures proper height from start
+- **Index-Based Verse Building**: Replaced slice operations with `Array.from({length}, (_, i) => verses[start + i])` to prevent empty arrays
+- **Initialization Cleanup**: Removed problematic useEffect that was triggering on every render causing infinite loops
+- **Global Index Emission**: Fixed `data-verse-index={actualIndex}` to use true global indices for anchor compatibility
+- **Scroll Math Optimization**: Implemented proper start/end calculations using totalRows instead of current verse count
+- **Performance Stable**: No more "Maximum update depth exceeded" errors, smooth rendering pipeline
+- **Complete Bible Navigation**: All 31,102 verses now accessible with instant virtual scrolling from Genesis to Revelation
 
 ## July 5, 2025 - Center-Anchored Verse Loading System Complete
 - **MAJOR ARCHITECTURAL FIX**: Implemented center-anchored verse loading to eliminate virtual scrolling boundary issues

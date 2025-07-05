@@ -12,24 +12,6 @@ export function getVerseKeys(): string[] {
   return cachedVerseKeys;
 }
 
-// Build the fixed-length verse array once
-export const verses = getVerseKeys().map((key, idx) => {
-  const parsed = parseVerseKey(key);
-  return {
-    id: `${key}-${idx}`,
-    index: idx,
-    book: parsed?.book || 'Gen',
-    chapter: parsed?.chapter || 1,
-    verse: parsed?.verse || 1,
-    reference: keyToReference(key),
-    text: {},              // later you'll add text[translation] = "In the beginning…"
-    crossReferences: [],
-    strongsWords: [],
-    labels: [],
-    // …any other fields you need
-  };
-});
-
 export function getVerseCount(): number {
   return getVerseKeys().length;
 }
