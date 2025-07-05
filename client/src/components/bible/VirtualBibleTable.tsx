@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VerseRow } from "./VerseRow";
+import { getVerseCount } from "@/lib/verseKeysLoader";
 import type {
   BibleVerse,
   Translation,
@@ -85,7 +86,7 @@ export function VirtualBibleTable({
   const [currentEndIndex, setCurrentEndIndex] = useState(-1);
 
   // Calculate total height for scrollbar using the full verse count
-  const totalHeight = (totalRows ?? 0) * ROW_HEIGHT;
+  const totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT;
   
 
 
@@ -128,13 +129,12 @@ export function VirtualBibleTable({
 
   // Initialize scroll position to top only once
   useEffect(() => {
-    if (scrollRef.current && verses.length > 0) {
-      scrollRef.current.scrollTop = 0;
+    if (verses.length > 0) {
       setVisibleRange({ start: 0, end: 40 });
       setCurrentStartIndex(0);
       setCurrentEndIndex(40);
     }
-  }, [verses.length > 0]); // Only run when verses are loaded
+  }, [verses.length]);
 
   // Handle scroll events
   useEffect(() => {
