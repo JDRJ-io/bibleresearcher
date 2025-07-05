@@ -1,0 +1,90 @@
+Below is a diagnostic + fix brief you can hand directly to your engineer.
+(It’s written without quoting any expired files, so nothing is missing even though some earlier uploads have vanished.)
+
+1. What the screenshots are telling us
+Visual clue	What it means in code
+White band below the last rendered verse (bottom gap)	The placeholder container is shorter than the real scrollable range or the next “page” of verses is not being appended soon enough.
+White band between sticky header and first verse (top gap after upward scroll)	The scroll handler destroyed all rows, then re‑inserted new rows after the scroll event, leaving a moment when no rows exist at offsets 0 – n.
+Users can scroll several viewport–heights past the verse block before new rows appear	Two different listeners (main scroll handler and something like an IntersectionObserver on a sentinel) are both trying to decide when to load, but their thresholds don’t match.
+Middle verse jumps when new rows load	All visible rows are destroyed and recreated; the element the user’s eye was resting on gets a new DOM identity and a new top offset.
+
+2. One‑page game plan to fix it
+Goal — the list should behave like a physical scroll:
+you never outrun the verses, the scrollbar is always full‑length, and the verse in the centre of the viewport never moves.
+
+A. Give the browser a perfect scrollbar from the start
+js
+Copy
+const ROW_HEIGHT  = 120;                  // pixel height per row
+const TOTAL_ROWS  = verseKeys.length;     // 31 102 for canonical
+verseContainer.style.height = `${TOTAL_ROWS * ROW_HEIGHT}px`;
+Do this exactly once after you know which verse order (canonical / chronological) you’re using.
+
+B. Keep exactly one scroll driver
+Delete any IntersectionObserver or nested onScroll listeners.
+
+Bind one handler to the element that actually scrolls (the div whose scrollbar you see).
+
+At the top of that handler:
+
+js
+Copy
+const start = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - BUFFER);
+const end   = Math.min(TOTAL_ROWS-1,
+                       Math.floor((scrollTop + viewportH) / ROW_HEIGHT) + BUFFER);
+
+if (start === prevStart && end === prevEnd) return;   // early‑exit guard
+prevStart = start; prevEnd = end;
+C. Re‑use a row pool, don’t rebuild
+js
+Copy
+if (rowPool.length === 0){
+  for (let i = 0; i < (BUFFER*2 + Math.ceil(viewportH/ROW_HEIGHT)); i++){
+     const row = makeEmptyRow();             // create once
+     verseContainer.appendChild(row);
+     rowPool.push(row);
+  }
+}
+
+for (let i = start; i <= end; i++){
+  const row = rowPool[i - start];
+  row.style.top = `${i * ROW_HEIGHT}px`;
+  fillRow(row, verseKeys[i]);
+}
+No row is ever removed from the DOM, so the user’s “anchor verse” stays put.
+
+D. Pre‑fetch before the user hits the edge
+Choose a generous BUFFER (e.g. 5 viewports). That way the new verses are in place long before the user reaches the bottom of what’s rendered.
+
+E. Preserve the centre anchor on any heavy UI change
+Whenever you add/remove a translation column, toggle label effects, or switch cross‑reference set:
+
+js
+Copy
+const centerPix   = scrollEl.scrollTop + viewportH / 2;
+const centerIndex = Math.floor(centerPix / ROW_HEIGHT);
+
+/* perform DOM‑heavy update here */
+
+scrollEl.scrollTop = centerIndex * ROW_HEIGHT;   // put same verse back in centre
+F. Memory guard‑rails
+Parsed verse maps live only in a worker; pass them back with postMessage(obj, [buffer]).
+
+The row pool size (and therefore DOM node count) never exceeds ~150.
+
+3. Quick test script for QA
+Load Genesis 1.
+
+Scroll to midpoint of Genesis, stop, count to three:
+page should still be full of verses, no gaps.
+
+Scroll fast to Revelation:
+no blank area before verses appear.
+
+Scroll back to Genesis without lifting the scroll‑bar:
+header never detaches; top gap never appears.
+
+Toggle on three extra translations, repeat steps 2–4:
+same behaviour, scrollTop anchor preserved.
+
+If any step fails, check which rule (A–F) is missing or double‑implemented.

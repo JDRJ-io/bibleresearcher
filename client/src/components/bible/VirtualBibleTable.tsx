@@ -34,7 +34,7 @@ interface VirtualBibleTableProps {
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
-const BUFFER_SIZE = 20; // Number of verses to render above/below viewport
+const BUFFER_SIZE = 50; // Generous buffer - 5 viewports worth
 
 export function VirtualBibleTable({
   verses,
@@ -54,19 +54,12 @@ export function VirtualBibleTable({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Virtual scrolling state - simplified to track only what's needed
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+  // Perfect scroll container height - set once for entire Bible
+  const containerHeight = totalRows * ROW_HEIGHT;
   
-  // Calculate container height based on loaded verses range for proper scrolling boundaries
-  const containerHeight = verses.length > 0 
-    ? Math.max(
-        ((verses[verses.length - 1]?.index || 0) + 1) * ROW_HEIGHT,
-        totalRows * ROW_HEIGHT
-      )
-    : totalRows * ROW_HEIGHT;
-  
-  // Track current range to prevent race conditions
+  // Track scroll range to prevent race conditions  
   const currentRangeRef = useRef({ start: 0, end: 0 });
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
@@ -79,31 +72,31 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // Update visible range based on scroll position - single source of truth
+  // Single scroll calculation with early-exit guard  
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Calculate which verses should be visible
+    // Calculate range using total Bible rows, not just loaded verses
     const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
     const end = Math.min(
-      verses.length - 1,
-      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE
+      totalRows - 1,
+      Math.floor((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE
     );
 
-    // Early exit if range hasn't changed (key optimization from original)
+    // Early exit if range hasn't changed - prevents race conditions
     if (start === currentRangeRef.current.start && end === currentRangeRef.current.end) {
       return;
     }
 
-    // Update both ref and state
+    // Update range tracking
     currentRangeRef.current = { start, end };
     setVisibleRange({ start, end });
   };
 
-  // Handle scroll events with boundary enforcement
+  // Single scroll listener - clean and simple  
   useEffect(() => {
     let animationFrameId: number;
 
@@ -115,30 +108,7 @@ export function VirtualBibleTable({
       animationFrameId = requestAnimationFrame(() => {
         if (!scrollRef.current) return;
         
-        const currentScrollTop = scrollRef.current.scrollTop;
-        const viewportHeight = scrollRef.current.clientHeight;
-        
-        // Calculate the scroll boundaries based on loaded verses
-        const firstVerseTop = (verses[0]?.index || 0) * ROW_HEIGHT;
-        const lastVerseBottom = ((verses[verses.length - 1]?.index || 0) + 1) * ROW_HEIGHT;
-        
-        // Enforce scroll boundaries - prevent scrolling beyond loaded content
-        const minScroll = Math.max(0, firstVerseTop - BUFFER_SIZE * ROW_HEIGHT);
-        const maxScroll = lastVerseBottom + BUFFER_SIZE * ROW_HEIGHT - viewportHeight;
-        
-        // If user scrolled beyond boundaries, clamp the scroll position
-        if (currentScrollTop < minScroll) {
-          scrollRef.current.scrollTop = minScroll;
-          return;
-        }
-        
-        if (currentScrollTop > maxScroll) {
-          scrollRef.current.scrollTop = maxScroll;
-          return;
-        }
-        
-        // Update state and trigger virtual scrolling update
-        setScrollTop(currentScrollTop);
+        setScrollTop(scrollRef.current.scrollTop);
         setScrollLeft(scrollRef.current.scrollLeft);
         updateVisibleRows();
       });
@@ -146,9 +116,8 @@ export function VirtualBibleTable({
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll, { passive: false });
-      // Initial update
-      updateVisibleRows();
+      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+      updateVisibleRows(); // Initial calculation
     }
 
     return () => {
@@ -159,7 +128,7 @@ export function VirtualBibleTable({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [verses.length, verses]); // Depend on verses to update boundaries
+  }, []); // No dependencies - single setup
 
   // Update when verses change - reset range and recalculate
   useEffect(() => {
@@ -203,8 +172,15 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Only render verses in visible range
-  const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
+  // Generate visible verses from the range indices using global verse lookup
+  const visibleVerses = [];
+  for (let i = visibleRange.start; i <= visibleRange.end; i++) {
+    // Find verse by global index from loaded verses, or create placeholder
+    const verse = verses.find(v => v.index === i);
+    if (verse) {
+      visibleVerses.push(verse);
+    }
+  }
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
@@ -230,21 +206,19 @@ export function VirtualBibleTable({
             minHeight: `${containerHeight}px`
           }}
         >
-          {/* Render only visible verses with absolute positioning */}
-          {visibleVerses.map((verse, index) => {
-          const actualIndex = visibleRange.start + index;            
-          return (
+          {/* Render visible verses with absolute positioning based on global index */}
+          {visibleVerses.map((verse) => (
               <div
                 key={verse.id}
                 className="verse-row absolute left-0 right-0"
                 style={{
-                  top: `${actualIndex * ROW_HEIGHT}px`,
+                  top: `${verse.index * ROW_HEIGHT}px`,
                   height: `${ROW_HEIGHT}px`,
                 }}
               >
                 <VerseRow
                   verse={verse}
-                  verseIndex={actualIndex}
+                  verseIndex={verse.index}
                   selectedTranslations={selectedTranslations}
                   showNotes={preferences.showNotes}
                   showProphecy={preferences.showProphecy}
@@ -259,8 +233,7 @@ export function VirtualBibleTable({
                   allVerses={verses}
                 />
               </div>
-            );
-          })}
+            ))}
         </div>
       </div>
     </div>
