@@ -42,6 +42,7 @@ export default function BiblePage() {
     loadBothCrossReferenceSets,
     getProphecyDataForVerse,
     loadProphecyDataOnDemand,
+    getGlobalVerseText,
   } = useBibleData();
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
@@ -690,6 +691,7 @@ export default function BiblePage() {
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
         getProphecyDataForVerse={getProphecyDataForVerse}
+        getGlobalVerseText={getGlobalVerseText}
         totalRows={totalRows}
       />
 

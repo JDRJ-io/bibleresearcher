@@ -18,9 +18,10 @@ interface ProphecyColumnsProps {
   onVerseClick: (reference: string) => void;
   verses: any[];
   verseReference: string;
+  getGlobalVerseText?: (reference: string) => string; // Add function prop for global verse lookup
 }
 
-export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseReference }: ProphecyColumnsProps) {
+export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseReference, getGlobalVerseText }: ProphecyColumnsProps) {
   const [collapsedProphecies, setCollapsedProphecies] = useState<Set<string>>(new Set());
 
   console.log("ProphecyColumns received data:", prophecyData);
@@ -36,8 +37,18 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
   };
 
   const getVerseText = (reference: string): string => {
+    // First try to find in current loaded verses
     const verse = verses.find(v => v.reference === reference || v.reference === reference.replace('.', ' '));
-    return verse?.text?.KJV || '';
+    if (verse?.text?.KJV) {
+      return verse.text.KJV;
+    }
+    
+    // Use the global verse text lookup function if provided
+    if (getGlobalVerseText) {
+      return getGlobalVerseText(reference);
+    }
+    
+    return '';
   };
 
   const truncateText = (text: string, maxLength: number = 80): string => {
@@ -113,16 +124,13 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-400 dark:bg-amber-500 rounded-r-sm opacity-60"></div>
                 )}
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-between p-1 h-auto text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                <div
+                  className="w-full p-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer rounded"
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  <span className="text-left break-words max-w-[90%] whitespace-normal leading-tight">{prophecy.id}. {prophecy.data.summary}</span>
-                  {isCollapsed ? <ChevronDown className="h-3 w-3 flex-shrink-0 ml-1" /> : <ChevronUp className="h-3 w-3 flex-shrink-0 ml-1" />}
-                </Button>
+                  <span className="text-left break-words whitespace-normal leading-tight">{prophecy.id}. {prophecy.data.summary}</span>
+                </div>
                 
                 {!isCollapsed && (
                   <div className="mt-1 space-y-1 pl-1">

@@ -14,6 +14,7 @@ interface VerseRowProps {
   onHighlight: (verseRef: string, selection: Selection) => void;
   onNavigateToVerse: (reference: string) => void;
   getProphecyDataForVerse?: (verseKey: string) => any[];
+  getGlobalVerseText?: (reference: string) => string;
   allVerses: BibleVerse[]; // Add verses for text lookup
 }
 
@@ -30,6 +31,7 @@ export function VerseRow({
   onHighlight,
   onNavigateToVerse,
   getProphecyDataForVerse,
+  getGlobalVerseText,
   allVerses,
 }: VerseRowProps) {
   
@@ -110,6 +112,7 @@ export function VerseRow({
             onVerseClick={onNavigateToVerse}
             verses={allVerses}
             verseReference={verse.reference}
+            getGlobalVerseText={getGlobalVerseText}
           />
         </div>
       )}

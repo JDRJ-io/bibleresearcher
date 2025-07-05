@@ -1504,6 +1504,29 @@ export function useBibleData() {
     }
   };
 
+  // Global verse text lookup function for prophecy column and other components
+  const getGlobalVerseText = (reference: string): string => {
+    if (!globalKjvTextMap) return "";
+    
+    // Try multiple reference formats to find the text
+    const formats = [
+      reference, // Exact as provided
+      reference.replace(/\s/g, "."), // "Gen 1:1" -> "Gen.1:1"
+      reference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
+      reference.replace(/\./g, " ").replace(":", "."), // "Gen.1:1" -> "Gen 1.1"
+    ];
+    
+    for (const format of formats) {
+      const text = globalKjvTextMap.get(format);
+      if (text) {
+        // Truncate long verses for display in prophecy columns
+        return text.length > 60 ? text.substring(0, 60) + "..." : text;
+      }
+    }
+    
+    return "";
+  };
+
   return {
     verses: displayVerses, // Return display verses for rendering
     allVerses: verses, // Keep full dataset available
@@ -1544,5 +1567,7 @@ export function useBibleData() {
     // Prophecy management
     loadProphecyDataOnDemand,
     getProphecyDataForVerse,
+    // Global verse text lookup
+    getGlobalVerseText,
   };
 }
