@@ -102,15 +102,13 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
-## July 5, 2025 - VirtualBibleTable Flash Fix Using Verse Keys Architecture
-- **CRITICAL ARCHITECTURE FIX**: Fixed table flash by using verse keys as source of truth, not loaded verses array
-- **Verse Keys Based Rendering**: VirtualBibleTable now renders from `globalVerses` (31,102 pre-loaded verse structures) instead of `verses` prop
-- **In-Place Text Loading**: Text loaded by mutating verse objects directly in the full array, never slicing or replacing
-- **Proper Index Mapping**: `visibleVerses` built using `globalVerses[globalIndex]` with loaded text merged when available
-- **No More Empty Arrays**: Eliminated the flash caused by starting with empty `verses` array during initial load
-- **Center-Anchored Loading**: Maintained center-anchored verse loading without disrupting the full verse structure
-- **Loading Pattern Fixed**: `loadVerseRange` mutates verses in place instead of returning a new array
-- **Stable Virtual Scrolling**: Table height always correct (31,102 × 120px) from first render, no layout shifts
+## July 5, 2025 - VirtualBibleTable Architecture Fixed
+- **VERSE KEYS AS FOUNDATION**: All 31,102 verses pre-loaded from verseKeys.json at startup, never sliced or recreated
+- **TEXT LOADED IN PLACE**: Text is loaded by mutating `verses[index].text` in place, keeping memory stable
+- **VIRTUAL SCROLLING WORKS**: Renders only ~40 visible verses from the complete 31,102 array
+- **NO MORE FLASHING**: Table shows immediately with proper height (31,102 × 120px)
+- **CENTER-BASED LOADING**: Text loads around center index, not from edges
+- **SINGLE SOURCE OF TRUTH**: The `verses` array passed to VirtualBibleTable contains all 31,102 verses always
 
 ## July 5, 2025 - Center-Anchored Verse Loading System Complete
 - **MAJOR ARCHITECTURAL FIX**: Implemented center-anchored verse loading to eliminate virtual scrolling boundary issues

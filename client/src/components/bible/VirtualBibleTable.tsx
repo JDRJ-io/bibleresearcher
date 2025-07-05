@@ -230,33 +230,16 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Build visible rows by index, not by slice length
-  // Use globalVerses which is always 31,102 verses, not the currently loaded rows
-  const visibleVerses = Array.from(
-    { length: Math.min(visibleRange.end - visibleRange.start + 1, totalRows) },
-    (_, i) => {
-      const globalIndex = visibleRange.start + i;
-      if (globalIndex >= totalRows) return null;
-      
-      // Get the base verse structure from the global verses array
-      const baseVerse = globalVerses[globalIndex];
-      
-      // Check if we have loaded text for this verse
-      const loadedVerse = verses.find(v => v.index === globalIndex);
-      
-      if (loadedVerse && loadedVerse.text && Object.keys(loadedVerse.text).length > 0) {
-        // Return the loaded verse with all its data
-        return loadedVerse;
-      }
-      
-      // Return base verse structure with placeholder text
-      return {
-        ...baseVerse,
-        text: baseVerse.text || {},
-        crossReferences: loadedVerse?.crossReferences || []
-      };
-    }
-  ).filter(v => v !== null) as BibleVerse[];
+  // Build visible rows by index from the verses prop
+  const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
+  
+  console.log('VirtualBibleTable render:', {
+    totalRows,
+    versesLength: verses.length, 
+    visibleRange,
+    visibleVersesLength: visibleVerses.length,
+    firstVisible: visibleVerses[0]?.reference || 'undefined'
+  });
 
   // Remove the problematic lazy loading useEffect that was causing infinite loops
 
