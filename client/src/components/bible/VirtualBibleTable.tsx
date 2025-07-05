@@ -230,18 +230,42 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Build visible rows by index from the verses prop
-  const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
+  // Fire loader no-matter what (inside updateVisibleRows() mutates verses[index].text):
+  const visibleVerses = Array.from({ length: visibleRange.end - visibleRange.start + 1 }, (_, i) => {
+    const globalIndex = visibleRange.start + i;
+    if (globalIndex >= totalRows) return undefined;
+    
+    // Get verse from the global verses array
+    const verse = verses[globalIndex];
+    if (!verse) return undefined;
+    
+    // Ensure prop is never undefined
+    return {
+      ...verse,
+      text: verse.text || {},
+      crossReferences: verse.crossReferences || []
+    };
+  }).filter(Boolean) as BibleVerse[];
   
   console.log('VirtualBibleTable render:', {
     totalRows,
     versesLength: verses.length, 
     visibleRange,
     visibleVersesLength: visibleVerses.length,
-    firstVisible: visibleVerses[0]?.reference || 'undefined'
+    firstVisible: visibleVerses[0]?.reference || 'undefined',
+    hasUndefinedText: visibleVerses.some(v => v && !v.text)
   });
 
-  // Remove the problematic lazy loading useEffect that was causing infinite loops
+  // Prime window once (init effect):
+  useEffect(() => {
+    const updateVisibleRange = (start: number, end: number) => {
+      if (visibleRange.start !== start || visibleRange.end !== end) {
+        setVisibleRange({ start, end });
+      }
+    };
+    
+    updateVisibleRange(0, Math.min(40, totalRows - 1));
+  }, [totalRows]);
 
   // run once after first mount
   useEffect(() => {
