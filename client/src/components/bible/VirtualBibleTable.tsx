@@ -23,6 +23,7 @@ interface VirtualBibleTableProps {
   mainTranslation?: string;
   onExpandVerse: (verse: BibleVerse) => void;
   onNavigateToVerse: (reference: string) => void;
+  getProphecyDataForVerse?: (verseKey: string) => any[];
   /**
    * Total number of verse rows in the full Bible.
    * Used to set the placeholder container height so the
@@ -40,6 +41,7 @@ export function VirtualBibleTable({
   preferences,
   onExpandVerse,
   onNavigateToVerse,
+  getProphecyDataForVerse,
   totalRows,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
@@ -215,6 +217,7 @@ export function VirtualBibleTable({
                   onExpandVerse={onExpandVerse}
                   onHighlight={handleHighlight}
                   onNavigateToVerse={onNavigateToVerse}
+                  getProphecyDataForVerse={getProphecyDataForVerse}
                 />
               </div>
             );

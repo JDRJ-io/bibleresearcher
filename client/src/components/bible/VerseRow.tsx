@@ -100,112 +100,18 @@ export function VerseRow({
         </div>
       </div>
 
-      {/* Prophecy Columns - 3 separate columns */}
-      {preferences.showProphecy && (
-        <>
-          {/* Predictions Column */}
-          <div className="w-64 flex-shrink-0 border-r">
-            <div className="h-[120px] overflow-y-auto p-3 text-xs">
-              {verse.prophecy?.predictions && verse.prophecy.predictions.length > 0 ? (
-                <div>
-                  <div className="font-medium text-blue-600 dark:text-blue-400 text-xs mb-2">
-                    {verse.prophecy.title ? `${verse.prophecy.title} - Predictions` : "Predictions"}
-                  </div>
-                  {verse.prophecy.predictions.slice(0, 6).map((pred, idx) => (
-                    <div key={idx} className="mb-1">
-                      <button
-                        onClick={() => onNavigateToVerse(pred.reference)}
-                        className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
-                      >
-                        {pred.reference}
-                      </button>
-                      <div className="text-muted-foreground text-xs">
-                        {pred.text && pred.text.length > 60 ? `${pred.text.substring(0, 60)}...` : pred.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-muted-foreground italic text-xs">No predictions</span>
-              )}
-            </div>
-          </div>
-
-          {/* Fulfillments Column */}
-          <div className="w-64 flex-shrink-0 border-r">
-            <div className="h-[120px] overflow-y-auto p-3 text-xs">
-              {verse.prophecy?.fulfillments && verse.prophecy.fulfillments.length > 0 ? (
-                <div>
-                  <div className="font-medium text-green-600 dark:text-green-400 text-xs mb-2">
-                    {verse.prophecy.title ? `${verse.prophecy.title} - Fulfillments` : "Fulfillments"}
-                  </div>
-                  {verse.prophecy.fulfillments.slice(0, 6).map((ful, idx) => (
-                    <div key={idx} className="mb-1">
-                      <button
-                        onClick={() => onNavigateToVerse(ful.reference)}
-                        className="text-green-600 dark:text-green-400 hover:underline text-xs font-medium"
-                      >
-                        {ful.reference}
-                      </button>
-                      <div className="text-muted-foreground text-xs">
-                        {ful.text && ful.text.length > 60 ? `${ful.text.substring(0, 60)}...` : ful.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-muted-foreground italic text-xs">No fulfillments</span>
-              )}
-            </div>
-          </div>
-
-          {/* Evidence Column */}
-          <div className="w-64 flex-shrink-0 border-r">
-            <div className="h-[120px] overflow-y-auto p-3 text-xs">
-              {verse.prophecy?.evidence && verse.prophecy.evidence.length > 0 ? (
-                <div>
-                  <div className="font-medium text-purple-600 dark:text-purple-400 text-xs mb-2">
-                    {verse.prophecy.title ? `${verse.prophecy.title} - Evidence` : "Evidence"}
-                  </div>
-                  {verse.prophecy.evidence.slice(0, 6).map((ev, idx) => (
-                    <div key={idx} className="mb-1">
-                      <button
-                        onClick={() => onNavigateToVerse(ev.reference)}
-                        className="text-purple-600 dark:text-purple-400 hover:underline text-xs font-medium"
-                      >
-                        {ev.reference}
-                      </button>
-                      <div className="text-muted-foreground text-xs">
-                        {ev.text && ev.text.length > 60 ? `${ev.text.substring(0, 60)}...` : ev.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <span className="text-muted-foreground italic text-xs">No evidence</span>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Additional Translation Columns */}
-      {selectedTranslations.filter(t => t.selected && t.id !== 'KJV').map(translation => (
-        <div key={translation.id} className="w-80 flex-shrink-0 border-r">
-          <div className="h-[120px] overflow-y-auto p-3 text-sm">
-            <div className="whitespace-pre-wrap break-words leading-relaxed">
-              {verse.text[translation.id] ? (
-                verse.text[translation.id]
-              ) : (
-                <span className="text-muted-foreground italic">No {translation.abbreviation} text</span>
-              )}
-            </div>
-          </div>
+      {/* Prophecy Columns - New System */}
+      {showProphecy && (
+        <div className="w-[480px] flex-shrink-0 border-r">
+          <ProphecyColumns
+            prophecyData={getProphecyDataForVerse ? getProphecyDataForVerse(verse.reference) : []}
+            onVerseClick={onNavigateToVerse}
+          />
         </div>
-      ))}
+      )}
       
       {/* Notes Column */}
-      {preferences.showNotes && (
+      {showNotes && (
         <div className="w-60 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {userNote ? (
@@ -216,7 +122,6 @@ export function VerseRow({
           </div>
         </div>
       )}
-      
 
     </div>
   );

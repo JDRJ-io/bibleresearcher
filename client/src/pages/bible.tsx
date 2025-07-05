@@ -40,6 +40,8 @@ export default function BiblePage() {
     crossRefSet,
     setCrossRefSet,
     loadBothCrossReferenceSets,
+    getProphecyDataForVerse,
+    loadProphecyDataOnDemand,
   } = useBibleData();
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
@@ -223,11 +225,38 @@ export default function BiblePage() {
     }
   };
 
-  const handlePreferenceChange = (key: string, value: boolean) => {
+  const handlePreferenceChange = async (key: string, value: boolean) => {
     setPreferences((prev) => ({
       ...prev,
       [key]: value,
     }));
+
+    // Load prophecy data when prophecy columns are enabled
+    if (key === 'showProphecy' && value) {
+      try {
+        console.log("User enabled prophecy columns - loading prophecy data...");
+        const result = await loadProphecyDataOnDemand();
+        if (result.index.size > 0 && Object.keys(result.rows).length > 0) {
+          toast({ 
+            title: "Prophecy data loaded", 
+            description: `${result.index.size} verses indexed, ${Object.keys(result.rows).length} prophecies ready` 
+          });
+        } else {
+          toast({ 
+            title: "Prophecy data not found",
+            description: "Please check your Supabase storage for prophecy files",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load prophecy data:", error);
+        toast({ 
+          title: "Prophecy loading failed",
+          description: "Could not load prophecy data from Supabase",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   const handleResetLayout = () => {
@@ -660,6 +689,7 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
+        getProphecyDataForVerse={getProphecyDataForVerse}
         totalRows={totalRows}
       />
 
