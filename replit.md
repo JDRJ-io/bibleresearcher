@@ -210,24 +210,7 @@ Data source: User's Supabase storage containing actual Bible translations and re
 # Implementation Status (July 2025)
 
 ## Recently Completed Features
-1. **Perfect Virtual Scrolling Implementation**: ✓ Implementing the 6-behavior pattern from original prototype
-   - Fixed container height: totalRows × ROW_HEIGHT set once for perfect scrollbar
-   - Single scroll listener with early-exit guard to prevent race conditions
-   - Absolute positioning with style.top = index × ROW_HEIGHT for stable anchoring
-   - Increased buffer sizes: 200 rows in VirtualBibleTable, 1000+ verses in data loading
-   - Placeholder rows for unloaded verses prevent white gaps
-   - Center verse tracking for intelligent preloading
-   - Massive data buffers (500-1000 verses) prevent boundary hits during fast scrolling
-
-2. **Hyperlink Navigation with History**: ✓ Complete implementation of back/forward navigation
-   - All verse references (cross-references, prophecy columns) are clickable hyperlinks
-   - Navigation history stack tracks visited verses for back/forward functionality
-   - Back button enables after clicking any hyperlink, forward button after going back
-   - Center verse tracking uses scrollContainerRef to save correct position
-   - Smooth scrolling to target verse with visual feedback
-   - Single navigation action per click prevents multiple history entries
-
-2. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
+1. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
    - cf1 (Standard): 29,315 cross-references loaded
    - cf2 (Extended): 30,692 cross-references loaded
    - Cross-references automatically apply when switching sets
