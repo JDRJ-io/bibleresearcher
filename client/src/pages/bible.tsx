@@ -743,6 +743,10 @@ export default function BiblePage() {
         }}
         centerVerseIndex={centerVerseIndex}
         onPreserveAnchor={(callback) => setPreserveAnchor(() => callback)}
+        onScrollTopChange={(scrollTop) => {
+          // Step 4: Pass scroll position if someone needs it
+          console.log(`Scroll position: ${scrollTop}`);
+        }}
       />
 
       <ExpandedVerseOverlay

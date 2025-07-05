@@ -33,8 +33,9 @@ interface VirtualBibleTableProps {
    */
   totalRows: number;
   onCenterVerseChange?: (centerIndex: number) => void;
+  onPreserveAnchor?: (preserveAnchor: (callback: () => void) => void) => void;
   centerVerseIndex?: number;
-  onPreserveAnchor?: (callback: () => void) => void;
+  onScrollTopChange?: (scrollTop: number) => void;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
@@ -50,7 +51,9 @@ export function VirtualBibleTable({
   getGlobalVerseText,
   totalRows,
   onCenterVerseChange,
+  onPreserveAnchor,
   centerVerseIndex = 0,
+  onScrollTopChange,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -85,6 +88,15 @@ export function VirtualBibleTable({
   const [currentStartIndex, setCurrentStartIndex] = useState(0);
   const [currentEndIndex, setCurrentEndIndex] = useState(-1);
 
+  // Step 2: preserveAnchor already defined above
+
+  // Expose preserveAnchor function to parent
+  useEffect(() => {
+    if (onPreserveAnchor) {
+      onPreserveAnchor(preserveAnchor);
+    }
+  }, [onPreserveAnchor, preserveAnchor]);
+
   // Calculate total height for scrollbar using the full verse count
   const totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT;
   
@@ -108,17 +120,18 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // 🔥 Use TOTAL rows, not the currently-loaded rows
-    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
-    const end = Math.min(totalRows - 1, 
-      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE);
+    const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+    const start = Math.max(0, centerIdx - BUFFER_SIZE);
+    const end = Math.min(totalRows - 1, centerIdx + BUFFER_SIZE);
     
     // Note: visibleVerses is now calculated in render using the same index-based approach
     
     // Pull-ahead loader: trigger loading for center verse (global index)
     if (verses.length > 0 && onCenterVerseChange) {
-      const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
-      onCenterVerseChange(centerIdx);
+      // Step 3: Right after you compute centerIdx (see step 1):
+      if (centerIdx !== centerVerseIndex) {
+        onCenterVerseChange(centerIdx);
+      }
     }
 
     // Early exit if range hasn't changed (key optimization from original)
@@ -149,8 +162,14 @@ export function VirtualBibleTable({
 
       animationFrameId = requestAnimationFrame(() => {
         if (scrollRef.current) {
-          setScrollTop(scrollRef.current.scrollTop);
+          const currentScrollTop = scrollRef.current.scrollTop;
+          setScrollTop(currentScrollTop);
           updateVisibleRows();
+          
+          // Step 4: Pass scroll position up if someone needs it
+          if (onScrollTopChange) {
+            onScrollTopChange(currentScrollTop);
+          }
         }
       });
     };
