@@ -108,6 +108,7 @@ export default function BiblePage() {
 
   const [localExpandedVerse, setLocalExpandedVerse] = useState<any>(null);
   const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
+  const [lastLoadedCenter, setLastLoadedCenter] = useState<number>(-1);
 
   const localExpandVerse = (verse: any) => setLocalExpandedVerse(verse);
   const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
@@ -729,12 +730,15 @@ export default function BiblePage() {
         onNavigateToVerse={navigateToVerse}
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
-        totalRows={totalRows}
+        totalRows={filteredVerses.length}
         onCenterVerseChange={(globalCenterIndex) => {
-          // When user scrolls near edges, load more verses around the new center
-          console.log(`📍 Center verse changed to global index: ${globalCenterIndex}`);
-          if (verses.length > 0 && loadVerseRange) {
-            loadVerseRange(verses, globalCenterIndex, false);
+          // Throttle loading to prevent infinite loops
+          if (Math.abs(globalCenterIndex - lastLoadedCenter) > 50) {
+            console.log(`📍 Center verse changed to global index: ${globalCenterIndex}`);
+            if (verses.length > 0 && loadVerseRange) {
+              loadVerseRange(verses, globalCenterIndex, false);
+              setLastLoadedCenter(globalCenterIndex);
+            }
           }
         }}
         centerVerseIndex={centerVerseIndex}
