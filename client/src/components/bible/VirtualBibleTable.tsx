@@ -172,18 +172,19 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Get verse by global index with fallback for missing verses
-  const getVerseByIndex = (index: number): BibleVerse | null => {
-    return verses.find(v => v.index === index) || null;
-  };
-
-  // Generate visible verses from the range indices using global verse lookup
-  const visibleVerses: BibleVerse[] = [];
-  for (let i = visibleRange.start; i <= visibleRange.end; i++) {
-    const verse = getVerseByIndex(i);
-    if (verse) {
-      visibleVerses.push(verse);
+  // Create a mapping of verse indices to actual verse data for quick lookup
+  const verseMap = new Map<number, BibleVerse>();
+  verses.forEach(v => {
+    if (v.index !== undefined) {
+      verseMap.set(v.index, v);
     }
+  });
+
+  // Generate array of indices for ALL verses in visible range (Trick #2)
+  // This ensures we always render rows even if verse data isn't loaded yet
+  const visibleIndices: number[] = [];
+  for (let i = visibleRange.start; i <= visibleRange.end; i++) {
+    visibleIndices.push(i);
   }
 
   return (
@@ -210,21 +211,39 @@ export function VirtualBibleTable({
             minHeight: `${containerHeight}px`
           }}
         >
-          {/* Render visible verses with absolute positioning based on global index */}
-          {visibleVerses.map((verse) => {
-            const verseIndex = verse.index ?? 0;
+          {/* Render ALL visible indices with absolute positioning (Trick #4) */}
+          {visibleIndices.map((index) => {
+            const verse = verseMap.get(index);
+            
+            // If no verse data loaded for this index, show a placeholder row
+            if (!verse) {
+              return (
+                <div
+                  key={`placeholder-${index}`}
+                  className="verse-row absolute left-0 right-0 bg-muted/50 flex items-center justify-center"
+                  style={{
+                    top: `${index * ROW_HEIGHT}px`,
+                    height: `${ROW_HEIGHT}px`,
+                  }}
+                >
+                  <span className="text-muted-foreground">Loading verse {index + 1}...</span>
+                </div>
+              );
+            }
+            
+            // Render actual verse data
             return (
               <div
-                key={`${verse.id}-${verseIndex}`}
+                key={`${verse.id}-${index}`}
                 className="verse-row absolute left-0 right-0"
                 style={{
-                  top: `${verseIndex * ROW_HEIGHT}px`,
+                  top: `${index * ROW_HEIGHT}px`,
                   height: `${ROW_HEIGHT}px`,
                 }}
               >
                 <VerseRow
                   verse={verse}
-                  verseIndex={verseIndex}
+                  verseIndex={index}
                   selectedTranslations={selectedTranslations}
                   showNotes={preferences.showNotes}
                   showProphecy={preferences.showProphecy}
