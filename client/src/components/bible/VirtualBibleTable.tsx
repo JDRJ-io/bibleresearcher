@@ -218,6 +218,7 @@ export function VirtualBibleTable({
                   onHighlight={handleHighlight}
                   onNavigateToVerse={onNavigateToVerse}
                   getProphecyDataForVerse={getProphecyDataForVerse}
+                  allVerses={verses}
                 />
               </div>
             );

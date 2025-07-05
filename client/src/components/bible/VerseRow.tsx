@@ -14,6 +14,7 @@ interface VerseRowProps {
   onHighlight: (verseRef: string, selection: Selection) => void;
   onNavigateToVerse: (reference: string) => void;
   getProphecyDataForVerse?: (verseKey: string) => any[];
+  allVerses: BibleVerse[]; // Add verses for text lookup
 }
 
 export function VerseRow({
@@ -29,6 +30,7 @@ export function VerseRow({
   onHighlight,
   onNavigateToVerse,
   getProphecyDataForVerse,
+  allVerses,
 }: VerseRowProps) {
   
   // Create preferences object for consistency
@@ -106,6 +108,8 @@ export function VerseRow({
           <ProphecyColumns
             prophecyData={getProphecyDataForVerse ? (getProphecyDataForVerse(verse.reference) || []) : []}
             onVerseClick={onNavigateToVerse}
+            verses={allVerses}
+            verseReference={verse.reference}
           />
         </div>
       )}
