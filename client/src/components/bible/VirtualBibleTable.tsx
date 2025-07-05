@@ -241,8 +241,9 @@ export function VirtualBibleTable({
     { length: Math.max(1, safeVisibleRange.end - safeVisibleRange.start + 1) },
     (_, i) => {
       const globalIndex = safeVisibleRange.start + i;
-      // Use the passed verses if available, otherwise use the global template
-      return verses[globalIndex] || globalVerses[globalIndex];
+      // verses[globalIndex] should ALWAYS exist as a stable object (Fix A)
+      // Only return undefined if index is truly out of bounds
+      return globalIndex < verses.length ? verses[globalIndex] : undefined;
     }
   );
   
