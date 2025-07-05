@@ -88,6 +88,9 @@ export function VirtualBibleTable({
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Visual debugging - moved after visibleVerses is defined
+  const visualDebugRef = useRef<() => void>();
 
   // Anchor preservation - expose preserveAnchor function
   const preserveAnchor = useCallback((callback: () => void) => {
@@ -304,6 +307,24 @@ export function VirtualBibleTable({
   } catch (error) {
     console.error('❌ ERROR in VirtualBibleTable render logging:', error);
   }
+  
+  // Visual debugging after visibleVerses is defined
+  useEffect(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      console.log('📏 VirtualBibleTable container dimensions:', {
+        width: rect.width,
+        height: rect.height,
+        top: rect.top,
+        left: rect.left,
+        visible: rect.width > 0 && rect.height > 0,
+        display: window.getComputedStyle(containerRef.current).display,
+        visibility: window.getComputedStyle(containerRef.current).visibility,
+        opacity: window.getComputedStyle(containerRef.current).opacity,
+        visibleVersesCount: visibleVerses.length
+      });
+    }
+  }, [visibleVerses.length]);
 
   // Prime window once (init effect):
   useEffect(() => {
