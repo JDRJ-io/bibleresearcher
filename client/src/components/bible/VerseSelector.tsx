@@ -117,9 +117,12 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
     'Job 38:1', 'Rom 12:1', 'Acts 2:1', 'John 18:1', '2Pet 1:1'
   ];
 
-  const getRandomCuratedVerse = () => {
-    return curatedVerses[Math.floor(Math.random() * curatedVerses.length)];
+  const getRandomCuratedVerses = () => {
+    const shuffled = [...curatedVerses].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
   };
+
+  const [randomVerses, setRandomVerses] = useState(() => getRandomCuratedVerses());
 
   if (!isOpen) {
     return (
@@ -171,32 +174,19 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
               </Button>
             </>
           ) : (
-            // Logged out: Show curated Bible verse shortcuts with random selection
+            // Logged out: Show 3 random curated Bible verse shortcuts
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickNavigate(getRandomCuratedVerse())}
-                className="text-xs px-2 py-1 h-7 hover:bg-muted"
-              >
-                Random
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickNavigate('Ps 23:1')}
-                className="text-xs px-2 py-1 h-7 hover:bg-muted"
-              >
-                Psa 23
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickNavigate('John 3:16')}
-                className="text-xs px-2 py-1 h-7 hover:bg-muted"
-              >
-                John 3:16
-              </Button>
+              {randomVerses.map((verse, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleQuickNavigate(verse)}
+                  className="text-xs px-2 py-1 h-7 hover:bg-muted"
+                >
+                  {verse}
+                </Button>
+              ))}
             </>
           )}
         </div>

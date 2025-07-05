@@ -32,7 +32,7 @@ export function TopHeader({
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
 
-  console.log('TopHeader auth state:', { user, loading });
+  console.log('TopHeader auth state:', { user: !!user, loading, userDetails: user ? 'logged in' : 'logged out' });
 
   return (
     <header 
