@@ -362,52 +362,29 @@ export function HamburgerMenu({
 
           <Separator />
 
-          {/* Authentication */}
-          <div className="space-y-3">
-            {!isLoggedIn ? (
-              <div className="flex space-x-2">
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="flex-1"
-                  onClick={onShowAuth}
-                >
-                  <LogIn className="w-4 h-4 mr-1" />
-                  Sign In
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
-                  onClick={onShowAuth}
-                >
-                  <UserPlus className="w-4 h-4 mr-1" />
-                  Sign Up
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={onShowForum}
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Community Forum
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={signOut}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            )}
-          </div>
+          {/* User Actions (only show when logged in) */}
+          {isLoggedIn && (
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={onShowForum}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Community Forum
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={signOut}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

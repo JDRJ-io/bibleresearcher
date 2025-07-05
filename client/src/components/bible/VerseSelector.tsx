@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Sparkles } from 'lucide-react';
+import { ChevronDown, Sparkles, KeyRound } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthModals } from '@/components/auth/AuthModals';
 
@@ -182,6 +182,7 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
                 variant="outline"
                 className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-xs px-3 py-1 h-7 font-medium"
               >
+                <KeyRound className="w-3 h-3 mr-1" />
                 Sign In
               </Button>
             </>

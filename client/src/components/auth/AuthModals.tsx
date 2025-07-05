@@ -100,11 +100,13 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
     }
   }
 
+  console.log('AuthModals render:', { isSignUpOpen, isSignInOpen });
+
   return (
     <>
       {/* Sign Up Modal */}
       <Dialog open={isSignUpOpen} onOpenChange={onCloseSignUp}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800">
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800 z-[9999]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-amber-900 dark:text-amber-100">
               <Sparkles className="h-5 w-5" />
@@ -169,7 +171,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* Sign In Modal */}
       <Dialog open={isSignInOpen} onOpenChange={onCloseSignIn}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800 z-[9999]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
               <Sparkles className="h-5 w-5" />
