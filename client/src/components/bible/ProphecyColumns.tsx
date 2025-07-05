@@ -6,10 +6,10 @@ interface ProphecyData {
   id: string;
   role: 'P' | 'F' | 'V'; // Prediction, Fulfillment, Verification
   data: {
-    title: string;
-    predictions: string[];
-    fulfillments: string[];
-    evidence: string[];
+    summary: string;
+    prophecy: string[];
+    fulfillment: string[];
+    verification: string[];
   };
 }
 
@@ -78,14 +78,14 @@ export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsP
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  <span className="text-left">{prophecy.id}. {prophecy.data.title}</span>
+                  <span className="text-left">{prophecy.id}. {prophecy.data.summary}</span>
                   {isCollapsed ? <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3" />}
                 </Button>
                 
                 {/* Prophecy Content - Collapsible */}
                 {!isCollapsed && (
                   <div className="mt-1 space-y-1">
-                    {prophecy.data.predictions.map((pred, idx) => (
+                    {prophecy.data.prophecy.map((pred: string, idx: number) => (
                       <div key={idx} className="text-xs">
                         <button
                           className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
@@ -120,13 +120,13 @@ export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsP
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  {prophecy.id}. {prophecy.data.title}
+                  {prophecy.id}. {prophecy.data.summary}
                 </div>
                 
                 {/* Prophecy Content - Collapsible */}
                 {!isCollapsed && (
                   <div className="mt-1 space-y-1">
-                    {prophecy.data.fulfillments.map((fulf, idx) => (
+                    {prophecy.data.fulfillment.map((fulf: string, idx: number) => (
                       <div key={idx} className="text-xs">
                         <button
                           className="text-green-600 dark:text-green-400 hover:underline font-medium"
@@ -161,13 +161,13 @@ export function ProphecyColumns({ prophecyData, onVerseClick }: ProphecyColumnsP
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  {prophecy.id}. {prophecy.data.title}
+                  {prophecy.id}. {prophecy.data.summary}
                 </div>
                 
                 {/* Prophecy Content - Collapsible */}
                 {!isCollapsed && (
                   <div className="mt-1 space-y-1">
-                    {prophecy.data.evidence.map((evid, idx) => (
+                    {prophecy.data.verification.map((evid: string, idx: number) => (
                       <div key={idx} className="text-xs">
                         <button
                           className="text-purple-600 dark:text-purple-400 hover:underline font-medium"
