@@ -126,15 +126,15 @@ export function VirtualBibleTable({
     setVisibleRange({ start, end });
   };
 
-  // Initialize scroll position to top
+  // Initialize scroll position to top only once
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && verses.length > 0) {
       scrollRef.current.scrollTop = 0;
       setVisibleRange({ start: 0, end: 40 });
       setCurrentStartIndex(0);
       setCurrentEndIndex(40);
     }
-  }, []);
+  }, [verses.length > 0]); // Only run when verses are loaded
 
   // Handle scroll events
   useEffect(() => {
@@ -244,7 +244,7 @@ export function VirtualBibleTable({
               <div
                 key={verse.id}
                 className="verse-row absolute left-0 right-0"
-                data-verse-index={verse.index}
+                data-verse-index={actualIndex}
                 style={{
                   top: `${actualIndex * ROW_HEIGHT}px`,
                   height: `${ROW_HEIGHT}px`,
