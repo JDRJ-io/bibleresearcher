@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VerseRow } from "./VerseRow";
-import { getVerseCount } from "@/lib/verseKeysLoader";
+import { getVerseCount, verses as globalVerses } from "@/lib/verseKeysLoader";
 import type {
   BibleVerse,
   Translation,
@@ -61,20 +61,20 @@ export function VirtualBibleTable({
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Anchor preservation - expose preserveAnchor function
   const preserveAnchor = useCallback((callback: () => void) => {
     if (!scrollRef.current) {
       callback();
       return;
     }
-    
+
     // Save current scroll position
     const savedScrollTop = scrollRef.current.scrollTop;
-    
+
     // Execute the callback that might change UI
     callback();
-    
+
     // Restore scroll position on next frame
     requestAnimationFrame(() => {
       if (scrollRef.current) {
@@ -99,8 +99,6 @@ export function VirtualBibleTable({
 
   // Calculate total height for scrollbar using the full verse count
   const totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT;
-  
-
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
@@ -121,18 +119,17 @@ export function VirtualBibleTable({
     const viewportHeight = containerRef.current.clientHeight;
 
     // --- inside updateVisibleRows() ---
-    const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+    const centerIdx = Math.floor(
+      (currentScrollTop + viewportHeight / 2) / ROW_HEIGHT,
+    );
     const start = Math.max(0, centerIdx - BUFFER_SIZE);
     const end = Math.min(totalRows - 1, centerIdx + BUFFER_SIZE);
-    
+
     // Note: visibleVerses is now calculated in render using the same index-based approach
-    
+
     // Pull-ahead loader: trigger loading for center verse (global index)
-    if (verses.length > 0 && onCenterVerseChange) {
-      // Step 3: Right after you compute centerIdx (see step 1):
-      if (centerIdx !== centerVerseIndex) {
-        onCenterVerseChange(centerIdx);
-      }
+    if (centerIdx !== centerVerseIndex) {
+      onCenterVerseChange?.(centerIdx); // fire even when verses is still empty
     }
 
     // Early exit if range hasn't changed (key optimization from original)
@@ -145,12 +142,10 @@ export function VirtualBibleTable({
 
   // Initialize scroll position to top only once
   useEffect(() => {
-    if (verses.length > 0) {
-      setVisibleRange({ start: 0, end: 40 });
-      setCurrentStartIndex(0);
-      setCurrentEndIndex(40);
-    }
-  }, [verses.length]);
+    setVisibleRange({ start: 0, end: 40 });
+    setCurrentStartIndex(0);
+    setCurrentEndIndex(40);
+  }, []);
 
   // Handle scroll events
   useEffect(() => {
@@ -166,7 +161,7 @@ export function VirtualBibleTable({
           const currentScrollTop = scrollRef.current.scrollTop;
           setScrollTop(currentScrollTop);
           updateVisibleRows();
-          
+
           // Step 4: Pass scroll position up if someone needs it
           if (onScrollTopChange) {
             onScrollTopChange(currentScrollTop);
@@ -238,17 +233,19 @@ export function VirtualBibleTable({
   // 🔥 Build visible rows by index, not by slice length (same as in updateVisibleRows)
   const visibleVerses = Array.from(
     { length: visibleRange.end - visibleRange.start + 1 },
-    (_, i) => verses[visibleRange.start + i]  // may be undefined at first
+    (_, i) => {
+      const globalIndex = visibleRange.start + i;
+      // Use the passed verses if available, otherwise use the global template
+      return verses[globalIndex] || globalVerses[globalIndex];
+    }
   );
-  
+
   // Remove the problematic lazy loading useEffect that was causing infinite loops
 
   // run once after first mount
   useEffect(() => {
     onPreserveAnchor?.(preserveAnchor);
   }, [onPreserveAnchor, preserveAnchor]);
-
-
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
@@ -272,8 +269,8 @@ export function VirtualBibleTable({
         >
           {/* Render only visible verses with absolute positioning */}
           {visibleVerses.map((verse, index) => {
-          const actualIndex = visibleRange.start + index;            
-          return (
+            const actualIndex = visibleRange.start + index;
+            return (
               <div
                 key={verse?.id || `placeholder-${actualIndex}`}
                 className="verse-row absolute left-0 right-0"
@@ -290,8 +287,8 @@ export function VirtualBibleTable({
                   showNotes={preferences.showNotes}
                   showProphecy={preferences.showProphecy}
                   showContext={preferences.showContext}
-                  userNote={getUserNoteForVerse(verse.reference)}
-                  highlights={getHighlightsForVerse(verse.reference)}
+                  userNote={verse ? getUserNoteForVerse(verse.reference) : undefined}
+                  highlights={verse ? getHighlightsForVerse(verse.reference) : []}
                   onExpandVerse={onExpandVerse}
                   onHighlight={handleHighlight}
                   onNavigateToVerse={onNavigateToVerse}
