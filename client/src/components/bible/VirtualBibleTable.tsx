@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,9 +77,11 @@ export function VirtualBibleTable({
   const centerVerseRef = useRef(0); // Track center verse for anchoring
   
   // Anchoring function - preserves center verse when UI options change
-  const preserveAnchor = (callback: () => void) => {
+  const preserveAnchor = useCallback((callback: () => void) => {
     if (!containerRef.current || !scrollRef.current) {
-      callback();
+      if (typeof callback === 'function') {
+        callback();
+      }
       return;
     }
     
@@ -89,7 +91,9 @@ export function VirtualBibleTable({
     const anchorVerseIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
     
     // Execute the UI change
-    callback();
+    if (typeof callback === 'function') {
+      callback();
+    }
     
     // Restore scroll position after next render
     setTimeout(() => {
@@ -97,7 +101,7 @@ export function VirtualBibleTable({
         scrollRef.current.scrollTop = anchorVerseIndex * ROW_HEIGHT;
       }
     }, 0);
-  };
+  }, []);
 
   // Initialize row pool on first render
   useEffect(() => {
@@ -134,6 +138,9 @@ export function VirtualBibleTable({
     // CENTER-ANCHORED: Calculate based on center of viewport like prototype
     const currentVerseIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
     const viewportVerseCount = Math.ceil(viewportHeight / ROW_HEIGHT);
+    
+    // Update center verse for anchoring
+    centerVerseRef.current = currentVerseIndex;
     
     // Use small buffers like original prototype - just 2-3 viewports worth
     const start = Math.max(0, currentVerseIndex - VIEWPORT_BUFFER);
