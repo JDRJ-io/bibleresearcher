@@ -52,54 +52,24 @@ export function VirtualBibleTable({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  // FIX 1: Feed all 31,102 verse keys - create stable array with all verse keys
-  const allVerseKeys = useRef<BibleVerse[]>([]);
-  
-  // Initialize all verse keys on first load
-  useEffect(() => {
-    if (allVerseKeys.current.length === 0) {
-      // Create all 31,102 verse keys with "Loading..." placeholder text
-      const fullVerseList: BibleVerse[] = [];
-      for (let i = 0; i < 31102; i++) {
-        fullVerseList.push({
-          id: `loading-${i}`,
-          index: i,
-          book: "Loading",
-          chapter: 0,
-          verse: 0,
-          reference: `Loading ${i}`,
-          text: { KJV: "Loading..." },
-          crossReferences: []
-        });
-      }
-      allVerseKeys.current = fullVerseList;
-    }
-  }, []);
-
-  // Update verse text cache when verses are loaded
-  useEffect(() => {
-    verses.forEach((verse) => {
-      if (verse.index !== undefined && allVerseKeys.current[verse.index]) {
-        allVerseKeys.current[verse.index] = verse;
-      }
-    });
-  }, [verses]);
-
-  // FIX 2: Row pool system - 120 reusable DOM elements
-  const rowPoolSize = 120;
+  // Row pool system - allocate ±120 rows on first render, store refs in array
+  const rowPoolSize = 120; // Fixed pool size as specified
   const rowRefs = useRef<Array<React.RefObject<HTMLDivElement>>>([]);
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
   
-  const totalHeight = 31102 * ROW_HEIGHT; // Always use full Bible size
+  // Calculate total height for scrollbar using the full verse count
+  // Height = totalVerses × rowHeight right after verse keys load
+  const totalHeight = totalRows * ROW_HEIGHT;
   
-  // Track current range and center verse for anchoring
+  // Track current range to prevent race conditions and support anchoring
   const currentRangeRef = useRef({ start: 0, end: 0 });
-  const centerVerseRef = useRef(0);
+  const centerVerseRef = useRef(0); // Track center verse for anchoring
 
   // Initialize row pool on first render
   useEffect(() => {
@@ -147,15 +117,6 @@ export function VirtualBibleTable({
     setVisibleRange({ start, end });
   };
 
-  // FIX 4: Anchoring function - preserve center verse during UI changes
-  const anchorToVerse = (verseIndex: number) => {
-    if (scrollRef.current) {
-      const targetScrollTop = verseIndex * ROW_HEIGHT;
-      scrollRef.current.scrollTop = targetScrollTop;
-      setScrollTop(targetScrollTop);
-    }
-  };
-
   // Handle scroll events - single scroll listener to prevent race conditions
   useEffect(() => {
     let animationFrameId: number;
@@ -176,13 +137,14 @@ export function VirtualBibleTable({
             centerVerseRef.current = Math.floor((newScrollTop + viewportHeight / 2) / ROW_HEIGHT);
           }
           
-          // FIX 3: Move header with direct DOM manipulation, not React state
+          // Move header with ref, not React state - prevents re-render lag
           if (headerRef.current) {
             headerRef.current.style.transform = `translateX(-${newScrollLeft}px)`;
           }
           
-          // Only update vertical scroll state
+          // Keep minimal state updates for scroll position tracking
           setScrollTop(newScrollTop);
+          setScrollLeft(newScrollLeft);
           
           // Update visible verses with early-exit optimization
           updateVisibleRows();
@@ -249,79 +211,45 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // FIX 2: Row pool rendering system - reuse DOM elements instead of React re-renders
-  const updateRowPool = () => {
+  // Row pool rendering system - reuse DOM elements instead of slice/remount
+  const renderRowPool = () => {
+    const rowElements = [];
     const visibleRowCount = Math.min(rowPoolSize, visibleRange.end - visibleRange.start + 1);
     
     for (let i = 0; i < visibleRowCount; i++) {
       const verseIndex = visibleRange.start + i;
-      const verse = allVerseKeys.current[verseIndex];
+      const verse = verses[verseIndex];
       
-      if (verse && rowRefs.current[i]?.current) {
-        const rowElement = rowRefs.current[i].current;
-        
-        if (rowElement) {
-          // Update position using direct DOM manipulation
-          rowElement.style.top = `${verseIndex * ROW_HEIGHT}px`;
-          rowElement.style.height = `${ROW_HEIGHT}px`;
-          
-          // Update verse content without React re-render
-          const referenceCell = rowElement.querySelector('.reference-cell');
-          const textCell = rowElement.querySelector('.text-cell');
-          
-          if (referenceCell) {
-            referenceCell.textContent = verse.reference;
-          }
-          
-          if (textCell) {
-            textCell.textContent = verse.text.KJV || 'Loading...';
-          }
-        }
-      }
-    }
-  };
-
-  // Update row pool when visible range changes
-  useEffect(() => {
-    updateRowPool();
-  }, [visibleRange]);
-
-  // FIX 4: Anchor center verse during UI changes (preferences toggle)
-  useEffect(() => {
-    const centerVerse = centerVerseRef.current;
-    if (centerVerse > 0) {
-      // Re-anchor to center verse after preferences change
-      setTimeout(() => {
-        anchorToVerse(centerVerse);
-      }, 50);
-    }
-  }, [preferences.showNotes, preferences.showProphecy, preferences.showContext]);
-
-  // Create static row pool - these DOM elements are reused
-  const createRowPool = () => {
-    const rowElements = [];
-    
-    for (let i = 0; i < rowPoolSize; i++) {
-      rowElements.push(
-        <div
-          key={`pool-${i}`}
-          ref={rowRefs.current[i]}
-          className="verse-row absolute left-0 right-0 bg-background border-b"
-          style={{
-            top: `${i * ROW_HEIGHT}px`,
-            height: `${ROW_HEIGHT}px`,
-          }}
-        >
-          <div className="flex min-w-max h-full">
-            <div className="reference-cell w-24 flex-shrink-0 flex items-center justify-center border-r px-2 text-sm">
-              Loading...
-            </div>
-            <div className="text-cell w-80 flex-shrink-0 flex items-center px-3 border-r text-sm">
-              Loading...
-            </div>
+      if (verse) {
+        rowElements.push(
+          <div
+            key={`row-${i}`} // Use stable key for row pool
+            ref={rowRefs.current[i]}
+            className="verse-row absolute left-0 right-0"
+            style={{
+              top: `${verseIndex * ROW_HEIGHT}px`,
+              height: `${ROW_HEIGHT}px`,
+            }}
+          >
+            <VerseRow
+              verse={verse}
+              verseIndex={verseIndex}
+              selectedTranslations={selectedTranslations}
+              showNotes={preferences.showNotes}
+              showProphecy={preferences.showProphecy}
+              showContext={preferences.showContext}
+              userNote={getUserNoteForVerse(verse.reference)}
+              highlights={getHighlightsForVerse(verse.reference)}
+              onExpandVerse={onExpandVerse}
+              onHighlight={handleHighlight}
+              onNavigateToVerse={onNavigateToVerse}
+              getProphecyDataForVerse={getProphecyDataForVerse}
+              getGlobalVerseText={getGlobalVerseText}
+              allVerses={verses}
+            />
           </div>
-        </div>
-      );
+        );
+      }
     }
     
     return rowElements;
@@ -335,7 +263,7 @@ export function VirtualBibleTable({
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
         showContext={preferences.showContext}
-        scrollLeft={0}
+        scrollLeft={scrollLeft}
       />
 
       <div
@@ -355,7 +283,7 @@ export function VirtualBibleTable({
           }}
         >
           {/* Row pool system - reuse DOM elements */}
-          {createRowPool()}
+          {renderRowPool()}
         </div>
       </div>
     </div>
