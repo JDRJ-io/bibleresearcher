@@ -165,16 +165,22 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
             // Logged out: Show authentication buttons
             <>
               <Button
-                onClick={() => setIsSignUpOpen(true)}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg transition-all duration-300 hover:shadow-amber-300/50 text-xs px-3 py-1 h-7"
+                onClick={() => {
+                  console.log('Sign Up button clicked');
+                  setIsSignUpOpen(true);
+                }}
+                className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-xs px-3 py-1 h-7 font-medium"
               >
                 <Sparkles className="w-3 h-3 mr-1" />
                 Sign Up
               </Button>
               <Button
-                onClick={() => setIsSignInOpen(true)}
+                onClick={() => {
+                  console.log('Sign In button clicked');
+                  setIsSignInOpen(true);
+                }}
                 variant="outline"
-                className="border-amber-300 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all duration-300 text-xs px-3 py-1 h-7"
+                className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-xs px-3 py-1 h-7 font-medium"
               >
                 Sign In
               </Button>
@@ -255,9 +261,21 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
       <AuthModals
         isSignUpOpen={isSignUpOpen}
         isSignInOpen={isSignInOpen}
-        onCloseSignUp={() => setIsSignUpOpen(false)}
-        onCloseSignIn={() => setIsSignInOpen(false)}
+        onCloseSignUp={() => {
+          console.log('Closing Sign Up modal');
+          setIsSignUpOpen(false);
+        }}
+        onCloseSignIn={() => {
+          console.log('Closing Sign In modal');
+          setIsSignInOpen(false);
+        }}
       />
+      {/* Debug info */}
+      {(isSignUpOpen || isSignInOpen) && (
+        <div className="fixed bottom-4 right-4 bg-black text-white text-xs p-2 rounded z-[9999]">
+          Debug: SignUp={isSignUpOpen ? 'open' : 'closed'}, SignIn={isSignInOpen ? 'open' : 'closed'}
+        </div>
+      )}
     </>
   );
 }
