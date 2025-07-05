@@ -178,6 +178,8 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 ## Current Status  
 - Bible website fully operational with Excel-style layout and fixed 120px row heights
 - Complete Bible loading implemented with all 31,102 verses from user's actual Supabase KJV file
+- **GLOBAL VERSE TEXT LOADING COMPLETED**: ProphecyColumns now displays actual Bible text for all verse references with clickable navigation
+- **PROPHECY VERSE REFERENCES FULLY FUNCTIONAL**: All verse references in prophecy columns are clickable hyperlinks with proper text display
 - **STICKY COLUMN HEADERS OPTIMIZED**: Headers remain fixed at top of screen with precise tracking and no lag using requestAnimationFrame
 - **LOADING PROGRESS INDICATOR ENHANCED**: Real-time progress bar showing actual initialization stages with dynamic percentage updates
 - **CROSS-REFERENCE FORMAT CORRECTED**: Using exact Gen.1:1 format as user's placemarkers throughout all files for proper connectivity
@@ -188,6 +190,16 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - Verse text wrapping and scrollbars working properly in cells
 - User authentication system ready for personal notes and bookmarks
 - All JavaScript/TypeScript errors resolved
+
+## Next Priority: Magic Link Authentication System
+- **GOAL**: Transform top-bar "Genesis 1:1 / Psalm 23 / John 3:16" shortcuts into living entrance
+- **LOGGED OUT**: Show glowing "Sign Up" and "Sign In" buttons
+- **LOGGED IN**: Replace with circular avatar + display name (e.g., "👤 Jacob Brinhad")
+- **AUTH METHOD**: Supabase Magic Link (email-only, no password)
+- **SIGN UP FLOW**: Name + email → magic link → automatic account creation
+- **SIGN IN FLOW**: Email only → magic link → session restoration
+- **SESSION PERSISTENCE**: localStorage-based session management
+- **PROFILE DROPDOWN**: "My Profile", "Sign Out", "Pay It Forward" options
 
 # User Preferences
 

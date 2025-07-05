@@ -1,10 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ChevronLeft, ChevronRight, Search, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Menu, Sparkles } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserProfile } from '@/components/auth/UserProfile';
+import { AuthModals } from '@/components/auth/AuthModals';
+import { useState } from 'react';
 
 interface TopHeaderProps {
   searchQuery: string;
@@ -26,7 +28,9 @@ export function TopHeader({
   onMenuToggle,
 }: TopHeaderProps) {
   const { theme, setTheme, themes } = useTheme();
-  const { user, isLoggedIn } = useAuth();
+  const { user, loading } = useAuth();
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   return (
     <header 
@@ -63,16 +67,36 @@ export function TopHeader({
           </Button>
         </div>
 
-        {/* User Profile Section (when logged in) */}
-        {isLoggedIn && (
-          <div className="hidden md:flex items-center space-x-2">
-            <Avatar className="w-8 h-8">
-              <AvatarImage src="" alt={user?.name} />
-              <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <span className="text-sm font-medium">{user?.name}</span>
-          </div>
-        )}
+        {/* Living Entrance Section - Auth State */}
+        <div className="flex items-center space-x-2 ml-4">
+          {loading ? (
+            <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+              <div className="w-4 h-4 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm">Loading...</span>
+            </div>
+          ) : user ? (
+            // Logged In State: Show User Profile
+            <UserProfile />
+          ) : (
+            // Logged Out State: Show Glowing Auth Buttons
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={() => setIsSignUpOpen(true)}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg transition-all duration-300 hover:shadow-amber-300/50 text-sm px-3 py-1 h-8"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Sign Up
+              </Button>
+              <Button
+                onClick={() => setIsSignInOpen(true)}
+                variant="outline"
+                className="border-amber-300 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all duration-300 text-sm px-3 py-1 h-8"
+              >
+                Sign In
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Center Section: Search Bar */}
@@ -122,6 +146,14 @@ export function TopHeader({
           <Menu className="w-5 h-5" />
         </Button>
       </div>
+
+      {/* Auth Modals */}
+      <AuthModals
+        isSignUpOpen={isSignUpOpen}
+        isSignInOpen={isSignInOpen}
+        onCloseSignUp={() => setIsSignUpOpen(false)}
+        onCloseSignIn={() => setIsSignInOpen(false)}
+      />
     </header>
   );
 }
