@@ -9,7 +9,7 @@ import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import { VirtualBibleTable } from "@/components/bible/VirtualBibleTable";
 import { ExpandedVerseOverlay } from "@/components/bible/ExpandedVerseOverlay";
-import { AuthModal } from "@/components/bible/AuthModal";
+import { AuthModals } from "@/components/auth/AuthModals";
 import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,8 @@ export default function BiblePage() {
   const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
 
   // Translation helper functions
@@ -629,7 +630,7 @@ export default function BiblePage() {
           {/* Authentication Buttons */}
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => setIsAuthOpen(true)}
+              onClick={() => setIsSignUpOpen(true)}
               className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium rounded-md flex items-center gap-1"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -638,7 +639,7 @@ export default function BiblePage() {
               Sign Up
             </button>
             <button
-              onClick={() => setIsAuthOpen(true)}
+              onClick={() => setIsSignInOpen(true)}
               className="border border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium rounded-md flex items-center gap-1"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -673,7 +674,7 @@ export default function BiblePage() {
       <HamburgerMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onShowAuth={() => setIsAuthOpen(true)}
+        onShowAuth={() => setIsSignUpOpen(true)}
         onShowForum={() => setIsForumOpen(true)}
         allTranslations={allTranslations}
         onTranslationToggle={handleTranslationToggle}
@@ -726,7 +727,12 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
       />
 
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <AuthModals
+        isSignUpOpen={isSignUpOpen}
+        isSignInOpen={isSignInOpen}
+        onCloseSignUp={() => setIsSignUpOpen(false)}
+        onCloseSignIn={() => setIsSignInOpen(false)}
+      />
 
       {/* Sticky Footer - Fixed to bottom of viewport */}
       <footer
