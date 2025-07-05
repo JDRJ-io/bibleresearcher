@@ -1,0 +1,62 @@
+my friend here is the problem I'm facing
+
+the only time i see verses loading is when i reach the end of the verse box boundary, then i can scroll past it but verses keep loading when i touch around at the end of the box. For some reason verses are loading at the end of the box, instead of based on where the center verse is
+
+here's how i believe we're gonna solve it
+
+
+
+Direct actions to get seamless, centre-anchored scrolling
+Hand the component one immutable list of all verse keys (31 102).
+verses must always have length 31 102.
+Each element: { key: "Gen.1:1", text?: string }.
+Leave text undefined until its row first appears, then fill it from Supabase.
+
+Result: verses[index] is never undefined, so pool rows always have something to render.
+
+Fetch verse text on-demand, not entire slices.
+Inside fillRowContent(row, v) →
+If v.text is missing, kick off a background fetch (or pull from a memoised Map) and update only that verse object when it returns.
+No changes to array length means no virtual-scroll math breaks.
+
+Change visible-window math to centre-based.
+
+txt
+Copy
+Edit
+currentVerseIndex = floor((scrollTop + viewportH/2) / ROW_HEIGHT)
+start = max(0, currentVerseIndex – VIEWPORT_BUFFER)
+end   = min(totalRows-1, currentVerseIndex + viewportVerseCount + VIEWPORT_BUFFER)
+That mirrors the prototype: rows load before the eye reaches them.
+
+Mutate, don’t remount, <VerseRow>.
+In renderRowPool() stop returning <VerseRow …/>.
+Instead, for each pooled wrapper:
+
+move its top,
+
+call a helper that sets innerText / props via ref,
+
+update notes / highlights via a lightweight context or direct DOM.
+
+Result: DOM nodes never disappear, so the user can’t scroll into a blank frame.
+
+Pull header out of React state completely.
+Remove scrollLeft prop from ColumnHeaders.
+In scroll handler:
+
+js
+Copy
+Edit
+headerRef.current.style.transform =
+    `translateX(-${scrollElement.scrollLeft}px)`;
+No React re-render → rows update the same frame.
+
+Add anchor preserve on option changes.
+
+Remember verse index at viewport centre before toggling notes / prophecy or changing font size.
+
+After the UI update finishes, set scrollTop = index × ROW_HEIGHT.
+
+The verse you were reading never jumps.
+

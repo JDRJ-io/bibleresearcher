@@ -31,6 +31,10 @@ interface VirtualBibleTableProps {
    * scroll bar spans the entire Bible length.
    */
   totalRows: number;
+  /**
+   * Callback to set the anchor preservation function
+   */
+  onAnchorReady?: (preserveAnchor: (callback: () => void) => void) => void;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
@@ -48,6 +52,7 @@ export function VirtualBibleTable({
   getProphecyDataForVerse,
   getGlobalVerseText,
   totalRows,
+  onAnchorReady,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -70,6 +75,29 @@ export function VirtualBibleTable({
   // Track current range to prevent race conditions and support anchoring
   const currentRangeRef = useRef({ start: 0, end: 0 });
   const centerVerseRef = useRef(0); // Track center verse for anchoring
+  
+  // Anchoring function - preserves center verse when UI options change
+  const preserveAnchor = (callback: () => void) => {
+    if (!containerRef.current || !scrollRef.current) {
+      callback();
+      return;
+    }
+    
+    // Remember current center verse
+    const currentScrollTop = scrollRef.current.scrollTop;
+    const viewportHeight = containerRef.current.clientHeight;
+    const anchorVerseIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+    
+    // Execute the UI change
+    callback();
+    
+    // Restore scroll position after next render
+    setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = anchorVerseIndex * ROW_HEIGHT;
+      }
+    }, 0);
+  };
 
   // Initialize row pool on first render
   useEffect(() => {
@@ -77,6 +105,13 @@ export function VirtualBibleTable({
       rowRefs.current = Array.from({ length: rowPoolSize }, () => React.createRef());
     }
   }, [rowPoolSize]);
+
+  // Pass anchoring function to parent
+  useEffect(() => {
+    if (onAnchorReady) {
+      onAnchorReady(preserveAnchor);
+    }
+  }, [onAnchorReady]);
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
@@ -96,8 +131,8 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Calculate which verses should be visible with small efficient buffers
-    const currentVerseIndex = Math.floor(currentScrollTop / ROW_HEIGHT);
+    // CENTER-ANCHORED: Calculate based on center of viewport like prototype
+    const currentVerseIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
     const viewportVerseCount = Math.ceil(viewportHeight / ROW_HEIGHT);
     
     // Use small buffers like original prototype - just 2-3 viewports worth

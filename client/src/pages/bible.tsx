@@ -113,6 +113,9 @@ export default function BiblePage() {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
+  
+  // Store anchor preservation function from VirtualBibleTable
+  const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
 
   // Translation helper functions
   const toggleTranslation = (translationId: string) => {
@@ -718,6 +721,7 @@ export default function BiblePage() {
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
         totalRows={totalRows}
+        onAnchorReady={setPreserveAnchor}
       />
 
       <ExpandedVerseOverlay
