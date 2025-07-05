@@ -54,13 +54,14 @@ export function VirtualBibleTable({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Virtual scrolling state
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
-  const [currentStartIndex, setCurrentStartIndex] = useState(0);
-  const [currentEndIndex, setCurrentEndIndex] = useState(-1);
-
+  // Virtual scrolling state - simplified to track only what's needed
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+  
   // Calculate total height for scrollbar using the full verse count
   const totalHeight = totalRows * ROW_HEIGHT;
+  
+  // Track current range to prevent race conditions
+  const currentRangeRef = useRef({ start: 0, end: 0 });
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
@@ -73,7 +74,7 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // Update visible range based on scroll position
+  // Update visible range based on scroll position - single source of truth
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
@@ -84,18 +85,20 @@ export function VirtualBibleTable({
     const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
     const end = Math.min(
       verses.length - 1,
-    Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
+      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE
     );
 
     // Early exit if range hasn't changed (key optimization from original)
-    if (start === currentStartIndex && end === currentEndIndex) return;
+    if (start === currentRangeRef.current.start && end === currentRangeRef.current.end) {
+      return;
+    }
 
-    setCurrentStartIndex(start);
-    setCurrentEndIndex(end);
+    // Update both ref and state
+    currentRangeRef.current = { start, end };
     setVisibleRange({ start, end });
   };
 
-  // Handle scroll events
+  // Handle scroll events - single scroll listener to prevent race conditions
   useEffect(() => {
     let animationFrameId: number;
 
@@ -128,12 +131,12 @@ export function VirtualBibleTable({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [verses.length, currentStartIndex, currentEndIndex]);
+  }, [verses.length]); // Only depend on verses.length, not internal state
 
-  // Update when verses change
+  // Update when verses change - reset range and recalculate
   useEffect(() => {
-    setCurrentStartIndex(0);
-    setCurrentEndIndex(-1);
+    currentRangeRef.current = { start: 0, end: 0 };
+    setVisibleRange({ start: 0, end: 0 });
     updateVisibleRows();
   }, [verses]);
 
@@ -190,10 +193,14 @@ export function VirtualBibleTable({
         style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
         ref={scrollRef}
       >
-        {/* Virtual scroll container with total height */}
+        {/* Virtual scroll container with guaranteed total height for perfect scrollbar */}
         <div
           className="relative min-w-max"
-          style={{ height: `${totalHeight}px` }}
+          style={{ 
+            height: `${totalHeight}px`,
+            // Ensure container takes full calculated height for proper scrollbar
+            minHeight: `${totalHeight}px`
+          }}
         >
           {/* Render only visible verses with absolute positioning */}
           {visibleVerses.map((verse, index) => {
