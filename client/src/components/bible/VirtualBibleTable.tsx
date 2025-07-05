@@ -35,10 +35,9 @@ interface VirtualBibleTableProps {
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
 
-// Massive buffers for seamless scrolling - prevent boundary hits
-const VIEWPORT_BUFFER = 500; // Load 1000+ verses (10x improvement)
-const INSTANT_JUMP_BUFFER = 1000; // Load 2000+ verses for instant jumps
-const SCROLL_THRESHOLD = 200; // Preload when within 200 verses of edge
+// Small buffers for efficient virtualization - following original prototype
+const VIEWPORT_BUFFER = 20; // Just 2-3 viewports worth (not 500!)
+const BUFFER_SIZE = 2; // Minimal buffer like original prototype
 
 export function VirtualBibleTable({
   verses,
@@ -85,11 +84,11 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Calculate which verses should be visible with massive buffers
+    // Calculate which verses should be visible with small efficient buffers
     const currentVerseIndex = Math.floor(currentScrollTop / ROW_HEIGHT);
     const viewportVerseCount = Math.ceil(viewportHeight / ROW_HEIGHT);
     
-    // Use massive buffers to prevent boundary scrolling issues
+    // Use small buffers like original prototype - just 2-3 viewports worth
     const start = Math.max(0, currentVerseIndex - VIEWPORT_BUFFER);
     const end = Math.min(
       verses.length - 1,
@@ -117,8 +116,14 @@ export function VirtualBibleTable({
 
       animationFrameId = requestAnimationFrame(() => {
         if (scrollRef.current) {
-          setScrollTop(scrollRef.current.scrollTop);
-          setScrollLeft(scrollRef.current.scrollLeft);
+          const newScrollTop = scrollRef.current.scrollTop;
+          const newScrollLeft = scrollRef.current.scrollLeft;
+          
+          // Update scroll position for header sync
+          setScrollTop(newScrollTop);
+          setScrollLeft(newScrollLeft);
+          
+          // Update visible verses with throttling
           updateVisibleRows();
         }
       });
@@ -198,16 +203,18 @@ export function VirtualBibleTable({
 
       <div
         className="flex-1 overflow-auto"
-        style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
+        style={{ 
+          height: "100%", // Let container take full available space
+          marginTop: "48px" 
+        }}
         ref={scrollRef}
       >
-        {/* Virtual scroll container with guaranteed total height for perfect scrollbar */}
+        {/* Single container with exact total height - prevents white space gaps */}
         <div
           className="relative min-w-max"
           style={{ 
             height: `${totalHeight}px`,
-            // Ensure container takes full calculated height for proper scrollbar
-            minHeight: `${totalHeight}px`
+            position: 'relative'
           }}
         >
           {/* Render only visible verses with absolute positioning */}
