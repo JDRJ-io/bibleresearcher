@@ -186,7 +186,7 @@ export function VirtualBibleTable({
           
           // Keep minimal state updates for scroll position tracking
           setScrollTop(newScrollTop);
-          setScrollLeft(newScrollLeft);
+          // REMOVED: setScrollLeft(newScrollLeft) - no longer needed since header follows via ref
           
           // Update visible verses with early-exit optimization
           updateVisibleRows();
@@ -253,7 +253,59 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Row pool rendering system - reuse DOM elements instead of slice/remount
+  // Helper to update verse row content in-place without remounting
+  const updateVerseRow = (element: HTMLDivElement | null, verse: BibleVerse, verseIndex: number) => {
+    if (!element) return;
+    
+    // Fill verse text on-demand if missing
+    if (!verse.text.KJV) {
+      import('@/hooks/useBibleData').then(({ fillVerseText }) => {
+        fillVerseText(verse, 'KJV');
+        // Update element after text loads
+        requestAnimationFrame(() => updateVerseRow(element, verse, verseIndex));
+      });
+      return;
+    }
+    
+    // Update position
+    element.style.top = `${verseIndex * ROW_HEIGHT}px`;
+    element.style.height = `${ROW_HEIGHT}px`;
+    element.style.position = 'absolute';
+    element.style.left = '0';
+    element.style.right = '0';
+    element.className = 'verse-row absolute left-0 right-0';
+    
+    // Update content directly in DOM
+    element.innerHTML = `
+      <div class="flex border-b" style="height: ${ROW_HEIGHT}px; border-color: var(--border-color);">
+        <div class="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 text-sm font-medium" style="border-color: var(--border-color);">
+          ${verse.reference}
+        </div>
+        ${selectedTranslations.map(translation => `
+          <div class="w-80 flex-shrink-0 p-3 border-r text-sm overflow-auto" style="border-color: var(--border-color); max-height: ${ROW_HEIGHT}px;">
+            ${verse.text[translation.id] || 'Loading...'}
+          </div>
+        `).join('')}
+        <div class="w-60 flex-shrink-0 p-3 border-r text-sm overflow-auto" style="border-color: var(--border-color); max-height: ${ROW_HEIGHT}px;">
+          ${verse.crossReferences?.slice(0, 3).map(ref => 
+            `<a href="#" class="text-blue-600 hover:underline mr-2" onclick="window.dispatchEvent(new CustomEvent('navigate-verse', {detail: '${ref.reference}'}))">${ref.reference}</a>`
+          ).join('') || ''}
+        </div>
+        ${preferences.showProphecy ? `
+          <div class="w-64 flex-shrink-0 p-3 border-r text-sm overflow-auto" style="border-color: var(--border-color); max-height: ${ROW_HEIGHT}px;">
+            Prophecy data...
+          </div>
+        ` : ''}
+        ${preferences.showNotes ? `
+          <div class="w-60 flex-shrink-0 p-3 text-sm overflow-auto" style="max-height: ${ROW_HEIGHT}px;">
+            Notes...
+          </div>
+        ` : ''}
+      </div>
+    `;
+  };
+
+  // Row pool rendering system - direct DOM manipulation instead of JSX remounting
   const renderRowPool = () => {
     const rowElements = [];
     const visibleRowCount = Math.min(rowPoolSize, visibleRange.end - visibleRange.start + 1);
@@ -263,34 +315,19 @@ export function VirtualBibleTable({
       const verse = verses[verseIndex];
       
       if (verse) {
-        rowElements.push(
+        // Create row wrapper only once, then update content in place
+        const rowElement = (
           <div
-            key={`row-${i}`} // Use stable key for row pool
-            ref={rowRefs.current[i]}
-            className="verse-row absolute left-0 right-0"
-            style={{
-              top: `${verseIndex * ROW_HEIGHT}px`,
-              height: `${ROW_HEIGHT}px`,
+            key={`row-${i}`}
+            ref={(el) => {
+              if (el) {
+                rowRefs.current[i] = { current: el };
+                updateVerseRow(el, verse, verseIndex);
+              }
             }}
-          >
-            <VerseRow
-              verse={verse}
-              verseIndex={verseIndex}
-              selectedTranslations={selectedTranslations}
-              showNotes={preferences.showNotes}
-              showProphecy={preferences.showProphecy}
-              showContext={preferences.showContext}
-              userNote={getUserNoteForVerse(verse.reference)}
-              highlights={getHighlightsForVerse(verse.reference)}
-              onExpandVerse={onExpandVerse}
-              onHighlight={handleHighlight}
-              onNavigateToVerse={onNavigateToVerse}
-              getProphecyDataForVerse={getProphecyDataForVerse}
-              getGlobalVerseText={getGlobalVerseText}
-              allVerses={verses}
-            />
-          </div>
+          />
         );
+        rowElements.push(rowElement);
       }
     }
     

@@ -132,13 +132,25 @@ export default function BiblePage() {
   };
 
   const toggleMultiTranslationMode = () => {
-    setMultiTranslationMode(!multiTranslationMode);
-    if (!multiTranslationMode) {
-      // Entering multi-translation mode - keep current main as selected
-      setSelectedTranslations([mainTranslation]);
+    // Use anchor preservation to keep center verse stable during mode changes
+    if (preserveAnchor) {
+      preserveAnchor(() => {
+        setMultiTranslationMode(!multiTranslationMode);
+        if (!multiTranslationMode) {
+          // Entering multi-translation mode - keep current main as selected
+          setSelectedTranslations([mainTranslation]);
+        } else {
+          // Exiting multi-translation mode - keep only main
+          setSelectedTranslations([mainTranslation]);
+        }
+      });
     } else {
-      // Exiting multi-translation mode - keep only main
-      setSelectedTranslations([mainTranslation]);
+      setMultiTranslationMode(!multiTranslationMode);
+      if (!multiTranslationMode) {
+        setSelectedTranslations([mainTranslation]);
+      } else {
+        setSelectedTranslations([mainTranslation]);
+      }
     }
   };
 
@@ -231,10 +243,20 @@ export default function BiblePage() {
   };
 
   const handlePreferenceChange = async (key: string, value: boolean) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    // Use anchor preservation to keep center verse stable during UI changes
+    if (preserveAnchor) {
+      preserveAnchor(() => {
+        setPreferences((prev) => ({
+          ...prev,
+          [key]: value,
+        }));
+      });
+    } else {
+      setPreferences((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    }
 
     // Load prophecy data when prophecy columns are enabled
     if (key === 'showProphecy' && value) {
