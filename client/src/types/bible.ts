@@ -12,7 +12,6 @@ export interface BibleVerse {
   crossReferences?: CrossReference[];
   strongsWords?: StrongsWord[];
   prophecy?: ProphecyData;
-  prophecies?: ProphecyData[];
   labels?: string[];
   contextGroup?: string;
   height?: number; // For stable virtual scrolling
