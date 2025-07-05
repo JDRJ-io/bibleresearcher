@@ -57,8 +57,13 @@ export function VirtualBibleTable({
   // Virtual scrolling state - simplified to track only what's needed
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
   
-  // Calculate total height for scrollbar using the full verse count
-  const totalHeight = totalRows * ROW_HEIGHT;
+  // Calculate container height based on loaded verses range for proper scrolling boundaries
+  const containerHeight = verses.length > 0 
+    ? Math.max(
+        ((verses[verses.length - 1]?.index || 0) + 1) * ROW_HEIGHT,
+        totalRows * ROW_HEIGHT
+      )
+    : totalRows * ROW_HEIGHT;
   
   // Track current range to prevent race conditions
   const currentRangeRef = useRef({ start: 0, end: 0 });
@@ -98,7 +103,7 @@ export function VirtualBibleTable({
     setVisibleRange({ start, end });
   };
 
-  // Handle scroll events - single scroll listener to prevent race conditions
+  // Handle scroll events with boundary enforcement
   useEffect(() => {
     let animationFrameId: number;
 
@@ -108,17 +113,40 @@ export function VirtualBibleTable({
       }
 
       animationFrameId = requestAnimationFrame(() => {
-        if (scrollRef.current) {
-          setScrollTop(scrollRef.current.scrollTop);
-          setScrollLeft(scrollRef.current.scrollLeft);
-          updateVisibleRows();
+        if (!scrollRef.current) return;
+        
+        const currentScrollTop = scrollRef.current.scrollTop;
+        const viewportHeight = scrollRef.current.clientHeight;
+        
+        // Calculate the scroll boundaries based on loaded verses
+        const firstVerseTop = (verses[0]?.index || 0) * ROW_HEIGHT;
+        const lastVerseBottom = ((verses[verses.length - 1]?.index || 0) + 1) * ROW_HEIGHT;
+        
+        // Enforce scroll boundaries - prevent scrolling beyond loaded content
+        const minScroll = Math.max(0, firstVerseTop - BUFFER_SIZE * ROW_HEIGHT);
+        const maxScroll = lastVerseBottom + BUFFER_SIZE * ROW_HEIGHT - viewportHeight;
+        
+        // If user scrolled beyond boundaries, clamp the scroll position
+        if (currentScrollTop < minScroll) {
+          scrollRef.current.scrollTop = minScroll;
+          return;
         }
+        
+        if (currentScrollTop > maxScroll) {
+          scrollRef.current.scrollTop = maxScroll;
+          return;
+        }
+        
+        // Update state and trigger virtual scrolling update
+        setScrollTop(currentScrollTop);
+        setScrollLeft(scrollRef.current.scrollLeft);
+        updateVisibleRows();
       });
     };
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+      scrollElement.addEventListener("scroll", handleScroll, { passive: false });
       // Initial update
       updateVisibleRows();
     }
@@ -131,7 +159,7 @@ export function VirtualBibleTable({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [verses.length]); // Only depend on verses.length, not internal state
+  }, [verses.length, verses]); // Depend on verses to update boundaries
 
   // Update when verses change - reset range and recalculate
   useEffect(() => {
@@ -193,13 +221,13 @@ export function VirtualBibleTable({
         style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
         ref={scrollRef}
       >
-        {/* Virtual scroll container with guaranteed total height for perfect scrollbar */}
+        {/* Virtual scroll container with dynamic height based on loaded content */}
         <div
           className="relative min-w-max"
           style={{ 
-            height: `${totalHeight}px`,
-            // Ensure container takes full calculated height for proper scrollbar
-            minHeight: `${totalHeight}px`
+            height: `${containerHeight}px`,
+            // Ensure container matches loaded verse range for proper scroll boundaries
+            minHeight: `${containerHeight}px`
           }}
         >
           {/* Render only visible verses with absolute positioning */}
