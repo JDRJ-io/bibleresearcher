@@ -2,7 +2,7 @@ import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible
 import { ProphecyColumns } from './ProphecyColumns';
 
 interface VerseRowProps {
-  verse: BibleVerse;
+  verse: BibleVerse | undefined;
   verseIndex: number;
   selectedTranslations: Translation[];
   showNotes: boolean;
@@ -34,6 +34,15 @@ export function VerseRow({
   getGlobalVerseText,
   allVerses,
 }: VerseRowProps) {
+  
+  // Handle undefined verses during loading (placeholder rendering)
+  if (!verse) {
+    return (
+      <div className="flex min-h-[120px] bg-background/50 animate-pulse border-b border-border/20">
+        <div className="h-full w-full bg-muted/30 rounded"></div>
+      </div>
+    );
+  }
   
   // Create preferences object for consistency
   const preferences = {

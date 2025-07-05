@@ -730,7 +730,7 @@ export default function BiblePage() {
         onNavigateToVerse={navigateToVerse}
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
-        totalRows={verses.length}
+        totalRows={31102} // Total Bible verse count
         onCenterVerseChange={(globalCenterIndex) => {
           // Throttle loading to prevent infinite loops
           if (Math.abs(globalCenterIndex - lastLoadedCenter) > 50) {
