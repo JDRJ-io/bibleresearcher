@@ -80,12 +80,14 @@ export function VirtualBibleTable({
   }, []);
 
   // Virtual scrolling state
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 40 });
   const [currentStartIndex, setCurrentStartIndex] = useState(0);
   const [currentEndIndex, setCurrentEndIndex] = useState(-1);
 
   // Calculate total height for scrollbar using the full verse count
-  const totalHeight = totalRows * ROW_HEIGHT;
+  const totalHeight = (totalRows ?? 0) * ROW_HEIGHT;
+  
+
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
@@ -123,6 +125,16 @@ export function VirtualBibleTable({
     setCurrentEndIndex(end);
     setVisibleRange({ start, end });
   };
+
+  // Initialize scroll position to top
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+      setVisibleRange({ start: 0, end: 40 });
+      setCurrentStartIndex(0);
+      setCurrentEndIndex(40);
+    }
+  }, []);
 
   // Handle scroll events
   useEffect(() => {
@@ -203,26 +215,7 @@ export function VirtualBibleTable({
   // Only render verses in visible range
   const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
   
-  // Lazy text loading - check if any visible verses need text loading
-  useEffect(() => {
-    if (visibleVerses.length === 0) return;
-    
-    // Find verses that need text loading
-    const versesNeedingText = visibleVerses.filter(verse => 
-      !verse.text || Object.keys(verse.text).length === 0
-    );
-    
-    if (versesNeedingText.length > 0) {
-      // Trigger loading for the range that needs text
-      const firstIndex = Math.max(0, visibleRange.start - BUFFER_SIZE);
-      const lastIndex = Math.min(totalRows - 1, visibleRange.end + BUFFER_SIZE);
-      
-      if (onCenterVerseChange) {
-        const centerIdx = Math.floor((firstIndex + lastIndex) / 2);
-        onCenterVerseChange(centerIdx);
-      }
-    }
-  }, [visibleRange.start, visibleRange.end, visibleVerses.length, totalRows, onCenterVerseChange]);
+  // Remove the problematic lazy loading useEffect that was causing infinite loops
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
