@@ -210,7 +210,15 @@ Data source: User's Supabase storage containing actual Bible translations and re
 # Implementation Status (July 2025)
 
 ## Recently Completed Features
-1. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
+1. **Perfect Virtual Scrolling Implementation**: ✓ Implementing the 6-behavior pattern from original prototype
+   - Fixed container height: totalRows × ROW_HEIGHT set once for perfect scrollbar
+   - Single scroll listener with early-exit guard to prevent race conditions
+   - Absolute positioning with style.top = index × ROW_HEIGHT for stable anchoring
+   - Buffer-based visible row calculation instead of dynamic verse loading
+   - Center verse preservation during layout changes
+   - Elimination of competing scroll handlers and IntersectionObservers
+
+2. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
    - cf1 (Standard): 29,315 cross-references loaded
    - cf2 (Extended): 30,692 cross-references loaded
    - Cross-references automatically apply when switching sets

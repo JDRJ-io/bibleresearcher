@@ -172,11 +172,15 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
+  // Get verse by global index with fallback for missing verses
+  const getVerseByIndex = (index: number): BibleVerse | null => {
+    return verses.find(v => v.index === index) || null;
+  };
+
   // Generate visible verses from the range indices using global verse lookup
-  const visibleVerses = [];
+  const visibleVerses: BibleVerse[] = [];
   for (let i = visibleRange.start; i <= visibleRange.end; i++) {
-    // Find verse by global index from loaded verses, or create placeholder
-    const verse = verses.find(v => v.index === i);
+    const verse = getVerseByIndex(i);
     if (verse) {
       visibleVerses.push(verse);
     }
@@ -207,18 +211,20 @@ export function VirtualBibleTable({
           }}
         >
           {/* Render visible verses with absolute positioning based on global index */}
-          {visibleVerses.map((verse) => (
+          {visibleVerses.map((verse) => {
+            const verseIndex = verse.index ?? 0;
+            return (
               <div
-                key={verse.id}
+                key={`${verse.id}-${verseIndex}`}
                 className="verse-row absolute left-0 right-0"
                 style={{
-                  top: `${verse.index * ROW_HEIGHT}px`,
+                  top: `${verseIndex * ROW_HEIGHT}px`,
                   height: `${ROW_HEIGHT}px`,
                 }}
               >
                 <VerseRow
                   verse={verse}
-                  verseIndex={verse.index}
+                  verseIndex={verseIndex}
                   selectedTranslations={selectedTranslations}
                   showNotes={preferences.showNotes}
                   showProphecy={preferences.showProphecy}
@@ -233,7 +239,8 @@ export function VirtualBibleTable({
                   allVerses={verses}
                 />
               </div>
-            ))}
+            );
+          })}
         </div>
       </div>
     </div>
