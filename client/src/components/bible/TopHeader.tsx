@@ -32,6 +32,8 @@ export function TopHeader({
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
 
+  console.log('TopHeader auth state:', { user, loading });
+
   return (
     <header 
       className="sticky top-0 z-30 border-b transition-all duration-300 flex items-center justify-between px-4 max-w-full"
