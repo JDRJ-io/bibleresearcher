@@ -6,16 +6,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import BiblePage from "@/pages/bible";
-import FastBiblePage from "@/pages/fastBible";
 import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={FastBiblePage} />
-      <Route path="/bible" component={BiblePage} />
-      <Route path="/fast" component={FastBiblePage} />
+      <Route path="/" component={BiblePage} />
       <Route path="/auth/callback" component={AuthCallback} />
       <Route component={NotFound} />
     </Switch>
