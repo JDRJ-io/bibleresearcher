@@ -43,9 +43,6 @@ export function VerseRow({
       </div>
     );
   }
-
-  // 3. Never touch verse.reference until the slot is real (safe for placeholders)
-  const ref = verse?.reference ?? "";
   
   // Create preferences object for consistency
   const preferences = {

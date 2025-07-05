@@ -141,12 +141,12 @@ export function VirtualBibleTable({
     setVisibleRange({ start, end });
   };
 
-  // 4. Prime the window once, not "when verses.length > 0"
+  // Initialize scroll position to top only once
   useEffect(() => {
     setVisibleRange({ start: 0, end: 40 });
     setCurrentStartIndex(0);
     setCurrentEndIndex(40);
-  }, []); // <- run exactly once
+  }, []);
 
   // Handle scroll events
   useEffect(() => {
@@ -241,13 +241,12 @@ export function VirtualBibleTable({
     { length: Math.max(1, safeVisibleRange.end - safeVisibleRange.start + 1) },
     (_, i) => {
       const globalIndex = safeVisibleRange.start + i;
-      // verses[globalIndex] should ALWAYS exist as a stable object (Fix A)
-      // Only return undefined if index is truly out of bounds
-      return globalIndex < verses.length ? verses[globalIndex] : undefined;
+      // Use the passed verses if available, otherwise use the global template
+      return verses[globalIndex] || globalVerses[globalIndex];
     }
   );
   
-
+  console.log(`🔍 VirtualBibleTable render: visibleRange=${JSON.stringify(visibleRange)}, safeRange=${JSON.stringify(safeVisibleRange)}, visibleVerses.length=${visibleVerses.length}, totalHeight=${totalHeight}`);
 
   // Remove the problematic lazy loading useEffect that was causing infinite loops
 

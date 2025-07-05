@@ -722,7 +722,7 @@ export default function BiblePage() {
       />
 
       <VirtualBibleTable
-        verses={verses}  // 👍 31,102 stable slots
+        verses={filteredVerses}
         selectedTranslations={displayTranslations}
         preferences={preferences}
         mainTranslation={mainTranslation}
@@ -735,7 +735,7 @@ export default function BiblePage() {
           // Throttle loading to prevent infinite loops
           if (Math.abs(globalCenterIndex - lastLoadedCenter) > 50) {
             console.log(`📍 Center verse changed to global index: ${globalCenterIndex}`);
-            if (loadVerseRange) {  // 🔥 remove the verses.length > 0 guard
+            if (verses.length > 0 && loadVerseRange) {
               loadVerseRange(verses, globalCenterIndex, false);
               setLastLoadedCenter(globalCenterIndex);
             }
