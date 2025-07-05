@@ -123,6 +123,13 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - **Center-Anchored Architecture**: Verses load around an anchored center verse position, not at top/bottom boundaries
 - **Memory Optimization**: Maintains ~200MB memory usage while providing instant access to complete Bible text
 
+## July 2025 - Center-Anchored Loading Architecture Invariant
+- **LOADER FIRES ONLY WHEN CENTER VERSE INDEX CHANGES**: No edge-based triggers or boundary detection
+- **BUFFER = ± 60 ROWS AROUND CENTER**: Text loads around the verse in the middle of the viewport
+- **NO EDGE DISTANCE CHECKS, NO ARRAY SLICING**: Mutate globalVerses[index].text in place
+- **SINGLE LOADING RULE**: When scroll position changes center verse, fetch text for surrounding verses
+- **PREVENTS EDGE-BASED LOADING BUGS**: Eliminates boundary-crossing logic that caused loading issues
+
 ## February 2, 2025 - Virtual Scrolling Memory Optimization
 - **VIRTUAL SCROLLING IMPLEMENTED**: Reduced memory usage from 3GB to ~200MB using original prototype technique
 - Created VirtualBibleTable component with fixed 120px row heights and absolute positioning
@@ -131,17 +138,17 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - Early-exit guard prevents unnecessary re-renders when scroll range hasn't changed
 - Memory optimization allows entire Bible to be navigable without browser slowdown
 
-## June 26, 2025 - Complete Bible Loading for Instant Navigation
-- **FULL BIBLE LOADING**: Eliminated windowed loading system - now loads all 31,102 verses upfront for instant access
-- **ZERO LOADING DELAYS**: Removed all fetch delays, buffers, and range restrictions during navigation
+## June 26, 2025 - Bible Structure and Lazy Text Loading
+- **SINGLE ARRAY ARCHITECTURE**: Single array of 31,102 verse objects is created at boot; text loads lazily
+- **CENTER-ANCHORED LOADING**: Loader fires only when the center verse index changes
+- **BUFFER MANAGEMENT**: Buffer = ± 60 rows around that center verse position
+- **IN-PLACE MUTATIONS**: No edge distance checks, no array slicing—mutate globalVerses[index].text in place
 - **INSTANT VERSE JUMPING**: Can now jump to any Bible location (Genesis 1:1, John 3:16, Revelation 22:21) with immediate scrolling
-- **SIMPLIFIED ARCHITECTURE**: Removed virtual scrolling complexity in favor of complete verse list rendering
-- **MEMORY-BASED NAVIGATION**: All verses loaded in browser memory for maximum responsiveness
-- Bible study platform now provides instant access to entire KJV translation without any loading pauses
+- **SIMPLIFIED ARCHITECTURE**: Text loading triggered by scroll position changes, not boundary crossings
+- Bible study platform provides instant navigation with on-demand text loading
 
 ## June 26, 2025 - Complete KJV Bible Text Loading & Optimized Virtual Scrolling
 - **COMPLETE KJV TEXT LOADED**: Successfully integrated all 31,102 verses from Supabase storage (4.5M characters)
-- **OPTIMIZED VIRTUAL SCROLLING**: Increased VERSE_BUFFER from 2 to 100 verses (200+ total) for smooth scrolling throughout entire Bible
 - **STICKY UI ELEMENTS FIXED**: Column headers properly sticky with theme colors, footer fixed to bottom viewport during all scroll operations
 - Implemented direct Supabase integration: Fetches complete KJV.txt from canonical verseKeys structure
 - Created comprehensive text mapping with 124,408 entries for robust verse lookup across multiple reference formats
@@ -150,8 +157,6 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 ## June 26, 2025 - Virtual Scrolling & Full Bible Index Implementation
 - **COMPLETE BIBLE INDEX LOADED**: Successfully implemented full 31,102 verse index from Supabase canonical references
-- Added virtual scrolling system with 200-verse dynamic loading buffer for optimal performance
-- Implemented scroll-based automatic loading that triggers when moving significantly from center position
 - Created aesthetic highlight animations with gradient effects for smooth navigation experience
 - All hyperlinks now have proper placemarkers for complete Bible navigation functionality
 - Dynamic verse loading system ready for text population from Supabase KJV source
