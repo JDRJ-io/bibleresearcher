@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Sparkles, KeyRound } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { AuthModals } from '@/components/auth/AuthModals';
 
 interface VerseSelectorProps {
   onNavigate: (reference: string) => void;
@@ -93,8 +92,6 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
   const [selectedChapter, setSelectedChapter] = useState<string>('1');
   const [selectedVerse, setSelectedVerse] = useState<string>('1');
   const [isOpen, setIsOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
   const { user, loading } = useAuth();
 
   const selectedBookData = BIBLE_BOOKS.find(book => book.abbrev === selectedBook);
@@ -110,6 +107,18 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
   const handleQuickNavigate = (ref: string) => {
     onNavigate(ref);
     setIsOpen(false);
+  };
+
+  // Curated verses list from user request
+  const curatedVerses = [
+    '1Sam 17:1', 'Isa 61:1', 'Ps 91:1', 'Rom 8:1', 'John 13:1',
+    'Eph 1:17', 'Matt 5:1', 'Ps 23:1', 'Ps 139:1', 'Mal 1:1',
+    'Rev 1:1', 'Rev 19:1', 'Dan 3:1', 'Exod 34:1', 'Prov 21:1',
+    'Job 38:1', 'Rom 12:1', 'Acts 2:1', 'John 18:1', '2Pet 1:1'
+  ];
+
+  const getRandomCuratedVerse = () => {
+    return curatedVerses[Math.floor(Math.random() * curatedVerses.length)];
   };
 
   if (!isOpen) {
@@ -162,28 +171,31 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
               </Button>
             </>
           ) : (
-            // Logged out: Show authentication buttons
+            // Logged out: Show curated Bible verse shortcuts with random selection
             <>
               <Button
-                onClick={() => {
-                  console.log('Sign Up button clicked');
-                  setIsSignUpOpen(true);
-                }}
-                className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-xs px-3 py-1 h-7 font-medium"
+                variant="ghost"
+                size="sm"
+                onClick={() => handleQuickNavigate(getRandomCuratedVerse())}
+                className="text-xs px-2 py-1 h-7 hover:bg-muted"
               >
-                <Sparkles className="w-3 h-3 mr-1" />
-                Sign Up
+                Random
               </Button>
               <Button
-                onClick={() => {
-                  console.log('Sign In button clicked');
-                  setIsSignInOpen(true);
-                }}
-                variant="outline"
-                className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-xs px-3 py-1 h-7 font-medium"
+                variant="ghost"
+                size="sm"
+                onClick={() => handleQuickNavigate('Ps 23:1')}
+                className="text-xs px-2 py-1 h-7 hover:bg-muted"
               >
-                <KeyRound className="w-3 h-3 mr-1" />
-                Sign In
+                Psa 23
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleQuickNavigate('John 3:16')}
+                className="text-xs px-2 py-1 h-7 hover:bg-muted"
+              >
+                John 3:16
               </Button>
             </>
           )}
@@ -257,26 +269,7 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
           ✕
         </Button>
       </div>
-      
-      {/* Auth Modals */}
-      <AuthModals
-        isSignUpOpen={isSignUpOpen}
-        isSignInOpen={isSignInOpen}
-        onCloseSignUp={() => {
-          console.log('Closing Sign Up modal');
-          setIsSignUpOpen(false);
-        }}
-        onCloseSignIn={() => {
-          console.log('Closing Sign In modal');
-          setIsSignInOpen(false);
-        }}
-      />
-      {/* Debug info */}
-      {(isSignUpOpen || isSignInOpen) && (
-        <div className="fixed bottom-4 right-4 bg-black text-white text-xs p-2 rounded z-[9999]">
-          Debug: SignUp={isSignUpOpen ? 'open' : 'closed'}, SignIn={isSignInOpen ? 'open' : 'closed'}
-        </div>
-      )}
+
     </>
   );
 }

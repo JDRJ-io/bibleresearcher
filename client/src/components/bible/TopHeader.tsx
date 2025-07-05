@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Search, Menu, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/components/auth/UserProfile';
@@ -81,11 +81,11 @@ export function TopHeader({
             // Logged In State: Show User Profile
             <UserProfile />
           ) : (
-            // Logged Out State: Show Glowing Auth Buttons
+            // Logged Out State: Show Opal-styled Auth Buttons
             <div className="flex items-center space-x-2">
               <Button
                 onClick={() => setIsSignUpOpen(true)}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg transition-all duration-300 hover:shadow-amber-300/50 text-sm px-3 py-1 h-8"
+                className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
               >
                 <Sparkles className="w-3 h-3 mr-1" />
                 Sign Up
@@ -93,8 +93,9 @@ export function TopHeader({
               <Button
                 onClick={() => setIsSignInOpen(true)}
                 variant="outline"
-                className="border-amber-300 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all duration-300 text-sm px-3 py-1 h-8"
+                className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
               >
+                <KeyRound className="w-3 h-3 mr-1" />
                 Sign In
               </Button>
             </div>
