@@ -38,7 +38,8 @@ interface VirtualBibleTableProps {
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
-const BUFFER_SIZE = 20; // Number of verses to render above/below viewport
+const CENTER_BUFFER = 100; // ±100 verses around center = 200 total verses loaded
+const RENDER_BUFFER = 20; // Smaller buffer for actual DOM rendering
 
 export function VirtualBibleTable({
   verses,
@@ -101,32 +102,33 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // Update visible range based on scroll position
+  // Update visible range based on scroll position with center-anchored loading
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // 🔥 Use TOTAL rows, not the currently-loaded rows
-    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
-    const end = Math.min(totalRows - 1, 
-      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE);
+    // Calculate CENTER anchor verse (the key to everything)
+    const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
     
-    // Note: visibleVerses is now calculated in render using the same index-based approach
+    // Only render small buffer around viewport for DOM performance
+    const renderStart = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - RENDER_BUFFER);
+    const renderEnd = Math.min(totalRows - 1, 
+      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + RENDER_BUFFER);
     
-    // Pull-ahead loader: trigger loading for center verse (global index)
+    // Pull-ahead loader: trigger loading around CENTER verse (not boundaries!)
     if (verses.length > 0 && onCenterVerseChange) {
-      const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+      // This should load ±100 verses around center = 200 total verses
       onCenterVerseChange(centerIdx);
     }
 
-    // Early exit if range hasn't changed (key optimization from original)
-    if (start === currentStartIndex && end === currentEndIndex) return;
+    // Early exit if range hasn't changed
+    if (renderStart === currentStartIndex && renderEnd === currentEndIndex) return;
 
-    setCurrentStartIndex(start);
-    setCurrentEndIndex(end);
-    setVisibleRange({ start, end });
+    setCurrentStartIndex(renderStart);
+    setCurrentEndIndex(renderEnd);
+    setVisibleRange({ start: renderStart, end: renderEnd });
   };
 
   // Initialize scroll position to top only once

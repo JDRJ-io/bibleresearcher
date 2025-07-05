@@ -42,7 +42,7 @@ export async function initializeBibleStructure(): Promise<BibleVerse[]> {
           chapter: parseInt(chapter),
           verse: parseInt(verse),
           reference,
-          text: {}, // Will be populated dynamically
+          text: {}, // Will be populated dynamically around center anchor only
           crossReferences: [],
           strongsWords: [],
           labels: [],

@@ -858,16 +858,13 @@ export function useBibleData() {
       Math.min(allVerses.length - 1, centerIndex),
     );
 
-    // Use different buffer sizes based on operation type
-    const bufferSize = isInstantJump ? INSTANT_JUMP_BUFFER : VIEWPORT_BUFFER;
-
-    // For instant jumps, ensure target verse can be perfectly centered
-    // Load equal amounts above and below target for proper centering
-    const halfBuffer = Math.floor(bufferSize);
-    const startIndex = Math.max(0, safeCenterIndex - halfBuffer);
+    // CENTER-ANCHORED LOADING: Only load ±100 verses = 200 total max
+    const CENTER_LOAD_BUFFER = 100;
+    
+    const startIndex = Math.max(0, safeCenterIndex - CENTER_LOAD_BUFFER);
     const endIndex = Math.min(
       allVerses.length - 1,
-      safeCenterIndex + halfBuffer,
+      safeCenterIndex + CENTER_LOAD_BUFFER,
     );
 
     // Generate unique request ID to prevent race conditions
@@ -875,25 +872,30 @@ export function useBibleData() {
 
     console.time(`fetch-${requestId}`);
     console.log(
-      `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize})`,
+      `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${CENTER_LOAD_BUFFER})`,
     );
 
-    // CRITICAL FIX: Don't slice - work with the full verses array
+    // 🎯 CENTER-ANCHORED: Clear all text first, then only load around center
     console.log(
-      `⚡ Loading text for verses ${startIndex}-${endIndex} in full array`,
+      `⚡ Loading text for verses ${startIndex}-${endIndex} around center anchor`,
     );
 
-    // Fetch text for the range and mutate verses in place
+    // First clear all existing text to prevent 8GB memory usage
+    allVerses.forEach(verse => {
+      verse.text = {};
+      verse.labels = [];
+    });
+
+    // Only load text for the ±100 range around center anchor
     for (let i = startIndex; i <= endIndex; i++) {
-      if (i < allVerses.length && !allVerses[i].text?.KJV) {
-        // Load text for this verse if not already loaded
+      if (i < allVerses.length) {
         const verseKey = `${allVerses[i].book}.${allVerses[i].chapter}:${allVerses[i].verse}`;
         const kjvText = globalKjvTextMap?.get(verseKey) || 
                        globalKjvTextMap?.get(verseKey.replace('.', ' ')) ||
                        `Loading ${allVerses[i].reference}...`;
         
-        // Mutate the verse in place - never slice the array
-        allVerses[i].text = { ...allVerses[i].text, KJV: kjvText };
+        // Only populate text for center-anchored range
+        allVerses[i].text = { KJV: kjvText };
         allVerses[i].labels = ['kjv-loaded'];
       }
     }
