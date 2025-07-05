@@ -34,7 +34,11 @@ interface VirtualBibleTableProps {
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
-const BUFFER_SIZE = 20; // Number of verses to render above/below viewport
+
+// Massive buffers for seamless scrolling - prevent boundary hits
+const VIEWPORT_BUFFER = 500; // Load 1000+ verses (10x improvement)
+const INSTANT_JUMP_BUFFER = 1000; // Load 2000+ verses for instant jumps
+const SCROLL_THRESHOLD = 200; // Preload when within 200 verses of edge
 
 export function VirtualBibleTable({
   verses,
@@ -81,11 +85,15 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Calculate which verses should be visible
-    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
+    // Calculate which verses should be visible with massive buffers
+    const currentVerseIndex = Math.floor(currentScrollTop / ROW_HEIGHT);
+    const viewportVerseCount = Math.ceil(viewportHeight / ROW_HEIGHT);
+    
+    // Use massive buffers to prevent boundary scrolling issues
+    const start = Math.max(0, currentVerseIndex - VIEWPORT_BUFFER);
     const end = Math.min(
       verses.length - 1,
-      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE
+      currentVerseIndex + viewportVerseCount + VIEWPORT_BUFFER
     );
 
     // Early exit if range hasn't changed (key optimization from original)
