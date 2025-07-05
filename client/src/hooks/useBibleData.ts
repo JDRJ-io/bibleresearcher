@@ -1094,11 +1094,8 @@ export function useBibleData() {
         // Set full verse index for navigation (references only)
         setVerses(data);
 
-        // Load initial window of verses
-        const initialVerses = await loadVerseRange(data, 0, true);
-        if (initialVerses.length > 0) {
-          setVerses(initialVerses);
-        }
+        // Load initial window of verses - this mutates the array in place
+        await loadVerseRange(data, 0, true);
 
         setIsLoading(false);
       } catch (err) {

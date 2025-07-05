@@ -102,15 +102,15 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
-## July 5, 2025 - VirtualBibleTable "Blink → Gone" Issue RESOLVED
-- **CRITICAL RACE CONDITION FIXED**: Eliminated initialization bug that caused table to flash and vanish on first render
-- **Container Height Fix**: `totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT` ensures proper height from start
-- **Index-Based Verse Building**: Replaced slice operations with `Array.from({length}, (_, i) => verses[start + i])` to prevent empty arrays
-- **Initialization Cleanup**: Removed problematic useEffect that was triggering on every render causing infinite loops
-- **Global Index Emission**: Fixed `data-verse-index={actualIndex}` to use true global indices for anchor compatibility
-- **Scroll Math Optimization**: Implemented proper start/end calculations using totalRows instead of current verse count
-- **Performance Stable**: No more "Maximum update depth exceeded" errors, smooth rendering pipeline
-- **Complete Bible Navigation**: All 31,102 verses now accessible with instant virtual scrolling from Genesis to Revelation
+## July 5, 2025 - VirtualBibleTable Flash Fix Using Verse Keys Architecture
+- **CRITICAL ARCHITECTURE FIX**: Fixed table flash by using verse keys as source of truth, not loaded verses array
+- **Verse Keys Based Rendering**: VirtualBibleTable now renders from `globalVerses` (31,102 pre-loaded verse structures) instead of `verses` prop
+- **In-Place Text Loading**: Text loaded by mutating verse objects directly in the full array, never slicing or replacing
+- **Proper Index Mapping**: `visibleVerses` built using `globalVerses[globalIndex]` with loaded text merged when available
+- **No More Empty Arrays**: Eliminated the flash caused by starting with empty `verses` array during initial load
+- **Center-Anchored Loading**: Maintained center-anchored verse loading without disrupting the full verse structure
+- **Loading Pattern Fixed**: `loadVerseRange` mutates verses in place instead of returning a new array
+- **Stable Virtual Scrolling**: Table height always correct (31,102 × 120px) from first render, no layout shifts
 
 ## July 5, 2025 - Center-Anchored Verse Loading System Complete
 - **MAJOR ARCHITECTURAL FIX**: Implemented center-anchored verse loading to eliminate virtual scrolling boundary issues

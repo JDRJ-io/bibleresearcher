@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VerseRow } from "./VerseRow";
-import { getVerseCount, verses as globalVerses } from "@/lib/verseKeysLoader";
+import { getVerseCount, verses as globalVerses, keyToReference, parseVerseKey } from "@/lib/verseKeysLoader";
 import type {
   BibleVerse,
   Translation,
@@ -230,29 +230,33 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Only render verses in visible range
-  // 🔥 Use the fixed-length array with no holes - always safe to access verse.reference
-  const safeVisibleRange = {
-    start: Math.max(0, visibleRange.start),
-    end: Math.min(totalRows - 1, visibleRange.end)
-  };
-  
+  // Build visible rows by index, not by slice length
+  // Use globalVerses which is always 31,102 verses, not the currently loaded rows
   const visibleVerses = Array.from(
-    { length: Math.max(1, safeVisibleRange.end - safeVisibleRange.start + 1) },
+    { length: Math.min(visibleRange.end - visibleRange.start + 1, totalRows) },
     (_, i) => {
-      const globalIndex = safeVisibleRange.start + i;
-      // Always use the global fixed-length array - never undefined
+      const globalIndex = visibleRange.start + i;
+      if (globalIndex >= totalRows) return null;
+      
+      // Get the base verse structure from the global verses array
       const baseVerse = globalVerses[globalIndex];
-      // Merge with any loaded text from the verses prop
-      const loadedVerse = verses[globalIndex];
-      if (loadedVerse?.text && Object.keys(loadedVerse.text).length > 0) {
-        return { ...baseVerse, text: loadedVerse.text };
+      
+      // Check if we have loaded text for this verse
+      const loadedVerse = verses.find(v => v.index === globalIndex);
+      
+      if (loadedVerse && loadedVerse.text && Object.keys(loadedVerse.text).length > 0) {
+        // Return the loaded verse with all its data
+        return loadedVerse;
       }
-      return baseVerse;
+      
+      // Return base verse structure with placeholder text
+      return {
+        ...baseVerse,
+        text: baseVerse.text || {},
+        crossReferences: loadedVerse?.crossReferences || []
+      };
     }
-  );
-  
-  console.log(`🔍 VirtualBibleTable render: visibleRange=${JSON.stringify(visibleRange)}, safeRange=${JSON.stringify(safeVisibleRange)}, visibleVerses.length=${visibleVerses.length}, totalHeight=${totalHeight}`);
+  ).filter(v => v !== null) as BibleVerse[];
 
   // Remove the problematic lazy loading useEffect that was causing infinite loops
 
