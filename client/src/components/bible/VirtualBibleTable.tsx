@@ -53,7 +53,6 @@ export function VirtualBibleTable({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -91,23 +90,16 @@ export function VirtualBibleTable({
     Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
     );
 
-    // Calculate the center verse in viewport
+    // Calculate the center verse in viewport for pull-ahead loading
     const viewportCenter = currentScrollTop + viewportHeight / 2;
     const centerIndex = Math.floor(viewportCenter / ROW_HEIGHT);
     
-    // Check if we've scrolled beyond the loaded verse boundaries
+    // Pull-ahead loader: trigger loading before user reaches unloaded zones
     if (verses.length > 0 && onCenterVerseChange) {
-      const firstLoadedIndex = verses[0].index || 0;
-      
-      // Calculate global center index
-      const globalCenterIndex = firstLoadedIndex + centerIndex;
-      
-      // Trigger loading when we're within 20 verses of the edge
-      const EDGE_THRESHOLD = 20;
-      if (centerIndex < EDGE_THRESHOLD || 
-          centerIndex > verses.length - EDGE_THRESHOLD) {
-        onCenterVerseChange(globalCenterIndex);
-      }
+      // Always trigger loading for the current center verse position
+      // This ensures text loads ahead of scrolling
+      const globalCenterIndex = centerIndex;
+      onCenterVerseChange(globalCenterIndex);
     }
 
     // Early exit if range hasn't changed (key optimization from original)
@@ -130,7 +122,6 @@ export function VirtualBibleTable({
       animationFrameId = requestAnimationFrame(() => {
         if (scrollRef.current) {
           setScrollTop(scrollRef.current.scrollTop);
-          setScrollLeft(scrollRef.current.scrollLeft);
           updateVisibleRows();
         }
       });
@@ -205,7 +196,7 @@ export function VirtualBibleTable({
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
         showContext={preferences.showContext}
-        scrollLeft={scrollLeft}
+        scrollLeft={0}
       />
 
       <div

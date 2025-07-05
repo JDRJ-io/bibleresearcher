@@ -680,8 +680,7 @@ let availableTranslations: Translation[] = [];
 
 export function useBibleData() {
   const [isLoading, setIsLoading] = useState(true);
-  const [verses, setVerses] = useState<BibleVerse[]>([]); // Full verse index for navigation
-  const [displayVerses, setDisplayVerses] = useState<BibleVerse[]>([]); // Currently rendered verses
+  const [verses, setVerses] = useState<BibleVerse[]>([]); // Full 31,102 verses - never sliced!
   const [loadedVerseRanges, setLoadedVerseRanges] = useState<Set<number>>(
     new Set(),
   ); // Track loaded verse ranges
@@ -848,7 +847,7 @@ export function useBibleData() {
   // Current request tracking for seamless loading
   const currentRequestRef = useRef(0);
 
-  // Intelligent verse loading with seamless content swapping
+  // Load text for verses in place - mutate verses array directly
   const loadVerseRange = async (
     allVerses: BibleVerse[],
     centerIndex: number,
@@ -879,38 +878,45 @@ export function useBibleData() {
       `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${bufferSize})`,
     );
 
-    const newVerses = allVerses.slice(startIndex, endIndex + 1);
-
-    if (newVerses.length === 0) {
-      console.warn("No verses loaded in range");
-      return [];
-    }
-
-    // Show skeleton/keep old content visible during fetch
+    // CRITICAL FIX: Don't slice - work with the full verses array
     console.log(
-      `⚡ Skeleton ready: anchor=${safeCenterIndex}, keeping old content visible`,
+      `⚡ Loading text for verses ${startIndex}-${endIndex} in full array`,
     );
 
-    // Fetch new content in background
-    const versesWithText = await loadVerseTextForRange(newVerses);
+    // Fetch text for the range and mutate verses in place
+    for (let i = startIndex; i <= endIndex; i++) {
+      if (i < allVerses.length && !allVerses[i].text?.KJV) {
+        // Load text for this verse if not already loaded
+        const verseKey = `${allVerses[i].book}.${allVerses[i].chapter}:${allVerses[i].verse}`;
+        const kjvText = globalKjvTextMap?.get(verseKey) || 
+                       globalKjvTextMap?.get(verseKey.replace('.', ' ')) ||
+                       `Loading ${allVerses[i].reference}...`;
+        
+        // Mutate the verse in place - never slice the array
+        allVerses[i].text = { ...allVerses[i].text, KJV: kjvText };
+        allVerses[i].labels = ['kjv-loaded'];
+      }
+    }
 
     // Check if this request is still current (not superseded by newer request)
     if (requestId !== currentRequestRef.current) {
       console.log(
         `🚫 Request ${requestId} cancelled, newer request ${currentRequestRef.current} in progress`,
       );
-      return [];
+      return allVerses;
     }
 
-    // Seamlessly swap content
-    setDisplayVerses(versesWithText);
+    // Update center but keep full verses array
     setCenterVerseIndex(safeCenterIndex);
 
     console.timeEnd(`fetch-${requestId}`);
     console.log(
-      `✓ Swapped ${versesWithText.length} verses for anchor ${safeCenterIndex} [${startIndex}-${endIndex}]`,
+      `✓ Loaded text for range ${startIndex}-${endIndex} in full array`,
     );
-    return versesWithText;
+    
+    // Force re-render by updating verses reference
+    setVerses([...allVerses]);
+    return allVerses;
   };
 
   // Load available translations from Supabase
@@ -953,7 +959,7 @@ export function useBibleData() {
 
   // Anchor-based viewport tracking for accurate verse loading
   useEffect(() => {
-    if (!verses.length || !displayVerses.length) return;
+    if (!verses.length) return;
 
     let isScrolling = false;
     let lastAnchorIndex = -1;
@@ -1000,8 +1006,7 @@ export function useBibleData() {
 
       // Map display verse index back to full verses array index
       const firstDisplayIndex =
-        displayVerses.length > 0
-          ? verses.findIndex((v) => v.id === displayVerses[0].id)
+        verses.length > 0 ? 0
           : 0;
 
       const actualVerseIndex = firstDisplayIndex + currentAnchor;
@@ -1059,7 +1064,7 @@ export function useBibleData() {
     return () => {
       window.removeEventListener("scroll", smoothScrollHandler);
     };
-  }, [verses.length, displayVerses.length, centerVerseIndex]);
+  }, [verses.length, verses.length, centerVerseIndex]);
 
   // Load Bible data on mount
   useEffect(() => {
@@ -1092,7 +1097,7 @@ export function useBibleData() {
         // Load initial window of verses
         const initialVerses = await loadVerseRange(data, 0, true);
         if (initialVerses.length > 0) {
-          setDisplayVerses(initialVerses);
+          setVerses(initialVerses);
         }
 
         setIsLoading(false);
@@ -1425,11 +1430,11 @@ export function useBibleData() {
 
   // Calculate virtual scrolling offsets to prevent page jumping
   const calculateScrollOffset = () => {
-    if (verses.length === 0 || displayVerses.length === 0) return 0;
+    if (verses.length === 0 || verses.length === 0) return 0;
 
     // Find the starting index of displayed verses in the full verses array
     const firstDisplayedIndex = verses.findIndex(
-      (v) => v.id === displayVerses[0]?.id,
+      (v) => v.id === verses[0]?.id,
     );
     if (firstDisplayedIndex === -1) return 0;
 
@@ -1488,10 +1493,10 @@ export function useBibleData() {
         };
 
         // Update both display verses and full verse set
-        const updatedDisplayVerses = updateVersesWithTranslation(displayVerses);
+        const updatedDisplayVerses = updateVersesWithTranslation(verses);
         const updatedAllVerses = updateVersesWithTranslation(verses);
         
-        setDisplayVerses(updatedDisplayVerses);
+        setVerses(updatedDisplayVerses);
         setVerses(updatedAllVerses);
         
         console.log(`✓ ${translationId} translation loaded with ${translationData.size} verses`);
@@ -1528,7 +1533,7 @@ export function useBibleData() {
   };
 
   return {
-    verses: displayVerses, // Return display verses for rendering
+    verses: verses, // Return display verses for rendering
     allVerses: verses, // Keep full dataset available
     isLoading,
     error,

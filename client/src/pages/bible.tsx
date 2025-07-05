@@ -679,7 +679,7 @@ export default function BiblePage() {
         onShowAuth={() => setIsSignUpOpen(true)}
         onShowForum={() => setIsForumOpen(true)}
         allTranslations={allTranslations}
-        onTranslationToggle={handleTranslationToggle}
+
         preferences={preferences}
         onPreferenceChange={handlePreferenceChange}
         onResetLayout={handleResetLayout}
