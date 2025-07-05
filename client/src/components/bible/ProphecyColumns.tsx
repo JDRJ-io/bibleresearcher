@@ -50,8 +50,25 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
   };
 
   const getRoleForVerse = (prophecyId: string, currentRef: string): 'P' | 'F' | 'V' | null => {
+    // Check if this verse has a role for this specific prophecy
+    // The prophecyData already contains the role information
+    const prophecy = prophecyData?.find(p => p.id === prophecyId);
+    if (!prophecy) return null;
+    
     const normalizedRef = currentRef.replace(' ', '.');
-    // TODO: Implement prophecy role mapping
+    const altRef = currentRef.replace('.', ' ');
+    
+    // Check if current verse is in any of the prophecy arrays
+    if (prophecy.data.prophecy.includes(normalizedRef) || prophecy.data.prophecy.includes(altRef)) {
+      return 'P';
+    }
+    if (prophecy.data.fulfillment.includes(normalizedRef) || prophecy.data.fulfillment.includes(altRef)) {
+      return 'F';
+    }
+    if (prophecy.data.verification.includes(normalizedRef) || prophecy.data.verification.includes(altRef)) {
+      return 'V';
+    }
+    
     return null;
   };
 
@@ -75,7 +92,7 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
     <div className="grid grid-cols-3 gap-1 h-full">
       {/* Predictions Column */}
       <div className="border border-gray-200 dark:border-gray-700 p-2 overflow-y-auto">
-        <div className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-2 border-b border-blue-200 dark:border-blue-700 pb-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 border-b border-gray-200 dark:border-gray-700 pb-1">
           Predictions
         </div>
         <div className="space-y-2">
@@ -87,33 +104,38 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
             return (
               <div 
                 key={`pred-${prophecy.id}`} 
-                className={`border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0 ${
-                  isHighlighted ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-200 dark:ring-blue-700 rounded-md p-1' : ''
+                className={`border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0 relative ${
+                  isHighlighted ? 'bg-amber-50 dark:bg-amber-900/10 shadow-sm' : ''
                 }`}
               >
+                {/* Subtle visual indicator for role connection */}
+                {isHighlighted && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-400 dark:bg-amber-500 rounded-r-sm opacity-60"></div>
+                )}
+                
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-between p-1 h-auto text-xs font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/50"
+                  className="w-full justify-between p-1 h-auto text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  <span className="text-left break-words">{prophecy.id}. {prophecy.data.summary}</span>
+                  <span className="text-left break-words max-w-[90%] whitespace-normal leading-tight">{prophecy.id}. {prophecy.data.summary}</span>
                   {isCollapsed ? <ChevronDown className="h-3 w-3 flex-shrink-0 ml-1" /> : <ChevronUp className="h-3 w-3 flex-shrink-0 ml-1" />}
                 </Button>
                 
                 {!isCollapsed && (
-                  <div className="mt-1 space-y-1">
+                  <div className="mt-1 space-y-1 pl-1">
                     {prophecy.data.prophecy.map((pred: string, idx: number) => (
                       <div key={idx} className="text-xs">
                         <button
-                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium block"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:underline font-medium block"
                           onClick={() => onVerseClick(formatVerseReference(pred))}
                         >
                           {formatVerseReference(pred)}
                         </button>
-                        <div className="text-gray-600 dark:text-gray-400 mt-1 break-words">
-                          {truncateText(getVerseText(pred) || `[${pred}]`)}
+                        <div className="text-gray-500 dark:text-gray-500 mt-1 break-words text-[11px] leading-tight">
+                          {truncateText(getVerseText(formatVerseReference(pred)) || `Loading ${pred}...`, 70)}
                         </div>
                       </div>
                     ))}
@@ -127,7 +149,7 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
 
       {/* Fulfillments Column */}
       <div className="border border-gray-200 dark:border-gray-700 p-2 overflow-y-auto">
-        <div className="text-xs font-semibold text-green-800 dark:text-green-200 mb-2 border-b border-green-200 dark:border-green-700 pb-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 border-b border-gray-200 dark:border-gray-700 pb-1">
           Fulfillments
         </div>
         <div className="space-y-2">
@@ -139,30 +161,35 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
             return (
               <div 
                 key={`fulf-${prophecy.id}`} 
-                className={`border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0 ${
-                  isHighlighted ? 'bg-green-50 dark:bg-green-900/20 ring-2 ring-green-200 dark:ring-green-700 rounded-md p-1' : ''
+                className={`border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0 relative ${
+                  isHighlighted ? 'bg-emerald-50 dark:bg-emerald-900/10 shadow-sm' : ''
                 }`}
               >
+                {/* Subtle visual indicator for role connection */}
+                {isHighlighted && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400 dark:bg-emerald-500 rounded-r-sm opacity-60"></div>
+                )}
+                
                 <div
-                  className="text-xs font-medium text-green-700 dark:text-green-300 p-1 cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/50 rounded"
+                  className="text-xs font-medium text-gray-700 dark:text-gray-300 p-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded"
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  <span className="break-words">{prophecy.id}. {prophecy.data.summary}</span>
+                  <span className="break-words max-w-full whitespace-normal leading-tight">{prophecy.id}. {prophecy.data.summary}</span>
                 </div>
                 
                 {!isCollapsed && (
-                  <div className="mt-1 space-y-1">
+                  <div className="mt-1 space-y-1 pl-1">
                     {prophecy.data.fulfillment.map((fulf: string, idx: number) => (
                       <div key={idx} className="text-xs">
                         <button
-                          className="text-green-600 dark:text-green-400 hover:underline font-medium block"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:underline font-medium block"
                           onClick={() => onVerseClick(formatVerseReference(fulf))}
                         >
                           {formatVerseReference(fulf)}
                         </button>
-                        <div className="text-gray-600 dark:text-gray-400 mt-1 break-words">
-                          {truncateText(getVerseText(fulf) || `[${fulf}]`)}
+                        <div className="text-gray-500 dark:text-gray-500 mt-1 break-words text-[11px] leading-tight">
+                          {truncateText(getVerseText(formatVerseReference(fulf)) || `Loading ${fulf}...`, 70)}
                         </div>
                       </div>
                     ))}
@@ -176,7 +203,7 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
 
       {/* Verifications Column */}
       <div className="border border-gray-200 dark:border-gray-700 p-2 overflow-y-auto">
-        <div className="text-xs font-semibold text-purple-800 dark:text-purple-200 mb-2 border-b border-purple-200 dark:border-purple-700 pb-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 border-b border-gray-200 dark:border-gray-700 pb-1">
           Verifications
         </div>
         <div className="space-y-2">
@@ -188,30 +215,35 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
             return (
               <div 
                 key={`evid-${prophecy.id}`} 
-                className={`border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0 ${
-                  isHighlighted ? 'bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-200 dark:ring-purple-700 rounded-md p-1' : ''
+                className={`border-b border-gray-100 dark:border-gray-800 pb-1 last:border-b-0 relative ${
+                  isHighlighted ? 'bg-violet-50 dark:bg-violet-900/10 shadow-sm' : ''
                 }`}
               >
+                {/* Subtle visual indicator for role connection */}
+                {isHighlighted && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-violet-400 dark:bg-violet-500 rounded-r-sm opacity-60"></div>
+                )}
+                
                 <div
-                  className="text-xs font-medium text-purple-700 dark:text-purple-300 p-1 cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/50 rounded"
+                  className="text-xs font-medium text-gray-700 dark:text-gray-300 p-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded"
                   onClick={() => toggleProphecy(prophecy.id)}
                   data-id={prophecy.id}
                 >
-                  <span className="break-words">{prophecy.id}. {prophecy.data.summary}</span>
+                  <span className="break-words max-w-full whitespace-normal leading-tight">{prophecy.id}. {prophecy.data.summary}</span>
                 </div>
                 
                 {!isCollapsed && (
-                  <div className="mt-1 space-y-1">
+                  <div className="mt-1 space-y-1 pl-1">
                     {prophecy.data.verification.map((evid: string, idx: number) => (
                       <div key={idx} className="text-xs">
                         <button
-                          className="text-purple-600 dark:text-purple-400 hover:underline font-medium block"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:underline font-medium block"
                           onClick={() => onVerseClick(formatVerseReference(evid))}
                         >
                           {formatVerseReference(evid)}
                         </button>
-                        <div className="text-gray-600 dark:text-gray-400 mt-1 break-words">
-                          {truncateText(getVerseText(evid) || `[${evid}]`)}
+                        <div className="text-gray-500 dark:text-gray-500 mt-1 break-words text-[11px] leading-tight">
+                          {truncateText(getVerseText(formatVerseReference(evid)) || `Loading ${evid}...`, 70)}
                         </div>
                       </div>
                     ))}
