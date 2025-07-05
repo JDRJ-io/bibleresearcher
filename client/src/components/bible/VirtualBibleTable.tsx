@@ -56,6 +56,7 @@ export function VirtualBibleTable({
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   // Row pool system - allocate ±120 rows on first render, store refs in array
   const rowPoolSize = 120; // Fixed pool size as specified
@@ -66,8 +67,9 @@ export function VirtualBibleTable({
   // Height = totalVerses × rowHeight right after verse keys load
   const totalHeight = totalRows * ROW_HEIGHT;
   
-  // Track current range to prevent race conditions
+  // Track current range to prevent race conditions and support anchoring
   const currentRangeRef = useRef({ start: 0, end: 0 });
+  const centerVerseRef = useRef(0); // Track center verse for anchoring
 
   // Initialize row pool on first render
   useEffect(() => {
@@ -101,7 +103,7 @@ export function VirtualBibleTable({
     // Use small buffers like original prototype - just 2-3 viewports worth
     const start = Math.max(0, currentVerseIndex - VIEWPORT_BUFFER);
     const end = Math.min(
-      verses.length - 1,
+      totalRows - 1, // Use totalRows instead of verses.length to prevent clamping
       currentVerseIndex + viewportVerseCount + VIEWPORT_BUFFER
     );
 
@@ -129,8 +131,18 @@ export function VirtualBibleTable({
           const newScrollTop = scrollRef.current.scrollTop;
           const newScrollLeft = scrollRef.current.scrollLeft;
           
-          // Single scroll driver - update header with style.transform (not React state)
-          // This prevents re-renders that can delay row updates
+          // Update center verse for anchoring
+          if (containerRef.current) {
+            const viewportHeight = containerRef.current.clientHeight;
+            centerVerseRef.current = Math.floor((newScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+          }
+          
+          // Move header with ref, not React state - prevents re-render lag
+          if (headerRef.current) {
+            headerRef.current.style.transform = `translateX(-${newScrollLeft}px)`;
+          }
+          
+          // Keep minimal state updates for scroll position tracking
           setScrollTop(newScrollTop);
           setScrollLeft(newScrollLeft);
           
@@ -246,6 +258,7 @@ export function VirtualBibleTable({
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
       <ColumnHeaders
+        ref={headerRef}
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}

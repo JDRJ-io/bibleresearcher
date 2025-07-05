@@ -1,0 +1,59 @@
+What the engineer nailed
+Real placeholder height – they now set the inner container’s height to
+totalRows × ROW_HEIGHT, which gives the browser a full-length scrollbar.
+
+Small buffer values – VIEWPORT_BUFFER = 20 and a 120-row pool match the “few view-ports” rule of the original prototype, so React isn’t juggling thousands of nodes any more.
+
+Single scroll listener with an early-exit guard – only one handler drives both horizontal header shift and vertical row updates, and it bails out if the start/end indices haven’t changed.
+
+Row-pool skeleton – they pre-allocate 120 <div> shells and reuse them instead of slicing a brand-new array of DOM rows on every scroll.
+
+Header moved with transform, not React state – that avoids re-rendering the header component itself on every pixel of scroll.
+
+What’s still wrong (why you can scroll into blank space)
+They’re feeding the component only the verses that are already fetched
+updateVisibleRows() clamps the end index with
+
+ts
+Copy
+Edit
+end = Math.min(verses.length-1, …)       // ⚠
+If verses.length is just the 20 rows that came from Supabase, the
+virtualiser believes the Bible ends there—even though the placeholder height says otherwise—so you can scroll past the last real row.
+
+Row-pool isn’t truly reused
+Inside renderRowPool() React still mounts a fresh <VerseRow> for every position on every render.
+The outer <div> is recycled, but its contents are brand-new components, so there’s still a micro-gap while they mount.
+
+scrollLeft is stored in React state
+The component calls setScrollLeft on every frame, which forces a React update that can outrun the row updater by a frame on fast machines. (Small but measurable.)
+
+No anchoring logic
+There’s nothing equivalent to the old centerVerseByIndex() that remembers the verse in the middle of the screen before a heavy UI change (e.g. toggling notes, prophecy). That lets the content jump when the user flips options.
+
+How to finish the job
+Pass the whole verse-key list, not a slice
+
+Make verses prop contain all 31 000 keys (text can still stream in lazily).
+
+Change the clamp to Math.min(totalRows - 1, …).
+
+Mutate rows instead of remounting
+Replace each pool slot’s props/text via a ref
+
+js
+Copy
+Edit
+fillRowContent(rowRefs.current[i].current, verse);
+instead of returning a fresh <VerseRow> element.
+
+Move header with a ref, not React state
+
+js
+Copy
+Edit
+headerRef.current.style.transform = `translateX(-${scrollLeft}px)`
+Do this inside the scroll handler before requestAnimationFrame finishes.
+
+Re-centre after option toggles
+Save the verse in the middle (Math.floor((scrollTop+vh/2)/ROW_HEIGHT)), run the re-render, then set scrollRef.current.scrollTop so that verse is still centred.
