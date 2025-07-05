@@ -111,15 +111,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
     <>
       {/* Sign Up Modal */}
       <Dialog open={isSignUpOpen} onOpenChange={onCloseSignUp}>
-        <DialogContent 
-          className="sm:max-w-md relative overflow-hidden"
-          style={{ 
-            zIndex: 9999,
-            background: 'linear-gradient(135deg, rgba(255, 251, 235, 0.95), rgba(254, 243, 199, 0.95), rgba(255, 237, 213, 0.95))',
-            border: '2px solid rgba(251, 191, 36, 0.5)',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 25px 50px -12px rgba(217, 119, 6, 0.2)'
-          }}
+        <DialogContent className="sm:max-w-md bg-white border-2 border-amber-300 shadow-xl"
+          style={{ zIndex: 9999 }}
         >
           {/* Mystical Background Effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-amber-100/20 via-transparent to-orange-100/20 dark:from-amber-800/10 dark:via-transparent dark:to-orange-800/10" />
@@ -192,15 +185,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* Sign In Modal */}
       <Dialog open={isSignInOpen} onOpenChange={onCloseSignIn}>
-        <DialogContent 
-          className="sm:max-w-md relative overflow-hidden"
-          style={{ 
-            zIndex: 9999,
-            background: 'linear-gradient(135deg, rgba(219, 234, 254, 0.95), rgba(238, 242, 255, 0.95), rgba(250, 245, 255, 0.95))',
-            border: '2px solid rgba(147, 197, 253, 0.5)',
-            backdropFilter: 'blur(16px)',
-            boxShadow: '0 25px 50px -12px rgba(59, 130, 246, 0.2)'
-          }}
+        <DialogContent className="sm:max-w-md bg-white border-2 border-blue-300 shadow-xl"
+          style={{ zIndex: 9999 }}
         >
           {/* Mystical Background Effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 via-transparent to-indigo-100/20 dark:from-blue-800/10 dark:via-transparent dark:to-indigo-800/10" />
