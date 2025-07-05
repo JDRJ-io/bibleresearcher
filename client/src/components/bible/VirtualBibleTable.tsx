@@ -58,6 +58,33 @@ export function VirtualBibleTable({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Track component lifecycle
+  const mountTimeRef = useRef<number>(Date.now());
+  const renderCountRef = useRef<number>(0);
+  
+  useEffect(() => {
+    const mountTime = Date.now();
+    mountTimeRef.current = mountTime;
+    console.log(`⏱️ VirtualBibleTable MOUNTED at ${new Date(mountTime).toLocaleTimeString()}`);
+    
+    return () => {
+      const lifespan = Date.now() - mountTimeRef.current;
+      console.error(`❌ VirtualBibleTable UNMOUNTING after ${lifespan}ms (${(lifespan/1000).toFixed(2)}s)`);
+      console.error(`❌ Total renders before unmount: ${renderCountRef.current}`);
+      console.error(`❌ Component state at unmount:`, {
+        versesLength: verses.length,
+        totalRows,
+      });
+    };
+  }, []);
+  
+  // Track each render
+  useEffect(() => {
+    renderCountRef.current++;
+    const renderTime = Date.now() - mountTimeRef.current;
+    console.log(`⏱️ VirtualBibleTable render #${renderCountRef.current} at +${renderTime}ms`);
+  });
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -247,14 +274,36 @@ export function VirtualBibleTable({
     };
   }).filter(Boolean) as BibleVerse[];
   
-  console.log('VirtualBibleTable render:', {
-    totalRows,
-    versesLength: verses.length, 
-    visibleRange,
-    visibleVersesLength: visibleVerses.length,
-    firstVisible: visibleVerses[0]?.reference || 'undefined',
-    hasUndefinedText: visibleVerses.some(v => v && !v.text)
-  });
+  // Enhanced error logging
+  try {
+    console.log('VirtualBibleTable render:', {
+      totalRows,
+      versesLength: verses.length, 
+      visibleRange,
+      visibleVersesLength: visibleVerses.length,
+      firstVisible: visibleVerses[0]?.reference || 'undefined',
+      hasUndefinedText: visibleVerses.some(v => v && !v.text),
+      hasNullVerses: visibleVerses.some(v => v === null || v === undefined),
+      timestamp: new Date().toLocaleTimeString()
+    });
+    
+    // Check for potential issues
+    if (visibleVerses.length === 0) {
+      console.error('❌ ERROR: No visible verses to render!', {
+        visibleRange,
+        versesLength: verses.length,
+        totalRows
+      });
+    }
+    
+    if (visibleVerses.some(v => !v)) {
+      console.error('❌ ERROR: Some visible verses are null/undefined!', {
+        nullIndices: visibleVerses.map((v, i) => !v ? i : null).filter(i => i !== null)
+      });
+    }
+  } catch (error) {
+    console.error('❌ ERROR in VirtualBibleTable render logging:', error);
+  }
 
   // Prime window once (init effect):
   useEffect(() => {
@@ -272,60 +321,103 @@ export function VirtualBibleTable({
     onPreserveAnchor?.(preserveAnchor);
   }, [onPreserveAnchor, preserveAnchor]);
 
-  return (
-    <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
-      <ColumnHeaders
-        selectedTranslations={selectedTranslations}
-        showNotes={preferences.showNotes}
-        showProphecy={preferences.showProphecy}
-        showContext={preferences.showContext}
-        scrollLeft={0}
-      />
+  try {
+    return (
+      <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
+        <ColumnHeaders
+          selectedTranslations={selectedTranslations}
+          showNotes={preferences.showNotes}
+          showProphecy={preferences.showProphecy}
+          showContext={preferences.showContext}
+          scrollLeft={0}
+        />
 
-      <div
-        className="flex-1 overflow-auto"
-        style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
-        ref={scrollRef}
-      >
-        {/* Virtual scroll container with total height */}
         <div
-          className="relative min-w-max"
-          style={{ height: `${totalHeight}px` }}
+          className="flex-1 overflow-auto"
+          style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
+          ref={scrollRef}
         >
-          {/* Render only visible verses with absolute positioning */}
-          {visibleVerses.map((verse, index) => {
-            const actualIndex = visibleRange.start + index;
-            return (
-              <div
-                key={verse?.id || `placeholder-${actualIndex}`}
-                className="verse-row absolute left-0 right-0"
-                data-verse-index={actualIndex}
-                style={{
-                  top: `${actualIndex * ROW_HEIGHT}px`,
-                  height: `${ROW_HEIGHT}px`,
-                }}
-              >
-                <VerseRow
-                  verse={verse}
-                  verseIndex={actualIndex}
-                  selectedTranslations={selectedTranslations}
-                  showNotes={preferences.showNotes}
-                  showProphecy={preferences.showProphecy}
-                  showContext={preferences.showContext}
-                  userNote={verse ? getUserNoteForVerse(verse.reference) : undefined}
-                  highlights={verse ? getHighlightsForVerse(verse.reference) : []}
-                  onExpandVerse={onExpandVerse}
-                  onHighlight={handleHighlight}
-                  onNavigateToVerse={onNavigateToVerse}
-                  getProphecyDataForVerse={getProphecyDataForVerse}
-                  getGlobalVerseText={getGlobalVerseText}
-                  allVerses={verses}
-                />
-              </div>
-            );
-          })}
+          {/* Virtual scroll container with total height */}
+          <div
+            className="relative min-w-max"
+            style={{ height: `${totalHeight}px` }}
+          >
+            {/* Render only visible verses with absolute positioning */}
+            {visibleVerses.map((verse, index) => {
+              const actualIndex = visibleRange.start + index;
+              try {
+                return (
+                  <div
+                    key={verse?.id || `placeholder-${actualIndex}`}
+                    className="verse-row absolute left-0 right-0"
+                    data-verse-index={actualIndex}
+                    style={{
+                      top: `${actualIndex * ROW_HEIGHT}px`,
+                      height: `${ROW_HEIGHT}px`,
+                    }}
+                  >
+                    <VerseRow
+                      verse={verse}
+                      verseIndex={actualIndex}
+                      selectedTranslations={selectedTranslations}
+                      showNotes={preferences.showNotes}
+                      showProphecy={preferences.showProphecy}
+                      showContext={preferences.showContext}
+                      userNote={verse ? getUserNoteForVerse(verse.reference) : undefined}
+                      highlights={verse ? getHighlightsForVerse(verse.reference) : []}
+                      onExpandVerse={onExpandVerse}
+                      onHighlight={handleHighlight}
+                      onNavigateToVerse={onNavigateToVerse}
+                      getProphecyDataForVerse={getProphecyDataForVerse}
+                      getGlobalVerseText={getGlobalVerseText}
+                      allVerses={verses}
+                    />
+                  </div>
+                );
+              } catch (error) {
+                console.error(`❌ ERROR rendering verse at index ${actualIndex}:`, error, { verse });
+                return (
+                  <div
+                    key={`error-${actualIndex}`}
+                    className="verse-row absolute left-0 right-0 bg-red-100 dark:bg-red-900"
+                    style={{
+                      top: `${actualIndex * ROW_HEIGHT}px`,
+                      height: `${ROW_HEIGHT}px`,
+                    }}
+                  >
+                    <div className="p-3 text-red-700 dark:text-red-300">
+                      Error rendering verse at index {actualIndex}
+                    </div>
+                  </div>
+                );
+              }
+            })}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('❌ CRITICAL ERROR in VirtualBibleTable render:', error);
+    console.error('Component state at crash:', {
+      versesLength: verses.length,
+      visibleVersesLength: visibleVerses.length,
+      visibleRange,
+      totalRows
+    });
+    
+    return (
+      <div className="flex-1 flex items-center justify-center bg-red-50 dark:bg-red-950">
+        <div className="text-red-700 dark:text-red-300 text-center p-8">
+          <h2 className="text-xl font-bold mb-2">Error Loading Bible Table</h2>
+          <p className="mb-4">The table encountered an error and could not render.</p>
+          <details className="text-left max-w-2xl mx-auto">
+            <summary className="cursor-pointer">Error Details</summary>
+            <pre className="mt-2 p-4 bg-red-100 dark:bg-red-900 rounded overflow-auto text-xs">
+              {error?.toString()}
+            </pre>
+          </details>
+        </div>
+      </div>
+    );
+  }
 }
