@@ -70,7 +70,8 @@ export function TopHeader({
         </div>
 
         {/* Living Entrance Section - Auth State */}
-        <div className="flex items-center space-x-2 ml-4">
+        <div className="flex items-center space-x-2 ml-4 bg-red-500 p-2 rounded">
+          <div className="text-white text-xs">DEBUG: loading={loading ? 'true' : 'false'}, user={user ? 'exists' : 'null'}</div>
           {loading ? (
             <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
               <div className="w-4 h-4 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
