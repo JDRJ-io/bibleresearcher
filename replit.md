@@ -219,6 +219,14 @@ Data source: User's Supabase storage containing actual Bible translations and re
    - Center verse tracking for intelligent preloading
    - Massive data buffers (500-1000 verses) prevent boundary hits during fast scrolling
 
+2. **Hyperlink Navigation with History**: ✓ Complete implementation of back/forward navigation
+   - All verse references (cross-references, prophecy columns) are clickable hyperlinks
+   - Navigation history stack tracks visited verses for back/forward functionality
+   - Back button enables after clicking any hyperlink, forward button after going back
+   - Center verse tracking uses scrollContainerRef to save correct position
+   - Smooth scrolling to target verse with visual feedback
+   - Single navigation action per click prevents multiple history entries
+
 2. **Cross-ref Set Switcher**: ✓ Added radio switcher for cf1/cf2 sets in hamburger menu under "Extra Details"
    - cf1 (Standard): 29,315 cross-references loaded
    - cf2 (Extended): 30,692 cross-references loaded

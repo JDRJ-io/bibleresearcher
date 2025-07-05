@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,7 @@ export default function BiblePage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     verses = [],
@@ -46,6 +47,71 @@ export default function BiblePage() {
   } = useBibleData();
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
+  
+  // Navigation history for back/forward functionality
+  const [navigationHistory, setNavigationHistory] = useState<number[]>([]);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
+  
+  // Helper to get current center verse index
+  const getCurrentCenterVerse = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return 0;
+    
+    const scrollTop = container.scrollTop;
+    const viewportHeight = container.clientHeight;
+    const centerY = scrollTop + viewportHeight / 2;
+    const ROW_HEIGHT = 120; // Fixed row height from VirtualBibleTable
+    
+    return Math.floor(centerY / ROW_HEIGHT);
+  };
+  
+  // Hyperlink navigation following the 8-step process
+  const jumpToVerse = (reference: string) => {
+    // Step 2: Push current center verse onto "Back" stack
+    const currentCenter = getCurrentCenterVerse();
+    const newHistory = navigationHistory.slice(0, currentHistoryIndex + 1);
+    newHistory.push(currentCenter);
+    setNavigationHistory(newHistory);
+    setCurrentHistoryIndex(newHistory.length - 1);
+    
+    // Step 3-8 will be handled by navigateToVerse
+    navigateToVerse(reference);
+  };
+  
+  // Navigate back in history
+  const goBack = () => {
+    if (currentHistoryIndex > 0) {
+      const previousIndex = currentHistoryIndex - 1;
+      const targetVerseIndex = navigationHistory[previousIndex];
+      
+      // Update history pointer
+      setCurrentHistoryIndex(previousIndex);
+      
+      // Navigate to the verse at that index
+      if (allVerses[targetVerseIndex]) {
+        navigateToVerse(allVerses[targetVerseIndex].reference);
+      }
+    }
+  };
+  
+  // Navigate forward in history
+  const goForward = () => {
+    if (currentHistoryIndex < navigationHistory.length - 1) {
+      const nextIndex = currentHistoryIndex + 1;
+      const targetVerseIndex = navigationHistory[nextIndex];
+      
+      // Update history pointer
+      setCurrentHistoryIndex(nextIndex);
+      
+      // Navigate to the verse at that index
+      if (allVerses[targetVerseIndex]) {
+        navigateToVerse(allVerses[targetVerseIndex].reference);
+      }
+    }
+  };
+  
+  const canGoBack = currentHistoryIndex > 0;
+  const canGoForward = currentHistoryIndex < navigationHistory.length - 1;
   const allTranslations = [
     {
       id: "KJV",
@@ -558,8 +624,8 @@ export default function BiblePage() {
         {/* Left side - Back/Forward buttons */}
         <div className="flex items-center gap-2">
           <button
-            onClick={hookGoBack}
-            disabled={!hookCanGoBack}
+            onClick={goBack}
+            disabled={!canGoBack}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Go back"
           >
@@ -578,8 +644,8 @@ export default function BiblePage() {
             </svg>
           </button>
           <button
-            onClick={hookGoForward}
-            disabled={!hookCanGoForward}
+            onClick={goForward}
+            disabled={!canGoForward}
             className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Go forward"
           >
@@ -714,10 +780,11 @@ export default function BiblePage() {
         preferences={preferences}
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
-        onNavigateToVerse={navigateToVerse}
+        onNavigateToVerse={jumpToVerse}
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
         totalRows={totalRows}
+        scrollContainerRef={scrollContainerRef}
       />
 
       <ExpandedVerseOverlay

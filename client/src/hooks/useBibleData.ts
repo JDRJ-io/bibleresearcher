@@ -1568,5 +1568,10 @@ export function useBibleData() {
     getProphecyDataForVerse,
     // Global verse text lookup
     getGlobalVerseText,
+    // Navigation history for hyperlink jumps
+    navigationHistory,
+    currentHistoryIndex,
+    setNavigationHistory,
+    setCurrentHistoryIndex,
   };
 }

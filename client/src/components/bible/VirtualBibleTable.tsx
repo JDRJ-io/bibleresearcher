@@ -31,6 +31,10 @@ interface VirtualBibleTableProps {
    * scroll bar spans the entire Bible length.
    */
   totalRows: number;
+  /**
+   * Optional ref to the scroll container for external access
+   */
+  scrollContainerRef?: React.RefObject<HTMLDivElement>;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
@@ -45,6 +49,7 @@ export function VirtualBibleTable({
   getProphecyDataForVerse,
   getGlobalVerseText,
   totalRows,
+  scrollContainerRef,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -52,7 +57,7 @@ export function VirtualBibleTable({
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = scrollContainerRef || useRef<HTMLDivElement>(null);
 
   // Perfect scroll container height - set once for entire Bible
   const containerHeight = totalRows * ROW_HEIGHT;
