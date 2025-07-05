@@ -120,6 +120,7 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
+    // --- inside updateVisibleRows() ---
     const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
     const start = Math.max(0, centerIdx - BUFFER_SIZE);
     const end = Math.min(totalRows - 1, centerIdx + BUFFER_SIZE);
@@ -237,10 +238,17 @@ export function VirtualBibleTable({
   // 🔥 Build visible rows by index, not by slice length (same as in updateVisibleRows)
   const visibleVerses = Array.from(
     { length: visibleRange.end - visibleRange.start + 1 },
-    (_, i) => verses[visibleRange.start + i]
-  ).filter(Boolean);
+    (_, i) => verses[visibleRange.start + i]  // may be undefined at first
+  );
   
   // Remove the problematic lazy loading useEffect that was causing infinite loops
+
+  // run once after first mount
+  useEffect(() => {
+    onPreserveAnchor?.(preserveAnchor);
+  }, [onPreserveAnchor, preserveAnchor]);
+
+
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
@@ -267,7 +275,7 @@ export function VirtualBibleTable({
           const actualIndex = visibleRange.start + index;            
           return (
               <div
-                key={verse.id}
+                key={verse?.id || `placeholder-${actualIndex}`}
                 className="verse-row absolute left-0 right-0"
                 data-verse-index={actualIndex}
                 style={{
