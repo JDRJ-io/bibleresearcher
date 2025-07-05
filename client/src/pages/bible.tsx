@@ -107,6 +107,7 @@ export default function BiblePage() {
   ]);
 
   const [localExpandedVerse, setLocalExpandedVerse] = useState<any>(null);
+  const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
 
   const localExpandVerse = (verse: any) => setLocalExpandedVerse(verse);
   const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
@@ -230,10 +231,19 @@ export default function BiblePage() {
   };
 
   const handlePreferenceChange = async (key: string, value: boolean) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    // Use preserveAnchor if available to prevent scroll jumping on UI toggles
+    const updatePreferences = () => {
+      setPreferences((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    };
+    
+    if (preserveAnchor) {
+      preserveAnchor(updatePreferences);
+    } else {
+      updatePreferences();
+    }
 
     // Load prophecy data when prophecy columns are enabled
     if (key === 'showProphecy' && value) {
@@ -728,6 +738,7 @@ export default function BiblePage() {
           }
         }}
         centerVerseIndex={centerVerseIndex}
+        onPreserveAnchor={(callback) => setPreserveAnchor(() => callback)}
       />
 
       <ExpandedVerseOverlay

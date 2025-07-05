@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +33,7 @@ interface VirtualBibleTableProps {
   totalRows: number;
   onCenterVerseChange?: (centerIndex: number) => void;
   centerVerseIndex?: number;
+  onPreserveAnchor?: (callback: () => void) => void;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
@@ -56,6 +57,27 @@ export function VirtualBibleTable({
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Anchor preservation - expose preserveAnchor function
+  const preserveAnchor = useCallback((callback: () => void) => {
+    if (!scrollRef.current) {
+      callback();
+      return;
+    }
+    
+    // Save current scroll position
+    const savedScrollTop = scrollRef.current.scrollTop;
+    
+    // Execute the callback that might change UI
+    callback();
+    
+    // Restore scroll position on next frame
+    requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = savedScrollTop;
+      }
+    });
+  }, []);
 
   // Virtual scrolling state
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
@@ -83,23 +105,15 @@ export function VirtualBibleTable({
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Calculate which verses should be visible
-    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
-    const end = Math.min(
-      verses.length - 1,
-    Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
-    );
-
-    // Calculate the center verse in viewport for pull-ahead loading
-    const viewportCenter = currentScrollTop + viewportHeight / 2;
-    const centerIndex = Math.floor(viewportCenter / ROW_HEIGHT);
+    // Switch to center-based slice math as specified
+    const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+    const start = Math.max(0, centerIdx - BUFFER_SIZE);
+    const end = Math.min(totalRows - 1, centerIdx + BUFFER_SIZE);
     
-    // Pull-ahead loader: trigger loading before user reaches unloaded zones
+    // Pull-ahead loader: trigger loading for center verse (global index)
     if (verses.length > 0 && onCenterVerseChange) {
-      // Always trigger loading for the current center verse position
-      // This ensures text loads ahead of scrolling
-      const globalCenterIndex = centerIndex;
-      onCenterVerseChange(globalCenterIndex);
+      // centerIdx is now a true Bible index (no more firstDisplayIndex fudge)
+      onCenterVerseChange(centerIdx);
     }
 
     // Early exit if range hasn't changed (key optimization from original)
@@ -188,6 +202,27 @@ export function VirtualBibleTable({
 
   // Only render verses in visible range
   const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
+  
+  // Lazy text loading - check if any visible verses need text loading
+  useEffect(() => {
+    if (visibleVerses.length === 0) return;
+    
+    // Find verses that need text loading
+    const versesNeedingText = visibleVerses.filter(verse => 
+      !verse.text || Object.keys(verse.text).length === 0
+    );
+    
+    if (versesNeedingText.length > 0) {
+      // Trigger loading for the range that needs text
+      const firstIndex = Math.max(0, visibleRange.start - BUFFER_SIZE);
+      const lastIndex = Math.min(totalRows - 1, visibleRange.end + BUFFER_SIZE);
+      
+      if (onCenterVerseChange) {
+        const centerIdx = Math.floor((firstIndex + lastIndex) / 2);
+        onCenterVerseChange(centerIdx);
+      }
+    }
+  }, [visibleRange.start, visibleRange.end, visibleVerses.length, totalRows, onCenterVerseChange]);
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
@@ -216,6 +251,7 @@ export function VirtualBibleTable({
               <div
                 key={verse.id}
                 className="verse-row absolute left-0 right-0"
+                data-verse-index={verse.index}
                 style={{
                   top: `${actualIndex * ROW_HEIGHT}px`,
                   height: `${ROW_HEIGHT}px`,

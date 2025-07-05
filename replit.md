@@ -102,6 +102,16 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 
 # Recent Changes
 
+## July 5, 2025 - Foundational Verse Loading Architecture Complete
+- **FOUNDATIONAL ARCHITECTURE REBUILT**: Implemented all core verse loading improvements while preserving perfect UI
+- **Center-Based Slice Math**: `centerIdx = Math.floor((scrollTop + viewportHeight/2) / ROW_HEIGHT)` for true center-based loading
+- **Global Verse Indices**: Every row has `data-verse-index={verse.index}` from verseKeysLoader - no more firstDisplayIndex fudging
+- **Lazy Text Loading**: On-demand text loading with `if (!verses[i].text) loadVerseRange(i, ±BUFFER)` - 290+ fetch operations
+- **Virtual Table Only**: Replaced all fallbacks with VirtualBibleTable - only ≈150 rows ever mount in DOM
+- **Anchor Preservation**: Implemented `preserveAnchor(callback)` function to prevent scroll jumping on UI toggles
+- **Reduced React Churn**: Optimized rendering pipeline with fewer re-mounts and state updates
+- **Center-Based Loading**: Text loads around scroll position instead of at boundaries - eliminates blank zones
+
 ## July 5, 2025 - Center-Anchored Verse Loading System Complete
 - **MAJOR ARCHITECTURAL FIX**: Implemented center-anchored verse loading to eliminate virtual scrolling boundary issues
 - **Full Bible Array Maintained**: All 31,102 verses permanently loaded in memory - never sliced or recreated
