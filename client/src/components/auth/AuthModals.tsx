@@ -101,12 +101,17 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   }
 
   console.log('AuthModals render:', { isSignUpOpen, isSignInOpen });
+  
+  // Debug: Force show sign in modal for testing
+  if (isSignInOpen) {
+    console.log('Sign In modal should be visible now!');
+  }
 
   return (
     <>
       {/* Sign Up Modal */}
       <Dialog open={isSignUpOpen} onOpenChange={onCloseSignUp}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-amber-50/95 via-orange-50/95 to-yellow-50/95 dark:from-amber-950/90 dark:via-orange-950/90 dark:to-yellow-950/90 border-2 border-amber-200/50 dark:border-amber-600/50 backdrop-blur-lg shadow-2xl shadow-amber-200/20 dark:shadow-amber-900/40 z-[9999] relative overflow-hidden">
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-amber-50/95 via-orange-50/95 to-yellow-50/95 dark:from-amber-950/90 dark:via-orange-950/90 dark:to-yellow-950/90 border-2 border-amber-200/50 dark:border-amber-600/50 backdrop-blur-lg shadow-2xl shadow-amber-200/20 dark:shadow-amber-900/40 relative overflow-hidden" style={{ zIndex: 9999 }}>
           {/* Mystical Background Effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-amber-100/20 via-transparent to-orange-100/20 dark:from-amber-800/10 dark:via-transparent dark:to-orange-800/10" />
           <div className="absolute top-0 left-0 w-32 h-32 bg-amber-200/10 dark:bg-amber-600/10 rounded-full blur-3xl animate-pulse" />
@@ -178,7 +183,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* Sign In Modal */}
       <Dialog open={isSignInOpen} onOpenChange={onCloseSignIn}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-blue-50/95 via-indigo-50/95 to-purple-50/95 dark:from-blue-950/90 dark:via-indigo-950/90 dark:to-purple-950/90 border-2 border-blue-200/50 dark:border-blue-600/50 backdrop-blur-lg shadow-2xl shadow-blue-200/20 dark:shadow-blue-900/40 z-[9999] relative overflow-hidden">
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-blue-50/95 via-indigo-50/95 to-purple-50/95 dark:from-blue-950/90 dark:via-indigo-950/90 dark:to-purple-950/90 border-2 border-blue-200/50 dark:border-blue-600/50 backdrop-blur-lg shadow-2xl shadow-blue-200/20 dark:shadow-blue-900/40 relative overflow-hidden" style={{ zIndex: 9999 }}>
           {/* Mystical Background Effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 via-transparent to-indigo-100/20 dark:from-blue-800/10 dark:via-transparent dark:to-indigo-800/10" />
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/10 dark:bg-blue-600/10 rounded-full blur-3xl animate-pulse" />
