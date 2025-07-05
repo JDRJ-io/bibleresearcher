@@ -31,6 +31,8 @@ interface VirtualBibleTableProps {
    * scroll bar spans the entire Bible length.
    */
   totalRows: number;
+  onCenterVerseChange?: (centerIndex: number) => void;
+  centerVerseIndex?: number;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
@@ -45,6 +47,8 @@ export function VirtualBibleTable({
   getProphecyDataForVerse,
   getGlobalVerseText,
   totalRows,
+  onCenterVerseChange,
+  centerVerseIndex = 0,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -86,6 +90,25 @@ export function VirtualBibleTable({
       verses.length - 1,
     Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
     );
+
+    // Calculate the center verse in viewport
+    const viewportCenter = currentScrollTop + viewportHeight / 2;
+    const centerIndex = Math.floor(viewportCenter / ROW_HEIGHT);
+    
+    // Check if we've scrolled beyond the loaded verse boundaries
+    if (verses.length > 0 && onCenterVerseChange) {
+      const firstLoadedIndex = verses[0].index || 0;
+      
+      // Calculate global center index
+      const globalCenterIndex = firstLoadedIndex + centerIndex;
+      
+      // Trigger loading when we're within 20 verses of the edge
+      const EDGE_THRESHOLD = 20;
+      if (centerIndex < EDGE_THRESHOLD || 
+          centerIndex > verses.length - EDGE_THRESHOLD) {
+        onCenterVerseChange(globalCenterIndex);
+      }
+    }
 
     // Early exit if range hasn't changed (key optimization from original)
     if (start === currentStartIndex && end === currentEndIndex) return;

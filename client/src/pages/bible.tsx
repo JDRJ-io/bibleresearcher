@@ -43,6 +43,8 @@ export default function BiblePage() {
     getProphecyDataForVerse,
     loadProphecyDataOnDemand,
     getGlobalVerseText,
+    centerVerseIndex,
+    loadVerseRange,
   } = useBibleData();
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
@@ -718,6 +720,14 @@ export default function BiblePage() {
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
         totalRows={totalRows}
+        onCenterVerseChange={(globalCenterIndex) => {
+          // When user scrolls near edges, load more verses around the new center
+          console.log(`📍 Center verse changed to global index: ${globalCenterIndex}`);
+          if (verses.length > 0 && loadVerseRange) {
+            loadVerseRange(verses, globalCenterIndex, false);
+          }
+        }}
+        centerVerseIndex={centerVerseIndex}
       />
 
       <ExpandedVerseOverlay

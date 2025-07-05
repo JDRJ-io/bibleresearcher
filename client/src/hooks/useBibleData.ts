@@ -1569,5 +1569,8 @@ export function useBibleData() {
     getProphecyDataForVerse,
     // Global verse text lookup
     getGlobalVerseText,
+    // Center-anchored verse loading
+    centerVerseIndex,
+    loadVerseRange,
   };
 }
