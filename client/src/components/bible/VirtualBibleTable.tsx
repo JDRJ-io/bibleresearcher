@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,17 +31,10 @@ interface VirtualBibleTableProps {
    * scroll bar spans the entire Bible length.
    */
   totalRows: number;
-  /**
-   * Callback to set the anchor preservation function
-   */
-  onAnchorReady?: (preserveAnchor: (callback: () => void) => void) => void;
 }
 
 const ROW_HEIGHT = 120; // Fixed height for each verse row
-
-// Small buffers for efficient virtualization - following original prototype
-const VIEWPORT_BUFFER = 20; // Preload ± 2 viewports (≈ 20 rows above & below)
-const BUFFER_SIZE = 2; // Minimal buffer like original prototype
+const BUFFER_SIZE = 20; // Number of verses to render above/below viewport
 
 export function VirtualBibleTable({
   verses,
@@ -52,7 +45,6 @@ export function VirtualBibleTable({
   getProphecyDataForVerse,
   getGlobalVerseText,
   totalRows,
-  onAnchorReady,
 }: VirtualBibleTableProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -61,61 +53,14 @@ export function VirtualBibleTable({
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
 
-  // Row pool system - allocate ±120 rows on first render, store refs in array
-  const rowPoolSize = 120; // Fixed pool size as specified
-  const rowRefs = useRef<Array<React.RefObject<HTMLDivElement>>>([]);
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
-  
+  // Virtual scrolling state
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 100 });
+  const [currentStartIndex, setCurrentStartIndex] = useState(0);
+  const [currentEndIndex, setCurrentEndIndex] = useState(-1);
+
   // Calculate total height for scrollbar using the full verse count
-  // Height = totalVerses × rowHeight right after verse keys load
   const totalHeight = totalRows * ROW_HEIGHT;
-  
-  // Track current range to prevent race conditions and support anchoring
-  const currentRangeRef = useRef({ start: 0, end: 0 });
-  const centerVerseRef = useRef(0); // Track center verse for anchoring
-  
-  // Anchoring function - preserves center verse when UI options change
-  const preserveAnchor = useCallback((callback: () => void) => {
-    if (!containerRef.current || !scrollRef.current) {
-      if (typeof callback === 'function') {
-        callback();
-      }
-      return;
-    }
-    
-    // Remember current center verse
-    const currentScrollTop = scrollRef.current.scrollTop;
-    const viewportHeight = containerRef.current.clientHeight;
-    const anchorVerseIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
-    
-    // Execute the UI change
-    if (typeof callback === 'function') {
-      callback();
-    }
-    
-    // Restore scroll position after next render
-    setTimeout(() => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = anchorVerseIndex * ROW_HEIGHT;
-      }
-    }, 0);
-  }, []);
-
-  // Initialize row pool on first render
-  useEffect(() => {
-    if (rowRefs.current.length === 0) {
-      rowRefs.current = Array.from({ length: rowPoolSize }, () => React.createRef());
-    }
-  }, [rowPoolSize]);
-
-  // Pass anchoring function to parent
-  useEffect(() => {
-    if (onAnchorReady) {
-      onAnchorReady(preserveAnchor);
-    }
-  }, [onAnchorReady]);
 
   // User data queries
   const { data: userNotes = [] } = useQuery<UserNote[]>({
@@ -128,38 +73,29 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // Update visible range based on scroll position - single source of truth
+  // Update visible range based on scroll position
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // CENTER-ANCHORED: Calculate based on center of viewport like prototype
-    const currentVerseIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
-    const viewportVerseCount = Math.ceil(viewportHeight / ROW_HEIGHT);
-    
-    // Update center verse for anchoring
-    centerVerseRef.current = currentVerseIndex;
-    
-    // Use small buffers like original prototype - just 2-3 viewports worth
-    const start = Math.max(0, currentVerseIndex - VIEWPORT_BUFFER);
+    // Calculate which verses should be visible
+    const start = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - BUFFER_SIZE);
     const end = Math.min(
-      totalRows - 1, // Use totalRows instead of verses.length to prevent clamping
-      currentVerseIndex + viewportVerseCount + VIEWPORT_BUFFER
+      verses.length - 1,
+    Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + BUFFER_SIZE,
     );
 
     // Early exit if range hasn't changed (key optimization from original)
-    if (start === currentRangeRef.current.start && end === currentRangeRef.current.end) {
-      return;
-    }
+    if (start === currentStartIndex && end === currentEndIndex) return;
 
-    // Update both ref and state
-    currentRangeRef.current = { start, end };
+    setCurrentStartIndex(start);
+    setCurrentEndIndex(end);
     setVisibleRange({ start, end });
   };
 
-  // Handle scroll events - single scroll listener to prevent race conditions
+  // Handle scroll events
   useEffect(() => {
     let animationFrameId: number;
 
@@ -170,25 +106,8 @@ export function VirtualBibleTable({
 
       animationFrameId = requestAnimationFrame(() => {
         if (scrollRef.current) {
-          const newScrollTop = scrollRef.current.scrollTop;
-          const newScrollLeft = scrollRef.current.scrollLeft;
-          
-          // Update center verse for anchoring
-          if (containerRef.current) {
-            const viewportHeight = containerRef.current.clientHeight;
-            centerVerseRef.current = Math.floor((newScrollTop + viewportHeight / 2) / ROW_HEIGHT);
-          }
-          
-          // Move header with ref, not React state - prevents re-render lag
-          if (headerRef.current) {
-            headerRef.current.style.transform = `translateX(-${newScrollLeft}px)`;
-          }
-          
-          // Keep minimal state updates for scroll position tracking
-          setScrollTop(newScrollTop);
-          // REMOVED: setScrollLeft(newScrollLeft) - no longer needed since header follows via ref
-          
-          // Update visible verses with early-exit optimization
+          setScrollTop(scrollRef.current.scrollTop);
+          setScrollLeft(scrollRef.current.scrollLeft);
           updateVisibleRows();
         }
       });
@@ -209,12 +128,12 @@ export function VirtualBibleTable({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [verses.length]); // Only depend on verses.length, not internal state
+  }, [verses.length, currentStartIndex, currentEndIndex]);
 
-  // Update when verses change - reset range and recalculate
+  // Update when verses change
   useEffect(() => {
-    currentRangeRef.current = { start: 0, end: 0 };
-    setVisibleRange({ start: 0, end: 0 });
+    setCurrentStartIndex(0);
+    setCurrentEndIndex(-1);
     updateVisibleRows();
   }, [verses]);
 
@@ -253,91 +172,12 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Helper to update verse row content in-place without remounting
-  const updateVerseRow = (element: HTMLDivElement | null, verse: BibleVerse, verseIndex: number) => {
-    if (!element) return;
-    
-    // Fill verse text on-demand if missing
-    if (!verse.text.KJV) {
-      import('@/hooks/useBibleData').then(({ fillVerseText }) => {
-        fillVerseText(verse, 'KJV');
-        // Update element after text loads
-        requestAnimationFrame(() => updateVerseRow(element, verse, verseIndex));
-      });
-      return;
-    }
-    
-    // Update position
-    element.style.top = `${verseIndex * ROW_HEIGHT}px`;
-    element.style.height = `${ROW_HEIGHT}px`;
-    element.style.position = 'absolute';
-    element.style.left = '0';
-    element.style.right = '0';
-    element.className = 'verse-row absolute left-0 right-0';
-    
-    // Update content directly in DOM
-    element.innerHTML = `
-      <div class="flex border-b" style="height: ${ROW_HEIGHT}px; border-color: var(--border-color);">
-        <div class="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 text-sm font-medium" style="border-color: var(--border-color);">
-          ${verse.reference}
-        </div>
-        ${selectedTranslations.map(translation => `
-          <div class="w-80 flex-shrink-0 p-3 border-r text-sm overflow-auto" style="border-color: var(--border-color); max-height: ${ROW_HEIGHT}px;">
-            ${verse.text[translation.id] || 'Loading...'}
-          </div>
-        `).join('')}
-        <div class="w-60 flex-shrink-0 p-3 border-r text-sm overflow-auto" style="border-color: var(--border-color); max-height: ${ROW_HEIGHT}px;">
-          ${verse.crossReferences?.slice(0, 3).map(ref => 
-            `<a href="#" class="text-blue-600 hover:underline mr-2" onclick="window.dispatchEvent(new CustomEvent('navigate-verse', {detail: '${ref.reference}'}))">${ref.reference}</a>`
-          ).join('') || ''}
-        </div>
-        ${preferences.showProphecy ? `
-          <div class="w-64 flex-shrink-0 p-3 border-r text-sm overflow-auto" style="border-color: var(--border-color); max-height: ${ROW_HEIGHT}px;">
-            Prophecy data...
-          </div>
-        ` : ''}
-        ${preferences.showNotes ? `
-          <div class="w-60 flex-shrink-0 p-3 text-sm overflow-auto" style="max-height: ${ROW_HEIGHT}px;">
-            Notes...
-          </div>
-        ` : ''}
-      </div>
-    `;
-  };
-
-  // Row pool rendering system - direct DOM manipulation instead of JSX remounting
-  const renderRowPool = () => {
-    const rowElements = [];
-    const visibleRowCount = Math.min(rowPoolSize, visibleRange.end - visibleRange.start + 1);
-    
-    for (let i = 0; i < visibleRowCount; i++) {
-      const verseIndex = visibleRange.start + i;
-      const verse = verses[verseIndex];
-      
-      if (verse) {
-        // Create row wrapper only once, then update content in place
-        const rowElement = (
-          <div
-            key={`row-${i}`}
-            ref={(el) => {
-              if (el) {
-                rowRefs.current[i] = { current: el };
-                updateVerseRow(el, verse, verseIndex);
-              }
-            }}
-          />
-        );
-        rowElements.push(rowElement);
-      }
-    }
-    
-    return rowElements;
-  };
+  // Only render verses in visible range
+  const visibleVerses = verses.slice(visibleRange.start, visibleRange.end + 1);
 
   return (
     <div className="flex-1 flex flex-col h-full relative" ref={containerRef}>
       <ColumnHeaders
-        ref={headerRef}
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
@@ -347,22 +187,45 @@ export function VirtualBibleTable({
 
       <div
         className="flex-1 overflow-auto"
-        style={{ 
-          height: "100%", // Let container take full available space
-          marginTop: "48px" 
-        }}
+        style={{ height: "calc(100vh - 160px)", marginTop: "48px" }}
         ref={scrollRef}
       >
-        {/* Single container with exact total height - prevents white space gaps */}
+        {/* Virtual scroll container with total height */}
         <div
           className="relative min-w-max"
-          style={{ 
-            height: `${totalHeight}px`,
-            position: 'relative'
-          }}
+          style={{ height: `${totalHeight}px` }}
         >
-          {/* Row pool system - reuse DOM elements */}
-          {renderRowPool()}
+          {/* Render only visible verses with absolute positioning */}
+          {visibleVerses.map((verse, index) => {
+          const actualIndex = visibleRange.start + index;            
+          return (
+              <div
+                key={verse.id}
+                className="verse-row absolute left-0 right-0"
+                style={{
+                  top: `${actualIndex * ROW_HEIGHT}px`,
+                  height: `${ROW_HEIGHT}px`,
+                }}
+              >
+                <VerseRow
+                  verse={verse}
+                  verseIndex={actualIndex}
+                  selectedTranslations={selectedTranslations}
+                  showNotes={preferences.showNotes}
+                  showProphecy={preferences.showProphecy}
+                  showContext={preferences.showContext}
+                  userNote={getUserNoteForVerse(verse.reference)}
+                  highlights={getHighlightsForVerse(verse.reference)}
+                  onExpandVerse={onExpandVerse}
+                  onHighlight={handleHighlight}
+                  onNavigateToVerse={onNavigateToVerse}
+                  getProphecyDataForVerse={getProphecyDataForVerse}
+                  getGlobalVerseText={getGlobalVerseText}
+                  allVerses={verses}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

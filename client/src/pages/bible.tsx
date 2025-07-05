@@ -113,9 +113,6 @@ export default function BiblePage() {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
-  
-  // Store anchor preservation function from VirtualBibleTable
-  const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
 
   // Translation helper functions
   const toggleTranslation = (translationId: string) => {
@@ -132,25 +129,13 @@ export default function BiblePage() {
   };
 
   const toggleMultiTranslationMode = () => {
-    // Use anchor preservation to keep center verse stable during mode changes
-    if (preserveAnchor) {
-      preserveAnchor(() => {
-        setMultiTranslationMode(!multiTranslationMode);
-        if (!multiTranslationMode) {
-          // Entering multi-translation mode - keep current main as selected
-          setSelectedTranslations([mainTranslation]);
-        } else {
-          // Exiting multi-translation mode - keep only main
-          setSelectedTranslations([mainTranslation]);
-        }
-      });
+    setMultiTranslationMode(!multiTranslationMode);
+    if (!multiTranslationMode) {
+      // Entering multi-translation mode - keep current main as selected
+      setSelectedTranslations([mainTranslation]);
     } else {
-      setMultiTranslationMode(!multiTranslationMode);
-      if (!multiTranslationMode) {
-        setSelectedTranslations([mainTranslation]);
-      } else {
-        setSelectedTranslations([mainTranslation]);
-      }
+      // Exiting multi-translation mode - keep only main
+      setSelectedTranslations([mainTranslation]);
     }
   };
 
@@ -243,20 +228,10 @@ export default function BiblePage() {
   };
 
   const handlePreferenceChange = async (key: string, value: boolean) => {
-    // Use anchor preservation to keep center verse stable during UI changes
-    if (preserveAnchor) {
-      preserveAnchor(() => {
-        setPreferences((prev) => ({
-          ...prev,
-          [key]: value,
-        }));
-      });
-    } else {
-      setPreferences((prev) => ({
-        ...prev,
-        [key]: value,
-      }));
-    }
+    setPreferences((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
 
     // Load prophecy data when prophecy columns are enabled
     if (key === 'showProphecy' && value) {
@@ -743,7 +718,6 @@ export default function BiblePage() {
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
         totalRows={totalRows}
-        onAnchorReady={setPreserveAnchor}
       />
 
       <ExpandedVerseOverlay

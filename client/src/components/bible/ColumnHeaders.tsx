@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Translation } from '@/types/bible';
 
 interface ColumnHeadersProps {
@@ -9,11 +8,9 @@ interface ColumnHeadersProps {
   scrollLeft: number;
 }
 
-export const ColumnHeaders = React.forwardRef<HTMLDivElement, ColumnHeadersProps>(
-  function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }, ref) {
+export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
   return (
     <div 
-      ref={ref}
       className="sticky top-16 left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
         height: '48px',
@@ -66,6 +63,4 @@ export const ColumnHeaders = React.forwardRef<HTMLDivElement, ColumnHeadersProps
       </div>
     </div>
   );
-});
-
-ColumnHeaders.displayName = 'ColumnHeaders';
+}

@@ -20,32 +20,6 @@ let globalKjvTextMap: Map<string, string> | null = null;
 // Cache for all loaded translations
 const translationCache = new Map<string, Map<string, string>>();
 
-// Fill verse text on-demand from the global text map
-export const fillVerseText = (verse: BibleVerse, translationId: string = 'KJV'): void => {
-  if (!globalKjvTextMap || verse.text[translationId]) return; // Already loaded
-  
-  // Try different reference formats to find the text
-  const referenceFormats = [
-    verse.reference,
-    `${verse.book}.${verse.chapter}:${verse.verse}`,
-    `${verse.book} ${verse.chapter}:${verse.verse}`,
-    `${verse.book}.${verse.chapter}.${verse.verse}`,
-  ];
-  
-  for (const format of referenceFormats) {
-    const text = globalKjvTextMap.get(format);
-    if (text) {
-      // Mutate the verse object in place
-      verse.text[translationId] = text;
-      const labels = verse.labels || [];
-      verse.labels = labels.includes(`${translationId.toLowerCase()}-loaded`) 
-        ? labels 
-        : [...labels, `${translationId.toLowerCase()}-loaded`];
-      break;
-    }
-  }
-};
-
 // Load KJV text map once and store globally
 const loadKJVTextMap = async (): Promise<void> => {
   if (globalKjvTextMap) return; // Already loaded
