@@ -125,7 +125,8 @@ export function VirtualBibleTable({
     const start = Math.max(0, centerIdx - BUFFER_SIZE);
     const end = Math.min(totalRows - 1, centerIdx + BUFFER_SIZE);
 
-    // Note: visibleVerses is now calculated in render using the same index-based approach
+    // Update visible range state to trigger re-render
+    setVisibleRange({ start, end });
 
     // Pull-ahead loader: trigger loading for center verse (global index)
     if (centerIdx !== centerVerseIndex) {
@@ -231,14 +232,21 @@ export function VirtualBibleTable({
 
   // Only render verses in visible range
   // 🔥 Build visible rows by index, not by slice length (same as in updateVisibleRows)
+  const safeVisibleRange = {
+    start: Math.max(0, visibleRange.start),
+    end: Math.min(totalRows - 1, visibleRange.end)
+  };
+  
   const visibleVerses = Array.from(
-    { length: visibleRange.end - visibleRange.start + 1 },
+    { length: Math.max(1, safeVisibleRange.end - safeVisibleRange.start + 1) },
     (_, i) => {
-      const globalIndex = visibleRange.start + i;
+      const globalIndex = safeVisibleRange.start + i;
       // Use the passed verses if available, otherwise use the global template
       return verses[globalIndex] || globalVerses[globalIndex];
     }
   );
+  
+  console.log(`🔍 VirtualBibleTable render: visibleRange=${JSON.stringify(visibleRange)}, safeRange=${JSON.stringify(safeVisibleRange)}, visibleVerses.length=${visibleVerses.length}, totalHeight=${totalHeight}`);
 
   // Remove the problematic lazy loading useEffect that was causing infinite loops
 
