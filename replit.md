@@ -448,6 +448,18 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **ALL COMPLETION CRITERIA MET**: Anchor always resolves to viewport center, no network calls from scrolling
 - **ANCHOR-CENTERED MNEMONIC**: "The table no longer thinks in edges; it keeps a moving anchor in the middle"
 
+## July 6, 2025 - Anchor-Centered Replacement Functions COMPLETE ✅
+- **ACCEPTANCE PHRASE VALIDATED**: "The table now scrolls on an anchor-index. useAnchorScroll drives loadChunk; all edge-loading code paths have been removed"
+- **useAnchorScroll IMPLEMENTED**: Tracks scroll position, calculates anchor index with 40ms debouncing, drives entire system
+- **useChunk IMPLEMENTED**: Returns verseKeys.slice(start,end) around anchor with proper buffering (250 verses)
+- **VirtualRow IMPLEMENTED**: Renders individual verse rows with column data in tightened layout
+- **useRowData IMPLEMENTED**: Loads data only for verses in current chunk using translation maps
+- **EDGE-LOADING ELIMINATION CONFIRMED**: No fetchMoreAbove, fetchMoreBelow, sentinels, or IntersectionObserver code paths remain
+- **TIGHTENED COLUMN LAYOUT**: Reference (w-20), Main Translation (w-80), Cross References (w-60), Prophecy columns (w-16 each)
+- **SMOOTH SCROLLING VERIFIED**: Real-time anchor tracking with precise center-verse detection working perfectly
+- **FETCHING STRATEGY OPTIMIZED**: Translations loaded once per session, useRowData uses translationMap.get(verseID)
+- **COMPLETE BIBLE NAVIGATION**: All 31,102 verses accessible with instant virtual scrolling Genesis to Revelation
+
 ## February 2, 2025 - Virtual Scrolling Memory Optimization
 - **VIRTUAL SCROLLING IMPLEMENTED**: Reduced memory usage from 3GB to ~200MB using original prototype technique
 - Created VirtualBibleTable component with fixed 120px row heights and absolute positioning
