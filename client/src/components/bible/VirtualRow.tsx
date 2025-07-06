@@ -22,30 +22,30 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       data-verse-id={verseID}
       data-verse-index={verse.index}
     >
-      {/* Verse Reference Column */}
-      <div className="w-32 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
+      {/* Verse Reference Column - Tighter */}
+      <div className="w-20 px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
         {verse.reference}
       </div>
       
-      {/* Main Translation Column */}
-      <div className="flex-1 px-3 py-2 text-sm">
+      {/* Main Translation Column - Tighter */}
+      <div className="w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="overflow-auto h-full">
           {verse.text[settings.mainTranslation] || verse.text.KJV || `Loading ${verse.reference}...`}
         </div>
       </div>
       
-      {/* Multi-Translation Columns */}
+      {/* Multi-Translation Columns - Tighter */}
       {settings.multiTranslations?.map((translation: string) => (
-        <div key={translation} className="w-64 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div key={translation} className="w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="overflow-auto h-full">
             {verse.text[translation] || 'Loading...'}
           </div>
         </div>
       ))}
       
-      {/* Cross-References Column */}
+      {/* Cross-References Column - Tighter */}
       {settings.showCrossReferences && (
-        <div className="w-48 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="overflow-auto h-full">
             {verse.crossReferences.slice(0, 6).map((ref, index) => (
               <span key={index} className="inline-block mr-1 mb-1 text-xs">
@@ -61,10 +61,10 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
         </div>
       )}
       
-      {/* Prophecy Columns */}
+      {/* Prophecy Columns - Tighter */}
       {settings.showProphecy && (
         <>
-          <div className="w-32 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="w-16 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div className="overflow-auto h-full text-blue-600 dark:text-blue-400">
               {/* Predictions */}
               {prophecyData?.[verseID]?.predictions?.length > 0 && (
@@ -72,7 +72,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
               )}
             </div>
           </div>
-          <div className="w-32 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="w-16 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div className="overflow-auto h-full text-green-600 dark:text-green-400">
               {/* Fulfillments */}
               {prophecyData?.[verseID]?.fulfillments?.length > 0 && (
@@ -80,7 +80,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
               )}
             </div>
           </div>
-          <div className="w-32 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="w-16 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div className="overflow-auto h-full text-purple-600 dark:text-purple-400">
               {/* Verifications */}
               {prophecyData?.[verseID]?.verifications?.length > 0 && (

@@ -26,31 +26,39 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
             willChange: 'transform'
           }}
         >
-          {/* Reference Column Header */}
-          <div className="w-24 flex-shrink-0 flex items-center justify-center border-r px-2 font-semibold text-sm bg-background">
+          {/* Reference Column Header - Tighter */}
+          <div className="w-20 flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs bg-background">
             Reference
           </div>
 
-          {/* Translation Headers - Dynamic based on selected translations */}
+          {/* Translation Headers - Tighter */}
           {selectedTranslations.map((translation) => (
             <div 
               key={translation.id}
-              className="w-80 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-background"
+              className="w-80 flex-shrink-0 flex items-center px-2 border-r font-semibold text-sm bg-background"
             >
               {translation.abbreviation} - {translation.name}
             </div>
           ))}
 
-          {/* Cross References Header */}
-          <div className="w-60 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-background">
+          {/* Cross References Header - Tighter */}
+          <div className="w-60 flex-shrink-0 flex items-center px-2 border-r font-semibold text-sm bg-background">
             Cross References
           </div>
 
-          {/* Prophecy Header - Only show if enabled */}
+          {/* Prophecy Headers - Three Tighter Columns */}
           {showProphecy && (
-            <div className="w-64 flex-shrink-0 flex items-center px-3 border-r font-semibold text-sm bg-background">
-              Prophecy & Fulfillment
-            </div>
+            <>
+              <div className="w-16 flex-shrink-0 flex items-center justify-center px-1 border-r font-semibold text-xs bg-background">
+                P
+              </div>
+              <div className="w-16 flex-shrink-0 flex items-center justify-center px-1 border-r font-semibold text-xs bg-background">
+                F
+              </div>
+              <div className="w-16 flex-shrink-0 flex items-center justify-center px-1 border-r font-semibold text-xs bg-background">
+                V
+              </div>
+            </>
           )}
           
           {/* Notes Header - Only show if enabled */}

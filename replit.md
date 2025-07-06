@@ -581,7 +581,7 @@ Data source: User's Supabase storage containing actual Bible translations and re
 
 ## Missing Core Features (Per User Analysis)
 0. Current Bottleneck
-   Load Speed: All translations parse on the main thread, causing a 5–10 s stall when the page first loads.
+   Load Speed: All translations parse on the main thread.
    Fix: parse each translation in its own worker, then post back a Map<verseID,string>; paint rows incrementally as each worker resolves.
 1. **Multi-Translation Columns**: Currently only toggles KJV/AMP - needs dynamic column injection for up to 12 translations
 2. **Prophecy Verification Column**: Missing 3rd column and summary titles  
@@ -594,4 +594,3 @@ Data source: User's Supabase storage containing actual Bible translations and re
 9. **Drag Column Reordering**: No drag listeners, lock flag unused
 10. **Bookmark Delete**: Only adds, no delete functionality
 11. **Forum Vote Guard**: No duplicate vote prevention
-12. **Load Speed**: All translations load on main thread causing 5-10s stall
