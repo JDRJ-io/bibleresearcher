@@ -11,6 +11,14 @@
   box-sizing: border-box;
 }
 
+/* 3-C. Keep ROW_HEIGHT constant, allow inner wrapping - CSS only - inside your verse cell */
+.verse-cell {
+  min-height: 120px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+/* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
+
 /* Verse hover and highlight animations matching original design */
 @keyframes highlight-anim {
   0% { background-color: gold; }

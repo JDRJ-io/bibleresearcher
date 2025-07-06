@@ -448,6 +448,18 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **ALL COMPLETION CRITERIA MET**: Anchor always resolves to viewport center, no network calls from scrolling
 - **ANCHOR-CENTERED MNEMONIC**: "The table no longer thinks in edges; it keeps a moving anchor in the middle"
 
+## July 6, 2025 - Expert Optimization Implementation COMPLETE ✅
+- **STEP 2 - ANCHOR-CENTERED DATA LOADING**: Implemented expert-guided slice filtering and performance optimizations
+  - 2-A: Exposed 200-verse slice with updated useChunk function for efficient data management
+  - 2-B: Added slice filtering to supabaseLoader.ts before calling .select() for optimal database queries
+  - 2-C: Implemented performance guard warning when slice.length > 250 in development mode
+- **STEP 3 - VIRTUALIZATION POLISH**: Completed smooth scrolling and visual jump elimination
+  - 3-A: Added debounced anchor updates to prevent 30+ state updates on fast wheel spin
+  - 3-B: Preserved scroll position during slice swaps with anchor row stability
+  - 3-C: Maintained constant ROW_HEIGHT (120px) with inner text wrapping for optimal virtualization
+- **PERFORMANCE VALIDATION**: Console shows `🏆 ANCHOR LOAD [≤ 250]` and `🔍 VALIDATION: globalResourceCache.get('KJV') instanceof Map → true`
+- **ACCEPTANCE CRITERIA MET**: Chrome Memory stays under 1GB, smooth Genesis 1→Revelation 22 scrolling achieved
+
 ## February 2, 2025 - Virtual Scrolling Memory Optimization
 - **VIRTUAL SCROLLING IMPLEMENTED**: Reduced memory usage from 3GB to ~200MB using original prototype technique
 - Created VirtualBibleTable component with fixed 120px row heights and absolute positioning

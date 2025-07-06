@@ -49,6 +49,7 @@ const VirtualBibleTable = ({
   centerVerseIndex = 0,
   onPreserveAnchor,
 }: VirtualBibleTableProps) => {
+  // All hooks must be called at the top level of the component
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
