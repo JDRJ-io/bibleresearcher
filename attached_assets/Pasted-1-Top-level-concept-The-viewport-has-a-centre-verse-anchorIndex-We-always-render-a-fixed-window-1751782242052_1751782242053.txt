@@ -1,0 +1,92 @@
+1  Top‑level concept
+“The viewport has a centre verse (anchorIndex).
+We always render a fixed window around that index, and every data fetch keys off the verses in that window.”
+
+No top sentinel, no bottom sentinel, no incremental fetchMore. The slice moves, not the ends.
+
+2  Component anatomy
+VerseTable.tsx
+Parent component that owns:
+const [anchorIndex, setAnchorIndex] = useState<number>(startOfBook);
+
+useAnchorScroll.ts (new)
+Custom hook that attaches a scroll listener to the table’s container, measures the element at the vertical centre of the viewport, turns that into an index, debounces at 40 ms, and calls setAnchorIndex.
+
+useChunk.ts (new)
+Given anchorIndex and buffer, returns start, end, and verseIDs (verseKeys.slice(start,end)). Memoise so scrolling without index change costs zero.
+
+VirtualRow.tsx
+Reusable component that renders one verse row. Accepts props verseID rowHeight columnData.
+
+Workers remain unchanged except that their callers now pass verseIDs derived from verseIDs rather than absolute positions.
+
+3  Algorithm in pseudo‑code
+ts
+Copy
+// VerseTable.tsx
+const verseKeys   = useVerseKeys();          // loaded once
+const anchorInfo  = useAnchorScroll(containerRef);  // {anchorIndex}
+const chunk       = useChunk(verseKeys, anchorInfo.anchorIndex, 250);
+const rowData     = useRowData(chunk.verseIDs);     // TanStack Query caches maps
+
+return (
+  <div ref={containerRef} className="scroll-container">
+    <div style={{height: chunk.start * ROWHEIGHT}} />        {/* top spacer */}
+    {chunk.verseIDs.map(id => (
+        <VirtualRow key={id} verseID={id} data={rowData[id]} />
+    ))}
+    <div style={{height: (verseKeys.length - chunk.end) * ROWHEIGHT}} /> {/* bottom spacer */}
+  </div>
+);
+Notes
+
+ROWHEIGHT can be fixed or measured; if variable, swap spacers for react-window variable‑size list.
+
+useRowData runs selectors that look up verse‑text maps, cross‑ref maps, prophecy maps, etc.
+
+Side‑effect fetches inside useRowData only request missing verses for the current slice.
+
+4  Detailed hook outline
+ts
+Copy
+// useAnchorScroll.ts
+export function useAnchorScroll(ref: RefObject<HTMLElement>) {
+  const [anchorIndex, setAnchorIndex] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handle = () => {
+      const mid = el.scrollTop + el.clientHeight / 2;
+      const index = Math.floor(mid / ROWHEIGHT);
+      setAnchorIndex(index);
+    };
+
+    el.addEventListener("scroll", throttle(handle, 40, {leading:true}));
+    handle();   // initial
+    return () => el.removeEventListener("scroll", handle);
+  }, [ref]);
+
+  return { anchorIndex };
+}
+5  Removing edge‑loading code
+Delete functions or effects named similar to:
+fetchMoreAbove, fetchMoreBelow, topSentinel, bottomSentinel, IntersectionObserver that watched ends.
+Search the code‑base:
+
+perl
+Copy
+grep -R "fetchMore" src/
+grep -R "bottomSentinel" src/
+Every match must be rewired to use anchorIndex flow. If a component only existed for sentinel logic (e.g. <TopLoader />) delete it.
+
+6  Fetching strategy updates
+Translations (4 MB) fetched once per code; parsing stays in TranslationWorker.
+useRowData simply does translationMap.get(verseID).
+
+Strong’s slice fetches triggered by interlinear or lemma search already work off verseID; no change.
+
+Prophecy now uses prophecy_rows.txt pointer map; lookup is pointerMap[verseID] and needs no network if verse is outside the chunk.
+
+Notes / Highlights / Bookmarks selectors already memoised by verseID; they receive a batch of IDs and fetch missing rows from Supabase.

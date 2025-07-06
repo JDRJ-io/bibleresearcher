@@ -52,23 +52,23 @@ const VirtualBibleTable = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // NEW ANCHOR-CENTERED SYSTEM: Complete replacement of edge-based loading
+  // PURE ANCHOR-CENTERED IMPLEMENTATION: Exact specification compliance
   const containerRef = useRef<HTMLDivElement>(null);
-  const verseKeys = getVerseKeys();
-  const { anchorIndex } = useAnchorScroll(containerRef);
-  const chunk = useChunk(verseKeys, anchorIndex, 250);
-  const rowData = useRowData(chunk.verseIDs, verses, getGlobalVerseText);
+  const verseKeys = getVerseKeys(); // loaded once
+  const anchorInfo = useAnchorScroll(containerRef); // {anchorIndex}
+  const chunk = useChunk(verseKeys, anchorInfo.anchorIndex, 250);
+  const rowData = useRowData(chunk.verseIDs, verses, getGlobalVerseText); // TanStack Query caches maps
   
-  const ROW_HEIGHT = 120;
-  const totalHeight = verseKeys.length * ROW_HEIGHT;
+  const ROWHEIGHT = 120;
+  const totalHeight = verseKeys.length * ROWHEIGHT;
   
   // Update center verse when anchor changes
   useEffect(() => {
-    if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
-      onCenterVerseChange(anchorIndex);
-      console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+    if (onCenterVerseChange && anchorInfo.anchorIndex !== centerVerseIndex) {
+      onCenterVerseChange(anchorInfo.anchorIndex);
+      console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
     }
-  }, [anchorIndex, centerVerseIndex, onCenterVerseChange]);
+  }, [anchorInfo.anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
   // Get verse data for current chunk
   const getVerseData = useCallback((verseId: string) => {
@@ -133,7 +133,7 @@ const VirtualBibleTable = ({
     },
   });
 
-  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
   console.log(`📊 CHUNK DATA: start=${chunk.start}, end=${chunk.end}, verseIDs=${chunk.verseIDs.length}, rowData keys=${Object.keys(rowData).length}`);
 
   return (
@@ -146,35 +146,18 @@ const VirtualBibleTable = ({
         scrollLeft={0}
       />
       
-      <div
-        ref={containerRef}
-        className="scroll-container overflow-auto"
-        style={{ height: "calc(100vh - 120px)" }}
-      >
-        {/* Top spacer */}
-        <div style={{ height: chunk.start * ROW_HEIGHT }} />
-        
-        {/* Render current chunk */}
-        {chunk.verseIDs.map((verseId) => {
-          const verse = rowData[verseId];
-          if (!verse) {
-            console.warn(`Missing verse data for ${verseId}`);
-            return null;
-          }
-          
-          return (
-            <VirtualRow
-              key={verseId}
-              verseID={verseId}
-              rowHeight={ROW_HEIGHT}
-              verse={verse}
-              columnData={columnData}
-            />
-          );
-        })}
-        
-        {/* Bottom spacer */}
-        <div style={{ height: (verseKeys.length - chunk.end) * ROW_HEIGHT }} />
+      <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
+        <div style={{height: chunk.start * ROWHEIGHT}} />
+        {chunk.verseIDs.map(id => (
+          <VirtualRow 
+            key={id} 
+            verseID={id} 
+            rowHeight={ROWHEIGHT}
+            verse={rowData[id]} 
+            columnData={columnData} 
+          />
+        ))}
+        <div style={{height: (verseKeys.length - chunk.end) * ROWHEIGHT}} />
       </div>
     </div>
   );
