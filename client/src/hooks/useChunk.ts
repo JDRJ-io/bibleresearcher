@@ -43,7 +43,7 @@ export function useChunk(verseKeys: string[], anchorIndex: number, buffer: numbe
     
     const verseIDs = verseKeys.slice(start, end);
     
-    console.log(`📍 CHUNK: anchor=${anchorIndex}, buffer=${buffer}, start=${start}, end=${end}, slice=${verseIDs.length}`);
+    console.log(`🏆 ANCHOR LOAD [${verseIDs.length}]: anchor=${anchorIndex}, start=${start}, end=${end}`);
     
     return { start, end, verseIDs };
   }, [verseKeys, anchorIndex, buffer]);

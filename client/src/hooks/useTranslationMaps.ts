@@ -2,23 +2,16 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
 /**
- * COMPLETE VERSE SYSTEM OVERHAUL - TRANSLATION MAPS ARCHITECTURE
+ * TRANSLATION PIPELINE - MASTER IMPLEMENTATION
  * 
- * Core idea: verseKeys gives you the ordered IDs. Translation maps give you the strings.
- * The UI only ever handles IDs; workers and caches handle the strings.
- * 
- * Main vs alternate contract:
- * - There is always exactly one "main translation" at index 0
- * - Cross-references, prophecy, dates read ONLY from main translation
- * - Alternates are pure side-by-side columns
+ * Step 1: Parse every .txt file into Map<string,string>, not plain object
+ * Step 2: Point Supabase loader at anointed bucket (VITE_SUPABASE_BUCKET)
+ * Step 3: Off-load parsing to translationWorker.js
+ * Step 4: Make useBibleData single source of truth for mainTranslation & activeTranslations
  */
 
-export interface TranslationMap {
-  [verseID: string]: string;
-}
-
 export interface UseTranslationMapsReturn {
-  resourceCache: Map<string, TranslationMap>;
+  resourceCache: Map<string, Map<string, string>>;
   activeTranslations: string[];
   mainTranslation: string;
   toggleTranslation: (code: string, setAsMain?: boolean) => Promise<void>;
@@ -29,7 +22,8 @@ export interface UseTranslationMapsReturn {
 }
 
 // Global resource cache - persists across component unmounts
-const globalResourceCache = new Map<string, TranslationMap>();
+// globalResourceCache.get('KJV') instanceof Map → true
+const globalResourceCache = new Map<string, Map<string, string>>();
 
 export function useTranslationMaps(): UseTranslationMapsReturn {
   // activeTranslations array: index 0 = main translation, others are alternates
@@ -52,8 +46,8 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Parse translation file into Map<verseID, text>
    * Format: "Gen.1:1 #In the beginning God created..."
    */
-  const parseTranslationFile = useCallback((content: string): TranslationMap => {
-    const map: TranslationMap = {};
+  const parseTranslationFile = useCallback((content: string): Map<string, string> => {
+    const map = new Map<string, string>();
     const lines = content.split('\n');
     
     for (const line of lines) {
@@ -62,7 +56,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         if (hashIndex > 0) {
           const verseID = line.substring(0, hashIndex).trim();
           const text = line.substring(hashIndex + 1).trim();
-          map[verseID] = text;
+          map.set(verseID, text);
         }
       }
     }
@@ -83,9 +77,10 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
       if (!globalResourceCache.has(code)) {
         console.log(`🔄 Fetching translation: ${code}`);
         
-        // Fetch entire 4MB translation file - whole file fetch only
+        // Point Supabase loader at anointed bucket (Step 2)
+        const bucketName = import.meta.env.VITE_SUPABASE_BUCKET || 'anointed';
         const { data, error } = await supabase.storage
-          .from('bible-data')
+          .from(bucketName)
           .download(`translations/${code}.txt`);
           
         if (error) {
@@ -100,7 +95,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         
         // Store in globalResourceCache for session persistence
         globalResourceCache.set(code, translationMap);
-        console.log(`✅ Cached translation: ${code} (${Object.keys(translationMap).length} verses)`);
+        console.log(`✅ Cached translation: ${code} (${translationMap.size} verses)`);
       }
       
       // Update activeTranslations array

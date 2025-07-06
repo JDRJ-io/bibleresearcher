@@ -139,7 +139,8 @@ const VirtualBibleTable = ({
   });
 
   console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
-  console.log(`📊 CHUNK DATA: start=${chunk.start}, end=${chunk.end}, verseIDs=${chunk.verseIDs.length}, rowData keys=${Object.keys(rowData).length}`);
+  const rowDataSize = typeof rowData.get === 'function' ? rowData.size : Object.keys(rowData).length;
+  console.log(`📊 CHUNK DATA: start=${chunk.start}, end=${chunk.end}, verseIDs=${chunk.verseIDs.length}, rowData keys=${rowDataSize}`);
 
   return (
     <div className={`virtual-bible-table ${className}`}>
@@ -154,7 +155,7 @@ const VirtualBibleTable = ({
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         <div style={{height: chunk.start * ROWHEIGHT}} />
         {chunk.verseIDs.map(id => {
-          const verse = rowData[id];
+          const verse = typeof rowData.get === 'function' ? rowData.get(id) : rowData[id];
           return (
             <VirtualRow 
               key={id} 
