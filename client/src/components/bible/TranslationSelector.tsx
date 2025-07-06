@@ -8,6 +8,25 @@ interface TranslationSelectorProps {
 
 const AVAILABLE_TRANSLATIONS = ["KJV", "AMP", "ESV", "CSB", "BSB", "NLT", "NASB", "NKJV", "NIV", "NRSV", "WEB", "YLT"];
 
+// Helper function to get translation name from code
+const getTranslationName = (code: string): string => {
+  const TRANSLATIONS_META: Record<string, string> = {
+    KJV: "King James Version",
+    AMP: "Amplified Bible",
+    ESV: "English Standard Version",
+    CSB: "Christian Standard Bible",
+    BSB: "Berean Standard Bible",
+    NLT: "New Living Translation",
+    NASB: "New American Standard Bible",
+    NKJV: "New King James Version",
+    NIV: "New International Version",
+    NRSV: "New Revised Standard Version",
+    WEB: "World English Bible",
+    YLT: "Young's Literal Translation"
+  };
+  return TRANSLATIONS_META[code] ?? code;
+};
+
 export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
   const store = getBibleDataStore();
   

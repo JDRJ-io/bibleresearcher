@@ -696,38 +696,6 @@ export default function BiblePage() {
       <HamburgerMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onShowAuth={() => setIsSignUpOpen(true)}
-        onShowForum={() => setIsForumOpen(true)}
-        allTranslations={allTranslations}
-
-        preferences={preferences}
-        onPreferenceChange={handlePreferenceChange}
-        onResetLayout={handleResetLayout}
-        onSaveBookmark={handleSaveBookmark}
-        mainTranslation={mainTranslation}
-        multiTranslationMode={multiTranslationMode}
-        selectedTranslations={selectedTranslations}
-        onToggleMultiTranslationMode={toggleMultiTranslationMode}
-        onToggleTranslation={async (translationId: string) => {
-          if (!selectedTranslations.includes(translationId)) {
-            // Load translation before adding
-            toast({ title: `Loading ${translationId} translation...` });
-            const success = await loadTranslationData(translationId);
-            if (success) {
-              toggleTranslation(translationId);
-              toast({ title: `${translationId} loaded successfully` });
-            } else {
-              toast({
-                title: `Failed to load ${translationId}`,
-                variant: "destructive",
-              });
-            }
-          } else {
-            toggleTranslation(translationId);
-          }
-        }}
-        crossRefSet={crossRefSet}
-        onCrossRefSetChange={setCrossRefSet}
       />
 
       <VirtualBibleTable

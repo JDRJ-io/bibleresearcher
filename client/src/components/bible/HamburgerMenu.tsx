@@ -1,26 +1,17 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Book,
   Tags,
   Settings,
-  Layout,
+  Palette,
   Bookmark,
-  Plus,
-  Lock,
-  RotateCcw,
   MessageSquare,
-  LogOut,
   LogIn,
   UserPlus,
 } from "lucide-react";
@@ -32,91 +23,102 @@ import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { TranslationSelector } from "./TranslationSelector";
 
-interface HamburgerMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onShowAuth: () => void;
-  onShowForum: () => void;
-  preferences: {
-    showNotes: boolean;
-    showProphecy: boolean;
-    showContext: boolean;
-    layoutLocked: boolean;
-  };
-  onPreferenceChange: (key: string, value: boolean) => void;
-  onResetLayout: () => void;
-  onSaveBookmark: () => void;
-  mainTranslation: string;
-  multiTranslationMode: boolean;
-  selectedTranslations: string[];
-  allTranslations: Translation[];
-  onToggleMultiTranslationMode: () => void;
-  onToggleTranslation: (translationId: string) => void;
-  crossRefSet: "cf1" | "cf2";
-  onCrossRefSetChange: (set: "cf1" | "cf2") => void;
-}
-
 export function HamburgerMenu({
   isOpen,
   onClose,
-  onShowAuth,
-  onShowForum,
-  preferences,
-  onPreferenceChange,
-  onResetLayout,
-  onSaveBookmark,
-  mainTranslation,
-  multiTranslationMode,
-  selectedTranslations,
-  allTranslations,
-  onToggleMultiTranslationMode,
-  onToggleTranslation,
-  crossRefSet,
-  onCrossRefSetChange,
-}: HamburgerMenuProps) {
-  const { user, isLoggedIn, signOut } = useAuth();
+}: { isOpen: boolean; onClose: () => void }) {
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: bookmarks = [] } = useQuery({
-    queryKey: [`/api/users/${user?.id}/bookmarks`],
-    enabled: !!user?.id,
-  }) as { data: BookmarkType[] };
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [bookmarkName, setBookmarkName] = useState("");
+  const [bookmarkColor, setBookmarkColor] = useState("#3b82f6");
+  const [showBookmarkForm, setShowBookmarkForm] = useState(false);
 
-  const deleteBmMutation = useMutation({
-    mutationFn: async (bookmarkId: number) => {
-      await apiRequest("DELETE", `/api/bookmarks/${bookmarkId}`);
+  const createBookmarkMutation = useMutation({
+    mutationFn: async (bookmark: {
+      userId: string;
+      verseRef: string;
+      name: string;
+      color: string;
+    }) => {
+      return await apiRequest("/api/bookmarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookmark),
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [`/api/users/${user?.id}/bookmarks`],
+      queryClient.invalidateQueries({ queryKey: ["/api/bookmarks"] });
+      toast({
+        title: "Bookmark created",
+        description: "Your bookmark has been saved successfully.",
       });
-      toast({ title: "Bookmark deleted successfully" });
+      setShowBookmarkForm(false);
+      setBookmarkName("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create bookmark. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
   const labels = [
     { id: "who", name: "Who (Bold)" },
     { id: "what", name: "What (Outline)" },
-    { id: "where", name: "Where {Brackets}" },
     { id: "when", name: "When (Underline)" },
+    { id: "where", name: "Where (Brackets)" },
+    { id: "command", name: "Command (Shadow)" },
+    { id: "action", name: "Action (Italic)" },
     { id: "why", name: "Why (Handwritten)" },
-    { id: "action", name: "Action (Italics)" },
-    { id: "seed", name: "Seed (*prefix)" },
-    { id: "harvest", name: "Harvest (=prefix)" },
-    { id: "prediction", name: "Prediction (~prefix)" },
+    { id: "seed", name: "Seed (Superscript *)" },
+    { id: "harvest", name: "Harvest (Superscript =)" },
+    { id: "prediction", name: "Prediction (Superscript ~)" },
   ];
 
-  if (!isOpen) return null;
+  const handleCreateBookmark = () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to create bookmarks.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!bookmarkName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for your bookmark.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createBookmarkMutation.mutate({
+      userId: user.id,
+      verseRef: "Gen.1:1", // This should be the current verse
+      name: bookmarkName,
+      color: bookmarkColor,
+    });
+  };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose}>
+    <div
+      className={`fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${
+        isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+      onClick={onClose}
+    >
       <div
-        className="fixed top-16 right-4 w-80 max-w-sm rounded-xl shadow-2xl border max-h-[90vh] overflow-auto"
-        style={{
-          backgroundColor: "var(--header-bg)",
-          borderColor: "var(--border-color)",
-        }}
+        className={`fixed top-0 right-0 h-full w-96 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 overflow-y-auto ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 space-y-6">
@@ -129,12 +131,7 @@ export function HamburgerMenu({
               />
               Multi-Translation Settings
             </h3>
-            <TranslationSelector 
-              onUpdate={() => {
-                // Force table re-render when translations change
-                window.location.reload();
-              }} 
-            />
+            <TranslationSelector onUpdate={() => {}} />
           </div>
 
           <Separator />
@@ -178,72 +175,14 @@ export function HamburgerMenu({
               </div>
               <div className="ml-4">
                 <CrossReferenceSwitcher
-                  currentSet={crossRefSet}
-                  onSetChange={onCrossRefSetChange}
+                  currentSet="cf1"
+                  onSetChange={() => {}}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Prophecy Columns</Label>
-                <Checkbox
-                  checked={preferences.showProphecy}
-                  onCheckedChange={(checked) =>
-                    onPreferenceChange("showProphecy", !!checked)
-                  }
-                />
+                <Checkbox />
               </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Personal Notes</Label>
-                <Checkbox
-                  checked={preferences.showNotes}
-                  onCheckedChange={(checked) =>
-                    onPreferenceChange("showNotes", !!checked)
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Context Boundaries</Label>
-                <Checkbox
-                  checked={preferences.showContext}
-                  onCheckedChange={(checked) =>
-                    onPreferenceChange("showContext", !!checked)
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Layout Controls */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
-              <Layout
-                className="w-5 h-5 mr-2"
-                style={{ color: "var(--accent-color)" }}
-              />
-              Layout
-            </h3>
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() =>
-                  onPreferenceChange("layoutLocked", !preferences.layoutLocked)
-                }
-              >
-                <Lock className="w-4 h-4 mr-1" />
-                {preferences.layoutLocked ? "Unlock" : "Lock"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={onResetLayout}
-              >
-                <RotateCcw className="w-4 h-4 mr-1" />
-                Reset
-              </Button>
             </div>
           </div>
 
@@ -258,70 +197,121 @@ export function HamburgerMenu({
               />
               Bookmarks
             </h3>
-            <ScrollArea className="max-h-32">
-              <div className="space-y-1">
-                {bookmarks.map((bookmark: BookmarkType) => (
-                  <div
-                    key={bookmark.id}
-                    className="flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-200"
-                    style={{ backgroundColor: "var(--column-bg)" }}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: bookmark.color }}
+            {user ? (
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowBookmarkForm(!showBookmarkForm)}
+                  className="w-full text-sm"
+                >
+                  Create Bookmark
+                </Button>
+                {showBookmarkForm && (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Bookmark name..."
+                      value={bookmarkName}
+                      onChange={(e) => setBookmarkName(e.target.value)}
+                      className="text-sm"
+                    />
+                    <div className="flex space-x-2">
+                      <input
+                        type="color"
+                        value={bookmarkColor}
+                        onChange={(e) => setBookmarkColor(e.target.value)}
+                        className="w-8 h-8 rounded border"
                       />
-                      <span className="text-sm">{bookmark.name}</span>
+                      <Button
+                        onClick={handleCreateBookmark}
+                        disabled={createBookmarkMutation.isPending}
+                        className="flex-1 text-sm"
+                      >
+                        Save
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0"
-                      onClick={() => deleteBmMutation.mutate(bookmark.id)}
-                    >
-                      ×
-                    </Button>
                   </div>
-                ))}
+                )}
               </div>
-            </ScrollArea>
-            <Button
-              variant="default"
-              size="sm"
-              className="w-full"
-              onClick={onSaveBookmark}
-              disabled={!isLoggedIn}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Save Current Position
-            </Button>
+            ) : (
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Sign in to create bookmarks
+              </div>
+            )}
           </div>
 
           <Separator />
 
-          {/* User Actions (only show when logged in) */}
-          {isLoggedIn && (
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={onShowForum}
-              >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Community Forum
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={signOut}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
+          {/* Themes */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center">
+              <Palette
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
+              Themes
+            </h3>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              {["Light", "Dark", "Sepia", "Aurora", "Electric", "Fireworks"].map(
+                (theme) => (
+                  <Button
+                    key={theme}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    {theme}
+                  </Button>
+                ),
+              )}
             </div>
-          )}
+          </div>
+
+          <Separator />
+
+          {/* Authentication */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center">
+              <LogIn
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
+              Account
+            </h3>
+            {user ? (
+              <div className="text-sm">
+                <p className="font-medium">{user.email}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Sign out logic here
+                  }}
+                  className="mt-2 text-xs"
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSignInOpen(true)}
+                  className="w-full text-sm"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSignUpOpen(true)}
+                  className="w-full text-sm"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Sign Up
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
