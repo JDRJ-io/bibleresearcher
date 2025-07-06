@@ -712,12 +712,13 @@ export function useBibleData() {
   const INSTANT_JUMP_BUFFER = 120; // Full Bible always available
   const SCROLL_THRESHOLD = 30; // Load more verses when within 30 verses of buffer edge
 
-  // Translation state
+  // Step 2: Translation state (single source of truth)
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>([
     "KJV",
   ]);
   const [multiTranslationMode, setMultiTranslationMode] = useState(false);
   const [mainTranslation, setMainTranslation] = useState("KJV");
+  const [activeTranslations, setActiveTranslations] = useState<string[]>(["KJV"]);
 
   const allTranslations = availableTranslations;
   const displayTranslations = multiTranslationMode
@@ -734,6 +735,15 @@ export function useBibleData() {
     } else {
       setMainTranslation(translationId);
     }
+    
+    // Step 2: Update activeTranslations as single source of truth
+    setActiveTranslations((prev) => {
+      if (prev.includes(translationId)) {
+        return prev.filter((t) => t !== translationId);
+      } else {
+        return [translationId, ...prev.filter((t) => t !== translationId)]; // Main translation first
+      }
+    });
   };
 
   const toggleMultiTranslationMode = () => {

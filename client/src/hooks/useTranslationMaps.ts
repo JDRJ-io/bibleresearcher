@@ -50,33 +50,29 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Parse translation content using Web Worker to keep main thread under 16ms
    */
   const parseTranslationInWorker = useCallback(async (code: string, content: string): Promise<Map<string, string>> => {
-    return new Promise((resolve, reject) => {
-      const worker = new Worker('/translationWorker.js');
-      
-      worker.onmessage = (e) => {
-        const { type, payload } = e.data;
+    // Fix: Single worker instance - create and terminate properly
+    const worker = new Worker('/translationWorker.js');
+    
+    try {
+      return await new Promise((resolve, reject) => {
+        const handle = (e: MessageEvent) => {
+          if (e.data?.type === 'TRANSLATION_PARSED' && e.data?.payload?.code === code) {
+            worker.removeEventListener('message', handle);
+            resolve(e.data.payload.map);
+          }
+        };
         
-        if (type === 'TRANSLATION_PARSED') {
-          // Convert back to Map if needed
-          const map = payload.map instanceof Map ? payload.map : new Map(Object.entries(payload.map));
-          worker.terminate();
-          resolve(map);
-        } else if (type === 'ERROR') {
-          worker.terminate();
-          reject(new Error(payload.error));
-        }
-      };
-      
-      worker.onerror = (error) => {
-        worker.terminate();
-        reject(error);
-      };
-      
-      worker.postMessage({
-        type: 'PARSE_TRANSLATION',
-        payload: { code, content }
+        worker.addEventListener('message', handle);
+        worker.addEventListener('error', reject);
+        
+        worker.postMessage({
+          type: 'PARSE_TRANSLATION',
+          payload: { code, content }
+        });
       });
-    });
+    } finally {
+      worker.terminate();
+    }
   }, []);
 
   /**
@@ -129,16 +125,21 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         // Step 1-C: Off-load parsing to worker (keeps main thread under 16ms)
         let translationMap: Map<string, string>;
         try {
-          translationMap = await parseTranslationInWorker(code, content);
+          const map = await parseTranslationInWorker(code, content);
+          translationMap = map;
         } catch (error) {
           // Fallback to main thread if worker fails
           console.warn('Worker parsing failed, using main thread:', error);
-          translationMap = parseTranslationFileMainThread(content);
+          const map = parseTranslationFileMainThread(content);
+          translationMap = map;
         }
         
-        // Store in globalResourceCache for session persistence
+        // Fix: Single write to globalResourceCache - no race condition
         globalResourceCache.set(code, translationMap);
+        
+        // Validation: Map architecture requirement
         console.log(`✅ Cached translation: ${code} (${translationMap.size} verses)`);
+        console.log(`🔍 VALIDATION: globalResourceCache.get('${code}') instanceof Map → ${globalResourceCache.get(code) instanceof Map}`);
       }
       
       // Update activeTranslations array
