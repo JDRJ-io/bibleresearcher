@@ -1027,26 +1027,11 @@ export function useBibleData() {
         centerVerseIndex + VIEWPORT_BUFFER,
       );
 
-      // Load new window if anchor is outside current buffer or near edges
-      const bufferEdgeThreshold = VIEWPORT_BUFFER * 0.3; // 30% of buffer size
-      const distanceFromStart = actualVerseIndex - currentWindowStart;
-      const distanceFromEnd = currentWindowEnd - actualVerseIndex;
-
+      // 🚫 DISABLED: Edge-based loading conflicts with center-anchored system
+      // Only center-anchored loading should trigger from VirtualBibleTable
       console.log(
-        `📊 Buffer analysis: center=${centerVerseIndex}, window=[${currentWindowStart}-${currentWindowEnd}], anchor=${actualVerseIndex}, distances=[${distanceFromStart}, ${distanceFromEnd}], threshold=${bufferEdgeThreshold}`,
+        `🎯 Anchor tracking: ${actualVerseIndex} (${verses[actualVerseIndex]?.reference}) - edge loading disabled, center-only`,
       );
-
-      if (
-        distanceFromStart < bufferEdgeThreshold ||
-        distanceFromEnd < bufferEdgeThreshold ||
-        actualVerseIndex < currentWindowStart ||
-        actualVerseIndex > currentWindowEnd
-      ) {
-        console.log(
-          `🔄 Loading new window around anchor ${actualVerseIndex} (${verses[actualVerseIndex]?.reference})`,
-        );
-        loadVerseRange(verses, actualVerseIndex);
-      }
 
       lastAnchorIndex = currentAnchor;
     };
