@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { BibleVerse } from '../types/bible';
-import { loadTranslation } from '../lib/translationLoader';
 
 /**
  * Hook that loads data for verses in the current chunk
  * Side-effect fetches inside useRowData only request missing verses for the current slice
  */
-export function useRowData(verseIDs: string[], verses: BibleVerse[]) {
+export function useRowData(verseIDs: string[], verses: BibleVerse[], getGlobalVerseText?: (verseId: string, translation: string) => string) {
   // Create a map of verse data keyed by verse ID
   const rowData = useMemo(() => {
     const dataMap: Record<string, BibleVerse> = {};
@@ -45,59 +43,30 @@ export function useRowData(verseIDs: string[], verses: BibleVerse[]) {
     return dataMap;
   }, [verseIDs, verses]);
 
-  // Query to load verse text for missing translations
-  const { data: verseTextData, isLoading } = useQuery({
-    queryKey: ['verse-text', verseIDs],
-    queryFn: async () => {
-      console.log(`🔄 useRowData: Loading text for ${verseIDs.length} verses:`, verseIDs.slice(0, 5));
-      const textData: Record<string, Record<string, string>> = {};
-      
-      for (const verseId of verseIDs) {
-        const verse = rowData[verseId];
-        if (verse) {
-          textData[verseId] = { ...verse.text };
-          
-          // Try to load KJV text if missing
-          if (!verse.text.KJV) {
-            try {
-              // Load KJV translation and get text for this verse
-              const kjvMap = await loadTranslation('KJV');
-              const kjvText = kjvMap.get(verseId) || kjvMap.get(verse.reference) || kjvMap.get(`${verse.book}.${verse.chapter}:${verse.verse}`);
-              if (kjvText && kjvText !== 'Loading...' && kjvText !== 'Verse not found') {
-                textData[verseId].KJV = kjvText;
-              }
-            } catch (error) {
-              console.warn(`Failed to load KJV text for ${verseId}:`, error);
-            }
-          }
-        }
-      }
-      
-      console.log(`✓ useRowData: Loaded text for ${Object.keys(textData).length} verses`);
-      return textData;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: verseIDs.length > 0
-  });
-
-  // Merge text data back into row data
+  // Enhanced row data with text loading using existing translation maps
   const enrichedRowData = useMemo(() => {
-    if (!verseTextData) return rowData;
-    
+    console.log(`🔄 useRowData: Processing ${verseIDs.length} verses for chunk`);
     const enriched: Record<string, BibleVerse> = {};
     
-    Object.keys(rowData).forEach(verseId => {
-      enriched[verseId] = {
-        ...rowData[verseId],
-        text: {
-          ...rowData[verseId].text,
-          ...verseTextData[verseId]
-        }
-      };
+    verseIDs.forEach(verseId => {
+      const verse = rowData[verseId];
+      if (verse) {
+        // Use existing getGlobalVerseText function which has translation maps
+        const kjvText = getGlobalVerseText ? getGlobalVerseText(verseId, 'KJV') : '';
+        
+        enriched[verseId] = {
+          ...verse,
+          text: {
+            ...verse.text,
+            KJV: kjvText && kjvText !== 'Loading...' ? kjvText : `Loading ${verse.reference}...`
+          }
+        };
+      }
     });
     
+    console.log(`✓ useRowData: Processed ${Object.keys(enriched).length} verses with text`);
     return enriched;
-  }, [rowData, verseTextData]);
+  }, [verseIDs, rowData, getGlobalVerseText]);
 
   return enrichedRowData;
 }
