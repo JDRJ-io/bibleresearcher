@@ -174,7 +174,7 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
           </div>
           {currentBook && (
             <div className="text-xs text-gray-400 mt-1">
-              {currentBook.name} • {Math.floor(((hoverIndex || anchorIndex) - currentBook.startIndex) / currentBook.verseCount * 100)}% through
+              {currentBook.name}
             </div>
           )}
         </div>
@@ -184,11 +184,11 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
       <div 
         ref={scrollbarRef}
         className="relative group cursor-pointer"
-        style={{ width: isDragging ? '24px' : '16px', transition: 'width 0.2s ease' }}
+        style={{ width: isDragging ? '20px' : '14px', transition: 'width 0.15s ease' }}
       >
         <div 
           ref={trackRef}
-          className="relative h-screen bg-gradient-to-b from-indigo-900/30 to-purple-900/30 rounded-l-lg overflow-hidden border-l border-purple-500/20"
+          className="relative h-screen bg-gradient-to-b from-indigo-900/20 to-purple-900/20 rounded-l-lg overflow-hidden border-l border-purple-500/15"
           onClick={handleTrackClick}
         >
           {/* Bible Book Segments */}
@@ -200,21 +200,21 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
             return (
               <div
                 key={book.name}
-                className={`absolute left-0 right-0 border-b border-white/10 ${
+                className={`absolute left-0 right-0 border-b border-white/5 ${
                   isOldTestament 
-                    ? 'bg-gradient-to-r from-amber-600/20 to-orange-500/20' 
-                    : 'bg-gradient-to-r from-blue-600/20 to-purple-500/20'
-                } hover:brightness-125 transition-all duration-200`}
+                    ? 'bg-gradient-to-r from-amber-600/15 to-orange-500/15' 
+                    : 'bg-gradient-to-r from-blue-600/15 to-purple-500/15'
+                } hover:brightness-110 transition-all duration-300`}
                 style={{
                   top: `${startPercent}%`,
                   height: `${heightPercent}%`,
                 }}
                 title={`${book.name} (${book.verseCount} verses)`}
               >
-                {/* Book Label for larger books */}
-                {book.verseCount > 500 && (
-                  <div className="absolute left-1 top-1/2 transform -translate-y-1/2 text-xs text-white/70 font-medium writing-mode-vertical truncate">
-                    {book.name}
+                {/* Subtle book markers for major books only */}
+                {book.verseCount > 800 && (
+                  <div className="absolute left-1 top-1/2 transform -translate-y-1/2 text-xs text-white/50 font-light writing-mode-vertical truncate">
+                    {book.name.split(' ')[0]}
                   </div>
                 )}
               </div>
@@ -223,12 +223,12 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
 
           {/* Current Position Indicator */}
           <div 
-            className="absolute left-0 w-full bg-gradient-to-r from-white via-purple-300 to-white shadow-lg shadow-purple-500/50 z-10 transition-all duration-150"
+            className="absolute left-0 w-full bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-lg shadow-purple-500/30 z-10 transition-all duration-200"
             style={{
               top: `${scrollPercentage}%`,
-              height: '4px',
-              transform: 'translateY(-2px)',
-              boxShadow: isDragging ? '0 0 20px rgba(168, 85, 247, 0.8)' : '0 0 10px rgba(168, 85, 247, 0.4)'
+              height: '3px',
+              transform: 'translateY(-1.5px)',
+              boxShadow: isDragging ? '0 0 15px rgba(168, 85, 247, 0.6)' : '0 0 8px rgba(168, 85, 247, 0.3)'
             }}
           />
 

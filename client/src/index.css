@@ -364,16 +364,16 @@ body.aurora-mode::after {
   text-orientation: mixed;
 }
 
-/* Glowing effects for scrollbar elements */
-@keyframes mystical-pulse {
+/* Subtle mystical effects */
+@keyframes gentle-glow {
   0%, 100% { 
-    box-shadow: 0 0 5px rgba(168, 85, 247, 0.3);
+    box-shadow: 0 0 3px rgba(168, 85, 247, 0.2);
   }
   50% { 
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
   }
 }
 
 .enhanced-scrollbar:hover {
-  animation: mystical-pulse 2s infinite;
+  animation: gentle-glow 3s infinite ease-in-out;
 }
