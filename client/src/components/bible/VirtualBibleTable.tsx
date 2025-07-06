@@ -6,6 +6,12 @@ import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VerseRow } from "./VerseRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
+import { 
+  loadChunk, 
+  calculateAnchorIndex, 
+  calculateRenderRange,
+  shouldUpdateAnchor
+} from "@/lib/anchorLoader";
 import type {
   BibleVerse,
   Translation,
@@ -81,15 +87,42 @@ export function VirtualBibleTable({
     });
   }, []);
 
-  // VERSE KEY TRACKING SYSTEM: VirtualBibleTable operates on complete verse key track
+  // ANCHOR-CENTERED LOADING SYSTEM: Complete replacement of edge-based loading
   const allVerseKeys = getVerseKeys(); // Complete 31,102 verse key references
-  const [anchorVerseIndex, setAnchorVerseIndex] = useState(0); // Current center anchor position
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 40 });
-  const [currentStartIndex, setCurrentStartIndex] = useState(0);
-  const [currentEndIndex, setCurrentEndIndex] = useState(-1);
+  const [anchorIndex, setAnchorIndex] = useState(0); // Current center anchor position
+  const [loadedRange, setLoadedRange] = useState({ start: 0, end: 100 });
+  const [renderRange, setRenderRange] = useState({ start: 0, end: 40 });
 
   // Calculate total height using the complete verse key track
   const totalHeight = allVerseKeys.length * ROW_HEIGHT;
+
+  // ANCHOR-CENTERED SCROLL HANDLER: Replace all edge-based loading
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = event.currentTarget.scrollTop;
+    
+    // Calculate new anchor index (verse at viewport center)
+    const newAnchorIndex = calculateAnchorIndex(scrollTop, ROW_HEIGHT, allVerseKeys.length);
+    
+    // Only update if anchor changed significantly (prevents thrashing)
+    if (shouldUpdateAnchor(newAnchorIndex, anchorIndex, 10)) {
+      console.log(`📍 ANCHOR CHANGED: ${anchorIndex} → ${newAnchorIndex} (${allVerseKeys[newAnchorIndex]})`);
+      setAnchorIndex(newAnchorIndex);
+      
+      // Calculate new render range for virtual scrolling
+      const newRenderRange = calculateRenderRange(
+        newAnchorIndex,
+        event.currentTarget.clientHeight,
+        ROW_HEIGHT
+      );
+      setRenderRange(newRenderRange);
+      
+      // Notify parent of center verse change for text loading
+      onCenterVerseChange?.(newAnchorIndex);
+    }
+    
+    // Update scroll state for virtual scrolling positioning
+    setScrollTop(scrollTop);
+  }, [anchorIndex, allVerseKeys, onCenterVerseChange]);
   
 
 

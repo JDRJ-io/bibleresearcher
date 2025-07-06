@@ -39,7 +39,7 @@ export default function BiblePage() {
     setMainTranslation: setHookMainTranslation,
     crossRefSet,
     setCrossRefSet,
-    loadBothCrossReferenceSets,
+    // loadBothCrossReferenceSets, // REMOVED - replaced with anchor-centered loading
     getProphecyDataForVerse,
     loadProphecyDataOnDemand,
     getGlobalVerseText,
@@ -148,10 +148,8 @@ export default function BiblePage() {
     ? allTranslations.filter((t) => selectedTranslations.includes(t.id))
     : allTranslations.filter((t) => t.id === mainTranslation);
 
-  // Load both cross-reference sets on mount
-  useEffect(() => {
-    loadBothCrossReferenceSets();
-  }, [loadBothCrossReferenceSets]);
+  // REMOVED: Edge-based cross-reference loading replaced with anchor-centered approach
+  // Cross-references will be loaded on-demand for center-anchored verse slices only
 
   // No real-time filtering - search only triggers on Enter/button click
   const filteredVerses = verses;
