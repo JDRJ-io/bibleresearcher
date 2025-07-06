@@ -154,10 +154,10 @@ export function VirtualBibleTable({
       Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + RENDER_BUFFER);
     
     // CENTER-ANCHORED LOADING: Trigger when anchor verse changes significantly
-    if (Math.abs(clampedCenterIndex - anchorVerseIndex) > 50) {
+    if (Math.abs(clampedCenterIndex - anchorIndex) > 50) {
       const anchorVerseKey = allVerseKeys[clampedCenterIndex];
       console.log(`🎯 Anchor verse changed: ${clampedCenterIndex} (${anchorVerseKey})`);
-      setAnchorVerseIndex(clampedCenterIndex);
+      setAnchorIndex(clampedCenterIndex);
       
       // DIRECT LOADING: Call loadVerseRange directly from VirtualBibleTable
       if (verses.length > 0) {
@@ -169,63 +169,82 @@ export function VirtualBibleTable({
       }
     }
 
-    // Early exit if render range hasn't changed
-    if (renderStart === currentStartIndex && renderEnd === currentEndIndex) return;
-
-    setCurrentStartIndex(renderStart);
-    setCurrentEndIndex(renderEnd);
-    setVisibleRange({ start: renderStart, end: renderEnd });
+    // Update render range for virtual scrolling
+    setRenderRange({ start: renderStart, end: renderEnd });
   };
 
-  // Initialize verse key tracking system
+  // Initialize anchor-centered system
   useEffect(() => {
-    // Always initialize with verse key track, not dependent on loaded verses
-    setVisibleRange({ start: 0, end: 40 });
-    setCurrentStartIndex(0);
-    setCurrentEndIndex(40);
-    setAnchorVerseIndex(0);
-    console.log(`🎯 Initialized verse key tracking: ${allVerseKeys.length} total verse positions`);
+    // Initialize with anchor-centered approach using verse key track
+    setLoadedRange({ start: 0, end: 100 });
+    setRenderRange({ start: 0, end: 40 });
+    setAnchorIndex(0);
+    console.log(`🎯 Initialized anchor-centered system: ${allVerseKeys.length} total verse positions`);
   }, [allVerseKeys.length]);
 
-  // Handle scroll events
+  // ANCHOR-CENTERED SCROLL TRACKING: Replace edge-based logic
   useEffect(() => {
     let animationFrameId: number;
 
-    const handleScroll = () => {
+    const handleScrollEvent = () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
 
       animationFrameId = requestAnimationFrame(() => {
         if (scrollRef.current) {
-          setScrollTop(scrollRef.current.scrollTop);
-          updateVisibleRows();
+          const scrollTop = scrollRef.current.scrollTop;
+          const viewportHeight = scrollRef.current.clientHeight;
+          
+          // Calculate center verse index from viewport center
+          const centerScrollPosition = scrollTop + (viewportHeight / 2);
+          const newAnchorIndex = Math.floor(centerScrollPosition / ROW_HEIGHT);
+          const clampedAnchorIndex = Math.max(0, Math.min(allVerseKeys.length - 1, newAnchorIndex));
+          
+          // Only update if anchor changed significantly (prevents thrashing)
+          if (shouldUpdateAnchor(clampedAnchorIndex, anchorIndex, 5)) {
+            console.log(`📍 VIEWPORT CENTER CHANGED: ${anchorIndex} → ${clampedAnchorIndex} (${allVerseKeys[clampedAnchorIndex]})`);
+            setAnchorIndex(clampedAnchorIndex);
+            
+            // Calculate new render range for virtual scrolling
+            const newRenderRange = calculateRenderRange(
+              clampedAnchorIndex,
+              viewportHeight,
+              ROW_HEIGHT
+            );
+            setRenderRange(newRenderRange);
+            
+            // Notify parent of center verse change for text loading
+            onCenterVerseChange?.(clampedAnchorIndex);
+          }
+          
+          setScrollTop(scrollTop);
         }
       });
     };
 
     const scrollElement = scrollRef.current;
     if (scrollElement) {
-      scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+      scrollElement.addEventListener("scroll", handleScrollEvent, { passive: true });
       // Initial update
-      updateVisibleRows();
+      handleScrollEvent();
     }
 
     return () => {
       if (scrollElement) {
-        scrollElement.removeEventListener("scroll", handleScroll);
+        scrollElement.removeEventListener("scroll", handleScrollEvent);
       }
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [verses.length, currentStartIndex, currentEndIndex]);
+  }, [anchorIndex, allVerseKeys, onCenterVerseChange]);
 
-  // Update when verses change
+  // Update when verses change - maintain anchor position
   useEffect(() => {
-    setCurrentStartIndex(0);
-    setCurrentEndIndex(-1);
-    updateVisibleRows();
+    // Reset ranges when verse data changes
+    setLoadedRange({ start: 0, end: 100 });
+    setRenderRange({ start: 0, end: 40 });
   }, [verses]);
 
   // Helper functions
@@ -263,11 +282,11 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // VERSE KEY TRACK BUILDING: Build verses from verse key positions, not loaded array
+  // ANCHOR-CENTERED RENDERING: Build verses from render range around anchor
   const visibleVerses = Array.from(
-    { length: visibleRange.end - visibleRange.start + 1 },
+    { length: renderRange.end - renderRange.start + 1 },
     (_, i) => {
-      const verseKeyIndex = visibleRange.start + i;
+      const verseKeyIndex = renderRange.start + i;
       const verseKey = allVerseKeys[verseKeyIndex];
       
       if (!verseKey) return null;
@@ -326,7 +345,7 @@ export function VirtualBibleTable({
           {/* Render only visible verses with absolute positioning */}
           {visibleVerses.map((verse, index) => {
             if (!verse) return null;
-            const actualIndex = visibleRange.start + index;            
+            const actualIndex = renderRange.start + index;            
             return (
               <div
                 key={verse.id}
