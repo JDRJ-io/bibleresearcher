@@ -89,14 +89,16 @@ const VirtualBibleTable = ({
   }, [anchorInfo.anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
   // 3-B. Preserve scroll position during slice swaps
+  const prevStart = useRef(chunk.start);
   useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     
-    // Guard with conditional check
-    if (container.scrollTop) {
-      // Maintain scroll stability during chunk swaps
-      container.scrollTop = (anchorInfo.anchorIndex - chunk.start) * ROWHEIGHT;
+    // Only run the effect when chunk.start actually changes (anchor crosses buffer edge)
+    if (prevStart.current !== chunk.start) {
+      const offset = (anchorInfo.anchorIndex - chunk.start) * ROWHEIGHT;
+      container.scrollTop = offset;
+      prevStart.current = chunk.start;
       console.log(`🔧 SCROLL POSITION PRESERVED: anchor=${anchorInfo.anchorIndex}, start=${chunk.start}`);
     }
   }, [chunk.start, anchorInfo.anchorIndex]);

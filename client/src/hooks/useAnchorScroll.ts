@@ -1,4 +1,4 @@
-import { useEffect, useState, RefObject, useCallback } from 'react';
+import { useEffect, useState, RefObject, useCallback, useRef } from 'react';
 
 const ROWHEIGHT = 120; // Fixed row height for Bible verses
 
@@ -22,9 +22,12 @@ function debounce<T extends (...args: any[]) => any>(
 export function useAnchorScroll(ref: RefObject<HTMLElement>) {
   const [anchorIndex, setAnchorIndex] = useState(0);
 
-  // 3-A. Debounce anchor updates - FIXED: Move useCallback to top level
+  // 3-A. Debounced anchor update using useRef to prevent stale closure
+  const setAnchorIndexRef = useRef(setAnchorIndex);
+  setAnchorIndexRef.current = setAnchorIndex;
+
   const debouncedSetAnchor = useCallback(
-    debounce((i: number) => setAnchorIndex(i), 100),
+    debounce((i: number) => setAnchorIndexRef.current(i), 100),
     []
   );
 

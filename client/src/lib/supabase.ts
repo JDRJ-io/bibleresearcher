@@ -1,9 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://ecaqvxbbscwcxbjpfrdm.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjYXF2eGJic2N3Y3hianBmcmRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0OTA2MTQsImV4cCI6MjA2MTA2NjYxNH0.yZgEijr7c_oAFu2oYWD4YCmrbusoWL3wgsAi757CCU8'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL!
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY!
 
 export const createSupabaseClient = () => {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false
+    }
+  })
+};
+
+// Create service role client for backend operations (bucket access)
+export const createSupabaseServiceClient = () => {
+  // Service role key should be accessed from server environment
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false

@@ -22,22 +22,30 @@ const translationCache = new Map<string, Map<string, string>>();
 
 // Load KJV text map once and store globally
 const loadKJVTextMap = async (): Promise<void> => {
-  if (globalKjvTextMap) return; // Already loaded
+  if (globalKjvTextMap && globalKjvTextMap.size > 0) return; // Already loaded
 
   try {
-    console.log("Loading KJV text map from Supabase...");
+    console.log("📖 Loading KJV text map from Supabase public bucket...");
     const kjvResponse = await fetch(
       "https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/KJV.txt",
     );
+    
+    console.log(`📖 KJV fetch response status: ${kjvResponse.status}`);
+    
     if (!kjvResponse.ok) {
-      throw new Error("Failed to load KJV text from Supabase");
+      throw new Error(`Failed to load KJV text from Supabase: ${kjvResponse.status}`);
     }
 
     const kjvTextData = await kjvResponse.text();
+    console.log(`📖 KJV text loaded: ${kjvTextData.length} characters`);
+    
     const lines = kjvTextData.split("\n").filter((line) => line.trim());
+    console.log(`📖 Found ${lines.length} lines in KJV file`);
 
     const textMap = new Map<string, string>();
-    lines.forEach((line) => {
+    let parseCount = 0;
+    
+    lines.forEach((line, index) => {
       const cleanLine = line.trim().replace(/\r/g, "");
       const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
       if (match) {
@@ -56,13 +64,25 @@ const loadKJVTextMap = async (): Promise<void> => {
           textMap.set(`${book} ${chapter}:${verse}`, cleanText);
           textMap.set(`${book}.${chapter}.${verse}`, cleanText);
         }
+        
+        parseCount++;
+        
+        if (index < 3) {
+          console.log(`📖 Sample verse: "${cleanRef}" -> "${cleanText.substring(0, 50)}..."`);
+        }
       }
     });
 
     globalKjvTextMap = textMap;
-    console.log(`KJV text map loaded with ${textMap.size} entries`);
+    console.log(`📖 ✅ KJV text map loaded successfully with ${textMap.size} entries (${parseCount} parsed)`);
+    
+    // Test a few lookups
+    console.log("📖 Testing verse lookups:");
+    console.log("  Gen.1:1 ->", textMap.get("Gen.1:1")?.substring(0, 50) || "NOT FOUND");
+    console.log("  Gen 1:1 ->", textMap.get("Gen 1:1")?.substring(0, 50) || "NOT FOUND");
+    
   } catch (error) {
-    console.error("Failed to load KJV text map:", error);
+    console.error("📖 ❌ Failed to load KJV text map:", error);
     globalKjvTextMap = new Map(); // Empty map to prevent repeated attempts
   }
 };
