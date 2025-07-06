@@ -69,17 +69,37 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
             <div
               key={column.id}
               draggable={!isLayoutLocked}
-              onDragStart={() => handleDragStart(index)}
-              onDragOver={(e) => handleDragOver(e, index)}
-              onDrop={(e) => handleDrop(e, index)}
-              className={`${column.width} flex-shrink-0 flex items-center border-r font-semibold text-sm bg-background cursor-pointer transition-colors ${
-                !isLayoutLocked ? 'hover:bg-gray-100 dark:hover:bg-gray-800' : ''
-              } ${draggedIndex === index ? 'opacity-50' : ''}`}
+              onDragStart={(e) => {
+                if (isLayoutLocked) {
+                  e.preventDefault();
+                  return;
+                }
+                e.dataTransfer.setData('text/plain', index.toString());
+                handleDragStart(index);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (!isLayoutLocked && draggedIndex !== null) {
+                  e.dataTransfer.dropEffect = 'move';
+                }
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (isLayoutLocked) return;
+                const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                handleDrop(e, index);
+              }}
+              className={`${column.width} flex-shrink-0 flex items-center border-r font-semibold bg-background transition-colors ${
+                !isLayoutLocked 
+                  ? 'cursor-grab hover:bg-gray-100 dark:hover:bg-gray-800 active:cursor-grabbing' 
+                  : 'cursor-default'
+              } ${draggedIndex === index ? 'opacity-50 bg-blue-100 dark:bg-blue-900' : ''}`}
+              style={{ userSelect: 'none' }}
             >
               {!isLayoutLocked && (
-                <GripVertical size={14} className="text-gray-400 mr-1" />
+                <GripVertical size={12} className="text-gray-400 mr-1 flex-shrink-0" />
               )}
-              <span className={column.type === 'reference' ? 'text-xs px-1' : 'px-3'}>
+              <span className={`${column.type === 'reference' ? 'text-xs px-1' : 'text-sm px-3'} truncate`}>
                 {column.title}
               </span>
             </div>

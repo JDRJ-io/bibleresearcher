@@ -23,7 +23,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       data-verse-index={verse.index}
     >
       {/* Verse Reference Column */}
-      <div className="w-20 px-1 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
+      <div className="w-16 px-1 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
         {verse.reference}
       </div>
       

@@ -20,7 +20,7 @@ export interface UseColumnReorderReturn {
 }
 
 const defaultColumns: ColumnConfig[] = [
-  { id: 'reference', type: 'reference', title: 'Reference', width: 'w-20', visible: true },
+  { id: 'reference', type: 'reference', title: 'Reference', width: 'w-16', visible: true },
   { id: 'kjv', type: 'translation', title: 'KJV - King James Version', width: 'w-72', visible: true, translationId: 'KJV' },
   { id: 'crossReferences', type: 'crossReferences', title: 'Cross References', width: 'w-48', visible: true },
 ];
