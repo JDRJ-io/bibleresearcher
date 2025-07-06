@@ -46,7 +46,43 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Parse translation file into Map<verseID, text>
    * Format: "Gen.1:1 #In the beginning God created..."
    */
-  const parseTranslationFile = useCallback((content: string): Map<string, string> => {
+  /**
+   * Parse translation content using Web Worker to keep main thread under 16ms
+   */
+  const parseTranslationInWorker = useCallback(async (code: string, content: string): Promise<Map<string, string>> => {
+    return new Promise((resolve, reject) => {
+      const worker = new Worker('/translationWorker.js');
+      
+      worker.onmessage = (e) => {
+        const { type, payload } = e.data;
+        
+        if (type === 'TRANSLATION_PARSED') {
+          // Convert back to Map if needed
+          const map = payload.map instanceof Map ? payload.map : new Map(Object.entries(payload.map));
+          worker.terminate();
+          resolve(map);
+        } else if (type === 'ERROR') {
+          worker.terminate();
+          reject(new Error(payload.error));
+        }
+      };
+      
+      worker.onerror = (error) => {
+        worker.terminate();
+        reject(error);
+      };
+      
+      worker.postMessage({
+        type: 'PARSE_TRANSLATION',
+        payload: { code, content }
+      });
+    });
+  }, []);
+
+  /**
+   * Fallback parser for main thread (when worker unavailable)
+   */
+  const parseTranslationFileMainThread = useCallback((content: string): Map<string, string> => {
     const map = new Map<string, string>();
     const lines = content.split('\n');
     
@@ -90,8 +126,15 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         
         const content = await data.text();
         
-        // Parse into Map<verseID, text>
-        const translationMap = parseTranslationFile(content);
+        // Step 1-C: Off-load parsing to worker (keeps main thread under 16ms)
+        let translationMap: Map<string, string>;
+        try {
+          translationMap = await parseTranslationInWorker(code, content);
+        } catch (error) {
+          // Fallback to main thread if worker fails
+          console.warn('Worker parsing failed, using main thread:', error);
+          translationMap = parseTranslationFileMainThread(content);
+        }
         
         // Store in globalResourceCache for session persistence
         globalResourceCache.set(code, translationMap);
@@ -122,7 +165,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [parseTranslationFile]);
+  }, [parseTranslationFileMainThread, parseTranslationInWorker]);
 
   // Define toggleTranslation before useEffect
   const toggleTranslationRef = useRef(toggleTranslation);

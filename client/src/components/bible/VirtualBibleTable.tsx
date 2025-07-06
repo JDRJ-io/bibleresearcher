@@ -155,7 +155,7 @@ const VirtualBibleTable = ({
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         <div style={{height: chunk.start * ROWHEIGHT}} />
         {chunk.verseIDs.map(id => {
-          const verse = typeof rowData.get === 'function' ? rowData.get(id) : rowData[id];
+          const verse = rowData instanceof Map ? rowData.get(id) : rowData[id];
           return (
             <VirtualRow 
               key={id} 

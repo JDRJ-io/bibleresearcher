@@ -18,6 +18,18 @@ self.onmessage = async function(e) {
     case 'LOAD_MULTIPLE':
       await loadMultipleTranslations(payload.translationIds);
       break;
+      
+    case 'PARSE_TRANSLATION':
+      // Expert guidance: Off-load parsing to worker
+      const translationMap = parseTranslationContent(payload.content);
+      self.postMessage({
+        type: 'TRANSLATION_PARSED',
+        payload: {
+          code: payload.code,
+          map: translationMap
+        }
+      });
+      break;
   }
 };
 
@@ -97,4 +109,26 @@ async function loadMultipleTranslations(translationIds) {
     type: 'ALL_COMPLETE',
     payload: { total }
   });
+}
+
+/**
+ * Parse translation content into Map<verseID, text>
+ * Called from worker thread to keep main thread under 16ms
+ */
+function parseTranslationContent(content) {
+  const lines = content.split('\n');
+  const translationMap = new Map();
+  
+  for (const line of lines) {
+    if (line.trim()) {
+      const hashIndex = line.indexOf('#');
+      if (hashIndex > 0) {
+        const verseID = line.substring(0, hashIndex).trim();
+        const text = line.substring(hashIndex + 1).trim();
+        translationMap.set(verseID, text);
+      }
+    }
+  }
+  
+  return translationMap;
 }
