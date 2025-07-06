@@ -22,15 +22,15 @@ function debounce<T extends (...args: any[]) => any>(
 export function useAnchorScroll(ref: RefObject<HTMLElement>) {
   const [anchorIndex, setAnchorIndex] = useState(0);
 
+  // 3-A. Debounce anchor updates - FIXED: Move useCallback to top level
+  const debouncedSetAnchor = useCallback(
+    debounce((i: number) => setAnchorIndex(i), 100),
+    []
+  );
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    // 3-A. Debounce anchor updates
-    const debouncedSetAnchor = useCallback(
-      debounce((i: number) => setAnchorIndex(i), 100),
-      []
-    );
 
     const handle = () => {
       const mid = el.scrollTop + el.clientHeight / 2;

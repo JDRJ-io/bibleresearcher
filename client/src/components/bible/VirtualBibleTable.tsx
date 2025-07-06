@@ -1,4 +1,16 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -68,13 +80,26 @@ const VirtualBibleTable = ({
   const ROWHEIGHT = 120;
   const totalHeight = verseKeys.length * ROWHEIGHT;
   
-  // Update center verse when anchor changes
+  // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
     if (onCenterVerseChange && anchorInfo.anchorIndex !== centerVerseIndex) {
       onCenterVerseChange(anchorInfo.anchorIndex);
       console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
     }
   }, [anchorInfo.anchorIndex, centerVerseIndex, onCenterVerseChange]);
+
+  // 3-B. Preserve scroll position during slice swaps
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    // Guard with conditional check
+    if (container.scrollTop) {
+      // Maintain scroll stability during chunk swaps
+      container.scrollTop = (anchorInfo.anchorIndex - chunk.start) * ROWHEIGHT;
+      console.log(`🔧 SCROLL POSITION PRESERVED: anchor=${anchorInfo.anchorIndex}, start=${chunk.start}`);
+    }
+  }, [chunk.start, anchorInfo.anchorIndex]);
 
   // Get verse data for current chunk
   const getVerseData = useCallback((verseId: string) => {
