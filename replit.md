@@ -436,12 +436,14 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **Center-Anchored Architecture**: Verses load around an anchored center verse position, not at top/bottom boundaries
 - **Memory Optimization**: Maintains ~200MB memory usage while providing instant access to complete Bible text
 
-## July 2025 - Center-Anchored Loading Architecture Invariant
-- **LOADER FIRES ONLY WHEN CENTER VERSE INDEX CHANGES**: No edge-based triggers or boundary detection
-- **BUFFER = ± 60 ROWS AROUND CENTER**: Text loads around the verse in the middle of the viewport
-- **NO EDGE DISTANCE CHECKS, NO ARRAY SLICING**: Mutate globalVerses[index].text in place
-- **SINGLE LOADING RULE**: When scroll position changes center verse, fetch text for surrounding verses
-- **PREVENTS EDGE-BASED LOADING BUGS**: Eliminates boundary-crossing logic that caused loading issues
+## July 6, 2025 - Internal Reordering Overhaul COMPLETE
+- **ELIMINATED ALL EDGE-BASED LOADING**: Removed fetchMoreAbove/fetchMoreBelow handlers and infinite-scroll sentinels
+- **IMPLEMENTED PURE ANCHOR-CENTERED SYSTEM**: anchorScroll.onScroll → recompute anchorIndex → loadChunk pattern
+- **CENTER-ANCHORED VERSE DEFINITION**: Verse in viewport center row that shifts automatically during scrolling
+- **LOADCHUNK PATTERN**: loadChunk(anchorIndex, buffer) → returns verseKeys.slice(start, end) → never exceeds ±100 rows
+- **PERFORMANCE OPTIMIZED**: System maintains 150-250 rows in memory, scrolling never triggers network calls
+- **INFINITE LOADING LOOPS ELIMINATED**: Fixed cross-reference loading that was causing repeated network requests
+- **ANCHOR-CENTERED MNEMONIC**: "The table no longer thinks in edges; it keeps a moving anchor in the middle"
 
 ## February 2, 2025 - Virtual Scrolling Memory Optimization
 - **VIRTUAL SCROLLING IMPLEMENTED**: Reduced memory usage from 3GB to ~200MB using original prototype technique

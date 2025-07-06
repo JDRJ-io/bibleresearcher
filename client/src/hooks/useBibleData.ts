@@ -853,26 +853,18 @@ export function useBibleData() {
     centerIndex: number,
     isInstantJump = false,
   ) => {
-    const safeCenterIndex = Math.max(
-      0,
-      Math.min(allVerses.length - 1, centerIndex),
-    );
-
-    // CENTER-ANCHORED LOADING: Only load ±100 verses = 200 total max
-    const CENTER_LOAD_BUFFER = 100;
+    // ANCHOR-CENTERED LOADING: Use loadChunk(anchorIndex, buffer) pattern
+    const { loadChunk } = await import('@/lib/anchorLoader');
+    const { start: startIndex, end: endIndex, slice } = loadChunk(centerIndex, 100);
     
-    const startIndex = Math.max(0, safeCenterIndex - CENTER_LOAD_BUFFER);
-    const endIndex = Math.min(
-      allVerses.length - 1,
-      safeCenterIndex + CENTER_LOAD_BUFFER,
-    );
+    console.log(`📍 ANCHOR LOAD: Center=${centerIndex}, Range=${startIndex}-${endIndex}, Slice=${slice.length} verses`);
 
     // Generate unique request ID to prevent race conditions
     const requestId = ++currentRequestRef.current;
 
     console.time(`fetch-${requestId}`);
     console.log(
-      `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${CENTER_LOAD_BUFFER})`,
+      `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${centerIndex}, buffer: 100)`,
     );
 
     // TRUE CENTER-ANCHORED: Only clear and load verses outside current range
@@ -914,7 +906,7 @@ export function useBibleData() {
     }
 
     // Update center but keep full verses array
-    setCenterVerseIndex(safeCenterIndex);
+    setCenterVerseIndex(centerIndex);
 
     console.timeEnd(`fetch-${requestId}`);
     console.log(
@@ -968,94 +960,8 @@ export function useBibleData() {
   useEffect(() => {
     if (!verses.length) return;
 
-    let isScrolling = false;
-    let lastAnchorIndex = -1;
-
-    const findViewportAnchor = () => {
-      // Find the verse element that's roughly centered in the viewport
-      const viewportCenter = window.scrollY + window.innerHeight / 2;
-
-      // Get all verse elements currently in DOM
-      const verseElements = document.querySelectorAll("[data-verse-index]");
-      if (verseElements.length === 0) return -1;
-
-      let closestElement: Element | null = null;
-      let closestDistance = Infinity;
-
-      verseElements.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        const elementCenter = window.scrollY + rect.top + rect.height / 2;
-        const distance = Math.abs(elementCenter - viewportCenter);
-
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestElement = element;
-        }
-      });
-
-      if (closestElement) {
-        const dataAttr = (closestElement as HTMLElement).dataset.verseIndex;
-        if (dataAttr) {
-          const verseIndex = parseInt(dataAttr);
-          return verseIndex;
-        }
-      }
-
-      return -1;
-    };
-
-    const handleScroll = () => {
-      const currentAnchor = findViewportAnchor();
-
-      if (currentAnchor === -1 || currentAnchor === lastAnchorIndex) {
-        return; // No valid anchor or anchor hasn't changed
-      }
-
-      // Map display verse index back to full verses array index
-      const firstDisplayIndex =
-        verses.length > 0 ? 0
-          : 0;
-
-      const actualVerseIndex = firstDisplayIndex + currentAnchor;
-
-      console.log(
-        `📍 Anchor changed: display[${currentAnchor}] -> verse[${actualVerseIndex}] (${verses[actualVerseIndex]?.reference})`,
-      );
-
-      // Check if we need to load a new window around this anchor
-      const currentWindowStart = Math.max(
-        0,
-        centerVerseIndex - VIEWPORT_BUFFER,
-      );
-      const currentWindowEnd = Math.min(
-        verses.length - 1,
-        centerVerseIndex + VIEWPORT_BUFFER,
-      );
-
-      // 🚫 DISABLED: Edge-based loading conflicts with center-anchored system
-      // Only center-anchored loading should trigger from VirtualBibleTable
-      console.log(
-        `🎯 Anchor tracking: ${actualVerseIndex} (${verses[actualVerseIndex]?.reference}) - edge loading disabled, center-only`,
-      );
-
-      lastAnchorIndex = currentAnchor;
-    };
-
-    // Use requestAnimationFrame for smooth anchor tracking
-    const smoothScrollHandler = () => {
-      if (!isScrolling) {
-        isScrolling = true;
-        requestAnimationFrame(() => {
-          handleScroll();
-          isScrolling = false;
-        });
-      }
-    };
-
-    window.addEventListener("scroll", smoothScrollHandler, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", smoothScrollHandler);
-    };
+    // REMOVED: All edge-based viewport tracking and scroll handling
+    // Replaced with VirtualBibleTable anchor-centered system
   }, [verses.length, verses.length, centerVerseIndex]);
 
   // Load Bible data on mount
