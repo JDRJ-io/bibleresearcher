@@ -134,12 +134,18 @@ export default function BiblePage() {
 
   // Translation helper functions (integrated with translation maps system)
   const handleToggleTranslation = async (translationId: string) => {
-    if (multiTranslationMode) {
-      // Multi-translation mode: toggle on/off as alternate
-      await toggleTranslation(translationId, false);
-    } else {
-      // Single translation mode: set as main
-      await toggleTranslation(translationId, true);
+    try {
+      if (multiTranslationMode) {
+        // Multi-translation mode: toggle on/off as alternate
+        await toggleTranslation(translationId, false);
+      } else {
+        // Single translation mode: set as main
+        await toggleTranslation(translationId, true);
+      }
+      // Update local state for UI consistency
+      setSelectedTranslations(activeTranslations);
+    } catch (error) {
+      console.error('Error toggling translation:', error);
     }
   };
 

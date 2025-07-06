@@ -6,13 +6,17 @@ interface VirtualRowProps {
   rowHeight: number;
   verse: BibleVerse;
   columnData: any;
+  getVerseText: (verseID: string, translationCode: string) => string | undefined;
+  getMainVerseText: (verseID: string) => string | undefined;
+  activeTranslations: string[];
+  mainTranslation: string;
 }
 
 /**
- * Reusable component that renders one verse row.
+ * Reusable component that renders one verse row with translation maps integration.
  * Accepts props verseID, rowHeight, and columnData.
  */
-export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRowProps) {
+export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation }: VirtualRowProps) {
   // Guard against undefined verse data
   if (!verse) {
     return (
@@ -43,15 +47,15 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       {/* Main Translation Column - Tighter */}
       <div className="w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="overflow-auto h-full">
-          {verse.text[settings.mainTranslation] || verse.text.KJV || `Loading ${verse.reference}...`}
+          {getMainVerseText(verseID) || `Loading ${verse.reference}...`}
         </div>
       </div>
       
       {/* Multi-Translation Columns - Tighter */}
-      {settings.multiTranslations?.map((translation: string) => (
+      {activeTranslations.slice(1).map((translation: string) => (
         <div key={translation} className="w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="overflow-auto h-full">
-            {verse.text[translation] || 'Loading...'}
+            {getVerseText(verseID, translation) || `Loading ${verse.reference}...`}
           </div>
         </div>
       ))}

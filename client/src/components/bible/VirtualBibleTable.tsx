@@ -9,6 +9,7 @@ import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeys
 import { useAnchorScroll } from "@/hooks/useAnchorScroll";
 import { useChunk } from "@/hooks/useChunk";
 import { useRowData } from "@/hooks/useRowData";
+import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import type {
   BibleVerse,
   Translation,
@@ -51,6 +52,10 @@ const VirtualBibleTable = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Integrate translation maps system for verse text loading
+  const translationMaps = useTranslationMaps();
+  const { activeTranslations, getVerseText, getMainVerseText, mainTranslation: translationMainTranslation } = translationMaps;
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Exact specification compliance
   const containerRef = useRef<HTMLDivElement>(null);
@@ -156,7 +161,11 @@ const VirtualBibleTable = ({
               verseID={id} 
               rowHeight={ROWHEIGHT}
               verse={verse} 
-              columnData={columnData} 
+              columnData={columnData}
+              getVerseText={getVerseText}
+              getMainVerseText={getMainVerseText}
+              activeTranslations={activeTranslations}
+              mainTranslation={translationMainTranslation}
             />
           );
         })}

@@ -1,11 +1,16 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
 /**
- * CORE TRANSLATION SYSTEM IMPLEMENTATION
+ * COMPLETE VERSE SYSTEM OVERHAUL - TRANSLATION MAPS ARCHITECTURE
  * 
  * Core idea: verseKeys gives you the ordered IDs. Translation maps give you the strings.
  * The UI only ever handles IDs; workers and caches handle the strings.
+ * 
+ * Main vs alternate contract:
+ * - There is always exactly one "main translation" at index 0
+ * - Cross-references, prophecy, dates read ONLY from main translation
+ * - Alternates are pure side-by-side columns
  */
 
 export interface TranslationMap {
@@ -23,15 +28,25 @@ export interface UseTranslationMapsReturn {
   isLoading: boolean;
 }
 
+// Global resource cache - persists across component unmounts
+const globalResourceCache = new Map<string, TranslationMap>();
+
 export function useTranslationMaps(): UseTranslationMapsReturn {
-  // resourceCache stores Map<verseID,text> for each translation, fetched once per session
-  const resourceCache = useRef<Map<string, TranslationMap>>(new Map());
-  
   // activeTranslations array: index 0 = main translation, others are alternates
   const [activeTranslations, setActiveTranslations] = useState<string[]>(['KJV']);
   const [isLoading, setIsLoading] = useState(false);
   
   const mainTranslation = activeTranslations[0] || 'KJV';
+
+  // Auto-load KJV translation on first render (moved after toggleTranslation definition)
+  useEffect(() => {
+    const loadKJV = async () => {
+      if (!globalResourceCache.has('KJV')) {
+        await toggleTranslationRef.current('KJV', true);
+      }
+    };
+    loadKJV();
+  }, []);
 
   /**
    * Parse translation file into Map<verseID, text>
@@ -52,124 +67,100 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
       }
     }
     
-    console.log(`✓ Parsed translation map with ${Object.keys(map).length} verses`);
     return map;
   }, []);
 
   /**
-   * Fetch and cache translation file
-   * Always fetches entire 4MB file, parses into map, stores in resourceCache
+   * Toggle a translation ON/OFF
+   * If setAsMain=true, places it at index 0 (main translation)
+   * Otherwise appends to activeTranslations as alternate
    */
-  const fetchTranslationFile = useCallback(async (code: string): Promise<TranslationMap> => {
-    console.log(`🔄 Fetching translation file: ${code}.txt`);
+  const toggleTranslation = useCallback(async (code: string, setAsMain = false) => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.storage
-        .from('translations')
-        .download(`${code}.txt`);
+      // Check if translation is already in globalResourceCache
+      if (!globalResourceCache.has(code)) {
+        console.log(`🔄 Fetching translation: ${code}`);
+        
+        // Fetch entire 4MB translation file - whole file fetch only
+        const { data, error } = await supabase.storage
+          .from('bible-data')
+          .download(`translations/${code}.txt`);
+          
+        if (error) {
+          console.error(`Error fetching ${code}:`, error);
+          return;
+        }
+        
+        const content = await data.text();
+        
+        // Parse into Map<verseID, text>
+        const translationMap = parseTranslationFile(content);
+        
+        // Store in globalResourceCache for session persistence
+        globalResourceCache.set(code, translationMap);
+        console.log(`✅ Cached translation: ${code} (${Object.keys(translationMap).length} verses)`);
+      }
       
-      if (error) throw error;
+      // Update activeTranslations array
+      setActiveTranslations(prev => {
+        const isActive = prev.includes(code);
+        
+        if (isActive) {
+          // Toggle OFF - remove from active but keep in cache
+          return prev.filter(t => t !== code);
+        } else {
+          // Toggle ON
+          if (setAsMain) {
+            // Place at index 0 (main translation)
+            return [code, ...prev.filter(t => t !== code)];
+          } else {
+            // Append as alternate
+            return [...prev, code];
+          }
+        }
+      });
       
-      const content = await data.text();
-      const translationMap = parseTranslationFile(content);
-      
-      // Store in resourceCache - one fetch per session
-      resourceCache.current.set(code, translationMap);
-      console.log(`✅ Translation ${code} cached with ${Object.keys(translationMap).length} verses`);
-      
-      return translationMap;
     } catch (error) {
-      console.error(`❌ Failed to fetch translation ${code}:`, error);
-      throw error;
+      console.error('Error toggling translation:', error);
     } finally {
       setIsLoading(false);
     }
   }, [parseTranslationFile]);
 
-  /**
-   * Toggle translation ON/OFF with main translation promotion
-   * User toggles a language ON:
-   * • Check resourceCache for its file-code key
-   * • If absent, request the entire 4MB translations/{CODE}.txt
-   * • Parse off-thread into Map<verseID,text> and store in resourceCache
-   * • Push file-code onto activeTranslations (top if "Set as Main", otherwise append)
-   */
-  const toggleTranslation = useCallback(async (code: string, setAsMain = false) => {
-    console.log(`🔄 Toggle translation: ${code}, setAsMain: ${setAsMain}`);
-    
-    // Check if already active
-    const isActive = activeTranslations.includes(code);
-    
-    if (isActive && !setAsMain) {
-      // Remove from active translations but keep in cache
-      console.log(`➖ Removing ${code} from active translations`);
-      setActiveTranslations(prev => prev.filter(t => t !== code));
-      return;
-    }
-    
-    // Ensure translation is cached
-    if (!resourceCache.current.has(code)) {
-      await fetchTranslationFile(code);
-    }
-    
-    // Add to active translations
-    setActiveTranslations(prev => {
-      let newActive = prev.filter(t => t !== code); // Remove if already present
-      
-      if (setAsMain) {
-        // Put at index 0 (main translation)
-        newActive = [code, ...newActive];
-        console.log(`👑 Set ${code} as main translation`);
-      } else {
-        // Append as alternate
-        newActive = [...newActive, code];
-        console.log(`➕ Added ${code} as alternate translation`);
-      }
-      
-      console.log(`📋 Active translations: ${newActive.join(', ')} (main: ${newActive[0]})`);
-      return newActive;
-    });
-  }, [activeTranslations, fetchTranslationFile]);
+  // Define toggleTranslation before useEffect
+  const toggleTranslationRef = useRef(toggleTranslation);
+  toggleTranslationRef.current = toggleTranslation;
 
   /**
-   * Remove translation from active list (keep in cache)
-   * User toggles a language OFF:
-   * • Remove its file-code from activeTranslations
-   * • Keep its map in resourceCache to avoid another download in same session
+   * Remove translation from activeTranslations
+   * Keep in cache to avoid re-download in same session
    */
   const removeTranslation = useCallback((code: string) => {
-    console.log(`➖ Removing translation: ${code}`);
-    setActiveTranslations(prev => {
-      const newActive = prev.filter(t => t !== code);
-      console.log(`📋 Active translations after removal: ${newActive.join(', ')}`);
-      return newActive;
-    });
+    setActiveTranslations(prev => prev.filter(t => t !== code));
   }, []);
 
   /**
-   * Get verse text from specific translation map
-   * Direct map.get(id) - no per-verse fetch ever occurs
+   * Get verse text from specific translation
+   * Direct map.get(verseID) lookup - no per-verse fetch
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
-    const translationMap = resourceCache.current.get(translationCode);
-    return translationMap?.get?.(verseID);
+    const translationMap = globalResourceCache.get(translationCode);
+    return translationMap?.get(verseID);
   }, []);
 
   /**
    * Get verse text from main translation (index 0)
-   * Cross-ref & prophecy lookups: always read from main translation map at index 0
+   * Used by cross-references, prophecy, dates - always main translation
    */
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
-    const mainCode = activeTranslations[0];
-    if (!mainCode) return undefined;
-    
-    const translationMap = resourceCache.current.get(mainCode);
-    return translationMap?.get?.(verseID);
-  }, [activeTranslations]);
+    const mainTranslationMap = globalResourceCache.get(mainTranslation);
+    return mainTranslationMap?.get(verseID);
+  }, [mainTranslation]);
 
   return {
-    resourceCache: resourceCache.current,
+    resourceCache: globalResourceCache,
     activeTranslations,
     mainTranslation,
     toggleTranslation,
