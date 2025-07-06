@@ -1064,30 +1064,26 @@ export function useBibleData() {
       try {
         setIsLoading(true);
 
-        setLoadingProgress({ stage: "structure", percentage: 10 });
-
-        const data = await loadFullBibleIndex((progress) => {
-          setLoadingProgress(progress);
-        });
-
-        setLoadingProgress({ stage: "cross-refs", percentage: 80 });
-        try {
-          // Load cross-references from Supabase only
-          await loadBothCrossReferenceSets();
-          setLoadingProgress({ stage: "finalizing", percentage: 95 });
-          await new Promise((resolve) => setTimeout(resolve, 300));
-        } catch (error) {
-          console.error("Failed to load cross-references from Supabase:", error);
-          throw new Error("Cross-reference loading failed from Supabase");
-        }
-
+        // VERSE KEYS FIRST: Load the master row index foundation
+        setLoadingProgress({ stage: "verse-keys", percentage: 10 });
+        console.log("🔑 Starting verse keys foundation architecture...");
+        
+        const { loadVerseKeysCanonical, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+        
+        const verseKeys = await loadVerseKeysCanonical();
+        console.log(`🔑 Loaded ${verseKeys.length} verse keys as master index`);
+        
+        setLoadingProgress({ stage: "structure", percentage: 50 });
+        
+        // Create verse objects from the master key index
+        const verseObjects = createVerseObjectsFromKeys(verseKeys);
+        console.log(`🏗️ Created ${verseObjects.length} verse structure from keys`);
+        
         setLoadingProgress({ stage: "complete", percentage: 100 });
 
-        // Set full verse index for navigation (references only)
-        setVerses(data);
-
-        // NO INITIAL LOADING: VirtualBibleTable will handle all center-anchored loading
-        console.log("📦 Bible structure loaded - VirtualBibleTable will handle text loading");
+        // Set the verses using the verse keys foundation
+        setVerses(verseObjects);
+        console.log("📦 Bible structure loaded from verse keys foundation - text loading will be on-demand");
 
         setIsLoading(false);
       } catch (err) {
