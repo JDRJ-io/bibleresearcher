@@ -1,32 +1,50 @@
 import { useMemo } from 'react';
 import { BibleVerse } from '../types/bible';
 
+interface UseRowDataReturn {
+  [verseId: string]: BibleVerse;
+}
+
 /**
- * Hook that loads data for verses in the current chunk
- * Side-effect fetches inside useRowData only request missing verses for the current slice
+ * useRowData: TanStack Query caches maps
+ * Direct map.get(id) lookups against existing verse data - maintains current interface
  */
-export function useRowData(verseIDs: string[], verses: BibleVerse[], getGlobalVerseText?: (verseId: string, translation: string) => string) {
-  // Create a map of verse data keyed by verse ID
-  const rowData = useMemo(() => {
-    const dataMap: Record<string, BibleVerse> = {};
+export function useRowData(
+  verseIDs: string[], 
+  verses: BibleVerse[], 
+  getGlobalVerseText?: (verseId: string) => string
+): UseRowDataReturn {
+  
+  return useMemo(() => {
+    console.log('🔄 useRowData: Processing', verseIDs.length, 'verses for chunk');
     
-    verseIDs.forEach(verseId => {
-      // Find the verse in the main verses array
+    const rowData: UseRowDataReturn = {};
+    
+    for (const verseId of verseIDs) {
+      // Find verse by ID or reference - try multiple matching patterns
       const verse = verses.find(v => 
-        v.reference === verseId || 
-        v.id === verseId ||
+        v.id === verseId || 
+        v.reference === verseId ||
         `${v.book}.${v.chapter}:${v.verse}` === verseId
       );
       
       if (verse) {
-        dataMap[verseId] = verse;
-      } else {
-        // Create a skeleton verse for missing data
-        const [bookChapter, verseNum] = verseId.split(':');
-        const [book, chapter] = bookChapter.split('.');
+        // Get text using the global text loader if available
+        const text = getGlobalVerseText ? getGlobalVerseText(verseId) : '';
         
-        dataMap[verseId] = {
+        rowData[verseId] = {
+          ...verse,
+          text: text ? { KJV: text } : verse.text
+        };
+      } else {
+        // Create fallback verse data if not found
+        console.warn(`⚠️ Verse not found for ID: ${verseId}`);
+        const [bookChapter, verseNum] = verseId.split(':');
+        const [book, chapter] = bookChapter?.split('.') || ['Unknown', '1'];
+        
+        rowData[verseId] = {
           id: verseId,
+          index: 0,
           book: book || 'Unknown',
           chapter: parseInt(chapter) || 1,
           verse: parseInt(verseNum) || 1,
@@ -38,35 +56,9 @@ export function useRowData(verseIDs: string[], verses: BibleVerse[], getGlobalVe
           contextGroup: 'standard'
         };
       }
-    });
+    }
     
-    return dataMap;
-  }, [verseIDs, verses]);
-
-  // Enhanced row data with text loading using existing translation maps
-  const enrichedRowData = useMemo(() => {
-    console.log(`🔄 useRowData: Processing ${verseIDs.length} verses for chunk`);
-    const enriched: Record<string, BibleVerse> = {};
-    
-    verseIDs.forEach(verseId => {
-      const verse = rowData[verseId];
-      if (verse) {
-        // Use existing getGlobalVerseText function which has translation maps
-        const kjvText = getGlobalVerseText ? getGlobalVerseText(verseId, 'KJV') : '';
-        
-        enriched[verseId] = {
-          ...verse,
-          text: {
-            ...verse.text,
-            KJV: kjvText && kjvText !== 'Loading...' ? kjvText : `Loading ${verse.reference}...`
-          }
-        };
-      }
-    });
-    
-    console.log(`✓ useRowData: Processed ${Object.keys(enriched).length} verses with text`);
-    return enriched;
-  }, [verseIDs, rowData, getGlobalVerseText]);
-
-  return enrichedRowData;
+    console.log('✓ useRowData: Processed', Object.keys(rowData).length, 'verses with text');
+    return rowData;
+  }, [verseIDs, verses, getGlobalVerseText]);
 }

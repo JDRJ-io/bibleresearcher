@@ -57,7 +57,7 @@ const VirtualBibleTable = ({
   const verseKeys = getVerseKeys(); // loaded once
   const anchorInfo = useAnchorScroll(containerRef); // {anchorIndex}
   const chunk = useChunk(verseKeys, anchorInfo.anchorIndex, 250);
-  const rowData = useRowData(chunk.verseIDs, verses, getGlobalVerseText); // TanStack Query caches maps
+  const rowData = useRowData(chunk.verseIDs, verses, getGlobalVerseText);
   
   const ROWHEIGHT = 120;
   const totalHeight = verseKeys.length * ROWHEIGHT;
@@ -148,15 +148,18 @@ const VirtualBibleTable = ({
       
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         <div style={{height: chunk.start * ROWHEIGHT}} />
-        {chunk.verseIDs.map(id => (
-          <VirtualRow 
-            key={id} 
-            verseID={id} 
-            rowHeight={ROWHEIGHT}
-            verse={rowData[id]} 
-            columnData={columnData} 
-          />
-        ))}
+        {chunk.verseIDs.map(id => {
+          const verse = rowData[id];
+          return (
+            <VirtualRow 
+              key={id} 
+              verseID={id} 
+              rowHeight={ROWHEIGHT}
+              verse={verse} 
+              columnData={columnData} 
+            />
+          );
+        })}
         <div style={{height: (verseKeys.length - chunk.end) * ROWHEIGHT}} />
       </div>
     </div>

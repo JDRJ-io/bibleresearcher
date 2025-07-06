@@ -13,6 +13,19 @@ interface VirtualRowProps {
  * Accepts props verseID, rowHeight, and columnData.
  */
 export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRowProps) {
+  // Guard against undefined verse data
+  if (!verse) {
+    return (
+      <div 
+        className="virtual-row border-b border-gray-200 dark:border-gray-700 flex"
+        style={{ height: rowHeight }}
+        data-verse-id={verseID}
+      >
+        <div className="w-20 px-1 py-1 text-xs">Loading...</div>
+      </div>
+    );
+  }
+
   const { translations, crossReferences, prophecyData, settings } = columnData;
   
   return (
