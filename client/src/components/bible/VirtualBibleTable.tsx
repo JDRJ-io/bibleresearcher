@@ -126,9 +126,13 @@ export function VirtualBibleTable({
       console.log(`🎯 Anchor verse changed: ${clampedCenterIndex} (${anchorVerseKey})`);
       setAnchorVerseIndex(clampedCenterIndex);
       
-      if (onCenterVerseChange) {
-        // Load ±100 verses around this verse key position
-        onCenterVerseChange(clampedCenterIndex);
+      // DIRECT LOADING: Call loadVerseRange directly from VirtualBibleTable
+      if (verses.length > 0) {
+        console.log(`🔄 VirtualBibleTable loading center-anchored text around ${clampedCenterIndex}`);
+        // This should trigger the loadVerseRange function in useBibleData
+        if (onCenterVerseChange) {
+          onCenterVerseChange(clampedCenterIndex);
+        }
       }
     }
 

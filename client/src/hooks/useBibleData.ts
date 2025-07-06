@@ -875,20 +875,25 @@ export function useBibleData() {
       `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${safeCenterIndex}, buffer: ${CENTER_LOAD_BUFFER})`,
     );
 
-    // 🎯 CENTER-ANCHORED: Clear all text first, then only load around center
+    // TRUE CENTER-ANCHORED: Only clear and load verses outside current range
     console.log(
-      `⚡ Loading text for verses ${startIndex}-${endIndex} around center anchor`,
+      `⚡ CENTER-ANCHORED: Loading text for verses ${startIndex}-${endIndex} around center anchor`,
     );
 
-    // First clear all existing text to prevent 8GB memory usage
-    allVerses.forEach(verse => {
-      verse.text = {};
-      verse.labels = [];
+    // SMART CLEARING: Only clear text outside the new range to prevent memory bloat
+    allVerses.forEach((verse, index) => {
+      if (index < startIndex || index > endIndex) {
+        // Clear text outside new center range
+        if (verse.text && Object.keys(verse.text).length > 0) {
+          verse.text = {};
+          verse.labels = (verse.labels || []).filter(label => label !== 'kjv-loaded');
+        }
+      }
     });
 
-    // Only load text for the ±100 range around center anchor
+    // EFFICIENT LOADING: Only load text for verses that don't already have it
     for (let i = startIndex; i <= endIndex; i++) {
-      if (i < allVerses.length) {
+      if (i < allVerses.length && (!allVerses[i].text || !allVerses[i].text.KJV)) {
         const verseKey = `${allVerses[i].book}.${allVerses[i].chapter}:${allVerses[i].verse}`;
         const kjvText = globalKjvTextMap?.get(verseKey) || 
                        globalKjvTextMap?.get(verseKey.replace('.', ' ')) ||
@@ -896,7 +901,7 @@ export function useBibleData() {
         
         // Only populate text for center-anchored range
         allVerses[i].text = { KJV: kjvText };
-        allVerses[i].labels = ['kjv-loaded'];
+        allVerses[i].labels = [...(allVerses[i].labels || []), 'kjv-loaded'];
       }
     }
 
@@ -1081,11 +1086,8 @@ export function useBibleData() {
         // Set full verse index for navigation (references only)
         setVerses(data);
 
-        // Load initial window of verses
-        const initialVerses = await loadVerseRange(data, 0, true);
-        if (initialVerses.length > 0) {
-          setVerses(initialVerses);
-        }
+        // NO INITIAL LOADING: VirtualBibleTable will handle all center-anchored loading
+        console.log("📦 Bible structure loaded - VirtualBibleTable will handle text loading");
 
         setIsLoading(false);
       } catch (err) {
@@ -1100,15 +1102,16 @@ export function useBibleData() {
     loadData();
   }, []);
 
-  // Apply cross-references when crossRefSet changes
+  // DISABLED: Apply cross-references when crossRefSet changes - preventing infinite loading
+  // TODO: Re-enable when center-anchored loading is stable
+  /*
   useEffect(() => {
     if (verses.length > 0 && crossReferencesData[crossRefSet]) {
       console.log(
         `Applying ${crossRefSet} cross-references to ${verses.length} verses`,
       );
       applyCrossReferences(verses, crossReferencesData[crossRefSet]);
-      // Reload currently visible range with updated references
-      loadVerseRange(verses, centerVerseIndex);
+      console.log("✓ Cross-references applied - VirtualBibleTable will handle text loading");
     }
   }, [
     crossRefSet,
@@ -1116,6 +1119,7 @@ export function useBibleData() {
     crossReferencesData.cf1,
     crossReferencesData.cf2,
   ]);
+  */
 
   const expandVerse = (verse: BibleVerse) => {
     setExpandedVerse(verse);
@@ -1155,8 +1159,8 @@ export function useBibleData() {
       setNavigationHistory(newHistory);
       setCurrentHistoryIndex(newHistory.length - 1);
 
-      // Load verses around target location with better positioning
-      await loadVerseRange(verses, targetIndex, true);
+      // DISABLED: VirtualBibleTable handles center-anchored loading
+      console.log(`🎯 Navigation target: ${targetIndex} - VirtualBibleTable will handle loading`);
 
       // Precise center positioning for all navigation types
       setTimeout(() => {

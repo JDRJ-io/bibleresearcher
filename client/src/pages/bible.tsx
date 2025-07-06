@@ -732,14 +732,10 @@ export default function BiblePage() {
         getGlobalVerseText={getGlobalVerseText}
         totalRows={verses.length}
         onCenterVerseChange={(globalCenterIndex) => {
-          // CENTER-ANCHORED LOADING: Only load ±100 verses around center
+          // CENTER-ANCHORED LOADING: Only trigger when center changes significantly
           if (Math.abs(globalCenterIndex - lastLoadedCenter) > 50) {
-            console.log(`📍 Center anchor changed to: ${globalCenterIndex} (${verses[globalCenterIndex]?.reference || 'unknown'})`);
+            console.log(`🎯 VirtualBibleTable center-anchored load: ${globalCenterIndex} (${verses[globalCenterIndex]?.reference || 'unknown'})`);
             if (verses.length > 0 && loadVerseRange) {
-              // Load exactly 200 verses centered around anchor
-              const centerStart = Math.max(0, globalCenterIndex - 100);
-              const centerEnd = Math.min(verses.length - 1, globalCenterIndex + 100);
-              console.log(`🎯 Loading center-anchored range: ${centerStart}-${centerEnd} (${centerEnd - centerStart + 1} verses)`);
               loadVerseRange(verses, globalCenterIndex, false);
               setLastLoadedCenter(globalCenterIndex);
             }
