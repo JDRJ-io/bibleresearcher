@@ -8,26 +8,20 @@ import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorScroll } from "@/hooks/useAnchorScroll";
 import { useChunk } from "@/hooks/useChunk";
+import { useRowData } from "@/hooks/useRowData";
 import type {
   BibleVerse,
   Translation,
   UserNote,
   Highlight,
+  AppPreferences,
 } from "@/types/bible";
 
 interface VirtualBibleTableProps {
   verses: BibleVerse[];
   selectedTranslations: Translation[];
-  preferences: {
-    mainTranslation: string;
-    multiTranslations: string[];
-    showCrossReferences: boolean;
-    showProphecy: boolean;
-    showStrongs: boolean;
-    showNotes: boolean;
-    showHighlights: boolean;
-    showBookmarks: boolean;
-  };
+  preferences: AppPreferences;
+  mainTranslation: string;
   className?: string;
   onExpandVerse?: (verse: BibleVerse) => void;
   onNavigateToVerse?: (verseId: string) => void;
@@ -36,12 +30,14 @@ interface VirtualBibleTableProps {
   totalRows?: number;
   onCenterVerseChange?: (verseIndex: number) => void;
   centerVerseIndex?: number;
+  onPreserveAnchor?: (callback: any) => void;
 }
 
 const VirtualBibleTable = ({
   verses,
   selectedTranslations,
   preferences,
+  mainTranslation,
   className = "",
   onExpandVerse,
   onNavigateToVerse,
@@ -50,6 +46,7 @@ const VirtualBibleTable = ({
   totalRows,
   onCenterVerseChange,
   centerVerseIndex = 0,
+  onPreserveAnchor,
 }: VirtualBibleTableProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -60,6 +57,7 @@ const VirtualBibleTable = ({
   const verseKeys = getVerseKeys();
   const { anchorIndex } = useAnchorScroll(containerRef);
   const chunk = useChunk(verseKeys, anchorIndex, 250);
+  const rowData = useRowData(chunk.verseIDs, verses);
   
   const ROW_HEIGHT = 120;
   const totalHeight = verseKeys.length * ROW_HEIGHT;
@@ -82,7 +80,16 @@ const VirtualBibleTable = ({
     translations: selectedTranslations,
     crossReferences: true,
     prophecyData: {},
-    settings: preferences,
+    settings: {
+      mainTranslation: mainTranslation,
+      multiTranslations: preferences.selectedTranslations || [],
+      showCrossReferences: true,
+      showProphecy: preferences.showProphecy,
+      showStrongs: false,
+      showNotes: preferences.showNotes,
+      showHighlights: true,
+      showBookmarks: true,
+    },
     onVerseClick: onNavigateToVerse,
   };
 
@@ -127,6 +134,7 @@ const VirtualBibleTable = ({
   });
 
   console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+  console.log(`📊 CHUNK DATA: start=${chunk.start}, end=${chunk.end}, verseIDs=${chunk.verseIDs.length}, rowData keys=${Object.keys(rowData).length}`);
 
   return (
     <div className={`virtual-bible-table ${className}`}>
@@ -148,8 +156,11 @@ const VirtualBibleTable = ({
         
         {/* Render current chunk */}
         {chunk.verseIDs.map((verseId) => {
-          const verse = getVerseData(verseId);
-          if (!verse) return null;
+          const verse = rowData[verseId];
+          if (!verse) {
+            console.warn(`Missing verse data for ${verseId}`);
+            return null;
+          }
           
           return (
             <VirtualRow

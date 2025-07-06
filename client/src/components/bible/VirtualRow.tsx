@@ -30,7 +30,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       {/* Main Translation Column */}
       <div className="flex-1 px-3 py-2 text-sm">
         <div className="overflow-auto h-full">
-          {verse.text[settings.mainTranslation] || 'Loading...'}
+          {verse.text[settings.mainTranslation] || verse.text.KJV || `Loading ${verse.reference}...`}
         </div>
       </div>
       

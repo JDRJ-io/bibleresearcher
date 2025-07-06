@@ -722,16 +722,7 @@ export default function BiblePage() {
       <VirtualBibleTable
         verses={filteredVerses}
         selectedTranslations={displayTranslations}
-        preferences={{
-          mainTranslation: preferences.mainTranslation || 'KJV',
-          multiTranslations: preferences.multiTranslations || [],
-          showCrossReferences: preferences.showCrossReferences || false,
-          showProphecy: preferences.showProphecy || false,
-          showStrongs: preferences.showStrongs || false,
-          showNotes: preferences.showNotes || false,
-          showHighlights: preferences.showHighlights || false,
-          showBookmarks: preferences.showBookmarks || false,
-        }}
+        preferences={preferences}
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
