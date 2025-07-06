@@ -23,7 +23,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       data-verse-index={verse.index}
     >
       {/* Verse Reference Column */}
-      <div className="w-32 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
+      <div className="w-24 px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0">
         {verse.reference}
       </div>
       
@@ -36,7 +36,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       
       {/* Multi-Translation Columns */}
       {settings.multiTranslations?.map((translation: string) => (
-        <div key={translation} className="w-64 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div key={translation} className="w-80 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="overflow-auto h-full">
             {verse.text[translation] || 'Loading...'}
           </div>
@@ -45,7 +45,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData }: VirtualRow
       
       {/* Cross-References Column */}
       {settings.showCrossReferences && (
-        <div className="w-48 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="w-60 px-3 py-2 text-sm border-l border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="overflow-auto h-full">
             {verse.crossReferences.slice(0, 6).map((ref, index) => (
               <span key={index} className="inline-block mr-1 mb-1 text-xs">
