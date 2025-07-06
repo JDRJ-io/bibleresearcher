@@ -127,8 +127,10 @@ export async function loadTranslationsParallel(
 }
 
 // Load cross-references from private bucket
-export async function loadCrossReferences(
+export // 2-B. Load only that slice in every fetcher - before calling .select(), filter the in() clause to slice.
+async function loadCrossReferences(
   setName: string = "cf1",
+  slice?: string[] // NEW - filter to only these verseIDs
 ): Promise<Map<string, string[]>> {
   const cacheKey = `crossrefs-${setName}`;
   if (resourceCache.has(cacheKey)) {

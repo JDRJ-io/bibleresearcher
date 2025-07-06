@@ -15,14 +15,21 @@ export function useRowData(
 ): UseRowDataReturn {
   
   return useMemo(() => {
+    // 2-C. Performance guard
+    if (process.env.NODE_ENV === 'development' && verseIDs.length > 250) {
+      console.warn('Anchor slice too large:', verseIDs.length);
+    }
+    
     console.log('🔄 useRowData: Processing', verseIDs.length, 'verses for chunk');
+    
+    // 2-B. replace the verses.find() loop with:
+    const verseMap = new Map(verses.map(v => [v.id, v]));
     
     const rowData: UseRowDataReturn = {};
     
     for (const verseId of verseIDs) {
-      // Find verse by ID or reference - try multiple matching patterns
-      const verse = verses.find(v => 
-        v.id === verseId || 
+      // 2-B. Use Map lookup instead of verses.find() for O(1) performance
+      const verse = verseMap.get(verseId) || verses.find(v => 
         v.reference === verseId ||
         `${v.book}.${v.chapter}:${v.verse}` === verseId
       );
