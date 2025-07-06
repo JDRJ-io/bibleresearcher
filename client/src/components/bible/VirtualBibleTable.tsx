@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VirtualRow } from "./VirtualRow";
+import EnhancedScrollbar from "./EnhancedScrollbar";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorScroll } from "@/hooks/useAnchorScroll";
 import { useChunk } from "@/hooks/useChunk";
@@ -136,8 +137,16 @@ const VirtualBibleTable = ({
   console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
   console.log(`📊 CHUNK DATA: start=${chunk.start}, end=${chunk.end}, verseIDs=${chunk.verseIDs.length}, rowData keys=${Object.keys(rowData).length}`);
 
+  // Handle scrollbar jump to index
+  const handleScrollToIndex = useCallback((targetIndex: number) => {
+    if (!containerRef.current) return;
+    
+    const targetScrollTop = targetIndex * ROWHEIGHT;
+    containerRef.current.scrollTop = targetScrollTop;
+  }, [ROWHEIGHT]);
+
   return (
-    <div className={`virtual-bible-table ${className}`}>
+    <div className={`virtual-bible-table relative ${className}`}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
@@ -159,6 +168,14 @@ const VirtualBibleTable = ({
         ))}
         <div style={{height: (verseKeys.length - chunk.end) * ROWHEIGHT}} />
       </div>
+      
+      {/* Enhanced Scrollbar */}
+      <EnhancedScrollbar
+        containerRef={containerRef}
+        anchorIndex={anchorInfo.anchorIndex}
+        totalVerses={verseKeys.length}
+        onScrollToIndex={handleScrollToIndex}
+      />
     </div>
   );
 };

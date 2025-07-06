@@ -343,3 +343,37 @@ body.aurora-mode::after {
 .bible-cell::-webkit-scrollbar-thumb:hover {
   background: var(--accent-color);
 }
+
+/* Hide default scrollbar since we're using custom enhanced scrollbar */
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Enhanced scrollbar mystical effects */
+.enhanced-scrollbar {
+  backdrop-filter: blur(8px);
+}
+
+.enhanced-scrollbar .writing-mode-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Glowing effects for scrollbar elements */
+@keyframes mystical-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(168, 85, 247, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4);
+  }
+}
+
+.enhanced-scrollbar:hover {
+  animation: mystical-pulse 2s infinite;
+}
