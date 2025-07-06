@@ -93,40 +93,42 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [previewVerse, setPreviewVerse] = useState<string>('');
-  const [currentBook, setCurrentBook] = useState<BibleBook | null>(null);
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const scrollbarRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const [rotation, setRotation] = useState(0);
+  const knobRef = useRef<HTMLDivElement>(null);
 
-  // Find current book based on anchor index
-  const findCurrentBook = useCallback((index: number): BibleBook | null => {
-    return BIBLE_BOOKS.find(book => index >= book.startIndex && index <= book.endIndex) || null;
-  }, []);
-
-  // Update current book when anchor changes
-  useEffect(() => {
-    const book = findCurrentBook(anchorIndex);
-    setCurrentBook(book);
-  }, [anchorIndex, findCurrentBook]);
-
-  // Calculate scroll position as percentage
+  // Calculate rotation based on scroll position
   const scrollPercentage = Math.min(100, Math.max(0, (anchorIndex / totalVerses) * 100));
 
-  // Handle drag functionality
+  // Update rotation when anchor changes
+  useEffect(() => {
+    setRotation((scrollPercentage / 100) * 360);
+  }, [scrollPercentage]);
+
+  // Find current book
+  const currentBook = BIBLE_BOOKS.find(book => anchorIndex >= book.startIndex && anchorIndex <= book.endIndex);
+
+  // Handle knob drag
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
     e.preventDefault();
+    e.stopPropagation();
   }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !trackRef.current) return;
+    if (!isDragging || !knobRef.current) return;
 
-    const rect = trackRef.current.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const percentage = Math.min(100, Math.max(0, (y / rect.height) * 100));
+    const rect = knobRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    let degrees = (angle * 180) / Math.PI + 90;
+    if (degrees < 0) degrees += 360;
+    
+    const percentage = (degrees / 360) * 100;
     const targetIndex = Math.floor((percentage / 100) * totalVerses);
     
-    setHoverIndex(targetIndex);
+    setRotation(degrees);
     const verseKey = getVerseKeyByIndex(targetIndex);
     setPreviewVerse(verseKey);
     
@@ -135,21 +137,8 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-    setHoverIndex(null);
     setPreviewVerse('');
   }, []);
-
-  // Handle click to jump
-  const handleTrackClick = useCallback((e: React.MouseEvent) => {
-    if (!trackRef.current) return;
-    
-    const rect = trackRef.current.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const percentage = (y / rect.height) * 100;
-    const targetIndex = Math.floor((percentage / 100) * totalVerses);
-    
-    onScrollToIndex(targetIndex);
-  }, [totalVerses, onScrollToIndex]);
 
   // Add global mouse event listeners
   useEffect(() => {
@@ -164,12 +153,11 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   return (
-    <div className="enhanced-scrollbar fixed right-0 top-0 h-full z-50 flex items-center">
+    <div className="gold-mixer-knob fixed bottom-8 right-8 z-40">
       {/* Live Preview Tooltip */}
       {(isDragging || previewVerse) && (
-        <div className="absolute right-12 bg-black/90 text-white px-3 py-2 rounded-lg shadow-xl border border-purple-500/30 backdrop-blur-sm"
-             style={{ top: `${Math.min(90, Math.max(10, (hoverIndex || anchorIndex) / totalVerses * 100))}%` }}>
-          <div className="text-sm font-medium text-purple-300">
+        <div className="absolute bottom-20 right-0 bg-black/90 text-white px-4 py-2 rounded-lg shadow-2xl border border-amber-500/30 backdrop-blur-sm">
+          <div className="text-sm font-medium text-amber-300">
             {previewVerse || getVerseKeyByIndex(anchorIndex)}
           </div>
           {currentBook && (
@@ -180,88 +168,90 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
         </div>
       )}
 
-      {/* Main Scrollbar Track */}
+      {/* Main Gold Knob */}
       <div 
-        ref={scrollbarRef}
-        className="relative group cursor-pointer"
-        style={{ width: isDragging ? '20px' : '14px', transition: 'width 0.15s ease' }}
+        ref={knobRef}
+        className={`relative w-20 h-20 rounded-full cursor-grab select-none ${
+          isDragging ? 'cursor-grabbing scale-110' : 'scale-100 hover:scale-105'
+        } transition-all duration-200`}
+        onMouseDown={handleMouseDown}
+        style={{
+          background: `conic-gradient(from 0deg, 
+            #FFD700 0%, 
+            #FFA500 25%, 
+            #FF8C00 50%, 
+            #DAA520 75%, 
+            #FFD700 100%)`,
+          boxShadow: isDragging 
+            ? '0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.3)'
+            : '0 8px 25px rgba(255, 215, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.2)',
+        }}
       >
+        {/* Knob Surface Details */}
+        <div className="absolute inset-2 rounded-full bg-gradient-to-br from-yellow-300/40 to-transparent" />
+        
+        {/* Center Circle */}
         <div 
-          ref={trackRef}
-          className="relative h-screen bg-gradient-to-b from-indigo-900/20 to-purple-900/20 rounded-l-lg overflow-hidden border-l border-purple-500/15"
-          onClick={handleTrackClick}
-        >
-          {/* Bible Book Segments */}
-          {BIBLE_BOOKS.map((book, index) => {
-            const startPercent = (book.startIndex / totalVerses) * 100;
-            const heightPercent = (book.verseCount / totalVerses) * 100;
-            const isOldTestament = index < 39;
-            
-            return (
-              <div
-                key={book.name}
-                className={`absolute left-0 right-0 border-b border-white/5 ${
-                  isOldTestament 
-                    ? 'bg-gradient-to-r from-amber-600/15 to-orange-500/15' 
-                    : 'bg-gradient-to-r from-blue-600/15 to-purple-500/15'
-                } hover:brightness-110 transition-all duration-300`}
-                style={{
-                  top: `${startPercent}%`,
-                  height: `${heightPercent}%`,
-                }}
-                title={`${book.name} (${book.verseCount} verses)`}
-              >
-                {/* Subtle book markers for major books only */}
-                {book.verseCount > 800 && (
-                  <div className="absolute left-1 top-1/2 transform -translate-y-1/2 text-xs text-white/50 font-light writing-mode-vertical truncate">
-                    {book.name.split(' ')[0]}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Current Position Indicator */}
-          <div 
-            className="absolute left-0 w-full bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-lg shadow-purple-500/30 z-10 transition-all duration-200"
-            style={{
-              top: `${scrollPercentage}%`,
-              height: '3px',
-              transform: 'translateY(-1.5px)',
-              boxShadow: isDragging ? '0 0 15px rgba(168, 85, 247, 0.6)' : '0 0 8px rgba(168, 85, 247, 0.3)'
-            }}
-          />
-
-          {/* Draggable Thumb */}
-          <div 
-            className={`absolute left-0 right-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded cursor-grab ${
-              isDragging ? 'cursor-grabbing shadow-2xl shadow-purple-500/60' : 'shadow-lg shadow-purple-500/30'
-            } transition-all duration-200 hover:brightness-110`}
-            style={{
-              top: `${Math.max(0, Math.min(95, scrollPercentage - 2.5))}%`,
-              height: '20px',
-              transform: isDragging ? 'scale(1.1)' : 'scale(1)',
-            }}
-            onMouseDown={handleMouseDown}
-          />
-
-          {/* Mystical Glow Effect */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent pointer-events-none" />
-          
-          {/* Progress Indicator */}
-          <div 
-            className="absolute left-0 bottom-0 bg-gradient-to-t from-purple-600/40 to-transparent transition-all duration-300"
-            style={{ height: `${scrollPercentage}%` }}
-          />
-        </div>
-
-        {/* Testament Divider */}
-        <div 
-          className="absolute right-0 w-1 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"
-          style={{ top: `${(BIBLE_BOOKS[38].endIndex / totalVerses) * 100}%` }}
-          title="Old Testament / New Testament"
+          className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-amber-800 to-amber-900 shadow-inner"
+          style={{
+            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.4)'
+          }}
         />
+        
+        {/* Rotation Indicator */}
+        <div 
+          className="absolute top-1 left-1/2 w-1 h-4 bg-amber-900 rounded-full -translate-x-1/2 origin-bottom"
+          style={{
+            transform: `translateX(-50%) rotate(${rotation}deg)`,
+            transformOrigin: '50% 100%'
+          }}
+        />
+        
+        {/* Grip Notches */}
+        {[...Array(12)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-0.5 h-2 bg-amber-800/60"
+            style={{
+              top: '4px',
+              left: '50%',
+              transformOrigin: '50% 36px',
+              transform: `translateX(-50%) rotate(${i * 30}deg)`
+            }}
+          />
+        ))}
+
+        {/* Bible Progress Ring */}
+        <div className="absolute inset-0 rounded-full">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
+            <circle
+              cx="40"
+              cy="40"
+              r="36"
+              fill="none"
+              stroke="rgba(255, 215, 0, 0.2)"
+              strokeWidth="2"
+            />
+            <circle
+              cx="40"
+              cy="40"
+              r="36"
+              fill="none"
+              stroke="rgba(255, 215, 0, 0.8)"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray={`${(scrollPercentage / 100) * 226.2} 226.2`}
+              style={{
+                filter: isDragging ? 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.8))' : 'none'
+              }}
+            />
+          </svg>
+        </div>
       </div>
+
+      {/* Testament Indicators */}
+      <div className="absolute -top-2 -left-2 text-xs text-amber-600 font-medium">OT</div>
+      <div className="absolute -bottom-2 -right-2 text-xs text-blue-600 font-medium">NT</div>
     </div>
   );
 };

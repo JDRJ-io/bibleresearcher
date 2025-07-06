@@ -354,26 +354,25 @@ body.aurora-mode::after {
   scrollbar-width: none;
 }
 
-/* Enhanced scrollbar mystical effects */
-.enhanced-scrollbar {
-  backdrop-filter: blur(8px);
+/* Gold Mixer Knob Effects */
+.gold-mixer-knob {
+  backdrop-filter: blur(4px);
 }
 
-.enhanced-scrollbar .writing-mode-vertical {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-}
-
-/* Subtle mystical effects */
-@keyframes gentle-glow {
+@keyframes gold-pulse {
   0%, 100% { 
-    box-shadow: 0 0 3px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2);
   }
   50% { 
-    box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6), 0 6px 15px rgba(0, 0, 0, 0.3);
   }
 }
 
-.enhanced-scrollbar:hover {
-  animation: gentle-glow 3s infinite ease-in-out;
+.gold-mixer-knob:hover > div {
+  animation: gold-pulse 2s infinite ease-in-out;
+}
+
+/* Knob rotation smoothing */
+.gold-mixer-knob .rotation-smooth {
+  transition: transform 0.1s ease-out;
 }
