@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VerseRow } from "./VerseRow";
-import { getVerseCount } from "@/lib/verseKeysLoader";
+import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import type {
   BibleVerse,
   Translation,
@@ -81,13 +81,15 @@ export function VirtualBibleTable({
     });
   }, []);
 
-  // Virtual scrolling state
+  // VERSE KEY TRACKING SYSTEM: VirtualBibleTable operates on complete verse key track
+  const allVerseKeys = getVerseKeys(); // Complete 31,102 verse key references
+  const [anchorVerseIndex, setAnchorVerseIndex] = useState(0); // Current center anchor position
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 40 });
   const [currentStartIndex, setCurrentStartIndex] = useState(0);
   const [currentEndIndex, setCurrentEndIndex] = useState(-1);
 
-  // Calculate total height for scrollbar using the full verse count
-  const totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT;
+  // Calculate total height using the complete verse key track
+  const totalHeight = allVerseKeys.length * ROW_HEIGHT;
   
 
 
@@ -102,28 +104,35 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // Update visible range based on scroll position with center-anchored loading
+  // VERSE KEY ANCHOR TRACKING: Center-anchored loading based on verse key positions
   const updateVisibleRows = () => {
     if (!scrollRef.current || !containerRef.current) return;
 
     const currentScrollTop = scrollRef.current.scrollTop;
     const viewportHeight = containerRef.current.clientHeight;
 
-    // Calculate CENTER anchor verse (the key to everything)
-    const centerIdx = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+    // Calculate CENTER verse key index from scroll position
+    const centerVerseKeyIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
+    const clampedCenterIndex = Math.max(0, Math.min(allVerseKeys.length - 1, centerVerseKeyIndex));
     
     // Only render small buffer around viewport for DOM performance
     const renderStart = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - RENDER_BUFFER);
-    const renderEnd = Math.min(totalRows - 1, 
+    const renderEnd = Math.min(allVerseKeys.length - 1, 
       Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + RENDER_BUFFER);
     
-    // Pull-ahead loader: trigger loading around CENTER verse (not boundaries!)
-    if (verses.length > 0 && onCenterVerseChange) {
-      // This should load ±100 verses around center = 200 total verses
-      onCenterVerseChange(centerIdx);
+    // CENTER-ANCHORED LOADING: Trigger when anchor verse changes significantly
+    if (Math.abs(clampedCenterIndex - anchorVerseIndex) > 50) {
+      const anchorVerseKey = allVerseKeys[clampedCenterIndex];
+      console.log(`🎯 Anchor verse changed: ${clampedCenterIndex} (${anchorVerseKey})`);
+      setAnchorVerseIndex(clampedCenterIndex);
+      
+      if (onCenterVerseChange) {
+        // Load ±100 verses around this verse key position
+        onCenterVerseChange(clampedCenterIndex);
+      }
     }
 
-    // Early exit if range hasn't changed
+    // Early exit if render range hasn't changed
     if (renderStart === currentStartIndex && renderEnd === currentEndIndex) return;
 
     setCurrentStartIndex(renderStart);
@@ -131,14 +140,15 @@ export function VirtualBibleTable({
     setVisibleRange({ start: renderStart, end: renderEnd });
   };
 
-  // Initialize scroll position to top only once
+  // Initialize verse key tracking system
   useEffect(() => {
-    if (verses.length > 0) {
-      setVisibleRange({ start: 0, end: 40 });
-      setCurrentStartIndex(0);
-      setCurrentEndIndex(40);
-    }
-  }, [verses.length]);
+    // Always initialize with verse key track, not dependent on loaded verses
+    setVisibleRange({ start: 0, end: 40 });
+    setCurrentStartIndex(0);
+    setCurrentEndIndex(40);
+    setAnchorVerseIndex(0);
+    console.log(`🎯 Initialized verse key tracking: ${allVerseKeys.length} total verse positions`);
+  }, [allVerseKeys.length]);
 
   // Handle scroll events
   useEffect(() => {
@@ -216,11 +226,42 @@ export function VirtualBibleTable({
     console.log("Highlight requested for", verseRef, selection);
   };
 
-  // Only render verses in visible range
-  // 🔥 Build visible rows by index, not by slice length (same as in updateVisibleRows)
+  // VERSE KEY TRACK BUILDING: Build verses from verse key positions, not loaded array
   const visibleVerses = Array.from(
     { length: visibleRange.end - visibleRange.start + 1 },
-    (_, i) => verses[visibleRange.start + i]
+    (_, i) => {
+      const verseKeyIndex = visibleRange.start + i;
+      const verseKey = allVerseKeys[verseKeyIndex];
+      
+      if (!verseKey) return null;
+      
+      // Find matching verse in loaded array or create placeholder
+      const loadedVerse = verses.find(v => v.index === verseKeyIndex);
+      
+      if (loadedVerse) {
+        return loadedVerse; // Use loaded verse with text
+      } else {
+        // Create placeholder verse from verse key
+        const match = verseKey.match(/^(\w+)\.(\d+):(\d+)$/);
+        if (!match) return null;
+        
+        const [, book, chapter, verse] = match;
+        return {
+          id: `${book.toLowerCase()}-${chapter}-${verse}-${verseKeyIndex}`,
+          index: verseKeyIndex,
+          book,
+          chapter: parseInt(chapter),
+          verse: parseInt(verse),
+          reference: `${book} ${chapter}:${verse}`,
+          text: {}, // Empty - will be loaded around anchor
+          crossReferences: [],
+          strongsWords: [],
+          labels: [],
+          contextGroup: "standard",
+          height: 120,
+        };
+      }
+    }
   ).filter(Boolean);
   
   // Remove the problematic lazy loading useEffect that was causing infinite loops
@@ -247,8 +288,9 @@ export function VirtualBibleTable({
         >
           {/* Render only visible verses with absolute positioning */}
           {visibleVerses.map((verse, index) => {
-          const actualIndex = visibleRange.start + index;            
-          return (
+            if (!verse) return null;
+            const actualIndex = visibleRange.start + index;            
+            return (
               <div
                 key={verse.id}
                 className="verse-row absolute left-0 right-0"
