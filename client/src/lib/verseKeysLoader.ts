@@ -180,3 +180,36 @@ export function getVerseKeyByIndex(index: number): string {
   return `Unknown.${index}:1`; // Fallback format
 }
 
+/**
+ * Load verse keys in chronological order
+ * Ground rule: Changes order of verse-keys timeline without affecting data
+ */
+export async function loadVerseKeysChronological(): Promise<string[]> {
+  console.log("🔑 Loading chronological verse keys...");
+  
+  try {
+    const response = await fetch('/verse-keys-chronological.json');
+    if (!response.ok) {
+      console.warn("Chronological file not found, falling back to canonical order");
+      return await loadVerseKeysCanonical();
+    }
+    
+    const verseKeys = await response.json();
+    
+    if (!Array.isArray(verseKeys)) {
+      throw new Error("Invalid chronological verse keys format");
+    }
+    
+    console.log(`✓ Loaded ${verseKeys.length} chronological verse keys`);
+    
+    cachedVerseKeys = verseKeys;
+    cachedVerseCount = verseKeys.length;
+    
+    return verseKeys;
+  } catch (error) {
+    console.error("Failed to load chronological verse keys:", error);
+    console.warn("Falling back to canonical order");
+    return await loadVerseKeysCanonical();
+  }
+}
+

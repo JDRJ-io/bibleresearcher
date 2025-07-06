@@ -137,41 +137,8 @@ export function VirtualBibleTable({
     enabled: !!user,
   });
 
-  // VERSE KEY ANCHOR TRACKING: Center-anchored loading based on verse key positions
-  const updateVisibleRows = () => {
-    if (!scrollRef.current || !containerRef.current) return;
-
-    const currentScrollTop = scrollRef.current.scrollTop;
-    const viewportHeight = containerRef.current.clientHeight;
-
-    // Calculate CENTER verse key index from scroll position
-    const centerVerseKeyIndex = Math.floor((currentScrollTop + viewportHeight / 2) / ROW_HEIGHT);
-    const clampedCenterIndex = Math.max(0, Math.min(allVerseKeys.length - 1, centerVerseKeyIndex));
-    
-    // Only render small buffer around viewport for DOM performance
-    const renderStart = Math.max(0, Math.floor(currentScrollTop / ROW_HEIGHT) - RENDER_BUFFER);
-    const renderEnd = Math.min(allVerseKeys.length - 1, 
-      Math.ceil((currentScrollTop + viewportHeight) / ROW_HEIGHT) + RENDER_BUFFER);
-    
-    // CENTER-ANCHORED LOADING: Trigger when anchor verse changes significantly
-    if (Math.abs(clampedCenterIndex - anchorIndex) > 50) {
-      const anchorVerseKey = allVerseKeys[clampedCenterIndex];
-      console.log(`🎯 Anchor verse changed: ${clampedCenterIndex} (${anchorVerseKey})`);
-      setAnchorIndex(clampedCenterIndex);
-      
-      // DIRECT LOADING: Call loadVerseRange directly from VirtualBibleTable
-      if (verses.length > 0) {
-        console.log(`🔄 VirtualBibleTable loading center-anchored text around ${clampedCenterIndex}`);
-        // This should trigger the loadVerseRange function in useBibleData
-        if (onCenterVerseChange) {
-          onCenterVerseChange(clampedCenterIndex);
-        }
-      }
-    }
-
-    // Update render range for virtual scrolling
-    setRenderRange({ start: renderStart, end: renderEnd });
-  };
+  // REMOVED: Old updateVisibleRows function
+  // Replaced with consolidated anchor-centered scroll handler below
 
   // Initialize anchor-centered system
   useEffect(() => {

@@ -702,6 +702,9 @@ export function useBibleData() {
     cf2: Map<string, string[]>;
   }>({ cf1: new Map(), cf2: new Map() });
   const [prophecyData, setProphecyData] = useState<Map<string, any>>(new Map());
+  
+  // CHRONOLOGICAL ORDER SWITCHING: Ground rule implementation
+  const [verseOrder, setVerseOrder] = useState<"canonical" | "chronological">("canonical");
 
   // Optimized windowed virtualization for smooth scrolling and instant navigation
   // LOAD ALL VERSES - No more virtual scrolling limits!
@@ -963,6 +966,43 @@ export function useBibleData() {
     // REMOVED: All edge-based viewport tracking and scroll handling
     // Replaced with VirtualBibleTable anchor-centered system
   }, [verses.length, verses.length, centerVerseIndex]);
+
+  // CHRONOLOGICAL ORDER SWITCHING FUNCTION: Ground rule implementation
+  const switchVerseOrder = async (newOrder: "canonical" | "chronological") => {
+    console.log(`🔄 Switching verse order from ${verseOrder} to ${newOrder}`);
+    
+    try {
+      setIsLoading(true);
+      setLoadingProgress({ stage: "verse-keys", percentage: 10 });
+      
+      // Load the appropriate verse keys file
+      const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+      
+      const verseKeys = newOrder === "canonical" 
+        ? await loadVerseKeysCanonical()
+        : await loadVerseKeysChronological();
+      
+      console.log(`📋 Loaded ${verseKeys.length} verse keys in ${newOrder} order`);
+      
+      setLoadingProgress({ stage: "structure", percentage: 50 });
+      
+      // Recreate verses with new order but keep existing text data
+      const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
+      console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${newOrder} timeline`);
+      
+      setLoadingProgress({ stage: "complete", percentage: 100 });
+      
+      setVerses(reorderedVerses);
+      setVerseOrder(newOrder);
+      setCenterVerseIndex(0); // Reset to start of new order
+      setIsLoading(false);
+      
+      console.log(`✓ Successfully switched to ${newOrder} order`);
+    } catch (error) {
+      console.error(`Failed to switch to ${newOrder} order:`, error);
+      setIsLoading(false);
+    }
+  };
 
   // Load Bible data on mount
   useEffect(() => {
@@ -1444,5 +1484,8 @@ export function useBibleData() {
     // Center-anchored verse loading
     centerVerseIndex,
     loadVerseRange,
+    // Chronological order switching
+    verseOrder,
+    switchVerseOrder,
   };
 }
