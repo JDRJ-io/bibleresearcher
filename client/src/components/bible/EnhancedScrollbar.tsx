@@ -93,21 +93,22 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [previewVerse, setPreviewVerse] = useState<string>('');
-  const [rotation, setRotation] = useState(0);
-  const knobRef = useRef<HTMLDivElement>(null);
+  const [faderPosition, setFaderPosition] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const faderRef = useRef<HTMLDivElement>(null);
 
-  // Calculate rotation based on scroll position
+  // Calculate fader position based on scroll position
   const scrollPercentage = Math.min(100, Math.max(0, (anchorIndex / totalVerses) * 100));
 
-  // Update rotation when anchor changes
+  // Update fader position when anchor changes
   useEffect(() => {
-    setRotation((scrollPercentage / 100) * 360);
+    setFaderPosition(scrollPercentage);
   }, [scrollPercentage]);
 
   // Find current book
   const currentBook = BIBLE_BOOKS.find(book => anchorIndex >= book.startIndex && anchorIndex <= book.endIndex);
 
-  // Handle knob drag
+  // Handle fader drag
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
     e.preventDefault();
@@ -115,20 +116,14 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
   }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !knobRef.current) return;
+    if (!isDragging || !trackRef.current) return;
 
-    const rect = knobRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
-    let degrees = (angle * 180) / Math.PI + 90;
-    if (degrees < 0) degrees += 360;
-    
-    const percentage = (degrees / 360) * 100;
+    const rect = trackRef.current.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const percentage = Math.min(100, Math.max(0, (y / rect.height) * 100));
     const targetIndex = Math.floor((percentage / 100) * totalVerses);
     
-    setRotation(degrees);
+    setFaderPosition(percentage);
     const verseKey = getVerseKeyByIndex(targetIndex);
     setPreviewVerse(verseKey);
     
@@ -139,6 +134,17 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
     setIsDragging(false);
     setPreviewVerse('');
   }, []);
+
+  const handleTrackClick = useCallback((e: React.MouseEvent) => {
+    if (!trackRef.current) return;
+    
+    const rect = trackRef.current.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const percentage = (y / rect.height) * 100;
+    const targetIndex = Math.floor((percentage / 100) * totalVerses);
+    
+    onScrollToIndex(targetIndex);
+  }, [totalVerses, onScrollToIndex]);
 
   // Add global mouse event listeners
   useEffect(() => {
@@ -153,10 +159,11 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   return (
-    <div className="gold-mixer-knob fixed bottom-8 right-8 z-40">
+    <div className="gold-mixer-fader fixed top-20 right-6 z-40">
       {/* Live Preview Tooltip */}
       {(isDragging || previewVerse) && (
-        <div className="absolute bottom-20 right-0 bg-black/90 text-white px-4 py-2 rounded-lg shadow-2xl border border-amber-500/30 backdrop-blur-sm">
+        <div className="absolute right-16 top-0 bg-black/90 text-white px-3 py-2 rounded-lg shadow-2xl border border-amber-500/30 backdrop-blur-sm"
+             style={{ top: `${Math.min(90, Math.max(10, faderPosition))}%` }}>
           <div className="text-sm font-medium text-amber-300">
             {previewVerse || getVerseKeyByIndex(anchorIndex)}
           </div>
@@ -168,90 +175,93 @@ const EnhancedScrollbar: React.FC<EnhancedScrollbarProps> = ({
         </div>
       )}
 
-      {/* Main Gold Knob */}
-      <div 
-        ref={knobRef}
-        className={`relative w-20 h-20 rounded-full cursor-grab select-none ${
-          isDragging ? 'cursor-grabbing scale-110' : 'scale-100 hover:scale-105'
-        } transition-all duration-200`}
-        onMouseDown={handleMouseDown}
-        style={{
-          background: `conic-gradient(from 0deg, 
-            #FFD700 0%, 
-            #FFA500 25%, 
-            #FF8C00 50%, 
-            #DAA520 75%, 
-            #FFD700 100%)`,
-          boxShadow: isDragging 
-            ? '0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.3)'
-            : '0 8px 25px rgba(255, 215, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(0, 0, 0, 0.2)',
-        }}
-      >
-        {/* Knob Surface Details */}
-        <div className="absolute inset-2 rounded-full bg-gradient-to-br from-yellow-300/40 to-transparent" />
+      {/* Channel Fader Assembly */}
+      <div className="flex flex-col items-center">
+        {/* Testament Label - Old Testament */}
+        <div className="text-xs text-amber-600 font-medium mb-2">OT</div>
         
-        {/* Center Circle */}
+        {/* Fader Track */}
         <div 
-          className="absolute top-1/2 left-1/2 w-6 h-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-amber-800 to-amber-900 shadow-inner"
-          style={{
-            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.4)'
+          ref={trackRef}
+          className="relative w-8 bg-gray-800 rounded-full shadow-inner cursor-pointer"
+          style={{ 
+            height: '60vh',
+            background: 'linear-gradient(to bottom, #2d3748 0%, #1a202c 50%, #2d3748 100%)',
+            boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2)'
           }}
-        />
-        
-        {/* Rotation Indicator */}
-        <div 
-          className="absolute top-1 left-1/2 w-1 h-4 bg-amber-900 rounded-full -translate-x-1/2 origin-bottom"
-          style={{
-            transform: `translateX(-50%) rotate(${rotation}deg)`,
-            transformOrigin: '50% 100%'
-          }}
-        />
-        
-        {/* Grip Notches */}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-0.5 h-2 bg-amber-800/60"
-            style={{
-              top: '4px',
-              left: '50%',
-              transformOrigin: '50% 36px',
-              transform: `translateX(-50%) rotate(${i * 30}deg)`
-            }}
-          />
-        ))}
+          onClick={handleTrackClick}
+        >
+          {/* Track Groove */}
+          <div className="absolute left-1/2 top-2 bottom-2 w-1 bg-black/60 rounded-full transform -translate-x-1/2" />
+          
+          {/* Scale Markings */}
+          {[...Array(11)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute right-1 w-2 h-px bg-gray-600"
+              style={{ top: `${(i * 10)}%` }}
+            />
+          ))}
+          
+          {/* Bible Book Indicators */}
+          {BIBLE_BOOKS.map((book, index) => {
+            const position = (book.startIndex / totalVerses) * 100;
+            const isOldTestament = index < 39;
+            
+            return (
+              <div
+                key={book.name}
+                className={`absolute left-0 w-1 h-1 rounded-full ${
+                  isOldTestament ? 'bg-amber-500/60' : 'bg-blue-500/60'
+                }`}
+                style={{ top: `${position}%` }}
+                title={book.name}
+              />
+            );
+          })}
 
-        {/* Bible Progress Ring */}
-        <div className="absolute inset-0 rounded-full">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
-            <circle
-              cx="40"
-              cy="40"
-              r="36"
-              fill="none"
-              stroke="rgba(255, 215, 0, 0.2)"
-              strokeWidth="2"
-            />
-            <circle
-              cx="40"
-              cy="40"
-              r="36"
-              fill="none"
-              stroke="rgba(255, 215, 0, 0.8)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeDasharray={`${(scrollPercentage / 100) * 226.2} 226.2`}
-              style={{
-                filter: isDragging ? 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.8))' : 'none'
-              }}
-            />
-          </svg>
+          {/* Fader Handle */}
+          <div 
+            ref={faderRef}
+            className={`absolute left-1/2 w-12 h-6 -translate-x-1/2 cursor-grab select-none ${
+              isDragging ? 'cursor-grabbing scale-110' : 'scale-100 hover:scale-105'
+            } transition-all duration-150`}
+            style={{
+              top: `${Math.min(95, Math.max(0, faderPosition))}%`,
+              transform: `translateX(-50%) translateY(-50%)`,
+              background: `linear-gradient(to bottom, 
+                #FFD700 0%, 
+                #FFA500 25%, 
+                #FF8C00 50%, 
+                #DAA520 75%, 
+                #FFD700 100%)`,
+              boxShadow: isDragging 
+                ? '0 4px 20px rgba(255, 215, 0, 0.8), 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.3)'
+                : '0 2px 8px rgba(255, 215, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2)',
+              borderRadius: '4px'
+            }}
+            onMouseDown={handleMouseDown}
+          >
+            {/* Fader Handle Details */}
+            <div className="absolute inset-1 bg-gradient-to-b from-yellow-300/40 to-transparent rounded-sm" />
+            
+            {/* Center Line */}
+            <div className="absolute top-1/2 left-1 right-1 h-px bg-amber-800/60 transform -translate-y-1/2" />
+            
+            {/* Grip Lines */}
+            <div className="absolute top-2 left-2 right-2 h-px bg-amber-900/40" />
+            <div className="absolute bottom-2 left-2 right-2 h-px bg-amber-900/40" />
+          </div>
+        </div>
+        
+        {/* Testament Label - New Testament */}
+        <div className="text-xs text-blue-600 font-medium mt-2">NT</div>
+        
+        {/* Progress Display */}
+        <div className="mt-3 text-xs text-gray-500 font-mono">
+          {Math.round(faderPosition)}%
         </div>
       </div>
-
-      {/* Testament Indicators */}
-      <div className="absolute -top-2 -left-2 text-xs text-amber-600 font-medium">OT</div>
-      <div className="absolute -bottom-2 -right-2 text-xs text-blue-600 font-medium">NT</div>
     </div>
   );
 };

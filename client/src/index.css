@@ -354,25 +354,25 @@ body.aurora-mode::after {
   scrollbar-width: none;
 }
 
-/* Gold Mixer Knob Effects */
-.gold-mixer-knob {
+/* Gold Mixer Fader Effects */
+.gold-mixer-fader {
   backdrop-filter: blur(4px);
 }
 
-@keyframes gold-pulse {
+@keyframes fader-glow {
   0%, 100% { 
-    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.2);
+    filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.3));
   }
   50% { 
-    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6), 0 6px 15px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 4px 16px rgba(255, 215, 0, 0.6));
   }
 }
 
-.gold-mixer-knob:hover > div {
-  animation: gold-pulse 2s infinite ease-in-out;
+.gold-mixer-fader:hover {
+  animation: fader-glow 2s infinite ease-in-out;
 }
 
-/* Knob rotation smoothing */
-.gold-mixer-knob .rotation-smooth {
-  transition: transform 0.1s ease-out;
+/* Fader handle smoothing */
+.gold-mixer-fader .fader-handle {
+  transition: all 0.15s ease-out;
 }
