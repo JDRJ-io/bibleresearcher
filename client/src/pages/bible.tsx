@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBibleData } from "@/hooks/useBibleData";
+import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useToast } from "@/hooks/use-toast";
 import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
@@ -46,6 +47,19 @@ export default function BiblePage() {
     centerVerseIndex,
     loadVerseRange,
   } = useBibleData();
+  
+  // TRANSLATION MAP SYSTEM INTEGRATION
+  const translationMaps = useTranslationMaps();
+  const {
+    activeTranslations,
+    mainTranslation,
+    toggleTranslation,
+    removeTranslation,
+    getVerseText,
+    getMainVerseText,
+    isLoading: translationsLoading
+  } = translationMaps;
+  
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
   const allTranslations = [
@@ -99,8 +113,8 @@ export default function BiblePage() {
     },
   ];
 
-  // Translation state management
-  const [mainTranslation, setMainTranslation] = useState("KJV");
+  // Translation state management (using translation maps system)
+  // const [mainTranslation, setMainTranslation] = useState("KJV"); // REPLACED by useTranslationMaps
   const [multiTranslationMode, setMultiTranslationMode] = useState(false);
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>([
     "KJV",
@@ -118,29 +132,20 @@ export default function BiblePage() {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
 
-  // Translation helper functions
-  const toggleTranslation = (translationId: string) => {
+  // Translation helper functions (integrated with translation maps system)
+  const handleToggleTranslation = async (translationId: string) => {
     if (multiTranslationMode) {
-      setSelectedTranslations((prev) =>
-        prev.includes(translationId)
-          ? prev.filter((id) => id !== translationId)
-          : [...prev, translationId],
-      );
+      // Multi-translation mode: toggle on/off as alternate
+      await toggleTranslation(translationId, false);
     } else {
-      setMainTranslation(translationId);
-      setSelectedTranslations([translationId]);
+      // Single translation mode: set as main
+      await toggleTranslation(translationId, true);
     }
   };
 
   const toggleMultiTranslationMode = () => {
     setMultiTranslationMode(!multiTranslationMode);
-    if (!multiTranslationMode) {
-      // Entering multi-translation mode - keep current main as selected
-      setSelectedTranslations([mainTranslation]);
-    } else {
-      // Exiting multi-translation mode - keep only main
-      setSelectedTranslations([mainTranslation]);
-    }
+    // Translation maps system manages the active translations automatically
   };
 
   // Get translations for display - ensure KJV is always selected by default

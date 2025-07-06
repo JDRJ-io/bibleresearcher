@@ -11,8 +11,7 @@ interface UseRowDataReturn {
  */
 export function useRowData(
   verseIDs: string[], 
-  verses: BibleVerse[], 
-  getGlobalVerseText?: (verseId: string) => string
+  verses: BibleVerse[]
 ): UseRowDataReturn {
   
   return useMemo(() => {
@@ -29,12 +28,10 @@ export function useRowData(
       );
       
       if (verse) {
-        // Get text using the global text loader if available
-        const text = getGlobalVerseText ? getGlobalVerseText(verseId) : '';
-        
+        // Use existing verse text - translation maps will handle text loading separately
         rowData[verseId] = {
           ...verse,
-          text: text ? { KJV: text } : verse.text
+          text: verse.text || {}
         };
       } else {
         // Create fallback verse data if not found
@@ -60,5 +57,5 @@ export function useRowData(
     
     console.log('✓ useRowData: Processed', Object.keys(rowData).length, 'verses with text');
     return rowData;
-  }, [verseIDs, verses, getGlobalVerseText]);
+  }, [verseIDs, verses]);
 }

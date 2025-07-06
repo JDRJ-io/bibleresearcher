@@ -57,7 +57,7 @@ const VirtualBibleTable = ({
   const verseKeys = getVerseKeys(); // loaded once
   const anchorInfo = useAnchorScroll(containerRef); // {anchorIndex}
   const chunk = useChunk(verseKeys, anchorInfo.anchorIndex, 250);
-  const rowData = useRowData(chunk.verseIDs, verses, getGlobalVerseText);
+  const rowData = useRowData(chunk.verseIDs, verses);
   
   const ROWHEIGHT = 120;
   const totalHeight = verseKeys.length * ROWHEIGHT;
