@@ -30,6 +30,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
+import { TranslationSelector } from "./TranslationSelector";
 
 interface HamburgerMenuProps {
   isOpen: boolean;
@@ -119,85 +120,21 @@ export function HamburgerMenu({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 space-y-6">
-          {/* Translation Settings */}
+          {/* Step 4 - Multi-Translation System */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
               <Book
                 className="w-5 h-5 mr-2"
                 style={{ color: "var(--accent-color)" }}
               />
-              Translations
+              Multi-Translation Settings
             </h3>
-
-            {/* Mode Toggle */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Translation Mode</Label>
-                <button
-                  onClick={onToggleMultiTranslationMode}
-                  className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                    multiTranslationMode
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {multiTranslationMode ? "Multi" : "Single"}
-                </button>
-              </div>
-
-              {/* Main Translation Selector */}
-              <div className="space-y-2">
-                <Label className="text-sm">
-                  Main Translation (controls cross-refs & prophecy)
-                </Label>
-                <Select
-                  value={mainTranslation}
-                  onValueChange={onToggleTranslation}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allTranslations.map((translation) => (
-                      <SelectItem key={translation.id} value={translation.id}>
-                        {translation.name} ({translation.abbreviation})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Additional Translations (Multi Mode) */}
-              {multiTranslationMode && (
-                <div className="space-y-2">
-                  <Label className="text-sm">Additional Translations</Label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {allTranslations.map((translation) => (
-                      <div
-                        key={translation.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={`multi-${translation.id}`}
-                          checked={selectedTranslations.includes(
-                            translation.id,
-                          )}
-                          onCheckedChange={() =>
-                            onToggleTranslation(translation.id)
-                          }
-                        />
-                        <Label
-                          htmlFor={`multi-${translation.id}`}
-                          className="text-sm cursor-pointer"
-                        >
-                          {translation.abbreviation}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <TranslationSelector 
+              onUpdate={() => {
+                // Force table re-render when translations change
+                window.location.reload();
+              }} 
+            />
           </div>
 
           <Separator />

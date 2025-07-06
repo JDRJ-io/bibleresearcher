@@ -1,4 +1,5 @@
 import type { Translation } from '@/types/bible';
+import { getBibleDataStore } from '@/lib/bibleDataStore';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -8,7 +9,26 @@ interface ColumnHeadersProps {
   scrollLeft: number;
 }
 
+interface HeaderCellProps {
+  verse: string;
+  isMain?: boolean;
+}
+
+function HeaderCell({ verse, isMain }: HeaderCellProps) {
+  const width = verse === "Ref" ? "w-20" : verse === "Cross References" ? "w-60" : ["P", "F", "V"].includes(verse) ? "w-20" : "w-80";
+  const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
+  
+  return (
+    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
+      {verse}
+    </div>
+  );
+}
+
+// Step 4.3-a. ColumnHeaders
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
+  const { headerOrder, mainTranslation } = getBibleDataStore();
+  
   return (
     <div 
       className="sticky top-16 left-0 right-0 z-30 border-b shadow-sm"
@@ -26,47 +46,20 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
             willChange: 'transform'
           }}
         >
-          {/* Reference Column Header - Tighter */}
-          <div className="w-20 flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs bg-background">
-            Reference
-          </div>
-
-          {/* Translation Headers - Tighter */}
-          {selectedTranslations.map((translation) => (
-            <div 
-              key={translation.id}
-              className="w-80 flex-shrink-0 flex items-center px-2 border-r font-semibold text-sm bg-background"
-            >
-              {translation.abbreviation} - {translation.name}
-            </div>
-          ))}
-
-          {/* Cross References Header - Tighter */}
-          <div className="w-60 flex-shrink-0 flex items-center px-2 border-r font-semibold text-sm bg-background">
-            Cross References
-          </div>
-
-          {/* Prophecy Headers - Three Tighter Columns */}
-          {showProphecy && (
-            <>
-              <div className="w-16 flex-shrink-0 flex items-center justify-center px-1 border-r font-semibold text-xs bg-background">
-                P
-              </div>
-              <div className="w-16 flex-shrink-0 flex items-center justify-center px-1 border-r font-semibold text-xs bg-background">
-                F
-              </div>
-              <div className="w-16 flex-shrink-0 flex items-center justify-center px-1 border-r font-semibold text-xs bg-background">
-                V
-              </div>
-            </>
-          )}
-          
-          {/* Notes Header - Only show if enabled */}
-          {showNotes && (
-            <div className="w-60 flex-shrink-0 flex items-center px-3 font-semibold text-sm bg-background">
-              Personal Notes
-            </div>
-          )}
+          {headerOrder.map((key: string) => {
+            if (key === "Reference") return <HeaderCell key="ref" verse="Ref" />;
+            if (key === "Cross") return <HeaderCell key="cross" verse="Cross References" />;
+            if (["P", "F", "V"].includes(key)) return <HeaderCell key={key} verse={key} />;
+            // otherwise it's a translation code
+            const isMain = key === mainTranslation;
+            return (
+              <HeaderCell
+                key={key}
+                verse={key}
+                isMain={isMain}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
