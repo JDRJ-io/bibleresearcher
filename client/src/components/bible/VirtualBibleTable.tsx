@@ -184,14 +184,34 @@ const VirtualBibleTable = ({
       
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         <div style={{height: slice.start * ROW_HEIGHT}} />
-        {slice.verseIDs.map(id => {
-          const verse = slice.data instanceof Map ? slice.data.get(id) : slice.data[id];
+        {slice.verseIDs.map((verseKey, index) => {
+          // Create a basic verse object from the verse key
+          const parts = verseKey.split('.');
+          const book = parts[0];
+          const chapterVerse = parts[1].split(':');
+          const chapter = parseInt(chapterVerse[0]);
+          const verse = parseInt(chapterVerse[1]);
+          
+          const verseObj = {
+            id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + index}`,
+            index: slice.start + index,
+            book,
+            chapter,
+            verse,
+            reference: verseKey,
+            text: {},
+            crossReferences: [],
+            strongsWords: [],
+            labels: [],
+            contextGroup: "standard" as const
+          };
+          
           return (
             <VirtualRow 
-              key={id} 
-              verseID={id} 
+              key={verseObj.id} 
+              verseID={verseKey} 
               rowHeight={ROW_HEIGHT}
-              verse={verse} 
+              verse={verseObj} 
               columnData={columnData}
               getVerseText={getVerseText}
               getMainVerseText={getMainVerseText}
