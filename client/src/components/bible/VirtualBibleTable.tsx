@@ -171,7 +171,7 @@ const VirtualBibleTable = ({
         scrollLeft={0}
       />
       
-      <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
+      <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table">
         <div style={{height: slice.start * ROW_HEIGHT}} />
         {slice.verseIDs.map((id, i) => {
           // Convert simple rowData to BibleVerse structure

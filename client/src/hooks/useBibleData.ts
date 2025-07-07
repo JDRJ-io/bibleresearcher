@@ -7,6 +7,7 @@ import {
   loadMultipleTranslations,
   getVerseText,
 } from "@/lib/translationLoader";
+import { loadTranslationAsText } from "@/data/BibleDataAPI";
 import {
   loadVerseKeys,
   loadTranslationSecure,
@@ -389,15 +390,7 @@ const createFullBibleWithHeights = async (
 
   try {
     console.log("Fetching complete KJV Bible from Supabase storage...");
-    const kjvUrl =
-      "https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/KJV.txt";
-    const response = await fetch(kjvUrl);
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    kjvTextData = await response.text();
+    kjvTextData = await loadTranslationAsText('KJV');
     console.log(
       `✓ Successfully loaded KJV text from Supabase (${kjvTextData.length} characters)`,
     );
@@ -725,12 +718,7 @@ export function useBibleData() {
     if (kjvTextData) return kjvTextData;
 
     try {
-      const kjvResponse = await fetch("/attached_assets/KJV_1750866662491.txt");
-      if (!kjvResponse.ok) {
-        throw new Error("Failed to load KJV text from attached assets");
-      }
-
-      kjvTextData = await kjvResponse.text();
+      kjvTextData = await loadTranslationAsText('KJV');
       console.log("✅ KJV text data loaded and cached");
       return kjvTextData;
     } catch (error) {

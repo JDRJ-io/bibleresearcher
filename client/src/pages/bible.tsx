@@ -209,7 +209,7 @@ export default function BiblePage() {
           // Update verses with the new translation data
           if (verses.length > 0) {
             verses.forEach((verse) => {
-              const text = getVerseText(translationData, verse.reference);
+              const text = translationData.get(verse.reference) || translationData.get(verse.reference.replace('.', ' ')) || `[${verse.reference} - Loading...]`;
               if (text && !text.includes("Loading...")) {
                 verse.text[translationId] = text;
               }

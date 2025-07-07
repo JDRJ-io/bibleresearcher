@@ -27,6 +27,12 @@ export async function loadTranslation(id: string) {
   return textMap;
 }
 
+export async function loadTranslationAsText(id: string) {
+  const { data, error } = await supabase.storage.from('anointed').download(`translations/${id}.txt`);
+  if (error) throw error;
+  return await data.text();
+}
+
 export async function loadVerseKeys() {
   const { data, error } = await supabase.storage.from('anointed').download('metadata/verseKeys-canonical.json');
   if (error) throw error;

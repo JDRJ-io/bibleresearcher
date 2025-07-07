@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useBodyClass } from '@/hooks/useBodyClass';
 
 type Theme = 'light-mode' | 'dark-mode' | 'sepia-mode' | 'aurora-mode' | 'electric-mode' | 'fireworks-mode';
 
@@ -39,10 +40,8 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
 
-  useEffect(() => {
-    // Update body class for theme
-    document.body.className = theme;
-  }, [theme]);
+  // Use the new useBodyClass hook instead of direct DOM manipulation
+  useBodyClass(theme);
 
   const value = {
     theme,
