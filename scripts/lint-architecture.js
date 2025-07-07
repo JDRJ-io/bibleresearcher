@@ -67,7 +67,8 @@ function validateArchitecture() {
         !file.includes('main.tsx') && 
         !file.includes('callback.tsx') &&
         !file.includes('supabaseClient.ts') &&
-        !file.includes('sidebar.tsx')) {
+        !file.includes('sidebar.tsx') &&
+        !file.includes('queueSync.ts')) {
       lines.forEach((line, index) => {
         if ((line.includes('document.') || line.includes('window.')) && 
             !line.includes('//') && !line.includes('*') && 

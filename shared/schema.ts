@@ -23,6 +23,7 @@ export const bookmarks = pgTable("bookmarks", {
   name: text("name").notNull(),
   indexValue: integer("index_value").notNull(),
   color: text("color").default("#ef4444"),
+  pending: boolean("pending").default(true), // Enables conflict-free sync
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -33,6 +34,7 @@ export const highlights = pgTable("highlights", {
   startIdx: smallint("start_idx").notNull(),
   endIdx: smallint("end_idx").notNull(),
   color: text("color").notNull(),
+  pending: boolean("pending").default(true), // Enables conflict-free sync
   createdAt: timestamp("created_at").defaultNow(),
 });
 
