@@ -9,7 +9,7 @@ precacheAndRoute(self.__WB_MANIFEST);
 // Clean up outdated caches
 cleanupOutdatedCaches();
 
-// Take control of all open clients
+// Take control of all open clients  
 self.skipWaiting();
 clientsClaim();
 
