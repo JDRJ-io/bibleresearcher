@@ -31,46 +31,9 @@ const loadKJVTextMap = async (): Promise<void> => {
     
     globalKjvTextMap = kjvMap;
     console.log(`📖 KJV text map loaded: ${kjvMap.size} entries`);
-    
-    lines.forEach((line, index) => {
-      const cleanLine = line.trim().replace(/\r/g, "");
-      const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
-      if (match) {
-        const [, reference, text] = match;
-        const cleanRef = reference.trim();
-        const cleanText = text.trim();
-
-        // Store multiple key formats for maximum compatibility
-        textMap.set(cleanRef, cleanText); // "Gen.1:1"
-        textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
-
-        // Parse for additional format variations
-        const refMatch = cleanRef.match(/^(\w+)\.(\d+):(\d+)$/);
-        if (refMatch) {
-          const [, book, chapter, verse] = refMatch;
-          textMap.set(`${book} ${chapter}:${verse}`, cleanText);
-          textMap.set(`${book}.${chapter}.${verse}`, cleanText);
-        }
-        
-        parseCount++;
-        
-        if (index < 3) {
-          console.log(`📖 Sample verse: "${cleanRef}" -> "${cleanText.substring(0, 50)}..."`);
-        }
-      }
-    });
-
-    globalKjvTextMap = textMap;
-    console.log(`📖 ✅ KJV text map loaded successfully with ${textMap.size} entries (${parseCount} parsed)`);
-    
-    // Test a few lookups
-    console.log("📖 Testing verse lookups:");
-    console.log("  Gen.1:1 ->", textMap.get("Gen.1:1")?.substring(0, 50) || "NOT FOUND");
-    console.log("  Gen 1:1 ->", textMap.get("Gen 1:1")?.substring(0, 50) || "NOT FOUND");
-    
   } catch (error) {
-    console.error("📖 ❌ Failed to load KJV text map:", error);
-    globalKjvTextMap = new Map(); // Empty map to prevent repeated attempts
+    console.error("Failed to load KJV from BibleDataAPI:", error);
+    globalKjvTextMap = new Map();
   }
 };
 
@@ -87,16 +50,10 @@ const loadFullBibleIndex = async (
   }
 
   try {
-    // Load complete canonical verse reference list from Supabase
-    console.log("Loading canonical verse references from Supabase...");
-    const verseKeysResponse = await fetch(
-      "https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/metadata/verseKeys-canonical.json",
-    );
-    if (!verseKeysResponse.ok) {
-      throw new Error("Failed to load verse keys from Supabase");
-    }
-
-    const verseKeys: string[] = await verseKeysResponse.json();
+    // Load complete canonical verse reference list from BibleDataAPI
+    console.log("Loading canonical verse references from BibleDataAPI...");
+    const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+    const verseKeys = await loadVerseKeys();
     console.log(
       `Loaded ${verseKeys.length} canonical verse references from Supabase`,
     );

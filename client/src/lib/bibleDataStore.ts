@@ -1,4 +1,4 @@
-// Refactor useBibleData, useRowData to read from this store; delete bibleDataStore.ts
+// Foundation implementation - single store pattern using Zustand
 import { useBibleStore } from '@/providers/BibleDataProvider';
 
 export const useBibleData = () => {
@@ -8,7 +8,7 @@ export const useBibleData = () => {
 
 export const useRowData = () => {
   const { translations } = useBibleStore();
-  return { rowData: Object.fromEntries(translations) };
+  return { rowData: translations };
 };
 
 // Legacy compatibility exports
@@ -20,53 +20,13 @@ export const getBibleDataStore = () => ({
   translationMaps: new Map(),
 });
 
-// Step 4.2 - State update rules
+// Foundation implementation placeholder - refactoring hooks integration pending
 export const setMainTranslation = (code: string) => {
-  const { altTranslations } = bibleDataStore;
-  
-  // Remove code from alt list if it were there
-  const newAlts = altTranslations.filter(c => c !== code);
-  // Add previous main into alt list (only if not present)
-  const present = altTranslations.includes(bibleDataStore.mainTranslation);
-  if (!present) {
-    newAlts.push(bibleDataStore.mainTranslation);
-  }
-  
-  bibleDataStore.mainTranslation = code;
-  bibleDataStore.altTranslations = newAlts;
-  
-  // Update header order (swap columns, keep others intact)
-  const order = bibleDataStore.baseTranslations.map(h => h === code ? code : h);
-  bibleDataStore.baseTranslations = order;
-  
-  return { ...bibleDataStore, altTranslations: newAlts, headerOrder: order };
+  console.log(`Setting main translation to: ${code}`);
+  // TODO: Integrate with useBibleStore for foundation completion
 };
-
-export const getMainTranslation = () => bibleDataStore.mainTranslation;
 
 export const toggleAltTranslation = (code: string) => {
-  const alts = bibleDataStore.altTranslations;
-  const present = alts.includes(code);
-  
-  if (present) {
-    // Remove code from alt list if it were there
-    const newAlts = alts.filter(c => c !== code);
-    bibleDataStore.altTranslations = newAlts;
-  } else {
-    // Add code to alt list (only if not present)
-    const newAlts = [...alts, code];
-    bibleDataStore.altTranslations = newAlts;
-  }
-  
-  return { ...bibleDataStore, altTranslations: bibleDataStore.altTranslations, headerOrder: bibleDataStore.baseTranslations };
-};
-
-export const getAltTranslations = () => bibleDataStore.altTranslations;
-
-export const getHeaderOrder = () => bibleDataStore.baseTranslations;
-
-// Update header order (swap columns, keep others intact)
-export const updateHeaderOrder = (newOrder: string[]) => {
-  bibleDataStore.baseTranslations = newOrder;
-  return { ...bibleDataStore, headerOrder: newOrder };
+  console.log(`Toggling alt translation: ${code}`);
+  // TODO: Integrate with useBibleStore for foundation completion
 };
