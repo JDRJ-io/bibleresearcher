@@ -49,18 +49,24 @@ export async function loadTranslationSecure(
   try {
     console.log(`Loading ${translationId} from private Supabase bucket...`);
 
-    // Download from private bucket with authentication
-    const { data, error } = await supabase.storage
+    // 2-D Fix Supabase "permission denied" on KJV file
+    // Use signed URL fetch for private bucket access
+    const { data: signedData, error: signError } = await supabase.storage
       .from("anointed")
-      .download(`translations/${translationId}.txt`);
+      .createSignedUrl(`translations/${translationId}.txt`, 600); // 10-min URL
 
-    if (error) {
-      console.error(`Error downloading ${translationId}:`, error);
-      throw error;
+    if (signError) {
+      console.error(`Error creating signed URL for ${translationId}:`, signError);
+      throw signError;
     }
 
-    // Process the translation data
-    const text = await data.text();
+    // Fetch using signed URL
+    const response = await fetch(signedData.signedUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${translationId}: ${response.statusText}`);
+    }
+    
+    const text = await response.text();
     const lines = text.split("\n").filter((line) => line.trim());
 
     const textMap = new Map<string, string>();

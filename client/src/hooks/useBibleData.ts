@@ -882,12 +882,19 @@ export function useBibleData() {
   // Current request tracking for seamless loading
   const currentRequestRef = useRef(0);
 
+  // 2-B. Debounce loader calls, not only the anchor sensor
+  const lastReqdat = useRef(Date.now());
+  const THROTTLE_MS = 300; // 5 calls / second max
+
   // Load text for verses in place - mutate verses array directly
   const loadVerseRange = async (
     allVerses: BibleVerse[],
     centerIndex: number,
     isInstantJump = false,
   ) => {
+    // Apply throttling from expert guidance
+    if (Date.now() - lastReqdat.current < THROTTLE_MS && !isInstantJump) return; // skip
+    lastReqdat.current = Date.now();
     // ANCHOR-CENTERED LOADING: Use loadChunk(anchorIndex, buffer) pattern
     const { loadChunk } = await import('@/lib/anchorLoader');
     const { start: startIndex, end: endIndex, slice } = loadChunk(centerIndex, 100);

@@ -88,9 +88,20 @@ const VirtualBibleTable = ({
     }
   }, [anchorInfo.anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
+  // 2-A. Bring DOM scroll position into sync with anchor on first render
+  const INITIAL_ANCHOR_INDEX = 5; // Gen 1:6
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = INITIAL_ANCHOR_INDEX * ROWHEIGHT; // Gen 1:6 = 600px
+    }
+  }, []); // run once
+
   // 3-B. Preserve scroll position during slice swaps - SMOOTH FIX: apply only the delta, not an absolute reset
   const prevStart = useRef(chunk.start);
   const prevScroll = useRef(0);
+  
+  // 2-C. Stop rubber-band by clamping scroll compensation
+  const MAX_COMPENSATION_ROWS = 150; // < 1 screen height
   
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -98,16 +109,17 @@ const VirtualBibleTable = ({
     
     // When the slice shifts, compute how many rows were trimmed/added
     const diffRows = chunk.start - prevStart.current;
-    if (diffRows !== 0) {
-      // Move scrollTop forward by the same pixel amount so the viewport
-      // stays visually stable (no sudden jumps)
-      container.scrollTop = container.scrollTop + diffRows * ROWHEIGHT;
-      prevStart.current = chunk.start;
+    if (Math.abs(diffRows) <= MAX_COMPENSATION_ROWS) {
+      container.scrollTop += diffRows * ROWHEIGHT; // gentle shift
+    } else {
+      // Large jump - just recalc absolute position once
+      container.scrollTop = anchorInfo.anchorIndex * ROWHEIGHT;
     }
     
     // Save latest scrollTop for next pass
     prevScroll.current = container.scrollTop;
-  }, [chunk.start]);
+    prevStart.current = chunk.start;
+  }, [chunk.start, anchorInfo.anchorIndex]);
 
   // Get verse data for current chunk
   const getVerseData = useCallback((verseId: string) => {
