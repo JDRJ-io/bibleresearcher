@@ -119,7 +119,9 @@ const loadFullBibleIndex = async (
     }
 
     // Load KJV text map for dynamic verse loading
+    console.log("📖 Starting KJV text map loading...");
     await loadKJVTextMap();
+    console.log("📖 KJV text map loading completed, size:", globalKjvTextMap?.size || 0);
 
     // Create full Bible index with placeholder text only
     const fullBibleIndex = createFullBibleIndexWithoutText(verseKeys);
@@ -920,9 +922,17 @@ export function useBibleData() {
     for (let i = startIndex; i <= endIndex; i++) {
       if (i < allVerses.length && (!allVerses[i].text || !allVerses[i].text.KJV)) {
         const verseKey = `${allVerses[i].book}.${allVerses[i].chapter}:${allVerses[i].verse}`;
-        const kjvText = globalKjvTextMap?.get(verseKey) || 
-                       globalKjvTextMap?.get(verseKey.replace('.', ' ')) ||
-                       `Loading ${allVerses[i].reference}...`;
+        // Try to get actual KJV text from global map
+        let kjvText = null;
+        if (globalKjvTextMap && globalKjvTextMap.size > 0) {
+          kjvText = globalKjvTextMap.get(verseKey) || 
+                   globalKjvTextMap.get(verseKey.replace('.', ' ')) ||
+                   globalKjvTextMap.get(allVerses[i].reference);
+        }
+        
+        if (!kjvText) {
+          kjvText = `Loading ${allVerses[i].reference}...`;
+        }
         
         // Only populate text for center-anchored range
         allVerses[i].text = { KJV: kjvText };

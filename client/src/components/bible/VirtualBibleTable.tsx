@@ -88,20 +88,26 @@ const VirtualBibleTable = ({
     }
   }, [anchorInfo.anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
-  // 3-B. Preserve scroll position during slice swaps
+  // 3-B. Preserve scroll position during slice swaps - SMOOTH FIX: apply only the delta, not an absolute reset
   const prevStart = useRef(chunk.start);
+  const prevScroll = useRef(0);
+  
   useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     
-    // Only run the effect when chunk.start actually changes (anchor crosses buffer edge)
-    if (prevStart.current !== chunk.start) {
-      const offset = (anchorInfo.anchorIndex - chunk.start) * ROWHEIGHT;
-      container.scrollTop = offset;
+    // When the slice shifts, compute how many rows were trimmed/added
+    const diffRows = chunk.start - prevStart.current;
+    if (diffRows !== 0) {
+      // Move scrollTop forward by the same pixel amount so the viewport
+      // stays visually stable (no sudden jumps)
+      container.scrollTop = container.scrollTop + diffRows * ROWHEIGHT;
       prevStart.current = chunk.start;
-      console.log(`🔧 SCROLL POSITION PRESERVED: anchor=${anchorInfo.anchorIndex}, start=${chunk.start}`);
     }
-  }, [chunk.start, anchorInfo.anchorIndex]);
+    
+    // Save latest scrollTop for next pass
+    prevScroll.current = container.scrollTop;
+  }, [chunk.start]);
 
   // Get verse data for current chunk
   const getVerseData = useCallback((verseId: string) => {
