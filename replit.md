@@ -434,6 +434,14 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
+## July 7, 2025 - Foundation Solidification for 10,000 Users INITIATED
+- **FOUNDATION ARCHITECTURE**: Implementing React anchor-based architecture with performance guardrails
+- **BibleDataAPI Hard-Enclosure**: Created `/client/src/data/BibleDataAPI.ts` for single Supabase access point
+- **DOM Purge Micro-Hooks**: Added `useElement`, `useScroll`, `usePreserveAnchor` hooks for React-only DOM interactions
+- **Cypress Testing**: Added scroll behavior tests with ≤5 network calls/second validation
+- **ESLint DOM Guardrails**: Restricted direct DOM access with no-restricted-globals rules
+- **Performance Optimization**: Implementing center-anchored loading with debounced anchor updates
+
 ## July 5, 2025 - VirtualBibleTable "Blink → Gone" Issue RESOLVED
 - **CRITICAL RACE CONDITION FIXED**: Eliminated initialization bug that caused table to flash and vanish on first render
 - **Container Height Fix**: `totalHeight = (totalRows ?? getVerseCount()) * ROW_HEIGHT` ensures proper height from start
