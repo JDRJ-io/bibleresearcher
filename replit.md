@@ -53,6 +53,25 @@ The application uses a comprehensive PostgreSQL schema with the following main t
 - **AuthModal**: User authentication interface
 - Comprehensive form components and UI primitives
 
+# “One-main-path” directive for Anointed.io (concise)
+
+Our production architecture must be React-centred, anchor-driven, single-path:
+
+## Anchor is king – the debounced mid-viewport sensor emits anchorIndex; every verse-slice (loadChunk(anchorIndex)) and every fetch derives only from that value. No other code may interpret scrollTop or the window edges.
+
+## React owns the DOM – UI work happens inside functional components like AuthModal, BibleTable, etc.; they already manage state declaratively.
+All direct document. or querySelector calls must be removed or wrapped in a single ref-based helper inside a hook.
+
+## Canonical hook – export useAnchorSlice() which returns {anchorIndex, slice}. VirtualBibleTable, overlays, and any future views consume this hook instead of rolling their own maths.
+
+## Data-layer facade – expose a tiny BibleDataAPI (getVerseMeta, getTranslationText, getProphecyMeta). UI code imports only this API, never Supabase or raw fetch; the implementation can later be swapped for an edge cache without touching components.
+
+## Scroll preservation – if a component mutates rows, it calls onPreserveAnchor(ref, savedIndex) once. That callback is the only place allowed to set scrollTop.
+
+## Guardrails – jest tests feed synthetic scroll values into useAnchorSlice() to guarantee the slice always contains the anchor verse; Cypress scroll tests ensure ≤ 4 network calls /s under rapid scrolling.
+
+## This unification removes parallel DOM/React code paths, shrinks the bundle, and scales cleanly to 10 000 concurrent users while retaining the smooth anchor-based infinite scroll experience
+
 # Data Flow
 
 1. **Client Initialization**: React app loads and checks authentication status
