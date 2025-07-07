@@ -107,9 +107,9 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
           case "V":
             return <ProphecyCell key="V" verse={verse} type="V" />;
           default:
-            // Translation code
-            const text = translationMaps.get(key)?.get(verseID) || `Loading ${verse.reference}...`;
-            return <TranslationCell key={key} text={text} isMain={key === dataStoreMain} />;
+            // Translation code - use verse.text data from new query system
+            const text = verse.text[key] || `Loading ${verse.reference}...`;
+            return <TranslationCell key={key} text={text} isMain={key === mainTranslation} />;
         }
       })}
     </div>
