@@ -25,25 +25,12 @@ const loadKJVTextMap = async (): Promise<void> => {
   if (globalKjvTextMap && globalKjvTextMap.size > 0) return; // Already loaded
 
   try {
-    console.log("📖 Loading KJV text map from Supabase public bucket...");
-    const kjvResponse = await fetch(
-      "https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/translations/KJV.txt",
-    );
+    console.log("📖 Loading KJV text map from BibleDataAPI...");
+    const { loadTranslation } = await import('@/data/BibleDataAPI');
+    const kjvMap = await loadTranslation('KJV');
     
-    console.log(`📖 KJV fetch response status: ${kjvResponse.status}`);
-    
-    if (!kjvResponse.ok) {
-      throw new Error(`Failed to load KJV text from Supabase: ${kjvResponse.status}`);
-    }
-
-    const kjvTextData = await kjvResponse.text();
-    console.log(`📖 KJV text loaded: ${kjvTextData.length} characters`);
-    
-    const lines = kjvTextData.split("\n").filter((line) => line.trim());
-    console.log(`📖 Found ${lines.length} lines in KJV file`);
-
-    const textMap = new Map<string, string>();
-    let parseCount = 0;
+    globalKjvTextMap = kjvMap;
+    console.log(`📖 KJV text map loaded: ${kjvMap.size} entries`);
     
     lines.forEach((line, index) => {
       const cleanLine = line.trim().replace(/\r/g, "");
