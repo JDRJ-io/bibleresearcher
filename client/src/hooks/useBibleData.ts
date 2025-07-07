@@ -895,9 +895,12 @@ export function useBibleData() {
     // Apply throttling from expert guidance
     if (Date.now() - lastReqdat.current < THROTTLE_MS && !isInstantJump) return; // skip
     lastReqdat.current = Date.now();
-    // ANCHOR-CENTERED LOADING: Use loadChunk(anchorIndex, buffer) pattern
-    const { loadChunk } = await import('@/lib/anchorLoader');
-    const { start: startIndex, end: endIndex, slice } = loadChunk(centerIndex, 100);
+    // ANCHOR-CENTERED LOADING: Use loadChunk(anchorIndex, buffer) pattern  
+    const { getVerseKeys } = await import('@/lib/verseKeysLoader');
+    const allVerseKeys = getVerseKeys();
+    const startIndex = Math.max(0, centerIndex - 100);
+    const endIndex = Math.min(allVerseKeys.length - 1, centerIndex + 100);
+    const slice = allVerseKeys.slice(startIndex, endIndex + 1);
     
     console.log(`📍 ANCHOR LOAD: Center=${centerIndex}, Range=${startIndex}-${endIndex}, Slice=${slice.length} verses`);
 

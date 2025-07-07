@@ -1,8 +1,23 @@
 
 import { useRef, useState, useLayoutEffect } from "react";
-import { getVerseKeys } from "@/lib/verseKeysLoader";    // existing util
-import { loadChunk } from "@/lib/anchorLoader";          // existing util
+import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
+
+// Simple loadChunk implementation to replace anchorLoader
+function loadChunk(anchorIndex: number, buffer: number = 100) {
+  const allVerseKeys = getVerseKeys();
+  const totalRows = allVerseKeys.length;
+  
+  const start = Math.max(0, anchorIndex - buffer);
+  const end = Math.min(totalRows - 1, anchorIndex + buffer);
+  const slice = allVerseKeys.slice(start, end + 1);
+  
+  return {
+    start,
+    end,
+    slice
+  };
+}
 
 const THRESH = 10;  // rows to skip before fetching a new slice
 

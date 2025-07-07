@@ -97,18 +97,7 @@ const VirtualBibleTable = ({
     }
   }, [anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
-  // 2-A. Initial scroll position setup (without direct scrollTop assignment)
-  const INITIAL_ANCHOR_INDEX = 5; // Gen 1:6
-  useEffect(() => {
-    if (containerRef.current && onPreserveAnchor) {
-      // Use the provided scroll preservation callback instead of direct assignment
-      onPreserveAnchor(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = INITIAL_ANCHOR_INDEX * ROW_HEIGHT;
-        }
-      });
-    }
-  }, [onPreserveAnchor]); // run once when callback is available
+  // Removed direct scroll assignment - let browser handle natural scrolling
 
   // 3-B. Preserve scroll position during slice swaps - SMOOTH FIX: apply only the delta, not an absolute reset
   const prevStart = useRef(slice.start);
@@ -121,11 +110,7 @@ const VirtualBibleTable = ({
     const container = containerRef.current;
     if (!container || !onPreserveAnchor) return;
     
-    // Maintain centre row after slice swap
-    // container.scrollTop = newAnchor * ROW_HEIGHT + DIFF_FROM_ROW_HEIGHT;
-    
-    // DELETE the assignment (guard it behind one-time callback such as onPreserveAnchor() that runs only after column toggles)
-    // After you remove them, the browser's native inertial scrolling will take over and the slingshot effect disappears.
+    // Browser's native inertial scrolling handles movement - no manual assignments needed
     
     // Save latest for next pass
     prevStart.current = slice.start;
