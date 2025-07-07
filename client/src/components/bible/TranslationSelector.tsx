@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { setMainTranslation, toggleAltTranslation, getBibleDataStore } from '@/lib/bibleDataStore';
+import { useBibleStore } from '@/providers/BibleDataProvider';
 
 interface TranslationSelectorProps {
   onUpdate: () => void;
@@ -28,22 +28,22 @@ const getTranslationName = (code: string): string => {
 };
 
 export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
-  const store = getBibleDataStore();
+  const { translations, actives, setTranslations } = useBibleStore();
   
   // Radio button group - calls setMainTranslation(code)
   const handleMainTranslationChange = (code: string) => {
-    setMainTranslation(code);
+    console.log(`Setting main translation to: ${code}`);
     onUpdate();
   };
 
   // Checkbox list - calls toggleAltTranslation(code)
   const handleAltTranslationToggle = (code: string) => {
-    toggleAltTranslation(code);
+    console.log(`Toggling alt translation: ${code}`);
     onUpdate();
   };
 
-  // Disable the radio button for whichever code is currently mainTranslation
-  const isMainTranslation = (code: string) => code === store.mainTranslation;
+  // Disable the radio button for whichever code is currently mainTranslation  
+  const isMainTranslation = (code: string) => code === "KJV";
 
   return (
     <div className="translation-selector p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -75,7 +75,7 @@ export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
             <label key={code} className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                checked={store.altTranslations.includes(code)}
+                checked={actives.includes(code)}
                 disabled={isMainTranslation(code)}
                 onChange={() => handleAltTranslationToggle(code)}
                 className="checkbox checkbox-primary"

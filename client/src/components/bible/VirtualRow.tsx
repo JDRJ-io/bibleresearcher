@@ -1,6 +1,6 @@
 import React from 'react';
 import { BibleVerse } from '../../types/bible';
-import { getBibleDataStore } from '@/lib/bibleDataStore';
+import { useBibleStore } from '@/providers/BibleDataProvider';
 
 interface VirtualRowProps {
   verseID: string;
@@ -72,7 +72,10 @@ function TranslationCell({ text, isMain }: TranslationCellProps) {
 
 // Step 4.3-b. VirtualRow
 export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation }: VirtualRowProps) {
-  const { headerOrder, mainTranslation: dataStoreMain, translationMaps } = getBibleDataStore();
+  const { translations, actives } = useBibleStore();
+  const headerOrder = ["Reference", "KJV", "Cross", "P", "F", "V"];
+  const dataStoreMain = "KJV";
+  const translationMaps = translations;
   
   // Guard against undefined verse data
   if (!verse) {
