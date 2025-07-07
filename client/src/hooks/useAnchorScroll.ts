@@ -1,6 +1,5 @@
 import { useEffect, useState, RefObject, useCallback, useRef } from 'react';
-
-const ROWHEIGHT = 120; // Fixed row height for Bible verses
+import { ROW_HEIGHT } from '@/constants/layout';
 
 // 3-A. Debounce utility function
 function debounce<T extends (...args: any[]) => any>(
@@ -37,7 +36,7 @@ export function useAnchorScroll(ref: RefObject<HTMLElement>) {
 
     const handle = () => {
       const mid = el.scrollTop + el.clientHeight / 2;
-      const index = Math.floor(mid / ROWHEIGHT);
+      const index = Math.floor(mid / ROW_HEIGHT);
       
       // Ensure index is within bounds
       const boundedIndex = Math.max(0, index);

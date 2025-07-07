@@ -1,16 +1,4 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
-
-// Debounce utility function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,10 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
-import { useAnchorScroll } from "@/hooks/useAnchorScroll";
-import { useChunk } from "@/hooks/useChunk";
-import { useRowData } from "@/hooks/useRowData";
+import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
+import { ROW_HEIGHT } from "@/constants/layout";
 import type {
   BibleVerse,
   Translation,
@@ -70,34 +57,35 @@ const VirtualBibleTable = ({
   const translationMaps = useTranslationMaps();
   const { activeTranslations, getVerseText, getMainVerseText, mainTranslation: translationMainTranslation } = translationMaps;
   
-  // PURE ANCHOR-CENTERED IMPLEMENTATION: Exact specification compliance
+  // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
-  const anchorInfo = useAnchorScroll(containerRef); // {anchorIndex}
-  const chunk = useChunk(verseKeys, anchorInfo.anchorIndex, 250);
-  const rowData = useRowData(chunk.verseIDs, verses);
-  
-  const ROWHEIGHT = 120;
-  const totalHeight = verseKeys.length * ROWHEIGHT;
+  const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  const totalHeight = verseKeys.length * ROW_HEIGHT;
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
-    if (onCenterVerseChange && anchorInfo.anchorIndex !== centerVerseIndex) {
-      onCenterVerseChange(anchorInfo.anchorIndex);
-      console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
+    if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
+      onCenterVerseChange(anchorIndex);
+      console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
     }
-  }, [anchorInfo.anchorIndex, centerVerseIndex, onCenterVerseChange]);
+  }, [anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
-  // 2-A. Bring DOM scroll position into sync with anchor on first render
+  // 2-A. Initial scroll position setup (without direct scrollTop assignment)
   const INITIAL_ANCHOR_INDEX = 5; // Gen 1:6
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = INITIAL_ANCHOR_INDEX * ROWHEIGHT; // Gen 1:6 = 600px
+    if (containerRef.current && onPreserveAnchor) {
+      // Use the provided scroll preservation callback instead of direct assignment
+      onPreserveAnchor(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = INITIAL_ANCHOR_INDEX * ROW_HEIGHT;
+        }
+      });
     }
-  }, []); // run once
+  }, [onPreserveAnchor]); // run once when callback is available
 
   // 3-B. Preserve scroll position during slice swaps - SMOOTH FIX: apply only the delta, not an absolute reset
-  const prevStart = useRef(chunk.start);
+  const prevStart = useRef(slice.start);
   const prevScroll = useRef(0);
   
   // 2-C. Stop rubber-band by clamping scroll compensation
@@ -105,21 +93,29 @@ const VirtualBibleTable = ({
   
   useLayoutEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || !onPreserveAnchor) return;
     
     // When the slice shifts, compute how many rows were trimmed/added
-    const diffRows = chunk.start - prevStart.current;
+    const diffRows = slice.start - prevStart.current;
     if (Math.abs(diffRows) <= MAX_COMPENSATION_ROWS) {
-      container.scrollTop += diffRows * ROWHEIGHT; // gentle shift
+      onPreserveAnchor(() => {
+        if (container) {
+          container.scrollTop += diffRows * ROW_HEIGHT; // gentle shift
+        }
+      });
     } else {
-      // Large jump - just recalc absolute position once
-      container.scrollTop = anchorInfo.anchorIndex * ROWHEIGHT;
+      // Large jump - use callback for position recalculation
+      onPreserveAnchor(() => {
+        if (container) {
+          container.scrollTop = anchorIndex * ROW_HEIGHT;
+        }
+      });
     }
     
     // Save latest scrollTop for next pass
     prevScroll.current = container.scrollTop;
-    prevStart.current = chunk.start;
-  }, [chunk.start, anchorInfo.anchorIndex]);
+    prevStart.current = slice.start;
+  }, [slice.start, anchorIndex, onPreserveAnchor]);
 
   // Get verse data for current chunk
   const getVerseData = useCallback((verseId: string) => {
@@ -184,9 +180,9 @@ const VirtualBibleTable = ({
     },
   });
 
-  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorInfo.anchorIndex} (${getVerseKeyByIndex(anchorInfo.anchorIndex)})`);
-  const rowDataSize = typeof rowData.get === 'function' ? rowData.size : Object.keys(rowData).length;
-  console.log(`📊 CHUNK DATA: start=${chunk.start}, end=${chunk.end}, verseIDs=${chunk.verseIDs.length}, rowData keys=${rowDataSize}`);
+  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+  const rowDataSize = typeof slice.data.get === 'function' ? slice.data.size : Object.keys(slice.data).length;
+  console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
   return (
     <div className={`virtual-bible-table ${className}`}>
@@ -199,14 +195,14 @@ const VirtualBibleTable = ({
       />
       
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
-        <div style={{height: chunk.start * ROWHEIGHT}} />
-        {chunk.verseIDs.map(id => {
-          const verse = rowData instanceof Map ? rowData.get(id) : rowData[id];
+        <div style={{height: slice.start * ROW_HEIGHT}} />
+        {slice.verseIDs.map(id => {
+          const verse = slice.data instanceof Map ? slice.data.get(id) : slice.data[id];
           return (
             <VirtualRow 
               key={id} 
               verseID={id} 
-              rowHeight={ROWHEIGHT}
+              rowHeight={ROW_HEIGHT}
               verse={verse} 
               columnData={columnData}
               getVerseText={getVerseText}
@@ -216,7 +212,7 @@ const VirtualBibleTable = ({
             />
           );
         })}
-        <div style={{height: (verseKeys.length - chunk.end) * ROWHEIGHT}} />
+        <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
       </div>
     </div>
   );
