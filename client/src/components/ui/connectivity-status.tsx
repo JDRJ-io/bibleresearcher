@@ -20,7 +20,7 @@ export function ConnectivityStatus() {
     <div className="flex items-center gap-2 text-sm">
       <StatusDot 
         className={online ? "bg-emerald-500" : "bg-amber-500"} 
-        title={online ? "Online" : "Offline"}
+        title={online ? "Connected to internet" : "Offline — changes will sync automatically once you reconnect"}
       />
       <span className="text-muted-foreground">
         {online ? "Online" : "Offline"}

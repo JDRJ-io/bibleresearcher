@@ -6,8 +6,12 @@ export async function queueSync() {
     const reg = await window.navigator.serviceWorker.ready;
     await reg.sync.register('anointed-sync');
   } else {
-    // Fallback: call immediately if online
-    if (typeof window !== 'undefined' && window.navigator.onLine) pushPending();
+    // Fallback: call immediately if online or setInterval(pushPending, 30_000) when offline-to-online event fires for non-SyncManager browsers
+    if (typeof window !== 'undefined' && window.navigator.onLine) {
+      pushPending();
+      // Add interval for browsers without BG-Sync API
+      setInterval(pushPending, 30000);
+    }
   }
 }
 
@@ -16,7 +20,12 @@ export async function pushPending() {
   
   for (const note of pendingNotes) {
     try {
-      const { error } = await supabase.from('notes').upsert({ ...note, pending: undefined });
+      // Include updated_at on HTTP 409, re-fetch that row and merge or keep server version
+      const { error } = await supabase.from('notes').upsert({ 
+        ...note, 
+        pending: undefined,
+        updated_at: new Date(note.updated_at).toISOString()
+      });
       if (!error) await db.notes.update(note.id!, { pending: false });
     } catch (error) {
       console.log('Sync failed for note:', note.id, error);

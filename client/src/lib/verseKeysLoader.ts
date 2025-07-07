@@ -193,7 +193,7 @@ export async function loadVerseKeysChronological(): Promise<string[]> {
     console.log(`✓ Loaded ${verseKeys.length} chronological verse keys`);
     
     cachedVerseKeys = verseKeys;
-    cachedVerseCount = verseKeys.length;
+    const cachedVerseCount = verseKeys.length;
     
     return verseKeys;
   } catch (error) {
