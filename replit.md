@@ -434,7 +434,7 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
-## July 7, 2025 - Foundation Solidification PUSHED TO 99% COMPLETION ✅
+## July 7, 2025 - Foundation Architecture Documentation & CI Validation COMPLETE 100% ✅
 - **FOUNDATION ARCHITECTURE**: ✅ React anchor-based architecture implemented with performance guardrails
 - **BibleDataAPI Hard-Enclosure**: ✅ `/client/src/data/BibleDataAPI.ts` completed as single Supabase access point
 - **DOM Purge Micro-Hooks**: ✅ Added `useBodyClass`, `useTextSelection`, `useHashParams` hooks for React-only DOM interactions
@@ -448,6 +448,9 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **USEBODYCLASS INTEGRATION**: ✅ ThemeProvider now uses React hook instead of direct document manipulation
 - **CYPRESS SCROLL-BUDGET TIGHTENED**: ✅ Enhanced test with proper data-testid and anchor preservation validation
 - **JEST NO-RAW-FETCH VALIDATION**: ✅ Added test to prevent direct fetch calls bypassing BibleDataAPI facade
+- **ARCHITECTURE DOCUMENTATION**: ✅ Complete `/docs/architecture.md` with Mermaid diagrams and responsibility matrix
+- **CI VALIDATION PIPELINE**: ✅ AST-grep validation script (`scripts/lint-architecture.js`) and comprehensive test suite
+- **LIVING DOCUMENTATION**: ✅ Architecture map with contributor guidelines and layer enforcement rules
 
 ## July 5, 2025 - VirtualBibleTable "Blink → Gone" Issue RESOLVED
 - **CRITICAL RACE CONDITION FIXED**: Eliminated initialization bug that caused table to flash and vanish on first render
