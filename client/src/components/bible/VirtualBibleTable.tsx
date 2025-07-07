@@ -67,33 +67,6 @@ const VirtualBibleTable = ({
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
   
-  // Create verses with actual text from rowData
-  const verses = slice.verseIDs.map((verseKey, index) => {
-    const parts = verseKey.split('.');
-    const book = parts[0];
-    const chapterVerse = parts[1].split(':');
-    const chapter = parseInt(chapterVerse[0]);
-    const verse = parseInt(chapterVerse[1]);
-    
-    // Get actual text from rowData if available, otherwise "Loading..."
-    const verseData = rowData?.[verseKey];
-    const verseText = verseData?.text || "Loading...";
-    
-    return {
-      id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + index}`,
-      index: slice.start + index,
-      book,
-      chapter,
-      verse,
-      reference: verseKey,
-      text: { [mainTranslation]: verseText }, // Proper text structure
-      crossReferences: [],
-      strongsWords: [],
-      labels: [],
-      contextGroup: "standard" as const
-    };
-  });
-  
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
     if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
@@ -121,10 +94,10 @@ const VirtualBibleTable = ({
     prevStart.current = slice.start;
   }, [slice.start, anchorIndex, onPreserveAnchor]);
 
-  // Get verse data for current chunk
+  // Get verse data for current chunk - now use rowData instead of verses array
   const getVerseData = useCallback((verseId: string) => {
-    return verses.find(v => v.reference === verseId) || verses.find(v => v.id === verseId);
-  }, [verses]);
+    return rowData?.[verseId];
+  }, [rowData]);
 
   // Create column data for VirtualRow
   const columnData = {
@@ -200,19 +173,43 @@ const VirtualBibleTable = ({
       
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         <div style={{height: slice.start * ROW_HEIGHT}} />
-        {verses.map((v, i) => (
-          <VirtualRow 
-            key={v.id} 
-            verseID={v.reference}
-            rowHeight={ROW_HEIGHT}
-            verse={v} 
-            columnData={columnData}
-            getVerseText={getVerseText}
-            getMainVerseText={getMainVerseText}
-            activeTranslations={activeTranslations}
-            mainTranslation={translationMainTranslation}
-          />
-        ))}
+        {slice.verseIDs.map((id, i) => {
+          // Convert simple rowData to BibleVerse structure
+          const verseData = rowData?.[id];
+          const parts = id.split('.');
+          const book = parts[0];
+          const chapterVerse = parts[1].split(':');
+          const chapter = parseInt(chapterVerse[0]);
+          const verse = parseInt(chapterVerse[1]);
+          
+          const bibleVerse: BibleVerse = {
+            id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
+            index: slice.start + i,
+            book,
+            chapter,
+            verse,
+            reference: id,
+            text: verseData ? { [mainTranslation]: verseData.text } : {},
+            crossReferences: [],
+            strongsWords: [],
+            labels: [],
+            contextGroup: "standard" as const
+          };
+          
+          return (
+            <VirtualRow 
+              key={id}
+              verseID={id}
+              verse={bibleVerse}
+              rowHeight={ROW_HEIGHT}
+              columnData={columnData}
+              getVerseText={getVerseText}
+              getMainVerseText={getMainVerseText}
+              activeTranslations={activeTranslations}
+              mainTranslation={translationMainTranslation}
+            />
+          );
+        })}
         <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
       </div>
     </div>

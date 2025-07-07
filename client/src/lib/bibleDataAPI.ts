@@ -3,20 +3,20 @@ import { loadTranslation } from "./translationLoader";
 export const BibleDataAPI = {
   getTranslationText: async (ids: string[], translation: string) => {
     // 1. try in-memory cache first
-    const translationMap = await loadTranslation(translation);
-    if (!translationMap) return [];
+    const map = await loadTranslation(translation);
+    if (!map) return [];
     
     // 2. ensure the translation map is loaded
-    if (translationMap.size === 0) {
+    if (map.size === 0) {
       console.warn(`Translation map for ${translation} is empty`);
       return [];
     }
     
-    // 3. hydrate any missing verses into the store
+    // 3. hydrate any missing verses into the store and return
     const hydrated = ids.map((id) => {
-      const verse = translationMap.get(id);
-      if (verse) {
-        return { id, text: verse };
+      const text = map.get(id);
+      if (text) {
+        return { id, text };  // returns verse object
       }
       return { id, text: "Loading..." };
     });
