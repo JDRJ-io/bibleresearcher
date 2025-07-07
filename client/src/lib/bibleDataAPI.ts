@@ -1,5 +1,13 @@
-import { getBibleDataStore } from '@/lib/bibleDataStore';
+import { getTranslationMap } from "./translationLoader";
 
-export async function getTranslationText(ids: string[], translation: string) {
-  return getBibleDataStore().getVerses(ids, translation); // existing loader
-}
+export const BibleDataAPI = {
+  getTranslationText: async (ids: string[], translation: string) => {
+    const translationMap = await getTranslationMap(translation);
+    if (!translationMap) return [];
+    
+    return ids.map(id => ({
+      id,
+      text: translationMap.get(id) || "Text not found"
+    }));
+  }
+};

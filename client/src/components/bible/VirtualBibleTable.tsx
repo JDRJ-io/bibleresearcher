@@ -9,6 +9,7 @@ import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
+
 import type {
   BibleVerse,
   Translation,
@@ -62,13 +63,16 @@ const VirtualBibleTable = ({
   const { anchorIndex, slice } = useAnchorSlice(containerRef);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
   
-  // Create verse objects from the slice
+  // Create verses with actual text from translation system
   const verses = slice.verseIDs.map((verseKey, index) => {
     const parts = verseKey.split('.');
     const book = parts[0];
     const chapterVerse = parts[1].split(':');
     const chapter = parseInt(chapterVerse[0]);
     const verse = parseInt(chapterVerse[1]);
+    
+    // Get actual text using the existing translation system
+    const verseText = getVerseText(verseKey, mainTranslation) || "Loading...";
     
     return {
       id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + index}`,
@@ -77,7 +81,7 @@ const VirtualBibleTable = ({
       chapter,
       verse,
       reference: verseKey,
-      text: getVerseText(verseKey) || "Loading...", // Get actual text
+      text: { [mainTranslation]: verseText }, // Proper text structure
       crossReferences: [],
       strongsWords: [],
       labels: [],
