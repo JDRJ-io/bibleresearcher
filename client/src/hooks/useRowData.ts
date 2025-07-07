@@ -7,5 +7,6 @@ export function useRowData(verseIDs: string[], mainTranslation: string) {
     queryFn: () => BibleDataAPI.getTranslationText(verseIDs, mainTranslation),
     staleTime: 30_000,
     enabled: verseIDs.length > 0,
+    select: (verses) => Object.fromEntries(verses.map((v) => [v.id, v])),
   });
 }

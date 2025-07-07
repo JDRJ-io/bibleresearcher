@@ -9,6 +9,7 @@ import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
+import { useRowData } from "@/hooks/useRowData";
 
 import type {
   BibleVerse,
@@ -61,9 +62,12 @@ const VirtualBibleTable = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
   const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  
+  // NEW: fetch hydrated verses for the current slice
+  const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
   
-  // Create verses with actual text from translation system
+  // Create verses with actual text from rowData
   const verses = slice.verseIDs.map((verseKey, index) => {
     const parts = verseKey.split('.');
     const book = parts[0];
@@ -71,8 +75,9 @@ const VirtualBibleTable = ({
     const chapter = parseInt(chapterVerse[0]);
     const verse = parseInt(chapterVerse[1]);
     
-    // Get actual text using the existing translation system
-    const verseText = getVerseText(verseKey, mainTranslation) || "Loading...";
+    // Get actual text from rowData if available, otherwise "Loading..."
+    const verseData = rowData?.[verseKey];
+    const verseText = verseData?.text || "Loading...";
     
     return {
       id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + index}`,
@@ -180,7 +185,7 @@ const VirtualBibleTable = ({
   });
 
   console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
-  const rowDataSize = typeof slice.data.get === 'function' ? slice.data.size : Object.keys(slice.data).length;
+  const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
   return (
