@@ -9,6 +9,7 @@
  */
 
 import type { BibleVerse } from '@/types/bible';
+import { loadVerseKeysAsText, loadChronologicalVerseKeys } from '@/data/BibleDataAPI';
 
 // Global verse keys cache
 let cachedVerseKeys: string[] | null = null;
@@ -22,13 +23,8 @@ export async function loadVerseKeysCanonical(): Promise<string[]> {
   console.log("🔑 Loading verse keys as master row index...");
   
   try {
-    // Load from public directory
-    const response = await fetch('/verseKeys-canonical.txt');
-    if (!response.ok) {
-      throw new Error('Failed to load verse keys file');
-    }
-    
-    const text = await response.text();
+    // Load from Supabase via BibleDataAPI
+    const text = await loadVerseKeysAsText();
     const verseKeys = text.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0);
@@ -188,13 +184,7 @@ export async function loadVerseKeysChronological(): Promise<string[]> {
   console.log("🔑 Loading chronological verse keys...");
   
   try {
-    const response = await fetch('/verse-keys-chronological.json');
-    if (!response.ok) {
-      console.warn("Chronological file not found, falling back to canonical order");
-      return await loadVerseKeysCanonical();
-    }
-    
-    const verseKeys = await response.json();
+    const verseKeys = await loadChronologicalVerseKeys();
     
     if (!Array.isArray(verseKeys)) {
       throw new Error("Invalid chronological verse keys format");

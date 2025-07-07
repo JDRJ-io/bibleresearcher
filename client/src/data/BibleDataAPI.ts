@@ -39,6 +39,18 @@ export async function loadVerseKeys() {
   return JSON.parse(await data.text());
 }
 
+export async function loadVerseKeysAsText() {
+  const { data, error } = await supabase.storage.from('anointed').download('metadata/verseKeys-canonical.txt');
+  if (error) throw error;
+  return await data.text();
+}
+
+export async function loadChronologicalVerseKeys() {
+  const { data, error } = await supabase.storage.from('anointed').download('metadata/verse-keys-chronological.json');
+  if (error) throw error;
+  return JSON.parse(await data.text());
+}
+
 export async function loadCrossReferences() {
   const { data, error } = await supabase.storage.from('anointed').download('references/cf1.txt');
   if (error) throw error;
