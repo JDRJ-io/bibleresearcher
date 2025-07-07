@@ -34,7 +34,6 @@ interface VirtualBibleTableProps {
 }
 
 const VirtualBibleTable = ({
-  verses,
   selectedTranslations,
   preferences,
   mainTranslation,
@@ -62,6 +61,29 @@ const VirtualBibleTable = ({
   const verseKeys = getVerseKeys(); // loaded once
   const { anchorIndex, slice } = useAnchorSlice(containerRef);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
+  
+  // Create verse objects from the slice
+  const verses = slice.verseIDs.map((verseKey, index) => {
+    const parts = verseKey.split('.');
+    const book = parts[0];
+    const chapterVerse = parts[1].split(':');
+    const chapter = parseInt(chapterVerse[0]);
+    const verse = parseInt(chapterVerse[1]);
+    
+    return {
+      id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + index}`,
+      index: slice.start + index,
+      book,
+      chapter,
+      verse,
+      reference: verseKey,
+      text: getVerseText(verseKey) || "Loading...", // Get actual text
+      crossReferences: [],
+      strongsWords: [],
+      labels: [],
+      contextGroup: "standard" as const
+    };
+  });
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
@@ -184,42 +206,19 @@ const VirtualBibleTable = ({
       
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }}>
         <div style={{height: slice.start * ROW_HEIGHT}} />
-        {slice.verseIDs.map((verseKey, index) => {
-          // Create a basic verse object from the verse key
-          const parts = verseKey.split('.');
-          const book = parts[0];
-          const chapterVerse = parts[1].split(':');
-          const chapter = parseInt(chapterVerse[0]);
-          const verse = parseInt(chapterVerse[1]);
-          
-          const verseObj = {
-            id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + index}`,
-            index: slice.start + index,
-            book,
-            chapter,
-            verse,
-            reference: verseKey,
-            text: {},
-            crossReferences: [],
-            strongsWords: [],
-            labels: [],
-            contextGroup: "standard" as const
-          };
-          
-          return (
-            <VirtualRow 
-              key={verseObj.id} 
-              verseID={verseKey} 
-              rowHeight={ROW_HEIGHT}
-              verse={verseObj} 
-              columnData={columnData}
-              getVerseText={getVerseText}
-              getMainVerseText={getMainVerseText}
-              activeTranslations={activeTranslations}
-              mainTranslation={translationMainTranslation}
-            />
-          );
-        })}
+        {verses.map((v, i) => (
+          <VirtualRow 
+            key={v.id} 
+            verseID={v.reference}
+            rowHeight={ROW_HEIGHT}
+            verse={v} 
+            columnData={columnData}
+            getVerseText={getVerseText}
+            getMainVerseText={getMainVerseText}
+            activeTranslations={activeTranslations}
+            mainTranslation={translationMainTranslation}
+          />
+        ))}
         <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
       </div>
     </div>
