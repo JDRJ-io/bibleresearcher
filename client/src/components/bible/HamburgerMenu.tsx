@@ -44,11 +44,7 @@ export function HamburgerMenu({
       name: string;
       color: string;
     }) => {
-      return await apiRequest("/api/bookmarks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookmark),
-      });
+      return await apiRequest("/api/bookmarks", "POST", bookmark);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookmarks"] });

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
+import { ROW_HEIGHT } from '@/constants/layout';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,7 +9,6 @@ import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
-import { ROW_HEIGHT } from "@/constants/layout";
 import type {
   BibleVerse,
   Translation,
@@ -95,25 +95,13 @@ const VirtualBibleTable = ({
     const container = containerRef.current;
     if (!container || !onPreserveAnchor) return;
     
-    // When the slice shifts, compute how many rows were trimmed/added
-    const diffRows = slice.start - prevStart.current;
-    if (Math.abs(diffRows) <= MAX_COMPENSATION_ROWS) {
-      onPreserveAnchor(() => {
-        if (container) {
-          container.scrollTop += diffRows * ROW_HEIGHT; // gentle shift
-        }
-      });
-    } else {
-      // Large jump - use callback for position recalculation
-      onPreserveAnchor(() => {
-        if (container) {
-          container.scrollTop = anchorIndex * ROW_HEIGHT;
-        }
-      });
-    }
+    // Maintain centre row after slice swap
+    // container.scrollTop = newAnchor * ROW_HEIGHT + DIFF_FROM_ROW_HEIGHT;
     
-    // Save latest scrollTop for next pass
-    prevScroll.current = container.scrollTop;
+    // DELETE the assignment (guard it behind one-time callback such as onPreserveAnchor() that runs only after column toggles)
+    // After you remove them, the browser's native inertial scrolling will take over and the slingshot effect disappears.
+    
+    // Save latest for next pass
     prevStart.current = slice.start;
   }, [slice.start, anchorIndex, onPreserveAnchor]);
 
