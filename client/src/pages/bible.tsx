@@ -12,6 +12,7 @@ import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
 import { ExpandedVerseOverlay } from "@/components/bible/ExpandedVerseOverlay";
 import { AuthModals } from "@/components/auth/AuthModals";
 import { ConnectivityStatus } from "@/components/ui/connectivity-status";
+import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
 import { Button } from "@/components/ui/button";
@@ -741,6 +742,9 @@ export default function BiblePage() {
       <div className="fixed bottom-4 right-4 z-50">
         <ConnectivityStatus />
       </div>
+      
+      {/* Offline Status Toast */}
+      <OfflineIndicator />
 
       {/* Sticky Footer - Fixed to bottom of viewport */}
       <footer

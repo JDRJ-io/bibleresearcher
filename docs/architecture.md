@@ -5,6 +5,14 @@
 
 This architecture is designed to scale to 10,000 concurrent users while maintaining smooth performance through React anchor-based architecture with strict layering and facade patterns.
 
+### Offline Layer & PWA Configuration
+The platform includes comprehensive offline capabilities through vite-plugin-pwa:
+- **Service Worker**: Auto-generated with Workbox caching strategies
+- **Translation Caching**: Supabase storage files cached with CacheFirst strategy (30 days)  
+- **Background Sync**: Pending notes/bookmarks/highlights sync when connectivity restored
+- **PWA Manifest**: Dynamic generation with app metadata and standalone display mode
+- **Install Prompts**: Cross-platform PWA installation with iOS Safari guidance
+
 ## 2. Top-level Flow Diagram
 ```mermaid
 graph TD

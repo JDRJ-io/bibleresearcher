@@ -10,4 +10,9 @@ describe('scroll budget', () => {
     // sanity: verse still visible => anchor preserved
     cy.contains('Gen 1:1').should('be.visible');
   });
+
+  it('PWA service worker registers correctly', () => {
+    cy.visit('/');
+    cy.window().its('navigator.serviceWorker.controller').should('not.be.null');
+  });
 });
