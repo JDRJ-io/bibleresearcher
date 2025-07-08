@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Languages, Link } from "lucide-react";
+import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
+import { useBodyClass } from '@/hooks/useBodyClass';
 import type { BibleVerse } from "@/types/bible";
 
 interface ExpandedVerseOverlayProps {
@@ -16,13 +19,27 @@ export function ExpandedVerseOverlay({
   onClose,
   onStrongsClick,
 }: ExpandedVerseOverlayProps) {
+  // Task 3.3: Add useBodyClass('overlay-open') toggle to lock background scroll
+  useBodyClass('overlay-open', !!verse);
+
   if (!verse) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div
+  // Task 3.1: Wrap overlay component in createPortal(document.body)
+  return createPortal(
+    <motion.div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
         className="rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-auto"
         style={{ backgroundColor: "var(--header-bg)" }}
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.8, opacity: 0 }}
+        transition={{ duration: 0.2 }}
       >
         <div className="p-8 space-y-6">
           {/* Verse Header */}
@@ -121,7 +138,8 @@ export function ExpandedVerseOverlay({
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>,
+    document.body
   );
 }

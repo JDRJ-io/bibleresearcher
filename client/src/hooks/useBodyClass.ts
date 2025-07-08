@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-export function useBodyClass(className: string, condition: boolean = true) {
+export function useBodyClass(className: string | null, condition: boolean = true) {
   useEffect(() => {
-    if (!condition) return;
+    if (!condition || !className || className.trim() === '') return;
     
     document.body.classList.add(className);
     return () => document.body.classList.remove(className);

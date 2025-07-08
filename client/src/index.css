@@ -249,6 +249,11 @@ body.aurora-mode::after {
   to { opacity: 1; }
 }
 
+/* Overlay scroll lock - Task 3.3 */
+body.overlay-open {
+  overflow: hidden;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

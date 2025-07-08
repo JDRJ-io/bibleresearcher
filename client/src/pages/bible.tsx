@@ -55,10 +55,13 @@ export default function BiblePage() {
   const {
     activeTranslations,
     mainTranslation,
+    alternates,
     toggleTranslation,
     removeTranslation,
     getVerseText,
     getMainVerseText,
+    setMain,
+    setAlternates,
     isLoading: translationsLoading
   } = translationMaps;
   
@@ -115,12 +118,8 @@ export default function BiblePage() {
     },
   ];
 
-  // Translation state management (using translation maps system)
-  // const [mainTranslation, setMainTranslation] = useState("KJV"); // REPLACED by useTranslationMaps
+  // Translation state management now handled by useTranslationMaps
   const [multiTranslationMode, setMultiTranslationMode] = useState(false);
-  const [selectedTranslations, setSelectedTranslations] = useState<string[]>([
-    "KJV",
-  ]);
 
   const [localExpandedVerse, setLocalExpandedVerse] = useState<any>(null);
   const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
@@ -218,8 +217,8 @@ export default function BiblePage() {
             });
           }
 
-          // Add to selected translations
-          setSelectedTranslations((prev) => [...prev, translationId]);
+          // Add to selected translations using translation maps
+          await toggleTranslation(translationId);
           toast({ title: `${translationId} translation loaded successfully` });
         } else {
           toast({
@@ -235,10 +234,8 @@ export default function BiblePage() {
         });
       }
     } else {
-      // Remove translation
-      setSelectedTranslations((prev) =>
-        prev.filter((id) => id !== translationId),
-      );
+      // Remove translation using translation maps
+      removeTranslation(translationId);
     }
   };
 

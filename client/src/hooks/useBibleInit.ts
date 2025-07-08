@@ -1,99 +1,56 @@
-import { useState, useEffect } from 'react';
-import { initializeBibleStructure, populateTranslation, populateCrossReferences, populateContextGroups } from '@/lib/bibleDataOptimized';
-import { loadVerseKeys } from '@/lib/supabaseLoader';
-import type { BibleVerse } from '@/types/bible';
+import { useEffect, useState } from 'react';
+import { useTranslationMaps } from './useTranslationMaps';
+import { useToast } from './use-toast';
 
-interface BibleInitState {
-  verses: BibleVerse[];
-  isLoading: boolean;
-  loadingStage: string;
-  loadingPercentage: number;
-  error: string | null;
-}
-
+/**
+ * Boot-time smoke test for Bible initialization
+ * Task 2.3: Loop through mainTranslation + alternates; if any empty, 
+ * set a global translationWarning flag that renders a badge in TopHeader.tsx
+ */
 export function useBibleInit() {
-  const [state, setState] = useState<BibleInitState>({
-    verses: [],
-    isLoading: true,
-    loadingStage: 'initializing',
-    loadingPercentage: 0,
-    error: null
-  });
+  const [translationWarning, setTranslationWarning] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const { mainTranslation, alternates, getVerseText } = useTranslationMaps();
+  const { toast } = useToast();
 
   useEffect(() => {
-    let mounted = true;
-
-    const initializeBible = async () => {
-      try {
-        // Stage 1: Load verse structure (20%)
-        setState(prev => ({ ...prev, loadingStage: 'structure', loadingPercentage: 10 }));
+    const runSmokeTest = async () => {
+      // Wait for initial translation to be loaded
+      if (!mainTranslation) return;
+      
+      console.log('🔍 Running boot-time smoke test...');
+      
+      const allTranslations = [mainTranslation, ...alternates];
+      let hasWarnings = false;
+      
+      for (const translation of allTranslations) {
+        // Test with a few common verses
+        const testVerses = ['Gen.1:1', 'John.3:16', 'Ps.23:1'];
+        const emptyCount = testVerses.filter(verse => !getVerseText(verse, translation)).length;
         
-        const verses = await initializeBibleStructure();
-        
-        if (!mounted) return;
-        setState(prev => ({ 
-          ...prev, 
-          verses,
-          loadingPercentage: 20 
-        }));
-
-        // Stage 2: Load KJV text (40%)
-        setState(prev => ({ ...prev, loadingStage: 'kjv-text', loadingPercentage: 25 }));
-        
-        await populateTranslation(verses, 'KJV', 0, verses.length);
-        
-        if (!mounted) return;
-        setState(prev => ({ ...prev, loadingPercentage: 40 }));
-
-        // Stage 3: Load cross-references (60%)
-        setState(prev => ({ ...prev, loadingStage: 'cross-refs', loadingPercentage: 50 }));
-        
-        await populateCrossReferences(verses, 'cf1');
-        
-        if (!mounted) return;
-        setState(prev => ({ ...prev, loadingPercentage: 60 }));
-
-        // Stage 4: Load context groups (80%)
-        setState(prev => ({ ...prev, loadingStage: 'context', loadingPercentage: 70 }));
-        
-        await populateContextGroups(verses);
-        
-        if (!mounted) return;
-        setState(prev => ({ ...prev, loadingPercentage: 80 }));
-
-        // Stage 5: Finalize (100%)
-        setState(prev => ({ ...prev, loadingStage: 'finalizing', loadingPercentage: 90 }));
-        
-        // Final state
-        if (!mounted) return;
-        setState({
-          verses,
-          isLoading: false,
-          loadingStage: 'complete',
-          loadingPercentage: 100,
-          error: null
+        if (emptyCount > 0) {
+          console.warn(`⚠️ TRANSLATION WARNING: ${translation} missing ${emptyCount}/${testVerses.length} test verses`);
+          hasWarnings = true;
+        }
+      }
+      
+      setTranslationWarning(hasWarnings);
+      setIsInitialized(true);
+      
+      if (hasWarnings) {
+        toast({
+          title: "Translation Warning",
+          description: "Some translations may be incomplete. Check console for details.",
+          variant: "destructive",
         });
-
-        console.log('Bible initialization complete!');
-
-      } catch (error) {
-        console.error('Bible initialization error:', error);
-        if (!mounted) return;
-        
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: error instanceof Error ? error.message : 'Failed to initialize Bible data'
-        }));
       }
     };
+    
+    runSmokeTest();
+  }, [mainTranslation, alternates, getVerseText, toast]);
 
-    initializeBible();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  return state;
+  return {
+    translationWarning,
+    isInitialized
+  };
 }

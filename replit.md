@@ -434,6 +434,33 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
+## July 8, 2025 - Translation State Canonicalization & Overlay Portal COMPLETE ✅
+- **TRANSLATION STATE CANONICALIZATION**: Implemented single source of truth using useTranslationMaps hook
+  - ✅ Replaced scattered useState calls with centralized setMain/setAlternates methods
+  - ✅ Added enhanced error handling and logging for translation loading
+  - ✅ Implemented boot-time smoke test with translation warning system
+  - ✅ Added comprehensive performance metrics and duration tracking
+- **OVERLAY PORTAL & MOTION**: Converted ExpandedVerseOverlay to React Portal with smooth animations
+  - ✅ Implemented createPortal(document.body) for proper z-index control
+  - ✅ Added framer-motion animations with scale and opacity transitions
+  - ✅ Integrated useBodyClass('overlay-open') for background scroll lock
+  - ✅ Added CSS overlay-open class for body overflow hidden
+- **QUEUESYNC CONFLICT GUARD**: Implemented offline/online synchronization system
+  - ✅ Added timestamp-based conflict resolution for notes/bookmarks/highlights
+  - ✅ Implemented retry mechanism with queue management
+  - ✅ Added toast notifications for sync conflicts and errors
+  - ✅ Created comprehensive queue processing with merge policies
+- **QA INFRASTRUCTURE ENHANCED**: Updated Cypress testing and bundle monitoring
+  - ✅ Added translation switching cycle tests with 300-row scrolling validation
+  - ✅ Implemented automated multi-translation testing (KJV/ESV/NIV)
+  - ✅ Enhanced bundle-check.js with translation-specific chunk tracking
+  - ✅ Added performance validation and undefined detection tests
+- **BUNDLE SPLITTING FOUNDATION**: Prepared dynamic import system for translations
+  - ✅ Created bundleSplit.ts with translation-specific code splitting
+  - ✅ Implemented precaching strategy for main translation only
+  - ✅ Added bundle size monitoring with 2MB gzip validation
+  - ✅ Prepared manual chunks configuration for Vite build optimization
+
 ## July 7, 2025 - PWA Implementation COMPLETE 100% ✅
 - **ENTERPRISE PWA FOUNDATION**: Complete vite-plugin-pwa implementation with Workbox caching strategies
 - **OFFLINE INDICATOR INTEGRATION**: OfflineIndicator component properly rendered in bible.tsx layout

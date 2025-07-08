@@ -1,5 +1,5 @@
 import type { Translation } from '@/types/bible';
-import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -27,9 +27,16 @@ function HeaderCell({ verse, isMain }: HeaderCellProps) {
 
 // Step 4.3-a. ColumnHeaders
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
-  const { translations, actives } = useBibleStore();
-  const headerOrder = ["Reference", "KJV", "Cross", "P", "F", "V"];
-  const mainTranslation = "KJV";
+  const { mainTranslation, alternates } = useTranslationMaps();
+  
+  // Build column order: Reference, ...alternates, mainTranslation, Cross, P, F, V
+  const headerOrder = [
+    "Reference", 
+    ...alternates, 
+    mainTranslation, 
+    "Cross", 
+    ...(showProphecy ? ["P", "F", "V"] : [])
+  ];
   
   return (
     <div 
