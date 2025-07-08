@@ -1,119 +1,66 @@
-export interface BibleVerse {
+// Core Bible data types
+export interface VerseData {
   id: string;
-  /**
-   * Optional numerical index used by virtualized tables
-   */
-  index?: number;
+  index: number;
   book: string;
   chapter: number;
   verse: number;
   reference: string;
-  text: Record<string, string>; // translation -> text
-  crossReferences?: CrossReference[];
-  strongsWords?: StrongsWord[];
-  prophecy?: ProphecyData;
-  labels?: string[];
-  contextGroup?: string;
-  height?: number; // For stable virtual scrolling
+  text: Record<string, string>; // translation code -> text
+  crossReferences: CrossRefEntry[];
+  strongsWords: StrongsWord[];
+  labels: LabelData[];
+  contextGroup: string;
+  prophecy?: {
+    P: number[]; // Prediction IDs
+    F: number[]; // Fulfillment IDs
+    V: number[]; // Verification IDs
+  };
 }
 
-export interface CrossReference {
-  reference: string;
-  text: string;
+export interface CrossRefEntry {
+  refIndex: number;
+  ref: string; // "John 3:16" format
+  text?: string; // Main translation only
 }
 
 export interface StrongsWord {
-  original: string;
+  word: string;
   strongs: string;
   transliteration: string;
   definition: string;
-  instances: string[];
 }
 
-export interface ProphecyData {
-  predictions?: ProphecyReference[];
-  fulfillments?: ProphecyReference[];
-  evidence?: ProphecyReference[];
-  summary?: string;
-  number?: string;
-  title?: string;
-}
-
-export interface ProphecyReference {
-  reference: string;
+export interface LabelData {
+  type: 'who' | 'what' | 'when' | 'where' | 'command' | 'action' | 'why' | 'seed' | 'harvest' | 'prediction';
   text: string;
+  start: number;
+  end: number;
 }
 
-export interface Translation {
-  id: string;
+export interface ProphecyDetail {
+  id: number;
+  summary: string;
+  prophecy: string[];
+  fulfillment: string[];
+  verification: string[];
+}
+
+// Translation management types
+export interface TranslationMap {
+  code: string;
   name: string;
-  abbreviation: string;
-  selected: boolean;
+  verses: Map<string, string>;
 }
 
-export interface UserNote {
-  id: number;
-  userId: string;
-  verseRef: string;
-  note: string;
-  updatedAt: Date;
-}
-
-export interface Bookmark {
-  id: number;
-  userId: string;
-  name: string;
-  indexValue: number;
-  color: string;
-  createdAt: Date;
-}
-
-export interface Highlight {
-  id: number;
-  userId: string;
-  verseRef: string;
-  startIdx: number;
-  endIdx: number;
-  color: string;
-  createdAt: Date;
-}
-
-export interface BibleTheme {
-  id: string;
-  name: string;
-  className: string;
-}
-
-export interface AppPreferences {
-  theme: string;
-  selectedTranslations: string[];
-  showNotes: boolean;
-  showProphecy: boolean;
-  showContext: boolean;
-  fontSize: 'small' | 'medium' | 'large';
-  lastVersePosition?: string;
-  columnLayout?: string;
-  layoutLocked: boolean;
-}
-
-export interface SearchHistory {
-  query: string;
-  timestamp: Date;
-  resultCount: number;
-}
-
-export interface ForumPost {
-  id: number;
-  userId: string;
-  title: string;
-  body: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ForumVote {
-  id: number;
-  userId: string;
-  postId: number;
-  value: number; // 1 for upvote, -1 for downvote
+export interface BibleStore {
+  verses: VerseData[];
+  isLoading: boolean;
+  error: string | null;
+  currentAnchor: number;
+  translations: TranslationMap[];
+  actives: string[];
+  setActives: (codes: string[]) => void;
+  loadTranslation: (code: string) => Promise<void>;
+  setCurrentAnchor: (index: number) => void;
 }

@@ -1,76 +1,69 @@
-import type { Translation } from '@/types/bible';
+import React from 'react';
+import { Badge } from '@/components/ui/badge';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
 interface ColumnHeadersProps {
-  selectedTranslations: Translation[];
-  showNotes: boolean;
-  showProphecy: boolean;
-  showContext: boolean;
-  scrollLeft: number;
+  showCrossRefs?: boolean;
+  showProphecy?: boolean;
+  prophecyColumns?: {
+    predictions: boolean;
+    fulfillments: boolean;
+    verification: boolean;
+  };
 }
 
-interface HeaderCellProps {
-  verse: string;
-  isMain?: boolean;
-}
-
-function HeaderCell({ verse, isMain }: HeaderCellProps) {
-  const width = verse === "Ref" ? "w-20" : verse === "Cross References" ? "w-60" : ["P", "F", "V"].includes(verse) ? "w-20" : "w-80";
-  const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
-  
-  return (
-    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
-      {verse}
-    </div>
-  );
-}
-
-// Step 4.3-a. ColumnHeaders
-export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
+export function ColumnHeaders({ 
+  showCrossRefs = false, 
+  showProphecy = false,
+  prophecyColumns = { predictions: true, fulfillments: true, verification: true }
+}: ColumnHeadersProps) {
   const { mainTranslation, alternates } = useTranslationMaps();
-  
-  // Build column order: Reference, ...alternates, mainTranslation, Cross, P, F, V
-  const headerOrder = [
-    "Reference", 
-    ...alternates, 
-    mainTranslation, 
-    "Cross", 
-    ...(showProphecy ? ["P", "F", "V"] : [])
+
+  // Source of truth: ['Reference', ...alternates, main, 'cross', 'P', 'F', 'V']
+  const headers = [
+    { key: 'reference', label: 'Reference', type: 'reference' },
+    ...alternates.map(code => ({ 
+      key: code, 
+      label: code, 
+      type: 'alternate',
+      languageCode: 'EN' // Add language pills
+    })),
+    { 
+      key: mainTranslation, 
+      label: mainTranslation, 
+      type: 'main',
+      languageCode: 'EN'
+    },
+    ...(showCrossRefs ? [{ key: 'cross', label: 'Cross Refs', type: 'cross' }] : []),
+    ...(showProphecy && prophecyColumns.predictions ? [{ key: 'predictions', label: 'Pred', type: 'prophecy' }] : []),
+    ...(showProphecy && prophecyColumns.fulfillments ? [{ key: 'fulfillments', label: 'Ful', type: 'prophecy' }] : []),
+    ...(showProphecy && prophecyColumns.verification ? [{ key: 'verification', label: 'Ver', type: 'prophecy' }] : [])
   ];
-  
+
   return (
-    <div 
-      className="sticky top-16 left-0 right-0 z-30 border-b shadow-sm"
-      style={{ 
-        height: '48px',
-        backgroundColor: 'var(--header-bg)',
-        borderBottomColor: 'var(--border-color)'
-      }}
-    >
-      <div className="overflow-hidden w-full h-full">
+    <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b grid grid-cols-12 gap-px" data-testid="column-headers">
+      {headers.map((header, index) => (
         <div 
-          className="flex min-w-max h-full"
-          style={{ 
-            transform: `translateX(-${Math.round(scrollLeft)}px)`,
-            willChange: 'transform'
-          }}
+          key={header.key}
+          data-testid="column-header"
+          className={`
+            p-3 font-semibold text-sm border-r last:border-r-0
+            ${header.type === 'main' ? 'font-bold bg-blue-50 dark:bg-blue-900/20' : ''}
+            ${header.type === 'alternate' ? 'bg-gray-50 dark:bg-gray-800' : ''}
+            ${header.type === 'prophecy' ? 'bg-purple-50 dark:bg-purple-900/20' : ''}
+            ${header.type === 'cross' ? 'bg-green-50 dark:bg-green-900/20' : ''}
+          `}
         >
-          {headerOrder.map((key: string) => {
-            if (key === "Reference") return <HeaderCell key="ref" verse="Ref" />;
-            if (key === "Cross") return <HeaderCell key="cross" verse="Cross References" />;
-            if (["P", "F", "V"].includes(key)) return <HeaderCell key={key} verse={key} />;
-            // otherwise it's a translation code
-            const isMain = key === mainTranslation;
-            return (
-              <HeaderCell
-                key={key}
-                verse={key}
-                isMain={isMain}
-              />
-            );
-          })}
+          <div className="flex items-center justify-between">
+            <span>{header.label}</span>
+            {header.languageCode && (
+              <Badge variant="secondary" className="text-xs ml-1">
+                {header.languageCode}
+              </Badge>
+            )}
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 }
