@@ -109,14 +109,14 @@ export function VirtualRow({
         <div
           key={cell.key}
           className={`
-            p-2 border-r last:border-r-0 overflow-hidden
+            p-2 border-r last:border-r-0 overflow-hidden w-[120px] max-w-[300px]
             ${cell.className}
             ${cell.type === 'main' ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}
             ${cell.type === 'prophecy' ? 'bg-purple-50/50 dark:bg-purple-900/10' : ''}
             ${cell.type === 'cross' ? 'bg-green-50/50 dark:bg-green-900/10' : ''}
           `}
         >
-          <div className="line-clamp-3">
+          <div className="whitespace-pre-wrap leading-snug">
             {cell.content}
           </div>
         </div>

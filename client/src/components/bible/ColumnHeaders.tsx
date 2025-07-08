@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
@@ -19,26 +19,19 @@ export function ColumnHeaders({
 }: ColumnHeadersProps) {
   const { mainTranslation, alternates } = useTranslationMaps();
 
-  // Source of truth: ['Reference', ...alternates, main, 'cross', 'P', 'F', 'V']
-  const headers = [
-    { key: 'reference', label: 'Reference', type: 'reference' },
-    ...alternates.map(code => ({ 
-      key: code, 
-      label: code, 
-      type: 'alternate',
-      languageCode: 'EN' // Add language pills
-    })),
-    { 
-      key: mainTranslation, 
-      label: mainTranslation, 
-      type: 'main',
-      languageCode: 'EN'
-    },
-    ...(showCrossRefs ? [{ key: 'cross', label: 'Cross Refs', type: 'cross' }] : []),
-    ...(showProphecy && prophecyColumns.predictions ? [{ key: 'predictions', label: 'Pred', type: 'prophecy' }] : []),
-    ...(showProphecy && prophecyColumns.fulfillments ? [{ key: 'fulfillments', label: 'Ful', type: 'prophecy' }] : []),
-    ...(showProphecy && prophecyColumns.verification ? [{ key: 'verification', label: 'Ver', type: 'prophecy' }] : [])
-  ];
+  // Memoized order computation - don't recompute on every render
+  const headers = useMemo(() => {
+    const order = [
+      { key: 'reference', label: 'Reference', type: 'reference' },
+      ...alternates.map(code => ({ key: code, label: code, type: 'alternate' })),
+      { key: mainTranslation, label: mainTranslation, type: 'main' },
+      ...(showCrossRefs ? [{ key: 'cross', label: 'Cross Refs', type: 'cross' }] : []),
+      ...(showProphecy && prophecyColumns.predictions ? [{ key: 'predictions', label: 'Pred', type: 'prophecy' }] : []),
+      ...(showProphecy && prophecyColumns.fulfillments ? [{ key: 'fulfillments', label: 'Ful', type: 'prophecy' }] : []),
+      ...(showProphecy && prophecyColumns.verification ? [{ key: 'verification', label: 'Ver', type: 'prophecy' }] : [])
+    ];
+    return order;
+  }, [alternates, mainTranslation, showCrossRefs, showProphecy, prophecyColumns]);
 
   return (
     <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b grid grid-cols-12 gap-px" data-testid="column-headers">
@@ -56,11 +49,6 @@ export function ColumnHeaders({
         >
           <div className="flex items-center justify-between">
             <span>{header.label}</span>
-            {header.languageCode && (
-              <Badge variant="secondary" className="text-xs ml-1">
-                {header.languageCode}
-              </Badge>
-            )}
           </div>
         </div>
       ))}

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 
 interface TranslationSelectorProps {
@@ -16,13 +16,13 @@ export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
   const { mainTranslation, alternates, setMain, toggleAlternate } = useTranslationMaps();
   const [isOpen, setIsOpen] = React.useState(false);
 
-  function handleMainChange(code: string) {
-    setMain(code);
+  async function handleMainChange(code: string) {
+    await setMain(code);
     onUpdate?.();
   }
 
-  function handleAlternateToggle(code: string) {
-    toggleAlternate(code);
+  async function handleAlternateToggle(code: string) {
+    await toggleAlternate(code);
     onUpdate?.();
   }
 
@@ -42,6 +42,9 @@ export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Translation Settings</DialogTitle>
+          <DialogDescription>
+            Configure your main translation and additional columns
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">
