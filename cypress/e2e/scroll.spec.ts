@@ -59,4 +59,20 @@ describe('scroll budget', () => {
       });
     });
   });
+
+  // Add assertion that column count equals 2 + alternates.length
+  it('validates column count matches active translations', () => {
+    cy.visit('/');
+    
+    // Initially should have 2 columns (Ref + main translation)
+    cy.get('[data-testid=column-header]').should('have.length', 2);
+    
+    // Add alternate translation
+    cy.get('[data-testid=translation-toggle-ESV]').click();
+    cy.get('[data-testid=column-header]').should('have.length', 3);
+    
+    // Add another alternate translation
+    cy.get('[data-testid=translation-toggle-NIV]').click();
+    cy.get('[data-testid=column-header]').should('have.length', 4);
+  });
 });

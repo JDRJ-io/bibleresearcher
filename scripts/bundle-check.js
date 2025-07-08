@@ -19,6 +19,7 @@ async function checkBundleSize() {
     const sizeInMB = stats.size / (1024 * 1024);
     
     console.log(`📦 Bundle size: ${sizeInMB.toFixed(2)} MB`);
+    console.log(`📊 BUNDLE METRICS: Main bundle - ${stats.size} bytes`);
     
     // Check if gzipped (validate-architecture.sh step 5 checks dist/assets/index.js size)
     try {
@@ -26,8 +27,9 @@ async function checkBundleSize() {
       const gzippedSize = parseInt(stdout.trim()) / (1024 * 1024);
       console.log(`📦 Gzipped size: ${gzippedSize.toFixed(2)} MB`);
       
+      // Gate at 2MB gzipped - fail CI if exceeded
       if (gzippedSize > 2) {
-        console.warn('⚠️  Bundle exceeds 2 MB gzipped - consider code splitting');
+        console.error('🚨 BUNDLE TOO LARGE: Main bundle exceeds 2MB gzipped limit');
         process.exit(1);
       } else {
         console.log('✅ Bundle size within limits');

@@ -42,18 +42,16 @@ export async function loadTranslationDynamic(translationId: string): Promise<Map
 
 /**
  * Task 5.2: Vite config—set build.rollupOptions.output.manualChunks to chunk by translation id
- * This would be implemented in vite.config.ts as:
+ * Implementation available in client/src/config/chunkConfig.ts
+ * 
+ * To implement, add to vite.config.ts:
+ * import { getManualChunks } from './client/src/config/chunkConfig';
  * 
  * export default defineConfig({
  *   build: {
  *     rollupOptions: {
  *       output: {
- *         manualChunks: {
- *           'translation-kjv': ['./src/translations/KJV.json'],
- *           'translation-esv': ['./src/translations/ESV.json'],
- *           'translation-niv': ['./src/translations/NIV.json'],
- *           // ... more translations
- *         }
+ *         manualChunks: getManualChunks
  *       }
  *     }
  *   }

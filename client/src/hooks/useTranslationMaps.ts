@@ -155,11 +155,20 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         // Task 2.2: Fail-loud toast if map size === 0
         if (translationMap.size === 0) {
           console.error(`🚨 FAILED TO LOAD: ${code} - map size is 0, check CDN path`);
-          // This would trigger a toast in the UI layer
+          // User-visible toast for translation loading failures
+          if (typeof window !== 'undefined') {
+            import('@/hooks/use-toast').then(({ toast }) => {
+              toast({
+                title: "FAILED to load " + code,
+                description: "Translation file may be missing or corrupted. Check console for details.",
+                variant: "destructive",
+              });
+            });
+          }
         }
       }
       
-      // Update activeTranslations array
+      // Update activeTranslations array - avoid duplicates with Array.from(new Set())
       setActiveTranslations(prev => {
         const isActive = prev.includes(code);
         
@@ -170,10 +179,10 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
           // Toggle ON
           if (setAsMain) {
             // Place at index 0 (main translation)
-            return [code, ...prev.filter(t => t !== code)];
+            return Array.from(new Set([code, ...prev.filter(t => t !== code)]));
           } else {
             // Append as alternate
-            return [...prev, code];
+            return Array.from(new Set([...prev, code]));
           }
         }
       });
