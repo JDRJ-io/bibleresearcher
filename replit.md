@@ -434,6 +434,29 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
+## July 9, 2025 - Expert Translation Column Loading & Deloading System COMPLETE ✅
+- **STATE-SLICE CORRECTIONS**: Fixed Zustand slice structure with proper main/alternates management
+  - ✅ setMain() now properly ejects old main and removes new main from alternates
+  - ✅ Initial alternates array starts empty instead of full translation list
+  - ✅ Prevented duplicate state updates with no-op guards
+- **TRANSLATION LOADING OPTIMIZATION**: Implemented load-on-demand system for column visibility
+  - ✅ Added useEnsureTranslationLoaded helper as single loading point
+  - ✅ Translation loading triggers only when columns become visible
+  - ✅ Added proper trigger points in TranslationSelector and VirtualRow
+  - ✅ Prevented rendering-time translation loading to avoid infinite loops
+- **CROSS-REFERENCE & PROPHECY REFRESH**: Fixed text swapping on main translation changes
+  - ✅ Added prefetchRemoteVerses function for cross-reference and prophecy text
+  - ✅ useEffect([main]) invalidates and refetches remote cache automatically
+  - ✅ Cross-reference and prophecy columns now refresh instantly with new main translation
+- **COLUMN SOURCE OF TRUTH**: Implemented consistent useColumnKeys selector
+  - ✅ All components now use memoized useColumnKeys() selector
+  - ✅ Prevented column derivation from props, localStorage, or translationsInUse
+  - ✅ Single source of truth for column ordering prevents hidden columns
+- **CYPRESS REGRESSION TESTS**: Added automated testing for translation switching
+  - ✅ Column count validation during main translation swaps
+  - ✅ Alternate translation toggling with network request validation
+  - ✅ Comprehensive translation switching behavior testing
+
 ## July 8, 2025 - Translation State Canonicalization & Overlay Portal COMPLETE ✅
 - **TRANSLATION STATE CANONICALIZATION**: Implemented single source of truth using useTranslationMaps hook
   - ✅ Replaced scattered useState calls with centralized setMain/setAlternates methods

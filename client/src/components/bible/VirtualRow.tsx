@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useColumnKeys } from '@/store/translationSlice';
+import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 
 interface VirtualRowProps {
   verseID: string;
@@ -108,9 +109,19 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   const { translationState, getAllActive } = useBibleStore();
   const { main, alternates } = translationState;
   const { toggleTranslation } = useTranslationMaps();
+  const ensureTranslationLoaded = useEnsureTranslationLoaded();
   
   // 2-A: Replace every map over translationsInUse with useColumnKeys
   const columnKeys = useColumnKeys();
+  
+  // 2-B Trigger point: VirtualRow (per cell) → useEffect(() => { if (!text) ensureTranslationLoaded(tid) }, [text, tid])
+  useEffect(() => {
+    columnKeys.forEach(async (translationId) => {
+      if (!verse?.text[translationId]) {
+        await ensureTranslationLoaded(translationId);
+      }
+    });
+  }, [columnKeys, verse?.text, ensureTranslationLoaded]);
   
   // A2: Header & Column Order Rules - Keep columns locked in order
   // Reference | ...alternates | main | Cross | P | F | V

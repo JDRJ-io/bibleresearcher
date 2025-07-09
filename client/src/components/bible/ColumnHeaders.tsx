@@ -27,8 +27,8 @@ function HeaderCell({ verse, isMain }: HeaderCellProps) {
 
 // Step 4.3-a. ColumnHeaders
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
-  const { mainTranslation } = useTranslationMaps();
-  const columnKeys = useColumnKeys();
+  const { main } = useTranslationMaps();
+  const columnKeys = useColumnKeys();  // memoised selector
   
   // 2-A: Replace every map over translationsInUse with useColumnKeys  
   const headerOrder = [
@@ -60,7 +60,7 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
             if (key === "Cross") return <HeaderCell key="cross" verse="Cross References" />;
             if (["P", "F", "V"].includes(key)) return <HeaderCell key={key} verse={key} />;
             // otherwise it's a translation code
-            const isMain = key === mainTranslation;
+            const isMain = key === main;
             return (
               <HeaderCell
                 key={key}

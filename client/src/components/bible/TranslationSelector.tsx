@@ -4,6 +4,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTranslationMaps } from '@/store/translationSlice';
+import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 
 interface TranslationSelectorProps {
   onUpdate?: () => void;
@@ -14,13 +15,20 @@ const AVAILABLE_TRANSLATIONS = ["KJV", "AMP", "ESV", "CSB", "BSB", "NLT", "NASB"
 // Feature Block C - Translation Modal in Hamburger Menu
 export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
   const { main, alternates, setMain, toggleAlternate } = useTranslationMaps();
+  const ensureTranslationLoaded = useEnsureTranslationLoaded();
 
-  const handleMainChange = (value: string) => {
+  const handleMainChange = async (value: string) => {
+    // 2-B Trigger point: handleMainChange → await ensureTranslationLoaded(mainId); (before setMain)
+    await ensureTranslationLoaded(value);
     setMain(value);
     onUpdate?.();
   };
 
-  const handleAlternateToggle = (translationId: string, checked: boolean) => {
+  const handleAlternateToggle = async (translationId: string, checked: boolean) => {
+    // 2-B Trigger point: handleAlternateToggle(id, checked) → if checked then ensureTranslationLoaded(id)
+    if (checked) {
+      await ensureTranslationLoaded(translationId);
+    }
     toggleAlternate(translationId);
     onUpdate?.();
   };

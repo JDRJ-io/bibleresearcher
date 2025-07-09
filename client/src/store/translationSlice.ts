@@ -15,15 +15,14 @@ export const useTranslationMaps = create<TranslationState>()(
   persist(
     (set, get) => ({
       main: 'KJV',
-      alternates: [],
+      alternates: [],  // -- not the whole list
       setMain: (id: string) => {
         const current = get();
-        const newAlts = current.alternates.filter((t) => t !== id);  // remove new main if it was alt
-        const shouldAddOldMain = current.main !== id && !newAlts.includes(current.main);
+        if (id === current.main) return;  // no-op
         
         set({
           main: id,
-          alternates: shouldAddOldMain ? [...newAlts, current.main] : newAlts,
+          alternates: current.alternates.filter((t) => t !== id),  // 1. remove new main
         });
       },
       toggleAlternate: (id: string) => {
