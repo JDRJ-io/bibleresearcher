@@ -5,7 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
-import VirtualRowNew from "./VirtualRowNew";
+import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
@@ -164,13 +164,11 @@ const VirtualBibleTable = ({
   return (
     <div className={`virtual-bible-table ${className}`}>
       <ColumnHeaders 
-        showCrossRefs={preferences.showCrossRefs}
+        selectedTranslations={selectedTranslations}
+        showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
-        prophecyColumns={{
-          predictions: true,
-          fulfillments: true,
-          verification: true
-        }}
+        showContext={false}
+        scrollLeft={0}
       />
       
       <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table">
@@ -199,7 +197,7 @@ const VirtualBibleTable = ({
           };
           
           return (
-            <VirtualRowNew 
+            <VirtualRow 
               key={id}
               verseID={id}
               verse={bibleVerse}

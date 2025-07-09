@@ -1,126 +1,120 @@
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { VerseData } from '@/types/bible';
+import { BibleVerse } from '../../types/bible';
+import { useBibleStore } from '@/providers/BibleDataProvider';
 
 interface VirtualRowProps {
-  verse: VerseData;
-  style: React.CSSProperties;
-  onClick: (verse: VerseData) => void;
-  showCrossRefs?: boolean;
-  showProphecy?: boolean;
-  prophecyColumns?: {
-    predictions: boolean;
-    fulfillments: boolean;
-    verification: boolean;
-  };
+  verseID: string;
+  rowHeight: number;
+  verse: BibleVerse;
+  columnData: any;
+  getVerseText: (verseID: string, translationCode: string) => string | undefined;
+  getMainVerseText: (verseID: string) => string | undefined;
+  activeTranslations: string[];
+  mainTranslation: string;
 }
 
-export function VirtualRow({ 
-  verse, 
-  style, 
-  onClick,
-  showCrossRefs = false,
-  showProphecy = false,
-  prophecyColumns = { predictions: true, fulfillments: true, verification: true }
-}: VirtualRowProps) {
-  const { mainTranslation, alternates } = useTranslationMaps();
+// Cell Components
+interface CellProps {
+  verse: BibleVerse;
+}
 
-  // Main translation cell gets font-semibold; alternates keep normal weight
-  const getTranslationText = (translation: string) => {
-    return verse.text[translation] || 'Loading...';
-  };
+function ReferenceCell({ verse }: CellProps) {
+  return (
+    <div className="w-20 px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+      {verse.reference}
+    </div>
+  );
+}
 
-  const getCrossRefText = () => {
-    if (!verse.crossReferences || verse.crossReferences.length === 0) return '';
-    
-    // Show reference string + verse text (main translation) truncated
-    return verse.crossReferences.slice(0, 3).map(ref => {
-      const truncatedText = ref.text?.slice(0, 60) || '';
-      return `${ref.ref}: ${truncatedText}...`;
-    }).join(' | ');
-  };
+function CrossReferencesCell({ verse }: CellProps) {
+  return (
+    <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="overflow-auto h-full">
+        {verse.crossReferences?.slice(0, 3).map((ref, i) => (
+          <span key={i} className="text-blue-600 dark:text-blue-400 mr-2">{ref.reference}</span>
+        )) || ""}
+      </div>
+    </div>
+  );
+}
 
-  const getProphecyData = (type: 'predictions' | 'fulfillments' | 'verification') => {
-    // Mock prophecy data structure
-    const prophecyData = {
-      predictions: verse.prophecy?.P || [],
-      fulfillments: verse.prophecy?.F || [],
-      verification: verse.prophecy?.V || []
-    };
-    
-    return prophecyData[type].length > 0 ? prophecyData[type].length : '';
-  };
+interface ProphecyCellProps {
+  verse: BibleVerse;
+  type: "P" | "F" | "V";
+}
 
-  const cells = [
-    { 
-      key: 'reference', 
-      content: verse.reference, 
-      type: 'reference',
-      className: 'font-mono text-sm' 
-    },
-    ...alternates.map(code => ({
-      key: code,
-      content: getTranslationText(code),
-      type: 'alternate',
-      className: 'text-sm'
-    })),
-    {
-      key: mainTranslation,
-      content: getTranslationText(mainTranslation),
-      type: 'main',
-      className: 'text-sm font-semibold'
-    },
-    ...(showCrossRefs ? [{
-      key: 'cross',
-      content: getCrossRefText(),
-      type: 'cross',
-      className: 'text-xs text-muted-foreground'
-    }] : []),
-    ...(showProphecy && prophecyColumns.predictions ? [{
-      key: 'predictions',
-      content: getProphecyData('predictions'),
-      type: 'prophecy',
-      className: 'text-center text-blue-600 font-bold'
-    }] : []),
-    ...(showProphecy && prophecyColumns.fulfillments ? [{
-      key: 'fulfillments', 
-      content: getProphecyData('fulfillments'),
-      type: 'prophecy',
-      className: 'text-center text-green-600 font-bold'
-    }] : []),
-    ...(showProphecy && prophecyColumns.verification ? [{
-      key: 'verification',
-      content: getProphecyData('verification'),
-      type: 'prophecy', 
-      className: 'text-center text-purple-600 font-bold'
-    }] : [])
-  ];
+function ProphecyCell({ verse, type }: ProphecyCellProps) {
+  const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
+  return (
+    <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className={`${color} text-center`}>
+        {/* Add prophecy counts/indicators here */}
+      </div>
+    </div>
+  );
+}
+
+interface TranslationCellProps {
+  text: string;
+  isMain?: boolean;
+}
+
+function TranslationCell({ text, isMain }: TranslationCellProps) {
+  const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
+  return (
+    <div className={`w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0 ${bgClass}`}>
+      <div className="overflow-auto h-full">
+        {text}
+      </div>
+    </div>
+  );
+}
+
+// Step 4.3-b. VirtualRow
+export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation }: VirtualRowProps) {
+  const { translations, actives } = useBibleStore();
+  const headerOrder = ["Reference", "KJV", "Cross", "P", "F", "V"];
+  const dataStoreMain = "KJV";
+  const translationMaps = translations;
+  
+  // Guard against undefined verse data
+  if (!verse) {
+    return (
+      <div 
+        className="virtual-row border-b border-gray-200 dark:border-gray-700 flex"
+        style={{ height: rowHeight }}
+        data-verse-id={verseID}
+      >
+        <div className="w-20 px-1 py-1 text-xs">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div 
-      style={style}
-      className="grid grid-cols-12 gap-px border-b hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-      onClick={() => onClick(verse)}
-      data-verse-id={verse.id}
+      className="virtual-row border-b border-gray-200 dark:border-gray-700 flex"
+      style={{ height: rowHeight }}
+      data-verse-id={verseID}
       data-verse-index={verse.index}
     >
-      {cells.map((cell, index) => (
-        <div
-          key={cell.key}
-          className={`
-            p-2 border-r last:border-r-0 overflow-hidden w-[120px] max-w-[300px]
-            ${cell.className}
-            ${cell.type === 'main' ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}
-            ${cell.type === 'prophecy' ? 'bg-purple-50/50 dark:bg-purple-900/10' : ''}
-            ${cell.type === 'cross' ? 'bg-green-50/50 dark:bg-green-900/10' : ''}
-          `}
-        >
-          <div className="whitespace-pre-wrap leading-snug">
-            {cell.content}
-          </div>
-        </div>
-      ))}
+      {headerOrder.map((key: string) => {
+        switch (key) {
+          case "Reference":
+            return <ReferenceCell key="ref" verse={verse} />;
+          case "Cross":
+            return <CrossReferencesCell key="cross" verse={verse} />;
+          case "P":
+            return <ProphecyCell key="P" verse={verse} type="P" />;
+          case "F":
+            return <ProphecyCell key="F" verse={verse} type="F" />;
+          case "V":
+            return <ProphecyCell key="V" verse={verse} type="V" />;
+          default:
+            // Translation code - use verse.text data from new query system
+            const text = verse.text[key] || `Loading ${verse.reference}...`;
+            return <TranslationCell key={key} text={text} isMain={key === mainTranslation} />;
+        }
+      })}
     </div>
   );
 }

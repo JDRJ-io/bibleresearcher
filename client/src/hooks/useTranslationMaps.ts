@@ -16,11 +16,10 @@ export interface UseTranslationMapsReturn {
   mainTranslation: string;
   alternates: string[];
   toggleTranslation: (code: string, setAsMain?: boolean) => Promise<void>;
-  toggleAlternate: (code: string) => Promise<void>;
   removeTranslation: (code: string) => void;
   getVerseText: (verseID: string, translationCode: string) => string | undefined;
   getMainVerseText: (verseID: string) => string | undefined;
-  setMain: (id: string) => Promise<void>;
+  setMain: (id: string) => void;
   setAlternates: (ids: string[]) => void;
   isLoading: boolean;
 }
@@ -226,50 +225,11 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   }, [mainTranslation]);
 
   /**
-   * Set main translation (moves to index 0) 
-   * Also ensure setMain repositions IDs without re-ordering columns
+   * Set main translation (moves to index 0)
    */
-  const setMain = useCallback(async (newId: string) => {
-    // Load the translation if not already cached
-    if (!globalResourceCache.has(newId)) {
-      await toggleTranslation(newId, false);
-    }
-    
-    // Move to main position (index 0)
-    setActiveTranslations(prev => {
-      const currentAlts = prev.slice(1); // Get current alternates
-      const idx = currentAlts.indexOf(newId);
-      if (idx > -1) {
-        currentAlts.splice(idx, 1); // Remove from alternates if exists
-      }
-      return [newId, ...currentAlts];
-    });
-    
-    // Force re-fetch of verses after main translation change
-    if (typeof window !== 'undefined') {
-      import('@/lib/queryClient').then(({ queryClient }) => {
-        queryClient.invalidateQueries({ queryKey: ['verses'] });
-      });
-    }
-  }, [toggleTranslation]);
-
-  /**
-   * Toggle alternate translation on/off
-   */
-  const toggleAlternate = useCallback(async (code: string) => {
-    const currentAlts = activeTranslations.slice(1); // Get current alternates
-    
-    if (currentAlts.includes(code)) {
-      // Remove from alternates
-      setActiveTranslations(prev => prev.filter(t => t !== code));
-    } else {
-      // Add to alternates - load if not cached
-      if (!globalResourceCache.has(code)) {
-        await toggleTranslation(code, false);
-      }
-      setActiveTranslations(prev => [...prev, code]);
-    }
-  }, [toggleTranslation, activeTranslations]);
+  const setMain = useCallback((id: string) => {
+    setActiveTranslations(prev => [id, ...prev.filter(t => t !== id)]);
+  }, []);
 
   /**
    * Set alternate translations (appends after main)
@@ -284,7 +244,6 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     mainTranslation,
     alternates,
     toggleTranslation,
-    toggleAlternate,
     removeTranslation,
     getVerseText,
     getMainVerseText,
