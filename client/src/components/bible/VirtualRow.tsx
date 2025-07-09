@@ -150,13 +150,11 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
             let text = verse.text[key];
             const isMainTranslation = key === main;
             
-            // A3: If translation is not loaded yet, show skeleton shimmer and trigger translationLoader(tid)
+            // A3: If translation is not loaded yet, show skeleton shimmer
             if (!text) {
               text = `Loading ${verse.reference}...`;
-              // Fire-and-forget translation loading
-              toggleTranslation(key, false).catch(err => 
-                console.error(`Failed to load translation ${key}:`, err)
-              );
+              // Don't trigger translation loading during render - this causes infinite loops
+              // Translation loading should be handled at the store level or via user interaction
             }
             
             // A2: When main changes → only header tint changes, not the physical column index (muscle-memory preservation)
