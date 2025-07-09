@@ -1,6 +1,5 @@
 import type { Translation } from '@/types/bible';
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { useColumnKeys } from '@/hooks/useColumnKeys';
+import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];

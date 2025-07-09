@@ -2,7 +2,7 @@ import React from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { useColumnKeys } from '@/hooks/useColumnKeys';
+import { useColumnKeys } from '@/store/translationSlice';
 
 interface VirtualRowProps {
   verseID: string;

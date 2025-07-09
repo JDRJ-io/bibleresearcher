@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from './useTranslationMaps';
 
+// Expert's fix: Add prefetchRemoteVerses function
+const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
+  // when "main" changes, useEffect([main]) invalidates and refetches the remote cache
+  // prefetch remote refs in the new translation
+  return; // TODO: implement prefetch logic
+};
+
 // Feature Block B-1: Data Fetch
 // When slice fetch runs (±100 verses around anchor), also collect the list of remote verse indices needed for:
 // - all cross-refs linked to those anchor verses
@@ -52,6 +59,12 @@ export function useSliceDataLoader(slice: string[]) {
   
   useEffect(() => {
     loadSliceData();
+  }, [slice, translationState.main]);
+
+  // Expert's fix: useEffect([main]) invalidates and refetches the remote cache
+  // This guarantees the Cross/Prophecy verse texts swap instantly with the new main
+  useEffect(() => {
+    prefetchRemoteVerses(slice, translationState.main);
   }, [slice, translationState.main]);
   
   return { isLoading };

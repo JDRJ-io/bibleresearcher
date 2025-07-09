@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useBibleStore } from '@/providers/BibleDataProvider';
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { useTranslationMaps } from '@/store/translationSlice';
 
 interface TranslationSelectorProps {
   onUpdate?: () => void;
@@ -14,29 +13,15 @@ const AVAILABLE_TRANSLATIONS = ["KJV", "AMP", "ESV", "CSB", "BSB", "NLT", "NASB"
 
 // Feature Block C - Translation Modal in Hamburger Menu
 export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
-  const { translationState } = useBibleStore();
-  const { main, alternates, setMain, toggleAlternate } = translationState;
-  const { toggleTranslation, isLoading } = useTranslationMaps();
+  const { main, alternates, setMain, toggleAlternate } = useTranslationMaps();
 
-  const handleMainChange = async (value: string) => {
-    // 2-C: Radio group → setMain. Each checkbox → toggleAlternate
-    // Close the modal after any change so the table repaint is noticeable
+  const handleMainChange = (value: string) => {
     setMain(value);
-    
-    // 2-B: When main changes, useEffect([main]) invalidates and refetches the remote cache
-    // This guarantees the Cross/Prophecy verse texts swap instantly with the new main
-    await toggleTranslation(value, true); // Load translation if not cached
     onUpdate?.();
   };
 
-  const handleAlternateToggle = async (translationId: string, checked: boolean) => {
-    // 2-C: Each checkbox → toggleAlternate
+  const handleAlternateToggle = (translationId: string, checked: boolean) => {
     toggleAlternate(translationId);
-    
-    // Load translation if being added and not cached
-    if (checked) {
-      await toggleTranslation(translationId, false);
-    }
     onUpdate?.();
   };
 
@@ -73,13 +58,9 @@ export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
                 id={`alt-${code}`}
                 checked={alternates.includes(code)}
                 onCheckedChange={(checked) => handleAlternateToggle(code, checked as boolean)}
-                disabled={isLoading}
               />
               <Label htmlFor={`alt-${code}`} className="text-sm cursor-pointer">
                 {code}
-                {isLoading && alternates.includes(code) && (
-                  <span className="text-xs text-gray-500 ml-1">Loading...</span>
-                )}
               </Label>
             </div>
           ))}

@@ -36,15 +36,16 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const mainTranslation = activeTranslations[0] || 'KJV';
   const alternates = activeTranslations.slice(1);
 
-  // Auto-load KJV translation on first render (moved after toggleTranslation definition)
+  // Expert's fix: Guard against duplicate initial load - only ONE translation at startup
   useEffect(() => {
-    const loadKJV = async () => {
-      if (!globalResourceCache.has('KJV')) {
-        await toggleTranslationRef.current('KJV', true);
+    const loadInitialMain = async () => {
+      const initialMain = mainTranslation;
+      if (!globalResourceCache.has(initialMain)) {
+        await toggleTranslationRef.current(initialMain, true);
       }
     };
-    loadKJV();
-  }, []);
+    loadInitialMain();
+  }, []); // Only run once on mount
 
   /**
    * Parse translation file into Map<verseID, text>
