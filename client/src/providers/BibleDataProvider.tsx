@@ -2,11 +2,16 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 // Feature Block A - A1: Global State & Selectors
+// 1-A: Separate selected vs visible translations
 interface TranslationState {
-  main: string;        // 'NKJV'
-  alternates: string[]; // ['KJV', 'ESV']
+  main: string;        // current main translation
+  alternates: string[]; // currently visible alternates
+  // actions
   setMain: (id: string) => void;
   toggleAlternate: (id: string) => void;
+  clearAlternates: (id: string) => void;
+  // derived
+  columnKeys: string[];  // [...alternates, main] - memoized
 }
 
 export const useBibleStore = create<{
@@ -26,34 +31,62 @@ export const useBibleStore = create<{
         main: "KJV",
         alternates: [],
         setMain: (id: string) => set(state => {
-          // Feature Block C - C2: Selecting new main calls setMain(id); old main pushed into alternates
+          // 1-B: Rules inside setMain
+          if (id === state.translationState.main) return state; // no-op
+          
           const currentMain = state.translationState.main;
-          const newAlternates = currentMain && currentMain !== id 
-            ? Array.from(new Set([...state.translationState.alternates, currentMain]))
-            : state.translationState.alternates;
+          const currentAlternates = state.translationState.alternates;
+          
+          // Remove new main if it was already in alternates
+          const newAlts = currentAlternates.filter(t => t !== id);
+          
+          // Add old main to alternates if it wasn't already there
+          const finalAlternates = currentMain && currentMain !== id 
+            ? Array.from(new Set([...newAlts, currentMain]))
+            : newAlts;
+          
+          const columnKeys = Array.from(new Set([...finalAlternates, id])); // memoized
           
           return {
             translationState: {
               ...state.translationState,
               main: id,
-              alternates: newAlternates
+              alternates: finalAlternates,
+              columnKeys
             }
           };
         }),
         toggleAlternate: (id: string) => set(state => {
-          // Feature Block C - C2: Toggling alternates adds/removes from alternates
+          // 1-C: toggleAlternate
+          if (id === state.translationState.main) return state; // cannot demote main here
+          
           const currentAlternates = state.translationState.alternates;
-          const newAlternates = currentAlternates.includes(id)
-            ? currentAlternates.filter(alt => alt !== id)
-            : [...currentAlternates, id];
+          const has = currentAlternates.includes(id);
+          
+          const newAlternates = has 
+            ? currentAlternates.filter(t => t !== id)  // remove column
+            : Array.from(new Set([...currentAlternates, id]));  // add column
+          
+          const columnKeys = Array.from(new Set([...newAlternates, state.translationState.main])); // memoized
           
           return {
             translationState: {
               ...state.translationState,
-              alternates: newAlternates
+              alternates: newAlternates,
+              columnKeys
             }
           };
-        })
+        }),
+        clearAlternates: (id: string) => set(state => {
+          return {
+            translationState: {
+              ...state.translationState,
+              alternates: [],
+              columnKeys: [state.translationState.main]
+            }
+          };
+        }),
+        columnKeys: []  // initialize empty
       },
       setActives: (ids) => set({ actives: ids }),
       setTranslations: (id, data) => {

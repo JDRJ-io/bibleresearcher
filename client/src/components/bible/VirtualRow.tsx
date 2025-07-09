@@ -2,6 +2,7 @@ import React from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { useColumnKeys } from '@/hooks/useColumnKeys';
 
 interface VirtualRowProps {
   verseID: string;
@@ -108,10 +109,12 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   const { main, alternates } = translationState;
   const { toggleTranslation } = useTranslationMaps();
   
+  // 2-A: Replace every map over translationsInUse with useColumnKeys
+  const columnKeys = useColumnKeys();
+  
   // A2: Header & Column Order Rules - Keep columns locked in order
   // Reference | ...alternates | main | Cross | P | F | V
-  const allActive = getAllActive(); // Derived selector: [...alternates, main]
-  const columnOrder = ["Reference", ...alternates, main, "Cross", "P", "F", "V"];
+  const columnOrder = ["Reference", ...columnKeys, "Cross", "P", "F", "V"];
   
   // Guard against undefined verse data
   if (!verse) {
@@ -133,18 +136,21 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
       data-verse-id={verseID}
       data-verse-index={verse.index}
     >
-      {columnOrder.map((key: string) => {
+      {columnOrder.map((key: string, index: number) => {
+        // Use index + key to ensure unique keys, preventing duplicate key warnings
+        const uniqueKey = `${key}-${index}`;
+        
         switch (key) {
           case "Reference":
-            return <ReferenceCell key="ref" verse={verse} />;
+            return <ReferenceCell key={uniqueKey} verse={verse} />;
           case "Cross":
-            return <CrossReferencesCell key="cross" verse={verse} onVerseClick={onVerseClick} />;
+            return <CrossReferencesCell key={uniqueKey} verse={verse} onVerseClick={onVerseClick} />;
           case "P":
-            return <ProphecyCell key="P" verse={verse} type="P" />;
+            return <ProphecyCell key={uniqueKey} verse={verse} type="P" />;
           case "F":
-            return <ProphecyCell key="F" verse={verse} type="F" />;
+            return <ProphecyCell key={uniqueKey} verse={verse} type="F" />;
           case "V":
-            return <ProphecyCell key="V" verse={verse} type="V" />;
+            return <ProphecyCell key={uniqueKey} verse={verse} type="V" />;
           default:
             // A3: VirtualRow.tsx iterates over allActive and pulls text from useBibleStore().translations[tid].get(index)
             let text = verse.text[key];
@@ -160,7 +166,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
             // A2: When main changes → only header tint changes, not the physical column index (muscle-memory preservation)
             return (
               <TranslationCell 
-                key={key} 
+                key={uniqueKey} 
                 text={text} 
                 isMain={isMainTranslation} 
               />

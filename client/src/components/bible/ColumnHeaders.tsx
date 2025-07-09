@@ -1,5 +1,6 @@
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { useColumnKeys } from '@/hooks/useColumnKeys';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -27,13 +28,13 @@ function HeaderCell({ verse, isMain }: HeaderCellProps) {
 
 // Step 4.3-a. ColumnHeaders
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
-  const { mainTranslation, alternates } = useTranslationMaps();
+  const { mainTranslation } = useTranslationMaps();
+  const columnKeys = useColumnKeys();
   
-  // Build column order: Reference, ...alternates, mainTranslation, Cross, P, F, V
+  // 2-A: Replace every map over translationsInUse with useColumnKeys  
   const headerOrder = [
     "Reference", 
-    ...alternates, 
-    mainTranslation, 
+    ...columnKeys, 
     "Cross", 
     ...(showProphecy ? ["P", "F", "V"] : [])
   ];
