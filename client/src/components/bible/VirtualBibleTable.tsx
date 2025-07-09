@@ -207,6 +207,8 @@ const VirtualBibleTable = ({
               getMainVerseText={getMainVerseText}
               activeTranslations={activeTranslations}
               mainTranslation={translationMainTranslation}
+              onVerseClick={onNavigateToVerse}
+              onExpandVerse={onExpandVerse}
             />
           );
         })}

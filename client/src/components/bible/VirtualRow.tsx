@@ -1,6 +1,7 @@
 import React from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
 interface VirtualRowProps {
   verseID: string;
@@ -11,6 +12,8 @@ interface VirtualRowProps {
   getMainVerseText: (verseID: string) => string | undefined;
   activeTranslations: string[];
   mainTranslation: string;
+  onVerseClick?: (verseRef: string) => void;
+  onExpandVerse?: (verse: BibleVerse) => void;
 }
 
 // Cell Components
@@ -26,13 +29,42 @@ function ReferenceCell({ verse }: CellProps) {
   );
 }
 
-function CrossReferencesCell({ verse }: CellProps) {
+// Feature Block B-2: Column Cell Format + B-3: Hover/Click
+// Left: compact reference (Book Chap:Verse) in mono-font
+// Right: verse text (main translation only)
+// Style: 50%/50% split in a flex row; text wraps inside cell with internal scroll when overflow
+interface CrossReferencesCellProps extends CellProps {
+  onVerseClick?: (verseRef: string) => void;
+}
+
+function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) {
+  const { translationState } = useBibleStore();
+  const { getVerseText } = useTranslationMaps();
+  
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <div className="overflow-auto h-full">
-        {verse.crossReferences?.slice(0, 3).map((ref, i) => (
-          <span key={i} className="text-blue-600 dark:text-blue-400 mr-2">{ref.reference}</span>
-        )) || ""}
+      <div className="overflow-auto h-full max-h-[110px] space-y-1">
+        {verse.crossReferences?.slice(0, 3).map((ref, i) => {
+          const verseText = getVerseText?.(ref.reference, translationState.main) || "Loading...";
+          
+          return (
+            <div 
+              key={i} 
+              className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1"
+              title={`${ref.reference}: ${verseText}`}
+              onClick={() => onVerseClick?.(ref.reference)}
+            >
+              {/* B-2: Left: compact reference in mono-font */}
+              <div className="w-1/2 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
+                {ref.reference}
+              </div>
+              {/* B-2: Right: verse text (main translation only) */}
+              <div className="w-1/2 text-xs text-gray-600 dark:text-gray-400 break-words">
+                {verseText}
+              </div>
+            </div>
+          );
+        }) || ""}
       </div>
     </div>
   );
@@ -70,12 +102,16 @@ function TranslationCell({ text, isMain }: TranslationCellProps) {
   );
 }
 
-// Step 4.3-b. VirtualRow
-export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation }: VirtualRowProps) {
-  const { translations, actives } = useBibleStore();
-  const headerOrder = ["Reference", "KJV", "Cross", "P", "F", "V"];
-  const dataStoreMain = "KJV";
-  const translationMaps = translations;
+// Feature Block A-3: Verse Rendering Pipeline
+export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation, onVerseClick, onExpandVerse }: VirtualRowProps) {
+  const { translationState, getAllActive } = useBibleStore();
+  const { main, alternates } = translationState;
+  const { toggleTranslation } = useTranslationMaps();
+  
+  // A2: Header & Column Order Rules - Keep columns locked in order
+  // Reference | ...alternates | main | Cross | P | F | V
+  const allActive = getAllActive(); // Derived selector: [...alternates, main]
+  const columnOrder = ["Reference", ...alternates, main, "Cross", "P", "F", "V"];
   
   // Guard against undefined verse data
   if (!verse) {
@@ -97,12 +133,12 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
       data-verse-id={verseID}
       data-verse-index={verse.index}
     >
-      {headerOrder.map((key: string) => {
+      {columnOrder.map((key: string) => {
         switch (key) {
           case "Reference":
             return <ReferenceCell key="ref" verse={verse} />;
           case "Cross":
-            return <CrossReferencesCell key="cross" verse={verse} />;
+            return <CrossReferencesCell key="cross" verse={verse} onVerseClick={onVerseClick} />;
           case "P":
             return <ProphecyCell key="P" verse={verse} type="P" />;
           case "F":
@@ -110,9 +146,27 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
           case "V":
             return <ProphecyCell key="V" verse={verse} type="V" />;
           default:
-            // Translation code - use verse.text data from new query system
-            const text = verse.text[key] || `Loading ${verse.reference}...`;
-            return <TranslationCell key={key} text={text} isMain={key === mainTranslation} />;
+            // A3: VirtualRow.tsx iterates over allActive and pulls text from useBibleStore().translations[tid].get(index)
+            let text = verse.text[key];
+            const isMainTranslation = key === main;
+            
+            // A3: If translation is not loaded yet, show skeleton shimmer and trigger translationLoader(tid)
+            if (!text) {
+              text = `Loading ${verse.reference}...`;
+              // Fire-and-forget translation loading
+              toggleTranslation(key, false).catch(err => 
+                console.error(`Failed to load translation ${key}:`, err)
+              );
+            }
+            
+            // A2: When main changes → only header tint changes, not the physical column index (muscle-memory preservation)
+            return (
+              <TranslationCell 
+                key={key} 
+                text={text} 
+                isMain={isMainTranslation} 
+              />
+            );
         }
       })}
     </div>
