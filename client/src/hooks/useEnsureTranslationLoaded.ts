@@ -1,13 +1,13 @@
 // 2-A Helper (one place only)
-import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
 export const useEnsureTranslationLoaded = () => {
-  const { translations } = useBibleStore();
+  const { resourceCache, toggleTranslation } = useTranslationMaps();
   
   return async (id: string) => {
-    if (!translations[id]) {
-      // Load the translation
-      await new Promise(resolve => setTimeout(resolve, 100)); // placeholder
+    if (!resourceCache.has(id)) {
+      console.log(`🔄 Loading translation ${id} on demand...`);
+      await toggleTranslation(id, false); // Load as alternate, not main
     }
   };
 };

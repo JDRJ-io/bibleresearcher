@@ -42,12 +42,13 @@ interface CrossReferencesCellProps extends CellProps {
 function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) {
   const { translationState } = useBibleStore();
   const { getVerseText } = useTranslationMaps();
+  const { main } = useTranslationMaps();
   
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className="overflow-auto h-full max-h-[110px] space-y-1">
         {verse.crossReferences?.slice(0, 3).map((ref, i) => {
-          const verseText = getVerseText?.(ref.reference, translationState.main) || "Loading...";
+          const verseText = getVerseText?.(ref.reference, main) || "Loading...";
           
           return (
             <div 
@@ -108,7 +109,7 @@ function TranslationCell({ text, isMain }: TranslationCellProps) {
 export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation, onVerseClick, onExpandVerse }: VirtualRowProps) {
   const { translationState, getAllActive } = useBibleStore();
   const { main, alternates } = translationState;
-  const { toggleTranslation } = useTranslationMaps();
+  const { getVerseText: getTranslationText } = useTranslationMaps();
   const ensureTranslationLoaded = useEnsureTranslationLoaded();
   
   // 2-A: Replace every map over translationsInUse with useColumnKeys
@@ -118,7 +119,11 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   useEffect(() => {
     columnKeys.forEach(async (translationId) => {
       if (!verse?.text[translationId]) {
-        await ensureTranslationLoaded(translationId);
+        try {
+          await ensureTranslationLoaded(translationId);
+        } catch (error) {
+          console.error(`Failed to load translation ${translationId}:`, error);
+        }
       }
     });
   }, [columnKeys, verse?.text, ensureTranslationLoaded]);
@@ -163,15 +168,13 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
           case "V":
             return <ProphecyCell key={uniqueKey} verse={verse} type="V" />;
           default:
-            // A3: VirtualRow.tsx iterates over allActive and pulls text from useBibleStore().translations[tid].get(index)
-            let text = verse.text[key];
+            // A3: VirtualRow.tsx iterates over allActive and pulls text from translation maps
+            let text = getTranslationText(verse.id, key) || verse.text[key];
             const isMainTranslation = key === main;
             
             // A3: If translation is not loaded yet, show skeleton shimmer
             if (!text) {
               text = `Loading ${verse.reference}...`;
-              // Don't trigger translation loading during render - this causes infinite loops
-              // Translation loading should be handled at the store level or via user interaction
             }
             
             // A2: When main changes → only header tint changes, not the physical column index (muscle-memory preservation)
