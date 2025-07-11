@@ -171,8 +171,10 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
             return <ProphecyCell key={uniqueKey} verse={verse} type="V" />;
           default:
             // A3: VirtualRow.tsx iterates over allActive and pulls text from translation maps
-            let text = verse.text[key] || getTranslationText(verse.id, key);
+            let text = verse.text[key] || getTranslationText(verse.reference, key);
             const isMainTranslation = key === main;
+            
+
             
             // A3: If translation is not loaded yet, show skeleton shimmer
             if (!text) {
