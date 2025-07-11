@@ -434,6 +434,27 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
+## July 11, 2025 - Translation Loading System & Cross-Reference/Prophecy Integration COMPLETE ✅
+- **TRANSLATION LOADING PRIORITY**: Implemented proper load order with main translation first
+  - ✅ Main translation loads before cross-references and prophecy columns
+  - ✅ Alternate translations load on-demand when toggled by user
+  - ✅ Added useEnsureTranslationLoaded hook with proper store integration
+  - ✅ Enhanced BibleDataProvider with loadTranslation and getVerseText methods
+- **CROSS-REFERENCE SYSTEM**: Integrated actual cross-reference data loading
+  - ✅ Created useCrossReferenceLoader hook for CF1 data from Supabase
+  - ✅ Added parseCrossReferences function to handle Gen.1:1$$John.1:1#John.1:2 format
+  - ✅ CrossReferencesCell now displays actual cross-reference data from main translation
+  - ✅ Cross-references load from references/cf1.txt in Supabase storage
+- **PROPHECY SYSTEM**: Implemented prophecy column data loading
+  - ✅ Created useProphecyLoader hook for prophecy data from Supabase
+  - ✅ Added parseProphecy function to handle verseID $ id:type format
+  - ✅ ProphecyCell displays P/F/V counts and IDs from actual prophecy data
+  - ✅ Prophecy data loads from references/prophecy-file.txt in Supabase storage
+- **ASYNC TRANSLATION LOADING**: Fixed on-demand translation loading in VirtualRow
+  - ✅ VirtualRow useEffect loads main translation first, then alternates
+  - ✅ Error handling for failed translation loads
+  - ✅ Proper integration with BibleDataAPI loadTranslation function
+
 ## July 11, 2025 - Translation Column Order & Guest Mode Persistence COMPLETE ✅
 - **COLUMN ORDER FIXED**: Implemented proper column ordering with main translation first
   - ✅ Fixed useColumnKeys() to return [main, ...alternates] instead of [...alternates, main]

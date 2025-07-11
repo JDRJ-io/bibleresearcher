@@ -22,6 +22,9 @@ export const useBibleStore = create<{
   setTranslations: (id: string, data: Map<number, string>) => void;
   // A1: Emit derived selector
   getAllActive: () => string[];
+  // Translation loading
+  loadTranslation: (id: string) => Promise<void>;
+  getVerseText: (verseId: string, translationId: string) => string | undefined;
 }>(
   persist(
     (set, get) => ({
@@ -96,6 +99,57 @@ export const useBibleStore = create<{
       getAllActive: () => {
         const state = get();
         return [...state.translationState.alternates, state.translationState.main];
+      },
+      
+      // Translation loading functionality
+      loadTranslation: async (id: string) => {
+        // Import the loadTranslation function from BibleDataAPI
+        const { loadTranslation } = await import('@/data/BibleDataAPI');
+        
+        try {
+          const translationData = await loadTranslation(id);
+          
+          // Convert to Map<number, string> format expected by the store
+          const indexMap = new Map<number, string>();
+          translationData.forEach((text, verseRef) => {
+            // Convert verse reference to index (this is a simplified approach)
+            const index = Array.from(translationData.keys()).indexOf(verseRef);
+            indexMap.set(index, text);
+          });
+          
+          // Store in the translations record
+          set(state => ({
+            translations: {
+              ...state.translations,
+              [id]: indexMap
+            }
+          }));
+          
+          console.log(`✅ Loaded translation ${id} with ${translationData.size} verses`);
+          
+        } catch (error) {
+          console.error(`Failed to load translation ${id}:`, error);
+          throw error;
+        }
+      },
+      
+      getVerseText: (verseId: string, translationId: string) => {
+        const translation = get().translations[translationId];
+        if (!translation) return undefined;
+        
+        // Try different formats of the verse reference
+        const formats = [
+          verseId,
+          verseId.replace('.', ' '),
+          verseId.replace(' ', '.'),
+        ];
+        
+        for (const format of formats) {
+          const text = translation.get(format as any);
+          if (text) return text;
+        }
+        
+        return undefined;
       }
     }),
     {

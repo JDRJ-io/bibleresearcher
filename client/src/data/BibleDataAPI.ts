@@ -65,6 +65,75 @@ export async function loadProphecy() {
   return await data.text();
 }
 
+// Parse cross-reference format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+export function parseCrossReferences(text: string): Map<string, Array<{reference: string, text?: string}>> {
+  const crossRefMap = new Map<string, Array<{reference: string, text?: string}>>();
+  
+  const lines = text.split('\n').filter(line => line.trim());
+  
+  for (const line of lines) {
+    const cleanLine = line.trim().replace(/\r/g, '');
+    const [verseRef, ...refParts] = cleanLine.split('$$');
+    
+    if (verseRef && refParts.length > 0) {
+      const references: Array<{reference: string, text?: string}> = [];
+      
+      // Split by $ for groups, then by # for individual references
+      const refGroups = refParts.join('$$').split('$');
+      
+      for (const group of refGroups) {
+        const individualRefs = group.split('#');
+        for (const ref of individualRefs) {
+          if (ref.trim()) {
+            references.push({
+              reference: ref.trim(),
+              text: undefined // Will be populated later from main translation
+            });
+          }
+        }
+      }
+      
+      crossRefMap.set(verseRef.trim(), references);
+    }
+  }
+  
+  return crossRefMap;
+}
+
+// Parse prophecy format: verseID $ id:type , id:type , …
+export function parseProphecy(text: string): Map<string, {P: any[], F: any[], V: any[]}> {
+  const prophecyMap = new Map<string, {P: any[], F: any[], V: any[]}>();
+  
+  const lines = text.split('\n').filter(line => line.trim());
+  
+  for (const line of lines) {
+    const cleanLine = line.trim().replace(/\r/g, '');
+    const [verseRef, prophecyData] = cleanLine.split('$');
+    
+    if (verseRef && prophecyData) {
+      const prophecyResult = {P: [], F: [], V: []};
+      const items = prophecyData.split(',');
+      
+      for (const item of items) {
+        const trimmedItem = item.trim();
+        const [id, type] = trimmedItem.split(':');
+        
+        if (id && type && ['P', 'F', 'V'].includes(type)) {
+          prophecyResult[type as 'P' | 'F' | 'V'].push({
+            id: parseInt(id),
+            reference: verseRef.trim(),
+            type: type
+          });
+        }
+      }
+      
+      prophecyMap.set(verseRef.trim(), prophecyResult);
+    }
+  }
+  
+  return prophecyMap;
+}
+
 export async function saveNotes(note: any, preserveAnchor?: (ref: string, index: number) => void) {
   const result = await supabase.from('notes').upsert(note);
   if (preserveAnchor) {
