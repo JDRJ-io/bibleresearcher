@@ -27,13 +27,13 @@ function HeaderCell({ verse, isMain }: HeaderCellProps) {
 
 // Step 4.3-a. ColumnHeaders
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
-  const { main, alternates } = useTranslationMaps();
+  const { main } = useTranslationMaps();
+  const columnKeys = useColumnKeys();  // memoised selector
   
-  // Column order: Reference | Main | Alt1 | Alt2 | Cross | P | F | V
+  // 2-A: Replace every map over translationsInUse with useColumnKeys  
   const headerOrder = [
     "Reference", 
-    main,
-    ...alternates,
+    ...columnKeys, 
     "Cross", 
     ...(showProphecy ? ["P", "F", "V"] : [])
   ];
