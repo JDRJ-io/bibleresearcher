@@ -4,8 +4,6 @@ import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useColumnKeys } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
-import { useCrossReferenceLoader } from '@/hooks/useCrossReferenceLoader';
-import { useProphecyLoader } from '@/hooks/useProphecyLoader';
 
 interface VirtualRowProps {
   verseID: string;
@@ -42,16 +40,13 @@ interface CrossReferencesCellProps extends CellProps {
 }
 
 function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) {
-  const { translationState, getVerseText } = useBibleStore();
-  const { crossReferences } = useCrossReferenceLoader();
-  
-  // Get cross-references for this verse
-  const verseCrossRefs = crossReferences.get(verse.reference.replace(' ', '.')) || [];
+  const { translationState } = useBibleStore();
+  const { getVerseText } = useTranslationMaps();
   
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className="overflow-auto h-full max-h-[110px] space-y-1">
-        {verseCrossRefs.slice(0, 3).map((ref, i) => {
+        {verse.crossReferences?.slice(0, 3).map((ref, i) => {
           const verseText = getVerseText?.(ref.reference, translationState.main) || "Loading...";
           
           return (
@@ -67,14 +62,11 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
               </div>
               {/* B-2: Right: verse text (main translation only) */}
               <div className="w-1/2 text-xs text-gray-600 dark:text-gray-400 break-words">
-                {verseText.substring(0, 50)}...
+                {verseText}
               </div>
             </div>
           );
-        })}
-        {verseCrossRefs.length === 0 && (
-          <div className="text-xs text-gray-400 italic">No cross-references</div>
-        )}
+        }) || ""}
       </div>
     </div>
   );
@@ -86,30 +78,11 @@ interface ProphecyCellProps {
 }
 
 function ProphecyCell({ verse, type }: ProphecyCellProps) {
-  const { prophecyData } = useProphecyLoader();
   const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-  
-  // Get prophecy data for this verse and type
-  const verseProphecy = prophecyData.get(verse.reference.replace(' ', '.'));
-  const prophecyItems = verseProphecy?.[type] || [];
-  
   return (
     <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className={`${color} text-center`}>
-        {prophecyItems.length > 0 ? (
-          <div className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 rounded p-1">
-            <span className="font-semibold">{prophecyItems.length}</span>
-            <div className="text-xs opacity-75">
-              {prophecyItems.slice(0, 2).map((item, i) => (
-                <div key={i} className="truncate">
-                  ID: {item.id}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <span className="text-gray-400">-</span>
-        )}
+        {/* Add prophecy counts/indicators here */}
       </div>
     </div>
   );
@@ -141,37 +114,18 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   // 2-A: Replace every map over translationsInUse with useColumnKeys
   const columnKeys = useColumnKeys();
   
-  // 4. Ensure verses load lazily for any newly-visible column
-  // Load translations in order: main first, then alternates
+  // 2-B Trigger point: VirtualRow (per cell) → useEffect(() => { if (!text) ensureTranslationLoaded(tid) }, [text, tid])
   useEffect(() => {
-    const loadMissingTranslations = async () => {
-      // Load main first
-      if (main && !verse?.text[main]) {
-        try {
-          await ensureTranslationLoaded(main);
-        } catch (error) {
-          console.warn(`Failed to load main translation ${main}:`, error);
-        }
+    columnKeys.forEach(async (translationId) => {
+      if (!verse?.text[translationId]) {
+        await ensureTranslationLoaded(translationId);
       }
-      
-      // Then load alternates
-      for (const translationId of alternates) {
-        if (!verse?.text[translationId]) {
-          try {
-            await ensureTranslationLoaded(translationId);
-          } catch (error) {
-            console.warn(`Failed to load alternate translation ${translationId}:`, error);
-          }
-        }
-      }
-    };
-    
-    loadMissingTranslations();
-  }, [main, alternates, verse?.text, ensureTranslationLoaded]);
+    });
+  }, [columnKeys, verse?.text, ensureTranslationLoaded]);
   
   // A2: Header & Column Order Rules - Keep columns locked in order
-  // Reference | Cross | P | F | V | main | ...alternates
-  const columnOrder = ["Reference", "Cross", "P", "F", "V", ...columnKeys];
+  // Reference | ...alternates | main | Cross | P | F | V
+  const columnOrder = ["Reference", ...columnKeys, "Cross", "P", "F", "V"];
   
   // Guard against undefined verse data
   if (!verse) {
@@ -216,7 +170,8 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
             // A3: If translation is not loaded yet, show skeleton shimmer
             if (!text) {
               text = `Loading ${verse.reference}...`;
-              // Translation loading is handled by the useEffect hook above
+              // Don't trigger translation loading during render - this causes infinite loops
+              // Translation loading should be handled at the store level or via user interaction
             }
             
             // A2: When main changes → only header tint changes, not the physical column index (muscle-memory preservation)

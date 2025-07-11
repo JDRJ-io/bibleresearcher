@@ -9,45 +9,42 @@ interface TranslationState {
   setMain: (id: string) => void;
   /** toggle an alternate on/off */
   toggleAlternate: (id: string) => void;
-  /** check if user is logged in for persistence */
-  isLoggedIn: boolean;
-  setLoggedIn: (status: boolean) => void;
 }
 
 export const useTranslationMaps = create<TranslationState>()(
-  // Guest mode - no persistence for translation preferences
-  (set, get) => ({
-    main: 'KJV',
-    alternates: [],  // -- not the whole list
-    isLoggedIn: false,
-    setLoggedIn: (status: boolean) => set({ isLoggedIn: status }),
-    setMain: (id: string) => {
-      const current = get();
-      if (id === current.main) return;  // no-op
-      
-      set({
-        main: id,
-        alternates: current.alternates.filter((t) => t !== id),  // 1. remove new main
-      });
-    },
-    toggleAlternate: (id: string) => {
-      const current = get();
-      if (id === current.main) return;  // cannot demote main here
-      
-      const alts = current.alternates.filter((t) => t !== id);
-      if (alts.length === current.alternates.length) {
-        // wasn't there, add it
-        set({ alternates: [...current.alternates, id] });
-      } else {
-        // was there, remove it
-        set({ alternates: alts });
-      }
-    },
-  })
+  persist(
+    (set, get) => ({
+      main: 'KJV',
+      alternates: [],  // -- not the whole list
+      setMain: (id: string) => {
+        const current = get();
+        if (id === current.main) return;  // no-op
+        
+        set({
+          main: id,
+          alternates: current.alternates.filter((t) => t !== id),  // 1. remove new main
+        });
+      },
+      toggleAlternate: (id: string) => {
+        const current = get();
+        if (id === current.main) return;  // cannot demote main here
+        
+        const alts = current.alternates.filter((t) => t !== id);
+        if (alts.length === current.alternates.length) {
+          // wasn't there, add it
+          set({ alternates: [...current.alternates, id] });
+        } else {
+          // was there, remove it
+          set({ alternates: alts });
+        }
+      },
+    }),
+    { name: 'translation-state' }
+  )
 );
 
 /** selector hook that memoizes the column list */
 export const useColumnKeys = () => {
   const store = useTranslationMaps();
-  return [store.main, ...store.alternates];  // main first, then alternates
+  return [...store.alternates, store.main];  // column order
 };

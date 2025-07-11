@@ -434,45 +434,6 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
-## July 11, 2025 - Translation Loading System & Cross-Reference/Prophecy Integration COMPLETE ✅
-- **TRANSLATION LOADING PRIORITY**: Implemented proper load order with main translation first
-  - ✅ Main translation loads before cross-references and prophecy columns
-  - ✅ Alternate translations load on-demand when toggled by user
-  - ✅ Added useEnsureTranslationLoaded hook with proper store integration
-  - ✅ Enhanced BibleDataProvider with loadTranslation and getVerseText methods
-- **CROSS-REFERENCE SYSTEM**: Integrated actual cross-reference data loading
-  - ✅ Created useCrossReferenceLoader hook for CF1 data from Supabase
-  - ✅ Added parseCrossReferences function to handle Gen.1:1$$John.1:1#John.1:2 format
-  - ✅ CrossReferencesCell now displays actual cross-reference data from main translation
-  - ✅ Cross-references load from references/cf1.txt in Supabase storage
-- **PROPHECY SYSTEM**: Implemented prophecy column data loading
-  - ✅ Created useProphecyLoader hook for prophecy data from Supabase
-  - ✅ Added parseProphecy function to handle verseID $ id:type format
-  - ✅ ProphecyCell displays P/F/V counts and IDs from actual prophecy data
-  - ✅ Prophecy data loads from references/prophecy-file.txt in Supabase storage
-- **ASYNC TRANSLATION LOADING**: Fixed on-demand translation loading in VirtualRow
-  - ✅ VirtualRow useEffect loads main translation first, then alternates
-  - ✅ Error handling for failed translation loads
-  - ✅ Proper integration with BibleDataAPI loadTranslation function
-
-## July 11, 2025 - Translation Column Order & Guest Mode Persistence COMPLETE ✅
-- **COLUMN ORDER FIXED**: Implemented proper column ordering with main translation first
-  - ✅ Fixed useColumnKeys() to return [main, ...alternates] instead of [...alternates, main]
-  - ✅ Updated ColumnHeaders to place static columns first: Reference | Cross | P | F | V | main | alternates
-  - ✅ Synchronized VirtualRow column ordering with new header structure
-- **GUEST MODE PERSISTENCE REMOVED**: Eliminated automatic translation preference persistence
-  - ✅ Removed persist() middleware from useTranslationMaps store for guest users
-  - ✅ Translation preferences now reset on page reload for non-authenticated users
-  - ✅ Added isLoggedIn state management for future authentication integration
-- **TRANSLATION LOADING OPTIMIZATION**: Enhanced on-demand translation loading system  
-  - ✅ Added error handling for translation loading failures
-  - ✅ Temporarily disabled VirtualRow translation loading to prevent conflicts
-  - ✅ Maintained lazy loading in TranslationSelector for user-initiated changes
-- **ARCHITECTURE CONSISTENCY**: Ensured single source of truth for column management
-  - ✅ All components now consistently use useColumnKeys() selector
-  - ✅ Column derivation centralized in translation slice
-  - ✅ Prevented duplicate column rendering and state conflicts
-
 ## July 9, 2025 - Expert Translation Column Loading & Deloading System COMPLETE ✅
 - **STATE-SLICE CORRECTIONS**: Fixed Zustand slice structure with proper main/alternates management
   - ✅ setMain() now properly ejects old main and removes new main from alternates
