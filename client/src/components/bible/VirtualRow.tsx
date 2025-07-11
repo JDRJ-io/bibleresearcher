@@ -118,7 +118,9 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   // 2-B Trigger point: VirtualRow (per cell) → useEffect(() => { if (!text) ensureTranslationLoaded(tid) }, [text, tid])
   useEffect(() => {
     columnKeys.forEach(async (translationId) => {
-      if (!verse?.text[translationId]) {
+      // Check if translation is loaded in the global cache first
+      const translationText = getTranslationText(verse?.id, translationId);
+      if (!translationText && !verse?.text[translationId]) {
         try {
           await ensureTranslationLoaded(translationId);
         } catch (error) {
@@ -126,7 +128,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
         }
       }
     });
-  }, [columnKeys, verse?.text, ensureTranslationLoaded]);
+  }, [columnKeys, verse?.text, verse?.id, getTranslationText, ensureTranslationLoaded]);
   
   // A2: Header & Column Order Rules - Keep columns locked in order
   // Reference | ...alternates | main | Cross | P | F | V
@@ -169,7 +171,7 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
             return <ProphecyCell key={uniqueKey} verse={verse} type="V" />;
           default:
             // A3: VirtualRow.tsx iterates over allActive and pulls text from translation maps
-            let text = getTranslationText(verse.id, key) || verse.text[key];
+            let text = verse.text[key] || getTranslationText(verse.id, key);
             const isMainTranslation = key === main;
             
             // A3: If translation is not loaded yet, show skeleton shimmer

@@ -182,6 +182,24 @@ const VirtualBibleTable = ({
           const chapter = parseInt(chapterVerse[0]);
           const verse = parseInt(chapterVerse[1]);
           
+          // Build text object for all active translations
+          const textObj: Record<string, string> = {};
+          
+          // Add main translation text
+          if (verseData) {
+            textObj[mainTranslation] = verseData.text;
+          }
+          
+          // Add alternate translation text from the translation maps
+          activeTranslations.forEach(translationCode => {
+            if (translationCode !== mainTranslation) {
+              const altText = getVerseText(id, translationCode);
+              if (altText) {
+                textObj[translationCode] = altText;
+              }
+            }
+          });
+          
           const bibleVerse: BibleVerse = {
             id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
             index: slice.start + i,
@@ -189,7 +207,7 @@ const VirtualBibleTable = ({
             chapter,
             verse,
             reference: id,
-            text: verseData ? { [mainTranslation]: verseData.text } : {},
+            text: textObj,
             crossReferences: [],
             strongsWords: [],
             labels: [],
