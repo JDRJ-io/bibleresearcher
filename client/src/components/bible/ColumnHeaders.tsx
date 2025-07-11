@@ -30,12 +30,14 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
   const { main } = useTranslationMaps();
   const columnKeys = useColumnKeys();  // memoised selector
   
-  // 2-A: Replace every map over translationsInUse with useColumnKeys  
+  // A—Column placement: static columns first, then main, then alternates
   const headerOrder = [
     "Reference", 
-    ...columnKeys, 
     "Cross", 
-    ...(showProphecy ? ["P", "F", "V"] : [])
+    "P", 
+    "F", 
+    "V",
+    ...columnKeys  // main first, then alternates
   ];
   
   return (

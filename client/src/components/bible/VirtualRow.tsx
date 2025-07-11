@@ -114,18 +114,27 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   // 2-A: Replace every map over translationsInUse with useColumnKeys
   const columnKeys = useColumnKeys();
   
-  // 2-B Trigger point: VirtualRow (per cell) → useEffect(() => { if (!text) ensureTranslationLoaded(tid) }, [text, tid])
-  useEffect(() => {
-    columnKeys.forEach(async (translationId) => {
-      if (!verse?.text[translationId]) {
-        await ensureTranslationLoaded(translationId);
-      }
-    });
-  }, [columnKeys, verse?.text, ensureTranslationLoaded]);
+  // 4. Ensure verses load lazily for any newly-visible column
+  // Skip loading for now - will be handled by the main translation system
+  // useEffect(() => {
+  //   const loadMissingTranslations = async () => {
+  //     for (const translationId of columnKeys) {
+  //       if (!verse?.text[translationId]) {
+  //         try {
+  //           await ensureTranslationLoaded(translationId);
+  //         } catch (error) {
+  //           console.warn(`Failed to load translation ${translationId}:`, error);
+  //         }
+  //       }
+  //     }
+  //   };
+  //   
+  //   loadMissingTranslations();
+  // }, [columnKeys, verse?.text, ensureTranslationLoaded]);
   
   // A2: Header & Column Order Rules - Keep columns locked in order
-  // Reference | ...alternates | main | Cross | P | F | V
-  const columnOrder = ["Reference", ...columnKeys, "Cross", "P", "F", "V"];
+  // Reference | Cross | P | F | V | main | ...alternates
+  const columnOrder = ["Reference", "Cross", "P", "F", "V", ...columnKeys];
   
   // Guard against undefined verse data
   if (!verse) {

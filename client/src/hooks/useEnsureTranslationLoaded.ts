@@ -2,12 +2,14 @@
 import { useBibleStore } from '@/providers/BibleDataProvider';
 
 export const useEnsureTranslationLoaded = () => {
-  const { translations } = useBibleStore();
+  const { loadTranslation, getVerseText } = useBibleStore();
   
-  return async (id: string) => {
-    if (!translations[id]) {
+  return async (translationId: string) => {
+    // Check if translation is already loaded
+    const testVerse = getVerseText('Gen.1:1', translationId);
+    if (!testVerse) {
       // Load the translation
-      await new Promise(resolve => setTimeout(resolve, 100)); // placeholder
+      await loadTranslation(translationId);
     }
   };
 };
