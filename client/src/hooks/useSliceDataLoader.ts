@@ -37,8 +37,8 @@ export function useSliceDataLoader(slice: string[]) {
       
       // Load cross-refs and prophecy data in parallel
       const [crossRefsData, propheciesData] = await Promise.all([
-        loadCrossRefSlice(0, slice.length).catch(() => ({})),
-        loadProphecySlice(0, slice.length).catch(() => ({}))
+        loadCrossRefSlice(0, slice.length),
+        loadProphecySlice(0, slice.length)
       ]);
       
       // Extract verse references from crossrefs and prophecy
