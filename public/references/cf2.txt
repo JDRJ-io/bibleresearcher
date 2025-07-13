@@ -1,0 +1,12 @@
+Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3$Isa.45:18$Rev.4:11$Heb.1:10$Col.1:16$Col.1:17$Isa.42:5
+Gen.1:2$$Jer.4:23$Ps.104:30$Isa.45:18$Gen.7:11$Job.26:7
+Gen.1:3$$2Cor.4:6$Ps.33:6$Ps.33:9$Isa.55:11$Heb.11:3$2Pet.3:5
+Gen.1:4$$Eccl.11:7$1John.1:5$Jas.1:17$Ps.104:20$Isa.45:7
+Gen.1:5$$Ps.74:16$Ps.104:20$Isa.45:7$Jer.33:20$Ps.19:2
+Gen.1:6$$Job.37:18$Ps.104:2$Ps.150:1$Jer.10:12$Ps.19:1
+Gen.1:7$$Ps.148:4$Prov.8:28$Job.37:18$Ps.104:2$Eccl.11:3
+Gen.1:8$$Ps.19:1$Ps.150:1$Dan.4:26$Ps.115:16$Jer.4:25
+Gen.1:9$$Job.38:8$Ps.104:6$Ps.33:7$Jer.5:22$2Pet.3:5
+Gen.1:10$$Ps.95:5$Ps.24:2$Job.38:8$Ps.136:6$Jer.31:35
+Gen.1:11$$Ps.104:14$Heb.6:7$Isa.55:10$Matt.13:26$1Cor.15:38
+Gen.1:12$$Ps.104:14$Matt.13:24$Mark.4:28$1Cor.15:38$Gal.6:7
