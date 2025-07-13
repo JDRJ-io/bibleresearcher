@@ -33,8 +33,7 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
   // 2-A: Replace every map over translationsInUse with useColumnKeys  
   const headerOrder = [
     "Reference", 
-    main,
-    ...alternates,
+    ...columnKeys,
     "Cross", 
     ...(showProphecy ? ["P", "F", "V"] : [])
   ];

@@ -46,5 +46,5 @@ export const useTranslationMaps = create<TranslationState>()(
 /** selector hook that memoizes the column list */
 export const useColumnKeys = () => {
   const store = useTranslationMaps();
-  return [...store.alternates, store.main];  // column order
+  return [store.main, ...store.alternates];  // column order: main first, then alternates
 };
