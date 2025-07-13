@@ -40,34 +40,42 @@ interface CrossReferencesCellProps extends CellProps {
 }
 
 function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) {
-  const { translationState } = useBibleStore();
+  const { store } = useBibleStore();
   const { getVerseText } = useTranslationMaps();
   const { main } = useTranslationMaps();
+  
+  const crossRefs = store.crossRefs?.[verse.reference] || [];
   
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className="overflow-auto h-full max-h-[110px] space-y-1">
-        {verse.crossReferences?.slice(0, 3).map((ref, i) => {
-          const verseText = getVerseText?.(ref.reference, main) || "Loading...";
+        {crossRefs.length > 0 && (
+          <div className="flex items-center gap-1 mb-1">
+            <span className="text-sky-500 text-xs">📖</span>
+            <span className="text-sky-600 text-xs">{crossRefs.length}</span>
+          </div>
+        )}
+        {crossRefs.slice(0, 3).map((ref, i) => {
+          const verseText = getVerseText?.(ref, main) || "Loading...";
           
           return (
             <div 
               key={i} 
               className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1"
-              title={`${ref.reference}: ${verseText}`}
-              onClick={() => onVerseClick?.(ref.reference)}
+              title={`${ref}: ${verseText}`}
+              onClick={() => onVerseClick?.(ref)}
             >
               {/* B-2: Left: compact reference in mono-font */}
               <div className="w-1/2 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
-                {ref.reference}
+                {ref}
               </div>
               {/* B-2: Right: verse text (main translation only) */}
               <div className="w-1/2 text-xs text-gray-600 dark:text-gray-400 break-words">
-                {verseText}
+                {verseText.substring(0, 40)}...
               </div>
             </div>
           );
-        }) || ""}
+        })}
       </div>
     </div>
   );
@@ -84,9 +92,11 @@ function ProphecyCell({ verse, type }: ProphecyCellProps) {
   
   // Safe access to prophecies data with null checks
   const prophecies = store?.prophecies || {};
-  const verseProphecies = prophecies[verse.id] || {};
-  const hasProphecy = verseProphecies[type]?.length > 0;
-  const prophecyCount = hasProphecy ? verseProphecies[type].length : 0;
+  const verseProphecies = prophecies[verse.reference] || [];
+  const roleData = verseProphecies.find(p => p[type]);
+  const items = roleData ? roleData[type] : [];
+  const hasProphecy = items.length > 0;
+  const prophecyCount = items.length;
   
   return (
     <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -147,7 +157,13 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   
   // A2: Header & Column Order Rules - Keep columns locked in order
   // Reference | main | ...alternates | Cross | P | F | V
-  const columnOrder = ["Reference", ...columnKeys, "Cross", "P", "F", "V"];
+  const { showCrossRefs, showProphecies } = useBibleStore();
+  const columnOrder = [
+    "Reference", 
+    ...columnKeys, 
+    ...(showCrossRefs ? ["Cross"] : []), 
+    ...(showProphecies ? ["P", "F", "V"] : [])
+  ];
   
   // Guard against undefined verse data
   if (!verse) {

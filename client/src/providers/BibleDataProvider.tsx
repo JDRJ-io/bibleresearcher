@@ -26,6 +26,11 @@ export const useBibleStore = create<{
   crossRefs: Record<string, string[]>;
   prophecies: Record<string, any>;
   store: any;
+  // Column visibility controls
+  showCrossRefs: boolean;
+  showProphecies: boolean;
+  toggleCrossRefs: () => void;
+  toggleProphecies: () => void;
 }>(
   persist(
     (set, get) => ({
@@ -34,6 +39,10 @@ export const useBibleStore = create<{
       crossRefs: {},
       prophecies: {},
       store: { crossRefs: {}, prophecies: {} },
+      showCrossRefs: true,
+      showProphecies: true,
+      toggleCrossRefs: () => set(state => ({ showCrossRefs: !state.showCrossRefs })),
+      toggleProphecies: () => set(state => ({ showProphecies: !state.showProphecies })),
       translationState: {
         main: "KJV",
         alternates: [],

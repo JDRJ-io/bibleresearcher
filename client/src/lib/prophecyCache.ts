@@ -15,8 +15,14 @@ export async function ensureProphecyLoaded() {
   
   try {
     const [verseResp, rowResp] = await Promise.all([
-      fetch('/api/references/prophecy_rows.txt').then(r => r.text()),
-      fetch('/api/references/prophecy_index.json').then(r => r.json())
+      fetch('/api/references/prophecy_rows.txt').then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch prophecy rows: ${r.status}`);
+        return r.text();
+      }),
+      fetch('/api/references/prophecy_index.json').then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch prophecy index: ${r.status}`);
+        return r.json();
+      })
     ]);
     
     // Parse verseMeta
@@ -44,6 +50,7 @@ export async function ensureProphecyLoaded() {
     });
     
     rowMeta = rowResp;
+    console.log('✅ Prophecy data loaded successfully');
   } catch (error) {
     console.error('Failed to load prophecy data from authentic source:', error);
     // Don't fall back to mock data - keep empty
@@ -58,53 +65,25 @@ export function getProphecyForVerse(id: string) {
   const verse = verseMeta[id];
   if (!verse) return [];
   
-  const result: any[] = [];
+  // Return role-grouped prophecy data
+  const prophecyMap: Record<string, any> = {};
   
-  // Keep the { P,F,V } shape intact - don't normalize into array of objects
   if (verse.P) {
-    verse.P.split(',').forEach(propId => {
-      const data = rowMeta[propId];
-      if (data) {
-        result.push({
-          role: 'P',
-          summary: data.summary,
-          prophecy: data.prophecy,
-          fulfillment: data.fulfillment,
-          verification: data.verification
-        });
-      }
-    });
+    const pIds = verse.P.split(',').filter(id => id.trim());
+    prophecyMap[id] = { P: pIds, F: [], V: [] };
   }
   
   if (verse.F) {
-    verse.F.split(',').forEach(propId => {
-      const data = rowMeta[propId];
-      if (data) {
-        result.push({
-          role: 'F', 
-          summary: data.summary,
-          prophecy: data.prophecy,
-          fulfillment: data.fulfillment,
-          verification: data.verification
-        });
-      }
-    });
+    const fIds = verse.F.split(',').filter(id => id.trim());
+    if (!prophecyMap[id]) prophecyMap[id] = { P: [], F: [], V: [] };
+    prophecyMap[id].F = fIds;
   }
   
   if (verse.V) {
-    verse.V.split(',').forEach(propId => {
-      const data = rowMeta[propId];
-      if (data) {
-        result.push({
-          role: 'V',
-          summary: data.summary,
-          prophecy: data.prophecy,
-          fulfillment: data.fulfillment,
-          verification: data.verification
-        });
-      }
-    });
+    const vIds = verse.V.split(',').filter(id => id.trim());
+    if (!prophecyMap[id]) prophecyMap[id] = { P: [], F: [], V: [] };
+    prophecyMap[id].V = vIds;
   }
   
-  return result;
+  return prophecyMap[id] ? [prophecyMap[id]] : [];
 }

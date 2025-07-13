@@ -1,5 +1,6 @@
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
+import { useBibleStore } from '@/providers/BibleDataProvider';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -29,13 +30,14 @@ function HeaderCell({ verse, isMain }: HeaderCellProps) {
 export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
   const columnKeys = useColumnKeys();  // memoised selector
+  const { showCrossRefs, showProphecies } = useBibleStore();
   
   // 2-A: Replace every map over translationsInUse with useColumnKeys  
   const headerOrder = [
     "Reference", 
     ...columnKeys,
-    "Cross", 
-    ...(showProphecy ? ["P", "F", "V"] : [])
+    ...(showCrossRefs ? ["Cross"] : []),
+    ...(showProphecies ? ["P", "F", "V"] : [])
   ];
   
   return (

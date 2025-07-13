@@ -34,9 +34,9 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
       const prophecyBlocks = store.prophecies[verseReference];
       return prophecyBlocks.map((block: any, index: number) => (
         <React.Fragment key={index}>
-          <td className="table-cell">{block.role === 'P' ? block.summary : ''}</td>
-          <td className="table-cell">{block.role === 'F' ? block.summary : ''}</td>
-          <td className="table-cell">{block.role === 'V' ? block.summary : ''}</td>
+          <td className="table-cell">{block.P?.join('; ')}</td>
+          <td className="table-cell">{block.F?.join('; ')}</td>
+          <td className="table-cell">{block.V?.join('; ')}</td>
         </React.Fragment>
       ));
     }

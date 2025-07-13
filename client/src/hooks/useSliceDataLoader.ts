@@ -4,7 +4,7 @@ import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
 import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
 import { ensureProphecyLoaded, getProphecyForVerse } from '@/lib/prophecyCache';
-import crossRefsWorker from '@/workers/crossReferencesWorker';
+import { fetchCrossRefs } from '@/workers/crossReferencesWorker';
 
 // Expert's fix: Add prefetchRemoteVerses function
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
@@ -48,17 +48,25 @@ export function useSliceDataLoader(slice: string[]) {
       }
       
       // 3. Use worker for cross-references (real data)
-      const crossRefsResponse = await crossRefsWorker.postMessage({ 
-        id: 'slice-' + Date.now(), 
-        sliceIDs: slice 
-      });
-      const crossrefs = crossRefsResponse.result;
+      const crossrefs = await fetchCrossRefs(slice);
+      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses');
       
       // Use functional form for Zustand mutation
       useBibleStore.setState(state => ({
         crossRefs: { ...state.crossRefs, ...crossrefs },
         prophecies: { ...state.prophecies, ...prophecyMap }
       }));
+      
+      // Update the store object for direct access
+      useBibleStore.setState(state => ({
+        store: { 
+          ...state.store, 
+          crossRefs: { ...state.crossRefs, ...crossrefs },
+          prophecies: { ...state.prophecies, ...prophecyMap }
+        }
+      }));
+      
+      console.log(`✅ Prophecy data loaded:`, Object.keys(prophecyMap).length, 'verses');
       
       // Extract verse references from crossrefs and prophecy
       const remoteVerseIndices = new Set<string>();

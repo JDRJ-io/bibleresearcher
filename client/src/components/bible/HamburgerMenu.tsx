@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { TranslationSelector } from "./TranslationSelector";
+import { useBibleStore } from "@/providers/BibleDataProvider";
 
 export function HamburgerMenu({
   isOpen,
@@ -30,6 +31,7 @@ export function HamburgerMenu({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { showCrossRefs, showProphecies, toggleCrossRefs, toggleProphecies } = useBibleStore();
 
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
@@ -167,7 +169,10 @@ export function HamburgerMenu({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Cross References</Label>
-                <Checkbox defaultChecked />
+                <Checkbox 
+                  checked={showCrossRefs}
+                  onCheckedChange={toggleCrossRefs}
+                />
               </div>
               <div className="ml-4">
                 <CrossReferenceSwitcher
@@ -177,7 +182,10 @@ export function HamburgerMenu({
               </div>
               <div className="flex items-center justify-between">
                 <Label className="text-sm">Prophecy Columns</Label>
-                <Checkbox />
+                <Checkbox 
+                  checked={showProphecies}
+                  onCheckedChange={toggleProphecies}
+                />
               </div>
             </div>
           </div>
