@@ -131,8 +131,8 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
   }, [columnKeys, verse?.text, verse?.id, getTranslationText, ensureTranslationLoaded]);
   
   // A2: Header & Column Order Rules - Keep columns locked in order
-  // Reference | ...alternates | main | Cross | P | F | V
-  const columnOrder = ["Reference", ...columnKeys, "Cross", "P", "F", "V"];
+  // Reference | main | ...alternates | Cross | P | F | V
+  const columnOrder = ["Reference", main, ...alternates, "Cross", "P", "F", "V"];
   
   // Guard against undefined verse data
   if (!verse) {
