@@ -39,11 +39,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Persist for hard refresh
+        // Persist for hard refresh **inside Supabase**
         if (session) {
-          localStorage.setItem('session', JSON.stringify(session));
-        } else {
-          localStorage.removeItem('session');
+          await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          });
         }
       }
     );

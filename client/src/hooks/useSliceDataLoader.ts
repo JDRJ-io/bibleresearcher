@@ -20,7 +20,7 @@ const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
 
 export function useSliceDataLoader(slice: string[]) {
   const [isLoading, setIsLoading] = useState(false);
-  const { translationState, store } = useBibleStore();
+  const { translationState, crossRefs, prophecies, store } = useBibleStore();
   const { getVerseText } = useTranslationMaps();
   const { main } = useZustandTranslationMaps();
   
@@ -32,18 +32,23 @@ export function useSliceDataLoader(slice: string[]) {
     try {
       console.log(`🔍 Loading slice data for ${slice.length} verses...`);
       
+      const start = Math.max(0, slice.length - 100);
+      const end = Math.min(slice.length + 100, slice.length);
+      
       // B-1: Collect remote verse indices needed for cross-refs and prophecy
       const remoteVerseIndices = new Set<string>();
       
       // Load cross-refs and prophecy data in parallel
       const [crossRefsData, propheciesData] = await Promise.all([
-        loadCrossRefSlice(0, slice.length),
-        loadProphecySlice(0, slice.length)
+        loadCrossRefSlice(start, end),
+        loadProphecySlice(start, end)
       ]);
       
-      // setSliceData to θ { ...draft.verses, ...verses, ...crossRefs, ...prophecies }
-      store.crossRefs = { ...store.crossRefs, ...crossRefsData };
-      store.prophecies = { ...store.prophecies, ...propheciesData };
+      // Use functional form for Zustand mutation
+      useBibleStore.setState(state => ({
+        crossRefs: { ...state.crossRefs, ...crossRefsData },
+        prophecies: { ...state.prophecies, ...propheciesData }
+      }));
       
       // Extract verse references from crossrefs and prophecy
       for (const verseID of slice) {
