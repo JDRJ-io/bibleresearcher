@@ -434,6 +434,16 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
+## July 13, 2025 - Cross-Reference & Prophecy Column Restoration COMPLETE ✅
+- **AUTHENTICATION STATE HANDLING**: Fixed TopHeader to properly reflect real auth state with user session management
+- **BIBLESDATAAPI FACADE ENHANCEMENT**: Extended with loadCrossRefSlice and loadProphecySlice functions for efficient data loading
+- **SLICE DATA LOADER INTEGRATION**: Implemented useSliceDataLoader hook for batch loading verse references and prophecy data
+- **VISUAL INDICATORS SYSTEM**: Added dots/tooltips rendering in VerseRow and VirtualRow components for cross-references and prophecy indicators
+- **VIRTUAL TABLE OPTIMIZATION**: Updated VirtualBibleTable to use slice data loader for anchor-based performance
+- **PROPHECY CELL SAFETY**: Added proper null checks to prevent runtime errors in ProphecyCell component
+- **STORAGE PATH CORRECTIONS**: Updated BibleDataAPI to use correct Supabase storage paths for references data
+- **ERROR HANDLING IMPROVEMENTS**: Added graceful fallbacks for missing cross-reference and prophecy data files
+
 ## July 9, 2025 - Expert Translation Column Loading & Deloading System COMPLETE ✅
 - **STATE-SLICE CORRECTIONS**: Fixed Zustand slice structure with proper main/alternates management
   - ✅ setMain() now properly ejects old main and removes new main from alternates
