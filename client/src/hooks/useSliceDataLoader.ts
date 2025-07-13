@@ -4,6 +4,7 @@ import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
 import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
 import { ensureProphecyLoaded, getProphecyForVerse } from '@/lib/prophecyCache';
+import crossRefsWorker from '@/workers/crossReferencesWorker';
 
 // Expert's fix: Add prefetchRemoteVerses function
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
@@ -36,7 +37,7 @@ export function useSliceDataLoader(slice: string[]) {
       // 1. Build prophecy map in memory
       await ensureProphecyLoaded();
       
-      // 2. Build prophecy map in memory
+      // 2. Build prophecy map in memory  
       const prophecyMap: Record<string, any> = {};
       
       for (const verseID of slice) {
@@ -46,8 +47,12 @@ export function useSliceDataLoader(slice: string[]) {
         }
       }
       
-      // 3. Use worker for cross-references (placeholder)
-      const crossrefs: Record<string, string[]> = {};
+      // 3. Use worker for cross-references (real data)
+      const crossRefsResponse = await crossRefsWorker.postMessage({ 
+        id: 'slice-' + Date.now(), 
+        sliceIDs: slice 
+      });
+      const crossrefs = crossRefsResponse.result;
       
       // Use functional form for Zustand mutation
       useBibleStore.setState(state => ({

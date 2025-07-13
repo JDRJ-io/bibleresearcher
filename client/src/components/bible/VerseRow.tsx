@@ -1,5 +1,6 @@
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 import { ProphecyColumns } from './ProphecyColumns';
+import { useBibleStore } from '@/providers/BibleDataProvider';
 
 interface VerseRowProps {
   verse: BibleVerse;
@@ -34,6 +35,7 @@ export function VerseRow({
   getGlobalVerseText,
   allVerses,
 }: VerseRowProps) {
+  const { store } = useBibleStore();
   
   // Create preferences object for consistency
   const preferences = {
@@ -86,13 +88,12 @@ export function VerseRow({
       {/* Cross References Column - Fixed Width */}
       <div className="w-60 flex-shrink-0 border-r">
         <div className="h-[120px] overflow-y-auto p-3 text-xs">
-          {/* Add cross-reference dots/tooltips */}
+          {/* Cross-reference badge */}
           <div className="flex items-center gap-2 mb-2">
-            {verse.crossReferences?.length > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-blue-500 font-medium">📖</span>
-                <span className="text-blue-600 text-xs">{verse.crossReferences.length}</span>
-              </div>
+            {store.crossRefs[verse.reference]?.length > 0 && (
+              <span className="text-sky-500 text-xs cursor-pointer" aria-label={`${store.crossRefs[verse.reference].length} cross references`}>
+                📖 {store.crossRefs[verse.reference].length}
+              </span>
             )}
           </div>
           

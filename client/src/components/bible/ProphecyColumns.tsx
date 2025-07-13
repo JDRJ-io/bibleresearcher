@@ -28,22 +28,26 @@ export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseRefer
 
   console.log("ProphecyColumns received data:", prophecyData);
   
-  // Render badges = prophecy columns
-  const renderBadges = () => {
-    const badges: any[] = [];
-    
+  // Render rows in <ProphecyColumns />
+  const renderRows = () => {
     if (store.prophecies && store.prophecies[verseReference]) {
       const prophecyBlocks = store.prophecies[verseReference];
-      prophecyBlocks.forEach((block: any, index: number) => {
-        badges.push({
-          type: 'prophecy',
-          data: block,
-          index
-        });
-      });
+      return prophecyBlocks.map((block: any, index: number) => (
+        <React.Fragment key={index}>
+          <td className="table-cell">{block.role === 'P' ? block.summary : ''}</td>
+          <td className="table-cell">{block.role === 'F' ? block.summary : ''}</td>
+          <td className="table-cell">{block.role === 'V' ? block.summary : ''}</td>
+        </React.Fragment>
+      ));
     }
     
-    return badges;
+    return (
+      <React.Fragment>
+        <td className="table-cell"></td>
+        <td className="table-cell"></td>
+        <td className="table-cell"></td>
+      </React.Fragment>
+    );
   };
 
   const toggleProphecy = (prophecyId: string) => {
