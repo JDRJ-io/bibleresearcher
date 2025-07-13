@@ -10,6 +10,7 @@ import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeys
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useRowData } from "@/hooks/useRowData";
+import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 
 import type {
   BibleVerse,
@@ -66,6 +67,9 @@ const VirtualBibleTable = ({
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
+  
+  // B-1: Load slice data for cross-references and prophecy
+  const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs);
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {

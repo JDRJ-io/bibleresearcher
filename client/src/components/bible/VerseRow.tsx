@@ -86,6 +86,16 @@ export function VerseRow({
       {/* Cross References Column - Fixed Width */}
       <div className="w-60 flex-shrink-0 border-r">
         <div className="h-[120px] overflow-y-auto p-3 text-xs">
+          {/* Add cross-reference dots/tooltips */}
+          <div className="flex items-center gap-2 mb-2">
+            {verse.crossReferences && verse.crossReferences.length > 0 && (
+              <div className="flex items-center gap-1">
+                <span className="text-blue-500 font-medium">📖</span>
+                <span className="text-blue-600 text-xs">{verse.crossReferences.length}</span>
+              </div>
+            )}
+          </div>
+          
           {verse.crossReferences && verse.crossReferences.length > 0 ? (
             verse.crossReferences.map((ref, index) => (
               <div key={index} className="mb-2">

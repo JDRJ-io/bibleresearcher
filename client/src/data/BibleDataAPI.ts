@@ -2,6 +2,20 @@ import { supabase } from '@/lib/supabase';
 import { db } from '@/offline/offlineDB';
 import { queueSync } from '@/offline/queueSync';
 
+// Simple resource cache for cross-references and prophecy slices
+const resourceCache = new Map<string, any>();
+
+function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
+  if (resourceCache.has(key)) {
+    return Promise.resolve(resourceCache.get(key));
+  }
+  
+  return fetchFn().then(result => {
+    resourceCache.set(key, result);
+    return result;
+  });
+}
+
 export async function loadTranslation(id: string) {
   const { data, error } = await supabase.storage.from('anointed').download(`translations/${id}.txt`);
   if (error) throw error;
@@ -59,10 +73,30 @@ export async function loadCrossReferences() {
   return await data.text();
 }
 
+export async function loadCrossRefSlice(start: number, end: number) {
+  // fetch cf1/2 maps from Supabase (or cache)
+  return getOrFetch(`cf${start}:${end}`, async () => {
+    const { data, error } = await supabase.storage.from('anointed')
+      .download(`cf_slice_${start}_${end}.json`);
+    if (error) throw error;
+    return JSON.parse(await data.text());
+  });
+}
+
 export async function loadProphecy() {
   const { data, error } = await supabase.storage.from('anointed').download('references/prophecy-file.txt');
   if (error) throw error;
   return await data.text();
+}
+
+export async function loadProphecySlice(start: number, end: number) {
+  // fetch cf1/2 maps from Supabase (or cache)
+  return getOrFetch(`prophecy${start}:${end}`, async () => {
+    const { data, error } = await supabase.storage.from('anointed')
+      .download(`prophecy_slice_${start}_${end}.json`);
+    if (error) throw error;
+    return JSON.parse(await data.text());
+  });
 }
 
 export async function saveNotes(note: any, preserveAnchor?: (ref: string, index: number) => void) {

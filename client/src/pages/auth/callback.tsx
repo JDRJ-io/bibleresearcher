@@ -9,7 +9,8 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Extract the hash from URL and handle auth callback
+        // Supabase v2 passes full JSON in `access_token` & friends - keep parsing but 
+        // also check for URL params as fallback
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')

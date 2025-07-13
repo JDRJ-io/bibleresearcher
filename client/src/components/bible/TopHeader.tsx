@@ -33,9 +33,6 @@ export function TopHeader({
   const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   console.log('TopHeader auth state:', { user: !!user, loading, userDetails: user ? 'logged in' : 'logged out' });
-  
-  // Force logged out state for testing
-  const isLoggedOut = true;
 
   return (
     <header 
@@ -102,7 +99,7 @@ export function TopHeader({
             <div className="w-4 h-4 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
             <span className="text-sm">Loading...</span>
           </div>
-        ) : isLoggedOut ? (
+        ) : !user ? (
           // Logged Out State: Show Opal-styled Auth Buttons
           <div className="flex items-center space-x-2">
             <Button

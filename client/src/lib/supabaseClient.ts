@@ -17,7 +17,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Auth helper functions
 export const signInWithMagicLink = async (email: string, displayName?: string) => {
-  const redirectTo = window.location.origin + '/auth/callback'
+  // Use full origin to survive Vercel preview URLs, etc.
+  const redirectTo = `${window.location.origin}/auth/callback`
   
   const { data, error } = await supabase.auth.signInWithOtp({
     email,

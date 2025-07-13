@@ -80,10 +80,25 @@ interface ProphecyCellProps {
 
 function ProphecyCell({ verse, type }: ProphecyCellProps) {
   const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
+  const { store } = useBibleStore();
+  
+  // Safe access to prophecies data with null checks
+  const prophecies = store?.prophecies || {};
+  const verseProphecies = prophecies[verse.id] || {};
+  const hasProphecy = verseProphecies[type]?.length > 0;
+  const prophecyCount = hasProphecy ? verseProphecies[type].length : 0;
+  
   return (
     <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className={`${color} text-center`}>
-        {/* Add prophecy counts/indicators here */}
+        {hasProphecy && (
+          <div className="flex items-center justify-center gap-1">
+            <span className={`text-xs ${color} cursor-pointer`} title={`${prophecyCount} ${type} references`}>
+              ●
+            </span>
+            <span className="text-xs text-gray-500">{prophecyCount}</span>
+          </div>
+        )}
       </div>
     </div>
   );

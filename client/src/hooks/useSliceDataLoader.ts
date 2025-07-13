@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
+import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
 
 // Expert's fix: Add prefetchRemoteVerses function
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
@@ -34,14 +35,30 @@ export function useSliceDataLoader(slice: string[]) {
       // B-1: Collect remote verse indices needed for cross-refs and prophecy
       const remoteVerseIndices = new Set<string>();
       
-      // TODO: Load cross-refs from crossrefs/cf1.json
-      // TODO: Load prophecy from prophecy.json
-      // TODO: Extract all verse references from both datasets
+      // Load cross-refs and prophecy data in parallel
+      const [crossRefsData, propheciesData] = await Promise.all([
+        loadCrossRefSlice(0, slice.length),
+        loadProphecySlice(0, slice.length)
+      ]);
       
-      // Example of what we need to collect:
-      // For each verse in slice, find:
-      // - crossRefs[verseID] → extract all verse references
-      // - prophecy[verseID] → extract all P/F/V references
+      // Extract verse references from crossrefs and prophecy
+      for (const verseID of slice) {
+        // Extract cross-reference verse IDs
+        const crossRefs = crossRefsData[verseID];
+        if (crossRefs && crossRefs.length > 0) {
+          crossRefs.forEach((ref: string) => remoteVerseIndices.add(ref));
+        }
+        
+        // Extract prophecy verse IDs (P/F/V)
+        const prophecies = propheciesData[verseID];
+        if (prophecies) {
+          ['P', 'F', 'V'].forEach(type => {
+            if (prophecies[type]) {
+              prophecies[type].forEach((ref: string) => remoteVerseIndices.add(ref));
+            }
+          });
+        }
+      }
       
       // B-1: Batch load the main translation's text for those remote indices
       const mainTranslation = translationState.main;
