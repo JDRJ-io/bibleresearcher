@@ -6,12 +6,6 @@ import {
   insertHighlightSchema, insertForumPostSchema, insertForumVoteSchema,
   insertUserPreferencesSchema 
 } from "@shared/schema";
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
@@ -215,67 +209,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(preferences);
     } catch (error) {
       res.status(400).json({ error: "Failed to update preferences" });
-    }
-  });
-
-  // Cross-references and prophecy data API routes
-  app.get('/api/references/cf1.txt', async (req, res) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('anointed')
-        .download('references/cf1.txt');
-      
-      if (error) {
-        console.error('Failed to fetch cf1.txt:', error);
-        return res.status(500).send('Failed to fetch cross-references');
-      }
-      
-      const text = await data.text();
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(text);
-    } catch (error) {
-      console.error('Error fetching cf1.txt:', error);
-      res.status(500).send('Internal server error');
-    }
-  });
-
-  app.get('/api/references/prophecy_rows.txt', async (req, res) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('anointed')
-        .download('references/prophecy_rows.txt');
-      
-      if (error) {
-        console.error('Failed to fetch prophecy_rows.txt:', error);
-        return res.status(500).send('Failed to fetch prophecy rows');
-      }
-      
-      const text = await data.text();
-      res.setHeader('Content-Type', 'text/plain');
-      res.send(text);
-    } catch (error) {
-      console.error('Error fetching prophecy_rows.txt:', error);
-      res.status(500).send('Internal server error');
-    }
-  });
-
-  app.get('/api/references/prophecy_index.json', async (req, res) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('anointed')
-        .download('references/prophecy_index.json');
-      
-      if (error) {
-        console.error('Failed to fetch prophecy_index.json:', error);
-        return res.status(500).json({ error: 'Failed to fetch prophecy index' });
-      }
-      
-      const text = await data.text();
-      const json = JSON.parse(text);
-      res.json(json);
-    } catch (error) {
-      console.error('Error fetching prophecy_index.json:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
