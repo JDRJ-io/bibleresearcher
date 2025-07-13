@@ -13,7 +13,10 @@ async function ensureCrossRefsLoaded() {
     
     crossRefsMap = {};
     text.split('\n').forEach(line => {
-      const [verseID, refsStr] = line.split('$$');
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return;
+      
+      const [verseID, refsStr] = trimmedLine.split('$$');
       if (verseID && refsStr) {
         // Parse cross-references with $ and # delimiters
         const groups = refsStr.split('$');
@@ -27,9 +30,11 @@ async function ensureCrossRefsLoaded() {
           }
         });
         
-        crossRefsMap[verseID] = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
+        crossRefsMap[verseID.trim()] = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
       }
     });
+    
+    console.log(`📖 Cross-references parsed: ${Object.keys(crossRefsMap).length} verses with data`);
     
     console.log('✅ Cross-references loaded successfully');
   } catch (error) {
