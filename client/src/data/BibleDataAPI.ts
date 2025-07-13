@@ -74,16 +74,9 @@ export async function loadCrossReferences() {
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
-  // fetch cf1/2 maps from Supabase (or cache)
-  return getOrFetch(`cf${start}:${end}`, async () => {
-    const { data, error } = await supabase.storage.from('anointed')
-      .download(`references/cf_slice_${start}_${end}.json`);
-    if (error) {
-      console.warn('crossref slice not found, returning empty data:', { start, end });
-      return {};
-    }
-    return JSON.parse(await data.text());
-  });
+  // Remove obsolete slice loaders
+  console.warn('loadCrossRefSlice is deprecated, use crossRefsWorker instead');
+  return {};
 }
 
 export async function loadProphecy() {
@@ -93,16 +86,9 @@ export async function loadProphecy() {
 }
 
 export async function loadProphecySlice(start: number, end: number) {
-  // fetch cf1/2 maps from Supabase (or cache)
-  return getOrFetch(`prophecy${start}:${end}`, async () => {
-    const { data, error } = await supabase.storage.from('anointed')
-      .download(`references/prophecy_slice_${start}_${end}.json`);
-    if (error) {
-      console.warn('prophecy slice not found, returning empty data:', { start, end });
-      return {};
-    }
-    return JSON.parse(await data.text());
-  });
+  // Remove obsolete slice loaders
+  console.warn('loadProphecySlice is deprecated, use prophecyCache instead');
+  return {};
 }
 
 export async function saveNotes(note: any, preserveAnchor?: (ref: string, index: number) => void) {

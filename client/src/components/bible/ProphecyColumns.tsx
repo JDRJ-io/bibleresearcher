@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useBibleStore } from '@/providers/BibleDataProvider';
 
 interface ProphecyData {
   id: string;
@@ -23,8 +24,27 @@ interface ProphecyColumnsProps {
 
 export function ProphecyColumns({ prophecyData, onVerseClick, verses, verseReference, getGlobalVerseText }: ProphecyColumnsProps) {
   const [collapsedProphecies, setCollapsedProphecies] = useState<Set<string>>(new Set());
+  const { store } = useBibleStore();
 
   console.log("ProphecyColumns received data:", prophecyData);
+  
+  // Render badges = prophecy columns
+  const renderBadges = () => {
+    const badges: any[] = [];
+    
+    if (store.prophecies && store.prophecies[verseReference]) {
+      const prophecyBlocks = store.prophecies[verseReference];
+      prophecyBlocks.forEach((block: any, index: number) => {
+        badges.push({
+          type: 'prophecy',
+          data: block,
+          index
+        });
+      });
+    }
+    
+    return badges;
+  };
 
   const toggleProphecy = (prophecyId: string) => {
     const newCollapsed = new Set(collapsedProphecies);
