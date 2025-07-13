@@ -29,14 +29,7 @@
   animation: highlight-anim 2s ease-out;
 }
 
-/* Highlight the Reference column when verse is targeted */
-.verse-highlight .w-20:first-child {
-  animation: highlight-anim 2s ease-out;
-  border-left: 3px solid gold;
-  border-right: 3px solid gold;
-}
-
-.verse-row:hover, .virtual-row:hover {
+.verse-row:hover {
   background-color: rgba(2, 136, 209, 0.1);
   transition: background-color 0.3s ease;
 }

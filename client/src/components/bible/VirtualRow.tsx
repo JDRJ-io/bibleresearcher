@@ -149,7 +149,6 @@ export function VirtualRow({ verseID, rowHeight, verse, columnData, getVerseText
 
   return (
     <div 
-      id={`verse-${verse.id}`}
       className="virtual-row border-b border-gray-200 dark:border-gray-700 flex"
       style={{ height: rowHeight }}
       data-verse-id={verseID}
