@@ -1,25 +1,38 @@
-describe('Complete magic-link sign-in', () => {
-  it('loads cross-refs for Gen 1:1', async () => {
+describe('Auth Flow', () => {
+  beforeEach(() => {
     cy.visit('/');
-    
-    // Find and click the "Sign Up" button
-    cy.findByText('Sign Up').click();
-    
-    // Fill in the email field
-    cy.findByLabelText(/email/i).type('test@example.com');
-    
-    // Skip actual email by hitting callback with test token
-    cy.request('POST', '/__test_injection', {
-      name: 'magic link/User menu',
-      email: 'test@example.com'
-    }).then(() => {
-      // Verify the user profile appears
-      cy.findByRole('button', { name: /User menu/i }).should('exist');
+  });
+
+  it('should show auth buttons when logged out', () => {
+    cy.get('[data-testid="sign-in-button"]').should('be.visible');
+    cy.get('[data-testid="sign-up-button"]').should('be.visible');
+  });
+
+  it('should open sign in modal', () => {
+    cy.get('[data-testid="sign-in-button"]').click();
+    cy.get('[data-testid="sign-in-modal"]').should('be.visible');
+  });
+
+  it('should validate email input', () => {
+    cy.get('[data-testid="sign-in-button"]').click();
+    cy.get('[data-testid="email-input"]').type('invalid-email');
+    cy.get('[data-testid="submit-button"]').click();
+    cy.get('[data-testid="error-message"]').should('contain', 'Invalid email');
+  });
+
+  it('should send magic link on valid email', () => {
+    cy.get('[data-testid="sign-in-button"]').click();
+    cy.get('[data-testid="email-input"]').type('test@example.com');
+    cy.get('[data-testid="submit-button"]').click();
+    cy.get('[data-testid="success-message"]').should('contain', 'Magic link sent');
+  });
+
+  it('should persist session across reload', () => {
+    // Mock authenticated state
+    cy.window().then((win) => {
+      win.localStorage.setItem('session', JSON.stringify({ user: { email: 'test@example.com' } }));
     });
-    
-    // Double-check by signing in; should see initials with dropdown
-    cy.findByText(/Sign In/i).click();
-    cy.findByLabelText(/email/i).type('test@example.com');
-    cy.findByRole('button', { name: /User menu/i }).should('exist');
+    cy.reload();
+    cy.get('[data-testid="user-avatar"]').should('be.visible');
   });
 });

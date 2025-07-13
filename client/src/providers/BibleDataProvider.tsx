@@ -22,11 +22,18 @@ export const useBibleStore = create<{
   setTranslations: (id: string, data: Map<number, string>) => void;
   // A1: Emit derived selector
   getAllActive: () => string[];
+  // New maps (start empty, never undefined)
+  crossRefs: Record<string, string[]>;
+  prophecies: Record<string, any>;
+  store: any;
 }>(
   persist(
     (set, get) => ({
       translations: {},
       actives: ["KJV"],
+      crossRefs: {},
+      prophecies: {},
+      store: { crossRefs: {}, prophecies: {} },
       translationState: {
         main: "KJV",
         alternates: [],

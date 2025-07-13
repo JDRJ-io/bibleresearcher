@@ -20,7 +20,7 @@ const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
 
 export function useSliceDataLoader(slice: string[]) {
   const [isLoading, setIsLoading] = useState(false);
-  const { translationState } = useBibleStore();
+  const { translationState, store } = useBibleStore();
   const { getVerseText } = useTranslationMaps();
   const { main } = useZustandTranslationMaps();
   
@@ -40,6 +40,10 @@ export function useSliceDataLoader(slice: string[]) {
         loadCrossRefSlice(0, slice.length),
         loadProphecySlice(0, slice.length)
       ]);
+      
+      // setSliceData to θ { ...draft.verses, ...verses, ...crossRefs, ...prophecies }
+      store.crossRefs = { ...store.crossRefs, ...crossRefsData };
+      store.prophecies = { ...store.prophecies, ...propheciesData };
       
       // Extract verse references from crossrefs and prophecy
       for (const verseID of slice) {

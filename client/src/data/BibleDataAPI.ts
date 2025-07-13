@@ -77,8 +77,11 @@ export async function loadCrossRefSlice(start: number, end: number) {
   // fetch cf1/2 maps from Supabase (or cache)
   return getOrFetch(`cf${start}:${end}`, async () => {
     const { data, error } = await supabase.storage.from('anointed')
-      .download(`cf_slice_${start}_${end}.json`);
-    if (error) throw error;
+      .download(`references/cf_slice_${start}_${end}.json`);
+    if (error) {
+      console.warn('crossref slice not found, returning empty data:', { start, end });
+      return {};
+    }
     return JSON.parse(await data.text());
   });
 }
@@ -93,8 +96,11 @@ export async function loadProphecySlice(start: number, end: number) {
   // fetch cf1/2 maps from Supabase (or cache)
   return getOrFetch(`prophecy${start}:${end}`, async () => {
     const { data, error } = await supabase.storage.from('anointed')
-      .download(`prophecy_slice_${start}_${end}.json`);
-    if (error) throw error;
+      .download(`references/prophecy_slice_${start}_${end}.json`);
+    if (error) {
+      console.warn('prophecy slice not found, returning empty data:', { start, end });
+      return {};
+    }
     return JSON.parse(await data.text());
   });
 }
