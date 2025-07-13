@@ -15,7 +15,6 @@ import { ConnectivityStatus } from "@/components/ui/connectivity-status";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
-import { DevTools } from "@/components/DevTools";
 import { Button } from "@/components/ui/button";
 import type { AppPreferences, Translation } from "@/types/bible";
 
@@ -780,9 +779,6 @@ export default function BiblePage() {
           <span className="text-xs opacity-60">© 2024 Anointed.io</span>
         </div>
       </footer>
-      
-      {/* DevTools for development verification */}
-      <DevTools />
     </div>
   );
 }
