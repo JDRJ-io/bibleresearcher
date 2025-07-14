@@ -1,5 +1,5 @@
 // Translation loading utilities - uses secure Supabase loader
-import { loadTranslationSecure } from './supabaseLoader';
+import { loadTranslationSecure } from './supabaseClient';
 
 const TRANSLATION_CACHE = new Map<string, Map<string, string>>();
 

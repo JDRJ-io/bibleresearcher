@@ -1,5 +1,5 @@
 import React from 'react';
-import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useBibleStore } from '@/App';
 
 export function ProphecyColumns({ verseIDs }: { verseIDs: string[] }) {
   const { store } = useBibleStore();

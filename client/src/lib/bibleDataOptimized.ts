@@ -1,9 +1,6 @@
 import {
   loadTranslationSecure,
-  loadCrossReferences,
-  loadContextGroups,
-  loadStrongsData,
-} from "./supabaseLoader";
+} from "./supabaseClient";
 import { getVerseKeys, parseVerseKey } from "./verseKeysLoader";
 import type { BibleVerse } from "@/types/bible";
 

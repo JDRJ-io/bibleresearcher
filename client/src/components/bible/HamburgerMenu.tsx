@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { TranslationSelector } from "./TranslationSelector";
-import { useBibleStore } from "@/providers/BibleDataProvider";
+import { useBibleStore } from "@/App";
 
 export function HamburgerMenu({
   isOpen,

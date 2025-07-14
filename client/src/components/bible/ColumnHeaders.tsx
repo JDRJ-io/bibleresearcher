@@ -1,6 +1,6 @@
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
-import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useBibleStore } from '@/App';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];

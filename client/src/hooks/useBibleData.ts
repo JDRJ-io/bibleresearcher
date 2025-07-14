@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
 import {
   loadTranslation,
@@ -11,10 +11,7 @@ import { loadTranslationAsText } from "@/data/BibleDataAPI";
 import {
   loadVerseKeys,
   loadTranslationSecure,
-  loadCrossReferences,
-  loadProphecyIndex,
-  loadProphecyRows,
-} from "@/lib/supabaseLoader";
+} from "@/lib/supabaseClient";
 
 // Global KJV text map for dynamic verse text loading
 let globalKjvTextMap: Map<string, string> | null = null;
@@ -1348,7 +1345,7 @@ export function useBibleData() {
       console.log(`Loading ${translationId} translation from Supabase...`);
       
       // Import the translation loader
-      const { loadTranslationSecure } = await import('../lib/supabaseLoader');
+      const { loadTranslationSecure } = await import('../lib/supabaseClient');
       const translationData = await loadTranslationSecure(translationId);
 
       if (translationData.size > 0) {

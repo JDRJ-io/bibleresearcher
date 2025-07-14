@@ -1,6 +1,6 @@
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 import { ProphecyColumns } from './ProphecyColumns';
-import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useBibleStore } from '@/App';
 
 interface VerseRowProps {
   verse: BibleVerse;

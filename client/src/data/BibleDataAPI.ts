@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabaseClient';
 import { db } from '@/offline/offlineDB';
 import { queueSync } from '@/offline/queueSync';
 

@@ -1,0 +1,97 @@
+### 🔧 Consolidated Refactor & Cleanup Plan
+
+*(Hand this verbatim to your Replit project so the engineer can execute without confusion.)*
+
+---
+
+## 0  Status of Files
+
+| Category                  | What’s in Replit workspace now                                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Active files reviewed** | \~150 files — every one you re‑uploaded during this session.                                                                          |
+| **Expired (not present)** | A few early uploads that timed‑out (old `layout.ts`, first `chunkConfig.ts`, very first copy of `sw.ts`, some legacy DOM components). |
+
+> **If you still need any of those expired files reviewed or in the repo, re‑upload them before you start.**
+> Otherwise they’re considered removed.
+
+---
+
+1 — KEEP (no action; these are active or required)
+Area	Key files (non‑exhaustive)
+Core data & state	useBibleData.ts, translationSlice.ts, useAnchorSlice.ts, useColumnKeys.ts, useRowData.ts, useSliceDataLoader.ts, translationLoader.ts, verseKeysLoader.ts, supabaseClient.ts, supabaseLoader.ts, queryClient.ts, queueSync.ts, offlineDB.ts, storage.ts, prophecyCache.ts, crossReferencesWorker.ts
+Workers	searchWorker.js, translationWorker.js, crossReferencesWorker.ts
+UI components	App.tsx, VirtualBibleTable.tsx, VirtualRow.tsx, BibleTable.tsx, ColumnHeaders.tsx, VerseRow.tsx, ExpandedVerseOverlay.tsx, HamburgerMenu.tsx, TranslationSelector.tsx, TopHeader.tsx, UserProfile.tsx, ProphecyColumns.tsx
+Providers & hooks	ThemeProvider.tsx, AuthContext.tsx, useAuth.ts, useOnlineStatus.ts, useQueueSync.ts, useEnsureTranslationLoaded.ts, useServiceWorkerStatus.ts
+Routing / bootstrap	main.tsx, index.html, callback.tsx, routes.ts (merged—see next bucket)
+SW & PWA	sw.ts, vite.config.pwa.ts, useInstallPrompt.ts
+Config / tooling	package.json, package-lock.json, tsconfig.json, tailwind.config.ts, postcss.config.js, vite.config.ts, drizzle.config.ts, schema.ts, .env (local only)
+CI / guards	bundle-check.js, lint-architecture.js, validate-architecture.sh
+E2E & unit tests	scroll.spec.ts, translation-switching.cy.js, auth.flow.cy.js, useAnchorSlice.test.ts, offline.spec.ts
+---
+
+## 2  KEEP / REFACTOR (merge, trim, or simplify)
+
+| File(s)                                     | Action                                                                                              |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **BibleDataProvider.tsx**                   | Inline its provider logic into `App.tsx`; delete the file.                                          |
+| **supabase.ts**, **supabaseLoader.ts**      | Move any helper code into `supabaseClient.ts`; delete the duplicates.                               |
+| **chunkConfig.ts** vs **bundleSplit.ts**    | Keep **one** (your choice). Delete the other and update `vite.config.ts` to reference the survivor. |
+| **index.css**                               | Run Tailwind purge; delete `.page`, `.legacy‑table`, any unused classes.                            |
+| **VerseSelector.tsx**                       | Merge its UI into `TopHeader.tsx`; then delete the file.                                            |
+| **AuthModal.tsx**                           | Confirm the new magic‑link modals work; then delete this legacy modal.                              |
+| **routes.ts** & **index.ts** (route barrel) | Consolidate into a single `routes.ts`; delete the duplicate barrel.                                 |
+| **workers.ts**                              | Keep, but remove imports of any workers you aren’t actually spawning.                               |
+| **ThemeProvider.tsx** + **useBodyClass.ts** | Combine body‑class logic into ThemeProvider; delete `useBodyClass.ts`.                              |
+| **build\_offsets.py**                       | Move into `/scripts`; mark as dev‑only.                                                             |
+| **lint-architecture.js**                    | Fold its rule into `.eslintrc.js`; delete standalone script.                                        |
+| **layout.ts** (Next.js root)                | Strip unused imports; ensure it does **only** layout, no data fetch.                                |
+
+---
+
+## 3  ARCHIVE / DELETE (safe to remove)
+
+| File                                                  | Reason                                            |
+| ----------------------------------------------------- | ------------------------------------------------- |
+| **bible.ts**                                          | Legacy DOM table—superseded by VirtualBibleTable. |
+| **BibleSlice.ts**                                     | Old Redux slice—state now lives in Zustand.       |
+| **noRawFetch.test.ts**                                | ESLint rule already enforces this; redundant.     |
+| **Any other legacy or expired files not re‑uploaded** | Not referenced anywhere—delete.                   |
+
+*(Move these to a `/legacy-archive` folder or delete outright.)*
+
+---
+
+## 4  Logic Changes & Data‑Flow Unification
+
+| Area                             | Instruction                                                                                                                                                      |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Single Data Facade**           | Promote `BibleDataAPI.ts` to the *only* module that talks to Supabase (translations, cross‑refs, prophecy). Remove direct fetches from any other file.           |
+| **Master Verse Cache**           | Keep one in‑memory `Map<string, Map<index,string>>` inside BibleDataAPI. Delete all other translation caches (globalResourceCache, TRANSLATION\_CACHE, etc.).    |
+| **Workers**                      | Stop workers from `fetch`ing remote files. Main thread loads data via BibleDataAPI, then posts it via `postMessage`. Workers listen for `{ type:'init', data }`. |
+| **Zustand Store Simplification** | Store **only** metadata: `{ main, alternates, columnOrder, anchorIndex }`. No verse text blobs.                                                                  |
+| **React Query Settings**         | In `queryClient.ts` set: `cacheTime` = `5 min`, `staleTime` = `5 min`, `maxInactiveQueries` = `50`.                                                              |
+| **LRU Eviction**                 | After inserting into master cache, if `resourceCache.size > 12`, delete the least‑recently‑used translation map.                                                 |
+| **Dexie Scope**                  | Keep Dexie **only** for user bookmarks/highlights/queued\_mutations. Remove any verse‑text tables.                                                               |
+| **Worker Cleanup**               | In `VirtualBibleTable` unmount, call `worker.terminate()` for each spawned worker.                                                                               |
+
+---
+
+## 5  Execution Steps (PR sequence)
+
+1. **PR‑A** – Delete ARCHIVE list, inline BibleDataProvider, consolidate routes.
+2. **PR‑B** – Merge Supabase helpers, remove duplicate caches, implement master cache & LRU.
+3. **PR‑C** – Re‑wire workers to `postMessage`, purge CSS, consolidate ThemeProvider/helper.
+4. **PR‑D** – Delete AuthModal, VerseSelector; confirm magic‑link & TopHeader handle flows.
+5. Run `pnpm test`, `pnpm build`, and `node scripts/bundle-check.js` after each PR. All should pass with bundle size < 2 MB gzipped.
+
+*(You said no timeframes; just execute in order.)*
+
+---
+
+## 6  Re‑upload Reminder
+
+If there are any **expired** files you still need reviewed or kept (early copies of `sw.ts`, `layout.ts`, etc.), drag‑and‑drop them *before* you start PR‑A. Otherwise they will be permanently gone.
+
+---
+
+### ⬆️ Hand this checklist to your Replit agent / engineer and work through the PRs in sequence. Once PR‑D merges, the codebase will be lean, unified, and ready for feature work without hidden conflicts.

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BibleVerse } from '../../types/bible';
-import { useBibleStore } from '@/providers/BibleDataProvider';
+import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useColumnKeys } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
