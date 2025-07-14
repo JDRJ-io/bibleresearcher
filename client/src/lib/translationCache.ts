@@ -16,18 +16,31 @@ export async function ensureTranslation(lang: string) {
 
   useTranslationStore.setState(s => ({ loading: { ...s.loading, [lang]: true } }));
 
-  const url = `/translations/${lang}.txt`;                  // Vite proxy → Supabase public URL
-  const raw = await fetch(url).then(r => r.text());
+  try {
+    // Use Supabase client for authenticated access
+    const { supabase } = await import('./supabase');
+    const { data, error } = await supabase.storage
+      .from('anointed')
+      .download(`translations/${lang}.txt`);
+    
+    if (error) throw error;
+    const raw = await data.text();
 
-  const map = Object.fromEntries(
-    raw.trim().split(/\n/).map(line => {
-      const [id, verse] = line.split('#');                  // Gen.1:1#In the beginning...
-      return [id, verse];
-    })
-  );
+    const map = Object.fromEntries(
+      raw.trim().split(/\n/).map(line => {
+        const [id, verse] = line.split('#');                  // Gen.1:1#In the beginning...
+        return [id, verse];
+      })
+    );
 
-  useTranslationStore.setState(s => ({
-    loading: { ...s.loading, [lang]: false },
-    texts:   { ...s.texts,   [lang]: map   },
-  }));
+    useTranslationStore.setState(s => ({
+      loading: { ...s.loading, [lang]: false },
+      texts:   { ...s.texts,   [lang]: map   },
+    }));
+  } catch (error) {
+    console.error(`Failed to load translation ${lang}:`, error);
+    useTranslationStore.setState(s => ({
+      loading: { ...s.loading, [lang]: false },
+    }));
+  }
 }
