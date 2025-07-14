@@ -452,10 +452,12 @@ export default function BiblePage() {
   // Show loading only when we don't have verses yet
   const shouldShowLoading = isLoading && verses.length === 0;
 
-  console.log("🚫 LOADING BYPASSED FOR TESTING:", {
-    originalIsLoading: isLoading,
+  console.log("📱 MOBILE LOADING STATE:", {
+    isLoading,
     versesLength: verses.length,
-    forcedShouldShowLoading: shouldShowLoading,
+    shouldShowLoading,
+    loadingStage: loadingProgress?.stage,
+    translationsLoading
   });
 
   if (shouldShowLoading) {
