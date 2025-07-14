@@ -3,7 +3,7 @@ import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
 import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
-import { ensureProphecyLoaded, getProphecyForVerse } from '@/lib/prophecyCache';
+import { getProphecyForVerse } from '@/lib/prophecyCache';
 import { crossRefWorker } from '@/lib/workers';
 
 // Expert's fix: Add prefetchRemoteVerses function
@@ -34,51 +34,32 @@ export function useSliceDataLoader(slice: string[]) {
     try {
       console.log(`🔍 Loading slice data for ${slice.length} verses...`);
       
-      // 1. Build prophecy map in memory
-      await ensureProphecyLoaded();
-      
-      // 2. Build prophecy map in memory  
-      const prophecyMap: Record<string, any> = {};
-      
-      slice.forEach(id => {
-        const blocks = getProphecyForVerse(id);
+      const sliceIDs = slice; // or however you name it
+
+      /* 📖 Cross-refs via worker */
+      const crossrefs = await new Promise<Record<string,string[]>>(res => {
+        crossRefWorker.onmessage = e => res(e.data);
+        crossRefWorker.postMessage({ ids: sliceIDs });
+      });
+
+      /* 📖 Prophecy arrays */
+      const prophecyMap: Record<string,any> = {};
+      sliceIDs.forEach(id => {
+        const blocks = getProphecyForVerse(id);    // {role,row}
         if (!blocks.length) return;
         prophecyMap[id] = { P: [], F: [], V: [] };
         blocks.forEach(({ role, row }) => {
-          if (role && row?.summary) {
-            if (!prophecyMap[id][role]) prophecyMap[id][role] = [];
-            prophecyMap[id][role].push(row.summary);
-          }
+          prophecyMap[id][role].push(row.summary);
         });
       });
-      
-      console.log(`📊 PROPHECY DEBUG: Found ${Object.keys(prophecyMap).length} verses with prophecy data`);
-      
-      // 3. Use worker for cross-references (real data)
-      const crossrefs: Record<string, string[]> = await new Promise((res) => {
-        crossRefWorker.onmessage = e => {
-          console.log(`📊 CROSSREF DEBUG: Worker returned data for ${Object.keys(e.data.result).length} verses`);
-          res(e.data.result);
-        };
-        crossRefWorker.postMessage({ id: 'sliceIDs', sliceIDs: slice });
-      });
-      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses with data:', Object.keys(crossrefs).filter(k => crossrefs[k]?.length > 0).length);
-      
-      // Use functional form for Zustand mutation
+
+      /* 📖 Merge into Zustand */
       useBibleStore.setState(state => ({
         crossRefs: { ...state.crossRefs, ...crossrefs },
         prophecies: { ...state.prophecies, ...prophecyMap }
       }));
       
-      // Update the store object for direct access
-      useBibleStore.setState(state => ({
-        store: { 
-          ...state.store, 
-          crossRefs: { ...state.crossRefs, ...crossrefs },
-          prophecies: { ...state.prophecies, ...prophecyMap }
-        }
-      }));
-      
+      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses');
       console.log(`✅ Prophecy data loaded:`, Object.keys(prophecyMap).length, 'verses');
       
       // Extract verse references from crossrefs and prophecy

@@ -54,11 +54,26 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
   return result;
 }
 
-// Classic worker pattern with self.onmessage and self.postMessage
-self.onmessage = async (e: { data: MessageRequest }) => {
-  const { id, sliceIDs } = e.data;
-  const result = await fetchCrossRefs(sliceIDs);
-  self.postMessage({ id, result });
+/* client/src/workers/crossReferencesWorker.ts */
+self.onmessage = async (e) => {
+  const { ids } = e.data as { ids: string[] };
+  
+  // -- loadCf2() and loadOffsets() helpers exactly like before --
+  
+  const out: Record<string, string[]> = {};
+  ids.forEach(id => {
+    if (crossRefsCache[id]) { out[id] = crossRefsCache[id]; }
+  });
+  
+  const missing = ids.filter(id => !out[id]);
+  if (missing.length) {
+    await ensureCrossRefsLoaded();
+    missing.forEach(id => {
+      out[id] = crossRefsCache[id] || [];
+    });
+  }
+  
+  (self as DedicatedWorkerGlobalScope).postMessage(out);
 };
 
 export { loadCrossRefs, fetchCrossRefs };
