@@ -1,20 +1,17 @@
 // Translation loading utilities - uses secure Supabase loader
-import { loadTranslationSecure } from './supabaseClient';
-
-const TRANSLATION_CACHE = new Map<string, Map<string, string>>();
+import { loadTranslationSecure, masterCache } from './supabaseClient';
 
 export async function loadTranslation(translationId: string): Promise<Map<string, string>> {
-  // Check cache first
-  if (TRANSLATION_CACHE.has(translationId)) {
-    return TRANSLATION_CACHE.get(translationId)!;
+  const cacheKey = `translation-${translationId}`;
+  
+  // Check master cache first
+  if (masterCache.has(cacheKey)) {
+    return masterCache.get(cacheKey)!;
   }
 
   try {
-    // Use secure Supabase loader
+    // Use secure Supabase loader (which also uses master cache)
     const textMap = await loadTranslationSecure(translationId);
-    
-    // Cache the loaded translation
-    TRANSLATION_CACHE.set(translationId, textMap);
     
     return textMap;
   } catch (error) {

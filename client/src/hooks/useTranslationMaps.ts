@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, masterCache } from '@/lib/supabaseClient';
 
 /**
  * TRANSLATION PIPELINE - MASTER IMPLEMENTATION
@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabaseClient';
  */
 
 export interface UseTranslationMapsReturn {
-  resourceCache: Map<string, Map<string, string>>;
+  resourceCache: any; // Master cache interface - LRU cache with translations
   activeTranslations: string[];
   mainTranslation: string;
   alternates: string[];
@@ -24,9 +24,8 @@ export interface UseTranslationMapsReturn {
   isLoading: boolean;
 }
 
-// Global resource cache - persists across component unmounts
-// globalResourceCache.get('KJV') instanceof Map → true
-const globalResourceCache = new Map<string, Map<string, string>>();
+// Use master cache from supabaseClient - no local cache needed
+// masterCache.get('translation-KJV') instanceof Map → true
 
 export function useTranslationMaps(): UseTranslationMapsReturn {
   // activeTranslations array: index 0 = main translation, others are alternates
@@ -40,7 +39,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   useEffect(() => {
     const loadInitialMain = async () => {
       const initialMain = mainTranslation;
-      if (!globalResourceCache.has(initialMain)) {
+      if (!masterCache.has(`translation-${initialMain}`)) {
         await toggleTranslationRef.current(initialMain, true);
       }
     };
@@ -110,8 +109,8 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     setIsLoading(true);
     
     try {
-      // Check if translation is already in globalResourceCache
-      if (!globalResourceCache.has(code)) {
+      // Check if translation is already in master cache
+      if (!masterCache.has(`translation-${code}`)) {
         console.log(`🔄 Fetching translation: ${code}`);
         
         // Point Supabase loader at anointed bucket (Step 2)
@@ -143,15 +142,15 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
           translationMap = map;
         }
         
-        // Fix: Single write to globalResourceCache - no race condition
-        globalResourceCache.set(code, translationMap);
+        // Fix: Single write to master cache - no race condition
+        masterCache.set(`translation-${code}`, translationMap);
         
         // Task 2.1: Log map size, duration, and Supabase path on every load
         const endTime = performance.now();
         const duration = Math.round(endTime - startTime);
         console.log(`✅ Cached translation: ${code} (${translationMap.size} verses)`);
         console.log(`📊 TRANSLATION LOAD: ${code} - ${translationMap.size} verses, ${duration}ms, from ${bucketName}/translations/${code}.txt`);
-        console.log(`🔍 VALIDATION: globalResourceCache.get('${code}') instanceof Map → ${globalResourceCache.get(code) instanceof Map}`);
+        console.log(`🔍 VALIDATION: masterCache.get('translation-${code}') instanceof Map → ${masterCache.get(`translation-${code}`) instanceof Map}`);
         
         // Task 2.2: Fail-loud toast if map size === 0
         if (translationMap.size === 0) {
@@ -212,7 +211,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Direct map.get(verseID) lookup - no per-verse fetch
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
-    const translationMap = globalResourceCache.get(translationCode);
+    const translationMap = masterCache.get(`translation-${translationCode}`);
     return translationMap?.get(verseID);
   }, []);
 
@@ -221,7 +220,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Used by cross-references, prophecy, dates - always main translation
    */
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
-    const mainTranslationMap = globalResourceCache.get(mainTranslation);
+    const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
     return mainTranslationMap?.get(verseID);
   }, [mainTranslation]);
 
@@ -240,7 +239,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   }, []);
 
   return {
-    resourceCache: globalResourceCache,
+    resourceCache: masterCache,
     activeTranslations,
     mainTranslation,
     alternates,

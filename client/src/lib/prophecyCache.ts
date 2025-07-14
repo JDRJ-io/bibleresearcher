@@ -1,4 +1,5 @@
 // client/src/lib/prophecyCache.ts
+import { masterCache } from './supabaseClient';
 
 export interface ProphecyData {
   summary: string;
@@ -7,11 +8,12 @@ export interface ProphecyData {
   verification: string[];
 }
 
-let verseMeta: Record<string, { P: string; F: string; V: string }> | null = null;
-let rowMeta: Record<string, ProphecyData> | null = null;
+// Use master cache instead of local variables
+const PROPHECY_VERSE_META_KEY = 'prophecy-verse-meta';
+const PROPHECY_ROW_META_KEY = 'prophecy-row-meta';
 
 export async function ensureProphecyLoaded() {
-  if (verseMeta && rowMeta) return;
+  if (masterCache.has(PROPHECY_VERSE_META_KEY) && masterCache.has(PROPHECY_ROW_META_KEY)) return;
   
   try {
     // Use BibleDataAPI for consistent data access
@@ -23,7 +25,7 @@ export async function ensureProphecyLoaded() {
     ]);
     
     // Parse verseMeta
-    verseMeta = {};
+    const verseMeta: Record<string, { P: string; F: string; V: string }> = {};
     verseResp.split('\n').forEach(line => {
       const [verse, data] = line.split('$');
       if (verse && data) {
@@ -46,17 +48,22 @@ export async function ensureProphecyLoaded() {
       }
     });
     
-    rowMeta = rowResp;
+    // Store in master cache
+    masterCache.set(PROPHECY_VERSE_META_KEY, verseMeta);
+    masterCache.set(PROPHECY_ROW_META_KEY, rowResp);
     console.log('✅ Prophecy data loaded successfully via BibleDataAPI');
   } catch (error) {
     console.error('Failed to load prophecy data from authentic source:', error);
     // Don't fall back to mock data - keep empty
-    verseMeta = {};
-    rowMeta = {};
+    masterCache.set(PROPHECY_VERSE_META_KEY, {});
+    masterCache.set(PROPHECY_ROW_META_KEY, {});
   }
 }
 
 export function getProphecyForVerse(id: string) {
+  const verseMeta = masterCache.get(PROPHECY_VERSE_META_KEY) || {};
+  const rowMeta = masterCache.get(PROPHECY_ROW_META_KEY) || {};
+  
   if (!verseMeta || !rowMeta) return [];
   
   const verse = verseMeta[id];

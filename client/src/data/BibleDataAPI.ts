@@ -1,17 +1,14 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, masterCache } from '@/lib/supabaseClient';
 import { db } from '@/offline/offlineDB';
 import { queueSync } from '@/offline/queueSync';
 
-// Simple resource cache for cross-references and prophecy slices
-const resourceCache = new Map<string, any>();
-
 function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
-  if (resourceCache.has(key)) {
-    return Promise.resolve(resourceCache.get(key));
+  if (masterCache.has(key)) {
+    return Promise.resolve(masterCache.get(key));
   }
   
   return fetchFn().then(result => {
-    resourceCache.set(key, result);
+    masterCache.set(key, result);
     return result;
   });
 }
