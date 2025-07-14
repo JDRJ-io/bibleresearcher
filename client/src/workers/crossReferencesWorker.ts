@@ -54,26 +54,19 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
   return result;
 }
 
-/* client/src/workers/crossReferencesWorker.ts */
 self.onmessage = async (e) => {
   const { ids } = e.data as { ids: string[] };
   
-  // -- loadCf2() and loadOffsets() helpers exactly like before --
+  await ensureCrossRefsLoaded();
   
   const out: Record<string, string[]> = {};
   ids.forEach(id => {
-    if (crossRefsCache[id]) { out[id] = crossRefsCache[id]; }
+    out[id] = crossRefsMap[id] || [];
   });
   
-  const missing = ids.filter(id => !out[id]);
-  if (missing.length) {
-    await ensureCrossRefsLoaded();
-    missing.forEach(id => {
-      out[id] = crossRefsCache[id] || [];
-    });
-  }
+  console.log(`📖 CrossRef Worker: Processed ${ids.length} verses, found ${Object.keys(out).filter(k => out[k].length > 0).length} with data`);
   
-  (self as DedicatedWorkerGlobalScope).postMessage(out);
+  self.postMessage(out);
 };
 
 export { loadCrossRefs, fetchCrossRefs };

@@ -212,6 +212,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bible data API routes
+  app.get("/api/references/cf1.txt", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'text/plain');
+      // Return mock data for now - replace with actual Supabase data
+      res.send(`Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+Gen.1:2$$Jer.4:23$Ps.104:30
+Gen.1:3$$2Cor.4:6$Ps.33:9
+Gen.1:4$$1John.1:5$Ps.104:20
+Gen.1:5$$Ps.74:16$Ps.104:20`);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cross-references" });
+    }
+  });
+
+  app.get("/api/references/prophecy_rows.txt", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'text/plain');
+      // Return mock data for now - replace with actual Supabase data
+      res.send(`Gen.3:15$1:P,2:F
+Gen.6:3$3:P
+Gen.6:7$3:F
+Gen.12:3$4:P,5:V
+Gen.22:18$4:F,5:V`);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch prophecy rows" });
+    }
+  });
+
+  app.get("/api/references/prophecy_index.json", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/json');
+      // Return mock data for now - replace with actual Supabase data
+      res.json({
+        "1": {
+          "summary": "The seed of the woman will bruise the serpent's head",
+          "prophecy": ["Gen.3:15"],
+          "fulfillment": ["Rev.12:1", "Rev.12:2"],
+          "verification": ["Gal.4:4", "1John.3:8"]
+        },
+        "2": {
+          "summary": "Death will become the normal lot of man",
+          "prophecy": ["Gen.2:17", "Gen.3:19"],
+          "fulfillment": ["Rom.5:12"],
+          "verification": ["Eccl.3:2", "Heb.9:27"]
+        },
+        "3": {
+          "summary": "The flood will destroy all life",
+          "prophecy": ["Gen.6:3", "Gen.6:7"],
+          "fulfillment": ["Gen.7:17", "Gen.7:21"],
+          "verification": ["Matt.24:37", "2Pet.2:5"]
+        },
+        "4": {
+          "summary": "All nations will be blessed through Abraham's seed",
+          "prophecy": ["Gen.12:3", "Gen.22:18"],
+          "fulfillment": ["Gal.3:16"],
+          "verification": ["Acts.3:25", "Rom.4:16"]
+        },
+        "5": {
+          "summary": "The promise extends to all nations",
+          "prophecy": ["Gen.22:18"],
+          "fulfillment": ["Acts.3:25"],
+          "verification": ["Gal.3:8", "Rom.4:16"]
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch prophecy index" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
