@@ -92,9 +92,10 @@ function ProphecyCell({ verse, type }: ProphecyCellProps) {
   
   // Safe access to prophecies data with null checks
   const prophecies = store?.prophecies || {};
-  const verseProphecies = prophecies[verse.reference] || [];
-  const roleData = verseProphecies.find(p => p[type]);
-  const items = roleData ? roleData[type] : [];
+  const verseProphecies = prophecies[verse.reference] || {};
+  
+  // Direct access to P/F/V arrays
+  const items = verseProphecies[type] || [];
   const hasProphecy = items.length > 0;
   const prophecyCount = items.length;
   

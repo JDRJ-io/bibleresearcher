@@ -43,7 +43,8 @@ export function useSliceDataLoader(slice: string[]) {
       for (const verseID of slice) {
         const blocks = getProphecyForVerse(verseID);
         if (blocks.length > 0) {
-          prophecyMap[verseID] = blocks;
+          // Flatten the array structure to direct object access
+          prophecyMap[verseID] = blocks[0]; // Take the first block which contains P/F/V arrays
         }
       }
       
@@ -81,12 +82,11 @@ export function useSliceDataLoader(slice: string[]) {
         // Extract prophecy verse IDs (P/F/V)
         const prophecies = prophecyMap[verseID];
         if (prophecies) {
-          prophecies.forEach((data: any) => {
-            ['prophecy', 'fulfillment', 'verification'].forEach(type => {
-              if (data[type]) {
-                data[type].forEach((ref: string) => remoteVerseIndices.add(ref));
-              }
-            });
+          // Handle flattened structure directly
+          ['P', 'F', 'V'].forEach(type => {
+            if (prophecies[type] && Array.isArray(prophecies[type])) {
+              prophecies[type].forEach((ref: string) => remoteVerseIndices.add(ref));
+            }
           });
         }
       }
