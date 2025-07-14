@@ -1,4 +1,4 @@
-import { loadTranslation } from "./translationLoader";
+// DELETED: translationLoader.ts - replaced by translationCache.ts
 
 export const BibleDataAPI = {
   getTranslationText: async (ids: string[], translation: string) => {

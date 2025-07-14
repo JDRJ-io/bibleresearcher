@@ -2,18 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
-import {
-  loadTranslation,
-  loadMultipleTranslations,
-  getVerseText,
-} from "@/lib/translationLoader";
+// DELETED: translationLoader.ts imports - replaced by translationCache.ts
 import { loadTranslationAsText } from "@/data/BibleDataAPI";
 import {
   loadVerseKeys,
-  loadTranslationSecure,
-  loadCrossReferences,
-  loadProphecyIndex,
-  loadProphecyRows,
 } from "@/lib/supabaseLoader";
 
 // Global KJV text map for dynamic verse text loading
@@ -1342,61 +1334,7 @@ export function useBibleData() {
   );
   const scrollOffset = calculateScrollOffset();
 
-  // Load translation when selected from Supabase
-  const loadTranslationData = async (translationId: string) => {
-    try {
-      console.log(`Loading ${translationId} translation from Supabase...`);
-      
-      // Import the translation loader
-      const { loadTranslationSecure } = await import('../lib/supabaseLoader');
-      const translationData = await loadTranslationSecure(translationId);
-
-      if (translationData.size > 0) {
-        // Update all verses (both display and full set) with the new translation
-        const updateVersesWithTranslation = (verses: BibleVerse[]) => {
-          return verses.map((verse) => {
-            // Try multiple reference formats to find the text
-            const formats = [
-              verse.reference, // "Gen 1:1"
-              `${verse.book}.${verse.chapter}:${verse.verse}`, // "Gen.1:1"
-              `${verse.book} ${verse.chapter}:${verse.verse}`, // "Gen 1:1"
-            ];
-
-            let text = null;
-            for (const format of formats) {
-              text = translationData.get(format);
-              if (text) break;
-            }
-
-            if (text) {
-              return {
-                ...verse,
-                text: {
-                  ...verse.text,
-                  [translationId]: text,
-                },
-              };
-            }
-            return verse;
-          });
-        };
-
-        // Update both display verses and full verse set
-        const updatedDisplayVerses = updateVersesWithTranslation(verses);
-        const updatedAllVerses = updateVersesWithTranslation(verses);
-        
-        setVerses(updatedDisplayVerses);
-        setVerses(updatedAllVerses);
-        
-        console.log(`✓ ${translationId} translation loaded with ${translationData.size} verses`);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error(`Failed to load ${translationId}:`, error);
-      return false;
-    }
-  };
+  // DELETED: loadTranslationData - replaced by translationCache.ts
 
   // Global verse text lookup function for prophecy column and other components
   const getGlobalVerseText = (reference: string): string => {
@@ -1436,7 +1374,7 @@ export function useBibleData() {
     canGoForward,
     loadingProgress,
     allTranslations,
-    loadTranslationData, // Expose translation loading function
+    // DELETED: loadTranslationData - replaced by translationCache.ts
     mainTranslation,
     selectedTranslations,
     multiTranslationMode,

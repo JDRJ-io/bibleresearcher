@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useBibleData } from "@/hooks/useBibleData";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useToast } from "@/hooks/use-toast";
-import { loadTranslation, getVerseText } from "@/lib/translationLoader";
+// DELETED: translationLoader.ts - replaced by translationCache.ts
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
@@ -37,7 +37,7 @@ export default function BiblePage() {
     goForward: hookGoForward,
     canGoBack: hookCanGoBack,
     canGoForward: hookCanGoForward,
-    loadTranslationData,
+    // DELETED: loadTranslationData - replaced by translationCache.ts
     setSelectedTranslations: setHookSelectedTranslations,
     setMainTranslation: setHookMainTranslation,
     crossRefSet,

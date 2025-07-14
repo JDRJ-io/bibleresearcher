@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { ensureTranslation } from '@/lib/translationCache';
 
 // Feature Block A - A1: Global State & Selectors
 // 1-A: Separate selected vs visible translations
@@ -50,6 +51,9 @@ export const useBibleStore = create<{
           // 1-B: Rules inside setMain
           if (id === state.translationState.main) return state; // no-op
           
+          // Load translation using single cache
+          ensureTranslation(id);
+          
           const currentMain = state.translationState.main;
           const currentAlternates = state.translationState.alternates;
           
@@ -78,6 +82,11 @@ export const useBibleStore = create<{
           
           const currentAlternates = state.translationState.alternates;
           const has = currentAlternates.includes(id);
+          
+          // Load translation using single cache when adding
+          if (!has) {
+            ensureTranslation(id);
+          }
           
           const newAlternates = has 
             ? currentAlternates.filter(t => t !== id)  // remove column

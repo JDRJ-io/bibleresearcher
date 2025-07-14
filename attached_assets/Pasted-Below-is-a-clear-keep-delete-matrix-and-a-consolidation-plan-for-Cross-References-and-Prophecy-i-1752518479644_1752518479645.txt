@@ -1,0 +1,84 @@
+Below is a clear “keep / delete” matrix and a consolidation plan for Cross-References and Prophecy identical to the translation cleanup we just discussed. Follow it and you’ll have one lightning-fast path per data domain, all still served from Supabase Storage.
+
+⸻
+
+1  Inventory of current loaders
+
+Domain	Existing loaders (5 – 6 total)	Real function today	Recommended action
+Cross-Refs	BibleDataAPI.loadCrossReferences()	Fetches full cf1.txt every time	🗑 Delete
+	supabaseLoader.loadCrossReferences()	Signed-URL fetch of cf1.txt (duplicate)	🗑 Delete
+	useBibleData.loadBothCrossReferenceSets()	Fetches both cf1.txt & cf2.txt again	🗑 Delete
+	crossRefWorker.ts (new)	Loads cf2.txt once, ranges cf1.txt	✅ KEEP (single source ✓)
+	useSliceDataLoader.ts	Uses the worker result & merges into store	✅ KEEP
+Prophecy	BibleDataAPI.loadProphecy()	Fetches legacy prophecy-file.txt (unused)	🗑 Delete
+	supabaseLoader.loadProphecyIndex/Rows()	Signed-URL duplicates	🗑 Delete
+	prophecyCache.ensureProphecyLoaded() (new)	Downloads prophecy_index.txt + prophecy_rows.json once	✅ KEEP
+	useSliceDataLoader.ts	Builds {P,F,V} arrays & merges into store	✅ KEEP
+
+After cleanup each domain has exactly one loader:
+	•	Cross-Refs: crossRefWorker.ts
+	•	Prophecy: prophecyCache.ts
+
+⸻
+
+2  Concrete removal steps
+	1.	Delete obsolete functions & files
+
+rm src/lib/supabaseLoader.ts
+rm src/hooks/useBibleData.ts
+# or comment out the specific loadCrossReferences / loadProphecy helpers in BibleDataAPI.ts if that file still contains other useful utilities.
+
+
+	2.	Search & replace imports
+
+grep -R "loadCrossReferences(" src/
+grep -R "loadProphecy(" src/
+grep -R "loadBothCrossReferenceSets(" src/
+
+Replace each call with:
+Cross-Refs: nothing — the data now arrives automatically via useSliceDataLoader.
+Prophecy: ditto, handled in the same hook.
+
+	3.	Run TypeScript
+
+pnpm typecheck
+
+Resolve any “function not found” errors by removing the dangling import.
+
+	4.	Dev-test
+	•	Network tab (Desktop)
+	•	/references/cf2.txt 200 (one time)
+	•	/references/cf1_offsets.json 200 (one time)
+	•	/references/cf1.txt 206 with byte ranges as you scroll
+	•	/references/prophecy_index.txt 200 (one time)
+	•	/references/prophecy_rows.json 200 (one time)
+	•	Console store check
+
+// Cross-refs array present?
+window.__STORE.getState().crossRefs["Gen.1:1"]
+// Prophecy arrays?
+window.__STORE.getState().prophecies["Gen.3:15"]
+
+
+	5.	Mobile test (optional)
+Throttle network → see the worker pull 3 KB range for cf1, not full 6 MB.
+
+⸻
+
+3  Why this keeps performance “lightning fast”
+	•	Zero duplicate downloads → halves bandwidth for each domain.
+	•	Worker + byte-range keeps first paint under 100 ms even on 3G.
+	•	Single Zustand maps reduce GC pressure; scrolling remains 60 fps.
+
+Everything is still fetched from Supabase Storage; you’ve simply removed the legacy wrappers that fetched the same files again via signed URLs or direct calls.
+
+⸻
+
+4  Next steps
+	1.	Apply the deletions and import fixes.
+	2.	Run desktop + mobile smoke tests.
+	3.	Once green, commit with message:
+
+chore: remove legacy cross-ref & prophecy loaders; consolidate to worker + cache
+
+Ping me with any TypeScript error or a red network 404 if something sneaks through—we’ll squash it quickly.

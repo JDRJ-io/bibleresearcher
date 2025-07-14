@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
-import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
+// DELETED: loadCrossRefSlice, loadProphecySlice - replaced by crossRefWorker.ts and prophecyCache.ts
 import { getProphecyForVerse } from '@/lib/prophecyCache';
 import { crossRefWorker } from '@/lib/workers';
 

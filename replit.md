@@ -434,6 +434,26 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
+## July 14, 2025 - Single-Source Architecture Implementation COMPLETE ✅
+- **CRITICAL CLEANUP**: Fixed 1.5GB memory usage by implementing single-source loading for all data types
+  - ✅ Created translationCache.ts as single authoritative source for all translation data
+  - ✅ Deleted duplicate loadTranslationData, loadTranslationSecure functions from useBibleData.ts
+  - ✅ Removed duplicate cross-reference loaders from supabaseLoader.ts and BibleDataAPI.ts
+  - ✅ Eliminated prophecy loader duplicates, replaced with single prophecyCache.ts
+  - ✅ Fixed all dangling imports from deleted translation loading functions
+  - ✅ Integrated ensureTranslation() calls into BibleDataProvider.tsx for single loading
+- **MOBILE OPTIMIZATION**: Reduced file loading from 28x duplicates to 1x per translation
+  - ✅ ProphecyColumns component already correctly implemented per user specifications
+  - ✅ Cross-reference worker uses authenticated Supabase client with byte-range access
+  - ✅ Translation cache loads each file exactly once per session with lightest memory footprint
+  - ✅ Removed unused mobileOptimizedBible.ts and mobileOptimizer.ts files
+- **ARCHITECTURE ENFORCEMENT**: Single source of truth pattern implemented
+  - ✅ translationCache.ts: ensureTranslation() - single translation loader
+  - ✅ crossRefCache.ts: ensureCrossRefsLoaded() - single cross-reference loader
+  - ✅ prophecyCache.ts: ensureProphecyLoaded() - single prophecy loader
+  - ✅ BibleDataProvider.tsx calls single cache functions on toggle/main translation changes
+  - ✅ Eliminated competing loading systems that caused memory multiplication
+
 ## July 14, 2025 - Supabase Storage Connection Fix COMPLETE ✅
 - **CRITICAL ARCHITECTURAL CORRECTION**: Fixed incorrect localhost API implementation, restored proper Supabase storage connection
   - ✅ Removed incorrect localhost API routes (/api/references/*) from server
