@@ -4,7 +4,7 @@ import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
 import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
 import { ensureProphecyLoaded, getProphecyForVerse } from '@/lib/prophecyCache';
-import { fetchCrossRefs } from '@/workers/crossReferencesWorker';
+import { crossRefWorker } from '@/lib/workers';
 
 // Expert's fix: Add prefetchRemoteVerses function
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
@@ -40,16 +40,20 @@ export function useSliceDataLoader(slice: string[]) {
       // 2. Build prophecy map in memory  
       const prophecyMap: Record<string, any> = {};
       
-      for (const verseID of slice) {
-        const blocks = getProphecyForVerse(verseID);
-        if (blocks.length > 0) {
-          // Flatten the array structure to direct object access
-          prophecyMap[verseID] = blocks[0]; // Take the first block which contains P/F/V arrays
-        }
-      }
+      slice.forEach(id => {
+        const blocks = getProphecyForVerse(id);
+        if (!blocks.length) return;
+        prophecyMap[id] = { P: [], F: [], V: [] };
+        blocks.forEach(({ role, row }) => {
+          prophecyMap[id][role].push(row.summary);
+        });
+      });
       
       // 3. Use worker for cross-references (real data)
-      const crossrefs = await fetchCrossRefs(slice);
+      const crossrefs: Record<string, string[]> = await new Promise((res) => {
+        crossRefWorker.onmessage = e => res(e.data.result);
+        crossRefWorker.postMessage({ id: 'sliceIDs', sliceIDs: slice });
+      });
       console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses');
       
       // Use functional form for Zustand mutation

@@ -1,11 +1,5 @@
 // client/src/lib/workers.ts
-import { fetchCrossRefs } from '@/workers/crossReferencesWorker';
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import CrossRefWorker from '@/workers/crossReferencesWorker?worker';
 
-// CrossReferencesWorker wrapper class for consistency
-class CrossRefsWorker {
-  async getCrossRefs(sliceIDs: string[]): Promise<Record<string, string[]>> {
-    return await fetchCrossRefs(sliceIDs);
-  }
-}
-
-export const crossRefsWorker = new CrossRefsWorker();
+export const crossRefWorker = new CrossRefWorker();
