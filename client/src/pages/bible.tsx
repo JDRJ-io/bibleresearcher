@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
-// DELETED: useBibleData - removed as per cleanup instructions
+import { useBibleData } from "@/hooks/useBibleData";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useToast } from "@/hooks/use-toast";
-// DELETED: translationLoader.ts - replaced by translationCache.ts
+import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
@@ -37,7 +37,7 @@ export default function BiblePage() {
     goForward: hookGoForward,
     canGoBack: hookCanGoBack,
     canGoForward: hookCanGoForward,
-    // DELETED: loadTranslationData - replaced by translationCache.ts
+    loadTranslationData,
     setSelectedTranslations: setHookSelectedTranslations,
     setMainTranslation: setHookMainTranslation,
     crossRefSet,
@@ -48,30 +48,7 @@ export default function BiblePage() {
     getGlobalVerseText,
     centerVerseIndex,
     loadVerseRange,
-  } = {
-    verses: [],
-    allVerses: [],
-    isLoading: false,
-    loadingProgress: { stage: 'complete', percentage: 100 },
-    navigateToVerse: () => {},
-    totalBibleHeight: 0,
-    scrollOffset: 0,
-    searchQuery: '',
-    setSearchQuery: () => {},
-    goBack: () => {},
-    goForward: () => {},
-    canGoBack: false,
-    canGoForward: false,
-    crossRefSet: 'cf1',
-    setCrossRefSet: () => {},
-    getProphecyDataForVerse: () => {},
-    loadProphecyDataOnDemand: () => {},
-    getGlobalVerseText: () => {},
-    centerVerseIndex: 0,
-    loadVerseRange: () => {},
-    verseOrder: 'canonical',
-    switchVerseOrder: () => {}
-  };
+  } = useBibleData();
   
   // TRANSLATION MAP SYSTEM INTEGRATION
   const translationMaps = useTranslationMaps();
@@ -475,12 +452,10 @@ export default function BiblePage() {
   // Show loading only when we don't have verses yet
   const shouldShowLoading = isLoading && verses.length === 0;
 
-  console.log("📱 MOBILE LOADING STATE:", {
-    isLoading,
+  console.log("🚫 LOADING BYPASSED FOR TESTING:", {
+    originalIsLoading: isLoading,
     versesLength: verses.length,
-    shouldShowLoading,
-    loadingStage: loadingProgress?.stage,
-    translationsLoading
+    forcedShouldShowLoading: shouldShowLoading,
   });
 
   if (shouldShowLoading) {

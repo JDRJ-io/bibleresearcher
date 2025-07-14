@@ -73,7 +73,11 @@ export async function loadCrossReferences() {
   return await data.text();
 }
 
-
+export async function loadCrossRefSlice(start: number, end: number) {
+  // Remove obsolete slice loaders
+  console.warn('loadCrossRefSlice is deprecated, use crossRefsWorker instead');
+  return {};
+}
 
 export async function loadProphecy() {
   const { data, error } = await supabase.storage.from('anointed').download('references/prophecy-file.txt');
@@ -81,7 +85,11 @@ export async function loadProphecy() {
   return await data.text();
 }
 
-
+export async function loadProphecySlice(start: number, end: number) {
+  // Remove obsolete slice loaders
+  console.warn('loadProphecySlice is deprecated, use prophecyCache instead');
+  return {};
+}
 
 export async function saveNotes(note: any, preserveAnchor?: (ref: string, index: number) => void) {
   const result = await supabase.from('notes').upsert(note);

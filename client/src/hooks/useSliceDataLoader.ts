@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
+import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
 import { getProphecyForVerse } from '@/lib/prophecyCache';
 import { crossRefWorker } from '@/lib/workers';
 
@@ -25,13 +26,6 @@ export function useSliceDataLoader(slice: string[]) {
   const { getVerseText } = useTranslationMaps();
   const { main } = useZustandTranslationMaps();
   
-  useEffect(() => {
-    if (slice.length > 0) {
-      console.log(`🔄 useSliceDataLoader triggered for ${slice.length} verses`);
-      loadSliceData();
-    }
-  }, [slice.length]);
-  
   const loadSliceData = async () => {
     if (slice.length === 0) return;
     
@@ -44,11 +38,7 @@ export function useSliceDataLoader(slice: string[]) {
 
       /* 📖 Cross-refs via worker */
       const crossrefs = await new Promise<Record<string,string[]>>(res => {
-        const handler = (e: MessageEvent) => {
-          crossRefWorker.removeEventListener('message', handler);
-          res(e.data);
-        };
-        crossRefWorker.addEventListener('message', handler);
+        crossRefWorker.onmessage = e => res(e.data);
         crossRefWorker.postMessage({ ids: sliceIDs });
       });
 
@@ -69,8 +59,8 @@ export function useSliceDataLoader(slice: string[]) {
         prophecies: { ...state.prophecies, ...prophecyMap }
       }));
       
-      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses with data:', Object.keys(crossrefs).filter(k => crossrefs[k]?.length > 0).length);
-      console.log(`✅ Prophecy data loaded:`, Object.keys(prophecyMap).length, 'verses with data:', Object.keys(prophecyMap).filter(k => prophecyMap[k]?.P?.length > 0 || prophecyMap[k]?.F?.length > 0 || prophecyMap[k]?.V?.length > 0).length);
+      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses');
+      console.log(`✅ Prophecy data loaded:`, Object.keys(prophecyMap).length, 'verses');
       
       // Extract verse references from crossrefs and prophecy
       const remoteVerseIndices = new Set<string>();

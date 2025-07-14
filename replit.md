@@ -434,49 +434,12 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
-## July 14, 2025 - Single-Source Architecture Implementation COMPLETE ✅
-- **CRITICAL CLEANUP**: Fixed 1.5GB memory usage by implementing single-source loading for all data types
-  - ✅ Created translationCache.ts as single authoritative source for all translation data
-  - ✅ Deleted duplicate loadTranslationData, loadTranslationSecure functions from useBibleData.ts
-  - ✅ Removed duplicate cross-reference loaders from supabaseLoader.ts and BibleDataAPI.ts
-  - ✅ Eliminated prophecy loader duplicates, replaced with single prophecyCache.ts
-  - ✅ Fixed all dangling imports from deleted translation loading functions
-  - ✅ Integrated ensureTranslation() calls into BibleDataProvider.tsx for single loading
-- **MOBILE OPTIMIZATION**: Reduced file loading from 28x duplicates to 1x per translation
-  - ✅ ProphecyColumns component already correctly implemented per user specifications
-  - ✅ Cross-reference worker uses authenticated Supabase client with byte-range access
-  - ✅ Translation cache loads each file exactly once per session with lightest memory footprint
-  - ✅ Removed unused mobileOptimizedBible.ts and mobileOptimizer.ts files
-- **ARCHITECTURE ENFORCEMENT**: Single source of truth pattern implemented
-  - ✅ translationCache.ts: ensureTranslation() - single translation loader
-  - ✅ crossRefCache.ts: ensureCrossRefsLoaded() - single cross-reference loader
-  - ✅ prophecyCache.ts: ensureProphecyLoaded() - single prophecy loader
-  - ✅ BibleDataProvider.tsx calls single cache functions on toggle/main translation changes
-  - ✅ Eliminated competing loading systems that caused memory multiplication
-
-## July 14, 2025 - Supabase Storage Connection Fix COMPLETE ✅
-- **CRITICAL ARCHITECTURAL CORRECTION**: Fixed incorrect localhost API implementation, restored proper Supabase storage connection
-  - ✅ Removed incorrect localhost API routes (/api/references/*) from server
-  - ✅ Updated cross-reference worker to use authenticated Supabase client instead of fetch
-  - ✅ Fixed prophecy cache to use supabase.storage.download() for private bucket access
-  - ✅ Cross-reference and prophecy data now loads directly from Supabase storage files
-  - ✅ Error handling maintained for Supabase connection failures without fallback
-- **AUTHENTICATION PATTERN**: Implemented proper Supabase authentication for private bucket access
-  - ✅ Cross-reference worker uses import('../lib/supabase') for authenticated access
-  - ✅ Prophecy cache uses supabase.storage.download() for cf1.txt and prophecy files
-  - ✅ Signed URL pattern from supabaseLoader.ts applied to cross-reference system
-  - ✅ Private bucket security maintained with proper authentication headers
-- **EXPLANATION**: Initial API approach was incorrect architecture choice
-  - ❌ Wrongly implemented localhost /api/references/* routes instead of direct Supabase connection
-  - ❌ Attempted to proxy Supabase data through Express server unnecessarily
-  - ✅ Corrected to use existing authenticated Supabase client pattern from supabaseLoader.ts
-  - ✅ Followed established pattern of private bucket access with authentication
-
 ## July 13, 2025 - Cross-Reference Worker & Prophecy Cache Implementation COMPLETE ✅
 - **AUTHENTIC DATA LOADING**: Implemented cross-reference worker and prophecy cache system using real Supabase data
   - ✅ CrossRef worker with byte-range access for efficient data retrieval
   - ✅ Prophecy cache system builds data structure in memory from authentic JSON files
   - ✅ Eliminated all mock/placeholder data - system now uses only authentic Supabase sources
+  - ✅ Server API routes for /api/references/cf1.txt, prophecy_rows.txt, and prophecy_index.json
 - **SLICE DATA LOADER OPTIMIZATION**: Wired cross-reference and prophecy data into slice loading system
   - ✅ Functional Zustand mutation patterns for performance optimization
   - ✅ Real-time cross-reference badge counts display (📖 with number indicators)

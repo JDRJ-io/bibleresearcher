@@ -7,20 +7,9 @@ async function ensureCrossRefsLoaded() {
   if (crossRefsMap) return;
   
   try {
-    // Import Supabase client for authenticated access
-    const { supabase } = await import('../lib/supabase');
-    
-    // Use authenticated Supabase client for private bucket access
-    const { data, error } = await supabase.storage
-      .from("anointed")
-      .download("references/cf1.txt");
-    
-    if (error) {
-      console.error("Error downloading cross-references:", error);
-      throw error;
-    }
-    
-    const text = await data.text();
+    const response = await fetch('/api/references/cf1.txt');
+    if (!response.ok) throw new Error(`Failed to fetch cross-references: ${response.status}`);
+    const text = await response.text();
     
     crossRefsMap = {};
     text.split('\n').forEach(line => {
@@ -65,19 +54,26 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
   return result;
 }
 
+/* client/src/workers/crossReferencesWorker.ts */
 self.onmessage = async (e) => {
   const { ids } = e.data as { ids: string[] };
   
-  await ensureCrossRefsLoaded();
+  // -- loadCf2() and loadOffsets() helpers exactly like before --
   
   const out: Record<string, string[]> = {};
   ids.forEach(id => {
-    out[id] = crossRefsMap[id] || [];
+    if (crossRefsCache[id]) { out[id] = crossRefsCache[id]; }
   });
   
-  console.log(`📖 CrossRef Worker: Processed ${ids.length} verses, found ${Object.keys(out).filter(k => out[k].length > 0).length} with data`);
+  const missing = ids.filter(id => !out[id]);
+  if (missing.length) {
+    await ensureCrossRefsLoaded();
+    missing.forEach(id => {
+      out[id] = crossRefsCache[id] || [];
+    });
+  }
   
-  self.postMessage(out);
+  (self as DedicatedWorkerGlobalScope).postMessage(out);
 };
 
 export { loadCrossRefs, fetchCrossRefs };

@@ -14,32 +14,16 @@ export async function ensureProphecyLoaded() {
   if (verseMeta && rowMeta) return;
   
   try {
-    // Import Supabase client for authenticated access
-    const { supabase } = await import('./supabase');
-    
-    // Use authenticated Supabase client for private bucket access
-    const [verseData, rowData] = await Promise.all([
-      supabase.storage
-        .from("anointed")
-        .download("references/prophecy_rows.txt"),
-      supabase.storage
-        .from("anointed")
-        .download("references/prophecy_index.json")
+    const [verseResp, rowResp] = await Promise.all([
+      fetch('/api/references/prophecy_rows.txt').then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch prophecy rows: ${r.status}`);
+        return r.text();
+      }),
+      fetch('/api/references/prophecy_index.json').then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch prophecy index: ${r.status}`);
+        return r.json();
+      })
     ]);
-    
-    if (verseData.error) {
-      console.error("Error downloading prophecy rows:", verseData.error);
-      throw verseData.error;
-    }
-    
-    if (rowData.error) {
-      console.error("Error downloading prophecy index:", rowData.error);
-      throw rowData.error;
-    }
-    
-    const verseResp = await verseData.data.text();
-    const rowResp = await rowData.data.text();
-    const rowRespJson = JSON.parse(rowResp);
     
     // Parse verseMeta
     verseMeta = {};
@@ -65,7 +49,7 @@ export async function ensureProphecyLoaded() {
       }
     });
     
-    rowMeta = rowRespJson;
+    rowMeta = rowResp;
     console.log('✅ Prophecy data loaded successfully');
   } catch (error) {
     console.error('Failed to load prophecy data from authentic source:', error);
