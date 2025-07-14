@@ -73,7 +73,7 @@ export async function loadCrossReferences() {
   return await data.text();
 }
 
-// DELETED: loadCrossRefSlice - deprecated, superseded by crossRefWorker.ts
+
 
 export async function loadProphecy() {
   const { data, error } = await supabase.storage.from('anointed').download('references/prophecy-file.txt');
@@ -81,7 +81,7 @@ export async function loadProphecy() {
   return await data.text();
 }
 
-// DELETED: loadProphecySlice - deprecated, superseded by prophecyCache.ts
+
 
 export async function saveNotes(note: any, preserveAnchor?: (ref: string, index: number) => void) {
   const result = await supabase.from('notes').upsert(note);

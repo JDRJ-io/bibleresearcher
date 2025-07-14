@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBibleData } from "@/hooks/useBibleData";
+// DELETED: useBibleData - removed as per cleanup instructions
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useToast } from "@/hooks/use-toast";
 // DELETED: translationLoader.ts - replaced by translationCache.ts
@@ -48,7 +48,30 @@ export default function BiblePage() {
     getGlobalVerseText,
     centerVerseIndex,
     loadVerseRange,
-  } = useBibleData();
+  } = {
+    verses: [],
+    allVerses: [],
+    isLoading: false,
+    loadingProgress: { stage: 'complete', percentage: 100 },
+    navigateToVerse: () => {},
+    totalBibleHeight: 0,
+    scrollOffset: 0,
+    searchQuery: '',
+    setSearchQuery: () => {},
+    goBack: () => {},
+    goForward: () => {},
+    canGoBack: false,
+    canGoForward: false,
+    crossRefSet: 'cf1',
+    setCrossRefSet: () => {},
+    getProphecyDataForVerse: () => {},
+    loadProphecyDataOnDemand: () => {},
+    getGlobalVerseText: () => {},
+    centerVerseIndex: 0,
+    loadVerseRange: () => {},
+    verseOrder: 'canonical',
+    switchVerseOrder: () => {}
+  };
   
   // TRANSLATION MAP SYSTEM INTEGRATION
   const translationMaps = useTranslationMaps();

@@ -1,0 +1,88 @@
+Here’s the exact, copy-ready instruction set you can paste to the Replit agent so it applies only the changes that matter and leaves the fast Supabase flow intact.
+
+⸻
+
+🚧 1 Delete legacy loaders & stubs
+
+Delete file / function	Reason
+client/src/lib/supabaseLoader.ts (entire file)	Signed-URL duplicates of public fetches
+client/src/hooks/useBibleData.ts (entire file)	Mobile duplicate of translations loader
+client/src/data/BibleDataAPI.ts — functions loadCrossRefSlice, loadProphecySlice	Deprecated, replaced by worker/cache
+client/src/lib/supabaseLoader.ts — functions loadCrossReferences, loadProphecyIndex, loadProphecyRows	Duplicate full-file downloads
+client/src/hooks/useMobileOptimizedBible.ts, client/src/lib/mobileOptimizer.ts	Unused recent experiments
+
+(Keep scripts/build_offsets.py, crossRefWorker.ts, prophecyCache.ts, translationCache.ts.)
+
+⸻
+
+🛠 2 Keep & wire the single sources of truth
+
+Domain	File to keep	How it’s triggered
+Translations	lib/translationCache.ts → ensureTranslation(lang)	Call once in BibleDataProvider and in useTranslationMaps.ts
+Cross-Refs	workers/crossRefWorker.ts	Used in useSliceDataLoader.ts
+Prophecy	lib/prophecyCache.ts	Used in useSliceDataLoader.ts
+
+
+
+⸻
+
+✏️ 3 Small code edits
+	1.	Worker fetch paths
+Replace /api/references/... with /references/... in crossRefWorker.ts.
+	2.	Prophecy column rendering
+In client/src/components/bible/ProphecyColumns.tsx render arrays:
+
+<td>{row?.P?.join('; ')}</td>
+<td>{row?.F?.join('; ')}</td>
+<td>{row?.V?.join('; ')}</td>
+
+
+	3.	Call the worker in useSliceDataLoader.ts
+
+const crossRefs = await new Promise(res => {
+  crossRefWorker.onmessage = e => res(e.data);
+  crossRefWorker.postMessage({ ids: sliceIDs });
+});
+
+
+	4.	Build prophecy arrays in useSliceDataLoader.ts
+
+const prophecyMap: Record<string,ProphecyData> = {};
+sliceIDs.forEach(id => {
+  const blocks = getProphecyForVerse(id);
+  if (!blocks.length) return;
+  prophecyMap[id] = { P: [], F: [], V: [] };
+  blocks.forEach(({ role, row }) => prophecyMap[id]![role].push(row.summary));
+});
+
+
+
+⸻
+
+✅ 4 Sanity checks before committing
+	•	Network tab
+	•	/references/cf2.txt 200 (one-time)
+	•	/references/cf1.txt 206 with Range as you scroll
+	•	/references/prophecy_index.txt and /prophecy_rows.json 200 (one-time)
+	•	Exactly one /translations/<lang>.txt request per language.
+	•	UI
+	•	Cross-reference badge counts visible.
+	•	Prophecy columns show text after toggle.
+
+If those checks pass, commit with:
+
+chore: consolidate loaders; single-source architecture for translations, cross-refs, prophecy
+
+
+
+⸻
+
+Copy/paste for the agent
+
+Apply these steps exactly:
+	1.	Delete all files/functions listed under “Delete legacy loaders & stubs.”
+	2.	Keep the loaders listed under “Keep & wire the single sources of truth.”
+	3.	Apply the small code edits in section 3 (worker paths, prophecy cell join, worker call, prophecy array build).
+	4.	Run the sanity checks; do not modify anything else.
+
+That will leave you with one ultra-fast Supabase fetch per domain and eliminate the duplicate downloads the agent flagged.
