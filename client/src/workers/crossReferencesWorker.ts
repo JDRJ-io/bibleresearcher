@@ -1,18 +1,18 @@
 // client/src/workers/crossReferencesWorker.ts
 interface MessageRequest { id: string; sliceIDs: string[] }
 
+// Legacy cache for backward compatibility
+const crossRefsCache: Record<string, string[]> = {};
+
 let crossRefsMap: Record<string, string[]> | null = null;
 
-async function ensureCrossRefsLoaded() {
+// Initialize cross-references data from main thread
+function initializeCrossRefs(cf1Data: string) {
   if (crossRefsMap) return;
   
   try {
-    const response = await fetch('/api/references/cf1.txt');
-    if (!response.ok) throw new Error(`Failed to fetch cross-references: ${response.status}`);
-    const text = await response.text();
-    
     crossRefsMap = {};
-    text.split('\n').forEach(line => {
+    cf1Data.split('\n').forEach(line => {
       const [verseID, refsStr] = line.split('$$');
       if (verseID && refsStr) {
         // Parse cross-references with $ and # delimiters
@@ -27,13 +27,23 @@ async function ensureCrossRefsLoaded() {
           }
         });
         
-        crossRefsMap[verseID] = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
+        const cleanRefs = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
+        crossRefsMap[verseID] = cleanRefs;
+        crossRefsCache[verseID] = cleanRefs; // Also populate legacy cache
       }
     });
     
-    console.log('✅ Cross-references loaded successfully');
+    console.log('✅ Cross-references initialized in worker');
   } catch (error) {
-    console.error('Failed to load cross-references:', error);
+    console.error('Failed to initialize cross-references:', error);
+    crossRefsMap = {};
+  }
+}
+
+async function ensureCrossRefsLoaded() {
+  // Cross-references should be initialized via postMessage from main thread
+  if (!crossRefsMap) {
+    console.warn('Cross-references not initialized. Waiting for main thread data...');
     crossRefsMap = {};
   }
 }
@@ -47,7 +57,7 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
   const result: Record<string, string[]> = {};
   
   for (const id of ids) {
-    result[id] = crossRefsMap[id] || [];
+    result[id] = crossRefsMap?.[id] || [];
   }
   
   console.log(`📖 Cross-references fetched for ${ids.length} verses, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
@@ -56,24 +66,40 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
 
 /* client/src/workers/crossReferencesWorker.ts */
 self.onmessage = async (e) => {
-  const { ids } = e.data as { ids: string[] };
+  const { type, data, ids } = e.data;
   
-  // -- loadCf2() and loadOffsets() helpers exactly like before --
-  
-  const out: Record<string, string[]> = {};
-  ids.forEach(id => {
-    if (crossRefsCache[id]) { out[id] = crossRefsCache[id]; }
-  });
-  
-  const missing = ids.filter(id => !out[id]);
-  if (missing.length) {
-    await ensureCrossRefsLoaded();
-    missing.forEach(id => {
-      out[id] = crossRefsCache[id] || [];
-    });
+  // Handle initialization from main thread
+  if (type === 'init') {
+    initializeCrossRefs(data);
+    (self as DedicatedWorkerGlobalScope).postMessage({ type: 'initialized' });
+    return;
   }
   
-  (self as DedicatedWorkerGlobalScope).postMessage(out);
+  // Handle cross-reference queries
+  if (type === 'query' && ids) {
+    await ensureCrossRefsLoaded();
+    
+    const result: Record<string, string[]> = {};
+    ids.forEach((id: string) => {
+      result[id] = crossRefsMap?.[id] || [];
+    });
+    
+    console.log(`📖 Cross-references fetched for ${ids.length} verses, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
+    (self as DedicatedWorkerGlobalScope).postMessage({ type: 'result', data: result });
+    return;
+  }
+  
+  // Legacy support for direct ids array
+  if (ids && !type) {
+    await ensureCrossRefsLoaded();
+    
+    const result: Record<string, string[]> = {};
+    ids.forEach((id: string) => {
+      result[id] = crossRefsMap?.[id] || [];
+    });
+    
+    (self as DedicatedWorkerGlobalScope).postMessage(result);
+  }
 };
 
 export { loadCrossRefs, fetchCrossRefs };

@@ -14,15 +14,12 @@ export async function ensureProphecyLoaded() {
   if (verseMeta && rowMeta) return;
   
   try {
+    // Use BibleDataAPI for consistent data access
+    const { getProphecyRows, getProphecyIndex } = await import('@/data/BibleDataAPI');
+    
     const [verseResp, rowResp] = await Promise.all([
-      fetch('/api/references/prophecy_rows.txt').then(r => {
-        if (!r.ok) throw new Error(`Failed to fetch prophecy rows: ${r.status}`);
-        return r.text();
-      }),
-      fetch('/api/references/prophecy_index.json').then(r => {
-        if (!r.ok) throw new Error(`Failed to fetch prophecy index: ${r.status}`);
-        return r.json();
-      })
+      getProphecyRows(),
+      getProphecyIndex()
     ]);
     
     // Parse verseMeta
@@ -50,7 +47,7 @@ export async function ensureProphecyLoaded() {
     });
     
     rowMeta = rowResp;
-    console.log('✅ Prophecy data loaded successfully');
+    console.log('✅ Prophecy data loaded successfully via BibleDataAPI');
   } catch (error) {
     console.error('Failed to load prophecy data from authentic source:', error);
     // Don't fall back to mock data - keep empty

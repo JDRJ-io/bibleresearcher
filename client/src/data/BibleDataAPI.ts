@@ -67,10 +67,19 @@ export async function loadChronologicalVerseKeys() {
   return JSON.parse(await data.text());
 }
 
-export async function loadCrossReferences() {
-  const { data, error } = await supabase.storage.from('anointed').download('references/cf1.txt');
-  if (error) throw error;
-  return await data.text();
+// Cross-reference loading with proper caching
+export async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
+  const cacheKey = `crossref-${set}`;
+  return getOrFetch(cacheKey, async () => {
+    const { data, error } = await supabase.storage.from('anointed').download(`references/${set}.txt`);
+    if (error) throw error;
+    return await data.text();
+  });
+}
+
+// Get cross-reference data for BibleDataAPI facade
+export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
+  return await loadCrossReferences(set);
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
@@ -79,10 +88,32 @@ export async function loadCrossRefSlice(start: number, end: number) {
   return {};
 }
 
-export async function loadProphecy() {
-  const { data, error } = await supabase.storage.from('anointed').download('references/prophecy-file.txt');
-  if (error) throw error;
-  return await data.text();
+// Prophecy loading with proper caching
+export async function loadProphecyRows(): Promise<string> {
+  const cacheKey = 'prophecy-rows';
+  return getOrFetch(cacheKey, async () => {
+    const { data, error } = await supabase.storage.from('anointed').download('references/prophecy_rows.txt');
+    if (error) throw error;
+    return await data.text();
+  });
+}
+
+export async function loadProphecyIndex(): Promise<any> {
+  const cacheKey = 'prophecy-index';
+  return getOrFetch(cacheKey, async () => {
+    const { data, error } = await supabase.storage.from('anointed').download('references/prophecy_index.json');
+    if (error) throw error;
+    return JSON.parse(await data.text());
+  });
+}
+
+// Get prophecy data for BibleDataAPI facade
+export async function getProphecyRows(): Promise<string> {
+  return await loadProphecyRows();
+}
+
+export async function getProphecyIndex(): Promise<any> {
+  return await loadProphecyIndex();
 }
 
 export async function loadProphecySlice(start: number, end: number) {

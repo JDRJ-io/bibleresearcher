@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useBibleStore } from '@/providers/BibleDataProvider';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
-import { loadCrossRefSlice, loadProphecySlice } from '@/data/BibleDataAPI';
+import { getCrossRef, getProphecyRows } from '@/data/BibleDataAPI';
 import { getProphecyForVerse } from '@/lib/prophecyCache';
-import { crossRefWorker } from '@/lib/workers';
+import { getCrossRefWorker } from '@/lib/workers';
 
 // Expert's fix: Add prefetchRemoteVerses function
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
@@ -37,9 +37,20 @@ export function useSliceDataLoader(slice: string[]) {
       const sliceIDs = slice; // or however you name it
 
       /* 📖 Cross-refs via worker */
+      const worker = await getCrossRefWorker();
       const crossrefs = await new Promise<Record<string,string[]>>(res => {
-        crossRefWorker.onmessage = e => res(e.data);
-        crossRefWorker.postMessage({ ids: sliceIDs });
+        const handleMessage = (e: MessageEvent) => {
+          if (e.data.type === 'result') {
+            worker.removeEventListener('message', handleMessage);
+            res(e.data.data);
+          } else if (!e.data.type) {
+            // Legacy support for direct data response
+            worker.removeEventListener('message', handleMessage);
+            res(e.data);
+          }
+        };
+        worker.addEventListener('message', handleMessage);
+        worker.postMessage({ type: 'query', ids: sliceIDs });
       });
 
       /* 📖 Prophecy arrays */
