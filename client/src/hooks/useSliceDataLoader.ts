@@ -45,16 +45,24 @@ export function useSliceDataLoader(slice: string[]) {
         if (!blocks.length) return;
         prophecyMap[id] = { P: [], F: [], V: [] };
         blocks.forEach(({ role, row }) => {
-          prophecyMap[id][role].push(row.summary);
+          if (role && row?.summary) {
+            if (!prophecyMap[id][role]) prophecyMap[id][role] = [];
+            prophecyMap[id][role].push(row.summary);
+          }
         });
       });
       
+      console.log(`📊 PROPHECY DEBUG: Found ${Object.keys(prophecyMap).length} verses with prophecy data`);
+      
       // 3. Use worker for cross-references (real data)
       const crossrefs: Record<string, string[]> = await new Promise((res) => {
-        crossRefWorker.onmessage = e => res(e.data.result);
+        crossRefWorker.onmessage = e => {
+          console.log(`📊 CROSSREF DEBUG: Worker returned data for ${Object.keys(e.data.result).length} verses`);
+          res(e.data.result);
+        };
         crossRefWorker.postMessage({ id: 'sliceIDs', sliceIDs: slice });
       });
-      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses');
+      console.log(`✅ Cross-references loaded:`, Object.keys(crossrefs).length, 'verses with data:', Object.keys(crossrefs).filter(k => crossrefs[k]?.length > 0).length);
       
       // Use functional form for Zustand mutation
       useBibleStore.setState(state => ({
@@ -113,14 +121,18 @@ export function useSliceDataLoader(slice: string[]) {
   };
   
   useEffect(() => {
-    loadSliceData();
-  }, [slice, translationState.main]);
+    if (slice.length > 0) {
+      loadSliceData();
+    }
+  }, [slice.join(',')]); // Use slice content hash to prevent excessive reloads
 
   // Expert's fix: useEffect([main]) invalidates and refetches the remote cache
   // This guarantees the Cross/Prophecy verse texts swap instantly with the new main
   useEffect(() => {
-    prefetchRemoteVerses(slice, main);  // pulls new main's verse text
-  }, [slice, main]);
+    if (slice.length > 0 && main) {
+      prefetchRemoteVerses(slice, main);  // pulls new main's verse text
+    }
+  }, [main]); // Only reload when main translation changes
   
   return { isLoading };
 }
