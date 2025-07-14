@@ -7,9 +7,20 @@ async function ensureCrossRefsLoaded() {
   if (crossRefsMap) return;
   
   try {
-    const response = await fetch('/api/references/cf1.txt');
-    if (!response.ok) throw new Error(`Failed to fetch cross-references: ${response.status}`);
-    const text = await response.text();
+    // Import Supabase client for authenticated access
+    const { supabase } = await import('../lib/supabase');
+    
+    // Use authenticated Supabase client for private bucket access
+    const { data, error } = await supabase.storage
+      .from("anointed")
+      .download("references/cf1.txt");
+    
+    if (error) {
+      console.error("Error downloading cross-references:", error);
+      throw error;
+    }
+    
+    const text = await data.text();
     
     crossRefsMap = {};
     text.split('\n').forEach(line => {
