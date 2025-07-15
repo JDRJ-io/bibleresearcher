@@ -68,6 +68,12 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
 self.onmessage = async (e) => {
   const { type, data, ids } = e.data;
   
+  // Step 4: Worker round-trip test
+  if (type === 'ping') {
+    (self as DedicatedWorkerGlobalScope).postMessage('pong');
+    return;
+  }
+  
   // Handle initialization from main thread
   if (type === 'init') {
     initializeCrossRefs(data);

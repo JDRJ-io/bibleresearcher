@@ -7,6 +7,18 @@ let workerInitialized = false;
 export const getCrossRefWorker = async () => {
   if (!crossRefWorkerInstance) {
     crossRefWorkerInstance = new CrossRefWorker();
+    
+    // Step 4: Worker round-trip test (dev only)
+    if (import.meta.env.DEV) {
+      crossRefWorkerInstance.postMessage({ type: 'ping' });
+      crossRefWorkerInstance.onmessage = (e) => {
+        if (e.data === 'pong') {
+          console.log('✅ Worker protocol test passed');
+        } else if (e.data !== 'pong' && e.data.type !== 'initialized') {
+          console.error('Worker protocol mismatch:', e.data);
+        }
+      };
+    }
   }
   
   if (!workerInitialized) {

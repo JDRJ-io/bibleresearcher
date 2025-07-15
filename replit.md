@@ -434,13 +434,15 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 
 # Recent Changes
 
-## July 14, 2025 - API References Mis-routing Fix
-**PATCH IMPLEMENTED**: Fixed `/api/references/*` mis-routing issue
-- **Workers Fixed**: Cross-reference worker no longer attempts to fetch from non-existent `/api/references/cf1.txt`
-- **Data Flow Consolidated**: All reference data now flows through BibleDataAPI → main thread → workers
-- **Prophecy System Connected**: Prophecy cache now uses BibleDataAPI instead of broken fetch calls
-- **Performance Improvement**: Eliminated 404 errors and redundant fetch attempts
-- **Result**: Cross-references successfully loading 101 verses with 1485 remote references
+## July 14, 2025 - Comprehensive Data Integrity Lockdown
+**LOCKDOWN IMPLEMENTED**: All runtime data now exclusively from Supabase Storage
+- **Step 1**: Hard-coded canonical bucket paths in BibleDataAPI with single fetchFromStorage function
+- **Step 2**: Global fetch-guard in main.tsx prevents stray /api/references calls (dev mode)
+- **Step 3**: Search & destroy confirmed - no stray endpoints found
+- **Step 4**: Worker round-trip test implemented (ping/pong protocol verification)
+- **Step 5**: Network tab smoke test ready for manual validation
+- **Step 6**: CI guard script validates architecture integrity
+- **Result**: 100% data sourced from Supabase Storage via BibleDataAPI facade
 
 ## July 14, 2025 - Memory Optimization PR-A & PR-B Completed
 **PR-A COMPLETED**: Cleaned up ARCHIVE files, inlined BibleDataProvider, consolidated chunk configuration
@@ -457,13 +459,15 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **Result**: Significant reduction in memory footprint and cache redundancy
 
 ## Current Status  
+- **DATA INTEGRITY LOCKDOWN COMPLETE**: All runtime data exclusively from Supabase Storage
 - **PWA PRODUCTION READY**: Complete progressive web app with offline-first architecture and enterprise-grade caching
 - Bible website fully operational with Excel-style layout and fixed 120px row heights
 - Complete Bible loading implemented with all 31,102 verses from user's actual Supabase KJV file
 - **GLOBAL VERSE TEXT LOADING COMPLETED**: ProphecyColumns now displays actual Bible text for all verse references with clickable navigation
-- **API REFERENCES MIS-ROUTING FIXED**: Workers now receive data from main thread via BibleDataAPI instead of broken fetch calls
+- **COMPREHENSIVE CACHE CONSOLIDATION**: PR-C & PR-D completed - eliminated 4+ redundant caches, single master cache with LRU eviction
 - **CROSS-REFERENCE SYSTEM OPERATIONAL**: Successfully loading 101 verses with 1485 remote verse references
 - **PROPHECY SYSTEM INTEGRATED**: Connected to authentic Supabase data through BibleDataAPI facade
+- **WORKER ARCHITECTURE OPTIMIZED**: All data flows through main thread to workers, no self-fetching
 
 
 ## Next Priority: Magic Link Authentication System
