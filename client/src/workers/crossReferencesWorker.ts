@@ -66,11 +66,19 @@ async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> 
 
 /* client/src/workers/crossReferencesWorker.ts */
 self.onmessage = async (e) => {
-  const { type, data, ids } = e.data;
+  const { type, data, ids, key, text } = e.data;
   
   // Step 4: Worker round-trip test
   if (type === 'ping') {
     (self as DedicatedWorkerGlobalScope).postMessage('pong');
+    return;
+  }
+  
+  // Handle cross-reference data slice from main thread
+  if (type === 'cfData') {
+    const refs = text.split('|').filter((ref: string) => ref.trim());
+    crossRefsCache[key] = refs;
+    (self as DedicatedWorkerGlobalScope).postMessage({ key, refs });
     return;
   }
   
@@ -87,7 +95,7 @@ self.onmessage = async (e) => {
     
     const result: Record<string, string[]> = {};
     ids.forEach((id: string) => {
-      result[id] = crossRefsMap?.[id] || [];
+      result[id] = crossRefsMap?.[id] || crossRefsCache[id] || [];
     });
     
     console.log(`📖 Cross-references fetched for ${ids.length} verses, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
@@ -101,7 +109,7 @@ self.onmessage = async (e) => {
     
     const result: Record<string, string[]> = {};
     ids.forEach((id: string) => {
-      result[id] = crossRefsMap?.[id] || [];
+      result[id] = crossRefsMap?.[id] || crossRefsCache[id] || [];
     });
     
     (self as DedicatedWorkerGlobalScope).postMessage(result);

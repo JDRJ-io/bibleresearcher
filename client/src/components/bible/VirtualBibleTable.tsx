@@ -11,6 +11,7 @@ import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
+import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
 
 import type {
   BibleVerse,
@@ -70,6 +71,9 @@ const VirtualBibleTable = ({
   
   // B-1: Load slice data for cross-references and prophecy
   const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs);
+  
+  // B-2: Load cross-references with offset-based approach
+  useCrossRefLoader(slice.verseIDs, 'cf1');
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {

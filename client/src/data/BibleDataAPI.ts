@@ -203,6 +203,31 @@ export async function getStrongsOffsets() {
   return { strongsVerseOffsets, strongsIndexOffsets };
 }
 
+// -------- Prophecy loaders ----------
+let prophecyIndex: Record<string, [number, number]> | null = null;
+let prophecyRowsTxt: string | null = null;
+
+export async function getProphecy(indexKey: string) {
+  // Lazy load index JSON
+  if (!prophecyIndex) {
+    const idx = await fetchFromStorage(paths.prophecyIdx);
+    prophecyIndex = JSON.parse(idx);
+  }
+  // Lazy load rows file
+  if (!prophecyRowsTxt) {
+    prophecyRowsTxt = await fetchFromStorage(paths.prophecyRows);
+  }
+  const slice = prophecyIndex![indexKey];
+  if (!slice) return null;
+  return prophecyRowsTxt!.substring(slice[0], slice[1]);
+}
+
+// Cross-reference slice loader
+export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
+  const fullText = await loadCrossReferences(cfSet);
+  return fullText.substring(start, end);
+}
+
 export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string, index: number) => void) {
   const local = { ...bookmark, updated_at: Date.now(), pending: true };
   await db.bookmarks.add(local);
