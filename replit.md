@@ -468,6 +468,30 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **CROSS-REFERENCE SYSTEM OPERATIONAL**: Successfully loading 101 verses with 1485 remote verse references
 - **PROPHECY SYSTEM INTEGRATED**: Connected to authentic Supabase data through BibleDataAPI facade
 - **WORKER ARCHITECTURE OPTIMIZED**: All data flows through main thread to workers, no self-fetching
+- **OFFSET HELPER FILES ADDED**: Cross-reference and Strong's offset files for instant lookups
+
+## External Data Source Filepaths (Supabase Storage: 'anointed' bucket)
+
+### Bible Translations
+- `translations/KJV.txt` → `translations/YLT.txt` (12 translations)
+
+### Cross-References & Offsets
+- `references/cf1.txt` + `references/cf1_offsets.json`
+- `references/cf2.txt` + `references/cf2_offsets.json`
+
+### Prophecy System
+- `references/prophecy_rows.txt`
+- `references/prophecy_index.json`
+
+### Strong's Concordance Offsets
+- `references/strongsVerseOffsets.json`
+- `references/strongsIndexOffsets.json`
+
+### Verse Structure & Metadata
+- `metadata/verseKeys-canonical.json`
+- `metadata/verseKeys-chronological.json`
+- `metadata/dates-canonical.txt`
+- `metadata/dates-chronological.txt`
 
 
 ## Next Priority: Magic Link Authentication System

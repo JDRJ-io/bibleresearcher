@@ -8,8 +8,11 @@ const BUCKET = 'anointed';
 const paths = {
   translation:  (id: string) => `translations/${id}.txt`,
   crossRef:     (set: 'cf1' | 'cf2') => `references/${set}.txt`,
+  crossRefOffsets: (set: 'cf1' | 'cf2') => `references/${set}_offsets.json`,
   prophecyRows: 'references/prophecy_rows.txt',
   prophecyIdx:  'references/prophecy_index.json',
+  strongsVerseOffsets: 'references/strongsVerseOffsets.json',
+  strongsIndexOffsets: 'references/strongsIndexOffsets.json',
   verseKeys:    'metadata/verseKeys-canonical.json',
   verseKeysChronological: 'metadata/verseKeys-chronological.json',
   datesCanonical: 'metadata/dates-canonical.txt',
@@ -169,6 +172,35 @@ export async function saveNote(note: any, preserveAnchor?: (ref: string, index: 
     preserveAnchor(note.verseReference, note.verseIndex);
   }
   return { data: [{ id: local.id }] };
+}
+
+// -------- Cross-reference offsets ----------
+const cfOffsetsCache = new Map<'cf1' | 'cf2', Record<string, [number, number]>>();
+
+export async function getCfOffsets(set: 'cf1' | 'cf2') {
+  if (cfOffsetsCache.has(set)) return cfOffsetsCache.get(set)!;
+  const path = paths.crossRefOffsets(set);
+  const txt = await fetchFromStorage(path);
+  const obj = JSON.parse(txt) as Record<string, [number, number]>;
+  cfOffsetsCache.set(set, obj);
+  return obj;
+}
+
+// -------- Strong's offsets ----------
+let strongsVerseOffsets: Record<string, [number, number]> | null = null;
+let strongsIndexOffsets: Record<string, [number, number]> | null = null;
+
+export async function getStrongsOffsets() {
+  if (strongsVerseOffsets && strongsIndexOffsets) return { strongsVerseOffsets, strongsIndexOffsets };
+
+  const [vTxt, iTxt] = await Promise.all([
+    fetchFromStorage(paths.strongsVerseOffsets),
+    fetchFromStorage(paths.strongsIndexOffsets),
+  ]);
+
+  strongsVerseOffsets = JSON.parse(vTxt);
+  strongsIndexOffsets = JSON.parse(iTxt);
+  return { strongsVerseOffsets, strongsIndexOffsets };
 }
 
 export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string, index: number) => void) {
