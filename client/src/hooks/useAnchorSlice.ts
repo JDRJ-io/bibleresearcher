@@ -8,9 +8,17 @@ function loadChunk(anchorIndex: number, buffer: number = 100) {
   const allVerseKeys = getVerseKeys();
   const totalRows = allVerseKeys.length;
   
+  // VERSE LOADING FIX: Ensure we have valid verse keys
+  if (!allVerseKeys || totalRows === 0) {
+    console.warn('No verse keys available for chunk loading');
+    return { start: 0, end: 0, slice: [] };
+  }
+  
   const start = Math.max(0, anchorIndex - buffer);
   const end = Math.min(totalRows - 1, anchorIndex + buffer);
   const slice = allVerseKeys.slice(start, end + 1);
+  
+  console.log(`📖 loadChunk: anchor=${anchorIndex}, buffer=${buffer}, start=${start}, end=${end}, sliceLength=${slice.length}`);
   
   return {
     start,
@@ -50,7 +58,7 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
     slice: {
       start: slice.start,
       end: slice.end,
-      verseIDs: slice.slice,   // The verse keys array
+      verseIDs: slice.slice,   // The verse keys array (these ARE the verse IDs)
       data: new Map()          // Empty data map for now
     }
   };
