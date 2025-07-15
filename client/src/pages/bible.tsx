@@ -450,7 +450,8 @@ export default function BiblePage() {
   });
 
   // Show loading only when we don't have verses yet
-  const shouldShowLoading = isLoading && verses.length === 0;
+  // MEMORY FIX: Remove heavy loading screen that no longer matches actual loading
+  const shouldShowLoading = false; // Disabled to reduce iPhone lag
 
   console.log("🚫 LOADING BYPASSED FOR TESTING:", {
     originalIsLoading: isLoading,

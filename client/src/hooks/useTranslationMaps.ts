@@ -35,8 +35,12 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const mainTranslation = activeTranslations[0] || 'KJV';
   const alternates = activeTranslations.slice(1);
 
-  // Expert's fix: Guard against duplicate initial load - only ONE translation at startup
+  // MEMORY FIX: Guard against duplicate initial load - only ONE translation at startup
+  const initialLoadRef = useRef(false);
   useEffect(() => {
+    if (initialLoadRef.current) return; // Prevent duplicate loads
+    initialLoadRef.current = true;
+    
     const loadInitialMain = async () => {
       const initialMain = mainTranslation;
       if (!masterCache.has(`translation-${initialMain}`)) {
@@ -142,8 +146,10 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
           translationMap = map;
         }
         
-        // Fix: Single write to master cache - no race condition
-        masterCache.set(`translation-${code}`, translationMap);
+        // MEMORY FIX: Single write to master cache - no race condition
+        if (!masterCache.has(`translation-${code}`)) {
+          masterCache.set(`translation-${code}`, translationMap);
+        }
         
         // Task 2.1: Log map size, duration, and Supabase path on every load
         const endTime = performance.now();

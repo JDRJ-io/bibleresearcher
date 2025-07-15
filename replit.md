@@ -444,6 +444,14 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **Step 6**: CI guard script validates architecture integrity
 - **Result**: 100% data sourced from Supabase Storage via BibleDataAPI facade
 
+## July 15, 2025 - Memory Optimization for Mobile Performance
+**MEMORY FIXES IMPLEMENTED**: Resolved iPhone 15 lag issues
+- **Translation Loading Fix**: Added race condition protection with initialLoadRef to prevent duplicate KJV loads
+- **Cache Guard**: Added double-check to prevent overwriting existing cache entries
+- **Loading Screen Removed**: Disabled heavy fake progress bar that no longer matches actual loading system
+- **Blue Loading Wheel Preserved**: Kept LoadingWheel component for future use
+- **Result**: Eliminated 8+ duplicate translation loads (31,102 verses × 8 = 248,816 redundant verse loads)
+
 ## July 14, 2025 - Memory Optimization PR-A & PR-B Completed
 **PR-A COMPLETED**: Cleaned up ARCHIVE files, inlined BibleDataProvider, consolidated chunk configuration
 - **ARCHIVE Files Deleted**: Removed `BibleSlice.ts`, `noRawFetch.test.ts`
@@ -469,6 +477,7 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **PROPHECY SYSTEM INTEGRATED**: Connected to authentic Supabase data through BibleDataAPI facade
 - **WORKER ARCHITECTURE OPTIMIZED**: All data flows through main thread to workers, no self-fetching
 - **OFFSET HELPER FILES ADDED**: Cross-reference and Strong's offset files for instant lookups
+- **MEMORY OPTIMIZATION COMPLETE**: Fixed iPhone lag by removing heavy loading screen and duplicate translation loading
 
 ## External Data Source Filepaths (Supabase Storage: 'anointed' bucket)
 
