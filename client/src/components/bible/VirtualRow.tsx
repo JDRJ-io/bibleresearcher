@@ -47,29 +47,32 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
   // Access cross-references from the store using verse.reference
   const verseCrossRefs = crossRefs[verse.reference] || [];
   
+  const handleReferenceClick = (ref: string) => {
+    console.log('📖 Cross-reference clicked:', ref);
+    // Use the existing onVerseClick handler which connects to the navigation system
+    onVerseClick?.(ref);
+  };
+  
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <div className="overflow-y-auto h-full max-h-[110px] space-y-1 custom-scrollbar">
+      <div className="overflow-y-auto h-full max-h-[18vh] space-y-1 custom-scrollbar">
         {verseCrossRefs.map((ref, i) => {
-          const verseText = getVerseText?.(ref, main) || "Loading...";
+          const verseText = getVerseText?.(ref, main);
           
           return (
             <div 
               key={i} 
               className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1"
-              title={`${ref}: ${verseText}`}
-              onClick={() => {
-                console.log('📖 Cross-reference clicked:', ref);
-                onVerseClick?.(ref);
-              }}
+              title={`${ref}: ${verseText || "Loading..."}`}
+              onClick={() => handleReferenceClick(ref)}
             >
               {/* Left: compact reference in mono-font */}
               <div className="w-1/3 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
                 {ref}
               </div>
-              {/* Right: full verse text from main translation */}
+              {/* Right: verse text from main translation (truncated) */}
               <div className="w-2/3 text-xs text-gray-600 dark:text-gray-400 break-words">
-                {verseText}
+                {verseText ? `${verseText.substring(0, 40)}...` : "Loading..."}
               </div>
             </div>
           );
