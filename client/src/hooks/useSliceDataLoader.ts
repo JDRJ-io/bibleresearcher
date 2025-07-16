@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
-import { getCrossRef, getProphecyRows } from '@/data/BibleDataAPI';
+import { getProphecyRows } from '@/data/BibleDataAPI';
 import { getProphecyForVerse } from '@/lib/prophecyCache';
 import { getCrossRefWorker } from '@/lib/workers';
 

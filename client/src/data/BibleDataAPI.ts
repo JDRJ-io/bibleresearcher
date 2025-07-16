@@ -261,10 +261,17 @@ export const BibleDataAPI = {
   },
   loadTranslation,
   getCfOffsets,
+  getCrossRef,
   getCrossRefSlice,
+  loadCrossReferences,
   getProphecy,
+  getProphecyRows,
+  getProphecyIndex,
+  loadProphecyRows,
+  loadProphecyIndex,
   getStrongsOffsets,
   saveBookmark,
   saveHighlight,
+  saveNote,
   fetchFromStorage
 };

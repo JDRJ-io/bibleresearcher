@@ -40,22 +40,23 @@ interface CrossReferencesCellProps extends CellProps {
 }
 
 function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) {
-  const { store } = useBibleStore();
+  const { crossRefs } = useBibleStore();
   const { getVerseText } = useTranslationMaps();
   const { main } = useTranslationMaps();
   
-  const crossRefs = store.crossRefs?.[verse.reference] || [];
+  // Access cross-references from the store using verse.reference
+  const verseCrossRefs = crossRefs[verse.reference] || [];
   
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className="overflow-auto h-full max-h-[110px] space-y-1">
-        {crossRefs.length > 0 && (
+        {verseCrossRefs.length > 0 && (
           <div className="flex items-center gap-1 mb-1">
             <span className="text-sky-500 text-xs">📖</span>
-            <span className="text-sky-600 text-xs">{crossRefs.length}</span>
+            <span className="text-sky-600 text-xs">{verseCrossRefs.length}</span>
           </div>
         )}
-        {crossRefs.slice(0, 3).map((ref, i) => {
+        {verseCrossRefs.slice(0, 3).map((ref, i) => {
           const verseText = getVerseText?.(ref, main) || "Loading...";
           
           return (
@@ -88,10 +89,9 @@ interface ProphecyCellProps {
 
 function ProphecyCell({ verse, type }: ProphecyCellProps) {
   const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-  const { store } = useBibleStore();
+  const { prophecies } = useBibleStore();
   
-  // Safe access to prophecies data with null checks
-  const prophecies = store?.prophecies || {};
+  // Access prophecies data from the store using verse.reference
   const verseProphecies = prophecies[verse.reference] || {};
   
   // Direct access to P/F/V arrays
