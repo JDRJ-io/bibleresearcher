@@ -61,21 +61,24 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
           const verseText = getVerseText?.(ref, main);
           
           return (
-            <div 
+            <button 
               key={i} 
-              className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1"
+              className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1 w-full text-left"
               title={`${ref}: ${verseText || "Loading..."}`}
-              onClick={() => handleReferenceClick(ref)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleReferenceClick(ref);
+              }}
             >
               {/* Left: compact reference in mono-font */}
               <div className="w-1/3 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
                 {ref}
               </div>
-              {/* Right: verse text from main translation (truncated) */}
+              {/* Right: verse text from main translation (full text) */}
               <div className="w-2/3 text-xs text-gray-600 dark:text-gray-400 break-words">
-                {verseText ? `${verseText.substring(0, 40)}...` : "Loading..."}
+                {verseText || "Loading..."}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

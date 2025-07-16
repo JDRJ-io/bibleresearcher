@@ -63,10 +63,24 @@ html {
   background: rgba(156, 163, 175, 0.8);
 }
 
-/* Mobile optimization: reduce row height */
-@media (max-width: 639px) {
+/* Mobile optimization: better row height and font sizes */
+@media (max-width: 640px) {
   .virtual-row { 
-    height: 38px !important; 
+    line-height: 1.35rem;
+    flex-wrap: wrap;
+  }
+  
+  .virtual-row .text-xs { 
+    font-size: 0.80rem; 
+  }
+  
+  /* Stack cross-reference column below main verse on mobile */
+  .w-80 { 
+    width: 100vw; 
+  }
+  
+  .w-60 { 
+    width: 100vw; 
   }
 }
 

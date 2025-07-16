@@ -34,6 +34,11 @@ export function useSliceDataLoader(slice: string[]) {
     try {
       console.log(`🔍 Loading slice data for ${slice.length} verses...`);
       
+      // Ensure main translation is loaded for cross-reference text
+      // Load main translation directly using BibleDataAPI
+      const { loadTranslation } = await import('@/data/BibleDataAPI');
+      await loadTranslation(main);
+      
       const sliceIDs = slice; // or however you name it
 
       /* 📖 Cross-refs via worker */
