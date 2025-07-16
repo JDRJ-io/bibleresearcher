@@ -1,4 +1,4 @@
-import { BibleDataAPI } from "@/lib/bibleDataAPI";
+import { BibleDataAPI } from "@/data/BibleDataAPI";
 import { useQuery } from "@tanstack/react-query";
 
 export function useRowData(verseIDs: string[], mainTranslation: string) {

@@ -249,3 +249,22 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
   }
   return { data: [{ id: local.id }] };
 }
+
+// Unified API object for backwards compatibility
+export const BibleDataAPI = {
+  getTranslationText: async (verseIDs: string[], translationId: string) => {
+    const translationMap = await loadTranslation(translationId);
+    return verseIDs.map(id => ({
+      id,
+      text: translationMap.get(id) || ''
+    }));
+  },
+  loadTranslation,
+  getCfOffsets,
+  getCrossRefSlice,
+  getProphecy,
+  getStrongsOffsets,
+  saveBookmark,
+  saveHighlight,
+  fetchFromStorage
+};
