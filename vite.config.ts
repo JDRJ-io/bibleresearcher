@@ -29,6 +29,9 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: "0.0.0.0",
+    port: parseInt(process.env.PORT || "5000"),
+    allowedHosts: process.env.REPL_ID ? [".replit.dev"] : "all",
     fs: {
       strict: true,
       deny: ["**/.*"],
