@@ -49,14 +49,8 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
   
   return (
     <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <div className="overflow-auto h-full max-h-[110px] space-y-1">
-        {verseCrossRefs.length > 0 && (
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-sky-500 text-xs">📖</span>
-            <span className="text-sky-600 text-xs">{verseCrossRefs.length}</span>
-          </div>
-        )}
-        {verseCrossRefs.slice(0, 3).map((ref, i) => {
+      <div className="overflow-y-auto h-full max-h-[110px] space-y-1 custom-scrollbar">
+        {verseCrossRefs.map((ref, i) => {
           const verseText = getVerseText?.(ref, main) || "Loading...";
           
           return (
@@ -64,15 +58,18 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
               key={i} 
               className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1"
               title={`${ref}: ${verseText}`}
-              onClick={() => onVerseClick?.(ref)}
+              onClick={() => {
+                console.log('📖 Cross-reference clicked:', ref);
+                onVerseClick?.(ref);
+              }}
             >
-              {/* B-2: Left: compact reference in mono-font */}
-              <div className="w-1/2 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
+              {/* Left: compact reference in mono-font */}
+              <div className="w-1/3 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">
                 {ref}
               </div>
-              {/* B-2: Right: verse text (main translation only) */}
-              <div className="w-1/2 text-xs text-gray-600 dark:text-gray-400 break-words">
-                {verseText.substring(0, 40)}...
+              {/* Right: full verse text from main translation */}
+              <div className="w-2/3 text-xs text-gray-600 dark:text-gray-400 break-words">
+                {verseText}
               </div>
             </div>
           );
