@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { supabase, masterCache } from '@/lib/supabaseClient';
+import { masterCache } from '@/lib/supabaseClient';
 
 /**
  * TRANSLATION PIPELINE - MASTER IMPLEMENTATION
@@ -50,59 +50,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     loadInitialMain();
   }, []); // Only run once on mount
 
-  /**
-   * Parse translation file into Map<verseID, text>
-   * Format: "Gen.1:1 #In the beginning God created..."
-   */
-  /**
-   * Parse translation content using Web Worker to keep main thread under 16ms
-   */
-  const parseTranslationInWorker = useCallback(async (code: string, content: string): Promise<Map<string, string>> => {
-    // Fix: Single worker instance - create and terminate properly
-    const worker = new Worker('/translationWorker.js');
-    
-    try {
-      return await new Promise((resolve, reject) => {
-        const handle = (e: MessageEvent) => {
-          if (e.data?.type === 'TRANSLATION_PARSED' && e.data?.payload?.code === code) {
-            worker.removeEventListener('message', handle);
-            resolve(e.data.payload.map);
-          }
-        };
-        
-        worker.addEventListener('message', handle);
-        worker.addEventListener('error', reject);
-        
-        worker.postMessage({
-          type: 'PARSE_TRANSLATION',
-          payload: { code, content }
-        });
-      });
-    } finally {
-      worker.terminate();
-    }
-  }, []);
-
-  /**
-   * Fallback parser for main thread (when worker unavailable)
-   */
-  const parseTranslationFileMainThread = useCallback((content: string): Map<string, string> => {
-    const map = new Map<string, string>();
-    const lines = content.split('\n');
-    
-    for (const line of lines) {
-      if (line.trim()) {
-        const hashIndex = line.indexOf('#');
-        if (hashIndex > 0) {
-          const verseID = line.substring(0, hashIndex).trim();
-          const text = line.substring(hashIndex + 1).trim();
-          map.set(verseID, text);
-        }
-      }
-    }
-    
-    return map;
-  }, []);
+  // All translation parsing is now handled by BibleDataAPI facade
 
   /**
    * Toggle a translation ON/OFF
@@ -117,45 +65,13 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
       if (!masterCache.has(`translation-${code}`)) {
         console.log(`🔄 Fetching translation: ${code}`);
         
-        // Point Supabase loader at anointed bucket (Step 2)
-        const bucketName = import.meta.env.VITE_SUPABASE_BUCKET || 'anointed';
-        const { data, error } = await supabase.storage
-          .from(bucketName)
-          .download(`translations/${code}.txt`);
-        
-        // Log map size, duration, and Supabase path on every load
-        const startTime = performance.now();
-          
-        if (error) {
-          console.error(`🚨 SUPABASE ERROR: ${code} - ${error.message}`);
-          console.error(`📍 PATH: ${bucketName}/translations/${code}.txt`);
-          return;
-        }
-        
-        const content = await data.text();
-        
-        // Step 1-C: Off-load parsing to worker (keeps main thread under 16ms)
-        let translationMap: Map<string, string>;
-        try {
-          const map = await parseTranslationInWorker(code, content);
-          translationMap = map;
-        } catch (error) {
-          // Fallback to main thread if worker fails
-          console.warn('Worker parsing failed, using main thread:', error);
-          const map = parseTranslationFileMainThread(content);
-          translationMap = map;
-        }
-        
-        // MEMORY FIX: Single write to master cache - no race condition
-        if (!masterCache.has(`translation-${code}`)) {
-          masterCache.set(`translation-${code}`, translationMap);
-        }
+        // Use BibleDataAPI for unified data access
+        const { loadTranslation } = await import('@/data/BibleDataAPI');
+        const translationMap = await loadTranslation(code);
         
         // Task 2.1: Log map size, duration, and Supabase path on every load
-        const endTime = performance.now();
-        const duration = Math.round(endTime - startTime);
         console.log(`✅ Cached translation: ${code} (${translationMap.size} verses)`);
-        console.log(`📊 TRANSLATION LOAD: ${code} - ${translationMap.size} verses, ${duration}ms, from ${bucketName}/translations/${code}.txt`);
+        console.log(`📊 TRANSLATION LOAD: ${code} - ${translationMap.size} verses, from anointed/translations/${code}.txt`);
         console.log(`🔍 VALIDATION: masterCache.get('translation-${code}') instanceof Map → ${masterCache.get(`translation-${code}`) instanceof Map}`);
         
         // Task 2.2: Fail-loud toast if map size === 0
@@ -198,7 +114,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [parseTranslationFileMainThread, parseTranslationInWorker]);
+  }, []);
 
   // Define toggleTranslation before useEffect
   const toggleTranslationRef = useRef(toggleTranslation);

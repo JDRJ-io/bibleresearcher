@@ -444,6 +444,14 @@ The guest experience persists only in localStorage; the moment a user logs in, e
 - **Step 6**: CI guard script validates architecture integrity
 - **Result**: 100% data sourced from Supabase Storage via BibleDataAPI facade
 
+## July 16, 2025 - Critical Duplicate Loading Fix
+**DUPLICATE LOADING ISSUE RESOLVED**: Fixed major performance drain from repeated translation fetches
+- **Root Cause**: useEnsureTranslationLoaded was checking wrong cache reference, causing repeated loads
+- **Fix Applied**: Updated to check masterCache with correct key format (`translation-${id}`)
+- **Cache Logic**: Now properly validates cache existence before triggering new downloads
+- **Performance Impact**: Eliminates redundant translation loads that were causing mobile lag
+- **Result**: Translations now load once and stay cached throughout session
+
 ## July 15, 2025 - Memory Optimization for Mobile Performance
 **MEMORY FIXES IMPLEMENTED**: Resolved iPhone 15 lag issues
 - **Translation Loading Fix**: Added race condition protection with initialLoadRef to prevent duplicate KJV loads
