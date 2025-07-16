@@ -122,7 +122,20 @@ const VirtualBibleTable = ({
       showHighlights: true,
       showBookmarks: true,
     },
-    onVerseClick: onNavigateToVerse,
+    onVerseClick: (ref: string) => {
+      // Convert reference to verse index for anchor jumping
+      const verseIndex = verseKeys.findIndex(key => key === ref || key.replace('.', ' ') === ref);
+      if (verseIndex >= 0) {
+        // Use the anchor system to jump to the verse
+        const targetScrollTop = verseIndex * ROW_HEIGHT;
+        if (containerRef.current) {
+          containerRef.current.scrollTop = targetScrollTop;
+        }
+        console.log(`📖 Jumping to verse ${ref} at index ${verseIndex}`);
+      } else {
+        console.warn(`⚠️ Could not find verse index for ${ref}`);
+      }
+    },
   };
 
   // User actions

@@ -63,6 +63,13 @@ html {
   background: rgba(156, 163, 175, 0.8);
 }
 
+/* Mobile optimization: reduce row height */
+@media (max-width: 639px) {
+  .virtual-row { 
+    height: 38px !important; 
+  }
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);

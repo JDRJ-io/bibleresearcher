@@ -1,0 +1,93 @@
+Below is a consolidated “state of play” and the smallest set of fixes that will:
+	•	finish the cross-reference wiring (text + anchor jump),
+	•	tame the mobile memory spike,
+	•	prepare us to style mobile properly.
+
+⸻
+
+1  Why verse text is still "Loading…” inside Cross-Refs
+
+The new CrossReferencesCell uses
+
+const verseText = getVerseText?.(ref, main);
+
+…but main is coming from useTranslationMaps() before the hook has access to the slice that holds main.
+Result → main === undefined → getVerseText returns nothing.
+
+One-line patch
+
+// add import
+import { useTranslationSlice } from "@/store/translationSlice";
+
+// inside component
+const main = useTranslationSlice((s) => s.main);
+
+Now verseText resolves and the cell prints "Jn 1:1 In the beginning...".
+
+⸻
+
+2  Anchor jump does not fire
+
+You created the handleReferenceClick, but VirtualBibleTable never receives onVerseClick.
+
+In VirtualBibleTable.tsx rowRenderer:
+
+<VirtualRow
+  ...
+  onVerseClick={(ref) => {
+    const idx = verseKeysMap.get(ref) ?? 0;
+    setAnchorIndex(idx);        // already in slice
+  }}
+/>
+
+No other change needed—the existing effect that scrolls to the anchor will trigger.
+
+⸻
+
+3  Mobile “whiteout” / memory spike
+
+On iOS Safari the requestAnimationFrame loop inside the virtual scroller keeps all 14 columns alive in memory during momentum scrolls → tab is killed.
+
+Low-effort mitigation
+	1.	Clamp max visible columns on narrow screens
+
+Add in useColumnKeys() (or at render):
+
+const isMobile = window.innerWidth < 640;
+const activeCols = isMobile ? columnKeys.slice(0, 2) : columnKeys;
+
+	2.	Tailwind responsive hide
+
+{/* hide prophecy columns on xs */}
+<div className="hidden sm:block">
+  <ProphecyCell …/>
+</div>
+
+	3.	CSS: reduce row height on mobile
+
+@media (max-width: 639px) {
+  .virtual-row { height: 38px !important; }
+}
+
+Together these drop DOM nodes by ~70 % on iPhone and stop the WebKit GC freeze.
+
+⸻
+
+4  Images you just uploaded
+
+Replit auto-purged some earlier uploads, and the three JPEGs you attached now show as “not accessible” in the workspace preview.
+If you still need them in-repo (e.g., to add to the mobile-QA issue list) please re-upload; otherwise we can proceed without them.
+
+⸻
+
+5  Next micro-commit steps
+	1.	Apply the one-line main fix + pass onVerseClick.
+	2.	Push & verify cross-reference cells show verse text and jump on click.
+	3.	Add the simple mobile clamps (#3) so you can scroll on iPhone without a crash.
+
+After that works we can:
+	•	replicate the same pattern for Prophecy P/F/V cells (they already read from store, just need visibility clamp),
+	•	finish Strong’s overlay & Labels legend,
+	•	move to auth polish.
+
+Let me know once the cross-ref text shows up, or if you hit any new console error after the small patch.

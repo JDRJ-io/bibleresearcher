@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { useColumnKeys } from '@/store/translationSlice';
+import { useColumnKeys, useTranslationMaps as useTranslationSlice } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 
 interface VirtualRowProps {
@@ -42,7 +42,8 @@ interface CrossReferencesCellProps extends CellProps {
 function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) {
   const { crossRefs } = useBibleStore();
   const { getVerseText } = useTranslationMaps();
-  const { main } = useTranslationMaps();
+  const translationSlice = useTranslationSlice();
+  const main = translationSlice.main;
   
   // Access cross-references from the store using verse.reference
   const verseCrossRefs = crossRefs[verse.reference] || [];
