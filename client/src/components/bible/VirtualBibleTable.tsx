@@ -70,7 +70,7 @@ const VirtualBibleTable = ({
   const totalHeight = verseKeys.length * ROW_HEIGHT;
   
   // B-1: Load slice data for cross-references and prophecy
-  const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs);
+  const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs, mainTranslation);
   
   // B-2: Load cross-references with offset-based approach
   useCrossRefLoader(slice.verseIDs, 'cf1');
@@ -182,6 +182,50 @@ const VirtualBibleTable = ({
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
+  // Mobile touch handling for dual-axis scrolling
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+
+    let startX = 0, startY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      
+      // If horizontal movement is 20% more than vertical, enable horizontal scroll
+      if (dx > dy * 1.2) {
+        wrapperRef.current!.style.touchAction = "pan-x";
+      } else {
+        wrapperRef.current!.style.touchAction = "pan-y";
+      }
+    };
+
+    const onTouchEnd = () => {
+      // Reset to vertical scrolling by default
+      wrapperRef.current!.style.touchAction = "pan-y";
+    };
+
+    const wrapper = wrapperRef.current;
+    wrapper.addEventListener("touchstart", onTouchStart);
+    wrapper.addEventListener("touchmove", onTouchMove);
+    wrapper.addEventListener("touchend", onTouchEnd);
+    
+    return () => {
+      if (wrapper) {
+        wrapper.removeEventListener("touchstart", onTouchStart);
+        wrapper.removeEventListener("touchmove", onTouchMove);
+        wrapper.removeEventListener("touchend", onTouchEnd);
+      }
+    };
+  }, []);
+
   return (
     <div className={`virtual-bible-table ${className}`}>
       <ColumnHeaders 
@@ -192,7 +236,12 @@ const VirtualBibleTable = ({
         scrollLeft={0}
       />
       
-      <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table">
+      <div 
+        ref={wrapperRef} 
+        className="bible-table-wrapper"
+        style={{ touchAction: "pan-y" }}
+      >
+        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table">
         <div style={{height: slice.start * ROW_HEIGHT}} />
         {slice.verseIDs.map((id, i) => {
           // Convert simple rowData to BibleVerse structure
@@ -252,6 +301,7 @@ const VirtualBibleTable = ({
           );
         })}
         <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+        </div>
       </div>
     </div>
   );

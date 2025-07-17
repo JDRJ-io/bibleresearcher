@@ -128,6 +128,46 @@ export function TopHeader({
         )}
       </div>
 
+      {/* Right Section: Auth Buttons */}
+      <div className="flex items-center gap-2">
+        {/* Quick verse shortcuts - hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-2 mr-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onSearchChange("Genesis 1:1")}
+            className="text-xs"
+          >
+            Gen 1:1
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onSearchChange("Psalm 23")}
+            className="text-xs"
+          >
+            Psalm 23
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onSearchChange("John 3:16")}
+            className="text-xs"
+          >
+            John 3:16
+          </Button>
+        </div>
+
+        {/* Combined Sign In/Up Button */}
+        <Button
+          variant="default"
+          size={isMobile ? "sm" : "default"}
+          className="bg-purple-500 hover:bg-purple-600 text-white"
+        >
+          Sign In/Up
+        </Button>
+      </div>
+
       {/* Right Section: Controls */}
       <div className="flex items-center space-x-3">
         {/* Authentication Buttons */}

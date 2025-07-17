@@ -21,6 +21,9 @@ interface VirtualRowProps {
 // Cell Components
 interface CellProps {
   verse: BibleVerse;
+  getVerseText: (verseID: string, translationCode: string) => string | undefined;
+  mainTranslation: string;
+  onVerseClick?: (verseRef: string) => void;
 }
 
 function ReferenceCell({ verse }: CellProps) {
@@ -31,10 +34,115 @@ function ReferenceCell({ verse }: CellProps) {
   );
 }
 
-// Feature Block B-2: Column Cell Format + B-3: Hover/Click
-// Left: compact reference (Book Chap:Verse) in mono-font
-// Right: verse text (main translation only)
-// Style: 50%/50% split in a flex row; text wraps inside cell with internal scroll when overflow
+function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
+  const crossRefs = verse.crossReferences || [];
+  
+  const handleCrossRefClick = (e: React.MouseEvent, ref: string) => {
+    e.stopPropagation(); // Prevent row onClick from firing
+    e.preventDefault();
+    if (onVerseClick) {
+      onVerseClick(ref);
+    }
+  };
+
+  return (
+    <div className="w-full px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
+      {crossRefs.length > 0 ? (
+        <div className="space-y-1">
+          {crossRefs.map((ref, index) => {
+            const verseText = getVerseText(ref, mainTranslation) ?? "";
+            return (
+              <div key={index} className="text-xs">
+                <button
+                  onClick={(e) => handleCrossRefClick(e, ref)}
+                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer underline"
+                >
+                  {ref}
+                </button>
+                {verseText && (
+                  <div className="text-gray-600 dark:text-gray-400 mt-0.5 leading-tight">
+                    {verseText.length > 100 ? `${verseText.substring(0, 100)}...` : verseText}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-gray-400 italic text-xs">No cross-references</div>
+      )}
+    </div>
+  );
+}
+
+function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
+  const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
+  
+  return (
+    <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
+      <div className="leading-relaxed">
+        {verseText || "Loading..."}
+      </div>
+    </div>
+  );
+}
+
+const VirtualRow: React.FC<VirtualRowProps> = ({
+  verseID,
+  rowHeight,
+  verse,
+  columnData,
+  getVerseText,
+  getMainVerseText,
+  activeTranslations,
+  mainTranslation,
+  onVerseClick,
+  onExpandVerse,
+}) => {
+  const handleRowClick = () => {
+    if (onExpandVerse) {
+      onExpandVerse(verse);
+    }
+  };
+
+  return (
+    <div 
+      className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      style={{ height: rowHeight }}
+      onClick={handleRowClick}
+    >
+      {/* Reference Column */}
+      <ReferenceCell 
+        verse={verse}
+        getVerseText={getVerseText}
+        mainTranslation={mainTranslation}
+        onVerseClick={onVerseClick}
+      />
+      
+      {/* Main Translation Column */}
+      <div className="col-main">
+        <MainTranslationCell 
+          verse={verse}
+          getVerseText={getVerseText}
+          mainTranslation={mainTranslation}
+          onVerseClick={onVerseClick}
+        />
+      </div>
+      
+      {/* Cross References Column */}
+      <div className="col-cross border-l border-gray-200 dark:border-gray-700">
+        <CrossReferencesCell 
+          verse={verse}
+          getVerseText={getVerseText}
+          mainTranslation={mainTranslation}
+          onVerseClick={onVerseClick}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default VirtualRow;
 interface CrossReferencesCellProps extends CellProps {
   onVerseClick?: (verseRef: string) => void;
 }

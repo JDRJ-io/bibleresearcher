@@ -2,6 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-optimized column widths and touch behavior */
+@media (max-width: 640px) {
+  .bible-table-wrapper {
+    touch-action: pan-y;
+  }
+  
+  .col-ref {
+    width: 64px;
+    flex-shrink: 0;
+  }
+  
+  .col-main {
+    width: 420px;
+    flex-shrink: 0;
+  }
+  
+  .col-cross {
+    width: 420px;
+    flex-shrink: 0;
+  }
+  
+  .virtual-bible-table {
+    overflow-x: auto;
+  }
+}
+
+/* Desktop column widths */
+@media (min-width: 641px) {
+  .col-ref {
+    width: 80px;
+    flex-shrink: 0;
+  }
+  
+  .col-main {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .col-cross {
+    width: 300px;
+    flex-shrink: 0;
+  }
+}
+
 /* Virtual scrolling styles for optimal performance */
 .verse-row {
   position: absolute;
