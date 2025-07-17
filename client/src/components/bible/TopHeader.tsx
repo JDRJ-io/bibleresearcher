@@ -141,10 +141,13 @@ export function TopHeader({
           <div className="flex items-center space-x-2">
             {isMobile ? (
               <Button
-                onClick={() => setIsSignInOpen(true)}
+                onClick={() => {
+                  setIsSignInOpen(true);
+                  setIsSignUpOpen(true);
+                }}
                 className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
               >
-                Sign In
+                Sign In/Up
               </Button>
             ) : (
               <>
@@ -204,6 +207,7 @@ export function TopHeader({
         isSignInOpen={isSignInOpen}
         onCloseSignUp={() => setIsSignUpOpen(false)}
         onCloseSignIn={() => setIsSignInOpen(false)}
+        showBothModals={isMobile && isSignUpOpen && isSignInOpen}
       />
     </header>
   );

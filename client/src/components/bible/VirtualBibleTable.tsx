@@ -62,8 +62,47 @@ const VirtualBibleTable = ({
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
   const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  
+  // Mobile touch handling for directional scrolling
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+
+    let startX = 0, startY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      if (dx > dy * 1.2) {               // X-dominant
+        wrapperRef.current!.style.touchAction = "pan-x";
+      } else {
+        wrapperRef.current!.style.touchAction = "pan-y";
+      }
+    };
+
+    const onTouchEnd = () => {
+      wrapperRef.current!.style.touchAction = "pan-y";
+    };
+
+    wrapperRef.current.addEventListener("touchstart", onTouchStart);
+    wrapperRef.current.addEventListener("touchmove", onTouchMove);
+    wrapperRef.current.addEventListener("touchend", onTouchEnd);
+    
+    return () => {
+      if (wrapperRef.current) {
+        wrapperRef.current.removeEventListener("touchstart", onTouchStart);
+        wrapperRef.current.removeEventListener("touchmove", onTouchMove);
+        wrapperRef.current.removeEventListener("touchend", onTouchEnd);
+      }
+    };
+  }, []);
   
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
@@ -183,7 +222,7 @@ const VirtualBibleTable = ({
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
   return (
-    <div className={`virtual-bible-table ${className}`}>
+    <div ref={wrapperRef} className={`virtual-bible-table bible-table-wrapper ${className}`}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
