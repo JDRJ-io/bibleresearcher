@@ -25,7 +25,7 @@ interface CellProps {
 
 function ReferenceCell({ verse }: CellProps) {
   return (
-    <div className="w-20 col-ref px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+    <div className="w-20 px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
       {verse.reference}
     </div>
   );
@@ -55,10 +55,10 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
   };
   
   return (
-    <div className="w-60 col-cross px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
+    <div className="w-60 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
       <div className="overflow-y-auto h-full max-h-[18vh] space-y-1 custom-scrollbar">
         {verseCrossRefs.map((ref, i) => {
-          const verseText = getVerseText?.(ref, main) ?? "";
+          const verseText = getVerseText?.(ref, main);
           
           return (
             <button 
@@ -124,7 +124,7 @@ interface TranslationCellProps {
 function TranslationCell({ text, isMain }: TranslationCellProps) {
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
   return (
-    <div className={`w-80 col-main px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0 ${bgClass}`}>
+    <div className={`w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0 ${bgClass}`}>
       <div className="overflow-auto h-full">
         {text}
       </div>
