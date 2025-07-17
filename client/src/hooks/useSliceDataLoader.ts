@@ -122,6 +122,15 @@ export function useSliceDataLoader(slice: string[]) {
       loadSliceData();
     }
   }, [slice.join(',')]); // Use slice content hash to prevent excessive reloads
+  
+  // Ensure main translation is loaded when it changes
+  useEffect(() => {
+    if (main) {
+      import('@/data/BibleDataAPI').then(({ loadTranslation }) => {
+        loadTranslation(main);
+      });
+    }
+  }, [main]);
 
   // Expert's fix: useEffect([main]) invalidates and refetches the remote cache
   // This guarantees the Cross/Prophecy verse texts swap instantly with the new main

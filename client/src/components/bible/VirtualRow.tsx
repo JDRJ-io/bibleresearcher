@@ -48,9 +48,9 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
   // Access cross-references from the store using verse.reference
   const verseCrossRefs = crossRefs[verse.reference] || [];
   
-  const handleReferenceClick = (ref: string) => {
+  const handleReferenceClick = (ref: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent row onClick
     console.log('📖 Cross-reference clicked:', ref);
-    // Use the existing onVerseClick handler which connects to the navigation system
     onVerseClick?.(ref);
   };
   
@@ -65,10 +65,7 @@ function CrossReferencesCell({ verse, onVerseClick }: CrossReferencesCellProps) 
               key={i} 
               className="flex gap-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1 w-full text-left"
               title={`${ref}: ${verseText || "Loading..."}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleReferenceClick(ref);
-              }}
+              onClick={(e) => handleReferenceClick(ref, e)}
             >
               {/* Left: compact reference in mono-font */}
               <div className="w-1/3 font-mono text-xs text-blue-600 dark:text-blue-400 flex-shrink-0">

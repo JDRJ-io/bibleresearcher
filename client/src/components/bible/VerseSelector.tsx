@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWindowSize } from 'react-use';
 
 interface VerseSelectorProps {
   onNavigate: (reference: string) => void;
@@ -93,6 +94,8 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
   const [selectedVerse, setSelectedVerse] = useState<string>('1');
   const [isOpen, setIsOpen] = useState(false);
   const { user, loading } = useAuth();
+  const { width } = useWindowSize();
+  const isMobile = width < 640;
 
   const selectedBookData = BIBLE_BOOKS.find(book => book.abbrev === selectedBook);
   const maxChapter = selectedBookData?.chapters || 1;
@@ -139,57 +142,59 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
         </Button>
         
         {/* Authentication buttons or Quick navigation buttons */}
-        <div className="flex gap-1">
-          {loading ? (
-            <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
-              <div className="w-3 h-3 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-xs">Loading...</span>
-            </div>
-          ) : user ? (
-            // Logged in: Show original Bible shortcuts
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickNavigate('Gen 1:1')}
-                className="text-xs px-2 py-1 h-7 hover:bg-muted"
-              >
-                Gen 1:1
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickNavigate('Psa 23:1')}
-                className="text-xs px-2 py-1 h-7 hover:bg-muted"
-              >
-                Psa 23
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleQuickNavigate('John 3:16')}
-                className="text-xs px-2 py-1 h-7 hover:bg-muted"
-              >
-                John 3:16
-              </Button>
-            </>
-          ) : (
-            // Logged out: Show 3 random curated Bible verse shortcuts
-            <>
-              {randomVerses.map((verse, index) => (
+        {!isMobile && (
+          <div className="flex gap-1">
+            {loading ? (
+              <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+                <div className="w-3 h-3 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-xs">Loading...</span>
+              </div>
+            ) : user ? (
+              // Logged in: Show original Bible shortcuts
+              <>
                 <Button
-                  key={index}
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleQuickNavigate(verse)}
+                  onClick={() => handleQuickNavigate('Gen 1:1')}
                   className="text-xs px-2 py-1 h-7 hover:bg-muted"
                 >
-                  {verse}
+                  Gen 1:1
                 </Button>
-              ))}
-            </>
-          )}
-        </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleQuickNavigate('Psa 23:1')}
+                  className="text-xs px-2 py-1 h-7 hover:bg-muted"
+                >
+                  Psa 23
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleQuickNavigate('John 3:16')}
+                  className="text-xs px-2 py-1 h-7 hover:bg-muted"
+                >
+                  John 3:16
+                </Button>
+              </>
+            ) : (
+              // Logged out: Show 3 random curated Bible verse shortcuts
+              <>
+                {randomVerses.map((verse, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleQuickNavigate(verse)}
+                    className="text-xs px-2 py-1 h-7 hover:bg-muted"
+                  >
+                    {verse}
+                  </Button>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   }

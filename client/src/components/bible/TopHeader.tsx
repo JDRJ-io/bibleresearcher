@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { AuthModals } from '@/components/auth/AuthModals';
 import { useState } from 'react';
+import { useWindowSize } from 'react-use';
 
 interface TopHeaderProps {
   searchQuery: string;
@@ -31,6 +32,9 @@ export function TopHeader({
   const { user, loading } = useAuth();
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { width } = useWindowSize();
+  const isMobile = width < 640;
 
   console.log('TopHeader auth state:', { user: !!user, loading, userDetails: user ? 'logged in' : 'logged out' });
 
@@ -74,21 +78,54 @@ export function TopHeader({
 
       {/* Center Section: Search Bar */}
       <div className="flex-1 max-w-md mx-4">
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="search random w/ '%'"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-4"
-            style={{
-              backgroundColor: 'var(--column-bg)',
-              borderColor: 'var(--border-color)',
-              color: 'var(--text-color)',
-            }}
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-60" />
-        </div>
+        {isMobile ? (
+          <>
+            {!searchOpen ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-8 h-8 p-0"
+                onClick={() => setSearchOpen(true)}
+              >
+                <Search className="w-4 h-4" />
+              </Button>
+            ) : (
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="search random w/ '%'"
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-10 pr-4"
+                  style={{
+                    backgroundColor: 'var(--column-bg)',
+                    borderColor: 'var(--border-color)',
+                    color: 'var(--text-color)',
+                  }}
+                  onBlur={() => setSearchOpen(false)}
+                  autoFocus
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-60" />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="search random w/ '%'"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10 pr-4"
+              style={{
+                backgroundColor: 'var(--column-bg)',
+                borderColor: 'var(--border-color)',
+                color: 'var(--text-color)',
+              }}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-60" />
+          </div>
+        )}
       </div>
 
       {/* Right Section: Controls */}
@@ -100,23 +137,34 @@ export function TopHeader({
             <span className="text-sm">Loading...</span>
           </div>
         ) : !user ? (
-          // Logged Out State: Show Opal-styled Auth Buttons
+          // Logged Out State: Show Auth Buttons (responsive)
           <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => setIsSignUpOpen(true)}
-              className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-            >
-              <Sparkles className="w-3 h-3 mr-1" />
-              Sign Up
-            </Button>
-            <Button
-              onClick={() => setIsSignInOpen(true)}
-              variant="outline"
-              className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-            >
-              <KeyRound className="w-3 h-3 mr-1" />
-              Sign In
-            </Button>
+            {isMobile ? (
+              <Button
+                onClick={() => setIsSignInOpen(true)}
+                className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
+              >
+                Sign In
+              </Button>
+            ) : (
+              <>
+                <Button
+                  onClick={() => setIsSignUpOpen(true)}
+                  className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Sign Up
+                </Button>
+                <Button
+                  onClick={() => setIsSignInOpen(true)}
+                  variant="outline"
+                  className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
+                >
+                  <KeyRound className="w-3 h-3 mr-1" />
+                  Sign In
+                </Button>
+              </>
+            )}
           </div>
         ) : (
           // Logged In State: Show User Profile

@@ -75,12 +75,12 @@ html {
   }
   
   /* Stack cross-reference column below main verse on mobile */
-  .w-80 { 
+  .w-80, .w-60 { 
     width: 100vw; 
   }
   
   .w-60 { 
-    width: 100vw; 
+    order: 2; /* stack cross-ref under verse */
   }
 }
 
