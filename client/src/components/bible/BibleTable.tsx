@@ -194,6 +194,7 @@ export function BibleTable({
               onExpandVerse={onExpandVerse}
               onHighlight={handleHighlight}
               onNavigateToVerse={onNavigateToVerse}
+              allVerses={previousVerses}
             />
           ))}
         </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { getProphecy } from '@/data/BibleDataAPI';
-import { Cell } from '@/components/bible/Cell';
 
 const SkeletonCell = () => (
   <td className="table-cell">
@@ -16,7 +15,7 @@ interface ProphecyRowData {
 }
 
 function ProphecyRow({ verseKey }: { verseKey: string }) {
-  const { main } = useTranslationMaps();
+  const translationMaps = useTranslationMaps();
   const [data, setData] = useState<ProphecyRowData | null>(null);
   
   useEffect(() => {
@@ -60,13 +59,13 @@ function ProphecyRow({ verseKey }: { verseKey: string }) {
   return (
     <>
       <td className="table-cell">
-        {data.pred ? <Cell translationId={main} verseKey={data.pred} /> : '—'}
+        {data.pred ? <span className="text-blue-600 font-medium">{data.pred}</span> : '—'}
       </td>
       <td className="table-cell">
-        {data.ful ? <Cell translationId={main} verseKey={data.ful} /> : '—'}
+        {data.ful ? <span className="text-green-600 font-medium">{data.ful}</span> : '—'}
       </td>
       <td className="table-cell">
-        {data.ver ? <Cell translationId={main} verseKey={data.ver} /> : '—'}
+        {data.ver ? <span className="text-purple-600 font-medium">{data.ver}</span> : '—'}
       </td>
     </>
   );

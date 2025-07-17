@@ -583,13 +583,14 @@ const loadProphecyDataOnDemand = async () => {
     console.log("Loading prophecy data on-demand from Supabase...");
     
     // Load both prophecy files
+    const { getProphecyIndex, getProphecyRows } = await import('@/data/BibleDataAPI');
     const [index, rows] = await Promise.all([
-      loadProphecyIndex(),
-      loadProphecyRows()
+      getProphecyIndex(),
+      getProphecyRows()
     ]);
     
     prophecyIndex = index;
-    prophecyRows = rows;
+    prophecyRows = typeof rows === 'string' ? JSON.parse(rows) : rows;
     
     console.log(`Prophecy data loaded: ${index.size} verses indexed, ${Object.keys(rows).length} prophecies`);
     return { index, rows };

@@ -1,80 +1,59 @@
 
-
-### **README.md**  (Replace entire file)
-
-``markdown
-<h1 align="center">📖 Anointed.io Bible Reader</h1>
-
-A **React 18 + Vite** PWA that streams Bible translations from Supabase Storage,
-supports offline study, and scales to 10 k concurrent users.
+<div align="center">
+  <h1>📖 Anointed.io – Open‑Source Bible Study PWA</h1>
+  <p>React 18 · Supabase · Workbox · Virtual Scroll</p>
+</div>
 
 ---
 
-## ✨ Features
+## Quick Start (Local Dev)
 
-- Anchor‑centred infinite scroll (≤ 250 rows in DOM).
-- On‑demand loading of 12 translations (LRU cache).
-- Cross‑reference & prophecy columns powered by Supabase byte‑offset files.
-- Magic‑link authentication (Supabase Auth).
-- Full offline support: shell + visited slices, queues bookmarks/highlights.
-- Column drag‑and‑drop, dark & light themes, mobile‑first UI.
-
-## 🏗 Tech Stack
-
-| Layer | Library |
-|-------|---------|
-| UI | React 18, shadcn/ui (Radix), Tailwind |
-| State | Zustand + TanStack Query |
-| Data | Supabase Storage & Auth |
-| Offline | Workbox via vite‑plugin‑pwa, Dexie |
-| Build | Vite + **bundle‑check (< 2 MB gzip)** |
-| Tests | Jest + Testing Library, Cypress |
-
-## 🚀 Quick Start
-
-``bash
+```bash
 pnpm install
-pnpm dev           # localhost:5173
+pnpm dev               # Vite on http://localhost:3000
+````
 
-## Production build
+* `pnpm build` → production bundle (`dist/`) with service‑worker
+* `pnpm preview` → local preview of the PWA build
+* `pnpm test` → Jest unit tests
+* `pnpm cypress:open` → interactive e2e tests
 
-pnpm build         # dist/
-node scripts/bundle-check.js   # fails if > 2 MB
+---
 
-## Test suites
+## Project Structure
 
-pnpm test          # unit tests
-pnpm cypress run   # e2e scroll & translation tests
+```
+src/        React components, hooks, workers, facade
+offline/    Dexie DB + queueSync for offline mutations
+docs/       Architecture & behaviour reference (see table below)
+scripts/    build guardrails (bundle size, arch lint)
+```
 
-## 📂 Key directories
+| Doc                       | Link                                                             | What it covers                         |
+| ------------------------- | ---------------------------------------------------------------- | -------------------------------------- |
+| **Architecture overview** | [`docs/ARCHITECTURE_OVERVIEW.md`](docs/ARCHITECTURE_OVERVIEW.md) | Layers, flow diagram, tech stack       |
+| **Source connections**    | [`docs/FILE_CONNECTIONS_MAP.md`](docs/FILE_CONNECTIONS_MAP.md)   | Which TS files call which              |
+| **Data storage map**      | [`docs/DATA_STORAGE_MAP.md`](docs/DATA_STORAGE_MAP.md)           | Objects in Supabase & their consumers  |
+| **UI layout spec**        | [`docs/UI_layout_spec.md`](docs/UI_layout_spec.md)               | Slot‑based grid, sizing, user controls |
+| **Behaviour contracts**   | [`docs/BEHAVIOR_CONTRACTS.md`](docs/BEHAVIOR_CONTRACTS.md)       | Runtime guarantees, perf budgets       |
+| **PWA implementation**    | [`docs/PWA_IMPLEMENTATION.md`](docs/PWA_IMPLEMENTATION.md)       | Service‑worker, offline, validation    |
 
-src/
- ├─ components/bible      // Virtual table & UI widgets
- ├─ data/BibleDataAPI.ts  // Single Supabase façade
- ├─ hooks/                // Anchor slice, loaders, PWA hooks
- ├─ store/translationSlice.ts
- ├─ workers/              // Translation, search, cross‑refs
- └─ offline/              // Dexie + queueSync
+---
 
-## 🔐 Environment
+## Contributing
 
-### copy .env.example
-SUPABASE_URL=...
-SUPABASE_ANON_KEY=...
-🛡 Architecture Guardrails
-ESLint forbids fetch( outside BibleDataAPI.
+1. **Fork & branch**: `git checkout -b feature/my‑topic`
+2. Keep bundle ≤ 2 MB (gzip) – CI will fail otherwise.
+3. If you add a new Supabase object or RPC, update
+   `DATA_STORAGE_MAP.md` in the same PR.
+4. Run `pnpm test && pnpm run bundle-check && pnpm run lint` before pushing.
 
-validate-architecture.sh fails on /api/references strings.
+---
 
-bundle‑check enforces gzipped build ≤ 2 MB.
+## License
 
-## 🌐 Deploy
-pnpm build
+MIT.  Bible text © their respective publishers (see `translations/` notice).
 
-Upload dist/ to your static host (Cloudflare Pages, Vercel, Netlify).
+```
 
-Set allowed CORS origins in Supabase Storage to your domain.
-
-## 🙏 License
-Public‑domain Bible translations; other translations used under fair‑use.
-See /translations/LICENSES.md for details.
+---

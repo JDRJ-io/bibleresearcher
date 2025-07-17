@@ -9,7 +9,6 @@ import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
@@ -35,9 +34,7 @@ export const useBibleStore = create<{
   showProphecies: boolean;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
-}>(
-  persist(
-    (set, get) => ({
+}>((set, get) => ({
       translations: {},
       actives: ["KJV"],
       crossRefs: {},
@@ -107,15 +104,7 @@ export const useBibleStore = create<{
         const state = get();
         return [...state.translationState.alternates, state.translationState.main];
       }
-    }),
-    {
-      name: 'bible-store',
-      partialize: (state) => ({
-        translationState: state.translationState
-      })
-    }
-  )
-);
+    }));
 
 function Router() {
   return (

@@ -118,13 +118,7 @@ export function VerseRow({
       {/* Prophecy Columns - New System */}
       {showProphecy && (
         <div className="w-[480px] flex-shrink-0 border-r">
-          <ProphecyColumns
-            prophecyData={getProphecyDataForVerse ? (getProphecyDataForVerse(verse.reference) || []) : []}
-            onVerseClick={onNavigateToVerse}
-            verses={allVerses}
-            verseReference={verse.reference}
-            getGlobalVerseText={getGlobalVerseText}
-          />
+          <ProphecyColumns verseIDs={[verse.reference]} />
         </div>
       )}
       

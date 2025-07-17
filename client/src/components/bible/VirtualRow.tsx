@@ -42,10 +42,11 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
       {crossRefs.length > 0 ? (
         <div className="space-y-1">
           {crossRefs.map((ref, index) => {
-            const verseText = getVerseText(ref, mainTranslation) ?? "";
+            const reference = typeof ref === 'string' ? ref : ref.reference;
+            const verseText = getVerseText(reference, mainTranslation) ?? "";
             const handleClick = (e: React.MouseEvent) => {
               e.stopPropagation();         // ← this line prevents row handler
-              onVerseClick?.(ref);
+              onVerseClick?.(reference);
             };
             return (
               <div key={index} className="text-xs">
@@ -53,7 +54,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   onClick={handleClick}
                   className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer underline"
                 >
-                  {ref}
+                  {reference}
                 </button>
                 {verseText && (
                   <div className="text-gray-600 dark:text-gray-400 mt-0.5 leading-tight">

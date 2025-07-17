@@ -73,18 +73,18 @@ export function getProphecyForVerse(id: string) {
   const prophecyMap: Record<string, any> = {};
   
   if (verse.P) {
-    const pIds = verse.P.split(',').filter(id => id.trim());
+    const pIds = verse.P.split(',').filter((id: string) => id.trim());
     prophecyMap[id] = { P: pIds, F: [], V: [] };
   }
   
   if (verse.F) {
-    const fIds = verse.F.split(',').filter(id => id.trim());
+    const fIds = verse.F.split(',').filter((id: string) => id.trim());
     if (!prophecyMap[id]) prophecyMap[id] = { P: [], F: [], V: [] };
     prophecyMap[id].F = fIds;
   }
   
   if (verse.V) {
-    const vIds = verse.V.split(',').filter(id => id.trim());
+    const vIds = verse.V.split(',').filter((id: string) => id.trim());
     if (!prophecyMap[id]) prophecyMap[id] = { P: [], F: [], V: [] };
     prophecyMap[id].V = vIds;
   }
