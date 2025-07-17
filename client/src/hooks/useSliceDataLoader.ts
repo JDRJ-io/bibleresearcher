@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from './useTranslationMaps';
 import { useTranslationMaps as useZustandTranslationMaps } from '@/store/translationSlice';
@@ -6,6 +7,23 @@ import { getProphecyRows } from '@/data/BibleDataAPI';
 import { getProphecyForVerse } from '@/lib/prophecyCache';
 import { getCrossRefWorker } from '@/lib/workers';
 import { useEnsureTranslationLoaded } from './useEnsureTranslationLoaded';
+
+// API request helper function
+const apiRequest = async (url: string, method: string = 'GET', body?: any) => {
+  const response = await fetch(url, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.statusText}`);
+  }
+  
+  return response.json();
+};
 
 // Expert's fix: Add prefetchRemoteVerses function
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
@@ -23,6 +41,8 @@ const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
 
 export function useSliceDataLoader(verseIDs: string[], mainTranslation?: string) {
   const ensureTranslationLoaded = useEnsureTranslationLoaded();
+  const { translationState } = useBibleStore();
+  const { main } = translationState;
 
   // Preload main translation when slice changes
   useEffect(() => {
@@ -30,6 +50,13 @@ export function useSliceDataLoader(verseIDs: string[], mainTranslation?: string)
       ensureTranslationLoaded(mainTranslation);
     }
   }, [verseIDs, mainTranslation, ensureTranslationLoaded]);
+
+  // Expert's requirement: ensureTranslationLoaded(main) added to useSliceDataLoader's effect
+  useEffect(() => {
+    if (main && verseIDs.length > 0) {
+      ensureTranslationLoaded(main);
+    }
+  }, [main, verseIDs, ensureTranslationLoaded]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['/api/slice-data', verseIDs],

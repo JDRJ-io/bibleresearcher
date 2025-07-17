@@ -139,6 +139,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 };
 
 export default VirtualRow;
+export { VirtualRow };
 
 interface ProphecyCellProps {
   verse: BibleVerse;
