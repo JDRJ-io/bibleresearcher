@@ -12,9 +12,10 @@ interface AuthModalsProps {
   isSignInOpen: boolean
   onCloseSignUp: () => void
   onCloseSignIn: () => void
+  showBothModals?: boolean
 }
 
-export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseSignIn }: AuthModalsProps) {
+export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseSignIn, showBothModals }: AuthModalsProps) {
   const [signUpData, setSignUpData] = useState({ displayName: '', email: '' })
   const [signInEmail, setSignInEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -105,6 +106,115 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   // Debug: Force show sign in modal for testing
   if (isSignInOpen) {
     console.log('Sign In modal should be visible now!');
+  }
+
+  if (showBothModals) {
+    return (
+      <Dialog open={showBothModals} onOpenChange={() => { onCloseSignUp(); onCloseSignIn(); }}>
+        <DialogContent className="sm:max-w-4xl bg-white border-2 border-amber-300 shadow-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-900 dark:text-amber-100 text-lg font-semibold">
+              <Sparkles className="h-5 w-5 text-amber-600 animate-pulse" />
+              Welcome to the Sacred Library
+            </DialogTitle>
+            <DialogDescription className="text-amber-700 dark:text-amber-200 text-sm">
+              Sign up for a new account or sign in to your existing account
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid md:grid-cols-2 gap-6 mt-6">
+            {/* Sign Up Section */}
+            <div className="space-y-4">
+              <h3 className="text-amber-900 dark:text-amber-100 font-medium">New to our platform?</h3>
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="displayName" className="text-amber-900 dark:text-amber-100 font-medium">
+                    What's your name?
+                  </Label>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    placeholder="Your display name"
+                    value={signUpData.displayName}
+                    onChange={(e) => setSignUpData(prev => ({ ...prev, displayName: e.target.value }))}
+                    className="border-amber-300/60 focus:border-amber-500 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/50 backdrop-blur-sm"
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email-signup" className="text-amber-900 dark:text-amber-100 font-medium">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email-signup"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={signUpData.email}
+                    onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
+                    className="border-amber-300/60 focus:border-amber-500 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/50 backdrop-blur-sm"
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-lg transition-all duration-300 hover:shadow-amber-300/50 hover:scale-105"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending Magic Link...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Create Account
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
+            
+            {/* Sign In Section */}
+            <div className="space-y-4 border-l border-amber-300/30 pl-6">
+              <h3 className="text-amber-900 dark:text-amber-100 font-medium">Already have an account?</h3>
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email-signin" className="text-amber-900 dark:text-amber-100 font-medium">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email-signin"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
+                    className="border-amber-300/60 focus:border-amber-500 dark:border-amber-700/60 bg-amber-50/50 dark:bg-amber-950/50 backdrop-blur-sm"
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg transition-all duration-300 hover:shadow-blue-300/50 hover:scale-105"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending Magic Link...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="mr-2 h-4 w-4" />
+                      Sign In
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (

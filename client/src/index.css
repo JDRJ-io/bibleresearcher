@@ -67,20 +67,21 @@ html {
 @media (max-width: 640px) {
   .virtual-row { 
     line-height: 1.35rem;
-    flex-wrap: wrap;
+    /* Remove flex-wrap to maintain horizontal scrolling */
   }
   
   .virtual-row .text-xs { 
     font-size: 0.80rem; 
   }
   
-  /* Stack cross-reference column below main verse on mobile */
-  .w-80, .w-60 { 
-    width: 100vw; 
-  }
+  /* Mobile column widths for horizontal scrolling */
+  .col-ref   { width: 64px !important; }   /* narrow reference */
+  .col-main  { width: 420px !important; }  /* main translation */
+  .col-cross { width: 420px !important; }  /* cross-refs */
   
-  .w-60 { 
-    order: 2; /* stack cross-ref under verse */
+  /* Bible table wrapper mobile touch handling */
+  .bible-table-wrapper {
+    touch-action: pan-y;      /* browser handles vertical by default */
   }
 }
 
