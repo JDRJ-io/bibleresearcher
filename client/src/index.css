@@ -136,6 +136,27 @@ body {
   }
 }
 
+/* Enhanced scroll behavior for mobile */
+.bible-table-wrapper {
+  overscroll-behavior: contain;
+}
+
+.scroll-container {
+  overscroll-behavior: auto;
+  scroll-behavior: smooth;
+}
+
+/* Prevent diagonal scrolling on mobile */
+@media (max-width: 768px) {
+  .bible-table-wrapper[data-scroll-direction="horizontal"] {
+    overflow-y: hidden;
+  }
+  
+  .bible-table-wrapper[data-scroll-direction="vertical"] {
+    overflow-x: hidden;
+  }
+}
+
 /* Mobile-optimized column widths and touch behavior */
 @media (max-width: 640px) {
   .bible-table-wrapper {

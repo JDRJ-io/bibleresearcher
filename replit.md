@@ -243,6 +243,16 @@ Beyond drag a11y, the app will need general accessibility review. Currently, one
 # Recent Major Changes (for reference)
 (This section highlights recent refactor milestones for context and verification of completeness.)
 
+## Mobile-First UI Improvements (July 18, 2025):
+Enhanced mobile experience with responsive design improvements:
+- Fixed column header positioning to eliminate gap between top header and sticky column headers
+- Implemented directional scrolling that prevents diagonal scrolling on mobile (only vertical or horizontal at a time)
+- Added scroll synchronization between main content and column headers during horizontal scrolling
+- Compressed top header height from 64px to 48px on mobile devices
+- Enhanced font size scaling system to affect entire view (row heights, column widths) not just text
+- Improved touch handling with better scroll direction detection and prevention of accidental dual-axis scrolling
+- Added responsive CSS rules for better mobile column width optimization
+
 ## Comprehensive Data Integrity Lockdown (July 14, 2025): 
 Ensured that all data comes from Supabase. Hard-coded all Supabase Storage paths in one place, added a dev-only guard to catch any unwanted API calls, and verified no other data sources are used. After this, 100% of content is loaded via the BibleDataAPI facade from Supabase, with no calls to the old Express endpoints. Web workers were adjusted to request data through main thread messaging to avoid independent network calls. This change unified data access and closed potential inconsistency issues.
 ## Memory Optimizations & Cache Consolidation (July 15–16, 2025): 

@@ -182,35 +182,49 @@ const VirtualBibleTable = ({
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
-  // Mobile touch handling for dual-axis scrolling and scroll tracking
+  // Enhanced directional scrolling - only one axis at a time
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
   useEffect(() => {
     if (!wrapperRef.current) return;
 
     let startX = 0, startY = 0;
+    let isScrolling = false;
 
     const onTouchStart = (e: TouchEvent) => {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
+      isScrolling = false;
+      setScrollDirection(null);
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      const dx = Math.abs(e.touches[0].clientX - startX);
-      const dy = Math.abs(e.touches[0].clientY - startY);
-      
-      // If horizontal movement is 20% more than vertical, enable horizontal scroll
-      if (dx > dy * 1.2) {
-        wrapperRef.current!.style.touchAction = "pan-x";
-      } else {
-        wrapperRef.current!.style.touchAction = "pan-y";
+      if (!isScrolling) {
+        const dx = Math.abs(e.touches[0].clientX - startX);
+        const dy = Math.abs(e.touches[0].clientY - startY);
+        
+        // Determine scroll direction based on initial movement
+        if (dx > dy && dx > 10) {
+          // Horizontal scrolling detected
+          setScrollDirection('horizontal');
+          wrapperRef.current!.style.touchAction = "pan-x";
+          isScrolling = true;
+        } else if (dy > dx && dy > 10) {
+          // Vertical scrolling detected
+          setScrollDirection('vertical');
+          wrapperRef.current!.style.touchAction = "pan-y";
+          isScrolling = true;
+        }
       }
     };
 
     const onTouchEnd = () => {
-      // Reset to vertical scrolling by default
+      // Reset to allow both directions after touch ends
       wrapperRef.current!.style.touchAction = "pan-y";
+      setScrollDirection(null);
+      isScrolling = false;
     };
 
     const onScroll = (e: Event) => {
@@ -248,8 +262,9 @@ const VirtualBibleTable = ({
         ref={wrapperRef} 
         className="bible-table-wrapper"
         style={{ touchAction: "pan-y" }}
+        data-scroll-direction={scrollDirection}
       >
-        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
+        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 96px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
         <div style={{height: slice.start * ROW_HEIGHT}} />
         {slice.verseIDs.map((id, i) => {
           // Convert simple rowData to BibleVerse structure
