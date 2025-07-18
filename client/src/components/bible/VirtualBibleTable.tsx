@@ -5,6 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { ColumnHeaders } from "./ColumnHeaders";
+import { useColumnData } from '@/hooks/useColumnData';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
@@ -74,6 +75,9 @@ const VirtualBibleTable = ({
   
   // B-2: Load cross-references with offset-based approach
   useCrossRefLoader(slice.verseIDs, 'cf1');
+  
+  // Load column-specific data when columns are toggled
+  useColumnData();
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {

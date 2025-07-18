@@ -108,12 +108,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const { main, alternates } = useTranslationSlice();
   const { showCrossRefs, showProphecies } = useBibleStore();
   
-  // Match the column order from ColumnHeaders
+  // Match the column order from ColumnHeaders exactly
   const columnOrder = [
     "Reference", 
     main,
     ...alternates,
-    ...(showCrossRefs ? ["Cross"] : []),
+    ...(showCrossRefs ? ["Cross References"] : []),
     ...(showProphecies ? ["P", "F", "V"] : [])
   ];
 
@@ -126,7 +126,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const renderColumn = (columnKey: string) => {
     const isMain = columnKey === main;
     const width = columnKey === "Reference" ? "w-20" : 
-                 columnKey === "Cross" ? "w-60" : 
+                 columnKey === "Cross References" ? "w-60" : 
                  ["P", "F", "V"].includes(columnKey) ? "w-20" : "w-80";
     
     if (columnKey === "Reference") {
@@ -142,9 +142,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       );
     }
     
-    if (columnKey === "Cross") {
+    if (columnKey === "Cross References") {
       return (
-        <div key="cross" className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+        <div key="cross-references" className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
           <CrossReferencesCell 
             verse={verse}
             getVerseText={getVerseText}
