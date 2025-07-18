@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/components/auth/UserProfile';
-import { AuthModals } from '@/components/auth/AuthModals';
+import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
 
@@ -30,8 +30,7 @@ export function TopHeader({
 }: TopHeaderProps) {
   const { theme, setTheme, themes } = useTheme();
   const { user, loading } = useAuth();
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { width } = useWindowSize();
   const isMobile = width < 640;
@@ -44,7 +43,7 @@ export function TopHeader({
       style={{ 
         backgroundColor: 'var(--header-bg)', 
         borderColor: 'var(--border-color)', 
-        height: isMobile ? '48px' : 'var(--header-height)' 
+        height: isMobile ? '38px' : 'var(--header-height)' 
       }}
     >
       {/* Left Section: Navigation Controls */}
@@ -54,7 +53,7 @@ export function TopHeader({
           <Button
             variant="outline"
             size="sm"
-            className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} p-0`}
+            className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} p-0`}
             onClick={onBack}
             disabled={!canGoBack}
             title="Previous Verse"
@@ -64,7 +63,7 @@ export function TopHeader({
           <Button
             variant="outline"
             size="sm"
-            className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} p-0`}
+            className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} p-0`}
             onClick={onForward}
             disabled={!canGoForward}
             title="Next Verse"
@@ -77,26 +76,26 @@ export function TopHeader({
       </div>
 
       {/* Center Section: Search Bar */}
-      <div className="flex-1 max-w-md mx-4">
+      <div className="flex-1 max-w-md mx-2">
         {isMobile ? (
           <>
             {!searchOpen ? (
               <Button
                 variant="outline"
                 size="sm"
-                className="w-8 h-8 p-0"
+                className="w-6 h-6 p-0"
                 onClick={() => setSearchOpen(true)}
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-3 h-3" />
               </Button>
             ) : (
               <div className="relative">
                 <Input
                   type="text"
-                  placeholder="search random w/ '%'"
+                  placeholder="Search verses..."
                   value={searchQuery}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  className="pl-10 pr-4"
+                  className="pl-8 pr-8 h-6 text-xs"
                   style={{
                     backgroundColor: 'var(--column-bg)',
                     borderColor: 'var(--border-color)',
@@ -105,7 +104,15 @@ export function TopHeader({
                   onBlur={() => setSearchOpen(false)}
                   autoFocus
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-60" />
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 opacity-60" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchOpen(false)}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 w-4 h-4 p-0"
+                >
+                  <X className="w-2 h-2" />
+                </Button>
               </div>
             )}
           </>
@@ -128,122 +135,65 @@ export function TopHeader({
         )}
       </div>
 
-      {/* Right Section: Auth Buttons */}
-      <div className="flex items-center gap-2">
+      {/* Right Section: Auth and Menu */}
+      <div className="flex items-center gap-1">
         {/* Quick verse shortcuts - hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-2 mr-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSearchChange("Genesis 1:1")}
-            className="text-xs"
-          >
-            Gen 1:1
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSearchChange("Psalm 23")}
-            className="text-xs"
-          >
-            Psalm 23
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSearchChange("John 3:16")}
-            className="text-xs"
-          >
-            John 3:16
-          </Button>
-        </div>
-
-        {/* Combined Sign In/Up Button */}
-        <Button
-          variant="default"
-          size={isMobile ? "sm" : "default"}
-          className="bg-purple-500 hover:bg-purple-600 text-white"
-        >
-          Sign In/Up
-        </Button>
-      </div>
-
-      {/* Right Section: Controls */}
-      <div className="flex items-center space-x-3">
-        {/* Authentication Buttons */}
-        {loading ? (
-          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
-            <div className="w-4 h-4 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm">Loading...</span>
+        {!isMobile && (
+          <div className="flex items-center gap-2 mr-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSearchChange("Genesis 1:1")}
+              className="text-xs"
+            >
+              Gen 1:1
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSearchChange("Psalm 23")}
+              className="text-xs"
+            >
+              Psalm 23
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSearchChange("John 3:16")}
+              className="text-xs"
+            >
+              John 3:16
+            </Button>
           </div>
-        ) : !user ? (
-          // Logged Out State: Show Auth Buttons (responsive)
-          <div className="flex items-center space-x-2">
-            {isMobile ? (
-              <Button
-                onClick={() => setIsSignInOpen(true)}
-                className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-              >
-                Sign In
-              </Button>
-            ) : (
-              <>
-                <Button
-                  onClick={() => setIsSignUpOpen(true)}
-                  className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-                >
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Sign Up
-                </Button>
-                <Button
-                  onClick={() => setIsSignInOpen(true)}
-                  variant="outline"
-                  className="border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium"
-                >
-                  <KeyRound className="w-3 h-3 mr-1" />
-                  Sign In
-                </Button>
-              </>
-            )}
-          </div>
-        ) : (
-          // Logged In State: Show User Profile
-          <UserProfile />
         )}
 
-        {/* Theme Toggle */}
-        <div className="hidden sm:flex">
-          <Select value={theme} onValueChange={setTheme}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {themes.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Combined Sign In/Up Button */}
+        {!user && (
+          <Button
+            variant="default"
+            size="sm"
+            className={`bg-purple-500 hover:bg-purple-600 text-white text-xs ${isMobile ? 'px-2 h-6' : 'px-3 h-7'}`}
+            onClick={() => setIsAuthModalOpen(true)}
+          >
+            Sign In/Up
+          </Button>
+        )}
 
         {/* Hamburger Menu Button */}
         <Button
           variant="outline"
           size="sm"
-          className="w-10 h-10 p-0"
+          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} p-0`}
           onClick={onMenuToggle}
         >
-          <Menu className="w-5 h-5" />
+          <Menu className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
         </Button>
       </div>
 
-      {/* Auth Modals */}
-      <AuthModals
-        isSignUpOpen={isSignUpOpen}
-        isSignInOpen={isSignInOpen}
-        onCloseSignUp={() => setIsSignUpOpen(false)}
-        onCloseSignIn={() => setIsSignInOpen(false)}
+      {/* Combined Auth Modal */}
+      <CombinedAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </header>
   );

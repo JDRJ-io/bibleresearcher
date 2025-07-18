@@ -44,7 +44,7 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
-        top: '48px', // Mobile header height
+        top: '38px', // Mobile header height
         height: '40px',
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',

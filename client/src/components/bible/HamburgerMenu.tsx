@@ -318,10 +318,10 @@ export function HamburgerMenu({
           <Separator />
 
           {/* Authentication */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-lg flex items-center">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-base flex items-center">
               <LogIn
-                className="w-5 h-5 mr-2"
+                className="w-4 h-4 mr-2"
                 style={{ color: "var(--accent-color)" }}
               />
               Account
@@ -341,24 +341,14 @@ export function HamburgerMenu({
                 </Button>
               </div>
             ) : (
-              <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsSignInOpen(true)}
-                  className="w-full text-sm"
-                >
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsSignUpOpen(true)}
-                  className="w-full text-sm"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Sign Up
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => setIsSignInOpen(true)}
+                className="w-full text-sm"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Sign In/Up
+              </Button>
             )}
           </div>
         </div>
