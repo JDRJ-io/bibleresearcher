@@ -86,9 +86,9 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     name: 'Cross References',
     type: 'cross-ref',
     width: 'w-60',
-    mobileWidth: 'w-72',
+    mobileWidth: 'w-12', // Narrow for mobile like the image
     position: 6,
-    defaultVisible: false,
+    defaultVisible: true, // Default ON for free users
     guestMode: true
   },
   

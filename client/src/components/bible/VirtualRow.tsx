@@ -107,6 +107,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 }) => {
   const { main, alternates } = useTranslationSlice();
   const { showCrossRefs, showProphecies } = useBibleStore();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   // Match the column order from ColumnHeaders exactly
   const columnOrder = [
@@ -125,9 +126,14 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 
   const renderColumn = (columnKey: string) => {
     const isMain = columnKey === main;
-    const width = columnKey === "Reference" ? "w-20" : 
-                 columnKey === "Cross References" ? "w-60" : 
-                 ["P", "F", "V"].includes(columnKey) ? "w-20" : "w-80";
+    // Mobile-optimized widths to match attached image
+    const width = isMobile ? 
+      (columnKey === "Reference" ? "w-16" : 
+       columnKey === "Cross References" ? "w-12" : 
+       ["P", "F", "V"].includes(columnKey) ? "w-8" : "flex-1") :
+      (columnKey === "Reference" ? "w-20" : 
+       columnKey === "Cross References" ? "w-60" : 
+       ["P", "F", "V"].includes(columnKey) ? "w-20" : "w-80");
     
     if (columnKey === "Reference") {
       return (

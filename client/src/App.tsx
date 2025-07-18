@@ -40,8 +40,8 @@ export const useBibleStore = create<{
       crossRefs: {},
       prophecies: {},
       store: { crossRefs: {}, prophecies: {} },
-      showCrossRefs: true,
-      showProphecies: true,
+      showCrossRefs: true,  // Default ON for free users (optimal mobile display)
+      showProphecies: false, // Default OFF for free users (cleaner mobile)
       toggleCrossRefs: () => set(state => ({ showCrossRefs: !state.showCrossRefs })),
       toggleProphecies: () => set(state => ({ showProphecies: !state.showProphecies })),
       translationState: {
