@@ -43,8 +43,8 @@ export function useColumnData() {
       ]);
       
       console.log('✅ Prophecy data loaded:', {
-        rowsSize: prophecyRows.length,
-        indexKeys: Object.keys(prophecyIndex).length
+        rowsSize: typeof prophecyRows === 'string' ? prophecyRows.length : 'not string',
+        indexKeys: prophecyIndex ? Object.keys(prophecyIndex).length : 'no index'
       });
       
       // Parse and store prophecy data
@@ -52,6 +52,7 @@ export function useColumnData() {
       // For now, let's just log that it's loaded
     } catch (error) {
       console.error('❌ Failed to load prophecy data:', error);
+      console.error('Error details:', error.message || error);
     }
   };
 

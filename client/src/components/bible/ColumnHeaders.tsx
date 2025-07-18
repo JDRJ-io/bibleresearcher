@@ -20,7 +20,10 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  const width = getColumnWidth(column, isMobile);
+  // Use exact same width logic as VirtualRow
+  const width = column.name === "Reference" ? "w-20" : 
+               column.name === "Cross References" ? "w-60" : 
+               ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80";
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
   
   return (
@@ -46,26 +49,21 @@ export function ColumnHeaders({
   // Get store states for column visibility
   const { showCrossRefs, showProphecies } = useBibleStore();
   
-  // Column order matching VirtualRow exactly
+  // Column order matching VirtualRow exactly - use main + alternates
   const headerOrder = [
     "Reference", 
-    ...selectedTranslations.map(t => t.abbreviation),
+    main,
+    ...alternates,
     ...(showCrossRefs ? ["Cross References"] : []),
     ...(showProphecies ? ["P", "F", "V"] : [])
   ];
   
   const allColumns = headerOrder.map((name, index) => ({
     id: name.toLowerCase().replace(' ', '-'),
-    name: name === 'Cross References' ? 'Cross References' : name,
+    name: name,
     type: name === 'Reference' ? 'reference' : 
           name === 'Cross References' ? 'cross-ref' :
           ['P', 'F', 'V'].includes(name) ? 'prophecy' : 'translation',
-    width: name === 'Reference' ? 'w-20' : 
-           name === 'Cross References' ? 'w-60' :
-           ['P', 'F', 'V'].includes(name) ? 'w-20' : 'w-80',
-    mobileWidth: name === 'Reference' ? 'w-16' : 
-                 name === 'Cross References' ? 'w-72' :
-                 ['P', 'F', 'V'].includes(name) ? 'w-16' : 'w-full',
     position: index,
     isMain: name === main
   }));
