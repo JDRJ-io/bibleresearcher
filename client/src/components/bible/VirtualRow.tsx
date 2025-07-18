@@ -4,6 +4,7 @@ import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useColumnKeys, useTranslationMaps as useTranslationSlice } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
+import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 
 interface VirtualRowProps {
   verseID: string;

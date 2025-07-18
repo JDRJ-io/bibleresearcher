@@ -1,6 +1,7 @@
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
+import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -8,37 +9,56 @@ interface ColumnHeadersProps {
   showProphecy: boolean;
   showContext: boolean;
   scrollLeft: number;
+  preferences: any;
+  isGuest?: boolean;
 }
 
 interface HeaderCellProps {
-  verse: string;
+  column: any;
   isMain?: boolean;
+  isMobile?: boolean;
 }
 
-function HeaderCell({ verse, isMain }: HeaderCellProps) {
-  const width = verse === "Ref" ? "w-20" : verse === "Cross References" ? "w-60" : ["P", "F", "V"].includes(verse) ? "w-20" : "w-80";
+function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
+  const width = getColumnWidth(column, isMobile);
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
   
   return (
     <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
-      {verse}
+      {column.name}
     </div>
   );
 }
 
-// Step 4.3-a. ColumnHeaders
-export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, scrollLeft }: ColumnHeadersProps) {
+// Step 4.3-a. ColumnHeaders with slot-based system
+export function ColumnHeaders({ 
+  selectedTranslations, 
+  showNotes, 
+  showProphecy, 
+  showContext, 
+  scrollLeft, 
+  preferences, 
+  isGuest = true 
+}: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
-  const columnKeys = useColumnKeys();  // memoised selector
-  const { showCrossRefs, showProphecies } = useBibleStore();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
-  // 2-A: Replace every map over translationsInUse with useColumnKeys  
+  // Simplified column order for now - will implement full slot system later
   const headerOrder = [
     "Reference", 
-    ...columnKeys,
-    ...(showCrossRefs ? ["Cross"] : []),
-    ...(showProphecies ? ["P", "F", "V"] : [])
+    ...selectedTranslations.map(t => t.abbreviation),
+    ...(showProphecy ? ["P", "F", "V"] : [])
   ];
+  
+  const allColumns = headerOrder.map((name, index) => ({
+    id: name.toLowerCase().replace(' ', '-'),
+    name: name,
+    type: name === 'Reference' ? 'reference' : ['P', 'F', 'V'].includes(name) ? 'prophecy' : 'translation',
+    width: name === 'Reference' ? 'w-20' : ['P', 'F', 'V'].includes(name) ? 'w-20' : 'w-80',
+    mobileWidth: name === 'Reference' ? 'w-16' : ['P', 'F', 'V'].includes(name) ? 'w-16' : 'w-full',
+    position: index,
+    isMain: name === main
+  }));
   
   return (
     <div 
@@ -59,20 +79,14 @@ export function ColumnHeaders({ selectedTranslations, showNotes, showProphecy, s
             willChange: 'transform'
           }}
         >
-          {headerOrder.map((key: string) => {
-            if (key === "Reference") return <HeaderCell key="ref" verse="Ref" />;
-            if (key === "Cross") return <HeaderCell key="cross" verse="Cross References" />;
-            if (["P", "F", "V"].includes(key)) return <HeaderCell key={key} verse={key} />;
-            // otherwise it's a translation code
-            const isMain = key === main;
-            return (
-              <HeaderCell
-                key={key}
-                verse={key}
-                isMain={isMain}
-              />
-            );
-          })}
+          {allColumns.map((column) => (
+            <HeaderCell
+              key={column.id}
+              column={column}
+              isMain={column.isMain}
+              isMobile={isMobile}
+            />
+          ))}
         </div>
       </div>
     </div>

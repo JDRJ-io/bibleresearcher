@@ -267,6 +267,8 @@ const VirtualBibleTable = ({
         showProphecy={preferences.showProphecy}
         showContext={false}
         scrollLeft={scrollLeft}
+        preferences={preferences}
+        isGuest={true}
       />
       
       <div 
