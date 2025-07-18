@@ -104,10 +104,76 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onVerseClick,
   onExpandVerse,
 }) => {
+  const { main, alternates } = useTranslationSlice();
+  const { showCrossRefs, showProphecies } = useBibleStore();
+  
+  // Match the column order from ColumnHeaders
+  const columnOrder = [
+    "Reference", 
+    main,
+    ...alternates,
+    ...(showCrossRefs ? ["Cross"] : []),
+    ...(showProphecies ? ["P", "F", "V"] : [])
+  ];
+
   const handleRowClick = () => {
     if (onExpandVerse) {
       onExpandVerse(verse);
     }
+  };
+
+  const renderColumn = (columnKey: string) => {
+    const isMain = columnKey === main;
+    const width = columnKey === "Reference" ? "w-20" : 
+                 columnKey === "Cross" ? "w-60" : 
+                 ["P", "F", "V"].includes(columnKey) ? "w-20" : "w-80";
+    
+    if (columnKey === "Reference") {
+      return (
+        <div key="ref" className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <ReferenceCell 
+            verse={verse}
+            getVerseText={getVerseText}
+            mainTranslation={mainTranslation}
+            onVerseClick={onVerseClick}
+          />
+        </div>
+      );
+    }
+    
+    if (columnKey === "Cross") {
+      return (
+        <div key="cross" className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <CrossReferencesCell 
+            verse={verse}
+            getVerseText={getVerseText}
+            mainTranslation={mainTranslation}
+            onVerseClick={onVerseClick}
+          />
+        </div>
+      );
+    }
+    
+    if (["P", "F", "V"].includes(columnKey)) {
+      return (
+        <div key={columnKey} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <ProphecyCell verse={verse} type={columnKey as "P" | "F" | "V"} />
+        </div>
+      );
+    }
+    
+    // Translation column
+    const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
+    return (
+      <div key={columnKey} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
+        <TranslationCell 
+          verse={verse}
+          translation={columnKey}
+          getVerseText={getVerseText}
+          isMain={isMain}
+        />
+      </div>
+    );
   };
 
   return (
@@ -116,33 +182,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       style={{ height: rowHeight }}
       onClick={handleRowClick}
     >
-      {/* Reference Column */}
-      <ReferenceCell 
-        verse={verse}
-        getVerseText={getVerseText}
-        mainTranslation={mainTranslation}
-        onVerseClick={onVerseClick}
-      />
-
-      {/* Main Translation Column */}
-      <div className="col-main">
-        <MainTranslationCell 
-          verse={verse}
-          getVerseText={getVerseText}
-          mainTranslation={mainTranslation}
-          onVerseClick={onVerseClick}
-        />
-      </div>
-
-      {/* Cross References Column */}
-      <div className="col-cross border-l border-gray-200 dark:border-gray-700">
-        <CrossReferencesCell 
-          verse={verse}
-          getVerseText={getVerseText}
-          mainTranslation={mainTranslation}
-          onVerseClick={onVerseClick}
-        />
-      </div>
+      {columnOrder.map(renderColumn)}
     </div>
   );
 };
@@ -184,16 +224,20 @@ function ProphecyCell({ verse, type }: ProphecyCellProps) {
 }
 
 interface TranslationCellProps {
-  text: string;
+  verse: BibleVerse;
+  translation: string;
+  getVerseText: (verseID: string, translationCode: string) => string | undefined;
   isMain?: boolean;
 }
 
-function TranslationCell({ text, isMain }: TranslationCellProps) {
+function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
+  const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
+  
   return (
-    <div className={`w-80 px-2 py-1 text-sm border-r border-gray-200 dark:border-gray-700 flex-shrink-0 ${bgClass}`}>
-      <div className="overflow-auto h-full">
-        {text}
+    <div className={`w-80 px-2 py-1 text-sm flex-shrink-0 ${bgClass}`}>
+      <div className="overflow-auto h-full verse-text">
+        {verseText || "Loading..."}
       </div>
     </div>
   );

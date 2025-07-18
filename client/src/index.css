@@ -75,24 +75,50 @@ body {
 
 /* Apply font size scaling to verse content */
 .verse-text {
-  font-size: var(--text-base);
+  font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
 }
 
 .verse-text.text-sm {
-  font-size: var(--text-sm);
+  font-size: calc(var(--text-sm) * var(--font-size-multiplier, 1));
 }
 
 .verse-text.text-lg {
-  font-size: var(--text-lg);
+  font-size: calc(var(--text-lg) * var(--font-size-multiplier, 1));
 }
 
 /* Ensure Bible verse rows respect the font size */
 .bible-verse-row {
-  font-size: var(--text-base);
+  font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
 }
 
 .bible-verse-row .verse-content {
   font-size: inherit;
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  .verse-text {
+    font-size: calc(var(--text-sm) * var(--font-size-multiplier, 1));
+    line-height: 1.4;
+  }
+  
+  .bible-verse-row {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Optimize column widths for mobile */
+  .w-80 {
+    width: 100%;
+    min-width: 280px;
+  }
+  
+  .w-60 {
+    width: 200px;
+  }
+  
+  .w-20 {
+    width: 60px;
+  }
 }
 
 /* Mobile-optimized column widths and touch behavior */
