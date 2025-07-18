@@ -132,6 +132,7 @@ export default function BiblePage() {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isForumOpen, setIsForumOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   // Translation helper functions (integrated with translation maps system)
   const handleToggleTranslation = async (translationId: string) => {
@@ -571,22 +572,23 @@ export default function BiblePage() {
     >
       {/* Sticky Top Header */}
       <div
-        className="sticky top-0 z-40 flex items-center justify-between p-4 border-b"
+        className="sticky top-0 z-40 flex items-center justify-between px-2 py-1 border-b"
         style={{
           backgroundColor: "var(--header-bg)",
           borderBottomColor: "var(--border-color)",
+          height: "38px",
         }}
       >
         {/* Left side - Back/Forward buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={hookGoBack}
             disabled={!hookCanGoBack}
-            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Go back"
           >
             <svg
-              className="h-4 w-4"
+              className="h-3 w-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -602,11 +604,11 @@ export default function BiblePage() {
           <button
             onClick={hookGoForward}
             disabled={!hookCanGoForward}
-            className="p-2 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Go forward"
           >
             <svg
-              className="h-4 w-4"
+              className="h-3 w-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -622,62 +624,92 @@ export default function BiblePage() {
         </div>
 
         {/* Center - Navigation and Search */}
-        <div className="flex-1 flex items-center gap-4 mx-4">
+        <div className="flex-1 flex items-center gap-2 mx-2">
           <VerseSelector onNavigate={navigateToVerse} />
 
-          <div className="flex-1 max-w-md flex gap-2">
-            <input
-              type="text"
-              placeholder="Search verses, references, or topics... (% for random)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleGlobalSearch(searchQuery);
-                }
-              }}
-              className="flex-1 px-3 py-2 text-sm bg-muted border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <button
-              onClick={() => handleGlobalSearch(searchQuery)}
-              className="px-3 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
-            >
-              Search
-            </button>
+          <div className="flex-1 max-w-md flex gap-1">
+            {!mobileSearchOpen ? (
+              <button
+                onClick={() => setMobileSearchOpen(true)}
+                className="p-1 hover:bg-muted rounded-md transition-colors"
+                aria-label="Open search"
+              >
+                <svg
+                  className="h-3 w-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </button>
+            ) : (
+              <div className="flex-1 flex gap-1">
+                <input
+                  type="text"
+                  placeholder="Search verses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleGlobalSearch(searchQuery);
+                    }
+                  }}
+                  className="flex-1 px-2 py-1 text-xs bg-muted border rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                  autoFocus
+                />
+                <button
+                  onClick={() => handleGlobalSearch(searchQuery)}
+                  className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition-colors"
+                >
+                  Go
+                </button>
+                <button
+                  onClick={() => setMobileSearchOpen(false)}
+                  className="p-1 hover:bg-muted rounded-md transition-colors"
+                  aria-label="Close search"
+                >
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Right side - Auth + Menu */}
-        <div className="flex items-center gap-2">
-          {/* Authentication Buttons */}
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setIsSignUpOpen(true)}
-              className="bg-gradient-to-r from-slate-400 via-purple-300 to-blue-300 hover:from-slate-500 hover:via-purple-400 hover:to-blue-400 text-white shadow-lg transition-all duration-300 hover:shadow-purple-300/50 hover:scale-105 text-sm px-3 py-1 h-8 font-medium rounded-md flex items-center gap-1"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-              Sign Up
-            </button>
-            <button
-              onClick={() => setIsSignInOpen(true)}
-              className="border border-slate-300 bg-gradient-to-r from-slate-50 via-purple-50 to-blue-50 dark:from-slate-800 dark:via-purple-900/20 dark:to-blue-900/20 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-100 hover:via-purple-100 hover:to-blue-100 dark:hover:from-slate-700 dark:hover:via-purple-800/30 dark:hover:to-blue-800/30 transition-all duration-300 hover:scale-105 text-sm px-3 py-1 h-8 font-medium rounded-md flex items-center gap-1"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              Sign In
-            </button>
-          </div>
+        <div className="flex items-center gap-1">
+          {/* Combined Authentication Button */}
+          <button
+            onClick={() => setIsSignUpOpen(true)}
+            className="bg-purple-500 hover:bg-purple-600 text-white text-xs px-2 py-1 h-6 font-medium rounded-md flex items-center gap-1"
+          >
+            Sign In/Up
+          </button>
           
           <button
             onClick={() => setIsMenuOpen(true)}
-            className="p-2 hover:bg-muted rounded-md transition-colors"
+            className="p-1 hover:bg-muted rounded-md transition-colors"
             aria-label="Open menu"
           >
             <svg
-              className="h-5 w-5"
+              className="h-3 w-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
