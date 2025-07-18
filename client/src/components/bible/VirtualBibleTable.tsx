@@ -206,15 +206,17 @@ const VirtualBibleTable = ({
         const dy = Math.abs(e.touches[0].clientY - startY);
         
         // Determine scroll direction based on initial movement
-        if (dx > dy && dx > 10) {
+        if (dx > dy && dx > 15) {
           // Horizontal scrolling detected
           setScrollDirection('horizontal');
           wrapperRef.current!.style.touchAction = "pan-x";
+          wrapperRef.current!.style.overflowY = "hidden";
           isScrolling = true;
-        } else if (dy > dx && dy > 10) {
+        } else if (dy > dx && dy > 15) {
           // Vertical scrolling detected
           setScrollDirection('vertical');
           wrapperRef.current!.style.touchAction = "pan-y";
+          wrapperRef.current!.style.overflowX = "hidden";
           isScrolling = true;
         }
       }
@@ -222,7 +224,11 @@ const VirtualBibleTable = ({
 
     const onTouchEnd = () => {
       // Reset to allow both directions after touch ends
-      wrapperRef.current!.style.touchAction = "pan-y";
+      if (wrapperRef.current) {
+        wrapperRef.current.style.touchAction = "pan-y";
+        wrapperRef.current.style.overflowX = "auto";
+        wrapperRef.current.style.overflowY = "auto";
+      }
       setScrollDirection(null);
       isScrolling = false;
     };
@@ -233,23 +239,28 @@ const VirtualBibleTable = ({
     };
 
     const wrapper = wrapperRef.current;
+    const container = containerRef.current;
     wrapper.addEventListener("touchstart", onTouchStart);
     wrapper.addEventListener("touchmove", onTouchMove);
     wrapper.addEventListener("touchend", onTouchEnd);
-    wrapper.addEventListener("scroll", onScroll);
+    if (container) {
+      container.addEventListener("scroll", onScroll);
+    }
     
     return () => {
       if (wrapper) {
         wrapper.removeEventListener("touchstart", onTouchStart);
         wrapper.removeEventListener("touchmove", onTouchMove);
         wrapper.removeEventListener("touchend", onTouchEnd);
-        wrapper.removeEventListener("scroll", onScroll);
+      }
+      if (container) {
+        container.removeEventListener("scroll", onScroll);
       }
     };
   }, []);
 
   return (
-    <div className={`virtual-bible-table ${className}`}>
+    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
@@ -261,10 +272,10 @@ const VirtualBibleTable = ({
       <div 
         ref={wrapperRef} 
         className="bible-table-wrapper"
-        style={{ touchAction: "pan-y" }}
+        style={{ touchAction: "pan-y", marginTop: '-1px' }}
         data-scroll-direction={scrollDirection}
       >
-        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 96px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
+        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 87px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
         <div style={{height: slice.start * ROW_HEIGHT}} />
         {slice.verseIDs.map((id, i) => {
           // Convert simple rowData to BibleVerse structure
