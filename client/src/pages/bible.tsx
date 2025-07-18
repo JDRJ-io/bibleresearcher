@@ -240,8 +240,8 @@ export default function BiblePage() {
     }
   };
 
-  const handlePreferenceChange = async (key: string, value: boolean) => {
-    // Use preserveAnchor if available to prevent scroll jumping on UI toggles
+  const handlePreferenceChange = (key: string, value: boolean) => {
+    // INSTANT UI UPDATE - No waiting for data loading
     const updatePreferences = () => {
       setPreferences((prev) => ({
         ...prev,
@@ -255,31 +255,38 @@ export default function BiblePage() {
       updatePreferences();
     }
 
-    // Load prophecy data when prophecy columns are enabled
+    // DATA LOADING - Happens asynchronously in the background
+    // Do NOT await this - let the UI update immediately
     if (key === 'showProphecy' && value) {
-      try {
-        console.log("User enabled prophecy columns - loading prophecy data...");
-        const result = await loadProphecyDataOnDemand();
-        if (result.index.size > 0 && Object.keys(result.rows).length > 0) {
-          toast({ 
-            title: "Prophecy data loaded", 
-            description: `${result.index.size} verses indexed, ${Object.keys(result.rows).length} prophecies ready` 
-          });
-        } else {
-          toast({ 
-            title: "Prophecy data not found",
-            description: "Please check your Supabase storage for prophecy files",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        console.error("Failed to load prophecy data:", error);
+      // Start loading prophecy data in the background
+      loadProphecyDataInBackground();
+    }
+  };
+
+  // Separate function for background data loading
+  const loadProphecyDataInBackground = async () => {
+    try {
+      console.log("📊 Loading prophecy data in background...");
+      const result = await loadProphecyDataOnDemand();
+      if (result.index.size > 0 && Object.keys(result.rows).length > 0) {
         toast({ 
-          title: "Prophecy loading failed",
-          description: "Could not load prophecy data from Supabase",
+          title: "Prophecy data ready", 
+          description: `${result.index.size} verses indexed, ${Object.keys(result.rows).length} prophecies ready` 
+        });
+      } else {
+        toast({ 
+          title: "Prophecy data not found",
+          description: "Please check your Supabase storage for prophecy files",
           variant: "destructive"
         });
       }
+    } catch (error) {
+      console.error("Failed to load prophecy data:", error);
+      toast({ 
+        title: "Prophecy loading failed",
+        description: "Could not load prophecy data from Supabase",
+        variant: "destructive"
+      });
     }
   };
 
