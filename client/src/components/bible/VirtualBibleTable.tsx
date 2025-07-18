@@ -182,8 +182,9 @@ const VirtualBibleTable = ({
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
-  // Mobile touch handling for dual-axis scrolling
+  // Mobile touch handling for dual-axis scrolling and scroll tracking
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
   
   useEffect(() => {
     if (!wrapperRef.current) return;
@@ -212,16 +213,23 @@ const VirtualBibleTable = ({
       wrapperRef.current!.style.touchAction = "pan-y";
     };
 
+    const onScroll = (e: Event) => {
+      const target = e.target as HTMLDivElement;
+      setScrollLeft(target.scrollLeft);
+    };
+
     const wrapper = wrapperRef.current;
     wrapper.addEventListener("touchstart", onTouchStart);
     wrapper.addEventListener("touchmove", onTouchMove);
     wrapper.addEventListener("touchend", onTouchEnd);
+    wrapper.addEventListener("scroll", onScroll);
     
     return () => {
       if (wrapper) {
         wrapper.removeEventListener("touchstart", onTouchStart);
         wrapper.removeEventListener("touchmove", onTouchMove);
         wrapper.removeEventListener("touchend", onTouchEnd);
+        wrapper.removeEventListener("scroll", onScroll);
       }
     };
   }, []);
@@ -233,7 +241,7 @@ const VirtualBibleTable = ({
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
         showContext={false}
-        scrollLeft={0}
+        scrollLeft={scrollLeft}
       />
       
       <div 
@@ -241,7 +249,7 @@ const VirtualBibleTable = ({
         className="bible-table-wrapper"
         style={{ touchAction: "pan-y" }}
       >
-        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table">
+        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 120px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
         <div style={{height: slice.start * ROW_HEIGHT}} />
         {slice.verseIDs.map((id, i) => {
           // Convert simple rowData to BibleVerse structure

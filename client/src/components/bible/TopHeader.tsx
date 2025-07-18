@@ -40,36 +40,36 @@ export function TopHeader({
 
   return (
     <header 
-      className="sticky top-0 z-30 border-b transition-all duration-300 flex items-center justify-between px-4 max-w-full"
+      className="sticky top-0 z-30 border-b transition-all duration-300 flex items-center justify-between px-2 max-w-full"
       style={{ 
         backgroundColor: 'var(--header-bg)', 
         borderColor: 'var(--border-color)', 
-        height: 'var(--header-height)' 
+        height: isMobile ? '48px' : 'var(--header-height)' 
       }}
     >
       {/* Left Section: Navigation Controls */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2">
         {/* Back/Forward Buttons */}
         <div className="flex space-x-1">
           <Button
             variant="outline"
             size="sm"
-            className="w-8 h-8 p-0"
+            className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} p-0`}
             onClick={onBack}
             disabled={!canGoBack}
             title="Previous Verse"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="w-8 h-8 p-0"
+            className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} p-0`}
             onClick={onForward}
             disabled={!canGoForward}
             title="Next Verse"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
           </Button>
         </div>
 

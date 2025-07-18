@@ -73,7 +73,7 @@ body {
   font-size: var(--text-base);
 }
 
-/* Apply font size scaling to verse content */
+/* Apply font size scaling to verse content AND row height */
 .verse-text {
   font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
 }
@@ -86,13 +86,28 @@ body {
   font-size: calc(var(--text-lg) * var(--font-size-multiplier, 1));
 }
 
-/* Ensure Bible verse rows respect the font size */
+/* Scale the entire verse row based on font size */
 .bible-verse-row {
   font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
+  height: calc(var(--row-height, 60px) * var(--font-size-multiplier, 1));
+  min-height: calc(var(--row-height, 60px) * var(--font-size-multiplier, 1));
 }
 
 .bible-verse-row .verse-content {
   font-size: inherit;
+}
+
+/* Scale column widths with font size */
+.w-80 {
+  width: calc(20rem * var(--font-size-multiplier, 1));
+}
+
+.w-60 {
+  width: calc(15rem * var(--font-size-multiplier, 1));
+}
+
+.w-20 {
+  width: calc(5rem * var(--font-size-multiplier, 1));
 }
 
 /* Mobile-first responsive design */
