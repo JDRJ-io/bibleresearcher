@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -72,10 +72,15 @@ export function HamburgerMenu({
   const handleFontSizeChange = (size: string) => {
     setFontSize(size);
     localStorage.setItem('bible-font-size', size);
-    document.documentElement.style.setProperty('--font-size-multiplier', 
-      size === 'small' ? '0.85' : size === 'large' ? '1.15' : '1.0'
-    );
+    const multiplier = size === 'small' ? '0.85' : size === 'large' ? '1.15' : '1.0';
+    document.documentElement.style.setProperty('--font-size-multiplier', multiplier);
   };
+
+  // Apply font size on component mount
+  React.useEffect(() => {
+    const multiplier = fontSize === 'small' ? '0.85' : fontSize === 'large' ? '1.15' : '1.0';
+    document.documentElement.style.setProperty('--font-size-multiplier', multiplier);
+  }, [fontSize]);
 
   const labels = [
     { id: "who", name: "Who (Bold)" },

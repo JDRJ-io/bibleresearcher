@@ -41,29 +41,37 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     <div className="w-full px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
       {crossRefs.length > 0 ? (
         <div className="space-y-1">
-          {crossRefs.map((ref, index) => {
+          <div className="text-xs text-gray-500 mb-1">
+            Cross-refs ({crossRefs.length})
+          </div>
+          {crossRefs.slice(0, 3).map((ref, index) => {
             const reference = typeof ref === 'string' ? ref : ref.reference;
             const verseText = getVerseText(reference, mainTranslation) ?? "";
             const handleClick = (e: React.MouseEvent) => {
-              e.stopPropagation();         // ← this line prevents row handler
+              e.stopPropagation();
               onVerseClick?.(reference);
             };
             return (
               <div key={index} className="text-xs">
                 <button
                   onClick={handleClick}
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer underline"
+                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer underline block"
                 >
                   {reference}
                 </button>
                 {verseText && (
                   <div className="text-gray-600 dark:text-gray-400 mt-0.5 leading-tight">
-                    {verseText.length > 100 ? `${verseText.substring(0, 100)}...` : verseText}
+                    {verseText.length > 60 ? `${verseText.substring(0, 60)}...` : verseText}
                   </div>
                 )}
               </div>
             );
           })}
+          {crossRefs.length > 3 && (
+            <div className="text-xs text-blue-500 cursor-pointer">
+              +{crossRefs.length - 3} more
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-gray-400 italic text-xs">No cross-references</div>
@@ -77,7 +85,7 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps
 
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
-      <div className="leading-relaxed">
+      <div className="leading-relaxed verse-text">
         {verseText || "Loading..."}
       </div>
     </div>
@@ -104,7 +112,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 
   return (
     <div 
-      className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
       onClick={handleRowClick}
     >

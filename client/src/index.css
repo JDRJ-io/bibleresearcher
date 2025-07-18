@@ -73,6 +73,28 @@ body {
   font-size: var(--text-base);
 }
 
+/* Apply font size scaling to verse content */
+.verse-text {
+  font-size: var(--text-base);
+}
+
+.verse-text.text-sm {
+  font-size: var(--text-sm);
+}
+
+.verse-text.text-lg {
+  font-size: var(--text-lg);
+}
+
+/* Ensure Bible verse rows respect the font size */
+.bible-verse-row {
+  font-size: var(--text-base);
+}
+
+.bible-verse-row .verse-content {
+  font-size: inherit;
+}
+
 /* Mobile-optimized column widths and touch behavior */
 @media (max-width: 640px) {
   .bible-table-wrapper {
