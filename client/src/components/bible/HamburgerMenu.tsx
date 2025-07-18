@@ -23,6 +23,7 @@ import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { TranslationSelector } from "./TranslationSelector";
 import { useBibleStore } from "@/App";
+import { useTheme } from "./ThemeProvider";
 
 export function HamburgerMenu({
   isOpen,
@@ -32,12 +33,14 @@ export function HamburgerMenu({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { showCrossRefs, showProphecies, toggleCrossRefs, toggleProphecies } = useBibleStore();
+  const { theme, setTheme, themes } = useTheme();
 
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [bookmarkName, setBookmarkName] = useState("");
   const [bookmarkColor, setBookmarkColor] = useState("#3b82f6");
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem('bible-font-size') || 'medium');
 
   const createBookmarkMutation = useMutation({
     mutationFn: async (bookmark: {
@@ -65,6 +68,14 @@ export function HamburgerMenu({
       });
     },
   });
+
+  const handleFontSizeChange = (size: string) => {
+    setFontSize(size);
+    localStorage.setItem('bible-font-size', size);
+    document.documentElement.style.setProperty('--font-size-multiplier', 
+      size === 'small' ? '0.85' : size === 'large' ? '1.15' : '1.0'
+    );
+  };
 
   const labels = [
     { id: "who", name: "Who (Bold)" },
@@ -245,6 +256,36 @@ export function HamburgerMenu({
 
           <Separator />
 
+          {/* Text Size */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center">
+              <Settings
+                className="w-5 h-5 mr-2"
+                style={{ color: "var(--accent-color)" }}
+              />
+              Text Size
+            </h3>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              {[
+                { value: 'small', label: 'Small' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'large', label: 'Large' }
+              ].map((size) => (
+                <Button
+                  key={size.value}
+                  variant={fontSize === size.value ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => handleFontSizeChange(size.value)}
+                >
+                  {size.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
           {/* Themes */}
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center">
@@ -255,18 +296,17 @@ export function HamburgerMenu({
               Themes
             </h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              {["Light", "Dark", "Sepia", "Aurora", "Electric", "Fireworks"].map(
-                (theme) => (
-                  <Button
-                    key={theme}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                  >
-                    {theme}
-                  </Button>
-                ),
-              )}
+              {themes.map((themeOption) => (
+                <Button
+                  key={themeOption.id}
+                  variant={theme === themeOption.id ? "default" : "outline"}
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => setTheme(themeOption.id)}
+                >
+                  {themeOption.name}
+                </Button>
+              ))}
             </div>
           </div>
 
