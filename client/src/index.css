@@ -276,6 +276,39 @@ body {
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+
+/* Refined divine styling for bible page header */
+.sacred-title {
+  color: white !important;
+  text-shadow: 0 0 10px #FFD700, 0 0 20px #8A2BE2 !important;
+}
+
+.divine-logo-container {
+  animation: spin 8s linear infinite, heavenly-float 4s ease-in-out infinite !important;
+}
+
+.divine-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: sacred-shimmer 6s infinite;
+}
+
+.sacred-glow {
+  animation: divine-glow 6s ease-in-out infinite !important;
+}
+
+.heavenly-float {
+  animation: heavenly-float 4s ease-in-out infinite !important;
+}
+
+.divine-pulse {
+  animation: divine-pulse 3s ease-in-out infinite !important;
+}
 /* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
 
 /* Verse hover and highlight animations matching original design */
