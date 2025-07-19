@@ -63,7 +63,7 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Select Main Translation</h4>
             <div className="space-y-1">
-              {["KJV", "ESV", "NIV", "NKJV", "NLT", "AMP", "CSB", "NASB"].map((version) => (
+              {["KJV", "ESV", "NIV", "NKJV", "NLT", "AMP", "CSB", "NASB", "BSB", "WEB", "YLT", "NRSV"].map((version) => (
                 <Button
                   key={version}
                   variant={version === "KJV" ? "default" : "outline"}
@@ -221,6 +221,10 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
                     <RadioGroupItem value="large" id="large" className="w-3 h-3" />
                     <Label htmlFor="large" className="text-xs">Large</Label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="extra-large" id="extra-large" className="w-3 h-3" />
+                    <Label htmlFor="extra-large" className="text-xs">Extra Large</Label>
+                  </div>
                 </RadioGroup>
               </div>
               <div>
@@ -296,7 +300,13 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
             return (
               <div key={tab.id} className="relative">
                 <button
-                  onClick={() => setActiveTab(activeTab === tab.id ? "" : tab.id)}
+                  onClick={() => {
+                    if (activeTab === tab.id) {
+                      setActiveTab("");
+                    } else {
+                      setActiveTab(tab.id);
+                    }
+                  }}
                   className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                     activeTab === tab.id
                       ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
@@ -309,7 +319,7 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
                 
                 {/* Individual Dropdown Slot */}
                 {activeTab === tab.id && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-64 z-50">
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-64 z-50">
                     <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
                       <div className="p-3">
                         {renderTabContent()}
