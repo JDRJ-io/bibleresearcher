@@ -150,8 +150,8 @@ export function HamburgerMenu({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - Glass effect */}
-        <div className="sticky top-0 backdrop-blur-md bg-white/20 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-700/30 p-4 flex items-center justify-between">
+        {/* Header - Fixed glass effect */}
+        <div className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md bg-white/20 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-700/30 p-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white drop-shadow-lg">Bible Settings</h2>
           <Button 
             variant="ghost" 
@@ -163,7 +163,8 @@ export function HamburgerMenu({
           </Button>
         </div>
 
-        <div className="p-4 space-y-6">
+        {/* Content with top padding to account for fixed header */}
+        <div className="pt-16 p-4 space-y-6">
           {/* Multi-Translation System - Glass enhanced */}
           <div className="space-y-4 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm p-4 rounded-xl border border-blue-300/30 dark:border-blue-700/30 glass-section">
             <h3 className="font-semibold text-lg flex items-center text-blue-900 dark:text-blue-100 drop-shadow-sm">
