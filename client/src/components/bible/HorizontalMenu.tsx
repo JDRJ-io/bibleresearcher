@@ -56,13 +56,13 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Select Main Translation</h4>
-            <div className="grid grid-cols-2 gap-1">
+            <div className="space-y-1">
               {["KJV", "ESV", "NIV", "NKJV", "NLT", "AMP", "CSB", "NASB"].map((version) => (
                 <Button
                   key={version}
                   variant={version === "KJV" ? "default" : "outline"}
                   size="sm"
-                  className="text-xs h-7"
+                  className="text-xs h-7 w-full justify-start"
                 >
                   {version}
                 </Button>
@@ -75,9 +75,9 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
-            <div className="grid grid-cols-2 gap-1">
+            <div className="space-y-1">
               {["AMP", "BSB", "CSB", "ESV", "NASB", "NIV", "NKJV", "NLT", "WEB", "YLT"].map((version) => (
-                <div key={version} className="flex items-center space-x-1">
+                <div key={version} className="flex items-center space-x-2">
                   <Checkbox id={version} className="w-3 h-3" />
                   <Label htmlFor={version} className="text-xs">{version}</Label>
                 </div>
@@ -90,9 +90,9 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Semantic Highlighting</h4>
-            <div className="grid grid-cols-2 gap-1">
+            <div className="space-y-1">
               {labels.map((label) => (
-                <div key={label.id} className="flex items-center space-x-1">
+                <div key={label.id} className="flex items-center space-x-2">
                   <Checkbox id={label.id} className="w-3 h-3" />
                   <Label htmlFor={label.id} className="text-xs">{label.name}</Label>
                 </div>
@@ -131,24 +131,24 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Display Options</h4>
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Label className="text-xs">Text Size:</Label>
-                <RadioGroup value={textSize} onValueChange={setTextSize} className="flex space-x-2">
-                  <div className="flex items-center space-x-1">
+              <div>
+                <Label className="text-xs mb-1 block">Text Size:</Label>
+                <RadioGroup value={textSize} onValueChange={setTextSize} className="space-y-1">
+                  <div className="flex items-center space-x-2">
                     <RadioGroupItem value="small" id="small" className="w-3 h-3" />
-                    <Label htmlFor="small" className="text-xs">S</Label>
+                    <Label htmlFor="small" className="text-xs">Small</Label>
                   </div>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-2">
                     <RadioGroupItem value="medium" id="medium" className="w-3 h-3" />
-                    <Label htmlFor="medium" className="text-xs">M</Label>
+                    <Label htmlFor="medium" className="text-xs">Medium</Label>
                   </div>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-2">
                     <RadioGroupItem value="large" id="large" className="w-3 h-3" />
-                    <Label htmlFor="large" className="text-xs">L</Label>
+                    <Label htmlFor="large" className="text-xs">Large</Label>
                   </div>
                 </RadioGroup>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-2">
                 <Checkbox id="verse-numbers" defaultChecked className="w-3 h-3" />
                 <Label htmlFor="verse-numbers" className="text-xs">Show Verse Numbers</Label>
               </div>
@@ -160,22 +160,22 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-1">
               {themes.map((theme) => (
                 <button
                   key={theme.id}
                   onClick={() => setSelectedTheme(theme.id)}
-                  className={`flex flex-col items-center p-2 rounded-lg transition-all ${
+                  className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
                     selectedTheme === theme.id 
                       ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
                       : "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
                   <div
-                    className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
+                    className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0"
                     style={{ backgroundColor: theme.color }}
                   />
-                  <span className="text-[10px] mt-1">{theme.name}</span>
+                  <span className="text-xs">{theme.name}</span>
                 </button>
               ))}
             </div>
