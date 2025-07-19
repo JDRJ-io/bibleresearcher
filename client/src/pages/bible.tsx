@@ -617,11 +617,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoBack}
               disabled={!hookCanGoBack}
-              className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 active:scale-95"
+              className="p-2 hover:bg-white/15 rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-white/8 backdrop-blur-sm border border-white/15 hover:scale-102"
               aria-label="Go back"
             >
               <svg
-                className="h-5 w-5 text-white transition-transform"
+                className="h-5 w-5 text-white/90 transition-all duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -637,11 +637,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoForward}
               disabled={!hookCanGoForward}
-              className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 active:scale-95"
+              className="p-2 hover:bg-white/15 rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-white/8 backdrop-blur-sm border border-white/15 hover:scale-102"
               aria-label="Go forward"
             >
               <svg
-                className="h-5 w-5 text-white transition-transform"
+                className="h-5 w-5 text-white/90 transition-all duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -698,9 +698,9 @@ export default function BiblePage() {
           {/* Enhanced Authentication Button */}
           <button
             onClick={() => setIsSignUpOpen(true)}
-            className="bg-white/15 hover:bg-white/25 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg"
+            className="bg-white/12 hover:bg-white/18 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/15 transition-all duration-300 hover:scale-102"
           >
-            <svg className="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             Sign In
@@ -708,7 +708,7 @@ export default function BiblePage() {
           
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 active:scale-95"
+            className="p-2 hover:bg-white/15 rounded-lg transition-all duration-300 bg-white/8 backdrop-blur-sm border border-white/15 hover:scale-102"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
