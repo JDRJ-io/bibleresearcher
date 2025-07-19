@@ -597,8 +597,8 @@ export default function BiblePage() {
         style={{
           background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF6B35 50%, #8A2BE2 75%, #4169E1 100%)',
           borderBottomColor: '#FFD700',
-          height: "88px",
-          minHeight: "88px",
+          height: window.innerWidth <= 768 ? "64px" : "88px",
+          minHeight: window.innerWidth <= 768 ? "64px" : "88px",
           boxShadow: '0 6px 20px rgba(255, 215, 0, 0.4), 0 12px 35px rgba(138, 43, 226, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2)',
           borderWidth: '4px',
           borderStyle: 'solid',
@@ -607,19 +607,19 @@ export default function BiblePage() {
       >
         {/* Left: Logo & Brand */}
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border-2 border-white/30" 
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border-2 border-white/30" 
                style={{ 
                  background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
                  boxShadow: '0 0 15px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,215,0,0.05)',
                  backdropFilter: 'blur(10px)'
                }}>
-            <svg className="w-9 h-9 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.3))' }}>
+            <svg className="w-6 h-6 md:w-9 md:h-9 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.3))' }}>
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
           
           <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-2xl text-white drop-shadow-lg tracking-wide" 
+            <span className="sacred-title font-bold text-lg md:text-2xl text-white drop-shadow-lg tracking-wide" 
                   style={{ 
                     textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
                     fontFamily: 'system-ui, -apple-system, sans-serif',

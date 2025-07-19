@@ -653,6 +653,30 @@ body.aurora-mode::after {
 
 /* Logo is now completely static and peaceful */
 
+/* Mobile-first responsive header design */
+@media (max-width: 768px) {
+  .divine-header {
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 8px 16px !important;
+  }
+  
+  .sacred-title {
+    font-size: 1.125rem !important; /* text-lg */
+  }
+}
+
+/* Mobile verse reference rotation */
+@media (max-width: 768px) {
+  .verse-row .transform.-rotate-90 {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    transform: rotate(-90deg);
+    width: fit-content;
+    height: fit-content;
+  }
+}
+
 .sacred-title {
   background: linear-gradient(45deg, #FFD700, #FFFFFF, #FFF8DC, #FFFFFF, #FFD700);
   background-size: 300% 300%;
