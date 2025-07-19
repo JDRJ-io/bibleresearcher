@@ -624,18 +624,6 @@ body.aurora-mode::after {
   50% { background-position: 100% 100%; }
 }
 
-/* Peaceful Divine Logo Animation */
-@keyframes gentle-glow {
-  0%, 100% { 
-    opacity: 0.3;
-    transform: rotate(0deg);
-  }
-  50% { 
-    opacity: 0.6;
-    transform: rotate(180deg);
-  }
-}
-
 /* Divine and Sacred Styling for Header */
 .divine-header {
   background: linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1);
@@ -649,31 +637,72 @@ body.aurora-mode::after {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* Majestic Divine Logo Animations */
 .divine-logo-container {
   position: relative;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .divine-logo-container:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 0 30px rgba(255,255,255,0.6), inset 0 0 30px rgba(255,215,0,0.2);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 
+    0 0 50px rgba(255,255,255,0.8), 
+    inset 0 0 50px rgba(255,215,0,0.3),
+    0 12px 40px rgba(255,215,0,0.4);
 }
 
 .divine-logo-container:active {
-  transform: translateY(0px) scale(0.98);
+  transform: translateY(-1px) scale(1.02);
+  transition: all 0.1s ease;
 }
 
+@keyframes divine-rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes divine-pulse {
+  0%, 100% { 
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+/* Sacred Typography Effects */
 .sacred-title {
-  background: linear-gradient(45deg, #FFD700, #FFFFFF, #FFD700);
-  background-size: 200% 200%;
-  animation: sacred-shimmer 4s ease-in-out infinite;
+  background: linear-gradient(45deg, #FFD700, #FFFFFF, #FFD700, #FFF8DC);
+  background-size: 300% 300%;
+  animation: sacred-shimmer 6s ease-in-out infinite;
   -webkit-background-clip: text;
   background-clip: text;
+  position: relative;
+}
+
+.sacred-title::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: divine-sweep 8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes sacred-shimmer {
   0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+}
+
+@keyframes divine-sweep {
+  0%, 90%, 100% { transform: translateX(-100%); opacity: 0; }
+  5%, 85% { transform: translateX(100%); opacity: 1; }
 }
 
 @keyframes verseExpand {

@@ -604,42 +604,78 @@ export default function BiblePage() {
           borderStyle: 'solid'
         }}
       >
-        {/* Left: Logo & Brand */}
-        <div className="flex items-center gap-4">
-          <div className="divine-logo-container w-14 h-14 bg-gradient-to-br from-amber-50 via-blue-50 to-purple-50 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border-2 border-white/30" 
+        {/* Left: Majestic Divine Logo & Brand */}
+        <div className="flex items-center gap-6">
+          <div className="divine-logo-container w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden border-2 border-white/40" 
                style={{ 
-                 background: 'linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,215,0,0.2), rgba(135,206,235,0.2))',
-                 boxShadow: '0 0 20px rgba(255,255,255,0.4), inset 0 0 20px rgba(255,215,0,0.1)',
-                 backdropFilter: 'blur(10px)'
+                 background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,215,0,0.3), rgba(135,206,235,0.25), rgba(255,255,255,0.9))',
+                 boxShadow: '0 0 40px rgba(255,255,255,0.7), inset 0 0 40px rgba(255,215,0,0.2), 0 8px 32px rgba(255,215,0,0.3)',
+                 backdropFilter: 'blur(15px)',
+                 position: 'relative'
                }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-            <svg className="w-8 h-8 text-amber-600 z-10 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.4))' }}>
+            {/* Divine Light Rays */}
+            <div className="absolute inset-0 divine-rays" style={{
+              background: 'conic-gradient(from 0deg, transparent, rgba(255,215,0,0.1), transparent, rgba(255,255,255,0.1), transparent)',
+              animation: 'divine-rotation 8s linear infinite'
+            }}></div>
+            
+            {/* Sacred Geometry Pattern */}
+            <div className="absolute inset-2 rounded-xl border border-white/20" style={{
+              background: 'radial-gradient(circle at center, rgba(255,215,0,0.1), transparent)'
+            }}></div>
+            
+            {/* Holy Book Icon */}
+            <svg className="w-9 h-9 text-amber-700 z-20 relative" fill="currentColor" viewBox="0 0 24 24" 
+                 style={{ 
+                   filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.6)) drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                   transform: 'translateY(-1px)'
+                 }}>
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
-            <div className="absolute inset-0 rounded-xl animate-pulse" style={{ 
-              background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
-              animation: 'gentle-glow 4s ease-in-out infinite'
+            
+            {/* Gentle Pulsing Light */}
+            <div className="absolute inset-0 rounded-2xl divine-pulse-light" style={{ 
+              background: 'radial-gradient(circle at center, rgba(255,255,255,0.4), transparent)',
+              animation: 'divine-pulse 3s ease-in-out infinite'
             }}></div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg tracking-wide" 
-                  style={{ 
-                    textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(255,215,0,0.3)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    letterSpacing: '0.5px'
-                  }}>
-              Anointed.io
-            </span>
-            <span className="text-xs text-white/80 ml-2 hidden sm:inline" 
-                  style={{ 
-                    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                    fontWeight: '300'
-                  }}>
-              Bible Study Platform
-            </span>
-            
-            {/* Navigation buttons */}
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-3">
+              <span className="sacred-title font-bold text-2xl text-white tracking-wide" 
+                    style={{ 
+                      textShadow: '0 3px 6px rgba(0,0,0,0.4), 0 0 20px rgba(255,215,0,0.4), 0 0 40px rgba(255,255,255,0.2)',
+                      fontFamily: 'Georgia, serif',
+                      letterSpacing: '1px',
+                      fontWeight: '700'
+                    }}>
+                Anointed.io
+              </span>
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="w-1 h-4 bg-gradient-to-b from-white/60 to-white/20 rounded-full"></div>
+                <span className="text-sm text-white/90 font-medium" 
+                      style={{ 
+                        textShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                        fontFamily: 'system-ui, sans-serif',
+                        letterSpacing: '0.3px'
+                      }}>
+                  Sacred Scripture Study
+                </span>
+              </div>
+            </div>
+            <div className="text-xs text-white/70 mt-1 hidden sm:block" 
+                 style={{ 
+                   textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+                   fontFamily: 'system-ui, sans-serif',
+                   letterSpacing: '0.2px',
+                   fontStyle: 'italic'
+                 }}>
+              "Thy word is a lamp unto my feet" - Psalm 119:105
+            </div>
+          </div>
+          
+          {/* Navigation buttons */}
+          <div className="flex items-center gap-2 ml-4">
             <button
               onClick={hookGoBack}
               disabled={!hookCanGoBack}
@@ -681,6 +717,7 @@ export default function BiblePage() {
               </svg>
             </button>
           </div>
+        </div>
         </div>
 
         {/* Center - Navigation and Search */}
