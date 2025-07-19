@@ -54,14 +54,15 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
     switch (activeTab) {
       case "main-translation":
         return (
-          <div className="bg-blue-500/5 rounded-lg p-3">
-            <div className="grid grid-cols-4 gap-1">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Select Main Translation</h4>
+            <div className="grid grid-cols-2 gap-1">
               {["KJV", "ESV", "NIV", "NKJV", "NLT", "AMP", "CSB", "NASB"].map((version) => (
                 <Button
                   key={version}
                   variant={version === "KJV" ? "default" : "outline"}
                   size="sm"
-                  className="text-xs h-8"
+                  className="text-xs h-7"
                 >
                   {version}
                 </Button>
@@ -72,8 +73,9 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "alt-translations":
         return (
-          <div className="bg-green-500/5 rounded-lg p-3">
-            <div className="grid grid-cols-5 gap-1">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
+            <div className="grid grid-cols-2 gap-1">
               {["AMP", "BSB", "CSB", "ESV", "NASB", "NIV", "NKJV", "NLT", "WEB", "YLT"].map((version) => (
                 <div key={version} className="flex items-center space-x-1">
                   <Checkbox id={version} className="w-3 h-3" />
@@ -86,8 +88,9 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "toggle-labels":
         return (
-          <div className="bg-purple-500/5 rounded-lg p-3">
-            <div className="grid grid-cols-5 gap-1">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Semantic Highlighting</h4>
+            <div className="grid grid-cols-2 gap-1">
               {labels.map((label) => (
                 <div key={label.id} className="flex items-center space-x-1">
                   <Checkbox id={label.id} className="w-3 h-3" />
@@ -100,8 +103,9 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "study-tools":
         return (
-          <div className="bg-orange-500/5 rounded-lg p-3">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Study Features</h4>
+            <div className="space-y-1">
               <div className="flex items-center space-x-1">
                 <Checkbox id="cross-references" className="w-3 h-3" />
                 <Label htmlFor="cross-references" className="text-xs">Cross References</Label>
@@ -124,10 +128,11 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "display-settings":
         return (
-          <div className="bg-yellow-500/5 rounded-lg p-3">
-            <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Display Options</h4>
+            <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <Label className="text-xs font-medium">Text Size:</Label>
+                <Label className="text-xs">Text Size:</Label>
                 <RadioGroup value={textSize} onValueChange={setTextSize} className="flex space-x-2">
                   <div className="flex items-center space-x-1">
                     <RadioGroupItem value="small" id="small" className="w-3 h-3" />
@@ -145,7 +150,7 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
               </div>
               <div className="flex items-center space-x-1">
                 <Checkbox id="verse-numbers" defaultChecked className="w-3 h-3" />
-                <Label htmlFor="verse-numbers" className="text-xs">Verse #</Label>
+                <Label htmlFor="verse-numbers" className="text-xs">Show Verse Numbers</Label>
               </div>
             </div>
           </div>
@@ -153,16 +158,17 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "color-theme":
         return (
-          <div className="bg-pink-500/5 rounded-lg p-3">
-            <div className="flex justify-center space-x-2">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
+            <div className="grid grid-cols-3 gap-2">
               {themes.map((theme) => (
                 <button
                   key={theme.id}
                   onClick={() => setSelectedTheme(theme.id)}
                   className={`flex flex-col items-center p-2 rounded-lg transition-all ${
                     selectedTheme === theme.id 
-                      ? "bg-white dark:bg-gray-800 shadow-md" 
-                      : "hover:bg-white/50 dark:hover:bg-gray-800/50"
+                      ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
+                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
                   <div
@@ -178,9 +184,10 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "bookmarks":
         return (
-          <div className="bg-red-500/5 rounded-lg p-3">
-            <div className="text-center text-xs text-gray-600 dark:text-gray-400">
-              <p className="mb-2">Sign in to access bookmarks</p>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Saved Bookmarks</h4>
+            <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+              <p className="mb-2">Sign in to access your bookmarks</p>
               <Button size="sm" className="text-xs h-6 px-3">Sign In</Button>
             </div>
           </div>
@@ -192,25 +199,37 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
   };
 
   return (
-    <div className="fixed inset-x-0 top-20 z-40 mx-2">
+    <div className="fixed inset-x-0 top-20 z-40">
       {/* Sleek Tab Bar */}
-      <div className="flex justify-center mb-2">
-        <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg">
-          {tabs.map((tab) => {
+      <div className="flex justify-center">
+        <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
+          {tabs.map((tab, index) => {
             const Icon = tab.icon;
             return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
-                    : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-800/30"
-                }`}
-              >
-                <Icon className="w-3 h-3" />
-                <span className="hidden sm:inline">{tab.label}</span>
-              </button>
+              <div key={tab.id} className="relative">
+                <button
+                  onClick={() => setActiveTab(activeTab === tab.id ? "" : tab.id)}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
+                      : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-800/30"
+                  }`}
+                >
+                  <Icon className="w-3 h-3" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+                
+                {/* Individual Dropdown Slot */}
+                {activeTab === tab.id && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 w-64 z-50">
+                    <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
+                      <div className="p-3">
+                        {renderTabContent()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             );
           })}
           
@@ -223,19 +242,6 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-        </div>
-      </div>
-
-      {/* Minimal Content Slot */}
-      <div 
-        className={`overflow-hidden transition-all duration-300 ease-out ${
-          activeTab ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-xl border border-white/20 dark:border-gray-700/30 mx-4">
-          <div className="p-3">
-            {renderTabContent()}
-          </div>
         </div>
       </div>
     </div>
