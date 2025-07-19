@@ -341,6 +341,21 @@ body {
   background: rgba(0, 0, 0, 0.2) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
+
+/* Prevent body scroll when menu is open and ensure header stays on top */
+body.menu-open {
+  overflow: hidden;
+}
+
+/* Divine header should always stay above everything */
+.divine-header {
+  z-index: 60 !important;
+}
+
+/* Adjust menu z-index to be below header but above content */
+.glass-menu {
+  z-index: 50 !important;
+}
 /* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
 
 /* Verse hover and highlight animations matching original design */

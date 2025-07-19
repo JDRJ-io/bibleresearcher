@@ -568,6 +568,20 @@ export default function BiblePage() {
     });
   }
 
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('menu-open');
+    };
+  }, [isMenuOpen]);
+
   return (
     <div
       className="min-h-screen relative transition-all duration-300"
@@ -577,9 +591,9 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Refined Divine Header */}
+      {/* Refined Divine Header - Fixed positioning when menu is open */}
       <div
-        className="divine-header sacred-glow sticky top-0 z-40 flex items-center justify-between px-6 py-3 border-b-4"
+        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b-4`}
         style={{
           background: 'linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1)',
           borderBottomColor: '#FFD700',
