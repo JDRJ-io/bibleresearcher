@@ -591,28 +591,29 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Refined Divine Header - Fixed positioning when menu is open */}
+      {/* Majestic Divine Header - Worthy of the LORD */}
       <div
-        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b-4`}
+        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-8 py-4 border-b-4`}
         style={{
-          background: 'linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1)',
+          background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF6B35 50%, #8A2BE2 75%, #4169E1 100%)',
           borderBottomColor: '#FFD700',
-          height: "80px",
-          minHeight: "80px",
-          boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3), 0 8px 25px rgba(138, 43, 226, 0.2)',
+          height: "88px",
+          minHeight: "88px",
+          boxShadow: '0 6px 20px rgba(255, 215, 0, 0.4), 0 12px 35px rgba(138, 43, 226, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2)',
           borderWidth: '4px',
-          borderStyle: 'solid'
+          borderStyle: 'solid',
+          borderImage: 'linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700) 1'
         }}
       >
         {/* Left: Logo & Brand */}
         <div className="flex items-center gap-4">
-          <div className="divine-logo-container w-14 h-14 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border border-white/20" 
+          <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border-2 border-white/30" 
                style={{ 
-                 background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,215,0,0.08), rgba(255,255,255,0.04))',
-                 boxShadow: '0 0 12px rgba(255,255,255,0.15), inset 0 0 12px rgba(255,215,0,0.04)',
-                 backdropFilter: 'blur(8px)'
+                 background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
+                 boxShadow: '0 0 15px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,215,0,0.05)',
+                 backdropFilter: 'blur(10px)'
                }}>
-            <svg className="w-8 h-8 text-amber-400 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 3px rgba(255,215,0,0.2))' }}>
+            <svg className="w-9 h-9 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.3))' }}>
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
