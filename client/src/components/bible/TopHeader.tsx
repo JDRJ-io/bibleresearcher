@@ -39,12 +39,14 @@ export function TopHeader({
 
   return (
     <header 
-      className="divine-header sticky top-0 z-30 border-b transition-all duration-500 flex items-center justify-between px-6 max-w-full shadow-2xl backdrop-blur-md sacred-glow"
+      className="divine-header sticky top-0 z-30 border-b-4 transition-all duration-500 flex items-center justify-between px-8 max-w-full shadow-2xl backdrop-blur-md sacred-glow"
       style={{ 
-        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 25%, rgba(59, 130, 246, 0.15) 50%, rgba(236, 72, 153, 0.15) 75%, rgba(251, 191, 36, 0.15) 100%), var(--header-bg)',
+        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(139, 92, 246, 0.25) 25%, rgba(59, 130, 246, 0.25) 50%, rgba(236, 72, 153, 0.25) 75%, rgba(99, 102, 241, 0.25) 100%), rgba(255, 255, 255, 0.95)',
         borderColor: 'var(--border-color)', 
-        borderImage: 'linear-gradient(90deg, rgba(251, 191, 36, 0.5), rgba(139, 92, 246, 0.5), rgba(59, 130, 246, 0.5), rgba(236, 72, 153, 0.5)) 1',
-        height: isMobile ? '64px' : '96px' 
+        borderImage: 'linear-gradient(90deg, rgba(251, 191, 36, 0.8), rgba(139, 92, 246, 0.8), rgba(59, 130, 246, 0.8), rgba(236, 72, 153, 0.8)) 1',
+        borderBottomColor: '#8b5cf6',
+        height: isMobile ? '80px' : '120px',
+        minHeight: isMobile ? '80px' : '120px' 
       }}
     >
       {/* Left Section: Navigation Controls */}
@@ -58,11 +60,11 @@ export function TopHeader({
           </div>
           {!isMobile && (
             <div className="flex flex-col">
-              <span className="font-bold text-2xl bg-gradient-to-r from-amber-600 via-purple-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                Sacred Scripture
+              <span className="font-black text-3xl bg-gradient-to-r from-amber-600 via-purple-600 to-blue-600 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
+                ✨ SACRED SCRIPTURE ✨
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-300 -mt-1 font-medium italic">
-                Study & Reflection in Divine Light
+              <span className="text-base text-gray-700 dark:text-gray-200 -mt-1 font-bold italic">
+                🙏 Study & Reflection in Divine Light 🙏
               </span>
             </div>
           )}
@@ -137,7 +139,7 @@ export function TopHeader({
             <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-purple-400 via-blue-400 to-pink-400 rounded-3xl blur opacity-40 group-hover:opacity-70 transition-all duration-700"></div>
             <Input
               type="text"
-              placeholder="✨ Search the Sacred Scriptures... (use '%' for divine inspiration) ✨"
+              placeholder="🔍✨ SEARCH GOD'S HOLY WORD... (use '%' for divine inspiration) ✨🔍"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="relative pl-20 pr-20 h-20 text-xl rounded-3xl border-3 focus:border-amber-400 focus:ring-4 focus:ring-purple-200/50 shadow-2xl bg-gradient-to-r from-white/98 via-amber-50/98 via-purple-50/98 to-blue-50/98 dark:from-gray-900/98 dark:via-amber-950/98 dark:via-purple-950/98 dark:to-blue-950/98 font-semibold placeholder:text-gray-600 dark:placeholder:text-gray-300 placeholder:italic"
