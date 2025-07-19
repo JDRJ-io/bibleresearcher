@@ -319,7 +319,13 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
                 
                 {/* Individual Dropdown Slot - positioned under each tab */}
                 {activeTab === tab.id && (
-                  <div className="absolute top-full right-0 sm:left-1/2 sm:transform sm:-translate-x-1/2 mt-2 w-72 sm:w-80 z-50">
+                  <div className={`absolute top-full mt-2 w-72 sm:w-80 z-50 ${
+                    index >= tabs.length - 2 
+                      ? 'right-0' 
+                      : index === 0 
+                        ? 'left-0' 
+                        : 'left-1/2 transform -translate-x-1/2'
+                  } sm:left-1/2 sm:transform sm:-translate-x-1/2`}>
                     <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
                       <div className="p-3 sm:p-4 max-h-72 sm:max-h-80 overflow-y-auto">
                         {renderTabContent()}
