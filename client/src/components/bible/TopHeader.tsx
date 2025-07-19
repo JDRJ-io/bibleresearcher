@@ -179,14 +179,19 @@ export function TopHeader({
           </Button>
         )}
 
-        {/* Hamburger Menu Button */}
+        {/* Enhanced Hamburger Menu Button */}
         <Button
           variant="outline"
           size="sm"
-          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} p-0`}
+          className={`${
+            isMobile 
+              ? 'w-8 h-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900 shadow-md' 
+              : 'w-8 h-8 hover:bg-gray-100 dark:hover:bg-gray-700'
+          } p-0 transition-all duration-200`}
           onClick={onMenuToggle}
+          title="Bible Settings"
         >
-          <Menu className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+          <Menu className={`${isMobile ? 'w-4 h-4 text-blue-600 dark:text-blue-400' : 'w-4 h-4'}`} />
         </Button>
       </div>
 
