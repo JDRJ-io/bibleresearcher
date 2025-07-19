@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
+import { HorizontalMenu } from "@/components/bible/HorizontalMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
 import { ExpandedVerseOverlay } from "@/components/bible/ExpandedVerseOverlay";
 import { AuthModals } from "@/components/auth/AuthModals";
@@ -734,6 +735,11 @@ export default function BiblePage() {
       </div>
 
       <HamburgerMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
+
+      <HorizontalMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
       />

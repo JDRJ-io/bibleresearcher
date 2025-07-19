@@ -356,6 +356,19 @@ body.menu-open {
 .glass-menu {
   z-index: 50 !important;
 }
+
+/* Horizontal menu positioning */
+.horizontal-menu {
+  z-index: 40 !important;
+}
+
+/* Responsive horizontal menu */
+@media (max-width: 768px) {
+  .horizontal-menu {
+    margin: 0.5rem;
+    top: 4.5rem;
+  }
+}
 /* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
 
 /* Verse hover and highlight animations matching original design */
