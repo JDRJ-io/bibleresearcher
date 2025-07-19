@@ -591,22 +591,17 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Refined Divine Header - Fixed positioning when menu is open */}
+      {/* Refined Divine Header - Alive & Dynamic */}
       <div
-        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b-4`}
+        className={`divine-header ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b border-white/30`}
         style={{
-          background: 'linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1)',
-          borderBottomColor: '#FFD700',
           height: "80px",
           minHeight: "80px",
-          boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3), 0 8px 25px rgba(138, 43, 226, 0.2)',
-          borderWidth: '4px',
-          borderStyle: 'solid'
         }}
       >
         {/* Left: Logo & Brand */}
         <div className="flex items-center gap-4">
-          <div className="divine-logo-container heavenly-float w-12 h-12 bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden" style={{ animation: 'spin 8s linear infinite' }}>
+          <div className="divine-logo-container w-12 h-12 bg-gradient-to-br from-white/20 via-white/10 to-transparent rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden backdrop-blur-sm border border-white/30">
             <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent divine-pulse"></div>
             <svg className="w-6 h-6 text-white z-10 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
@@ -614,7 +609,7 @@ export default function BiblePage() {
           </div>
           
           <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg" style={{ textShadow: '0 0 10px #FFD700, 0 0 20px #8A2BE2' }}>
+            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg tracking-wide">
               Anointed.io
             </span>
             
@@ -622,11 +617,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoBack}
               disabled={!hookCanGoBack}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+              className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 active:scale-95"
               aria-label="Go back"
             >
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-white transition-transform"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -642,11 +637,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoForward}
               disabled={!hookCanGoForward}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+              className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 active:scale-95"
               aria-label="Go forward"
             >
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-white transition-transform"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -703,9 +698,9 @@ export default function BiblePage() {
           {/* Enhanced Authentication Button */}
           <button
             onClick={() => setIsSignUpOpen(true)}
-            className="bg-white/15 hover:bg-white/25 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/20 transition-all"
+            className="bg-white/15 hover:bg-white/25 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/20 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             Sign In
@@ -713,7 +708,7 @@ export default function BiblePage() {
           
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
+            className="p-2 hover:bg-white/20 rounded-lg transition-all duration-200 bg-white/10 backdrop-blur-sm border border-white/20 hover:scale-105 active:scale-95"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
