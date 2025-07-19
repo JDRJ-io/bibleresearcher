@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,24 +43,6 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const [prophecyPrediction, setProphecyPrediction] = useState(false);
   const [prophecyFulfillment, setProphecyFulfillment] = useState(false);
   const [prophecyVerification, setProphecyVerification] = useState(false);
-
-  // Handle escape key to close menu or active tab
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (activeTab) {
-          setActiveTab("");
-        } else {
-          onClose();
-        }
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isOpen, activeTab, onClose]);
 
   if (!isOpen) return null;
 
