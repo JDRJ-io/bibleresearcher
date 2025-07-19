@@ -21,22 +21,28 @@ const themes = [
 ];
 
 const labels = [
-  { id: "who", name: "Who", style: "font-bold" },
-  { id: "what", name: "What", style: "outline" },
-  { id: "when", name: "When", style: "underline" },
-  { id: "where", name: "Where", style: "italic" },
-  { id: "command", name: "Command", style: "shadow" },
-  { id: "action", name: "Action", style: "italic" },
-  { id: "why", name: "Why", style: "cursive" },
-  { id: "seed", name: "Seed", style: "superscript-*" },
-  { id: "harvest", name: "Harvest", style: "superscript-=" },
-  { id: "prediction", name: "Prediction", style: "superscript-~" },
+  { id: "who", name: "Who", description: "Bold text for people/beings" },
+  { id: "what", name: "What", description: "Outlined text for objects/things" },
+  { id: "when", name: "When", description: "Underlined text for time references" },
+  { id: "where", name: "Where", description: "Curly braces around locations" },
+  { id: "command", name: "Command", description: "Drop shadow for divine commands" },
+  { id: "action", name: "Action", description: "Italic text for actions/verbs" },
+  { id: "why", name: "Why", description: "Cursive font for reasons/purposes" },
+  { id: "seed", name: "Seed", description: "Superscript * for spiritual seeds" },
+  { id: "harvest", name: "Harvest", description: "Superscript = for results/fruits" },
+  { id: "prediction", name: "Prediction", description: "Superscript ~ for prophecies" },
 ];
 
 export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const [activeTab, setActiveTab] = useState("main-translation");
   const [textSize, setTextSize] = useState("medium");
   const [selectedTheme, setSelectedTheme] = useState("light");
+  const [textAlignment, setTextAlignment] = useState("left");
+  const [crossReferencesEnabled, setCrossReferencesEnabled] = useState(false);
+  const [prophecyEnabled, setProphecyEnabled] = useState(false);
+  const [prophecyPrediction, setProphecyPrediction] = useState(false);
+  const [prophecyFulfillment, setProphecyFulfillment] = useState(false);
+  const [prophecyVerification, setProphecyVerification] = useState(false);
 
   if (!isOpen) return null;
 
@@ -94,7 +100,10 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
               {labels.map((label) => (
                 <div key={label.id} className="flex items-center space-x-2">
                   <Checkbox id={label.id} className="w-3 h-3" />
-                  <Label htmlFor={label.id} className="text-xs">{label.name}</Label>
+                  <div className="flex-1">
+                    <Label htmlFor={label.id} className="text-xs font-medium">{label.name}</Label>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">{label.description}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -103,25 +112,91 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "study-tools":
         return (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Study Features</h4>
+            
+            {/* Cross References */}
             <div className="space-y-1">
-              <div className="flex items-center space-x-1">
-                <Checkbox id="cross-references" className="w-3 h-3" />
-                <Label htmlFor="cross-references" className="text-xs">Cross References</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="cross-references" 
+                  className="w-3 h-3" 
+                  checked={crossReferencesEnabled}
+                  onCheckedChange={setCrossReferencesEnabled}
+                />
+                <Label htmlFor="cross-references" className="text-xs font-medium">Cross References</Label>
               </div>
-              <div className="flex items-center space-x-1">
-                <Checkbox id="prophecy-tracking" className="w-3 h-3" />
-                <Label htmlFor="prophecy-tracking" className="text-xs">Prophecy Tracking</Label>
+            </div>
+
+            {/* Prophecy Tracking */}
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="prophecy-tracking" 
+                  className="w-3 h-3"
+                  checked={prophecyEnabled}
+                  onCheckedChange={setProphecyEnabled}
+                />
+                <Label htmlFor="prophecy-tracking" className="text-xs font-medium">Prophecy Tracking</Label>
               </div>
-              <div className="flex items-center space-x-1">
+              {prophecyEnabled && (
+                <div className="ml-5 space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="prophecy-prediction" 
+                      className="w-3 h-3"
+                      checked={prophecyPrediction}
+                      onCheckedChange={setProphecyPrediction}
+                    />
+                    <Label htmlFor="prophecy-prediction" className="text-xs">Prediction</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="prophecy-fulfillment" 
+                      className="w-3 h-3"
+                      checked={prophecyFulfillment}
+                      onCheckedChange={setProphecyFulfillment}
+                    />
+                    <Label htmlFor="prophecy-fulfillment" className="text-xs">Fulfillment</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="prophecy-verification" 
+                      className="w-3 h-3"
+                      checked={prophecyVerification}
+                      onCheckedChange={setProphecyVerification}
+                    />
+                    <Label htmlFor="prophecy-verification" className="text-xs">Verification</Label>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Other Features */}
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="dates-column" className="w-3 h-3" />
+                <Label htmlFor="dates-column" className="text-xs">Dates Column</Label>
+              </div>
+              <div className="flex items-center space-x-2">
                 <Checkbox id="context-boundaries" className="w-3 h-3" />
                 <Label htmlFor="context-boundaries" className="text-xs">Context Boundaries</Label>
               </div>
-              <div className="flex items-center space-x-1">
-                <Checkbox id="chronological" className="w-3 h-3" />
-                <Label htmlFor="chronological" className="text-xs">Chronological Order</Label>
-              </div>
+            </div>
+
+            {/* Verse Organization */}
+            <div className="space-y-1">
+              <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">Verse Organization:</Label>
+              <RadioGroup defaultValue="canonical" className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="canonical" id="canonical" className="w-3 h-3" />
+                  <Label htmlFor="canonical" className="text-xs">Canonical Order</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="chronological" id="chronological" className="w-3 h-3" />
+                  <Label htmlFor="chronological" className="text-xs">Chronological Order</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
         );
@@ -148,9 +223,22 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   </div>
                 </RadioGroup>
               </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="verse-numbers" defaultChecked className="w-3 h-3" />
-                <Label htmlFor="verse-numbers" className="text-xs">Show Verse Numbers</Label>
+              <div>
+                <Label className="text-xs mb-1 block">Text Alignment:</Label>
+                <RadioGroup value={textAlignment} onValueChange={setTextAlignment} className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="left" id="align-left" className="w-3 h-3" />
+                    <Label htmlFor="align-left" className="text-xs">Left</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="center" id="align-center" className="w-3 h-3" />
+                    <Label htmlFor="align-center" className="text-xs">Center</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="right" id="align-right" className="w-3 h-3" />
+                    <Label htmlFor="align-right" className="text-xs">Right</Label>
+                  </div>
+                </RadioGroup>
               </div>
             </div>
           </div>
