@@ -591,37 +591,59 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Refined Divine Header - Alive & Dynamic */}
+      {/* Heavenly Wonder Header - Fixed positioning when menu is open */}
       <div
-        className={`divine-header ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b border-white/30`}
+        className={`heavenly-header ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b`}
         style={{
+          background: 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 25%, #fecaca 50%, #ddd6fe 75%, #bfdbfe 100%)',
+          borderBottomColor: '#fbbf24',
           height: "80px",
           minHeight: "80px",
+          boxShadow: '0 4px 20px rgba(251, 191, 36, 0.15), 0 8px 25px rgba(168, 85, 247, 0.1)',
+          borderWidth: '2px',
+          borderStyle: 'solid',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
-        {/* Left: Logo & Brand */}
-        <div className="flex items-center gap-4">
-          <div className="divine-logo-container w-12 h-12 bg-gradient-to-br from-white/20 via-white/10 to-transparent rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden backdrop-blur-sm border border-white/30">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent divine-pulse"></div>
-            <svg className="w-6 h-6 text-white z-10 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+        {/* Floating magical particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-3 h-3 bg-gradient-to-r from-yellow-300 to-amber-400 rounded-full opacity-70 animate-bounce" style={{ top: '15%', left: '10%', animationDelay: '0s', animationDuration: '2s' }}></div>
+          <div className="absolute w-2 h-2 bg-gradient-to-r from-purple-300 to-pink-400 rounded-full opacity-80" style={{ top: '65%', left: '20%', animationDelay: '1s', animation: 'float 4s ease-in-out infinite' }}></div>
+          <div className="absolute w-2.5 h-2.5 bg-gradient-to-r from-blue-300 to-cyan-400 rounded-full opacity-60" style={{ top: '30%', left: '80%', animationDelay: '2s', animation: 'float 3s ease-in-out infinite reverse' }}></div>
+          <div className="absolute w-1.5 h-1.5 bg-gradient-to-r from-pink-300 to-rose-400 rounded-full opacity-75 animate-pulse" style={{ top: '75%', left: '75%', animationDelay: '0.5s' }}></div>
+          <div className="absolute w-2 h-2 bg-gradient-to-r from-emerald-300 to-teal-400 rounded-full opacity-65" style={{ top: '45%', left: '5%', animationDelay: '1.5s', animation: 'float 3.5s ease-in-out infinite' }}></div>
+          <div className="absolute w-1 h-1 bg-gradient-to-r from-violet-300 to-purple-400 rounded-full opacity-80 animate-ping" style={{ top: '25%', left: '90%', animationDelay: '2.5s' }}></div>
+          
+          {/* Sparkle effects */}
+          <div className="absolute text-yellow-400 opacity-70" style={{ top: '35%', left: '60%', animationDelay: '1s', animation: 'twinkle 2s ease-in-out infinite' }}>✨</div>
+          <div className="absolute text-purple-400 opacity-60" style={{ top: '55%', left: '85%', animationDelay: '3s', animation: 'twinkle 2.5s ease-in-out infinite' }}>⭐</div>
+          <div className="absolute text-blue-400 opacity-80" style={{ top: '20%', left: '70%', animationDelay: '0.5s', animation: 'twinkle 1.8s ease-in-out infinite' }}>💫</div>
+        </div>
+        {/* Left: Magical Logo & Brand */}
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="heavenly-logo w-12 h-12 bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-400 border-2 border-yellow-400 rounded-xl flex items-center justify-center shadow-xl relative overflow-hidden hover:scale-110 transition-transform duration-300" style={{ animation: 'float 3s ease-in-out infinite, glow 2s ease-in-out infinite alternate' }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/20" style={{ animation: 'shimmer 3s ease-in-out infinite' }}></div>
+            <svg className="w-6 h-6 text-white z-10 drop-shadow-lg transform hover:rotate-12 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
           
           <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg tracking-wide">
+            <span className="heavenly-title font-bold text-xl bg-gradient-to-r from-amber-600 via-purple-600 to-blue-600 bg-clip-text text-transparent drop-shadow-lg hover:scale-105 transition-transform duration-300 cursor-pointer" style={{ animation: 'rainbow-text 4s ease-in-out infinite' }}>
               Anointed.io
             </span>
             
-            {/* Navigation buttons */}
+            {/* Magical Navigation buttons */}
             <button
               onClick={hookGoBack}
               disabled={!hookCanGoBack}
-              className="p-2 hover:bg-white/15 rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-white/8 backdrop-blur-sm border border-white/15 hover:scale-102"
+              className="p-2 hover:bg-yellow-100 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
               aria-label="Go back"
             >
               <svg
-                className="h-5 w-5 text-white/90 transition-all duration-300"
+                className="h-5 w-5 text-amber-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -637,11 +659,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoForward}
               disabled={!hookCanGoForward}
-              className="p-2 hover:bg-white/15 rounded-lg transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed bg-white/8 backdrop-blur-sm border border-white/15 hover:scale-102"
+              className="p-2 hover:bg-yellow-100 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
               aria-label="Go forward"
             >
               <svg
-                className="h-5 w-5 text-white/90 transition-all duration-300"
+                className="h-5 w-5 text-amber-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -665,7 +687,7 @@ export default function BiblePage() {
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/70"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -687,7 +709,7 @@ export default function BiblePage() {
                     handleGlobalSearch(searchQuery);
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40"
+                className="w-full pl-10 pr-4 py-2 text-sm bg-white/90 backdrop-blur-sm border-2 border-purple-200 rounded-lg text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-400 shadow-sm"
               />
             </div>
           </div>
@@ -695,12 +717,12 @@ export default function BiblePage() {
 
         {/* Right: Auth + Menu */}
         <div className="flex items-center gap-3">
-          {/* Enhanced Authentication Button */}
+          {/* Magical Authentication Button */}
           <button
             onClick={() => setIsSignUpOpen(true)}
-            className="bg-white/12 hover:bg-white/18 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/15 transition-all duration-300 hover:scale-102"
+            className="bg-gradient-to-r from-purple-100 to-blue-100 hover:from-purple-200 hover:to-blue-200 text-purple-700 px-6 py-2 font-medium rounded-lg flex items-center gap-2 border-2 border-purple-300 transition-all shadow-md hover:shadow-lg transform hover:scale-105 hover:-translate-y-0.5"
           >
-            <svg className="w-4 h-4 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             Sign In
@@ -708,12 +730,12 @@ export default function BiblePage() {
           
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 hover:bg-white/15 rounded-lg transition-all duration-300 bg-white/8 backdrop-blur-sm border border-white/15 hover:scale-102"
+            className="p-2 hover:bg-gradient-to-r hover:from-yellow-100 hover:to-orange-100 rounded-lg transition-all border-2 border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 shadow-md hover:shadow-lg transform hover:scale-110 hover:rotate-3"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-amber-600 transform rotate-180 transition-transform duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -727,7 +749,7 @@ export default function BiblePage() {
               </svg>
             ) : (
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-amber-600 transition-transform duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
