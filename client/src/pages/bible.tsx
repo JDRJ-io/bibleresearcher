@@ -593,33 +593,33 @@ export default function BiblePage() {
     >
       {/* Majestic Divine Header - Worthy of the LORD */}
       <div
-        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-8 py-4 border-b-4`}
+        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-3 md:px-8 py-2 md:py-4 border-b-2 md:border-b-4`}
         style={{
           background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF6B35 50%, #8A2BE2 75%, #4169E1 100%)',
           borderBottomColor: '#FFD700',
-          height: window.innerWidth <= 768 ? "64px" : "88px",
-          minHeight: window.innerWidth <= 768 ? "64px" : "88px",
-          boxShadow: '0 6px 20px rgba(255, 215, 0, 0.4), 0 12px 35px rgba(138, 43, 226, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2)',
-          borderWidth: '4px',
+          height: "48px",
+          minHeight: "48px",
+          boxShadow: '0 2px 8px rgba(255, 215, 0, 0.3), 0 4px 15px rgba(138, 43, 226, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+          borderWidth: '2px',
           borderStyle: 'solid',
           borderImage: 'linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700) 1'
         }}
       >
         {/* Left: Logo & Brand */}
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border-2 border-white/30" 
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden border border-white/30" 
                style={{ 
                  background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
                  boxShadow: '0 0 15px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,215,0,0.05)',
                  backdropFilter: 'blur(10px)'
                }}>
-            <svg className="w-6 h-6 md:w-9 md:h-9 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 4px rgba(255,215,0,0.3))' }}>
+            <svg className="w-5 h-5 md:w-7 md:h-7 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
           
-          <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-lg md:text-2xl text-white drop-shadow-lg tracking-wide" 
+          <div className="flex items-center gap-1 md:gap-3">
+            <span className="sacred-title font-bold text-base md:text-xl text-white drop-shadow-lg tracking-wide" 
                   style={{ 
                     textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
                     fontFamily: 'system-ui, -apple-system, sans-serif',

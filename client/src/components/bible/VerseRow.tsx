@@ -65,16 +65,16 @@ export function VerseRow({
       onDoubleClick={handleDoubleClick}
       onMouseUp={handleMouseUp}
     >
-      {/* Reference Column - Fixed Width with mobile rotation */}
-      <div className="w-16 md:w-24 flex-shrink-0 flex items-center justify-center border-r px-1 md:px-2 text-xs md:text-sm font-medium">
-        <span className="md:transform-none transform -rotate-90 whitespace-nowrap origin-center">
+      {/* Reference Column - Fixed Width with vertical text */}
+      <div className="w-12 flex-shrink-0 flex items-center justify-center border-r px-1 text-xs font-medium">
+        <span className="transform -rotate-90 whitespace-nowrap origin-center text-center">
           {verse.reference}
         </span>
       </div>
 
       {/* Translation Text Columns - Dynamic based on selected translations */}
       {selectedTranslations.map((translation) => (
-        <div key={translation.id} className="w-72 md:w-80 flex-shrink-0 border-r">
+        <div key={translation.id} className="w-80 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-y-auto p-3 text-sm">
             <div className="whitespace-pre-wrap break-words leading-relaxed">
               {verse.text[translation.id] || (

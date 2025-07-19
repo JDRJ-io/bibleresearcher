@@ -13,6 +13,7 @@ import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
+import { useBibleStore } from "@/App";
 
 import type {
   BibleVerse,
@@ -79,6 +80,9 @@ const VirtualBibleTable = ({
   // Load column-specific data when columns are toggled
   useColumnData();
   
+  // Get store state for column toggles
+  const { showCrossRefs, showProphecies } = useBibleStore();
+  
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
     if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
@@ -114,13 +118,13 @@ const VirtualBibleTable = ({
   // Create column data for VirtualRow
   const columnData = {
     translations: selectedTranslations,
-    crossReferences: true,
+    crossReferences: showCrossRefs,
     prophecyData: {},
     settings: {
       mainTranslation: mainTranslation,
       multiTranslations: preferences.selectedTranslations || [],
-      showCrossReferences: true,
-      showProphecy: preferences.showProphecy,
+      showCrossReferences: showCrossRefs,
+      showProphecy: showProphecies,
       showStrongs: false,
       showNotes: preferences.showNotes,
       showHighlights: true,
@@ -268,7 +272,8 @@ const VirtualBibleTable = ({
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
-        showProphecy={preferences.showProphecy}
+        showProphecy={showProphecies}
+        showCrossRefs={showCrossRefs}
         showContext={false}
         scrollLeft={scrollLeft}
         preferences={preferences}

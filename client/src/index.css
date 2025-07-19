@@ -654,27 +654,28 @@ body.aurora-mode::after {
 /* Logo is now completely static and peaceful */
 
 /* Mobile-first responsive header design */
-@media (max-width: 768px) {
+.divine-header {
+  height: 48px !important;
+  min-height: 48px !important;
+}
+
+@media (min-width: 768px) {
   .divine-header {
-    height: 48px !important;
-    min-height: 48px !important;
-    padding: 8px 16px !important;
-  }
-  
-  .sacred-title {
-    font-size: 1.125rem !important; /* text-lg */
+    height: 60px !important;
+    min-height: 60px !important;
   }
 }
 
-/* Mobile verse reference rotation */
-@media (max-width: 768px) {
-  .verse-row .transform.-rotate-90 {
-    writing-mode: vertical-lr;
-    text-orientation: mixed;
-    transform: rotate(-90deg);
-    width: fit-content;
-    height: fit-content;
-  }
+/* Mobile verse reference rotation - always applied */
+.verse-row .transform.-rotate-90 {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(-90deg);
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sacred-title {

@@ -7,6 +7,7 @@ interface ColumnHeadersProps {
   selectedTranslations: Translation[];
   showNotes: boolean;
   showProphecy: boolean;
+  showCrossRefs?: boolean;
   showContext: boolean;
   scrollLeft: number;
   preferences: any;
@@ -42,6 +43,7 @@ export function ColumnHeaders({
   selectedTranslations, 
   showNotes, 
   showProphecy, 
+  showCrossRefs: propShowCrossRefs,
   showContext, 
   scrollLeft, 
   preferences, 
@@ -51,7 +53,10 @@ export function ColumnHeaders({
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   // Get store states for column visibility
-  const { showCrossRefs, showProphecies } = useBibleStore();
+  const { showCrossRefs: storeShowCrossRefs, showProphecies } = useBibleStore();
+  
+  // Use prop if provided, otherwise fall back to store state
+  const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   
   // Column order matching VirtualRow exactly - use main + alternates
   const headerOrder = [
