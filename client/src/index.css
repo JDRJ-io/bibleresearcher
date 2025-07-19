@@ -624,6 +624,54 @@ body.aurora-mode::after {
   50% { background-position: 100% 100%; }
 }
 
+/* Peaceful Divine Logo Animation */
+@keyframes gentle-glow {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: rotate(0deg);
+  }
+  50% { 
+    opacity: 0.6;
+    transform: rotate(180deg);
+  }
+}
+
+/* Divine and Sacred Styling for Header */
+.divine-header {
+  background: linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1);
+  position: relative;
+}
+
+.sacred-glow {
+  box-shadow: 
+    0 4px 15px rgba(255, 215, 0, 0.3),
+    0 8px 25px rgba(138, 43, 226, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.divine-logo-container {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.divine-logo-container:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 25px rgba(255,255,255,0.5), inset 0 0 25px rgba(255,215,0,0.15);
+}
+
+.sacred-title {
+  background: linear-gradient(45deg, #FFD700, #FFFFFF, #FFD700);
+  background-size: 200% 200%;
+  animation: sacred-shimmer 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+@keyframes sacred-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes verseExpand {
   from {
     opacity: 0;

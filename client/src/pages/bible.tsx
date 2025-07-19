@@ -606,15 +606,28 @@ export default function BiblePage() {
       >
         {/* Left: Logo & Brand */}
         <div className="flex items-center gap-4">
-          <div className="divine-logo-container heavenly-float w-12 h-12 bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden" style={{ animation: 'spin 8s linear infinite' }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent divine-pulse"></div>
-            <svg className="w-6 h-6 text-white z-10 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+          <div className="divine-logo-container w-14 h-14 bg-gradient-to-br from-amber-50 via-blue-50 to-purple-50 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border-2 border-white/30" 
+               style={{ 
+                 background: 'linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,215,0,0.2), rgba(135,206,235,0.2))',
+                 boxShadow: '0 0 20px rgba(255,255,255,0.4), inset 0 0 20px rgba(255,215,0,0.1)',
+                 backdropFilter: 'blur(10px)'
+               }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+            <svg className="w-8 h-8 text-amber-600 z-10 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.4))' }}>
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
+            <div className="absolute inset-0 rounded-xl animate-pulse" style={{ 
+              background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
+              animation: 'gentle-glow 4s ease-in-out infinite'
+            }}></div>
           </div>
           
           <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg" style={{ textShadow: '0 0 10px #FFD700, 0 0 20px #8A2BE2' }}>
+            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg tracking-wide" 
+                  style={{ 
+                    textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(255,215,0,0.3)',
+                    fontFamily: 'system-ui, -apple-system, sans-serif'
+                  }}>
               Anointed.io
             </span>
             
