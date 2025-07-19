@@ -291,9 +291,9 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
   };
 
   return (
-    <div className="fixed inset-x-0 top-20 z-40">
+    <div className="fixed top-20 right-4 z-40">
       {/* Sleek Tab Bar */}
-      <div className="flex justify-center">
+      <div className="flex flex-col">
         <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
@@ -316,17 +316,6 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   <Icon className="w-3 h-3" />
                   <span className="hidden sm:inline">{tab.label}</span>
                 </button>
-                
-                {/* Individual Dropdown Slot */}
-                {activeTab === tab.id && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-64 z-50">
-                    <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
-                      <div className="p-3">
-                        {renderTabContent()}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })}
@@ -341,6 +330,17 @@ export function HorizontalMenu({ isOpen, onClose }: HorizontalMenuProps) {
             </svg>
           </button>
         </div>
+
+        {/* Content Panel Below Tab Bar */}
+        {activeTab && (
+          <div className="mt-2 w-80 animate-in slide-in-from-top-2 duration-200">
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30">
+              <div className="p-4">
+                {renderTabContent()}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
