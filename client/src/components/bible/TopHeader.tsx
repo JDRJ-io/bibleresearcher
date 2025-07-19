@@ -41,7 +41,7 @@ export function TopHeader({
 
   return (
     <header 
-      className="sticky top-0 z-50 border-b-8 flex items-center justify-between px-8 max-w-full shadow-2xl"
+      className="divine-header sticky top-0 z-50 border-b-8 flex items-center justify-between px-8 max-w-full shadow-2xl sacred-glow"
       style={{ 
         background: 'linear-gradient(45deg, #FFD700, #FF6B35, #8A2BE2, #4169E1, #FF1493) !important',
         borderBottomColor: '#FFD700 !important',
@@ -57,7 +57,7 @@ export function TopHeader({
       <div className="flex items-center space-x-3">
         {/* Divine Logo/Title */}
         <div className="flex items-center space-x-3">
-          <div className={`divine-logo-container ${isMobile ? 'w-16 h-16' : 'w-24 h-24'} bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ animation: 'spin 3s linear infinite' }}>
+          <div className={`divine-logo-container heavenly-float ${isMobile ? 'w-16 h-16' : 'w-24 h-24'} bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ animation: 'spin 3s linear infinite' }}>
             <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent divine-pulse"></div>
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-spin"></div>
             <Book className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} text-white z-10 drop-shadow-lg`} />
