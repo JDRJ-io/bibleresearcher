@@ -626,9 +626,17 @@ export default function BiblePage() {
             <span className="sacred-title font-bold text-xl text-white drop-shadow-lg tracking-wide" 
                   style={{ 
                     textShadow: '0 2px 4px rgba(0,0,0,0.3), 0 0 15px rgba(255,215,0,0.3)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif'
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                    letterSpacing: '0.5px'
                   }}>
               Anointed.io
+            </span>
+            <span className="text-xs text-white/80 ml-2 hidden sm:inline" 
+                  style={{ 
+                    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                    fontWeight: '300'
+                  }}>
+              Bible Study Platform
             </span>
             
             {/* Navigation buttons */}
