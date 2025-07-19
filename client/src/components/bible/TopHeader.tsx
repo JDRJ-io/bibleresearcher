@@ -8,6 +8,7 @@ import { UserProfile } from '@/components/auth/UserProfile';
 import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
+import './ForceHeaderStyles.css';
 
 interface TopHeaderProps {
   searchQuery: string;
@@ -36,30 +37,34 @@ export function TopHeader({
   const isMobile = width < 640;
 
   console.log('TopHeader auth state:', { user: !!user, loading, userDetails: user ? 'logged in' : 'logged out' });
+  console.log('🎨 HEADER HEIGHT DEBUG:', { isMobile, width, expectedHeight: isMobile ? '120px' : '200px' });
 
   return (
     <header 
       className="sticky top-0 z-50 border-b-8 flex items-center justify-between px-8 max-w-full shadow-2xl"
       style={{ 
-        background: 'linear-gradient(45deg, #FFD700, #FF6B35, #8A2BE2, #4169E1, #FF1493)',
-        borderBottomColor: '#FFD700',
-        height: isMobile ? '120px' : '200px',
-        minHeight: isMobile ? '120px' : '200px',
-        boxShadow: '0 10px 30px rgba(255, 215, 0, 0.5), 0 20px 60px rgba(138, 43, 226, 0.3)'
+        background: 'linear-gradient(45deg, #FFD700, #FF6B35, #8A2BE2, #4169E1, #FF1493) !important',
+        borderBottomColor: '#FFD700 !important',
+        height: isMobile ? '120px !important' : '200px !important',
+        minHeight: isMobile ? '120px !important' : '200px !important',
+        maxHeight: isMobile ? '120px !important' : '200px !important',
+        boxShadow: '0 10px 30px rgba(255, 215, 0, 0.5), 0 20px 60px rgba(138, 43, 226, 0.3) !important',
+        borderWidth: '8px !important',
+        borderStyle: 'solid !important'
       }}
     >
       {/* Left Section: Navigation Controls */}
       <div className="flex items-center space-x-3">
         {/* Divine Logo/Title */}
         <div className="flex items-center space-x-3">
-          <div className={`${isMobile ? 'w-16 h-16' : 'w-24 h-24'} bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ animation: 'spin 3s linear infinite' }}>
+          <div className={`divine-logo-container ${isMobile ? 'w-16 h-16' : 'w-24 h-24'} bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ animation: 'spin 3s linear infinite' }}>
             <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent divine-pulse"></div>
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-spin"></div>
             <Book className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} text-white z-10 drop-shadow-lg`} />
           </div>
           {!isMobile && (
             <div className="flex flex-col">
-              <span className="font-black text-4xl text-white drop-shadow-2xl" style={{ textShadow: '0 0 20px #FFD700, 0 0 40px #8A2BE2, 0 0 60px #FF1493' }}>
+              <span className="sacred-title font-black text-4xl text-white drop-shadow-2xl" style={{ textShadow: '0 0 20px #FFD700, 0 0 40px #8A2BE2, 0 0 60px #FF1493' }}>
                 ✨ SACRED SCRIPTURE ✨
               </span>
               <span className="text-xl text-yellow-200 font-bold italic drop-shadow-lg">
