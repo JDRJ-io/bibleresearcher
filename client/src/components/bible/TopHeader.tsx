@@ -39,31 +39,30 @@ export function TopHeader({
 
   return (
     <header 
-      className="divine-header sticky top-0 z-30 border-b-4 transition-all duration-500 flex items-center justify-between px-8 max-w-full shadow-2xl backdrop-blur-md sacred-glow"
+      className="sticky top-0 z-50 border-b-8 flex items-center justify-between px-8 max-w-full shadow-2xl"
       style={{ 
-        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(139, 92, 246, 0.25) 25%, rgba(59, 130, 246, 0.25) 50%, rgba(236, 72, 153, 0.25) 75%, rgba(99, 102, 241, 0.25) 100%), rgba(255, 255, 255, 0.95)',
-        borderColor: 'var(--border-color)', 
-        borderImage: 'linear-gradient(90deg, rgba(251, 191, 36, 0.8), rgba(139, 92, 246, 0.8), rgba(59, 130, 246, 0.8), rgba(236, 72, 153, 0.8)) 1',
-        borderBottomColor: '#8b5cf6',
-        height: isMobile ? '80px' : '120px',
-        minHeight: isMobile ? '80px' : '120px' 
+        background: 'linear-gradient(45deg, #FFD700, #FF6B35, #8A2BE2, #4169E1, #FF1493)',
+        borderBottomColor: '#FFD700',
+        height: isMobile ? '120px' : '200px',
+        minHeight: isMobile ? '120px' : '200px',
+        boxShadow: '0 10px 30px rgba(255, 215, 0, 0.5), 0 20px 60px rgba(138, 43, 226, 0.3)'
       }}
     >
       {/* Left Section: Navigation Controls */}
       <div className="flex items-center space-x-3">
         {/* Divine Logo/Title */}
         <div className="flex items-center space-x-3">
-          <div className={`${isMobile ? 'w-10 h-10' : 'w-16 h-16'} bg-gradient-to-br from-amber-400 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-2xl relative overflow-hidden heavenly-float`}>
+          <div className={`${isMobile ? 'w-16 h-16' : 'w-24 h-24'} bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ animation: 'spin 3s linear infinite' }}>
             <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent divine-pulse"></div>
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-spin"></div>
-            <Book className={`${isMobile ? 'w-5 h-5' : 'w-8 h-8'} text-white z-10 drop-shadow-lg`} />
+            <Book className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} text-white z-10 drop-shadow-lg`} />
           </div>
           {!isMobile && (
             <div className="flex flex-col">
-              <span className="font-black text-3xl bg-gradient-to-r from-amber-600 via-purple-600 to-blue-600 bg-clip-text text-transparent drop-shadow-lg animate-pulse">
+              <span className="font-black text-4xl text-white drop-shadow-2xl" style={{ textShadow: '0 0 20px #FFD700, 0 0 40px #8A2BE2, 0 0 60px #FF1493' }}>
                 ✨ SACRED SCRIPTURE ✨
               </span>
-              <span className="text-base text-gray-700 dark:text-gray-200 -mt-1 font-bold italic">
+              <span className="text-xl text-yellow-200 font-bold italic drop-shadow-lg">
                 🙏 Study & Reflection in Divine Light 🙏
               </span>
             </div>
