@@ -577,57 +577,81 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Sticky Top Header */}
+      {/* Sticky Top Header - MYSTICAL DIVINE HEADER */}
       <div
-        className="sticky top-0 z-40 flex items-center justify-between px-2 py-1 border-b"
+        className="divine-header sacred-glow sticky top-0 z-40 flex items-center justify-between px-8 py-4 border-b-8"
         style={{
-          backgroundColor: "var(--header-bg)",
-          borderBottomColor: "var(--border-color)",
-          height: "38px",
+          background: 'linear-gradient(45deg, #FFD700, #FF6B35, #8A2BE2, #4169E1, #FF1493)',
+          borderBottomColor: '#FFD700',
+          height: "200px",
+          minHeight: "200px",
+          boxShadow: '0 10px 30px rgba(255, 215, 0, 0.5), 0 20px 60px rgba(138, 43, 226, 0.3)',
+          borderWidth: '8px',
+          borderStyle: 'solid'
         }}
       >
-        {/* Left side - Back/Forward buttons */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={hookGoBack}
-            disabled={!hookCanGoBack}
-            className="p-1 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Go back"
-          >
-            <svg
-              className="h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
+        {/* Divine Logo Section */}
+        <div className="flex items-center gap-6">
+          <div className="divine-logo-container heavenly-float w-20 h-20 bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden" style={{ animation: 'spin 3s linear infinite' }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent divine-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-spin"></div>
+            <svg className="w-10 h-10 text-white z-10 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
-          </button>
-          <button
-            onClick={hookGoForward}
-            disabled={!hookCanGoForward}
-            className="p-1 hover:bg-muted rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Go forward"
-          >
-            <svg
-              className="h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          </div>
+          
+          <div className="flex flex-col">
+            <span className="sacred-title font-black text-3xl text-white drop-shadow-2xl" style={{ textShadow: '0 0 20px #FFD700, 0 0 40px #8A2BE2, 0 0 60px #FF1493' }}>
+              ✨ SACRED SCRIPTURE ✨
+            </span>
+            <span className="text-lg text-yellow-200 font-bold italic drop-shadow-lg">
+              🙏 Study & Reflection in Divine Light 🙏
+            </span>
+          </div>
+          
+          {/* Navigation buttons */}
+          <div className="flex items-center gap-2 ml-4">
+            <button
+              onClick={hookGoBack}
+              disabled={!hookCanGoBack}
+              className="p-3 hover:bg-white/20 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+              aria-label="Go back"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+              <svg
+                className="h-6 w-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={hookGoForward}
+              disabled={!hookCanGoForward}
+              className="p-3 hover:bg-white/20 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+              aria-label="Go forward"
+            >
+              <svg
+                className="h-6 w-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Center - Navigation and Search */}
