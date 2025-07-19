@@ -591,30 +591,29 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Refined Divine Header - Fixed positioning when menu is open */}
+      {/* Heavenly Sanctuary Header - Fixed positioning when menu is open */}
       <div
-        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b-4`}
+        className={`sanctuary-header ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b`}
         style={{
-          background: 'linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1)',
-          borderBottomColor: '#FFD700',
+          background: 'linear-gradient(135deg, #f8fafc, #e2e8f0, #cbd5e1)',
+          borderBottomColor: '#d1d5db',
           height: "80px",
           minHeight: "80px",
-          boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3), 0 8px 25px rgba(138, 43, 226, 0.2)',
-          borderWidth: '4px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04)',
+          borderWidth: '1px',
           borderStyle: 'solid'
         }}
       >
         {/* Left: Logo & Brand */}
         <div className="flex items-center gap-4">
-          <div className="divine-logo-container heavenly-float w-12 h-12 bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden" style={{ animation: 'spin 8s linear infinite' }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent divine-pulse"></div>
-            <svg className="w-6 h-6 text-white z-10 drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+          <div className="sanctuary-logo w-12 h-12 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
           
           <div className="flex items-center gap-3">
-            <span className="sacred-title font-bold text-xl text-white drop-shadow-lg" style={{ textShadow: '0 0 10px #FFD700, 0 0 20px #8A2BE2' }}>
+            <span className="sanctuary-title font-semibold text-xl text-slate-700">
               Anointed.io
             </span>
             
@@ -622,11 +621,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoBack}
               disabled={!hookCanGoBack}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Go back"
             >
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-slate-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -642,11 +641,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoForward}
               disabled={!hookCanGoForward}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Go forward"
             >
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-slate-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -670,7 +669,7 @@ export default function BiblePage() {
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/70"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -692,7 +691,7 @@ export default function BiblePage() {
                     handleGlobalSearch(searchQuery);
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40"
+                className="w-full pl-10 pr-4 py-2 text-sm bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg text-slate-700 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300"
               />
             </div>
           </div>
@@ -700,10 +699,10 @@ export default function BiblePage() {
 
         {/* Right: Auth + Menu */}
         <div className="flex items-center gap-3">
-          {/* Enhanced Authentication Button */}
+          {/* Authentication Button */}
           <button
             onClick={() => setIsSignUpOpen(true)}
-            className="bg-white/15 hover:bg-white/25 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/20 transition-all"
+            className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-2 font-medium rounded-lg flex items-center gap-2 border border-slate-300 transition-all shadow-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -713,12 +712,12 @@ export default function BiblePage() {
           
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors border border-slate-300 bg-white shadow-sm"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             {isMenuOpen ? (
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-slate-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -732,7 +731,7 @@ export default function BiblePage() {
               </svg>
             ) : (
               <svg
-                className="h-5 w-5 text-white"
+                className="h-5 w-5 text-slate-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
