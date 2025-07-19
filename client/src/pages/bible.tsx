@@ -591,41 +591,51 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Heavenly Sanctuary Header - Fixed positioning when menu is open */}
+      {/* Heavenly Wonder Header - Fixed positioning when menu is open */}
       <div
-        className={`sanctuary-header ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b`}
+        className={`heavenly-header ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-6 py-3 border-b`}
         style={{
-          background: 'linear-gradient(135deg, #f8fafc, #e2e8f0, #cbd5e1)',
-          borderBottomColor: '#d1d5db',
+          background: 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 25%, #fecaca 50%, #ddd6fe 75%, #bfdbfe 100%)',
+          borderBottomColor: '#fbbf24',
           height: "80px",
           minHeight: "80px",
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04)',
-          borderWidth: '1px',
-          borderStyle: 'solid'
+          boxShadow: '0 4px 20px rgba(251, 191, 36, 0.15), 0 8px 25px rgba(168, 85, 247, 0.1)',
+          borderWidth: '2px',
+          borderStyle: 'solid',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
-        {/* Left: Logo & Brand */}
-        <div className="flex items-center gap-4">
-          <div className="sanctuary-logo w-12 h-12 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl flex items-center justify-center shadow-sm">
-            <svg className="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+        {/* Floating light particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-2 h-2 bg-yellow-200 rounded-full opacity-60 animate-pulse" style={{ top: '20%', left: '15%', animationDelay: '0s' }}></div>
+          <div className="absolute w-1 h-1 bg-purple-200 rounded-full opacity-70 animate-pulse" style={{ top: '70%', left: '25%', animationDelay: '1s' }}></div>
+          <div className="absolute w-1.5 h-1.5 bg-blue-200 rounded-full opacity-50 animate-pulse" style={{ top: '40%', left: '85%', animationDelay: '2s' }}></div>
+          <div className="absolute w-1 h-1 bg-pink-200 rounded-full opacity-60 animate-pulse" style={{ top: '80%', left: '70%', animationDelay: '0.5s' }}></div>
+        </div>
+        {/* Left: Magical Logo & Brand */}
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="heavenly-logo w-12 h-12 bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-400 border-2 border-yellow-400 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden" style={{ animation: 'float 3s ease-in-out infinite' }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent animate-pulse"></div>
+            <svg className="w-6 h-6 text-white z-10 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
           
           <div className="flex items-center gap-3">
-            <span className="sanctuary-title font-semibold text-xl text-slate-700">
+            <span className="heavenly-title font-bold text-xl bg-gradient-to-r from-amber-700 via-purple-700 to-blue-700 bg-clip-text text-transparent drop-shadow-sm">
               Anointed.io
             </span>
             
-            {/* Navigation buttons */}
+            {/* Magical Navigation buttons */}
             <button
               onClick={hookGoBack}
               disabled={!hookCanGoBack}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 hover:bg-yellow-100 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
               aria-label="Go back"
             >
               <svg
-                className="h-5 w-5 text-slate-600"
+                className="h-5 w-5 text-amber-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -641,11 +651,11 @@ export default function BiblePage() {
             <button
               onClick={hookGoForward}
               disabled={!hookCanGoForward}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 hover:bg-yellow-100 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-yellow-200 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
               aria-label="Go forward"
             >
               <svg
-                className="h-5 w-5 text-slate-600"
+                className="h-5 w-5 text-amber-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -669,7 +679,7 @@ export default function BiblePage() {
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -691,7 +701,7 @@ export default function BiblePage() {
                     handleGlobalSearch(searchQuery);
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg text-slate-700 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300"
+                className="w-full pl-10 pr-4 py-2 text-sm bg-white/90 backdrop-blur-sm border-2 border-purple-200 rounded-lg text-purple-800 placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-purple-400 shadow-sm"
               />
             </div>
           </div>
