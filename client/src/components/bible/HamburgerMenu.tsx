@@ -135,32 +135,38 @@ export function HamburgerMenu({
       {/* Overlay - darker on mobile for prominence */}
       <div className={`absolute inset-0 ${isMobile ? 'bg-black/70' : 'bg-black/40'}`} />
       
-      {/* Menu Panel - Responsive design */}
+      {/* Menu Panel - Glassmorphic design */}
       <div
-        className={`fixed bg-white dark:bg-gray-900 shadow-2xl transform transition-all duration-300 overflow-y-auto border-l border-gray-200 dark:border-gray-700 ${
+        className={`fixed glass-menu backdrop-blur-xl bg-white/10 dark:bg-gray-900/20 shadow-2xl border border-white/20 dark:border-gray-700/30 transform transition-all duration-300 overflow-y-auto ${
           isMobile 
             ? `top-0 right-0 h-full w-80 ${isOpen ? "translate-x-0" : "translate-x-full"}` 
-            : `top-16 right-4 h-[calc(100vh-5rem)] w-96 rounded-lg ${isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-[-10px] opacity-0 scale-95"}`
+            : `top-16 right-4 h-[calc(100vh-5rem)] w-96 rounded-2xl ${isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-[-10px] opacity-0 scale-95"}`
         }`}
+        style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Bible Settings</h2>
+        {/* Header - Glass effect */}
+        <div className="sticky top-0 backdrop-blur-md bg-white/20 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-700/30 p-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white drop-shadow-lg">Bible Settings</h2>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onClose}
-            className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="h-8 w-8 p-0 hover:bg-white/20 dark:hover:bg-gray-800/30 backdrop-blur-sm rounded-lg transition-all"
           >
             ✕
           </Button>
         </div>
 
         <div className="p-4 space-y-6">
-          {/* Multi-Translation System - Enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h3 className="font-semibold text-lg flex items-center text-blue-900 dark:text-blue-100">
+          {/* Multi-Translation System - Glass enhanced */}
+          <div className="space-y-4 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm p-4 rounded-xl border border-blue-300/30 dark:border-blue-700/30 glass-section">
+            <h3 className="font-semibold text-lg flex items-center text-blue-900 dark:text-blue-100 drop-shadow-sm">
               <Book className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
               Bible Translations
             </h3>
@@ -169,8 +175,8 @@ export function HamburgerMenu({
 
           <Separator />
 
-          {/* Labels & Effects - Enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+          {/* Labels & Effects - Glass enhanced */}
+          <div className="space-y-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm p-4 rounded-xl border border-purple-300/30 dark:border-purple-700/30 glass-section">
             <h3 className="font-semibold text-lg flex items-center text-purple-900 dark:text-purple-100">
               <Tags className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
               Semantic Labels
@@ -192,8 +198,8 @@ export function HamburgerMenu({
 
           <Separator />
 
-          {/* Study Tools - Enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+          {/* Study Tools - Glass enhanced */}
+          <div className="space-y-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm p-4 rounded-xl border border-green-300/30 dark:border-green-700/30 glass-section">
             <h3 className="font-semibold text-lg flex items-center text-green-900 dark:text-green-100">
               <Settings className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
               Study Tools
@@ -232,8 +238,8 @@ export function HamburgerMenu({
 
           <Separator />
 
-          {/* Bookmarks - Enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+          {/* Bookmarks - Glass enhanced */}
+          <div className="space-y-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 backdrop-blur-sm p-4 rounded-xl border border-yellow-300/30 dark:border-yellow-700/30 glass-section">
             <h3 className="font-semibold text-lg flex items-center text-yellow-900 dark:text-yellow-100">
               <Bookmark className="w-5 h-5 mr-2 text-yellow-600 dark:text-yellow-400" />
               Bookmarks
@@ -283,8 +289,8 @@ export function HamburgerMenu({
 
           <Separator />
 
-          {/* Display Settings - Enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+          {/* Display Settings - Glass enhanced */}
+          <div className="space-y-4 bg-gradient-to-r from-orange-500/10 to-amber-500/10 backdrop-blur-sm p-4 rounded-xl border border-orange-300/30 dark:border-orange-700/30 glass-section">
             <h3 className="font-semibold text-lg flex items-center text-orange-900 dark:text-orange-100">
               <Settings className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" />
               Display Settings
