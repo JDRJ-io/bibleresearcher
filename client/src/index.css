@@ -167,6 +167,34 @@ body {
   50% { opacity: 1; transform: scale(1.05); }
 }
 
+/* New magical animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(251, 191, 36, 0.3), 0 0 10px rgba(251, 191, 36, 0.2); }
+  100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6), 0 0 30px rgba(251, 191, 36, 0.3); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%) rotate(45deg); opacity: 0; }
+}
+
+@keyframes twinkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+}
+
+@keyframes rainbow-text {
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(180deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
 .divine-header {
   position: relative;
   overflow: hidden;
