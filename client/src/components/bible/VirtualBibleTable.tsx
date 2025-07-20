@@ -306,15 +306,7 @@ const VirtualBibleTable = ({
     };
   }, []);
 
-  // Add useEffect for tooWide toggle logic
-  const centerRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    const wrapper = centerRef.current;
-    if (!wrapper) return;
-    const tooWide = wrapper.scrollWidth > wrapper.clientWidth;
-    wrapper.classList.toggle("tooWide", tooWide);
-  }, [visibleColumns, preferences.fontSize]);
+  // CSS handles centering automatically with margin-inline: auto
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
@@ -329,13 +321,12 @@ const VirtualBibleTable = ({
         isGuest={true}
       />
       
-      <div ref={centerRef} className="center-wrapper">
-        <div 
-          ref={wrapperRef} 
-          className="bible-table-wrapper"
-          style={{ touchAction: "pan-y", marginTop: '-1px' }}
-          data-scroll-direction={scrollDirection}
-        >
+      <div 
+        ref={wrapperRef} 
+        className="bible-table-wrapper"
+        style={{ touchAction: "pan-y", marginTop: '-1px' }}
+        data-scroll-direction={scrollDirection}
+      >
         <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 75px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
           <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"}>
             <div className={shouldCenter ? "min-w-max" : "min-w-max"}>
@@ -400,7 +391,6 @@ const VirtualBibleTable = ({
               <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

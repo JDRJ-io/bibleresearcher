@@ -444,19 +444,11 @@ body.menu-open {
 }
 /* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
 
-/* Center wrapper layout fix - surgical solution for column centering bug */
-.center-wrapper { 
-  display: flex; 
-  justify-content: center; 
-}
-
-.center-wrapper > .bible-table-wrapper {
-  min-width: fit-content;          /* keep centring when ≤3 columns */
-  flex-shrink: 0;                  /* do not shrink inside flex */
-}
-
-.center-wrapper.tooWide {          /* class toggled by JS */
-  justify-content: flex-start;      /* left‑align when >3 columns */
+/* Simple centering with auto margins - no JavaScript needed */
+.bible-table-wrapper {
+  min-width: fit-content;         /* grows with columns */
+  margin-inline: auto;            /* centers when table < viewport */
+  overflow: auto;                 /* vertical + horizontal scroll  */
 }
 
 /* Reference column styling for proper layout */
