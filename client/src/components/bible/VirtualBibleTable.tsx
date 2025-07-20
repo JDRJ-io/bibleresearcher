@@ -14,6 +14,7 @@ import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
 import { useCrossRefsIntegration } from "@/hooks/useCrossRefsIntegration";
+import { useProphecyIntegration } from "@/hooks/useProphecyIntegration";
 import { useBibleStore } from "@/App";
 import { useBibleData } from "@/hooks/useBibleData";
 
@@ -80,6 +81,9 @@ const VirtualBibleTable = ({
   }).filter(Boolean) || [];
   
   useCrossRefsIntegration(visibleVerseRefs);
+  
+  // Prophecy integration for current slice
+  useProphecyIntegration(visibleVerseRefs);
   
   // B-1: Load slice data for cross-references and prophecy
   const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs, mainTranslation);

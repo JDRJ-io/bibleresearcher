@@ -5,6 +5,7 @@ import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { CrossReferencesCell } from './CrossReferencesCell';
+import { ProphecyCell } from './ProphecyColumns';
 
 interface VirtualRowProps {
   verseID: string;
@@ -217,6 +218,13 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       case 'alt-translation':
         // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
         const verseText = getVerseText(verse.reference, config.translationCode);
+        
+        // Debug: Show more info if translation loading fails
+        if (!verseText) {
+          console.log(`🔍 VirtualRow: Missing text for ${verse.reference} in ${config.translationCode}`);
+          console.log(`🔍 VirtualRow: Verse formats tried: [${verse.reference}, ${verse.reference.replace(/\s+/g, '.')}, ${verse.reference.replace(/\./g, ' ')}]`);
+        }
+        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
@@ -250,7 +258,11 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
         const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <ProphecySlotCell verse={verse} type={type} />
+            <ProphecyCell 
+              verseReference={verse.reference}
+              type={type}
+              onNavigateToVerse={onVerseClick}
+            />
           </div>
         );
 

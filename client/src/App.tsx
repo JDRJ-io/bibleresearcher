@@ -48,6 +48,7 @@ export const useBibleStore = create<{
   getAllActive: () => string[];
   crossRefs: Record<string, string[]>;
   prophecies: Record<string, any>;
+  prophecyData: Record<string, { P: number[]; F: number[]; V: number[] }>;
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
@@ -61,6 +62,7 @@ export const useBibleStore = create<{
   toggleLabel: (labelId: string) => void;
   setCrossRefs: (verseRef: string, refs: string[]) => void;
   setBulkCrossRefs: (data: Record<string, string[]>) => void;
+  setProphecyData: (data: Record<string, { P: number[]; F: number[]; V: number[] }>) => void;
   columnState: ColumnState;
   sizeState: SizeState;
   isInitialized: boolean;
@@ -70,6 +72,7 @@ export const useBibleStore = create<{
   actives: ["KJV"],
   crossRefs: {},
   prophecies: {},
+  prophecyData: {},
   store: { crossRefs: {}, prophecies: {} },
   showCrossRefs: true,  // GUEST MODE: Always ON for optimal mobile display
   showProphecies: false, // GUEST MODE: Default OFF for cleaner mobile
@@ -158,6 +161,13 @@ export const useBibleStore = create<{
   setBulkCrossRefs: (data: Record<string, string[]>) => set(state => ({
     crossRefs: {
       ...state.crossRefs,
+      ...data
+    }
+  })),
+
+  setProphecyData: (data: Record<string, { P: number[]; F: number[]; V: number[] }>) => set(state => ({
+    prophecyData: {
+      ...state.prophecyData,
       ...data
     }
   })),
