@@ -237,14 +237,7 @@ export async function loadProphecyIndex(): Promise<any> {
   });
 }
 
-// Get prophecy data for BibleDataAPI facade
-export async function getProphecyRows(): Promise<string> {
-  return await loadProphecyRows();
-}
-
-export async function getProphecyIndex(): Promise<any> {
-  return await loadProphecyIndex();
-}
+// Get prophecy data for BibleDataAPI facade - redirect to load functions
 
 export async function loadProphecySlice(start: number, end: number) {
   // Remove obsolete slice loaders
@@ -273,6 +266,16 @@ export async function getNotes(): Promise<any[]> {
   await db.notes.clear();
   await db.notes.bulkAdd(data.map((n: any) => ({ ...n, pending: false })));
   return data;
+}
+
+// DOCUMENTED: getProphecyRows() - loads prophecy_rows.txt for P/F/V mapping
+export async function getProphecyRows(): Promise<string> {
+  return await loadProphecyRows();
+}
+
+// DOCUMENTED: getProphecyIndex() - loads prophecy_index.json for metadata  
+export async function getProphecyIndex(): Promise<any> {
+  return await loadProphecyIndex();
 }
 
 // WRITE - with offline queue

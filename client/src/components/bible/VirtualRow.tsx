@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
@@ -238,18 +238,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'prophecy-f':
       case 'prophecy-v':
         const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
-        const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-        // Get prophecy data from verse if available
-        const prophecyData = verse.prophecy || {};
-        const count = prophecyData && typeof prophecyData === 'object' && type in prophecyData 
-          ? (prophecyData as any)[type]?.length || 0 
-          : 0;
-        const displayContent = count > 0 ? count.toString() : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className={`px-1 py-1 text-xs text-center ${color} cell-content`} title={count > 0 ? `${count} ${type === "P" ? "Prediction" : type === "F" ? "Fulfillment" : "Verification"} references` : ''}>
-              {displayContent}
-            </div>
+            <ProphecySlotCell verse={verse} type={type} />
           </div>
         );
 
@@ -289,35 +280,34 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 export default VirtualRow;
 export { VirtualRow };
 
-interface ProphecyCellProps {
+interface ProphecySlotCellProps {
   verse: BibleVerse;
   type: "P" | "F" | "V";
 }
 
-function ProphecyCell({ verse, type }: ProphecyCellProps) {
+function ProphecySlotCell({ verse, type }: ProphecySlotCellProps) {
   const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-  const { prophecies } = useBibleStore();
-
-  // Access prophecies data from the store using verse.reference
-  const verseProphecies = prophecies[verse.reference] || {};
-
-  // Direct access to P/F/V arrays
-  const items = verseProphecies[type] || [];
-  const hasProphecy = items.length > 0;
-  const prophecyCount = items.length;
-
+  const [prophecyCount, setProphecyCount] = useState<number>(0);
+  
+  useEffect(() => {
+    (async () => {
+      try {
+        const { getProphecyForVerse, ensureProphecyLoaded } = await import('@/lib/prophecyCache');
+        await ensureProphecyLoaded();
+        const data = getProphecyForVerse(verse.reference);
+        setProphecyCount(data[type]?.length || 0);
+      } catch (error) {
+        console.warn(`Failed to load prophecy data for ${verse.reference}:`, error);
+        setProphecyCount(0);
+      }
+    })();
+  }, [verse.reference, type]);
+  
+  const displayContent = prophecyCount > 0 ? prophecyCount.toString() : '';
+  
   return (
-    <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <div className={`${color} text-center`}>
-        {hasProphecy && (
-          <div className="flex items-center justify-center gap-1">
-            <span className={`text-xs ${color} cursor-pointer`} title={`${prophecyCount} ${type} references`}>
-              ●
-            </span>
-            <span className="text-xs text-gray-500">{prophecyCount}</span>
-          </div>
-        )}
-      </div>
+    <div className="px-1 py-1 text-xs text-center cell-content" title={prophecyCount > 0 ? `${prophecyCount} ${type === "P" ? "Prediction" : type === "F" ? "Fulfillment" : "Verification"} references` : ''}>
+      <span className={color}>{displayContent}</span>
     </div>
   );
 }
