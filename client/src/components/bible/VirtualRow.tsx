@@ -106,36 +106,68 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onExpandVerse,
 }) => {
   const { main, alternates } = useTranslationSlice();
-  const { showCrossRefs, showProphecies, columnState } = useBibleStore();
+  const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   // UI Layout Spec slot-based system (slots 0-19)
+  // Following the established translation system from translationSlice.ts
   const slotConfig = {
     0: { type: 'reference', header: 'Ref' },
-    1: { type: 'notes', header: 'Notes' },
-    2: { type: 'main-translation', header: main, translationCode: main },
-    3: { type: 'cross-references', header: 'Cross References' },
-    4: { type: 'dates', header: 'Date' },
-    // Slots 5-16: Alternate translations
-    ...Object.fromEntries(alternates.map((alt, i) => [
-      5 + i, { type: 'alt-translation', header: alt, translationCode: alt }
-    ])),
-    17: { type: 'prophecy-p', header: 'P' },
-    18: { type: 'prophecy-f', header: 'F' },
-    19: { type: 'prophecy-v', header: 'V' }
+    1: { type: 'notes', header: 'Notes', visible: showNotes },
+    2: { type: 'main-translation', header: main, translationCode: main, visible: true }, // Main always visible
+    3: { type: 'cross-references', header: 'Cross References', visible: showCrossRefs },
+    4: { type: 'dates', header: 'Date', visible: showDates },
+    // Slots 5-16: Alternate translations (up to 12 as per UI Layout Spec)
+    5: alternates[0] ? { type: 'alt-translation', header: alternates[0], translationCode: alternates[0], visible: true } : null,
+    6: alternates[1] ? { type: 'alt-translation', header: alternates[1], translationCode: alternates[1], visible: true } : null,
+    7: alternates[2] ? { type: 'alt-translation', header: alternates[2], translationCode: alternates[2], visible: true } : null,
+    8: alternates[3] ? { type: 'alt-translation', header: alternates[3], translationCode: alternates[3], visible: true } : null,
+    9: alternates[4] ? { type: 'alt-translation', header: alternates[4], translationCode: alternates[4], visible: true } : null,
+    10: alternates[5] ? { type: 'alt-translation', header: alternates[5], translationCode: alternates[5], visible: true } : null,
+    11: alternates[6] ? { type: 'alt-translation', header: alternates[6], translationCode: alternates[6], visible: true } : null,
+    12: alternates[7] ? { type: 'alt-translation', header: alternates[7], translationCode: alternates[7], visible: true } : null,
+    13: alternates[8] ? { type: 'alt-translation', header: alternates[8], translationCode: alternates[8], visible: true } : null,
+    14: alternates[9] ? { type: 'alt-translation', header: alternates[9], translationCode: alternates[9], visible: true } : null,
+    15: alternates[10] ? { type: 'alt-translation', header: alternates[10], translationCode: alternates[10], visible: true } : null,
+    16: alternates[11] ? { type: 'alt-translation', header: alternates[11], translationCode: alternates[11], visible: true } : null,
+    17: { type: 'prophecy-p', header: 'P', visible: showProphecies },
+    18: { type: 'prophecy-f', header: 'F', visible: showProphecies },
+    19: { type: 'prophecy-v', header: 'V', visible: showProphecies }
   };
   
-  // Get visible columns from store and sort by slot
-  const visibleColumns = columnState.columns
-    .filter(col => col.visible)
-    .sort((a, b) => a.slot - b.slot)
-    .map(col => ({ ...col, config: slotConfig[col.slot] }))
-    .filter(col => col.config); // Only render slots that have config
+  // Get visible columns: combine store state with translation state
+  // The authoritative source is the slotConfig based on current translation state
+  const visibleColumns = Object.entries(slotConfig)
+    .map(([slotStr, config]) => ({
+      slot: parseInt(slotStr),
+      config,
+      widthRem: getDefaultWidth(parseInt(slotStr)),
+      visible: config?.visible !== false // Show if config exists and not explicitly hidden
+    }))
+    .filter(col => col.config && col.visible) // Only render valid, visible slots
+    .sort((a, b) => a.slot - b.slot);
+
+  // Helper function to get default widths per UI Layout Spec
+  function getDefaultWidth(slot: number): number {
+    switch (slot) {
+      case 0: return 5;   // Reference
+      case 1: return 8;   // Notes
+      case 2: return 20;  // Main translation
+      case 3: return 15;  // Cross References
+      case 4: return 6;   // Dates
+      case 5: case 6: case 7: case 8: case 9: case 10:
+      case 11: case 12: case 13: case 14: case 15: case 16:
+        return 18; // Alt translations
+      case 17: case 18: case 19: return 5; // Prophecy P/F/V
+      default: return 10;
+    }
+  }
 
   // Debug logging for first verse
   if (verse.reference === "Gen 1:1") {
-    console.log('🔍 VirtualRow Debug - All columns:', columnState.columns.map(c => `slot ${c.slot}: ${c.visible ? 'visible' : 'hidden'}`));
-    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type})`));
+    console.log('🔍 VirtualRow Debug - Translation state:', { main, alternates });
+    console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
+    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
   }
 
   const handleDoubleClick = () => {
