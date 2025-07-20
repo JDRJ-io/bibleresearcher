@@ -16,21 +16,10 @@ import {
 // Global KJV text map for dynamic verse text loading - uses master cache
 let globalKjvTextMap: Map<string, string> | null = null;
 
-// Load KJV text map once and store globally
-const loadKJVTextMap = async (): Promise<void> => {
-  if (globalKjvTextMap && globalKjvTextMap.size > 0) return; // Already loaded
-
-  try {
-    console.log("📖 Loading KJV text map from BibleDataAPI...");
-    const { loadTranslation } = await import('@/data/BibleDataAPI');
-    const kjvMap = await loadTranslation('KJV');
-    
-    globalKjvTextMap = kjvMap;
-    console.log(`📖 KJV text map loaded: ${kjvMap.size} entries`);
-  } catch (error) {
-    console.error("Failed to load KJV from BibleDataAPI:", error);
-    globalKjvTextMap = new Map();
-  }
+// Use BibleDataAPI directly - no duplicate loading
+const getKJVTextMap = (): Map<string, string> | null => {
+  const { getTranslation } = require('@/data/BibleDataAPI');
+  return getTranslation('KJV');
 };
 
 // Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
@@ -58,10 +47,7 @@ const loadFullBibleIndex = async (
       progressCallback({ stage: "index", percentage: 50 });
     }
 
-    // Load KJV text map for dynamic verse loading
-    console.log("📖 Starting KJV text map loading...");
-    await loadKJVTextMap();
-    console.log("📖 KJV text map loading completed, size:", globalKjvTextMap?.size || 0);
+    // KJV will be loaded on demand via BibleDataAPI - no preloading needed
 
     // Create full Bible index with placeholder text only
     const fullBibleIndex = createFullBibleIndexWithoutText(verseKeys);
