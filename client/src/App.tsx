@@ -83,7 +83,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 3 ? { ...col, visible: newValue } : col // Slot 3 = Cross References per UI spec
+          col.slot === 7 ? { ...col, visible: newValue } : col // Slot 7 = Cross References (moved from 6)
         )
       }
     };
@@ -99,7 +99,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          (col.slot >= 17 && col.slot <= 19) ? { ...col, visible: newValue } : col // Slots 17-19 = Prophecy P/F/V per UI spec
+          (col.slot >= 8 && col.slot <= 10) ? { ...col, visible: newValue } : col // Slots 8-10 = Prophecy P/F/V (moved from 7-9)
         )
       }
     };
@@ -131,7 +131,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 4 ? { ...col, visible: newValue } : col // Slot 4 = Dates per UI spec
+          col.slot === 11 ? { ...col, visible: newValue } : col // Slot 11 = Context/Dates (unchanged)
         )
       }
     };
@@ -152,21 +152,21 @@ export const useBibleStore = create<{
   })),
   getAllActive: () => get().actives,
 
-  // UI Layout Spec Column State - matching exact slot assignments from docs/UI_layout_spec.md
+  // UI Layout Spec Column State - Notes between Ref and Main Translation
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 16 },   // Notes
+      { slot: 1, visible: false, widthRem: 16 },   // Notes (between Ref and Main)
       { slot: 2, visible: true, widthRem: 20 },    // Main translation (always visible)
-      { slot: 3, visible: true, widthRem: 15 },    // Cross References (default ON)
-      { slot: 4, visible: false, widthRem: 8 },    // Dates (default OFF)
-      { slot: 5, visible: false, widthRem: 18 },   // Alt translation 1
-      { slot: 6, visible: false, widthRem: 18 },   // Alt translation 2
-      { slot: 7, visible: false, widthRem: 18 },   // Alt translation 3
-      { slot: 8, visible: false, widthRem: 18 },   // Alt translation 4
-      { slot: 17, visible: false, widthRem: 5 },   // Prophecy P (default OFF)
-      { slot: 18, visible: false, widthRem: 5 },   // Prophecy F (default OFF)
-      { slot: 19, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
+      { slot: 3, visible: false, widthRem: 18 },   // Alt translation 1
+      { slot: 4, visible: false, widthRem: 18 },   // Alt translation 2
+      { slot: 5, visible: false, widthRem: 18 },   // Alt translation 3
+      { slot: 6, visible: false, widthRem: 18 },   // Alt translation 4
+      { slot: 7, visible: true, widthRem: 15 },    // Cross References (default ON)
+      { slot: 8, visible: false, widthRem: 5 },    // Prophecy P (default OFF)
+      { slot: 9, visible: false, widthRem: 5 },    // Prophecy F (default OFF)
+      { slot: 10, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
+      { slot: 11, visible: false, widthRem: 8 },   // Context/Dates (default OFF)
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {

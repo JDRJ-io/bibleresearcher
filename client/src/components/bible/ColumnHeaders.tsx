@@ -34,8 +34,8 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
 
   return (
-    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs h-12 ${bgClass}`}>
-      <span className="truncate">{column.name}</span>
+    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
+      {column.name}
     </div>
   );
 }
@@ -71,10 +71,7 @@ export function ColumnHeaders({
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
-  const showNotes = storeShowNotes; // Always use store state for Notes
-
-  // DEBUG: Log showNotes value
-  console.log('🔥 ColumnHeaders - showNotes value:', showNotes, 'storeShowNotes:', storeShowNotes);
+  const showNotes = propShowNotes ?? storeShowNotes;
 
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
@@ -82,45 +79,43 @@ export function ColumnHeaders({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Always show main translation (slot 2 per UI spec)  
+  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Always add Notes when store says to show it - ignore columnState complexity
-  if (showNotes) {
-    slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
-    console.log('🔥 ColumnHeaders - Notes added to slotConfig');
-  }
-
-  // Map other column types based on store state
+  // Map all column types based on store state - updated slot assignments
   columnState.columns.forEach(col => {
     switch (col.slot) {
-      case 3:
-        // Cross References column (slot 3 per UI spec)
-        slotConfig[3] = { type: 'cross-refs', header: 'Cross References', visible: col.visible && showCrossRefs };
+      case 1:
+        // Notes column (moved to slot 1 between Ref and Main)
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
-      case 4:
-        // Dates column (slot 4 per UI spec)
-        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+      case 7:
+        // Cross References column (moved from slot 6 to 7)
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
-      case 17:
-        // Prophecy P column (slot 17 per UI spec)
-        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+      case 8:
+        // Prophecy P column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
-      case 18:
-        // Prophecy F column (slot 18 per UI spec)
-        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+      case 9:
+        // Prophecy F column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
-      case 19:
-        // Prophecy V column (slot 19 per UI spec)
-        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+      case 10:
+        // Prophecy V column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        break;
+      case 11:
+        // Dates column (unchanged)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });
 
-  // Dynamically add alternate translation columns to slots 5-16 per UI spec
+  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Start at slot 5 for alternates per UI spec
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
@@ -129,6 +124,14 @@ export function ColumnHeaders({
       };
     }
   });
+
+  // Debug logging
+  console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
+    slot: parseInt(slot), 
+    type: slotConfig[parseInt(slot)]?.type, 
+    header: slotConfig[parseInt(slot)]?.header, 
+    visible: slotConfig[parseInt(slot)]?.visible 
+  })));
 
   // Get all visible columns sorted by slot position, matching VirtualRow exactly  
   const visibleColumns = Object.entries(slotConfig)
@@ -140,11 +143,13 @@ export function ColumnHeaders({
       isMain: config?.type === 'main-translation',
       visible: config?.visible !== false
     }))
-    .filter(col => col.config && col.config.visible !== false) // Use config.visible directly
+    .filter(col => col.config && col.visible) // Only render valid, visible slots
     .sort((a, b) => a.slot - b.slot);
 
-  // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
-  const shouldCenter = visibleColumns.length <= 3;
+  console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
+
+  // Never center - headers must always align with columns
+  const shouldCenter = false;
 
   const allColumns = visibleColumns.map(col => ({
     id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
@@ -155,53 +160,34 @@ export function ColumnHeaders({
     slot: col.slot
   }));
 
-  // Split columns: Ref column stays fixed, others scroll
-  const refColumn = allColumns.find(col => col.slot === 0);
-  const scrollableColumns = allColumns.filter(col => col.slot !== 0);
-
   return (
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
-        top: isMobile ? '48px' : '64px', // Match actual header heights
-        minHeight: '48px', // Ensure minimum height, allow growth
+        top: '38px', // Mobile header height (matches BiblePage header)
+        height: '40px',
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',
         marginTop: '-1px' // Overlap border to eliminate gap
       }}
     >
-      <div className="overflow-hidden w-full h-full flex">
-        {/* Fixed Reference Column - Never scrolls away */}
-        {refColumn && (
-          <div className="flex-shrink-0 z-40">
-            <HeaderCell
-              key={`slot-${refColumn.slot}`}
-              column={refColumn}
-              isMain={refColumn.isMain}
-              isMobile={isMobile}
-            />
-          </div>
-        )}
-        
-        {/* Scrollable columns container */}
-        <div className="flex-1 overflow-hidden">
-          <div className={shouldCenter ? "flex justify-center w-full h-full" : ""}>
-            <div 
-              className="flex min-w-max h-full"
-              style={{ 
-                transform: shouldCenter ? undefined : `translateX(-${Math.round(scrollLeft)}px)`,
-                willChange: shouldCenter ? undefined : 'transform'
-              }}
-            >
-              {scrollableColumns.map((column) => (
-                <HeaderCell
-                  key={`slot-${column.slot}`}
-                  column={column}
-                  isMain={column.isMain}
-                  isMobile={isMobile}
-                />
-              ))}
-            </div>
+      <div className="overflow-hidden w-full h-full">
+        <div className={shouldCenter ? "flex justify-center w-full h-full" : ""}>
+          <div 
+            className="flex min-w-max h-full"
+            style={{ 
+              transform: shouldCenter ? undefined : `translateX(-${Math.round(scrollLeft)}px)`,
+              willChange: shouldCenter ? undefined : 'transform'
+            }}
+          >
+            {allColumns.map((column) => (
+              <HeaderCell
+                key={`slot-${column.slot}`}
+                column={column}
+                isMain={column.isMain}
+                isMobile={isMobile}
+              />
+            ))}
           </div>
         </div>
       </div>

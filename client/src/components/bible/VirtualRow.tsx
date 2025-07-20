@@ -131,45 +131,40 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Map all column types based on store state - following UI layout spec
+  // Map all column types based on store state - updated slot assignments
   columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
-        // Notes column (slot 1 per UI spec)
+        // Notes column (moved to slot 1 between Ref and Main)
         slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
-      case 3:
-        // Cross References column (slot 3 per UI spec)
-        slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+      case 7:
+        // Cross References column (moved from slot 6 to 7)
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
-      case 4:
-        // Dates column (slot 4 per UI spec)
-        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+      case 8:
+        // Prophecy P column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
-      case 17:
-        // Prophecy P column (slot 17 per UI spec)
-        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+      case 9:
+        // Prophecy F column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
-      case 18:
-        // Prophecy F column (slot 18 per UI spec)
-        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+      case 10:
+        // Prophecy V column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
-      case 19:
-        // Prophecy V column (slot 19 per UI spec)
-        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+      case 11:
+        // Dates column (unchanged)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });
 
-  // Ensure Notes column is always in slotConfig when showNotes is true
-  if (showNotes && !slotConfig[1]) {
-    slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
-  }
-
-  // Dynamically add alternate translation columns to slots 5-16 per UI spec
+  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Start at slot 5 for alternates per UI spec
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
@@ -227,19 +222,17 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on slot type and mobile - following UI layout spec
+    // Calculate width based on slot type and mobile - updated for new slot layout
     const width = isMobile ? 
-      (slot === 0 ? "w-14" :        // Reference
-       slot === 1 ? "w-16" :        // Notes (slot 1)
-       slot === 3 ? "w-12" :        // Cross References (slot 3)
-       slot === 4 ? "w-12" :        // Dates (slot 4)
-       slot >= 17 && slot <= 19 ? "w-8" : // Prophecy P/F/V (slots 17-19)
+      (slot === 0 ? "w-14" :        // Reference (narrower)
+       slot === 1 ? "w-16" :        // Notes (between Ref and Main)
+       slot === 7 ? "w-12" :        // Cross References (moved to slot 7)
+       slot >= 8 && slot <= 10 ? "w-8" : // Prophecy P/F/V (slots 8-10)
        "flex-1") :                  // Translations
-      (slot === 0 ? "w-16" :        // Reference
-       slot === 1 ? "w-64" :        // Notes (slot 1)
-       slot === 3 ? "w-60" :        // Cross References (slot 3)
-       slot === 4 ? "w-32" :        // Dates (slot 4)
-       slot >= 17 && slot <= 19 ? "w-20" : // Prophecy P/F/V (slots 17-19)
+      (slot === 0 ? "w-16" :        // Reference (narrower)
+       slot === 1 ? "w-64" :        // Notes (between Ref and Main) 
+       slot === 7 ? "w-60" :        // Cross References (moved to slot 7)
+       slot >= 8 && slot <= 10 ? "w-20" : // Prophecy P/F/V (slots 8-10)
        "w-80");                     // Translations
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
@@ -320,29 +313,13 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     }
   };
 
-  // Split columns: Ref column stays fixed, others scroll (matching ColumnHeaders layout)
-  const refColumn = visibleColumns.find(col => col.slot === 0);
-  const scrollableColumns = visibleColumns.filter(col => col.slot !== 0);
-
   return (
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Fixed Reference Column - Never scrolls away */}
-      {refColumn && (
-        <div className="flex-shrink-0 z-40">
-          {renderSlot(refColumn)}
-        </div>
-      )}
-      
-      {/* Scrollable columns container */}
-      <div className="flex-1 overflow-hidden">
-        <div className="flex min-w-max">
-          {scrollableColumns.map(renderSlot)}
-        </div>
-      </div>
+      {visibleColumns.map(renderSlot)}
     </div>
   );
 };
