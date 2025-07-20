@@ -119,6 +119,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   if (verse.reference === "Gen 1:1") {
     console.log('🔥 VirtualRow RENDERING for Gen 1:1');
     console.log('🔥 Store states:', { showCrossRefs, showProphecies, showNotes, showDates });
+    console.log('🔥 Translation states:', { main, alternates, activeTranslations });
   }
 
   // Use store's columnState as the authoritative source, enhanced with translation data

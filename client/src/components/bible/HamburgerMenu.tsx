@@ -146,14 +146,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
-            <div className="space-y-1">
-              {["AMP", "BSB", "CSB", "ESV", "NASB", "NIV", "NKJV", "NLT", "WEB", "YLT"].map((version) => (
-                <div key={version} className="flex items-center space-x-2">
-                  <Checkbox id={version} className="w-3 h-3" />
-                  <Label htmlFor={version} className="text-xs">{version}</Label>
-                </div>
-              ))}
-            </div>
+            <TranslationSelector onUpdate={() => console.log('🔄 Translation updated from alt-translations tab')} />
           </div>
         );
 

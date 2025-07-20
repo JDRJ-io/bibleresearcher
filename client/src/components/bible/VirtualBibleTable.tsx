@@ -14,6 +14,7 @@ import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
 import { useBibleStore } from "@/App";
+import { useBibleData } from "@/hooks/useBibleData";
 
 import type {
   BibleVerse,
@@ -82,6 +83,14 @@ const VirtualBibleTable = ({
   
   // Get store state for column toggles
   const { showCrossRefs, showProphecies } = useBibleStore();
+  
+  // Get verse text retrieval function from useBibleData
+  const { getVerseText: getBibleVerseText, getGlobalVerseText: getGlobalVerseTextFromHook } = useBibleData();
+  
+  // Create getVerseText wrapper for VirtualRow (any translation) - use getBibleVerseText to avoid conflict
+  const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
+    return getBibleVerseText(verseID, translationCode);
+  }, [getBibleVerseText]);
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
@@ -325,7 +334,7 @@ const VirtualBibleTable = ({
                 // Add alternate translation text from the translation maps
                 activeTranslations.forEach(translationCode => {
                   if (translationCode !== mainTranslation) {
-                    const altText = getVerseText(id, translationCode);
+                    const altText = getVerseTextForRow(id, translationCode);
                     if (altText) {
                       textObj[translationCode] = altText;
                     }
@@ -353,7 +362,7 @@ const VirtualBibleTable = ({
                     verse={bibleVerse}
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
-                    getVerseText={getVerseText}
+                    getVerseText={getVerseTextForRow}
                     getMainVerseText={getMainVerseText}
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
