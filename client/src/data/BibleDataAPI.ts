@@ -9,6 +9,8 @@ const paths = {
   translation:  (id: string) => `translations/${id}.txt`,
   crossRef:     (set: 'cf1' | 'cf2') => `references/${set}.txt`,
   crossRefOffsets: (set: 'cf1' | 'cf2') => `references/${set}_offsets.json`,
+  cf1: 'references/cf1.txt',
+  cf2: 'references/cf2.txt',
   prophecyRows: 'references/prophecy_rows.txt',
   prophecyIdx:  'references/prophecy_index.json',
   strongsVerseOffsets: 'references/strongsVerseOffsets.json',
@@ -23,25 +25,8 @@ const paths = {
 let masterVerseKeys: string[] = [];
 let currentAnchorIndex = 0;
 
-// MEMORY OPTIMIZED: fetchFromStorage with byte-range support 
-export async function fetchFromStorage(path: string, options?: { start?: number, end?: number }): Promise<string> {
-  if (options?.start !== undefined && options?.end !== undefined) {
-    // Byte-range request for memory efficiency
-    console.log(`🌐 fetchFromStorage: ${path} (bytes ${options.start}-${options.end})`);
-    const { data, error } = await supabase
-      .storage
-      .from(BUCKET)
-      .download(path, {
-        transform: {
-          range: `bytes=${options.start}-${options.end}`
-        }
-      });
-    
-    if (error) throw new Error(`Supabase range load failed → ${path}: ${error.message}`);
-    return await data.text();
-  }
-  
-  // Standard full file download (only for small files like offsets)
+// MEMORY OPTIMIZED: fetchFromStorage for full files (small offsets only)
+export async function fetchFromStorage(path: string): Promise<string> {
   console.log(`🌐 fetchFromStorage: ${path}`);
   const { data, error } = await supabase
     .storage
@@ -50,6 +35,26 @@ export async function fetchFromStorage(path: string, options?: { start?: number,
 
   if (error) throw new Error(`Supabase load failed → ${path}: ${error.message}`);
   return await data.text();
+}
+
+// MEMORY OPTIMIZED: fetchFromStorageRange for byte-range requests
+export async function fetchFromStorageRange(path: string, start: number, end: number): Promise<string> {
+  console.log(`🌐 fetchFromStorageRange: ${path} [${start}-${end}]`);
+  
+  // Use Supabase public URL with Range header for byte-range requests
+  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  
+  const response = await fetch(urlData.publicUrl, {
+    headers: {
+      'Range': `bytes=${start}-${end}`
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Range request failed → ${path}: ${response.statusText}`);
+  }
+  
+  return await response.text();
 }
 
 // Promise deduplication to prevent multiple concurrent fetches
@@ -368,8 +373,8 @@ export async function getStrongsOffsets(): Promise<{
   strongsVerseOffsets = JSON.parse(vTxt);
   strongsIndexOffsets = JSON.parse(iTxt);
   
-  console.log(`🔍 Strong's offsets loaded: ${Object.keys(strongsVerseOffsets).length} verses, ${Object.keys(strongsIndexOffsets).length} lemmas`);
-  return { strongsVerseOffsets, strongsIndexOffsets };
+  console.log(`🔍 Strong's offsets loaded: ${Object.keys(strongsVerseOffsets || {}).length} verses, ${Object.keys(strongsIndexOffsets || {}).length} lemmas`);
+  return { strongsVerseOffsets: strongsVerseOffsets || {}, strongsIndexOffsets: strongsIndexOffsets || {} };
 }
 
 // -------- Prophecy loaders ----------
@@ -382,7 +387,7 @@ export async function getProphecy(indexKey: string): Promise<string | null> {
   if (!prophecyIndex) {
     const idx = await fetchFromStorage(paths.prophecyIdx);
     prophecyIndex = JSON.parse(idx);
-    console.log(`📜 Prophecy index loaded: ${Object.keys(prophecyIndex).length} entries`);
+    console.log(`📜 Prophecy index loaded: ${Object.keys(prophecyIndex || {}).length} entries`);
   }
   // Lazy load rows file
   if (!prophecyRowsTxt) {
