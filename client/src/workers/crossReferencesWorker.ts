@@ -7,37 +7,62 @@ const crossRefsCache: Record<string, string[]> = {};
 let crossRefsMap: Record<string, string[]> | null = null;
 
 // Initialize cross-references data from main thread
+// Data Format (from replit.md): Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
 function initializeCrossRefs(cf1Data: string) {
   if (crossRefsMap) return;
   
   try {
     crossRefsMap = {};
-    cf1Data.split('\n').forEach(line => {
-      const [verseID, refsStr] = line.split('$$');
-      if (verseID && refsStr) {
-        // Parse cross-references with $ and # delimiters
-        const groups = refsStr.split('$');
-        const allRefs: string[] = [];
+    const lines = cf1Data.split('\n').filter(line => line.trim());
+    let parsedCount = 0;
+    
+    lines.forEach((line, index) => {
+      if (line.includes('$$')) {
+        const [verseID, refsStr] = line.split('$$', 2); // Only split on first $$
+        const trimmedVerseID = verseID.trim();
         
-        groups.forEach(group => {
-          if (group.includes('#')) {
-            allRefs.push(...group.split('#'));
-          } else {
-            allRefs.push(group);
+        if (trimmedVerseID && refsStr && refsStr.trim()) {
+          // Parse cross-references with $ and # delimiters according to spec
+          const groups = refsStr.split('$');
+          const allRefs: string[] = [];
+          
+          groups.forEach(group => {
+            const trimmedGroup = group.trim();
+            if (trimmedGroup) {
+              if (trimmedGroup.includes('#')) {
+                // Split by # for sequential references in this group
+                const sequentialRefs = trimmedGroup.split('#');
+                sequentialRefs.forEach(ref => {
+                  const trimmedRef = ref.trim();
+                  if (trimmedRef) {
+                    allRefs.push(trimmedRef);
+                  }
+                });
+              } else {
+                // Single reference in this group
+                allRefs.push(trimmedGroup);
+              }
+            }
+          });
+          
+          const cleanRefs = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
+          if (cleanRefs.length > 0 && crossRefsMap) {
+            crossRefsMap[trimmedVerseID] = cleanRefs;
+            crossRefsCache[trimmedVerseID] = cleanRefs; // Also populate legacy cache
+            parsedCount++;
+            
+            // Debug log for first few entries
+            if (index < 5) {
+              console.log(`✓ CrossRef Worker: ${trimmedVerseID} -> ${cleanRefs.length} refs: ${cleanRefs.slice(0, 3).join(', ')}${cleanRefs.length > 3 ? '...' : ''}`);
+            }
           }
-        });
-        
-        const cleanRefs = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
-        if (crossRefsMap) {
-          crossRefsMap[verseID] = cleanRefs;
         }
-        crossRefsCache[verseID] = cleanRefs; // Also populate legacy cache
       }
     });
     
-    console.log('✅ Cross-references initialized in worker');
+    console.log(`✅ Cross-references initialized in worker: ${parsedCount} verses with references from ${lines.length} lines`);
   } catch (error) {
-    console.error('Failed to initialize cross-references:', error);
+    console.error('❌ Failed to initialize cross-references:', error);
     crossRefsMap = {};
   }
 }
