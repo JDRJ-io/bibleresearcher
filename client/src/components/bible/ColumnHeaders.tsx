@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
@@ -148,8 +149,22 @@ export function ColumnHeaders({
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
-  // Never center - headers must always align with columns
-  const shouldCenter = false;
+  // Calculate if we should center based on total column width vs viewport
+  const estimatedTotalWidth = useMemo(() => {
+    let width = 0;
+    width += 80; // Reference column ~80px
+    width += 320; // Main translation ~320px
+    if (showCrossRefs) width += 240; // Cross refs ~240px
+    if (showProphecies) width += 180; // P+F+V ~60px each
+    width += (alternates.length * 320); // Alt translations ~320px each
+    return width;
+  }, [showCrossRefs, showProphecies, alternates]);
+  
+  // Get viewport width
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  
+  // Center only if total width fits in viewport, otherwise left-anchor
+  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
 
   const allColumns = visibleColumns.map(col => ({
     id: col.config?.header?.toLowerCase().replace(' ', '-') || '',

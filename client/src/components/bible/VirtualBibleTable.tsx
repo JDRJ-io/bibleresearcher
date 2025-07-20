@@ -216,9 +216,23 @@ const VirtualBibleTable = ({
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
   
-  // NEW LAYOUT RULE: Never center when there are many columns
-  // Instead, keep reference column pinned to left and enable horizontal scroll
-  const shouldCenter = visibleColumns.length <= 3;
+  // Layout rule: Center when few columns, left-anchor when many columns overflow screen
+  // Calculate approximate total width needed for all columns
+  const estimatedTotalWidth = useMemo(() => {
+    let width = 0;
+    width += 80; // Reference column ~80px
+    width += 320; // Main translation ~320px
+    if (showCrossRefs) width += 240; // Cross refs ~240px
+    if (showProphecies) width += 180; // P+F+V ~60px each
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    return width;
+  }, [showCrossRefs, showProphecies, activeTranslations, mainTranslation]);
+  
+  // Get viewport width
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  
+  // Center only if total width fits in viewport, otherwise left-anchor
+  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
   
   useEffect(() => {
     if (!wrapperRef.current) return;
