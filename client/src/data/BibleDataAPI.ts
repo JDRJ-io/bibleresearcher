@@ -262,8 +262,16 @@ export async function getCrossRefSlice(verseIDs: string[]): Promise<Record<strin
   return result;
 }
 
-// DOCUMENTED: Ensure translation loaded - uses main getTranslation method
+// DOCUMENTED: Ensure translation loaded - uses main getTranslation method with promise dedup
 export async function ensureTranslationLoaded(translationId: string): Promise<Map<string, string>> {
+  const cacheKey = `translation-${translationId}`;
+  
+  // Return cached promise if translation already loading/loaded (promise dedup)
+  if (masterCache.has(cacheKey)) {
+    console.log(`✅ Translation ${translationId} already cached, returning immediately`);
+    return masterCache.get(cacheKey) as Map<string, string>;
+  }
+  
   console.log(`🔄 Ensuring translation ${translationId} is loaded...`);
   const translation = await getTranslation(translationId);
   console.log(`✅ Translation ${translationId} ensured loaded: ${translation.size} verses`);
@@ -449,6 +457,7 @@ export const BibleDataAPI = {
   loadProphecyRows,
   loadProphecyIndex,
   getStrongsOffsets,
+  ensureTranslationLoaded,
   saveBookmark,
   saveHighlight,
   saveNote,

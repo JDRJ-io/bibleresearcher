@@ -19,8 +19,14 @@ export function useCrossRefsIntegration(visibleVerseRefs: string[]) {
 
     const loadCrossRefsForVerses = async () => {
       try {
-        // PERFORMANCE FIX: Load cross-references directly via main thread
-        const { getCrossRefSlice } = await import('@/data/BibleDataAPI');
+        // PERFORMANCE FIX: Ensure main translation loaded BEFORE cross-ref processing
+        const { getCrossRefSlice, ensureTranslationLoaded } = await import('@/data/BibleDataAPI');
+        const { translationState } = useBibleStore.getState();
+        
+        // CRITICAL: Wait for main translation to be ready before processing cross-refs
+        if (translationState.main) {
+          await ensureTranslationLoaded(translationState.main);
+        }
 
         // Filter to new verses that haven't been processed
         const newRefs = visibleVerseRefs.filter(ref => !processedRefs.current.has(ref));

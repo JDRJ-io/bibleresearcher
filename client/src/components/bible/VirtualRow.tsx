@@ -56,7 +56,7 @@ interface SlotConfig {
   visible: boolean;
 }
 
-const VirtualRow: React.FC<VirtualRowProps> = ({
+const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   verseID,
   rowHeight,
   verse,
@@ -275,7 +275,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       {visibleColumns.map(renderSlot)}
     </div>
   );
-};
+});
 
 export default VirtualRow;
 export { VirtualRow };
