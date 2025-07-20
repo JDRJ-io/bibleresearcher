@@ -4,6 +4,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBibleData } from "@/hooks/useBibleData";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
+import { useTranslationMaps as useTranslationSlice } from "@/store/translationSlice";
+import { useBibleStore } from "@/App";
 import { useToast } from "@/hooks/use-toast";
 import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
@@ -64,6 +66,31 @@ export default function BiblePage() {
     setAlternates,
     isLoading: translationsLoading
   } = translationMaps;
+
+  // Get translation slice store for mobile defaults
+  const { resetMobileDefaults } = useTranslationSlice();
+  
+  // Get Bible store for cross-references toggle
+  const { showCrossRefs, toggleCrossRefs } = useBibleStore();
+
+  // MOBILE PORTRAIT DEFAULT: Reset to exactly two data columns on first load
+  useEffect(() => {
+    const mobilePortrait = window.innerWidth < 640 && window.innerHeight > window.innerWidth;
+    if (mobilePortrait && !sessionStorage.getItem('mobileInit')) {
+      console.log('🔄 MOBILE PORTRAIT DETECTED: Setting dual-column defaults (Ref + Main + Cross)');
+      
+      // Reset translations to just main (removes alternates)
+      resetMobileDefaults(mainTranslation || 'KJV');
+      
+      // Ensure cross-references are enabled for mobile dual-column layout
+      if (!showCrossRefs) {
+        toggleCrossRefs();
+      }
+      
+      // Mark as initialized to prevent rerun on rotation
+      sessionStorage.setItem('mobileInit', '1');
+    }
+  }, [resetMobileDefaults, mainTranslation, showCrossRefs, toggleCrossRefs]);
   
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
@@ -145,7 +172,7 @@ export default function BiblePage() {
         await toggleTranslation(translationId, true);
       }
       // Update local state for UI consistency
-      setSelectedTranslations(activeTranslations);
+      setHookSelectedTranslations(activeTranslations);
     } catch (error) {
       console.error('Error toggling translation:', error);
     }
@@ -158,7 +185,7 @@ export default function BiblePage() {
 
   // Get translations for display - ensure KJV is always selected by default
   const displayTranslations = multiTranslationMode
-    ? allTranslations.filter((t) => selectedTranslations.includes(t.id))
+    ? allTranslations.filter((t) => activeTranslations.includes(t.id))
     : allTranslations.filter((t) => t.id === mainTranslation);
 
   // REMOVED: Edge-based cross-reference loading replaced with anchor-centered approach
@@ -196,7 +223,7 @@ export default function BiblePage() {
 
   const handleTranslationToggle = async (translationId: string) => {
     // Check if translation is being added
-    if (!selectedTranslations.includes(translationId)) {
+    if (!activeTranslations.includes(translationId)) {
       // Load the translation data before adding it to selected
       console.log(`Loading ${translationId} translation...`);
 
@@ -291,7 +318,7 @@ export default function BiblePage() {
   };
 
   const handleResetLayout = () => {
-    setSelectedTranslations(["KJV"]);
+    setHookSelectedTranslations(["KJV"]);
     setPreferences((prev) => ({
       ...prev,
       showNotes: false,
@@ -374,7 +401,7 @@ export default function BiblePage() {
 
     // It's a word/phrase search - search across all translations
     const activeTranslationIds = multiTranslationMode 
-      ? selectedTranslations 
+      ? activeTranslations 
       : [mainTranslation];
 
     console.log(`Performing text search for "${trimmedQuery}" across translations:`, activeTranslationIds);

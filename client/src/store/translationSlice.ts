@@ -9,6 +9,8 @@ interface TranslationState {
   setMain: (id: string) => void;
   /** toggle an alternate on/off */
   toggleAlternate: (id: string) => void;
+  /** reset to mobile defaults: main + no alternates */
+  resetMobileDefaults: (mainId: string) => void;
 }
 
 export const useTranslationMaps = create<TranslationState>()(
@@ -37,6 +39,14 @@ export const useTranslationMaps = create<TranslationState>()(
           // was there, remove it
           set({ alternates: alts });
         }
+      },
+      resetMobileDefaults: (mainId: string) => {
+        // Mobile portrait: only main translation, no alternates
+        // Cross-references will be handled by the bible store toggle
+        set({
+          main: mainId,
+          alternates: []
+        });
       },
     }),
     { name: 'translation-state' }
