@@ -859,6 +859,11 @@ body.overlay-open {
   overflow: hidden;
 }
 
+/* Bible table wrapper centering */
+.bible-table-wrapper {
+  margin-inline: auto;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
