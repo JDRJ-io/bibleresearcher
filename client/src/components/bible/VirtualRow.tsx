@@ -248,7 +248,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'notes':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-gray-500 verse-content" style={{ maxHeight: 'calc(var(--row-height, 60px) * var(--font-size-multiplier, 1))' }}>
+            <div className="px-2 py-1 text-sm text-gray-500">
               [Notes placeholder]
             </div>
           </div>
@@ -260,7 +260,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         const verseText = getVerseText(verse.reference, config.translationCode);
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
-            <div className="px-2 py-1 text-sm verse-content verse-text" style={{ maxHeight: 'calc(var(--row-height, 60px) * var(--font-size-multiplier, 1))' }}>
+            <div className="px-2 py-1 text-sm">
               {verseText || `[${config.translationCode} loading...]`}
             </div>
           </div>
@@ -269,7 +269,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'cross-refs':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-blue-600 verse-content" style={{ maxHeight: 'calc(var(--row-height, 60px) * var(--font-size-multiplier, 1))' }}>
+            <div className="px-2 py-1 text-sm text-blue-600">
               [Cross Refs]
             </div>
           </div>
@@ -278,7 +278,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'context':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-gray-500 verse-content" style={{ maxHeight: 'calc(var(--row-height, 60px) * var(--font-size-multiplier, 1))' }}>
+            <div className="px-2 py-1 text-sm text-gray-500">
               [Date placeholder]
             </div>
           </div>
