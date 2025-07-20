@@ -58,6 +58,18 @@ export function ColumnHeaders({
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   
+  // Calculate visible columns for centering logic
+  const visibleColumns = [
+    "Reference", 
+    main,
+    ...alternates,
+    ...(showCrossRefs ? ["Cross References"] : []),
+    ...(showProphecies ? ["P", "F", "V"] : [])
+  ];
+  
+  // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
+  const shouldCenter = visibleColumns.length <= 3;
+  
   // Column order matching VirtualRow exactly - use main + alternates
   const headerOrder = [
     "Reference", 
@@ -89,21 +101,23 @@ export function ColumnHeaders({
       }}
     >
       <div className="overflow-hidden w-full h-full">
-        <div 
-          className="flex min-w-max h-full"
-          style={{ 
-            transform: `translateX(-${Math.round(scrollLeft)}px)`,
-            willChange: 'transform'
-          }}
-        >
-          {allColumns.map((column) => (
-            <HeaderCell
-              key={column.id}
-              column={column}
-              isMain={column.isMain}
-              isMobile={isMobile}
-            />
-          ))}
+        <div className={shouldCenter ? "flex justify-center w-full h-full" : ""}>
+          <div 
+            className="flex min-w-max h-full"
+            style={{ 
+              transform: shouldCenter ? undefined : `translateX(-${Math.round(scrollLeft)}px)`,
+              willChange: shouldCenter ? undefined : 'transform'
+            }}
+          >
+            {allColumns.map((column) => (
+              <HeaderCell
+                key={column.id}
+                column={column}
+                isMain={column.isMain}
+                isMobile={isMobile}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

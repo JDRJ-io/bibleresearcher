@@ -195,6 +195,21 @@ const VirtualBibleTable = ({
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
+  // Calculate visible columns for centering logic (UI_layout_spec.md rule)
+  const visibleColumns = useMemo(() => {
+    const columns = [
+      "Reference", // Always visible
+      mainTranslation, // Main translation always visible
+      ...(showCrossRefs ? ["Cross References"] : []),
+      ...(showProphecies ? ["P", "F", "V"] : []),
+      ...activeTranslations.filter(t => t !== mainTranslation) // Alternate translations
+    ];
+    return columns;
+  }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
+  
+  // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
+  const shouldCenter = visibleColumns.length <= 3;
+  
   useEffect(() => {
     if (!wrapperRef.current) return;
 
@@ -287,65 +302,69 @@ const VirtualBibleTable = ({
         data-scroll-direction={scrollDirection}
       >
         <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 75px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
-        <div style={{height: slice.start * ROW_HEIGHT}} />
-        {slice.verseIDs.map((id, i) => {
-          // Convert simple rowData to BibleVerse structure
-          const verseData = rowData?.[id];
-          const parts = id.split('.');
-          const book = parts[0];
-          const chapterVerse = parts[1].split(':');
-          const chapter = parseInt(chapterVerse[0]);
-          const verse = parseInt(chapterVerse[1]);
-          
-          // Build text object for all active translations
-          const textObj: Record<string, string> = {};
-          
-          // Add main translation text
-          if (verseData) {
-            textObj[mainTranslation] = verseData.text;
-          }
-          
-          // Add alternate translation text from the translation maps
-          activeTranslations.forEach(translationCode => {
-            if (translationCode !== mainTranslation) {
-              const altText = getVerseText(id, translationCode);
-              if (altText) {
-                textObj[translationCode] = altText;
-              }
-            }
-          });
-          
-          const bibleVerse: BibleVerse = {
-            id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
-            index: slice.start + i,
-            book,
-            chapter,
-            verse,
-            reference: id,
-            text: textObj,
-            crossReferences: [],
-            strongsWords: [],
-            labels: [],
-            contextGroup: "standard" as const
-          };
-          
-          return (
-            <VirtualRow 
-              key={id}
-              verseID={id}
-              verse={bibleVerse}
-              rowHeight={ROW_HEIGHT}
-              columnData={columnData}
-              getVerseText={getVerseText}
-              getMainVerseText={getMainVerseText}
-              activeTranslations={activeTranslations}
-              mainTranslation={translationMainTranslation}
-              onVerseClick={onNavigateToVerse}
-              onExpandVerse={onExpandVerse}
-            />
-          );
-        })}
-        <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+          <div className={shouldCenter ? "flex justify-center w-full" : ""}>
+            <div className={shouldCenter ? "min-w-max" : ""}>
+              <div style={{height: slice.start * ROW_HEIGHT}} />
+              {slice.verseIDs.map((id, i) => {
+                // Convert simple rowData to BibleVerse structure
+                const verseData = rowData?.[id];
+                const parts = id.split('.');
+                const book = parts[0];
+                const chapterVerse = parts[1].split(':');
+                const chapter = parseInt(chapterVerse[0]);
+                const verse = parseInt(chapterVerse[1]);
+                
+                // Build text object for all active translations
+                const textObj: Record<string, string> = {};
+                
+                // Add main translation text
+                if (verseData) {
+                  textObj[mainTranslation] = verseData.text;
+                }
+                
+                // Add alternate translation text from the translation maps
+                activeTranslations.forEach(translationCode => {
+                  if (translationCode !== mainTranslation) {
+                    const altText = getVerseText(id, translationCode);
+                    if (altText) {
+                      textObj[translationCode] = altText;
+                    }
+                  }
+                });
+                
+                const bibleVerse: BibleVerse = {
+                  id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
+                  index: slice.start + i,
+                  book,
+                  chapter,
+                  verse,
+                  reference: id,
+                  text: textObj,
+                  crossReferences: [],
+                  strongsWords: [],
+                  labels: [],
+                  contextGroup: "standard" as const
+                };
+                
+                return (
+                  <VirtualRow 
+                    key={id}
+                    verseID={id}
+                    verse={bibleVerse}
+                    rowHeight={ROW_HEIGHT}
+                    columnData={columnData}
+                    getVerseText={getVerseText}
+                    getMainVerseText={getMainVerseText}
+                    activeTranslations={activeTranslations}
+                    mainTranslation={translationMainTranslation}
+                    onVerseClick={onNavigateToVerse}
+                    onExpandVerse={onExpandVerse}
+                  />
+                );
+              })}
+              <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

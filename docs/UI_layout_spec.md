@@ -21,11 +21,11 @@ controls that modify the view.
 |  Slot # | Column               | Data source                 | Sticky header text | Default visible |
 | ------: | -------------------- | --------------------------- | ------------------ | --------------- |
 |       0 | **Reference**        | `verse.reference`           | `Ref`              | ✔               |
-|       1 | **Main translation** | `getVerseText(ref, main)`   | user’s main code   | ✔               |
-|       2 | **Cross References** | `crossRefs[ref][]`          | `Cross References` | ✔               |
-|       3 | **Dates**            | `verse.dates[]`             | `Date`             | ✖               |
-|  4 – 15 | **Alt T₁ … T₁₂**     | `getVerseText(ref, altTid)` | alt code           | ✖               |
-|      16 | **Notes**            | `userNotes[ref]`            | `Notes`            | ✖               |
+|       1 | **Notes**            | `userNotes[ref]`            | `Notes`            | ✖               |
+|       2 | **Main translation** | `getVerseText(ref, main)`   | user’s main code   | ✔               |
+|       3 | **Cross References** | `crossRefs[ref][]`          | `Cross References` | ✔               |
+|       4 | **Dates**            | `verse.dates[]`             | `Date`             | ✖               |
+|  5 – 16 | **Alt T₁ … T₁₂**     | `getVerseText(ref, altTid)` | alt code           | ✖               |
 |      17 | **Prediction P**     | `prophecies[ref].P[]`       | **P**              | ✖               |
 |      18 | **Fulfilment F**     | `prophecies[ref].F[]`       | **F**              | ✖               |
 |      19 | **Verification V**   | `prophecies[ref].V[]`       | **V**              | ✖               |
