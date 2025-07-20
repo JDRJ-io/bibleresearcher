@@ -471,6 +471,7 @@ body.menu-open {
 
 /* always show bar in desktop WebKit */
 .bible-table-wrapper::-webkit-scrollbar{ height:8px; }
+.bible-table-wrapper::-webkit-scrollbar-thumb{ background:#bbb; border-radius:4px; }
 
 /* Reference column styling for proper layout */
 .cell-ref {

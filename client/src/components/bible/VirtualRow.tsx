@@ -35,45 +35,34 @@ function ReferenceCell({ verse }: CellProps) {
 }
 
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
-  const crossRefs = verse.crossReferences || [];
+  const { crossRefs: crossRefsStore } = useBibleStore();
+  
+  // Get cross-references from the Bible store (loaded from Supabase)
+  const crossRefs = crossRefsStore[verse.reference] ?? [];
 
   return (
-    <div className="w-full px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
-      {crossRefs.length > 0 ? (
-        <div className="space-y-1">
-          <div className="text-xs text-gray-500 mb-1">
-            Cross-refs ({crossRefs.length})
-          </div>
-          {crossRefs.slice(0, 3).map((ref, index) => {
-            const reference = typeof ref === 'string' ? ref : ref.reference;
-            const verseText = getVerseText(reference, mainTranslation) ?? "";
-            const handleClick = (e: React.MouseEvent) => {
+    <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+      {crossRefs.map((ref, index) => {
+        const txt = getVerseText(ref, mainTranslation) ?? "(loading…)";
+        return (
+          <button
+            key={ref}
+            className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
+            onClick={(e) => {
               e.stopPropagation();
-              onVerseClick?.(reference);
-            };
-            return (
-              <div key={index} className="text-xs">
-                <button
-                  onClick={handleClick}
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium cursor-pointer underline block"
-                >
-                  {reference}
-                </button>
-                {verseText && (
-                  <div className="text-gray-600 dark:text-gray-400 mt-0.5 leading-tight">
-                    {verseText.length > 60 ? `${verseText.substring(0, 60)}...` : verseText}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          {crossRefs.length > 3 && (
-            <div className="text-xs text-blue-500 cursor-pointer">
-              +{crossRefs.length - 3} more
-            </div>
-          )}
-        </div>
-      ) : (
+              onVerseClick?.(ref);
+            }}
+          >
+            <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
+              {ref}
+            </span>
+            <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
+              {txt}
+            </span>
+          </button>
+        );
+      })}
+      {crossRefs.length === 0 && (
         <div className="text-gray-400 italic text-xs">No cross-references</div>
       )}
     </div>
@@ -272,7 +261,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         // Get actual cross-reference data for this verse
         const crossRefs = verse.crossReferences || [];
         const crossRefDisplay = crossRefs.length > 0 
-          ? crossRefs.slice(0, 3).map(ref => ref.split('.')[0]).join(', ') + (crossRefs.length > 3 ? '...' : '')
+          ? crossRefs.slice(0, 3).map(ref => {
+              if (typeof ref === 'string') return ref.split('.')[0];
+              if (ref && typeof ref === 'object' && 'reference' in ref) return ref.reference?.split('.')[0] || '';
+              return '';
+            }).join(', ') + (crossRefs.length > 3 ? '...' : '')
           : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
@@ -297,8 +290,10 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
         const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
         // Get prophecy data from verse if available
-        const prophecyData = verse.prophecyMeta || {};
-        const count = prophecyData[type]?.length || 0;
+        const prophecyData = verse.prophecy || {};
+        const count = prophecyData && typeof prophecyData === 'object' && type in prophecyData 
+          ? (prophecyData as any)[type]?.length || 0 
+          : 0;
         const displayContent = count > 0 ? count.toString() : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>

@@ -318,6 +318,17 @@ const VirtualBibleTable = ({
     );
   }, [preferences.fontSize]);
 
+  // Horizontal scrollbar guard: ensure proper scrollLeft when columns change
+  useEffect(() => {
+    // If table wider than viewport → ensure wrapper scrollLeft ≥ 0
+    if (wrapperRef.current && wrapperRef.current.scrollWidth > wrapperRef.current.clientWidth) {
+      wrapperRef.current.scrollLeft = Math.min(
+        wrapperRef.current.scrollLeft, 
+        wrapperRef.current.scrollWidth - wrapperRef.current.clientWidth
+      );
+    }
+  }, [selectedTranslations]); // Trigger when visible columns change
+
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
       <ColumnHeaders 
