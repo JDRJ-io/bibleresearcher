@@ -30,7 +30,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
      column.name === "Cross References" ? "w-60" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
-  
+
   return (
     <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
       {column.name}
@@ -51,14 +51,14 @@ export function ColumnHeaders({
 }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  
+
   // Get store states for column visibility  
   const { showCrossRefs: storeShowCrossRefs, showProphecies, showNotes: storeShowNotes, showDates, columnState } = useBibleStore();
-  
+
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   const showNotes = propShowNotes ?? storeShowNotes;
-  
+
   // UI Layout Spec slot-based system (slots 0-19) - matching VirtualRow exactly
   const slotConfig = {
     0: { type: 'reference', header: 'Ref' },
@@ -83,7 +83,7 @@ export function ColumnHeaders({
     18: { type: 'prophecy-f', header: 'F', visible: showProphecies },
     19: { type: 'prophecy-v', header: 'V', visible: showProphecies }
   };
-  
+
   // Get all visible columns sorted by slot position, matching VirtualRow exactly  
   const visibleColumns = Object.entries(slotConfig)
     .map(([slotStr, config]) => ({
@@ -96,10 +96,10 @@ export function ColumnHeaders({
     }))
     .filter(col => col.config && col.visible) // Only render valid, visible slots
     .sort((a, b) => a.slot - b.slot);
-  
+
   // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
   const shouldCenter = visibleColumns.length <= 3;
-  
+
   const allColumns = visibleColumns.map(col => ({
     id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
     name: col.config?.header || '',
@@ -108,7 +108,7 @@ export function ColumnHeaders({
     isMain: col.config?.translationCode === main,
     slot: col.slot
   }));
-  
+
   return (
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"

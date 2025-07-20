@@ -39,6 +39,11 @@ interface SizeState {
   setSizeMult: (mult: number) => void;
 }
 
+interface SizeState {
+  sizeMult: number;
+  setSizeMult: (mult: number) => void;
+}
+
 export const useBibleStore = create<{
   translations: Record<string, Map<number, string>>;
   actives: string[];
@@ -74,10 +79,154 @@ export const useBibleStore = create<{
       showLabels: {},       // Labels state object for semantic highlighting
       toggleCrossRefs: () => set(state => {
         console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
-        const newState = {
+        return {
           showCrossRefs: !state.showCrossRefs,
           columnState: {
             ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === 3 ? { ...col, visible: !state.showCrossRefs } : col
+            )
+          }
+        };
+      }),
+      toggleProphecies: () => set(state => {
+        console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
+        return {
+          showProphecies: !state.showProphecies,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              [17, 18, 19].includes(col.slot) ? { ...col, visible: !state.showProphecies } : col
+            )
+          }
+        };
+      }),
+      toggleNotes: () => set(state => {
+        console.log('🔄 TOGGLE NOTES - Current:', state.showNotes, '→ New:', !state.showNotes);
+        return {
+          showNotes: !state.showNotes,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === 1 ? { ...col, visible: !state.showNotes } : col
+            )
+          }
+        };
+      }),
+      toggleDates: () => set(state => {
+        console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
+        return {
+          showDates: !state.showDates,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === 4 ? { ...col, visible: !state.showDates } : col
+            )
+          }
+        };
+      }),
+      toggleLabel: (labelId: string) => set(state => ({
+        showLabels: {
+          ...state.showLabels,
+          [labelId]: !state.showLabels[labelId]
+        }
+      })),
+      setActives: (ids: string[]) => set({ actives: ids }),
+      setTranslations: (id: string, data: Map<number, string>) => set(state => ({
+        translations: { ...state.translations, [id]: data }
+      })),
+      getAllActive: () => get().actives,
+      columnState: {
+        columns: [
+          { slot: 0, visible: true, widthRem: 4 },    // Reference
+          { slot: 1, visible: false, widthRem: 3 },   // Notes  
+          { slot: 2, visible: true, widthRem: 20 },   // Main Translation
+          { slot: 3, visible: true, widthRem: 15 },   // Cross References
+          { slot: 4, visible: false, widthRem: 5 },   // Dates
+          { slot: 17, visible: false, widthRem: 1.5 }, // Prophecy P
+          { slot: 18, visible: false, widthRem: 1.5 }, // Prophecy F  
+          { slot: 19, visible: false, widthRem: 1.5 }  // Prophecy V
+        ],
+        setVisible: (slot: number, visible: boolean) => set(state => ({
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === slot ? { ...col, visible } : col
+            )
+          }
+        })),
+        reorder: (from: number, to: number) => {
+          // Column reordering implementation
+        },
+        resize: (slot: number, deltaRem: number) => set(state => ({
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === slot ? { ...col, widthRem: Math.max(3, col.widthRem + deltaRem) } : col
+            )
+          }
+        }))
+      },
+      sizeState: {
+        sizeMult: 1.0, // Default to Medium
+        setSizeMult: (mult: number) => {
+          set({ sizeState: { sizeMult: mult, setSizeMult: get().sizeState.setSizeMult } });
+          // Apply CSS variable to root
+          document.documentElement.style.setProperty('--sizeMult', mult.toString());
+          // Persist to localStorage
+          localStorage.setItem('bibleSizeMult', mult.toString());
+        }
+      },
+      translationState: {
+        main: "KJV",
+        alternates: [],
+        setMain: (id: string) => set(state => {
+          if (id === state.translationState.main) return state;
+          
+          const currentMain = state.translationState.main;
+          const currentAlternates = state.translationState.alternates;
+          const newAlts = currentAlternates.filter(t => t !== id);
+          const finalAlternates = currentMain && currentMain !== id 
+            ? Array.from(new Set([...newAlts, currentMain]))
+            : newAlts;
+          const columnKeys = Array.from(new Set([...finalAlternates, id]));
+          
+          return {
+            translationState: {
+              ...state.translationState,
+              main: id,
+              alternates: finalAlternates,
+              columnKeys
+            }
+          };
+        }),
+        toggleAlternate: (id: string) => set(state => {
+          if (id === state.translationState.main) return state;
+          
+          const currentAlternates = state.translationState.alternates;
+          const hasAlternate = currentAlternates.includes(id);
+          const newAlternates = hasAlternate 
+            ? currentAlternates.filter(t => t !== id)
+            : [...currentAlternates, id];
+          const columnKeys = Array.from(new Set([...newAlternates, state.translationState.main]));
+          
+          return {
+            translationState: {
+              ...state.translationState,
+              alternates: newAlternates,
+              columnKeys
+            }
+          };
+        }),
+        clearAlternates: (exceptId: string) => set(state => ({
+          translationState: {
+            ...state.translationState,
+            alternates: state.translationState.alternates.filter(id => id === exceptId),
+            columnKeys: [state.translationState.main, exceptId].filter(Boolean)
+          }
+        })),
+        columnKeys: ["KJV"]
+      }tate,
             columns: state.columnState.columns.map(col => 
               col.slot === 3 ? { ...col, visible: !state.showCrossRefs } : col
             )

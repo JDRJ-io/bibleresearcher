@@ -146,7 +146,7 @@ export function HamburgerMenu({
     >
       {/* Overlay - darker on mobile for prominence */}
       <div className={`absolute inset-0 ${isMobile ? 'bg-black/70' : 'bg-black/40'}`} />
-      
+
       {/* Menu Panel - Glassmorphic design */}
       <div
         className={`fixed glass-menu backdrop-blur-xl bg-white/10 dark:bg-gray-900/20 shadow-2xl border border-white/20 dark:border-gray-700/30 transform transition-all duration-300 overflow-y-auto ${
@@ -239,7 +239,7 @@ export function HamburgerMenu({
                   />
                 </div>
               </div>
-              
+
               <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">Prophecy Tracking</Label>
@@ -346,7 +346,7 @@ export function HamburgerMenu({
               <Settings className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" />
               Display Settings
             </h3>
-            
+
             {/* UI Layout Spec Size Control */}
             <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
               <Label className="text-sm font-medium mb-2 block">Content Size</Label>
