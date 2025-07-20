@@ -864,14 +864,10 @@ body.overlay-open {
   margin-inline: auto;
 }
 
-/* Force global horizontal scrollbar - always visible when needed */
-body {
-  overflow-x: auto !important;
-}
-
+/* Ensure scrollbar stays within table viewport */
 .virtual-bible-table {
-  min-width: 100vw;
   overflow-x: auto !important;
+  width: 100%;
 }
 
 /* Custom Scrollbar */

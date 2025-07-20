@@ -350,8 +350,7 @@ const VirtualBibleTable = ({
   return (
     <div className={`virtual-bible-table ${className}`} style={{ 
       paddingTop: '0px',
-      minWidth: `${estimatedTotalWidth}px`,
-      width: 'max-content'
+      width: '100%'
     }}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
@@ -373,14 +372,13 @@ const VirtualBibleTable = ({
           height: "calc(100vh - 75px)",
           overflowX: 'auto',
           overflowY: 'auto',
-          minWidth: `${estimatedTotalWidth}px`
+          width: '100%'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className="flex w-full" style={{ minWidth: `${estimatedTotalWidth}px` }}>
-          <div className="min-w-max" style={{ minWidth: `${estimatedTotalWidth}px` }}>
+        <div style={{ width: `${estimatedTotalWidth}px`, minWidth: 'max-content' }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -440,7 +438,6 @@ const VirtualBibleTable = ({
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-          </div>
         </div>
       </div>
     </div>
