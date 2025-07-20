@@ -117,10 +117,12 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
             <button
               key={index}
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
+                console.log(`🔗 Cross-ref click: ${ref} -> navigating to verse`);
                 handleRefClick(ref);
               }}
-              className="block w-full text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1 transition-colors border-0 bg-transparent"
+              className="block w-full text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1 transition-colors border-0 bg-transparent cursor-pointer"
               title={`Navigate to ${ref}: ${verseText}`}
             >
               {/* Reference on its own line for better readability */}

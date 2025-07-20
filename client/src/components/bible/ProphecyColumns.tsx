@@ -43,7 +43,9 @@ export const ProphecyCell: React.FC<ProphecyCellProps> = ({
     V: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20' // Verification - purple
   };
   
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (onNavigateToVerse) {
       // TODO: Open prophecy detail drawer with specific prophecy IDs
       console.log(`📜 Prophecy ${type} clicked for ${verseReference}: IDs ${verseData[type].join(', ')}`);
@@ -55,8 +57,8 @@ export const ProphecyCell: React.FC<ProphecyCellProps> = ({
   return (
     <button
       onClick={handleClick}
-      className={`w-8 px-1 py-1 text-xs text-center font-medium rounded hover:opacity-75 transition-opacity ${typeColors[type]}`}
-      title={`${type === 'P' ? 'Prediction' : type === 'F' ? 'Fulfillment' : 'Verification'}: ${count} reference${count !== 1 ? 's' : ''}`}
+      className={`w-8 px-1 py-1 text-xs text-center font-medium rounded hover:opacity-75 transition-opacity cursor-pointer ${typeColors[type]}`}
+      title={`${type === 'P' ? 'Prediction' : type === 'F' ? 'Fulfillment' : 'Verification'}: ${count} reference${count !== 1 ? 's' : ''} - Click to navigate`}
     >
       {count}
     </button>
