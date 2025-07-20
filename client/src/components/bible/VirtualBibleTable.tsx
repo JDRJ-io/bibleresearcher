@@ -323,7 +323,7 @@ const VirtualBibleTable = ({
       
       <div 
         ref={wrapperRef} 
-        className="bible-table-wrapper"
+        className={`bible-table-wrapper ${typeof window !== 'undefined' && window.innerWidth < 640 ? 'dual-col' : ''}`}
         style={{ touchAction: "pan-y", marginTop: '-1px' }}
         data-scroll-direction={scrollDirection}
       >

@@ -456,6 +456,29 @@ body.menu-open {
   background: inherit;
 }
 
+/* --- mobile dual‑column tweaks --- */
+@media (max-width:639px){
+  .dual-col {                 /* applied via React when <640px */
+    width: calc(var(--colW) * 2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .dual-col::-webkit-scrollbar{ height:8px; }
+
+  .cell-ref{
+    position: sticky;
+    left: 0;
+    z-index: 10;
+  }
+  .cell-ref span{
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+}
+
+/* keep horizontal bar visible on desktop too */
+.bible-table-wrapper::-webkit-scrollbar{ height:8px; }
+
 /* Verse hover and highlight animations matching original design */
 @keyframes highlight-anim {
   0% { background-color: gold; }

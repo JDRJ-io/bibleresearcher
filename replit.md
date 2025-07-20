@@ -264,6 +264,14 @@ Enhanced mobile experience with responsive design improvements:
 - Implemented expandable search bar (magnifying glass icon) and combined "Sign In/Up" button for mobile
 - **Column Layout System**: Implemented slot-based column positioning architecture with predefined slots 0-19 for consistent feature placement and data loading gateway. This ensures when features are toggled, they appear in predetermined positions and trigger appropriate data loading.
 
+## Column Layout & Mobile Dual-Column Fix (July 20, 2025):
+Comprehensive layout architecture overhaul for optimal responsive behavior:
+- **Single-Step CSS Centering**: Replaced complex JavaScript flex-centering with pure CSS `margin-inline: auto` solution that automatically centers content when ≤3 columns and switches to left-aligned scrolling when more columns exceed viewport width
+- **Mobile Dual-Column Mode**: Implemented mobile-specific dual-column layout (portrait mode <640px) with sticky reference column and horizontal scroll snapping for optimal phone experience  
+- **Always-Visible Scrollbars**: Added persistent horizontal scrollbar visibility (8px height) to provide visual cue when additional columns are available
+- **Vertical Reference Text**: Mobile reference column text rotates vertically (writing-mode: vertical-rl) to maximize space efficiency on narrow screens
+- **Removed Dual-Column Desktop Mode**: Eliminated incompatible dual-column logic for desktop to prevent conflicts with center-to-left layout switching
+
 ## Comprehensive Data Integrity Lockdown (July 14, 2025): 
 Ensured that all data comes from Supabase. Hard-coded all Supabase Storage paths in one place, added a dev-only guard to catch any unwanted API calls, and verified no other data sources are used. After this, 100% of content is loaded via the BibleDataAPI facade from Supabase, with no calls to the old Express endpoints. Web workers were adjusted to request data through main thread messaging to avoid independent network calls. This change unified data access and closed potential inconsistency issues.
 ## Memory Optimizations & Cache Consolidation (July 15–16, 2025): 
