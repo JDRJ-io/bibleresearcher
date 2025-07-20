@@ -109,10 +109,11 @@ const VirtualBibleTable = ({
   // Get verse text retrieval function from useBibleData
   const { getVerseText: getBibleVerseText, getGlobalVerseText: getGlobalVerseTextFromHook } = useBibleData();
   
-  // Create getVerseText wrapper for VirtualRow (any translation) - use getBibleVerseText to avoid conflict
+  // CRITICAL FIX: Use the working getVerseText from useTranslationMaps (not useBibleData)
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
-    return getBibleVerseText(verseID, translationCode);
-  }, [getBibleVerseText]);
+    // Use getVerseText from translationMaps which actually works with the cache
+    return getVerseText(verseID, translationCode);
+  }, [getVerseText]);
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
@@ -427,7 +428,7 @@ const VirtualBibleTable = ({
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
                     getVerseText={getVerseTextForRow}
-                    getMainVerseText={getMainVerseText}
+                    getMainVerseText={getVerseText}  
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
                     onVerseClick={onNavigateToVerse}

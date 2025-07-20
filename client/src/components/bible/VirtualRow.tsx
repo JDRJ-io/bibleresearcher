@@ -40,10 +40,20 @@ function ReferenceCell({ verse }: CellProps) {
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
+  // DEBUG: For Gen 1:1, log the text retrieval process
+  if (verse.reference === "Gen 1:1") {
+    console.log(`📖 MainTranslationCell Debug for ${verse.reference}:`, {
+      mainTranslation,
+      getVerseTextResult: getVerseText(verse.reference, mainTranslation),
+      verseTextProperty: verse.text?.[mainTranslation],
+      finalVerseText: verseText
+    });
+  }
+
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
       <div className="leading-relaxed verse-text">
-        {verseText || "Loading..."}
+        {verseText || `[${mainTranslation} loading...]`}
       </div>
     </div>
   );
