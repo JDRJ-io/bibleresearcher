@@ -73,6 +73,9 @@ export function ColumnHeaders({
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   const showNotes = propShowNotes ?? storeShowNotes;
 
+  // DEBUG: Log showNotes value
+  console.log('🔥 ColumnHeaders - showNotes value:', showNotes, 'propShowNotes:', propShowNotes, 'storeShowNotes:', storeShowNotes);
+
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
 
@@ -112,9 +115,10 @@ export function ColumnHeaders({
     }
   });
 
-  // Ensure Notes column is always in slotConfig when showNotes is true
-  if (showNotes && !slotConfig[1]) {
+  // Force Notes column to always appear when showNotes is true (regardless of columnState)
+  if (showNotes) {
     slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
+    console.log('🔥 ColumnHeaders - FORCED Notes column into slotConfig');
   }
 
   // Dynamically add alternate translation columns to slots 5-16 per UI spec
