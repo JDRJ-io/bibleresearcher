@@ -54,55 +54,17 @@ function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   return pendingLoads[key];
 }
 
-// CRITICAL: Lazy loading - load only verses needed for current viewport
+// MEMORY-EFFICIENT: Only load requested translation without slice caching
 export async function loadTranslationSlice(id: string, verseReferences: string[]): Promise<Map<string, string>> {
-  const cacheKey = `translation-slice-${id}-${verseReferences.length}`;
+  // Use existing master cache but don't create additional slice caches
+  const fullTranslation = await loadTranslation(id);
   
-  if (masterCache.has(cacheKey)) {
-    return masterCache.get(cacheKey);
-  }
-  
-  // For now, we need the full translation for lookup - but we'll implement slice loading later
-  const fullTranslation = await getOrFetch(`translation-${id}`, async () => {
-    const textData = await fetchFromStorage(paths.translation(id));
-    const textMap = new Map<string, string>();
-    
-    // Parse the translation text format: "Gen.1:1 #In the beginning..."
-    const lines = textData.split('\n').filter(line => line.trim());
-    
-    for (const line of lines) {
-      const cleanLine = line.trim().replace(/\r/g, '');
-      const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
-      if (match) {
-        const [, reference, text] = match;
-        const cleanRef = reference.trim();
-        const cleanText = text.trim();
-        
-        // Store multiple key formats for compatibility
-        textMap.set(cleanRef, cleanText); // "Gen.1:1"
-        textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
-      }
-    }
-    
-    return textMap;
-  });
-  
-  // Extract only the requested verses to reduce memory usage
-  const sliceMap = new Map<string, string>();
-  for (const ref of verseReferences) {
-    const text = fullTranslation.get(ref) || fullTranslation.get(ref.replace(/\./g, " "));
-    if (text) {
-      sliceMap.set(ref, text);
-    }
-  }
-  
-  masterCache.set(cacheKey, sliceMap);
-  return sliceMap;
+  // Return live map reference - don't create duplicates
+  return fullTranslation;
 }
 
-// Legacy function - redirect to slice loading
+// Primary translation loader - uses existing LRU cache in supabaseClient
 export async function loadTranslation(id: string) {
-  console.warn(`⚠️ loadTranslation(${id}) should use loadTranslationSlice for memory efficiency`);
   return await getOrFetch(`translation-${id}`, async () => {
     const textData = await fetchFromStorage(paths.translation(id));
     const textMap = new Map<string, string>();
@@ -124,6 +86,7 @@ export async function loadTranslation(id: string) {
       }
     }
     
+    console.log(`📚 Translation ${id} loaded: ${textMap.size} verses (LRU cache limit active)`);
     return textMap;
   });
 }
