@@ -140,7 +140,7 @@ export function ColumnHeaders({
       isMain: config?.type === 'main-translation',
       visible: config?.visible !== false
     }))
-    .filter(col => col.config && col.visible) // Only render valid, visible slots
+    .filter(col => col.config && col.config.visible !== false) // Use config.visible directly
     .sort((a, b) => a.slot - b.slot);
 
   // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
