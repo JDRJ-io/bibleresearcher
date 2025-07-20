@@ -79,35 +79,35 @@ export function ColumnHeaders({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
+  // Always show main translation (slot 2 per UI spec)  
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Map all column types based on store state - updated slot assignments
+  // Map all column types based on store state - following UI layout spec
   columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
-        // Notes column (slot 1 between Ref and Main)
+        // Notes column (slot 1 per UI spec)
         slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
-      case 7:
-        // Cross References column (slot 7)
-        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+      case 3:
+        // Cross References column (slot 3 per UI spec)
+        slotConfig[3] = { type: 'cross-refs', header: 'Cross References', visible: col.visible && showCrossRefs };
         break;
-      case 8:
-        // Prophecy P column (slot 8)
-        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+      case 4:
+        // Dates column (slot 4 per UI spec)
+        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
-      case 9:
-        // Prophecy F column (slot 9)
-        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+      case 17:
+        // Prophecy P column (slot 17 per UI spec)
+        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
-      case 10:
-        // Prophecy V column (slot 10)
-        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+      case 18:
+        // Prophecy F column (slot 18 per UI spec)
+        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
-      case 11:
-        // Dates column (slot 11)
-        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+      case 19:
+        // Prophecy V column (slot 19 per UI spec)
+        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
     }
   });
@@ -117,10 +117,10 @@ export function ColumnHeaders({
     slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
   }
 
-  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
+  // Dynamically add alternate translation columns to slots 5-16 per UI spec
   alternates.forEach((translationCode, index) => {
-    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
-    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
+    const slot = 5 + index; // Start at slot 5 for alternates per UI spec
+    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
