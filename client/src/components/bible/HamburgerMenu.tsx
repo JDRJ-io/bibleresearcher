@@ -1,64 +1,57 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Book,
-  Tags,
-  Settings,
-  Palette,
-  Bookmark,
-  MessageSquare,
-  LogIn,
-  UserPlus,
-} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus } from "lucide-react";
+import { TranslationSelector } from "./TranslationSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Translation, Bookmark as BookmarkType } from "@/types/bible";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
-import { TranslationSelector } from "./TranslationSelector";
 import { useBibleStore } from "@/App";
 import { useTheme } from "./ThemeProvider";
 import { SizeSelector } from "@/components/ui/SizeSelector";
 
-export function HamburgerMenu({
-  isOpen,
-  onClose,
-}: { isOpen: boolean; onClose: () => void }) {
+interface HorizontalMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { 
-    showCrossRefs, 
-    showProphecies, 
-    showNotes, 
-    showDates, 
-    showLabels, 
-    toggleCrossRefs, 
-    toggleProphecies, 
-    toggleNotes, 
-    toggleDates, 
-    toggleLabel,
-    isInitialized 
-  } = useBibleStore();
+  
+  // Store connections - same as before but with safe access
+  const bibleStore = useBibleStore();
+  const showCrossRefs = bibleStore?.showCrossRefs ?? false;
+  const showProphecies = bibleStore?.showProphecies ?? false;
+  const showNotes = bibleStore?.showNotes ?? false;
+  const showDates = bibleStore?.showDates ?? false;
+  const showLabels = bibleStore?.showLabels ?? {};
+  const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
+  const toggleProphecies = bibleStore?.toggleProphecies ?? (() => {});
+  const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
+  const toggleDates = bibleStore?.toggleDates ?? (() => {});
+  const toggleLabel = bibleStore?.toggleLabel ?? (() => {});
+  const isInitialized = bibleStore?.isInitialized ?? false;
+
+  const { theme, setTheme, themes } = useTheme();
+
+  // Local state for UI
+  const [activeTab, setActiveTab] = useState("main-translation");
+  const [bookmarkName, setBookmarkName] = useState("");
+  const [bookmarkColor, setBookmarkColor] = useState("#3b82f6");
+  const [showBookmarkForm, setShowBookmarkForm] = useState(false);
 
   // Prevent render if store not initialized
   if (!isInitialized) {
     return null;
   }
-  const { theme, setTheme, themes } = useTheme();
-
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [bookmarkName, setBookmarkName] = useState("");
-  const [bookmarkColor, setBookmarkColor] = useState("#3b82f6");
-  const [showBookmarkForm, setShowBookmarkForm] = useState(false);
-  const [fontSize, setFontSize] = useState(() => localStorage.getItem('bible-font-size') || 'medium');
 
   const createBookmarkMutation = useMutation({
     mutationFn: async (bookmark: {
@@ -87,32 +80,6 @@ export function HamburgerMenu({
     },
   });
 
-  const handleFontSizeChange = (size: string) => {
-    setFontSize(size);
-    localStorage.setItem('bible-font-size', size);
-    const multiplier = size === 'small' ? '0.85' : size === 'large' ? '1.15' : '1.0';
-    document.documentElement.style.setProperty('--font-size-multiplier', multiplier);
-  };
-
-  // Apply font size on component mount
-  React.useEffect(() => {
-    const multiplier = fontSize === 'small' ? '0.85' : fontSize === 'large' ? '1.15' : '1.0';
-    document.documentElement.style.setProperty('--font-size-multiplier', multiplier);
-  }, [fontSize]);
-
-  const labels = [
-    { id: "who", name: "Who (Bold)" },
-    { id: "what", name: "What (Outline)" },
-    { id: "when", name: "When (Underline)" },
-    { id: "where", name: "Where (Brackets)" },
-    { id: "command", name: "Command (Shadow)" },
-    { id: "action", name: "Action (Italic)" },
-    { id: "why", name: "Why (Handwritten)" },
-    { id: "seed", name: "Seed (Superscript *)" },
-    { id: "harvest", name: "Harvest (Superscript =)" },
-    { id: "prediction", name: "Prediction (Superscript ~)" },
-  ];
-
   const handleCreateBookmark = () => {
     if (!user) {
       toast({
@@ -140,183 +107,232 @@ export function HamburgerMenu({
     });
   };
 
-  // Detect mobile
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const labels = [
+    { id: "who", name: "Who", description: "Bold text for people/beings" },
+    { id: "what", name: "What", description: "Outlined text for objects/things" },
+    { id: "when", name: "When", description: "Underlined text for time references" },
+    { id: "where", name: "Where", description: "Curly braces around locations" },
+    { id: "command", name: "Command", description: "Drop shadow for divine commands" },
+    { id: "action", name: "Action", description: "Italic text for actions/verbs" },
+    { id: "why", name: "Why", description: "Cursive font for reasons/purposes" },
+    { id: "seed", name: "Seed", description: "Superscript * for spiritual seeds" },
+    { id: "harvest", name: "Harvest", description: "Superscript = for results/fruits" },
+    { id: "prediction", name: "Prediction", description: "Superscript ~ for prophecies" },
+  ];
 
-  return (
-    <div
-      className={`fixed inset-0 z-50 transition-all duration-300 ${
-        isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-      }`}
-      onClick={onClose}
-    >
-      {/* Overlay - darker on mobile for prominence */}
-      <div className={`absolute inset-0 ${isMobile ? 'bg-black/70' : 'bg-black/40'}`} />
+  if (!isOpen) return null;
 
-      {/* Menu Panel - Glassmorphic design */}
-      <div
-        className={`fixed glass-menu backdrop-blur-xl bg-white/10 dark:bg-gray-900/20 shadow-2xl border border-white/20 dark:border-gray-700/30 transform transition-all duration-300 overflow-y-auto ${
-          isMobile 
-            ? `top-0 right-0 h-full w-80 ${isOpen ? "translate-x-0" : "translate-x-full"}` 
-            : `top-16 right-4 h-[calc(100vh-5rem)] w-96 rounded-2xl ${isOpen ? "translate-y-0 opacity-100 scale-100" : "translate-y-[-10px] opacity-0 scale-95"}`
-        }`}
-        style={{
-          background: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header - Fixed glass effect */}
-        <div className="absolute top-0 left-0 right-0 z-10 backdrop-blur-md bg-white/20 dark:bg-gray-900/30 border-b border-white/20 dark:border-gray-700/30 p-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white drop-shadow-lg">Bible Settings</h2>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onClose}
-            className="h-8 w-8 p-0 hover:bg-white/20 dark:hover:bg-gray-800/30 backdrop-blur-sm rounded-lg transition-all"
-          >
-            ✕
-          </Button>
-        </div>
+  const tabs = [
+    { id: "main-translation", label: "Main Translation", icon: Book },
+    { id: "alt-translations", label: "Alt Translations", icon: Book },
+    { id: "toggle-labels", label: "Toggle Labels", icon: Tags },
+    { id: "study-tools", label: "Study Tools", icon: Search },
+    { id: "display-settings", label: "Display Settings", icon: Settings },
+    { id: "color-theme", label: "Color Theme", icon: Palette },
+    { id: "bookmarks", label: "Bookmarks", icon: Bookmark },
+  ];
 
-        {/* Content with top padding to account for fixed header */}
-        <div className="pt-16 p-4 space-y-6">
-          {/* Multi-Translation System - Glass enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm p-4 rounded-xl border border-blue-300/30 dark:border-blue-700/30 glass-section">
-            <h3 className="font-semibold text-lg flex items-center text-blue-900 dark:text-blue-100 drop-shadow-sm">
-              <Book className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
-              Bible Translations
-            </h3>
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "main-translation":
+        return (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Select Main Translation</h4>
             <TranslationSelector onUpdate={() => {}} />
           </div>
+        );
 
-          <Separator />
-
-          {/* Labels & Effects - Glass enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm p-4 rounded-xl border border-purple-300/30 dark:border-purple-700/30 glass-section">
-            <h3 className="font-semibold text-lg flex items-center text-purple-900 dark:text-purple-100">
-              <Tags className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
-              Semantic Labels
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {labels.map((label) => (
-                <div key={label.id} className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 flex items-center space-x-2">
-                  <Checkbox 
-                    id={label.id}
-                    checked={showLabels[label.id] || false}
-                    onCheckedChange={() => toggleLabel(label.id)}
-                    className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
-                  />
-                  <Label htmlFor={label.id} className="cursor-pointer text-xs font-medium">
-                    {label.name}
-                  </Label>
+      case "alt-translations":
+        return (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
+            <div className="space-y-1">
+              {["AMP", "BSB", "CSB", "ESV", "NASB", "NIV", "NKJV", "NLT", "WEB", "YLT"].map((version) => (
+                <div key={version} className="flex items-center space-x-2">
+                  <Checkbox id={version} className="w-3 h-3" />
+                  <Label htmlFor={version} className="text-xs">{version}</Label>
                 </div>
               ))}
             </div>
           </div>
+        );
 
-          <Separator />
-
-          {/* Study Tools - Glass enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm p-4 rounded-xl border border-green-300/30 dark:border-green-700/30 glass-section">
-            <h3 className="font-semibold text-lg flex items-center text-green-900 dark:text-green-100">
-              <Settings className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
-              Study Tools
-            </h3>
-            <div className="space-y-3">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-sm font-medium">Cross References</Label>
+      case "toggle-labels":
+        return (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Semantic Highlighting</h4>
+            <div className="space-y-1">
+              {labels.map((label) => (
+                <div key={label.id} className="flex items-center space-x-2">
                   <Checkbox 
-                    checked={showCrossRefs}
-                    onCheckedChange={(checked) => {
-                      console.log('🔴 Cross References toggle clicked! New state:', checked);
-                      toggleCrossRefs();
-                    }}
-                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                    id={label.id} 
+                    className="w-3 h-3"
+                    checked={showLabels[label.id] || false}
+                    onCheckedChange={() => toggleLabel(label.id)}
                   />
+                  <div className="flex-1">
+                    <Label htmlFor={label.id} className="text-xs font-medium">{label.name}</Label>
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">{label.description}</div>
+                  </div>
                 </div>
-                <div className="ml-4">
+              ))}
+            </div>
+          </div>
+        );
+
+      case "study-tools":
+        return (
+          <div className="space-y-3">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Study Features</h4>
+            
+            {/* Cross References */}
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="cross-references" 
+                  className="w-3 h-3" 
+                  checked={showCrossRefs}
+                  onCheckedChange={(checked) => {
+                    console.log('🔴 Cross References toggle clicked! New state:', checked);
+                    toggleCrossRefs();
+                  }}
+                />
+                <Label htmlFor="cross-references" className="text-xs font-medium">Cross References</Label>
+              </div>
+              {showCrossRefs && (
+                <div className="ml-5">
                   <CrossReferenceSwitcher
                     currentSet="cf1"
                     onSetChange={() => {}}
                   />
                 </div>
-              </div>
+              )}
+            </div>
 
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Prophecy Tracking</Label>
-                  <Checkbox 
-                    checked={showProphecies}
-                    onCheckedChange={(checked) => {
-                      console.log('🔴 Prophecy toggle clicked! New state:', checked);
-                      toggleProphecies();
-                    }}
-                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shows P|F|V columns for prophecy analysis</p>
+            {/* Prophecy Tracking */}
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="prophecy-tracking" 
+                  className="w-3 h-3"
+                  checked={showProphecies}
+                  onCheckedChange={(checked) => {
+                    console.log('🔴 Prophecy toggle clicked! New state:', checked);
+                    toggleProphecies();
+                  }}
+                />
+                <Label htmlFor="prophecy-tracking" className="text-xs font-medium">Prophecy Tracking</Label>
               </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shows P|F|V columns for prophecy analysis</p>
+            </div>
 
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Notes Column</Label>
-                  <Checkbox 
-                    checked={showNotes}
-                    onCheckedChange={(checked) => {
-                      console.log('🔴 Notes toggle clicked! New state:', checked);
-                      toggleNotes();
-                    }}
-                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Your personal verse notes</p>
+            {/* Other Study Tools */}
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="notes-column" 
+                  className="w-3 h-3"
+                  checked={showNotes}
+                  onCheckedChange={(checked) => {
+                    console.log('🔴 Notes toggle clicked! New state:', checked);
+                    toggleNotes();
+                  }}
+                />
+                <Label htmlFor="notes-column" className="text-xs">Notes Column</Label>
               </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="dates-column" 
+                  className="w-3 h-3"
+                  checked={showDates}
+                  onCheckedChange={(checked) => {
+                    console.log('🔴 Dates toggle clicked! New state:', checked);
+                    toggleDates();
+                  }}
+                />
+                <Label htmlFor="dates-column" className="text-xs">Dates Column</Label>
+              </div>
+            </div>
 
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Dates Column</Label>
-                  <Checkbox 
-                    checked={showDates}
-                    onCheckedChange={(checked) => {
-                      console.log('🔴 Dates toggle clicked! New state:', checked);
-                      toggleDates();
-                    }}
-                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                  />
+            {/* Verse Organization */}
+            <div className="space-y-1">
+              <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">Verse Organization:</Label>
+              <RadioGroup defaultValue="canonical" className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="canonical" id="canonical" className="w-3 h-3" />
+                  <Label htmlFor="canonical" className="text-xs">Canonical Order</Label>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Historical dating information</p>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="chronological" id="chronological" className="w-3 h-3" />
+                  <Label htmlFor="chronological" className="text-xs">Chronological Order</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        );
+
+      case "display-settings":
+        return (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Display Options</h4>
+            <div className="space-y-2">
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                <Label className="text-sm font-medium mb-2 block">Content Size</Label>
+                <SizeSelector className="w-full" />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Adjusts font size, column width, and row height globally
+                </p>
               </div>
             </div>
           </div>
+        );
 
-          <Separator />
+      case "color-theme":
+        return (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
+            <div className="space-y-1">
+              {themes.map((themeOption) => (
+                <button
+                  key={themeOption.id}
+                  onClick={() => setTheme(themeOption.id)}
+                  className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
+                    theme === themeOption.id 
+                      ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
+                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <div
+                    className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0"
+                    style={{ backgroundColor: themeOption.color }}
+                  />
+                  <span className="text-xs">{themeOption.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
 
-          {/* Bookmarks - Glass enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 backdrop-blur-sm p-4 rounded-xl border border-yellow-300/30 dark:border-yellow-700/30 glass-section">
-            <h3 className="font-semibold text-lg flex items-center text-yellow-900 dark:text-yellow-100">
-              <Bookmark className="w-5 h-5 mr-2 text-yellow-600 dark:text-yellow-400" />
-              Bookmarks
-            </h3>
+      case "bookmarks":
+        return (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Saved Bookmarks</h4>
             {user ? (
               <div className="space-y-3">
                 <Button
                   variant="outline"
                   onClick={() => setShowBookmarkForm(!showBookmarkForm)}
-                  className="w-full text-sm bg-white dark:bg-gray-800 hover:bg-yellow-50 dark:hover:bg-yellow-950/30"
+                  className="w-full text-sm"
                 >
                   + Create Bookmark
                 </Button>
                 {showBookmarkForm && (
                   <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 space-y-3">
-                    <Input
+                    <input
                       placeholder="Bookmark name..."
                       value={bookmarkName}
                       onChange={(e) => setBookmarkName(e.target.value)}
-                      className="text-sm"
+                      className="w-full text-sm p-2 border rounded"
                     />
                     <div className="flex space-x-2">
                       <input
@@ -328,7 +344,7 @@ export function HamburgerMenu({
                       <Button
                         onClick={handleCreateBookmark}
                         disabled={createBookmarkMutation.isPending}
-                        className="flex-1 text-sm bg-yellow-600 hover:bg-yellow-700"
+                        className="flex-1 text-sm"
                       >
                         Save
                       </Button>
@@ -337,100 +353,78 @@ export function HamburgerMenu({
                 )}
               </div>
             ) : (
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 text-center">
-                <LogIn className="w-4 h-4 mx-auto mb-1 opacity-50" />
-                Sign in to create bookmarks
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+                <p className="mb-2">Sign in to access your bookmarks</p>
+                <Button size="sm" className="text-xs h-6 px-3">Sign In</Button>
               </div>
             )}
           </div>
+        );
 
-          <Separator />
+      default:
+        return null;
+    }
+  };
 
-          {/* Display Settings - Glass enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-orange-500/10 to-amber-500/10 backdrop-blur-sm p-4 rounded-xl border border-orange-300/30 dark:border-orange-700/30 glass-section">
-            <h3 className="font-semibold text-lg flex items-center text-orange-900 dark:text-orange-100">
-              <Settings className="w-5 h-5 mr-2 text-orange-600 dark:text-orange-400" />
-              Display Settings
-            </h3>
-
-            {/* UI Layout Spec Size Control */}
-            <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-              <Label className="text-sm font-medium mb-2 block">Content Size</Label>
-              <SizeSelector className="w-full" />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Adjusts font size, column width, and row height globally
-              </p>
-            </div>
-
-            {/* Themes */}
-            <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-              <Label className="text-sm font-medium mb-2 block flex items-center">
-                <Palette className="w-4 h-4 mr-2 text-orange-600 dark:text-orange-400" />
-                Color Theme
-              </Label>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {themes.map((themeOption) => (
-                  <Button
-                    key={themeOption.id}
-                    variant={theme === themeOption.id ? "default" : "outline"}
-                    size="sm"
-                    className={`text-xs h-8 ${theme === themeOption.id ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
-                    onClick={() => setTheme(themeOption.id)}
-                  >
-                    {themeOption.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Chronological Toggle */}
-            <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Chronological Order</Label>
-                <Checkbox 
-                  checked={false}
-                  onCheckedChange={() => {}}
-                  className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
-                  disabled
-                />
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Switch from canonical to chronological verse order (coming soon)</p>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Authentication - Enhanced */}
-          <div className="space-y-4 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-950/20 dark:to-slate-950/20 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
-            <h3 className="font-semibold text-lg flex items-center text-gray-900 dark:text-gray-100">
-              <LogIn className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
-              Account
-            </h3>
-            {user ? (
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-                <p className="font-medium text-sm mb-2">{user.email}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
+  return (
+    <div className="fixed top-20 right-2 sm:right-4 z-40">
+      {/* Sleek Tab Bar */}
+      <div className="flex">
+        <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
+          {tabs.map((tab, index) => {
+            const Icon = tab.icon;
+            return (
+              <div key={tab.id} className="relative">
+                <button
                   onClick={() => {
-                    // Sign out logic here
+                    if (activeTab === tab.id) {
+                      setActiveTab("");
+                    } else {
+                      setActiveTab(tab.id);
+                    }
                   }}
-                  className="w-full text-xs"
+                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
+                      : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-800/30"
+                  }`}
                 >
-                  Sign Out
-                </Button>
+                  <Icon className="w-3 h-3" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+                
+                {/* Individual Dropdown Slot - positioned under each tab */}
+                {activeTab === tab.id && (
+                  <div className={`absolute top-full mt-2 w-72 sm:w-80 z-50 ${
+                    // Mobile positioning to avoid off-screen
+                    index >= tabs.length - 1 
+                      ? 'right-0' 
+                      : index === 0 
+                        ? 'left-0' 
+                        : index === 1
+                          ? 'left-0 sm:left-1/2 sm:transform sm:-translate-x-1/2'
+                          : 'right-0 sm:left-1/2 sm:transform sm:-translate-x-1/2'
+                  }`}>
+                    <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
+                      <div className="p-3 sm:p-4 max-h-72 sm:max-h-80 overflow-y-auto">
+                        {renderTabContent()}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            ) : (
-              <Button
-                variant="default"
-                onClick={() => setIsSignInOpen(true)}
-                className="w-full text-sm bg-blue-600 hover:bg-blue-700"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Sign In/Up
-              </Button>
-            )}
-          </div>
+            );
+          })}
+          
+          {/* Close Button integrated in tab bar */}
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center w-8 h-8 rounded-full text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-2"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
