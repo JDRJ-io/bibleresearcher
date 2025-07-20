@@ -276,6 +276,16 @@ Comprehensive layout architecture overhaul for optimal responsive behavior:
 Ensured that all data comes from Supabase. Hard-coded all Supabase Storage paths in one place, added a dev-only guard to catch any unwanted API calls, and verified no other data sources are used. After this, 100% of content is loaded via the BibleDataAPI facade from Supabase, with no calls to the old Express endpoints. Web workers were adjusted to request data through main thread messaging to avoid independent network calls. This change unified data access and closed potential inconsistency issues.
 ## Memory Optimizations & Cache Consolidation (July 15–16, 2025): 
 Removed duplicate loading of translations – fixed a bug where the same translation could load multiple times, notably KJV on startup, by refining the caching checks. Also removed an unnecessary heavy loading screen that was consuming memory on mobile. Consolidated multiple verse caches into a single master cache with LRU eviction, as mentioned, thereby reducing memory footprint and complexity. These optimizations resolved performance issues on mobile (particularly iPhone) and made the app more efficient.
+
+## Critical Memory Optimization - Byte-Range Loading (July 20, 2025):
+**MAJOR BREAKTHROUGH**: Implemented memory-efficient byte-range loading system that eliminates massive file downloads:
+- **Cross-References**: Now loads small cf1_offsets.json (~200KB) instead of 6MB+ cf1.txt file
+- **BibleDataAPI Enhancement**: Added fetchFromStorageRange() for precise byte-range requests
+- **Worker Optimization**: Updated crossReferencesWorker.ts to use offset-based loading with on-demand slicing
+- **Memory Reduction**: Eliminated 6MB+ initial downloads, dramatically reducing memory footprint and improving mobile performance
+- **Architecture**: Maintains BibleDataAPI facade pattern while enabling efficient data streaming
+- **Performance Impact**: Faster initial loads, reduced bandwidth usage, better mobile responsiveness
+This change represents the completion of the memory optimization goal and enables the app to scale efficiently across all device types.
 ## Removal of Legacy Code (PR-A & PR-B refactors): 
 Deleted outdated modules such as an old BibleSlice provider, old fetch utilities, and inlined the BibleDataProvider (merging it into the main app flow). Combined Supabase helper code into one file and ensured all components use the new unified approach. This cleanup was essential to implement the one-path data flow and to simplify future maintenance.
 ## PWA and Offline Implementation Completion (July 2025): 

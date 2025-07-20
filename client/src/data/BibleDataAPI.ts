@@ -23,7 +23,26 @@ const paths = {
 let masterVerseKeys: string[] = [];
 let currentAnchorIndex = 0;
 
-export async function fetchFromStorage(path: string): Promise<string> {
+// MEMORY OPTIMIZED: fetchFromStorage with byte-range support 
+export async function fetchFromStorage(path: string, options?: { start?: number, end?: number }): Promise<string> {
+  if (options?.start !== undefined && options?.end !== undefined) {
+    // Byte-range request for memory efficiency
+    console.log(`🌐 fetchFromStorage: ${path} (bytes ${options.start}-${options.end})`);
+    const { data, error } = await supabase
+      .storage
+      .from(BUCKET)
+      .download(path, {
+        transform: {
+          range: `bytes=${options.start}-${options.end}`
+        }
+      });
+    
+    if (error) throw new Error(`Supabase range load failed → ${path}: ${error.message}`);
+    return await data.text();
+  }
+  
+  // Standard full file download (only for small files like offsets)
+  console.log(`🌐 fetchFromStorage: ${path}`);
   const { data, error } = await supabase
     .storage
     .from(BUCKET)
@@ -184,16 +203,34 @@ export async function loadChronologicalVerseKeys() {
   });
 }
 
-// Cross-reference loading with proper caching
-export async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
-  return getOrFetch(`crossref-${set}`, async () => {
-    return await fetchFromStorage(paths.crossRef(set));
+// MEMORY OPTIMIZED: Cross-reference byte-range loading only
+// DO NOT load entire 6MB+ files - use offsets for 2-4KB slices only
+export async function loadCrossRefOffsets(set: 'cf1' | 'cf2' = 'cf1') {
+  return getOrFetch(`crossref-offsets-${set}`, async () => {
+    const offsetData = await fetchFromStorage(paths.crossRefOffsets(set));
+    return JSON.parse(offsetData);
   });
 }
 
-// Get cross-reference data for BibleDataAPI facade
-export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
-  return await loadCrossReferences(set);
+// DOCUMENTED: getCrossRefSlice(set, verseRef) - byte-range requests only
+export async function getCrossRefSlice(set: 'cf1' | 'cf2', verseRef: string): Promise<string> {
+  console.log(`🔗 getCrossRefSlice(${set}, ${verseRef}) - BYTE RANGE REQUEST`);
+  
+  // Step 1: Load offset index (small JSON, ~200KB max)
+  const offsets = await loadCrossRefOffsets(set);
+  const range = offsets[verseRef];
+  
+  if (!range) {
+    console.log(`🔗 No cross-ref data for ${verseRef} in ${set}`);
+    return '';
+  }
+  
+  // Step 2: Byte-range request for just this verse (2-4KB typical)
+  const [start, end] = range;
+  const slice = await fetchFromStorage(paths.crossRef(set), { start, end });
+  console.log(`🔗 Fetched ${slice.length} bytes for ${verseRef} from ${set}`);
+  
+  return slice;
 }
 
 // DOCUMENTED: Ensure translation loaded - uses main getTranslation method
@@ -204,23 +241,14 @@ export async function ensureTranslationLoaded(translationId: string): Promise<Ma
   return translation;
 }
 
-// DOCUMENTED: getCrossRefSlice(set, start, end) - byte-range cross-reference loading
-export async function getCrossRefSlice(set: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
-  // Load full cross-reference data for now (proper byte-range implementation pending)
-  const crossRefData = await getCrossRef(set);
-  const lines = crossRefData.split('\n');
-  const slice = lines.slice(start, end + 1);
-  
-  console.log(`🔗 getCrossRefSlice(${set}, ${start}-${end}) → ${slice.length} lines`);
-  return slice.join('\n');
+// Legacy method - DEPRECATED to prevent memory bloat
+export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
+  throw new Error(`getCrossRef() DEPRECATED - use getCrossRefSlice() for byte-range requests only`);
 }
 
-// DOCUMENTED: getCfOffsets(set) - returns cross-reference offsets JSON
+// DOCUMENTED: getCfOffsets(set) - alias for loadCrossRefOffsets
 export async function getCfOffsets(set: 'cf1' | 'cf2'): Promise<any> {
-  return getOrFetch(`crossref-offsets-${set}`, async () => {
-    const textData = await fetchFromStorage(paths.crossRefOffsets(set));
-    return JSON.parse(textData);
-  });
+  return await loadCrossRefOffsets(set);
 }
 
 // Prophecy loading with proper caching
@@ -384,9 +412,8 @@ export const BibleDataAPI = {
   },
   loadTranslation,
   getCfOffsets,
-  getCrossRef,
   getCrossRefSlice,
-  loadCrossReferences,
+  loadCrossRefOffsets,
   getProphecy,
   getProphecyRows,
   getProphecyIndex,

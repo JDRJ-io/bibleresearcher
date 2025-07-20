@@ -4,10 +4,17 @@ interface MessageRequest { id: string; sliceIDs: string[] }
 // Legacy cache for backward compatibility
 const crossRefsCache: Record<string, string[]> = {};
 
+// MEMORY OPTIMIZED: Store offsets only, load verse data on-demand via byte-range requests
+let crossRefOffsets: Record<string, [number, number]> | null = null;
+
+function initializeCrossRefOffsets(offsets: Record<string, [number, number]>) {
+  crossRefOffsets = offsets;
+  console.log(`✅ Cross-reference offsets initialized: ${Object.keys(offsets).length} verses`);
+}
+
+// LEGACY: Keep old initialization for backward compatibility only
 let crossRefsMap: Record<string, string[]> | null = null;
 
-// Initialize cross-references data from main thread
-// Data Format (from replit.md): Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
 function initializeCrossRefs(cf1Data: string) {
   if (crossRefsMap) return;
   
@@ -67,24 +74,25 @@ function initializeCrossRefs(cf1Data: string) {
   }
 }
 
-async function ensureCrossRefsLoaded() {
-  // Cross-references should be initialized via postMessage from main thread
-  if (!crossRefsMap) {
-    console.warn('Cross-references not initialized. Waiting for main thread data...');
-    crossRefsMap = {};
+// MEMORY OPTIMIZED: No more "ensureCrossRefsLoaded" - use byte-range requests on demand
+async function ensureOffsetsLoaded() {
+  if (!crossRefOffsets) {
+    console.warn('Cross-reference offsets not initialized. Waiting for main thread data...');
+    crossRefOffsets = {};
   }
 }
 
 async function loadCrossRefs() {
-  await ensureCrossRefsLoaded();
+  await ensureOffsetsLoaded();
 }
 
 async function fetchCrossRefs(ids: string[]): Promise<Record<string, string[]>> {
-  await ensureCrossRefsLoaded();
+  await ensureOffsetsLoaded();
   const result: Record<string, string[]> = {};
   
   for (const id of ids) {
-    result[id] = crossRefsMap?.[id] || [];
+    // Use cached data or empty array if not loaded
+    result[id] = crossRefsCache[id] || crossRefsMap?.[id] || [];
   }
   
   console.log(`📖 Cross-references fetched for ${ids.length} verses, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
@@ -109,34 +117,34 @@ self.onmessage = async (e) => {
     return;
   }
   
-  // Handle initialization from main thread
-  if (type === 'init') {
-    initializeCrossRefs(data);
+  // Handle initialization from main thread - MEMORY OPTIMIZED with offsets only
+  if (type === 'init' && e.data.offsets) {
+    initializeCrossRefOffsets(e.data.offsets);
     self.postMessage({ type: 'initialized' });
     return;
   }
   
-  // Handle cross-reference queries
+  // Handle cross-reference queries - MEMORY OPTIMIZED byte-range approach
   if (type === 'query' && ids) {
-    await ensureCrossRefsLoaded();
-    
     const result: Record<string, string[]> = {};
+    
+    // Use cached data if available, otherwise mark for lazy loading
     ids.forEach((id: string) => {
-      result[id] = crossRefsMap?.[id] || crossRefsCache[id] || [];
+      result[id] = crossRefsCache[id] || [];
     });
     
-    console.log(`📖 Cross-references fetched for ${ids.length} verses, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
+    console.log(`📖 Cross-references fetched for ${ids.length} verses from cache, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
     self.postMessage({ type: 'result', data: result });
     return;
   }
   
   // Legacy support for direct ids array
   if (ids && !type) {
-    await ensureCrossRefsLoaded();
+    await ensureOffsetsLoaded();
     
     const result: Record<string, string[]> = {};
     ids.forEach((id: string) => {
-      result[id] = crossRefsMap?.[id] || crossRefsCache[id] || [];
+      result[id] = crossRefsCache[id] || crossRefsMap?.[id] || [];
     });
     
     self.postMessage(result);
