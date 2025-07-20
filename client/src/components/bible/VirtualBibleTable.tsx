@@ -366,9 +366,8 @@ const VirtualBibleTable = ({
         style={{ 
           touchAction: "pan-y", 
           marginTop: '-1px',
-          height: "calc(100vh - 75px)",
           overflowX: shouldCenter ? 'hidden' : 'auto',
-          overflowY: 'auto'
+          overflowY: 'hidden'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
@@ -377,8 +376,9 @@ const VirtualBibleTable = ({
           ref={containerRef} 
           className="scroll-container" 
           style={{ 
-            height: "100%",
-            minWidth: shouldCenter ? 'auto' : `${estimatedTotalWidth}px`
+            height: "calc(100vh - 75px)",
+            overflowY: 'auto',
+            overflowX: 'hidden'
           }} 
           data-testid="bible-table"
         >
