@@ -92,6 +92,13 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps
   );
 }
 
+interface SlotConfig {
+  type: string;
+  header: string;
+  translationCode?: string;
+  visible: boolean;
+}
+
 const VirtualRow: React.FC<VirtualRowProps> = ({
   verseID,
   rowHeight,
@@ -107,39 +114,57 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  
+
   // DEBUG: Check if VirtualRow is being called
   if (verse.reference === "Gen 1:1") {
     console.log('🔥 VirtualRow RENDERING for Gen 1:1');
     console.log('🔥 Store states:', { showCrossRefs, showProphecies, showNotes, showDates });
   }
-  
-  // UI Layout Spec slot-based system (slots 0-19)
-  // Following the established translation system from translationSlice.ts
-  const slotConfig = {
-    0: { type: 'reference', header: 'Ref' },
-    1: { type: 'notes', header: 'Notes', visible: showNotes },
-    2: { type: 'main-translation', header: main, translationCode: main, visible: true }, // Main always visible
-    3: { type: 'cross-references', header: 'Cross References', visible: showCrossRefs },
-    4: { type: 'dates', header: 'Date', visible: showDates },
-    // Slots 5-16: Alternate translations (up to 12 as per UI Layout Spec)
-    5: alternates[0] ? { type: 'alt-translation', header: alternates[0], translationCode: alternates[0], visible: true } : null,
-    6: alternates[1] ? { type: 'alt-translation', header: alternates[1], translationCode: alternates[1], visible: true } : null,
-    7: alternates[2] ? { type: 'alt-translation', header: alternates[2], translationCode: alternates[2], visible: true } : null,
-    8: alternates[3] ? { type: 'alt-translation', header: alternates[3], translationCode: alternates[3], visible: true } : null,
-    9: alternates[4] ? { type: 'alt-translation', header: alternates[4], translationCode: alternates[4], visible: true } : null,
-    10: alternates[5] ? { type: 'alt-translation', header: alternates[5], translationCode: alternates[5], visible: true } : null,
-    11: alternates[6] ? { type: 'alt-translation', header: alternates[6], translationCode: alternates[6], visible: true } : null,
-    12: alternates[7] ? { type: 'alt-translation', header: alternates[7], translationCode: alternates[7], visible: true } : null,
-    13: alternates[8] ? { type: 'alt-translation', header: alternates[8], translationCode: alternates[8], visible: true } : null,
-    14: alternates[9] ? { type: 'alt-translation', header: alternates[9], translationCode: alternates[9], visible: true } : null,
-    15: alternates[10] ? { type: 'alt-translation', header: alternates[10], translationCode: alternates[10], visible: true } : null,
-    16: alternates[11] ? { type: 'alt-translation', header: alternates[11], translationCode: alternates[11], visible: true } : null,
-    17: { type: 'prophecy-p', header: 'P', visible: showProphecies },
-    18: { type: 'prophecy-f', header: 'F', visible: showProphecies },
-    19: { type: 'prophecy-v', header: 'V', visible: showProphecies }
-  };
-  
+
+  // Use store's columnState as the authoritative source, enhanced with translation data
+  const slotConfig: Record<number, SlotConfig> = {};
+
+  columnState.columns.forEach(col => {
+    switch (col.slot) {
+      case 0:
+        slotConfig[0] = { type: 'reference', header: 'Ref', visible: col.visible };
+        break;
+      case 1:
+        slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: col.visible };
+        break;
+      case 2:
+        if (alternates[0]) slotConfig[2] = { type: 'alt-translation', header: alternates[0], translationCode: alternates[0], visible: col.visible && !!alternates[0] };
+        break;
+      case 3:
+        if (alternates[1]) slotConfig[3] = { type: 'alt-translation', header: alternates[1], translationCode: alternates[1], visible: col.visible && !!alternates[1] };
+        break;
+      case 4:
+        if (alternates[2]) slotConfig[4] = { type: 'alt-translation', header: alternates[2], translationCode: alternates[2], visible: col.visible && !!alternates[2] };
+        break;
+      case 5:
+        if (alternates[3]) slotConfig[5] = { type: 'alt-translation', header: alternates[3], translationCode: alternates[3], visible: col.visible && !!alternates[3] };
+        break;
+      case 6:
+        slotConfig[6] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible };
+        break;
+      case 7:
+        slotConfig[7] = { type: 'prophecy-p', header: 'P', visible: col.visible };
+        break;
+      case 8:
+        slotConfig[8] = { type: 'prophecy-f', header: 'F', visible: col.visible };
+        break;
+      case 9:
+        slotConfig[9] = { type: 'prophecy-v', header: 'V', visible: col.visible };
+        break;
+      case 10:
+        slotConfig[10] = { type: 'notes', header: 'Notes', visible: col.visible };
+        break;
+      case 11:
+        slotConfig[11] = { type: 'context', header: 'Context', visible: col.visible };
+        break;
+    }
+  });
+
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
   const visibleColumns = Object.entries(slotConfig)
@@ -187,7 +212,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const renderSlot = (column: any) => {
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
-    
+
     // Calculate width based on slot type and mobile
     const width = isMobile ? 
       (slot === 0 ? "w-16" :        // Reference 
@@ -198,9 +223,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
        slot === 3 ? "w-60" :        // Cross References  
        slot >= 17 ? "w-20" :        // Prophecy P/F/V
        "w-80");                     // Translations
-    
+
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
-    
+
     switch (config.type) {
       case 'reference':
         return (
@@ -210,7 +235,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             </div>
           </div>
         );
-        
+
       case 'notes':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
@@ -219,7 +244,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             </div>
           </div>
         );
-        
+
       case 'main-translation':
       case 'alt-translation':
         // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
@@ -231,8 +256,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             </div>
           </div>
         );
-        
-      case 'cross-references':
+
+      case 'cross-refs':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <div className="px-2 py-1 text-sm text-blue-600">
@@ -240,8 +265,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             </div>
           </div>
         );
-        
-      case 'dates':
+
+      case 'context':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <div className="px-2 py-1 text-sm text-gray-500">
@@ -249,7 +274,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             </div>
           </div>
         );
-        
+
       case 'prophecy-p':
       case 'prophecy-f':
       case 'prophecy-v':
@@ -262,7 +287,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             </div>
           </div>
         );
-        
+
       default:
         return null;
     }
@@ -325,7 +350,7 @@ interface TranslationCellProps {
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
   const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
-  
+
   return (
     <div className={`w-80 px-2 py-1 text-sm flex-shrink-0 ${bgClass}`}>
       <div className="overflow-auto h-full verse-text">
@@ -334,4 +359,3 @@ function TranslationCell({ verse, translation, getVerseText, isMain }: Translati
     </div>
   );
 }
-

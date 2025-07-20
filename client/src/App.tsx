@@ -83,12 +83,11 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 3 ? { ...col, visible: newValue } : col
+          col.slot === 6 ? { ...col, visible: newValue } : col // Slot 6 = Cross References per COLUMN_LAYOUT
         )
       }
     };
     console.log('🔄 TOGGLE CROSS REFS - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
-    console.log('🔄 CROSS REFS STATE CHANGED:', newValue);
     return newState;
   }),
 
@@ -100,12 +99,11 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot >= 17 && col.slot <= 19 ? { ...col, visible: newValue } : col
+          (col.slot >= 7 && col.slot <= 9) ? { ...col, visible: newValue } : col // Slots 7-9 = Prophecy P/F/V per COLUMN_LAYOUT
         )
       }
     };
     console.log('🔄 TOGGLE PROPHECIES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
-    console.log('🔄 PROPHECIES STATE CHANGED:', newValue);
     return newState;
   }),
 
@@ -117,12 +115,11 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 1 ? { ...col, visible: newValue } : col
+          col.slot === 10 ? { ...col, visible: newValue } : col // Slot 10 = Notes per COLUMN_LAYOUT
         )
       }
     };
     console.log('🔄 TOGGLE NOTES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
-    console.log('🔄 NOTES STATE CHANGED:', newValue);
     return newState;
   }),
 
@@ -134,12 +131,11 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 4 ? { ...col, visible: newValue } : col
+          col.slot === 11 ? { ...col, visible: newValue } : col // Slot 11 = Context/Dates per COLUMN_LAYOUT
         )
       }
     };
     console.log('🔄 TOGGLE DATES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
-    console.log('🔄 DATES STATE CHANGED:', newValue);
     return newState;
   }),
 
@@ -156,19 +152,21 @@ export const useBibleStore = create<{
   })),
   getAllActive: () => get().actives,
 
-  // UI Layout Spec Column State (slots 0-19)
+  // UI Layout Spec Column State - matches COLUMN_LAYOUT exactly
   columnState: {
     columns: [
-      { slot: 0, visible: true, widthRem: 5 },     // Reference
-      { slot: 1, visible: false, widthRem: 8 },    // Notes  
-      { slot: 2, visible: true, widthRem: 20 },    // Main translation
-      { slot: 3, visible: true, widthRem: 15 },    // Cross References (default ON)
-      { slot: 4, visible: false, widthRem: 6 },    // Dates
-      // Slots 5-16 for alternate translations
-      ...Array.from({ length: 12 }, (_, i) => ({ slot: i + 5, visible: false, widthRem: 18 })),
-      { slot: 17, visible: false, widthRem: 5 },   // Prophecy P (default OFF)
-      { slot: 18, visible: false, widthRem: 5 },   // Prophecy F (default OFF)
-      { slot: 19, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
+      { slot: 0, visible: true, widthRem: 5 },     // Reference (always visible)
+      { slot: 1, visible: true, widthRem: 20 },    // Main translation (always visible)
+      { slot: 2, visible: false, widthRem: 18 },   // Alt translation 1
+      { slot: 3, visible: false, widthRem: 18 },   // Alt translation 2
+      { slot: 4, visible: false, widthRem: 18 },   // Alt translation 3
+      { slot: 5, visible: false, widthRem: 18 },   // Alt translation 4
+      { slot: 6, visible: true, widthRem: 15 },    // Cross References (default ON)
+      { slot: 7, visible: false, widthRem: 5 },    // Prophecy P (default OFF)
+      { slot: 8, visible: false, widthRem: 5 },    // Prophecy F (default OFF)
+      { slot: 9, visible: false, widthRem: 5 },    // Prophecy V (default OFF)
+      { slot: 10, visible: false, widthRem: 16 },  // Notes (default OFF)
+      { slot: 11, visible: false, widthRem: 8 },   // Context/Dates (default OFF)
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {

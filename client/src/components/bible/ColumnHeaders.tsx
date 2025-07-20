@@ -71,30 +71,49 @@ export function ColumnHeaders({
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   const showNotes = propShowNotes ?? storeShowNotes;
 
-  // UI Layout Spec slot-based system (slots 0-19) - matching VirtualRow exactly
-  const slotConfig = {
-    0: { type: 'reference', header: 'Ref' },
-    1: { type: 'notes', header: 'Notes', visible: showNotes },
-    2: { type: 'main-translation', header: main, translationCode: main, visible: true },
-    3: { type: 'cross-references', header: 'Cross References', visible: showCrossRefs },
-    4: { type: 'dates', header: 'Date', visible: showDates },
-    // Slots 5-16: Alternate translations (up to 12 as per UI Layout Spec)
-    5: alternates[0] ? { type: 'alt-translation', header: alternates[0], translationCode: alternates[0], visible: true } : null,
-    6: alternates[1] ? { type: 'alt-translation', header: alternates[1], translationCode: alternates[1], visible: true } : null,
-    7: alternates[2] ? { type: 'alt-translation', header: alternates[2], translationCode: alternates[2], visible: true } : null,
-    8: alternates[3] ? { type: 'alt-translation', header: alternates[3], translationCode: alternates[3], visible: true } : null,
-    9: alternates[4] ? { type: 'alt-translation', header: alternates[4], translationCode: alternates[4], visible: true } : null,
-    10: alternates[5] ? { type: 'alt-translation', header: alternates[5], translationCode: alternates[5], visible: true } : null,
-    11: alternates[6] ? { type: 'alt-translation', header: alternates[6], translationCode: alternates[6], visible: true } : null,
-    12: alternates[7] ? { type: 'alt-translation', header: alternates[7], translationCode: alternates[7], visible: true } : null,
-    13: alternates[8] ? { type: 'alt-translation', header: alternates[8], translationCode: alternates[8], visible: true } : null,
-    14: alternates[9] ? { type: 'alt-translation', header: alternates[9], translationCode: alternates[9], visible: true } : null,
-    15: alternates[10] ? { type: 'alt-translation', header: alternates[10], translationCode: alternates[10], visible: true } : null,
-    16: alternates[11] ? { type: 'alt-translation', header: alternates[11], translationCode: alternates[11], visible: true } : null,
-    17: { type: 'prophecy-p', header: 'P', visible: showProphecies },
-    18: { type: 'prophecy-f', header: 'F', visible: showProphecies },
-    19: { type: 'prophecy-v', header: 'V', visible: showProphecies }
-  };
+  // Use store's columnState as the authoritative source, enhanced with translation data
+  const slotConfig: Record<number, any> = {};
+
+  columnState.columns.forEach(col => {
+    switch (col.slot) {
+      case 0:
+        slotConfig[0] = { type: 'reference', header: 'Ref', visible: col.visible };
+        break;
+      case 1:
+        slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: col.visible };
+        break;
+      case 2:
+        if (alternates[0]) slotConfig[2] = { type: 'alt-translation', header: alternates[0], translationCode: alternates[0], visible: col.visible && !!alternates[0] };
+        break;
+      case 3:
+        if (alternates[1]) slotConfig[3] = { type: 'alt-translation', header: alternates[1], translationCode: alternates[1], visible: col.visible && !!alternates[1] };
+        break;
+      case 4:
+        if (alternates[2]) slotConfig[4] = { type: 'alt-translation', header: alternates[2], translationCode: alternates[2], visible: col.visible && !!alternates[2] };
+        break;
+      case 5:
+        if (alternates[3]) slotConfig[5] = { type: 'alt-translation', header: alternates[3], translationCode: alternates[3], visible: col.visible && !!alternates[3] };
+        break;
+      case 6:
+        slotConfig[6] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible };
+        break;
+      case 7:
+        slotConfig[7] = { type: 'prophecy-p', header: 'P', visible: col.visible };
+        break;
+      case 8:
+        slotConfig[8] = { type: 'prophecy-f', header: 'F', visible: col.visible };
+        break;
+      case 9:
+        slotConfig[9] = { type: 'prophecy-v', header: 'V', visible: col.visible };
+        break;
+      case 10:
+        slotConfig[10] = { type: 'notes', header: 'Notes', visible: col.visible };
+        break;
+      case 11:
+        slotConfig[11] = { type: 'context', header: 'Context', visible: col.visible };
+        break;
+    }
+  });
 
   // Get all visible columns sorted by slot position, matching VirtualRow exactly  
   const visibleColumns = Object.entries(slotConfig)
