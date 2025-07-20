@@ -337,8 +337,24 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Always render all columns in order - no sticky positioning needed */}
-      {visibleColumns.map(renderSlot)}
+      {shouldCenter ? (
+        // Centered layout for few columns
+        visibleColumns.map(renderSlot)
+      ) : (
+        // Left-anchored layout with sticky reference column
+        <>
+          {/* Sticky reference column */}
+          {referenceColumn && (
+            <div className="sticky left-0 z-10 flex-shrink-0 bg-inherit">
+              {renderSlot(referenceColumn)}
+            </div>
+          )}
+          {/* Regular other columns */}
+          <div className="flex">
+            {otherColumns.map(renderSlot)}
+          </div>
+        </>
+      )}
     </div>
   );
 };
