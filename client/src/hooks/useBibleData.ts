@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { masterCache } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
 // ARCHITECTURE: Use ONLY BibleDataAPI facade for all data - eliminates duplicate loading
 
@@ -666,6 +667,7 @@ export function useBibleData() {
     if (kjvTextData) return kjvTextData;
 
     try {
+      const { loadTranslationAsText } = await import('@/data/BibleDataAPI');
       kjvTextData = await loadTranslationAsText('KJV');
       console.log("✅ KJV text data loaded and cached");
       return kjvTextData;

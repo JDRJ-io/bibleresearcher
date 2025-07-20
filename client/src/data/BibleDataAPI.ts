@@ -82,21 +82,15 @@ export async function loadChunk(anchorIndex: number, sliceSize: number = 100): P
   };
 }
 
-// DOCUMENTED: getTranslationText() - load specific translation for verses
-export async function getTranslationText(translationId: string, verseKeys: string[]): Promise<Map<string, string>> {
-  const cacheKey = `translation-slice-${translationId}-${verseKeys.length}`;
+// DOCUMENTED: getTranslation(id) - Primary documented method per FILE_CONNECTIONS_MAP.md
+export async function getTranslation(translationId: string): Promise<Map<string, string>> {
+  const cacheKey = `translation-${translationId}`;
   
   return await getOrFetch(cacheKey, async () => {
-    // Load only the needed slice, not entire translation
-    const verseMap = new Map<string, string>();
-    
-    // For now, load full translation but only return requested verses
-    // TODO: Implement byte-range requests for true efficiency
     const fullText = await fetchFromStorage(paths.translation(translationId));
+    const verseMap = new Map<string, string>();
     const lines = fullText.split('\n').filter(line => line.trim());
     
-    // Parse only needed verses
-    const neededSet = new Set(verseKeys);
     for (const line of lines) {
       const cleanLine = line.trim().replace(/\r/g, '');
       const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
@@ -105,18 +99,19 @@ export async function getTranslationText(translationId: string, verseKeys: strin
         const cleanRef = reference.trim();
         const cleanText = text.trim();
         
-        // Only store if in our needed set
-        if (neededSet.has(cleanRef) || neededSet.has(cleanRef.replace(".", " "))) {
-          verseMap.set(cleanRef, cleanText);
-          verseMap.set(cleanRef.replace(".", " "), cleanText);
-        }
+        // Store both formats for compatibility
+        verseMap.set(cleanRef, cleanText);
+        verseMap.set(cleanRef.replace(".", " "), cleanText);
       }
     }
     
-    console.log(`📖 Translation slice ${translationId}: ${verseMap.size} verses loaded for ${verseKeys.length} requested`);
+    console.log(`📖 Translation ${translationId} loaded: ${verseMap.size} verses`);
     return verseMap;
   });
 }
+
+// Legacy alias for backward compatibility 
+export const loadTranslation = getTranslation;
 
 export async function loadTranslationAsText(id: string) {
   return getOrFetch(`translation-text-${id}`, async () => {
@@ -201,25 +196,12 @@ export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
   return await loadCrossReferences(set);
 }
 
-// DOCUMENTED: Get translation for current anchor slice
-export async function ensureTranslationLoaded(translationId: string, verseKeys?: string[]): Promise<Map<string, string>> {
+// DOCUMENTED: Ensure translation loaded - uses main getTranslation method
+export async function ensureTranslationLoaded(translationId: string): Promise<Map<string, string>> {
   console.log(`🔄 Ensuring translation ${translationId} is loaded...`);
-  
-  if (!verseKeys || verseKeys.length === 0) {
-    // Load a default small slice around current anchor
-    const chunk = await loadChunk(currentAnchorIndex, 50);
-    verseKeys = chunk.verseKeys;
-  }
-  
-  const translation = await getTranslationText(translationId, verseKeys);
+  const translation = await getTranslation(translationId);
   console.log(`✅ Translation ${translationId} ensured loaded: ${translation.size} verses`);
   return translation;
-}
-
-// Get translation from cache (no network calls) - deprecated in favor of slice loading
-export function getTranslation(translationId: string): Map<string, string> | null {
-  const cacheKey = `translation-slice-${translationId}`;
-  return masterCache.get(cacheKey) || null;
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
