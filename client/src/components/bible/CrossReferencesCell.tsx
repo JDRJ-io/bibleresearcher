@@ -114,28 +114,27 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
           const verseText = getVerseText(ref, mainTranslation) || '';
           
           return (
-            <button
-              key={index}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(`🔗 Cross-ref click: ${ref} -> navigating to verse`);
-                handleRefClick(ref);
-              }}
-              className="block w-full text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded p-1 transition-colors border-0 bg-transparent cursor-pointer"
-              title={`Navigate to ${ref}: ${verseText}`}
-            >
-              {/* Reference on its own line for better readability */}
-              <div className="font-mono text-xs text-blue-600 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+            <div key={index} className="border-b border-gray-100 dark:border-gray-800 pb-1 mb-1 last:border-b-0 last:pb-0 last:mb-0">
+              {/* Clickable verse reference with distinct hover state */}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log(`🔗 Cross-ref click: ${ref} -> navigating to verse`);
+                  handleRefClick(ref);
+                }}
+                className="inline-block font-mono text-xs text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-200 hover:underline cursor-pointer bg-transparent border-0 p-0 transition-colors"
+                title={`Navigate to ${ref}`}
+              >
                 {ref}
-              </div>
-              {/* Full verse text with text wrapping */}
+              </button>
+              {/* Full verse text - not clickable */}
               {verseText && (
-                <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight mt-0.5 break-words">
+                <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight mt-0.5 break-words select-text">
                   {verseText}
                 </div>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
