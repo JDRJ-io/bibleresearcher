@@ -125,13 +125,43 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, SlotConfig> = {};
 
-  // Always show reference column  
+  // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Always show main translation in slot 2 (UI_layout_spec.md)
+  // Always show main translation (slot 2)
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
-  
-  // Dynamically add alternate translation columns starting from slot 5
+
+  // Map all column types based on store state - check visibility properly
+  columnState.columns.forEach(col => {
+    switch (col.slot) {
+      case 1:
+        // Notes column - only show if toggled on
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        break;
+      case 3:
+        // Cross References column
+        slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+        break;
+      case 4:
+        // Dates column
+        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+        break;
+      case 17:
+        // Prophecy P column
+        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        break;
+      case 18:
+        // Prophecy F column
+        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        break;
+      case 19:
+        // Prophecy V column
+        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        break;
+    }
+  });
+
+  // Dynamically add alternate translation columns to slots 5-16
   alternates.forEach((translationCode, index) => {
     const slot = 5 + index; // Start at slot 5 for alternates per UI_layout_spec.md
     if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
@@ -139,32 +169,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         type: 'alt-translation', 
         header: translationCode, 
         translationCode, 
-        visible: true 
+        visible: true  // Show all active alternate translations
       };
-    }
-  });
-
-  // Map other column types based on store state
-  columnState.columns.forEach(col => {
-    switch (col.slot) {
-      case 1:
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible };
-        break;
-      case 3:
-        slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible };
-        break;
-      case 4:
-        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible };
-        break;
-      case 17:
-        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible };
-        break;
-      case 18:
-        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible };
-        break;
-      case 19:
-        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible };
-        break;
     }
   });
 
