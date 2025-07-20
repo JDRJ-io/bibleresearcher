@@ -24,9 +24,11 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   // Mobile-optimized width logic matching VirtualRow exactly - updated for new slot numbers
   const width = isMobile ? 
     (column.name === "Ref" || column.name === "Reference" ? "w-14" : 
+     column.name === "Notes" ? "w-16" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-12" : 
      ["P", "F", "V"].includes(column.name) ? "w-8" : "flex-1") :
     (column.name === "Ref" || column.name === "Reference" ? "w-16" : 
+     column.name === "Notes" ? "w-64" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-60" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
