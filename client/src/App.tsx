@@ -61,7 +61,9 @@ export const useBibleStore = create<{
   toggleLabel: (labelId: string) => void;
   columnState: ColumnState;
   sizeState: SizeState;
+  isInitialized: boolean;
 }>((set, get) => ({
+  isInitialized: true,
   translations: {},
   actives: ["KJV"],
   crossRefs: {},
@@ -75,61 +77,69 @@ export const useBibleStore = create<{
 
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
+    const newValue = !state.showCrossRefs;
     const newState = {
-      showCrossRefs: !state.showCrossRefs,
+      showCrossRefs: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 3 ? { ...col, visible: !state.showCrossRefs } : col
+          col.slot === 3 ? { ...col, visible: newValue } : col
         )
       }
     };
     console.log('🔄 TOGGLE CROSS REFS - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    console.log('🔄 CROSS REFS STATE CHANGED:', newValue);
     return newState;
   }),
 
   toggleProphecies: () => set(state => {
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
+    const newValue = !state.showProphecies;
     const newState = {
-      showProphecies: !state.showProphecies,
+      showProphecies: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot >= 17 && col.slot <= 19 ? { ...col, visible: !state.showProphecies } : col
+          col.slot >= 17 && col.slot <= 19 ? { ...col, visible: newValue } : col
         )
       }
     };
     console.log('🔄 TOGGLE PROPHECIES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    console.log('🔄 PROPHECIES STATE CHANGED:', newValue);
     return newState;
   }),
 
   toggleNotes: () => set(state => {
     console.log('🔄 TOGGLE NOTES - Current:', state.showNotes, '→ New:', !state.showNotes);
+    const newValue = !state.showNotes;
     const newState = {
-      showNotes: !state.showNotes,
+      showNotes: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 1 ? { ...col, visible: !state.showNotes } : col
+          col.slot === 1 ? { ...col, visible: newValue } : col
         )
       }
     };
     console.log('🔄 TOGGLE NOTES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    console.log('🔄 NOTES STATE CHANGED:', newValue);
     return newState;
   }),
 
   toggleDates: () => set(state => {
     console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
+    const newValue = !state.showDates;
     const newState = {
-      showDates: !state.showDates,
+      showDates: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 4 ? { ...col, visible: !state.showDates } : col
+          col.slot === 4 ? { ...col, visible: newValue } : col
         )
       }
     };
     console.log('🔄 TOGGLE DATES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    console.log('🔄 DATES STATE CHANGED:', newValue);
     return newState;
   }),
 

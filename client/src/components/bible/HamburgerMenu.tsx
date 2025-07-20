@@ -43,8 +43,14 @@ export function HamburgerMenu({
     toggleProphecies, 
     toggleNotes, 
     toggleDates, 
-    toggleLabel 
+    toggleLabel,
+    isInitialized 
   } = useBibleStore();
+
+  // Prevent render if store not initialized
+  if (!isInitialized) {
+    return null;
+  }
   const { theme, setTheme, themes } = useTheme();
 
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);

@@ -52,8 +52,20 @@ export function ColumnHeaders({
   const { main, alternates } = useTranslationMaps();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // Get store states for column visibility  
-  const { showCrossRefs: storeShowCrossRefs, showProphecies, showNotes: storeShowNotes, showDates, columnState } = useBibleStore();
+  // Get store states for column visibility
+  const { 
+    showCrossRefs: storeShowCrossRefs, 
+    showProphecies, 
+    showNotes: storeShowNotes, 
+    showDates, 
+    columnState,
+    isInitialized 
+  } = useBibleStore();
+
+  // Prevent render if store not initialized
+  if (!isInitialized) {
+    return null;
+  }
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;

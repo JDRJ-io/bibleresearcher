@@ -58,6 +58,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Otherwise appends to activeTranslations as alternate
    */
   const toggleTranslation = useCallback(async (code: string, setAsMain = false) => {
+    console.log(`🔄 TOGGLE TRANSLATION: ${code}, setAsMain: ${setAsMain}`);
     setIsLoading(true);
     
     try {
@@ -88,24 +89,33 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
             });
           }
         }
+      } else {
+        console.log(`✅ Translation ${code} already cached, skipping duplicate load`);
       }
       
       // Update activeTranslations array - avoid duplicates with Array.from(new Set())
       setActiveTranslations(prev => {
         const isActive = prev.includes(code);
+        console.log(`📋 Current translations: [${prev.join(', ')}], ${code} is active: ${isActive}`);
         
-        if (isActive) {
+        if (isActive && !setAsMain) {
           // Toggle OFF - remove from active but keep in cache
-          return prev.filter(t => t !== code);
+          const newTranslations = prev.filter(t => t !== code);
+          console.log(`🔴 REMOVING ${code}: [${newTranslations.join(', ')}]`);
+          return newTranslations;
         } else {
-          // Toggle ON
+          // Toggle ON or set as main
+          let newTranslations;
           if (setAsMain) {
             // Place at index 0 (main translation)
-            return Array.from(new Set([code, ...prev.filter(t => t !== code)]));
+            newTranslations = Array.from(new Set([code, ...prev.filter(t => t !== code)]));
+            console.log(`🎯 SETTING ${code} AS MAIN: [${newTranslations.join(', ')}]`);
           } else {
             // Append as alternate
-            return Array.from(new Set([...prev, code]));
+            newTranslations = Array.from(new Set([...prev, code]));
+            console.log(`➕ ADDING ${code} AS ALTERNATE: [${newTranslations.join(', ')}]`);
           }
+          return newTranslations;
         }
       });
       
