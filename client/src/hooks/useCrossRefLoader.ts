@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { getCfOffsets, getCrossRefSlice } from '@/data/BibleDataAPI';
+import { getCfOffsets, getCrossRefSlice, loadTranslation } from '@/data/BibleDataAPI';
 import { getCrossRefWorker } from '@/lib/workers';
+import { useBibleStore } from '@/App';
 
 export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'cf1') {
   const processedKeys = useRef<Set<string>>(new Set());
+  const { crossRefs: crossRefsStore } = useBibleStore();
   
   useEffect(() => {
     const loadCrossRefs = async () => {
@@ -20,10 +22,18 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
           processedKeys.current.add(verseKey);
         }
       }
+      
+      // Eager-load main translation for cross-ref snippets
+      const allRefs = verseKeys.flatMap(verseId => crossRefsStore[verseId] ?? []);
+      if (allRefs.length > 0) {
+        console.log(`📖 Eager-loading cross-ref translations for ${allRefs.length} references`);
+        // Load main translation to ensure cross-ref verse texts are available
+        await loadTranslation('KJV'); // Ensure main translation is loaded
+      }
     };
     
     if (verseKeys.length > 0) {
       loadCrossRefs().catch(console.error);
     }
-  }, [verseKeys, cfSet]);
+  }, [verseKeys, cfSet, crossRefsStore]);
 }
