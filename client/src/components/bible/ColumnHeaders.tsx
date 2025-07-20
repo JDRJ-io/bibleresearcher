@@ -175,6 +175,10 @@ export function ColumnHeaders({
     slot: col.slot
   }));
 
+  // Split columns: reference (sticky) and others (scrollable)
+  const referenceColumn = allColumns.find(col => col.slot === 0);
+  const otherColumns = allColumns.filter(col => col.slot !== 0);
+
   return (
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"
@@ -186,25 +190,54 @@ export function ColumnHeaders({
         marginTop: '-1px' // Overlap border to eliminate gap
       }}
     >
-      <div className="overflow-hidden w-full h-full">
-        <div className={shouldCenter ? "flex justify-center w-full h-full" : ""}>
-          <div 
-            className="flex min-w-max h-full"
-            style={{ 
-              transform: shouldCenter ? undefined : `translateX(-${Math.round(scrollLeft)}px)`,
-              willChange: shouldCenter ? undefined : 'transform'
-            }}
-          >
-            {allColumns.map((column) => (
-              <HeaderCell
-                key={`slot-${column.slot}`}
-                column={column}
-                isMain={column.isMain}
-                isMobile={isMobile}
-              />
-            ))}
+      <div className="overflow-hidden w-full h-full flex">
+        {shouldCenter ? (
+          // Centered layout for few columns
+          <div className="flex justify-center w-full h-full">
+            <div className="flex min-w-max h-full">
+              {allColumns.map((column) => (
+                <HeaderCell
+                  key={`slot-${column.slot}`}
+                  column={column}
+                  isMain={column.isMain}
+                  isMobile={isMobile}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          // Left-anchored with sticky reference column
+          <>
+            {referenceColumn && (
+              <div className="sticky left-0 z-40 bg-inherit">
+                <HeaderCell
+                  key={`slot-${referenceColumn.slot}`}
+                  column={referenceColumn}
+                  isMain={referenceColumn.isMain}
+                  isMobile={isMobile}
+                />
+              </div>
+            )}
+            <div className="flex-1 overflow-hidden">
+              <div 
+                className="flex min-w-max h-full"
+                style={{ 
+                  transform: `translateX(-${Math.round(scrollLeft)}px)`,
+                  willChange: 'transform'
+                }}
+              >
+                {otherColumns.map((column) => (
+                  <HeaderCell
+                    key={`slot-${column.slot}`}
+                    column={column}
+                    isMain={column.isMain}
+                    isMobile={isMobile}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

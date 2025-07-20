@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
@@ -313,13 +313,46 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     }
   };
 
+  // Calculate layout logic matching ColumnHeaders
+  const estimatedTotalWidth = useMemo(() => {
+    let width = 0;
+    width += 80; // Reference column ~80px
+    width += 320; // Main translation ~320px
+    if (showCrossRefs) width += 240; // Cross refs ~240px
+    if (showProphecies) width += 180; // P+F+V ~60px each
+    width += (alternates.length * 320); // Alt translations ~320px each
+    return width;
+  }, [showCrossRefs, showProphecies, alternates]);
+  
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
+
+  // Split columns: reference (sticky) and others (scrollable)
+  const referenceColumn = visibleColumns.find(col => col.slot === 0);
+  const otherColumns = visibleColumns.filter(col => col.slot !== 0);
+
   return (
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {visibleColumns.map(renderSlot)}
+      {shouldCenter ? (
+        // Centered layout for few columns
+        visibleColumns.map(renderSlot)
+      ) : (
+        // Left-anchored with sticky reference column
+        <>
+          {referenceColumn && (
+            <div className="sticky left-0 z-10 bg-inherit">
+              {renderSlot(referenceColumn)}
+            </div>
+          )}
+          <div className="flex">
+            {otherColumns.map(renderSlot)}
+          </div>
+        </>
+      )}
     </div>
   );
 };
