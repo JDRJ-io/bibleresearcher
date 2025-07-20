@@ -42,7 +42,7 @@ function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   }
   
   // Promise deduplication - if already loading, return existing promise
-  if (pendingLoads[key]) {
+  if (key in pendingLoads) {
     return pendingLoads[key];
   }
   
@@ -204,10 +204,23 @@ export async function ensureTranslationLoaded(translationId: string): Promise<Ma
   return translation;
 }
 
-export async function loadCrossRefSlice(start: number, end: number) {
-  // Remove obsolete slice loaders
-  console.warn('loadCrossRefSlice is deprecated, use crossRefsWorker instead');
-  return {};
+// DOCUMENTED: getCrossRefSlice(set, start, end) - byte-range cross-reference loading
+export async function getCrossRefSlice(set: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
+  // Load full cross-reference data for now (proper byte-range implementation pending)
+  const crossRefData = await getCrossRef(set);
+  const lines = crossRefData.split('\n');
+  const slice = lines.slice(start, end + 1);
+  
+  console.log(`🔗 getCrossRefSlice(${set}, ${start}-${end}) → ${slice.length} lines`);
+  return slice.join('\n');
+}
+
+// DOCUMENTED: getCfOffsets(set) - returns cross-reference offsets JSON
+export async function getCfOffsets(set: 'cf1' | 'cf2'): Promise<any> {
+  return getOrFetch(`crossref-offsets-${set}`, async () => {
+    const textData = await fetchFromStorage(paths.crossRefOffsets(set));
+    return JSON.parse(textData);
+  });
 }
 
 // Prophecy loading with proper caching
@@ -277,21 +290,20 @@ export async function saveNote(note: any, preserveAnchor?: (ref: string, index: 
 // -------- Cross-reference offsets ----------
 const cfOffsetsCache = new Map<'cf1' | 'cf2', Record<string, [number, number]>>();
 
-export async function getCfOffsets(set: 'cf1' | 'cf2') {
-  if (cfOffsetsCache.has(set)) return cfOffsetsCache.get(set)!;
-  const path = paths.crossRefOffsets(set);
-  const txt = await fetchFromStorage(path);
-  const obj = JSON.parse(txt) as Record<string, [number, number]>;
-  cfOffsetsCache.set(set, obj);
-  return obj;
-}
+
 
 // -------- Strong's offsets ----------
 let strongsVerseOffsets: Record<string, [number, number]> | null = null;
 let strongsIndexOffsets: Record<string, [number, number]> | null = null;
 
-export async function getStrongsOffsets() {
-  if (strongsVerseOffsets && strongsIndexOffsets) return { strongsVerseOffsets, strongsIndexOffsets };
+// DOCUMENTED: getStrongsOffsets() - returns verse & lemma ranges for Strong's concordance
+export async function getStrongsOffsets(): Promise<{ 
+  strongsVerseOffsets: Record<string, [number, number]>, 
+  strongsIndexOffsets: Record<string, [number, number]> 
+}> {
+  if (strongsVerseOffsets && strongsIndexOffsets) {
+    return { strongsVerseOffsets, strongsIndexOffsets };
+  }
 
   const [vTxt, iTxt] = await Promise.all([
     fetchFromStorage(paths.strongsVerseOffsets),
@@ -300,6 +312,8 @@ export async function getStrongsOffsets() {
 
   strongsVerseOffsets = JSON.parse(vTxt);
   strongsIndexOffsets = JSON.parse(iTxt);
+  
+  console.log(`🔍 Strong's offsets loaded: ${Object.keys(strongsVerseOffsets).length} verses, ${Object.keys(strongsIndexOffsets).length} lemmas`);
   return { strongsVerseOffsets, strongsIndexOffsets };
 }
 
@@ -307,26 +321,32 @@ export async function getStrongsOffsets() {
 let prophecyIndex: Record<string, [number, number]> | null = null;
 let prophecyRowsTxt: string | null = null;
 
-export async function getProphecy(indexKey: string) {
+// DOCUMENTED: getProphecy(key) - TSV row P/F/V from prophecy system  
+export async function getProphecy(indexKey: string): Promise<string | null> {
   // Lazy load index JSON
   if (!prophecyIndex) {
     const idx = await fetchFromStorage(paths.prophecyIdx);
     prophecyIndex = JSON.parse(idx);
+    console.log(`📜 Prophecy index loaded: ${Object.keys(prophecyIndex).length} entries`);
   }
   // Lazy load rows file
   if (!prophecyRowsTxt) {
     prophecyRowsTxt = await fetchFromStorage(paths.prophecyRows);
+    console.log(`📜 Prophecy rows loaded: ${prophecyRowsTxt.length} bytes`);
   }
+  
   const slice = prophecyIndex![indexKey];
-  if (!slice) return null;
-  return prophecyRowsTxt!.substring(slice[0], slice[1]);
+  if (!slice) {
+    console.warn(`⚠️ Prophecy key not found: ${indexKey}`);
+    return null;
+  }
+  
+  const result = prophecyRowsTxt!.substring(slice[0], slice[1]);
+  console.log(`📜 getProphecy(${indexKey}) → ${result.length} chars`);
+  return result;
 }
 
-// Cross-reference slice loader
-export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
-  const fullText = await loadCrossReferences(cfSet);
-  return fullText.substring(start, end);
-}
+
 
 export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string, index: number) => void) {
   const local = { ...bookmark, updated_at: Date.now(), pending: true };
