@@ -21,7 +21,7 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // Mobile-optimized width logic matching VirtualRow exactly
+  // Mobile-optimized width logic matching VirtualRow exactly - updated for new slot numbers
   const width = isMobile ? 
     (column.name === "Ref" || column.name === "Reference" ? "w-14" : 
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-12" : 
@@ -80,32 +80,32 @@ export function ColumnHeaders({
   // Always show main translation (slot 2)  
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Map all column types based on store state - check visibility properly
+  // Map all column types based on store state - use actual slot assignments from App.tsx
   columnState.columns.forEach(col => {
     switch (col.slot) {
-      case 1:
-        // Notes column - only show if toggled on
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+      case 6:
+        // Cross References column (actual slot from store)
+        slotConfig[6] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
-      case 3:
-        // Cross References column  
-        slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+      case 7:
+        // Prophecy P column (actual slot from store)
+        slotConfig[7] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
-      case 4:
-        // Dates column
-        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+      case 8:
+        // Prophecy F column (actual slot from store)
+        slotConfig[8] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
-      case 17:
-        // Prophecy P column
-        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+      case 9:
+        // Prophecy V column (actual slot from store)
+        slotConfig[9] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
-      case 18:
-        // Prophecy F column  
-        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+      case 10:
+        // Notes column (actual slot from store)
+        slotConfig[10] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
-      case 19:
-        // Prophecy V column
-        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+      case 11:
+        // Dates column (actual slot from store)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });

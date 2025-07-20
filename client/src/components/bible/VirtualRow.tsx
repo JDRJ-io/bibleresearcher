@@ -131,32 +131,32 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   // Always show main translation (slot 2)
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Map all column types based on store state - check visibility properly
+  // Map all column types based on store state - use actual slot assignments from App.tsx
   columnState.columns.forEach(col => {
     switch (col.slot) {
-      case 1:
-        // Notes column - only show if toggled on
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+      case 6:
+        // Cross References column (actual slot from store)
+        slotConfig[6] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
-      case 3:
-        // Cross References column
-        slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+      case 7:
+        // Prophecy P column (actual slot from store)
+        slotConfig[7] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
-      case 4:
-        // Dates column
-        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+      case 8:
+        // Prophecy F column (actual slot from store)
+        slotConfig[8] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
-      case 17:
-        // Prophecy P column
-        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+      case 9:
+        // Prophecy V column (actual slot from store)
+        slotConfig[9] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
-      case 18:
-        // Prophecy F column
-        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+      case 10:
+        // Notes column (actual slot from store)
+        slotConfig[10] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
-      case 19:
-        // Prophecy V column
-        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+      case 11:
+        // Dates column (actual slot from store)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });
@@ -222,15 +222,15 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on slot type and mobile
+    // Calculate width based on slot type and mobile - updated for new slot numbers
     const width = isMobile ? 
       (slot === 0 ? "w-14" :        // Reference (narrower)
-       slot === 3 ? "w-12" :        // Cross References
-       slot >= 17 ? "w-8" :         // Prophecy P/F/V
+       slot === 6 ? "w-12" :        // Cross References (slot 6)
+       slot >= 7 && slot <= 9 ? "w-8" : // Prophecy P/F/V (slots 7-9)
        "flex-1") :                  // Translations
       (slot === 0 ? "w-16" :        // Reference (narrower)
-       slot === 3 ? "w-60" :        // Cross References  
-       slot >= 17 ? "w-20" :        // Prophecy P/F/V
+       slot === 6 ? "w-60" :        // Cross References (slot 6) 
+       slot >= 7 && slot <= 9 ? "w-20" : // Prophecy P/F/V (slots 7-9)
        "w-80");                     // Translations
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
@@ -267,10 +267,15 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
+        // Get actual cross-reference data for this verse
+        const crossRefs = verse.crossReferences || [];
+        const crossRefDisplay = crossRefs.length > 0 
+          ? crossRefs.slice(0, 3).map(ref => ref.split('.')[0]).join(', ') + (crossRefs.length > 3 ? '...' : '')
+          : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-blue-600 cell-content">
-              [Cross Refs]
+            <div className="px-2 py-1 text-xs text-blue-600 cell-content" title={crossRefs.join(', ')}>
+              {crossRefDisplay || ''}
             </div>
           </div>
         );
@@ -289,10 +294,14 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'prophecy-v':
         const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
         const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
+        // Get prophecy data from verse if available
+        const prophecyData = verse.prophecyMeta || {};
+        const count = prophecyData[type]?.length || 0;
+        const displayContent = count > 0 ? count.toString() : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className={`px-1 py-1 text-xs text-center ${color}`}>
-              {type}
+            <div className={`px-1 py-1 text-xs text-center ${color} cell-content`} title={count > 0 ? `${count} ${type === "P" ? "Prediction" : type === "F" ? "Fulfillment" : "Verification"} references` : ''}>
+              {displayContent}
             </div>
           </div>
         );
