@@ -71,10 +71,10 @@ export const useBibleStore = create<{
   crossRefs: {},
   prophecies: {},
   store: { crossRefs: {}, prophecies: {} },
-  showCrossRefs: true,  // Default ON for free users (optimal mobile display)
-  showProphecies: false, // Default OFF for free users (cleaner mobile)
-  showNotes: false,     // Notes column toggle
-  showDates: false,     // Dates column toggle
+  showCrossRefs: true,  // GUEST MODE: Always ON for optimal mobile display
+  showProphecies: false, // GUEST MODE: Default OFF for cleaner mobile
+  showNotes: false,     // GUEST MODE: Default OFF
+  showDates: false,     // GUEST MODE: Default OFF
   showLabels: {},       // Labels state object for semantic highlighting
 
   toggleCrossRefs: () => set(state => {

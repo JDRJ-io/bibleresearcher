@@ -13,11 +13,10 @@ interface TranslationState {
   resetMobileDefaults: (mainId: string) => void;
 }
 
-export const useTranslationMaps = create<TranslationState>()(
-  persist(
-    (set, get) => ({
+// GUEST MODE: Remove persistence to prevent session memory
+export const useTranslationMaps = create<TranslationState>()((set, get) => ({
       main: 'KJV',
-      alternates: [],  // -- not the whole list
+      alternates: [],  // GUEST: No alternates by default
       setMain: (id: string) => {
         const current = get();
         if (id === current.main) return;  // no-op
@@ -48,10 +47,7 @@ export const useTranslationMaps = create<TranslationState>()(
           alternates: []
         });
       },
-    }),
-    { name: 'translation-state' }
-  )
-);
+    }))
 
 /** selector hook that memoizes the column list */
 export const useColumnKeys = () => {

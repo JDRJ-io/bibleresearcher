@@ -123,9 +123,14 @@ export async function getTranslation(translationId: string): Promise<Map<string,
         const cleanRef = reference.trim();
         const cleanText = text.trim();
         
-        // Store both formats for compatibility
+        // Store both formats for compatibility: "Gen.1:1" and "Gen 1:1"
         verseMap.set(cleanRef, cleanText);
-        verseMap.set(cleanRef.replace(".", " "), cleanText);
+        verseMap.set(cleanRef.replace(/\./g, " "), cleanText);
+        
+        // Debug first few entries
+        if (verseMap.size <= 3) {
+          console.log(`📖 Stored verse: "${cleanRef}" and "${cleanRef.replace(/\./g, " ")}" -> "${cleanText.substring(0, 50)}..."`);
+        }
       }
     }
     
