@@ -24,11 +24,9 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   // Mobile-optimized width logic matching VirtualRow exactly - updated for new slot numbers
   const width = isMobile ? 
     (column.name === "Ref" || column.name === "Reference" ? "w-14" : 
-     column.name === "Notes" ? "w-16" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-12" : 
      ["P", "F", "V"].includes(column.name) ? "w-8" : "flex-1") :
     (column.name === "Ref" || column.name === "Reference" ? "w-16" : 
-     column.name === "Notes" ? "w-64" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-60" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
@@ -125,14 +123,6 @@ export function ColumnHeaders({
     }
   });
 
-  // Debug logging
-  console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
-    slot: parseInt(slot), 
-    type: slotConfig[parseInt(slot)]?.type, 
-    header: slotConfig[parseInt(slot)]?.header, 
-    visible: slotConfig[parseInt(slot)]?.visible 
-  })));
-
   // Get all visible columns sorted by slot position, matching VirtualRow exactly  
   const visibleColumns = Object.entries(slotConfig)
     .map(([slotStr, config]) => ({
@@ -146,10 +136,8 @@ export function ColumnHeaders({
     .filter(col => col.config && col.visible) // Only render valid, visible slots
     .sort((a, b) => a.slot - b.slot);
 
-  console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
-
-  // Never center - headers must always align with columns
-  const shouldCenter = false;
+  // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
+  const shouldCenter = visibleColumns.length <= 3;
 
   const allColumns = visibleColumns.map(col => ({
     id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
