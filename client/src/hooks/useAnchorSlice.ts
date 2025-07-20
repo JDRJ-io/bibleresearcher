@@ -55,6 +55,7 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
 
   return {
     anchorIndex,
+    setAnchorIndex, // Export setAnchorIndex for external navigation
     slice: {
       start: slice.start,
       end: slice.end,

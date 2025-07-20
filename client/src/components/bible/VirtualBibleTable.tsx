@@ -67,7 +67,7 @@ const VirtualBibleTable = ({
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
-  const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  const { anchorIndex, setAnchorIndex, slice } = useAnchorSlice(containerRef);
   
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
@@ -162,15 +162,17 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // Convert reference to verse index for anchor jumping
-      const verseIndex = verseKeys.findIndex(key => key === ref || key.replace('.', ' ') === ref);
+      // BEHAVIOR CONTRACT X-1: Cross-reference navigation via setAnchorIndex within 30ms
+      const verseIndex = verseKeys.findIndex(key => key === ref || key.replace('.', ' ') === ref || key.replace(' ', '.') === ref);
       if (verseIndex >= 0) {
-        // Use the anchor system to jump to the verse
-        const targetScrollTop = verseIndex * ROW_HEIGHT;
+        // Use setAnchorIndex for proper anchor-centered navigation (contract X-1)
+        setAnchorIndex(verseIndex);
+        // Scroll to center the target verse in viewport (contract A-2: within ±12px of center)
+        const targetScrollTop = verseIndex * ROW_HEIGHT - (containerRef.current?.clientHeight || 0) / 2 + ROW_HEIGHT / 2;
         if (containerRef.current) {
-          containerRef.current.scrollTop = targetScrollTop;
+          containerRef.current.scrollTop = Math.max(0, targetScrollTop);
         }
-        console.log(`📖 Jumping to verse ${ref} at index ${verseIndex}`);
+        console.log(`📖 Cross-ref navigation: ${ref} → index ${verseIndex} (contract X-1 compliance)`);
       } else {
         console.warn(`⚠️ Could not find verse index for ${ref}`);
       }
