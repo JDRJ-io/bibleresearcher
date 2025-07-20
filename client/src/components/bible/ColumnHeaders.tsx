@@ -125,6 +125,14 @@ export function ColumnHeaders({
     }
   });
 
+  // Debug logging
+  console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
+    slot: parseInt(slot), 
+    type: slotConfig[parseInt(slot)]?.type, 
+    header: slotConfig[parseInt(slot)]?.header, 
+    visible: slotConfig[parseInt(slot)]?.visible 
+  })));
+
   // Get all visible columns sorted by slot position, matching VirtualRow exactly  
   const visibleColumns = Object.entries(slotConfig)
     .map(([slotStr, config]) => ({
@@ -138,8 +146,10 @@ export function ColumnHeaders({
     .filter(col => col.config && col.visible) // Only render valid, visible slots
     .sort((a, b) => a.slot - b.slot);
 
-  // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
-  const shouldCenter = visibleColumns.length <= 3;
+  console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
+
+  // Never center - headers must always align with columns
+  const shouldCenter = false;
 
   const allColumns = visibleColumns.map(col => ({
     id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
