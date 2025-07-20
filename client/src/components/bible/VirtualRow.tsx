@@ -327,9 +327,153 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
 
-  // Split columns: reference (sticky) and others (scrollable)
-  const referenceColumn = visibleColumns.find(col => col.slot === 0);
-  const otherColumns = visibleColumns.filter(col => col.slot !== 0);
+  // Handle layout logic matching ColumnHeaders
+  const allVisibleColumns = visibleColumns;
+
+  return (
+    <div 
+      className="virtual-row flex h-full border-b" 
+      style={{ height: `${rowHeight}px`, minHeight: `${rowHeight}px` }}
+      data-verse-id={verseID}
+    >
+      {shouldCenter ? (
+        // Centered layout for few columns
+        <div className="flex w-full">
+          {allVisibleColumns.map((column) => (
+            <CellRenderer
+              key={`slot-${column.slot}`}
+              column={column}
+              verseID={verseID}
+              verse={verse}
+              columnData={columnData}
+              getVerseText={getVerseText}
+              getMainVerseText={getMainVerseText}
+              activeTranslations={activeTranslations}
+              mainTranslation={mainTranslation}
+              onVerseClick={onVerseClick}
+              onExpandVerse={onExpandVerse}
+            />
+          ))}
+        </div>
+      ) : (
+        // Left-anchored layout with sticky reference column
+        <div className="relative flex w-full">
+          {/* All columns in order */}
+          <div className="flex min-w-max">
+            {allVisibleColumns.map((column) => (
+              <CellRenderer
+                key={`slot-${column.slot}`}
+                column={column}
+                verseID={verseID}
+                verse={verse}
+                columnData={columnData}
+                getVerseText={getVerseText}
+                getMainVerseText={getMainVerseText}
+                activeTranslations={activeTranslations}
+                mainTranslation={mainTranslation}
+                onVerseClick={onVerseClick}
+                onExpandVerse={onExpandVerse}
+              />
+            ))}
+          </div>
+          {/* Sticky reference column overlay */}
+          {(() => {
+            const referenceColumn = allVisibleColumns.find(col => col.slot === 0);
+            return referenceColumn ? (
+              <div 
+                className="absolute left-0 top-0 z-40 h-full" 
+                style={{ backgroundColor: 'var(--column-bg, white)' }}
+              >
+                <CellRenderer
+                  key={`slot-${referenceColumn.slot}-sticky`}
+                  column={referenceColumn}
+                  verseID={verseID}
+                  verse={verse}
+                  columnData={columnData}
+                  getVerseText={getVerseText}
+                  getMainVerseText={getMainVerseText}
+                  activeTranslations={activeTranslations}
+                  mainTranslation={mainTranslation}
+                  onVerseClick={onVerseClick}
+                  onExpandVerse={onExpandVerse}
+                />
+              </div>
+            ) : null;
+          })()}
+        </div>
+      )}
+    </div>
+  );
+
+  function CellRenderer({ column, verseID, verse, columnData, getVerseText, getMainVerseText, activeTranslations, mainTranslation, onVerseClick, onExpandVerse }: any) {
+    const { main, alternates } = useTranslationMaps();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    
+    // Mobile-optimized width logic matching ColumnHeaders exactly
+    const width = isMobile ? 
+      (column.name === "Ref" || column.name === "Reference" ? "w-14" : 
+       column.name === "Notes" ? "w-16" :
+       column.name === "Cross Refs" || column.name === "Cross References" ? "w-12" : 
+       ["P", "F", "V"].includes(column.name) ? "w-8" : "flex-1") :
+      (column.name === "Ref" || column.name === "Reference" ? "w-16" : 
+       column.name === "Notes" ? "w-64" :
+       column.name === "Cross Refs" || column.name === "Cross References" ? "w-60" : 
+       ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
+
+    // Render cell content based on column type
+    if (column.slot === 0) {
+      // Reference column
+      return (
+        <div className={`${width} flex-shrink-0 flex items-center justify-center px-1 text-xs font-medium border-r`}>
+          {verse.reference}
+        </div>
+      );
+    }
+
+    if (column.type === 'main-translation' || column.type === 'alt-translation') {
+      const translationCode = column.translationCode || column.name;
+      const verseText = getVerseText(verseID, translationCode) || '';
+      
+      return (
+        <div className={`${width} flex-shrink-0 px-2 py-1 text-sm border-r`}>
+          {verseText}
+        </div>
+      );
+    }
+
+    if (column.type === 'cross-refs') {
+      return (
+        <div className={`${width} flex-shrink-0 px-1 py-1 text-xs border-r`}>
+          {/* Cross reference content */}
+          <div className="text-blue-600">
+            {/* Placeholder for cross references */}
+          </div>
+        </div>
+      );
+    }
+
+    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') {
+      return (
+        <div className={`${width} flex-shrink-0 flex items-center justify-center px-1 text-xs border-r`}>
+          {/* Prophecy marker content */}
+        </div>
+      );
+    }
+
+    if (column.type === 'notes') {
+      return (
+        <div className={`${width} flex-shrink-0 px-1 py-1 text-xs border-r`}>
+          {/* Notes content */}
+        </div>
+      );
+    }
+
+    return (
+      <div className={`${width} flex-shrink-0 px-1 py-1 text-xs border-r`}>
+        {/* Default cell */}
+      </div>
+    );
+  }ter(col => col.slot !== 0);
 
   return (
     <div 
