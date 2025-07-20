@@ -161,6 +161,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     }
   });
 
+  // Ensure Notes column is always in slotConfig when showNotes is true
+  if (showNotes && !slotConfig[1]) {
+    slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
+  }
+
   // Dynamically add alternate translation columns to slots 5-16 per UI spec
   alternates.forEach((translationCode, index) => {
     const slot = 5 + index; // Start at slot 5 for alternates per UI spec
