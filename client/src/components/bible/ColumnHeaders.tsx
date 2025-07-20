@@ -87,7 +87,7 @@ export function ColumnHeaders({
     switch (col.slot) {
       case 1:
         // Notes column (slot 1 per UI spec)
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: showNotes };
         break;
       case 3:
         // Cross References column (slot 3 per UI spec)
