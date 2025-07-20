@@ -1,67 +1,50 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { masterCache } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
 // ARCHITECTURE: Use ONLY BibleDataAPI facade for all data - eliminates duplicate loading
 
-// Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
+// DOCUMENTED: Load Bible index using anchor-centered architecture  
 const loadFullBibleIndex = async (
   progressCallback?: (progress: any) => void,
 ): Promise<BibleVerse[]> => {
-  console.log(
-    "Loading complete Bible index (references only) from Supabase...",
-  );
+  console.log("Loading Bible index via BibleDataAPI anchor-centered architecture...");
 
   if (progressCallback) {
     progressCallback({ stage: "structure", percentage: 10 });
   }
 
   try {
-    // Use ONLY BibleDataAPI facade for verse keys - eliminates legacy loaders
-    console.log("Loading canonical verse references via BibleDataAPI facade...");
+    // Use ONLY BibleDataAPI facade - documented pattern
     const { loadVerseKeys } = await import('@/data/BibleDataAPI');
     const verseKeys = await loadVerseKeys('canonical');
-    console.log(
-      `✅ Loaded ${verseKeys.length} canonical verse keys via BibleDataAPI`,
-    );
+    console.log(`✅ Loaded ${verseKeys.length} canonical verse keys via BibleDataAPI`);
 
     if (progressCallback) {
       progressCallback({ stage: "index", percentage: 50 });
     }
 
-    // KJV will be loaded on demand via BibleDataAPI - no preloading needed
-
-    // Create full Bible index with placeholder text only
-    const fullBibleIndex = createFullBibleIndexWithoutText(verseKeys);
-    console.log(
-      `Created complete Bible index with ${fullBibleIndex.length} verse references (no text loaded yet)`,
-    );
-    console.log(
-      `All verse references loaded for proper height mapping and navigation`,
-    );
+    // Create Bible index with empty text - text loaded on demand via loadChunk()
+    const fullBibleIndex = createBibleIndexStructure(verseKeys);
+    console.log(`Created Bible index structure: ${fullBibleIndex.length} verse references`);
 
     if (progressCallback) {
       progressCallback({ stage: "finalizing", percentage: 95 });
     }
 
-    console.log(
-      `Complete Bible index ready - text will load dynamically around scroll position`,
-    );
+    console.log("Bible index ready - text loads via anchor-centered chunks");
     return fullBibleIndex;
   } catch (error) {
-    console.error("Error loading from Supabase canonical references:", error);
-    throw new Error("Failed to load Bible data from Supabase. Please check your internet connection and Supabase credentials.");
+    console.error("Error loading Bible index:", error);
+    throw new Error("Failed to load Bible data from Supabase. Please check your internet connection.");
   }
 };
 
-// Create full Bible index with EMPTY TEXT for height mapping only
-const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
-  console.log(
-    `Creating full Bible index (references only) from ${verseKeys.length} canonical references...`,
-  );
+// DOCUMENTED: Create Bible index structure for anchor-centered loading
+const createBibleIndexStructure = (verseKeys: string[]): BibleVerse[] => {
+  console.log(`Creating Bible index structure from ${verseKeys.length} verse keys...`);
 
   return verseKeys.map((key, index) => {
-    // Handle different possible formats of canonical keys
+    // Parse verse key format (e.g., "Gen.1:1" or "Gen 1:1")
     let book, chapter, verse;
 
     if (key.includes(".")) {
@@ -78,23 +61,22 @@ const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
       chapter = parseInt(verseNumbers[0]) || 1;
       verse = parseInt(verseNumbers[1]) || 1;
     } else {
-      // Fallback format
+      // Fallback
       book = key.substring(0, 3);
       chapter = 1;
       verse = index + 1;
     }
 
-    // Create readable reference format
     const reference = `${book} ${chapter}:${verse}`;
 
     return {
-      id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`, // Include index for uniqueness
+      id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`,
       index,
-      book: book,
-      chapter: chapter,
-      verse: verse,
-      reference: reference,
-      text: {}, // Start with empty text object - translations loaded dynamically
+      book,
+      chapter,
+      verse,
+      reference,
+      text: {}, // Empty - populated by loadChunk() as needed
       crossReferences: [],
       strongsWords: [],
       labels: [],
