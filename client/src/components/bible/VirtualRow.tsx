@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { useColumnKeys, useTranslationMaps as useTranslationSlice } from '@/store/translationSlice';
+import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 
@@ -105,7 +104,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onVerseClick,
   onExpandVerse,
 }) => {
-  const { main, alternates } = useTranslationSlice();
+  const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
@@ -168,6 +167,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     console.log('🔍 VirtualRow Debug - Translation state:', { main, alternates });
     console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
     console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
+    console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
+    console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
+    console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
   }
 
   const handleDoubleClick = () => {
@@ -214,10 +216,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         
       case 'main-translation':
       case 'alt-translation':
+        // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
+        const verseText = getVerseText(verse.reference, config.translationCode);
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm">
-              [{config.translationCode} Text]
+              {verseText || `[${config.translationCode} loading...]`}
             </div>
           </div>
         );

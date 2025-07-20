@@ -225,7 +225,10 @@ export function HamburgerMenu({
                   <Label className="text-sm font-medium">Cross References</Label>
                   <Checkbox 
                     checked={showCrossRefs}
-                    onCheckedChange={toggleCrossRefs}
+                    onCheckedChange={(checked) => {
+                      console.log('🔴 Cross References toggle clicked! New state:', checked);
+                      toggleCrossRefs();
+                    }}
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                 </div>
@@ -242,7 +245,10 @@ export function HamburgerMenu({
                   <Label className="text-sm font-medium">Prophecy Tracking</Label>
                   <Checkbox 
                     checked={showProphecies}
-                    onCheckedChange={toggleProphecies}
+                    onCheckedChange={(checked) => {
+                      console.log('🔴 Prophecy toggle clicked! New state:', checked);
+                      toggleProphecies();
+                    }}
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                 </div>
@@ -254,7 +260,10 @@ export function HamburgerMenu({
                   <Label className="text-sm font-medium">Notes Column</Label>
                   <Checkbox 
                     checked={showNotes}
-                    onCheckedChange={toggleNotes}
+                    onCheckedChange={(checked) => {
+                      console.log('🔴 Notes toggle clicked! New state:', checked);
+                      toggleNotes();
+                    }}
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                 </div>
@@ -266,7 +275,10 @@ export function HamburgerMenu({
                   <Label className="text-sm font-medium">Dates Column</Label>
                   <Checkbox 
                     checked={showDates}
-                    onCheckedChange={toggleDates}
+                    onCheckedChange={(checked) => {
+                      console.log('🔴 Dates toggle clicked! New state:', checked);
+                      toggleDates();
+                    }}
                     className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                   />
                 </div>
