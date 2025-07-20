@@ -46,6 +46,44 @@ html {
   --text-lg: calc(var(--base-font-size) * 1.125 * var(--font-size-multiplier));
 }
 
+/* Cell scrollbar styling - only show when content overflows */
+.cell-content {
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.cell-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cell-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cell-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.cell-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Dark mode scrollbar */
+.dark .cell-content {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.dark .cell-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark .cell-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
 /* Theme variables */
 .light-mode {
   --bg-primary: #ffffff;

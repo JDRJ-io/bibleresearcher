@@ -239,7 +239,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'reference':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
+            <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content">
               {verse.reference}
             </div>
           </div>
@@ -248,7 +248,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'notes':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-gray-500">
+            <div className="px-2 py-1 text-sm text-gray-500 cell-content">
               [Notes placeholder]
             </div>
           </div>
@@ -260,7 +260,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         const verseText = getVerseText(verse.reference, config.translationCode);
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
-            <div className="px-2 py-1 text-sm">
+            <div className="px-2 py-1 text-sm cell-content">
               {verseText || `[${config.translationCode} loading...]`}
             </div>
           </div>
@@ -269,7 +269,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'cross-refs':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-blue-600">
+            <div className="px-2 py-1 text-sm text-blue-600 cell-content">
               [Cross Refs]
             </div>
           </div>
@@ -278,7 +278,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'context':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-gray-500">
+            <div className="px-2 py-1 text-sm text-gray-500 cell-content">
               [Date placeholder]
             </div>
           </div>
