@@ -77,8 +77,8 @@ export function ColumnHeaders({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Always show main translation (slot 2)  
-  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  // Always show main translation (slot 1 per store config)  
+  slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
   // Map all column types based on store state - use actual slot assignments from App.tsx
   columnState.columns.forEach(col => {
@@ -110,10 +110,10 @@ export function ColumnHeaders({
     }
   });
 
-  // Dynamically add alternate translation columns to slots 5-16
+  // Dynamically add alternate translation columns to slots 2-5 (per actual store config)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Start at slot 5 for alternates per UI_layout_spec.md
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 2 + index; // Start at slot 2 for alternates per store config
+    if (slot <= 5) { // Max 4 alternate translations (slots 2-5)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
