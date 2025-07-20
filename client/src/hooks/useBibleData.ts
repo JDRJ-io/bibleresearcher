@@ -2,25 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase, masterCache } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
-import {
-  loadTranslation,
-  loadMultipleTranslations,
-  getVerseText,
-} from "@/lib/translationLoader";
-import { loadTranslationAsText } from "@/data/BibleDataAPI";
-import {
-  loadVerseKeys,
-  loadTranslationSecure,
-} from "@/lib/supabaseClient";
-
-// Global KJV text map for dynamic verse text loading - uses master cache
-let globalKjvTextMap: Map<string, string> | null = null;
-
-// Use BibleDataAPI directly - no duplicate loading
-const getKJVTextMap = (): Map<string, string> | null => {
-  const { getTranslation } = require('@/data/BibleDataAPI');
-  return getTranslation('KJV');
-};
+// All data loading through BibleDataAPI facade ONLY - single source of truth
+// No global translation maps - use BibleDataAPI cache directly
 
 // Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
 const loadFullBibleIndex = async (
@@ -370,8 +353,11 @@ const createFullBibleWithHeights = async (
   let kjvTextData = "";
 
   try {
-    console.log("Fetching complete KJV Bible from Supabase storage...");
-    kjvTextData = await loadTranslationAsText('KJV');
+    console.log("Fetching complete KJV Bible from BibleDataAPI...");
+    // Use BibleDataAPI facade only
+    const { loadTranslation } = await import('@/data/BibleDataAPI');
+    const kjvMap = await loadTranslation('KJV');
+    kjvTextData = Array.from(kjvMap.entries()).map(([ref, text]) => `${ref}#${text}`).join('\n');
     console.log(
       `✓ Successfully loaded KJV text from Supabase (${kjvTextData.length} characters)`,
     );
@@ -451,8 +437,7 @@ const createFullBibleWithHeights = async (
     `✓ Created comprehensive text map with ${textMap.size} entries from Supabase KJV`,
   );
 
-  // Store the text map globally for dynamic loading
-  globalKjvTextMap = textMap;
+  // KJV text will be stored in BibleDataAPI cache automatically
 
   // Create verses with actual text and calculated heights
   let versesWithText = 0;
@@ -1404,13 +1389,13 @@ export function useBibleData() {
   };
 
   // Verse text retrieval function for VirtualRow components
+  // Use ONLY BibleDataAPI facade - no duplicate translation loading  
   const getVerseText = (verseReference: string, translationCode: string): string | undefined => {
-    // Check the master cache first
+    // Use cached translation map from master cache instead of require
     const cacheKey = `translation-${translationCode}`;
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
     
     if (!translationMap) {
-      console.log(`Translation ${translationCode} not found in cache`);
       return undefined;
     }
     
@@ -1419,23 +1404,12 @@ export function useBibleData() {
       verseReference, // "Gen 1:1"
       verseReference.replace(/\s/g, "."), // "Gen 1:1" -> "Gen.1:1"
       verseReference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
-      `${verseReference.split(" ")[0]}.${verseReference.split(" ")[1]}`, // "Gen 1:1" -> "Gen.1:1"
     ];
     
     for (const format of formats) {
       const text = translationMap.get(format);
       if (text) {
         return text;
-      }
-    }
-    
-    // If not found, try with global KJV map as fallback
-    if (translationCode === 'KJV' && globalKjvTextMap) {
-      for (const format of formats) {
-        const text = globalKjvTextMap.get(format);
-        if (text) {
-          return text;
-        }
       }
     }
     
