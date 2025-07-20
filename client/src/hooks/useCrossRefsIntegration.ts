@@ -19,6 +19,10 @@ export function useCrossRefsIntegration(visibleVerseRefs: string[]) {
 
     const loadCrossRefsForVerses = async () => {
       try {
+        // First ensure the main translation is loaded before querying cross-refs
+        const { ensureTranslationLoaded } = await import('@/data/BibleDataAPI');
+        await ensureTranslationLoaded('KJV');
+        
         // Get worker instance (this triggers initialization with cf1 data from BibleDataAPI)
         const worker = await getCrossRefWorker();
         workerRef.current = worker;

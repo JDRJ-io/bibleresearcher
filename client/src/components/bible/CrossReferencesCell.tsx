@@ -110,6 +110,7 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
       {/* Render ALL cross-reference buttons with full verse text */}
       <div className="space-y-1">
         {parsedRefs.map((ref, index) => {
+          // Get verse text from cached translation (no network calls)
           const verseText = getVerseText(ref, mainTranslation) || '';
           
           return (

@@ -29,15 +29,29 @@ export async function fetchFromStorage(path: string): Promise<string> {
   return await data.text();
 }
 
+// Promise deduplication to prevent multiple concurrent fetches
+const pendingLoads: Record<string, Promise<any>> = {};
+
 function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
     return Promise.resolve(masterCache.get(key));
   }
   
-  return fetchFn().then(result => {
+  // Promise deduplication - if already loading, return existing promise
+  if (pendingLoads[key]) {
+    return pendingLoads[key];
+  }
+  
+  pendingLoads[key] = fetchFn().then(result => {
     masterCache.set(key, result);
+    delete pendingLoads[key]; // Clean up
     return result;
+  }).catch(error => {
+    delete pendingLoads[key]; // Clean up on error too
+    throw error;
   });
+  
+  return pendingLoads[key];
 }
 
 export async function loadTranslation(id: string) {
@@ -102,6 +116,19 @@ export async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
 // Get cross-reference data for BibleDataAPI facade
 export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
   return await loadCrossReferences(set);
+}
+
+// Ensure translation is loaded before cross-references (prevents timing issues)
+export async function ensureTranslationLoaded(translationId: string): Promise<Map<string, string>> {
+  console.log(`🔄 Ensuring translation ${translationId} is loaded...`);
+  const translation = await loadTranslation(translationId);
+  console.log(`✅ Translation ${translationId} ensured loaded: ${translation.size} verses`);
+  return translation;
+}
+
+// Get translation from cache (no network calls)
+export function getTranslation(translationId: string): Map<string, string> | null {
+  return masterCache.get(`translation-${translationId}`) || null;
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
