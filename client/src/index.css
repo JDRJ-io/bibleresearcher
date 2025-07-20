@@ -471,23 +471,25 @@ body.menu-open {
 
 /* Force horizontal scrollbar visibility - guarantee appears when content overflows */
 .bible-table-wrapper::-webkit-scrollbar{ 
-  height:8px; 
+  height: 12px !important; 
   display: block !important;
+  background: rgb(243 244 246);
 }
 
 .bible-table-wrapper::-webkit-scrollbar-track{ 
-  background: rgb(243 244 246); /* bg-gray-100 */
-  border-radius:4px; 
+  background: rgb(243 244 246) !important; /* bg-gray-100 */
+  border-radius: 6px; 
 }
 
 .bible-table-wrapper::-webkit-scrollbar-thumb{ 
-  background: rgb(156 163 175); /* bg-gray-400 */
-  border-radius:4px; 
+  background: rgb(156 163 175) !important; /* bg-gray-400 */
+  border-radius: 6px; 
   min-width: 40px; /* Ensure thumb is visible when scrollable */
+  border: 2px solid rgb(243 244 246);
 }
 
 .bible-table-wrapper::-webkit-scrollbar-thumb:hover{ 
-  background: rgb(107 114 128); /* bg-gray-500 */
+  background: rgb(107 114 128) !important; /* bg-gray-500 */
 }
 
 /* Dark mode scrollbar */
