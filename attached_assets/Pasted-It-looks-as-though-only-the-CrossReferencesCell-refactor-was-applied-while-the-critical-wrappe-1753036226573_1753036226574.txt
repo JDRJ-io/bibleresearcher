@@ -1,0 +1,137 @@
+It looks as though only the **CrossReferencesCell** refactor was applied, while the *critical wrapper / CSS edits* that make the scrollbar appear were skipped. Because the structural rules were not inserted, you won’t see any visual difference.
+
+Below is a concise “copy‑paste” patch list you (or the agent) can apply exactly. If a line already exists, overwrite it; if a block is missing, add it verbatim. Once these four blocks are present the bar will show and the dual‑column view will work.
+
+---
+
+## 1 `index.css`
+
+```css
+/* ─────────────────────────── wrapper (all viewports) ─────────────── */
+.bible-table-wrapper{
+  min-width:fit-content;
+  margin-inline:auto;          /* centre until wider than viewport */
+  overflow:auto;               /* always create scroll bars */
+}
+
+/* always display a visible (8 px) horizontal bar – Chrome/Safari */
+.bible-table-wrapper::-webkit-scrollbar{height:8px;}
+.bible-table-wrapper::-webkit-scrollbar-thumb{
+  background:#bbb;border-radius:4px;
+}
+
+/* ─────────────────────── mobile‑portrait dual‑column view ────────── */
+:root{ --colW: 640px; }        /* fallback; will be updated in JS */
+
+@media (max-width:639px){
+  .dual-col{
+    width:calc(var(--colW) * 2);      /* Ref + 1 data column   */
+    scroll-snap-type:x mandatory;
+  }
+  .dual-col::-webkit-scrollbar{height:8px;}
+
+  .cell-ref{
+    position:sticky;left:0;z-index:10;background:inherit;
+  }
+  .cell-ref span{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+  }
+}
+```
+
+---
+
+## 2 `VirtualBibleTable.tsx`  (or the component that renders the wrapper)
+
+```tsx
+const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+
+// update CSS variable if you have a sizeMultiplier
+useEffect(()=>{
+  document.documentElement.style.setProperty(
+    "--colW",
+    `${BASE_COL_W * sizeMultiplier}px`
+  );
+},[sizeMultiplier]);
+
+return (
+  <div
+    ref={wrapperRef}
+    className={`bible-table-wrapper ${isMobile ? "dual-col" : ""}`}
+    style={{ touchAction:"pan-y", marginTop:"-1px" }}
+  >
+    {/* …table grid… */}
+  </div>
+);
+```
+
+### Guard scrollLeft after column‑count change
+
+```tsx
+useEffect(()=>{
+  const w = wrapperRef.current;
+  if(!w) return;
+  const tooWide = w.scrollWidth > w.clientWidth;
+  if(tooWide && w.scrollLeft > w.scrollWidth - w.clientWidth){
+    w.scrollLeft = w.scrollWidth - w.clientWidth;
+  }
+},[visibleColumns]);
+```
+
+---
+
+## 3 Eager‑load main translation for cross‑ref snippets
+
+*in the same place you fetch the cross‑ref slice*
+
+```ts
+const need = refs.filter(r => !translationCache.has(mainId, r));
+if(need.length){
+  await loadTranslationSlice(mainId, need);
+}
+```
+
+---
+
+## 4 `CrossReferencesCell` (ensure you kept `onClick={e=>{e.stopPropagation(); …}}`)
+
+```tsx
+function CrossReferencesCell({ verseRef, onVerseClick }){
+  const crossRefs = useBibleStore(s=>s.crossRefs[verseRef] ?? []);
+  const { getVerseText, main } = useTranslationMaps();
+
+  return (
+    <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+      {crossRefs.map(ref=>{
+        const txt = getVerseText(ref, main) ?? "(loading…)";
+        return (
+          <button key={ref}
+            className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
+            onClick={e=>{e.stopPropagation(); onVerseClick(ref);}}>
+              <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">{ref}</span>
+              <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">{txt}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+```
+
+---
+
+### After applying the four blocks
+
+1. **Phone portrait (default)** → Ref + Main + Cross, centred, no h‑scroll.
+2. **Phone portrait (toggle extra column)** → wrapper becomes `dual-col`, table width = 2 × colW, horizontal bar appears and snaps one column per swipe.
+3. **Desktop (≥ 4 columns)** → left‑aligned table, horizontal bar always visible.
+
+---
+
+### If the agent is making changes
+
+Tell it explicitly:
+
+> *“Insert the exact CSS and JSX blocks above; do not create new components or extra wrappers. Verify scrollbar is visible on desktop with 5 columns and dual‑column mode functions on portrait phones.”*
+
+Once these edits are present you’ll finally see the scrollbar and real verse texts inside cross‑reference cells.

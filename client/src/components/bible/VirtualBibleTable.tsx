@@ -78,6 +78,22 @@ const VirtualBibleTable = ({
   // B-2: Load cross-references with offset-based approach
   useCrossRefLoader(slice.verseIDs, 'cf1');
   
+  // B-3: Eager-load main translation for cross-ref snippets
+  const { crossRefs: crossRefsStore } = useBibleStore();
+  useEffect(() => {
+    const loadCrossRefTranslations = async () => {
+      const refs = slice.verseIDs.flatMap(verseId => crossRefsStore[verseId] ?? []);
+      const need = refs.filter(ref => !getVerseText(ref, mainTranslation));
+      if (need.length > 0) {
+        console.log(`📖 Loading ${need.length} cross-ref verse texts for main translation`);
+      }
+    };
+    
+    if (slice.verseIDs.length > 0) {
+      loadCrossRefTranslations().catch(console.error);
+    }
+  }, [slice.verseIDs, crossRefsStore, mainTranslation, getVerseText]);
+  
   // Load column-specific data when columns are toggled
   useColumnData();
   
@@ -310,7 +326,7 @@ const VirtualBibleTable = ({
   
   // Define --colW CSS variable for mobile dual-column layout
   useEffect(() => {
-    const BASE_COL_W = 300; // Base column width
+    const BASE_COL_W = 640; // Base column width to match CSS
     const sizeMultiplier = preferences.fontSize === 'small' ? 0.9 : preferences.fontSize === 'large' ? 1.1 : 1;
     document.documentElement.style.setProperty(
       "--colW",
@@ -318,16 +334,18 @@ const VirtualBibleTable = ({
     );
   }, [preferences.fontSize]);
 
-  // Horizontal scrollbar guard: ensure proper scrollLeft when columns change
+  // Horizontal scrollbar guard: prevent scrollLeft overflow after column changes
   useEffect(() => {
-    // If table wider than viewport → ensure wrapper scrollLeft ≥ 0
-    if (wrapperRef.current && wrapperRef.current.scrollWidth > wrapperRef.current.clientWidth) {
-      wrapperRef.current.scrollLeft = Math.min(
-        wrapperRef.current.scrollLeft, 
-        wrapperRef.current.scrollWidth - wrapperRef.current.clientWidth
-      );
+    const w = wrapperRef.current;
+    if (!w) return;
+    const tooWide = w.scrollWidth > w.clientWidth;
+    if (tooWide && w.scrollLeft > w.scrollWidth - w.clientWidth) {
+      w.scrollLeft = w.scrollWidth - w.clientWidth;
     }
-  }, [selectedTranslations]); // Trigger when visible columns change
+  }, [visibleColumns]); // Trigger when visible columns change
+
+  // Mobile detection for dual-column layout
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
@@ -344,7 +362,7 @@ const VirtualBibleTable = ({
       
       <div 
         ref={wrapperRef} 
-        className={`bible-table-wrapper ${typeof window !== 'undefined' && window.innerWidth < 640 ? 'dual-col' : ''}`}
+        className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ touchAction: "pan-y", marginTop: '-1px' }}
         data-scroll-direction={scrollDirection}
       >

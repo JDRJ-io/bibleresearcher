@@ -462,7 +462,7 @@ body.menu-open {
   .dual-col::-webkit-scrollbar{ height:8px; }   /* keep bar visible */
 
   .cell-ref{
-    position:sticky; left:0; z-index:10;
+    position:sticky; left:0; z-index:10; background:inherit;
   }
   .cell-ref span{
     writing-mode:vertical-rl; transform:rotate(180deg);
