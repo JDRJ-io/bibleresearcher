@@ -206,37 +206,23 @@ export function ColumnHeaders({
             </div>
           </div>
         ) : (
-          // Left-anchored layout with sticky reference column
-          <div className="flex w-full h-full">
-            {/* Sticky reference column */}
-            {referenceColumn && (
-              <div className="sticky left-0 z-40 flex-shrink-0" style={{ backgroundColor: 'var(--header-bg)' }}>
+          // Left-anchored layout - simple layout without sticky positioning
+          <div className="flex min-w-max h-full">
+            <div 
+              className="flex min-w-max h-full"
+              style={{ 
+                transform: `translateX(-${Math.round(scrollLeft)}px)`,
+                willChange: 'transform'
+              }}
+            >
+              {allColumns.map((column) => (
                 <HeaderCell
-                  key={`slot-${referenceColumn.slot}`}
-                  column={referenceColumn}
-                  isMain={referenceColumn.isMain}
+                  key={`slot-${column.slot}`}
+                  column={column}
+                  isMain={column.isMain}
                   isMobile={isMobile}
                 />
-              </div>
-            )}
-            {/* Scrollable other columns */}
-            <div className="flex-1 overflow-hidden">
-              <div 
-                className="flex min-w-max h-full"
-                style={{ 
-                  transform: `translateX(-${Math.round(scrollLeft)}px)`,
-                  willChange: 'transform'
-                }}
-              >
-                {otherColumns.map((column) => (
-                  <HeaderCell
-                    key={`slot-${column.slot}`}
-                    column={column}
-                    isMain={column.isMain}
-                    isMobile={isMobile}
-                  />
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         )}

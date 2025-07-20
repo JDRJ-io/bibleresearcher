@@ -459,11 +459,8 @@ body.menu-open {
   justify-content: flex-start;      /* left‑align when >3 columns */
 }
 
-/* Dual-column mode styles */
+/* Reference column styling for proper layout */
 .cell-ref {
-  position: sticky;
-  left: 0;
-  z-index: 10;       /* above other cells */
   background: inherit;
 }
 

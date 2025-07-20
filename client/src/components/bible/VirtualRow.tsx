@@ -327,9 +327,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
 
-  // Split columns: reference (sticky) and others (scrollable)
-  const referenceColumn = visibleColumns.find(col => col.slot === 0);
-  const otherColumns = visibleColumns.filter(col => col.slot !== 0);
+  // Clean layout without complex splitting
 
   return (
     <div 
@@ -337,24 +335,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {shouldCenter ? (
-        // Centered layout for few columns
-        visibleColumns.map(renderSlot)
-      ) : (
-        // Left-anchored layout with sticky reference column
-        <>
-          {/* Sticky reference column */}
-          {referenceColumn && (
-            <div className="sticky left-0 z-10 flex-shrink-0 bg-inherit">
-              {renderSlot(referenceColumn)}
-            </div>
-          )}
-          {/* Regular other columns */}
-          <div className="flex">
-            {otherColumns.map(renderSlot)}
-          </div>
-        </>
-      )}
+      {/* Simple layout - all columns in order */}
+      {visibleColumns.map(renderSlot)}
     </div>
   );
 };
