@@ -71,10 +71,10 @@ export function ColumnHeaders({
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
-  const showNotes = propShowNotes ?? storeShowNotes;
+  const showNotes = storeShowNotes; // Always use store state for Notes
 
   // DEBUG: Log showNotes value
-  console.log('🔥 ColumnHeaders - showNotes value:', showNotes, 'propShowNotes:', propShowNotes, 'storeShowNotes:', storeShowNotes);
+  console.log('🔥 ColumnHeaders - showNotes value:', showNotes, 'storeShowNotes:', storeShowNotes);
 
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
@@ -85,13 +85,15 @@ export function ColumnHeaders({
   // Always show main translation (slot 2 per UI spec)  
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Map all column types based on store state - following UI layout spec
+  // Always add Notes when store says to show it - ignore columnState complexity
+  if (showNotes) {
+    slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
+    console.log('🔥 ColumnHeaders - Notes added to slotConfig');
+  }
+
+  // Map other column types based on store state
   columnState.columns.forEach(col => {
     switch (col.slot) {
-      case 1:
-        // Notes column (slot 1 per UI spec)
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: showNotes };
-        break;
       case 3:
         // Cross References column (slot 3 per UI spec)
         slotConfig[3] = { type: 'cross-refs', header: 'Cross References', visible: col.visible && showCrossRefs };
@@ -114,12 +116,6 @@ export function ColumnHeaders({
         break;
     }
   });
-
-  // Force Notes column to always appear when showNotes is true (regardless of columnState)
-  if (showNotes) {
-    slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
-    console.log('🔥 ColumnHeaders - FORCED Notes column into slotConfig');
-  }
 
   // Dynamically add alternate translation columns to slots 5-16 per UI spec
   alternates.forEach((translationCode, index) => {
