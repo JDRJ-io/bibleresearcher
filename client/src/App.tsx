@@ -63,6 +63,9 @@ export const useBibleStore = create<{
       store: { crossRefs: {}, prophecies: {} },
       showCrossRefs: true,  // Default ON for free users (optimal mobile display)
       showProphecies: false, // Default OFF for free users (cleaner mobile)
+      showNotes: false,     // Notes column toggle
+      showDates: false,     // Dates column toggle
+      showLabels: {},       // Labels state object for semantic highlighting
       toggleCrossRefs: () => set(state => ({ 
         showCrossRefs: !state.showCrossRefs,
         columnState: {
@@ -79,6 +82,30 @@ export const useBibleStore = create<{
           columns: state.columnState.columns.map(col => 
             col.slot >= 17 && col.slot <= 19 ? { ...col, visible: !state.showProphecies } : col
           )
+        }
+      })),
+      toggleNotes: () => set(state => ({
+        showNotes: !state.showNotes,
+        columnState: {
+          ...state.columnState,
+          columns: state.columnState.columns.map(col => 
+            col.slot === 1 ? { ...col, visible: !state.showNotes } : col
+          )
+        }
+      })),
+      toggleDates: () => set(state => ({
+        showDates: !state.showDates,
+        columnState: {
+          ...state.columnState,
+          columns: state.columnState.columns.map(col => 
+            col.slot === 4 ? { ...col, visible: !state.showDates } : col
+          )
+        }
+      })),
+      toggleLabel: (labelId: string) => set(state => ({
+        showLabels: {
+          ...state.showLabels,
+          [labelId]: !state.showLabels[labelId]
         }
       })),
       

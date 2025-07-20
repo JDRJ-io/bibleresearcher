@@ -1417,6 +1417,45 @@ export function useBibleData() {
     return "";
   };
 
+  // Verse text retrieval function for VirtualRow components
+  const getVerseText = (verseReference: string, translationCode: string): string | undefined => {
+    // Check the master cache first
+    const cacheKey = `translation-${translationCode}`;
+    const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
+    
+    if (!translationMap) {
+      console.log(`Translation ${translationCode} not found in cache`);
+      return undefined;
+    }
+    
+    // Try multiple reference formats to find the text
+    const formats = [
+      verseReference, // "Gen 1:1"
+      verseReference.replace(/\s/g, "."), // "Gen 1:1" -> "Gen.1:1"
+      verseReference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
+      `${verseReference.split(" ")[0]}.${verseReference.split(" ")[1]}`, // "Gen 1:1" -> "Gen.1:1"
+    ];
+    
+    for (const format of formats) {
+      const text = translationMap.get(format);
+      if (text) {
+        return text;
+      }
+    }
+    
+    // If not found, try with global KJV map as fallback
+    if (translationCode === 'KJV' && globalKjvTextMap) {
+      for (const format of formats) {
+        const text = globalKjvTextMap.get(format);
+        if (text) {
+          return text;
+        }
+      }
+    }
+    
+    return undefined;
+  };
+
   return {
     verses: verses, // Return display verses for rendering
     allVerses: verses, // Keep full dataset available

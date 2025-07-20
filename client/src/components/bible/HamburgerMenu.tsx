@@ -33,7 +33,18 @@ export function HamburgerMenu({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { showCrossRefs, showProphecies, toggleCrossRefs, toggleProphecies } = useBibleStore();
+  const { 
+    showCrossRefs, 
+    showProphecies, 
+    showNotes, 
+    showDates, 
+    showLabels, 
+    toggleCrossRefs, 
+    toggleProphecies, 
+    toggleNotes, 
+    toggleDates, 
+    toggleLabel 
+  } = useBibleStore();
   const { theme, setTheme, themes } = useTheme();
 
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
@@ -188,6 +199,8 @@ export function HamburgerMenu({
                 <div key={label.id} className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 flex items-center space-x-2">
                   <Checkbox 
                     id={label.id}
+                    checked={showLabels[label.id] || false}
+                    onCheckedChange={() => toggleLabel(label.id)}
                     className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                   />
                   <Label htmlFor={label.id} className="cursor-pointer text-xs font-medium">
@@ -234,6 +247,30 @@ export function HamburgerMenu({
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shows P|F|V columns for prophecy analysis</p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Notes Column</Label>
+                  <Checkbox 
+                    checked={showNotes}
+                    onCheckedChange={toggleNotes}
+                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Your personal verse notes</p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium">Dates Column</Label>
+                  <Checkbox 
+                    checked={showDates}
+                    onCheckedChange={toggleDates}
+                    className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Historical dating information</p>
               </div>
             </div>
           </div>
@@ -306,12 +343,11 @@ export function HamburgerMenu({
                 Adjusts font size, column width, and row height globally
               </p>
             </div>
-          </div>
 
             {/* Themes */}
             <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
               <Label className="text-sm font-medium mb-2 block flex items-center">
-                <Palette className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
+                <Palette className="w-4 h-4 mr-2 text-orange-600 dark:text-orange-400" />
                 Color Theme
               </Label>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -320,7 +356,7 @@ export function HamburgerMenu({
                     key={themeOption.id}
                     variant={theme === themeOption.id ? "default" : "outline"}
                     size="sm"
-                    className={`text-xs h-8 ${theme === themeOption.id ? 'bg-purple-600 hover:bg-purple-700' : ''}`}
+                    className={`text-xs h-8 ${theme === themeOption.id ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
                     onClick={() => setTheme(themeOption.id)}
                   >
                     {themeOption.name}
@@ -328,6 +364,21 @@ export function HamburgerMenu({
                 ))}
               </div>
             </div>
+
+            {/* Chronological Toggle */}
+            <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Chronological Order</Label>
+                <Checkbox 
+                  checked={false}
+                  onCheckedChange={() => {}}
+                  className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
+                  disabled
+                />
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Switch from canonical to chronological verse order (coming soon)</p>
+            </div>
+          </div>
 
           <Separator />
 
