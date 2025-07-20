@@ -74,43 +74,45 @@ export function ColumnHeaders({
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
 
+  // Always show reference column
+  slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
+  
+  // Always show main translation in slot 2 (UI_layout_spec.md)
+  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  
+  // Dynamically add alternate translation columns starting from slot 5
+  alternates.forEach((translationCode, index) => {
+    const slot = 5 + index; // Start at slot 5 for alternates per UI_layout_spec.md
+    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+      slotConfig[slot] = { 
+        type: 'alt-translation', 
+        header: translationCode, 
+        translationCode, 
+        visible: true 
+      };
+    }
+  });
+
+  // Map other column types based on store state
   columnState.columns.forEach(col => {
     switch (col.slot) {
-      case 0:
-        slotConfig[0] = { type: 'reference', header: 'Ref', visible: col.visible };
-        break;
       case 1:
-        slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: col.visible };
-        break;
-      case 2:
-        if (alternates[0]) slotConfig[2] = { type: 'alt-translation', header: alternates[0], translationCode: alternates[0], visible: col.visible && !!alternates[0] };
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible };
         break;
       case 3:
-        if (alternates[1]) slotConfig[3] = { type: 'alt-translation', header: alternates[1], translationCode: alternates[1], visible: col.visible && !!alternates[1] };
+        slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible };
         break;
       case 4:
-        if (alternates[2]) slotConfig[4] = { type: 'alt-translation', header: alternates[2], translationCode: alternates[2], visible: col.visible && !!alternates[2] };
+        slotConfig[4] = { type: 'context', header: 'Dates', visible: col.visible };
         break;
-      case 5:
-        if (alternates[3]) slotConfig[5] = { type: 'alt-translation', header: alternates[3], translationCode: alternates[3], visible: col.visible && !!alternates[3] };
+      case 17:
+        slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: col.visible };
         break;
-      case 6:
-        slotConfig[6] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible };
+      case 18:
+        slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: col.visible };
         break;
-      case 7:
-        slotConfig[7] = { type: 'prophecy-p', header: 'P', visible: col.visible };
-        break;
-      case 8:
-        slotConfig[8] = { type: 'prophecy-f', header: 'F', visible: col.visible };
-        break;
-      case 9:
-        slotConfig[9] = { type: 'prophecy-v', header: 'V', visible: col.visible };
-        break;
-      case 10:
-        slotConfig[10] = { type: 'notes', header: 'Notes', visible: col.visible };
-        break;
-      case 11:
-        slotConfig[11] = { type: 'context', header: 'Context', visible: col.visible };
+      case 19:
+        slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: col.visible };
         break;
     }
   });
