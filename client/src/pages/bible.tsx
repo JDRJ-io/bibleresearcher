@@ -8,6 +8,7 @@ import { useTranslationMaps as useTranslationSlice } from "@/store/translationSl
 import { useBibleStore } from "@/App";
 import { useToast } from "@/hooks/use-toast";
 import { getVerseText } from "@/lib/translationLoader";
+import { getTranslation } from "@/data/BibleDataAPI";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
@@ -232,7 +233,7 @@ export default function BiblePage() {
 
       try {
         // Load the translation data
-        const translationData = await loadTranslation(translationId);
+        const translationData = await getTranslation(translationId);
 
         if (translationData.size > 0) {
           // Update verses with the new translation data

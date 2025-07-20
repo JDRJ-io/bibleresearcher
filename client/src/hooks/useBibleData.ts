@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { masterCache } from "@/lib/supabaseClient";
+import { supabase, masterCache } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
 // ARCHITECTURE: Use ONLY BibleDataAPI facade for all data - eliminates duplicate loading
 

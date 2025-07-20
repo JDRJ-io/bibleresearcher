@@ -283,9 +283,10 @@ export async function ensureTranslationLoaded(translationId: string): Promise<Ma
   return translation;
 }
 
-// Legacy method - DEPRECATED to prevent memory bloat
+// Legacy method - DEPRECATED to prevent memory bloat  
 export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
-  throw new Error(`getCrossRef() DEPRECATED - use getCrossRefSlice() for byte-range requests only`);
+  console.warn(`getCrossRef() DEPRECATED - use getCrossRefSlice() for byte-range requests only`);
+  return ''; // Empty fallback to prevent breaking changes
 }
 
 // DOCUMENTED: getCfOffsets(set) - alias for loadCrossRefOffsets
