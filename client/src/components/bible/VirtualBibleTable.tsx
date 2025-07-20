@@ -204,7 +204,7 @@ const VirtualBibleTable = ({
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
-  // Calculate visible columns for centering logic (UI_layout_spec.md rule)
+  // Calculate visible columns for layout logic
   const visibleColumns = useMemo(() => {
     const columns = [
       "Reference", // Always visible
@@ -216,7 +216,8 @@ const VirtualBibleTable = ({
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
   
-  // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
+  // NEW LAYOUT RULE: Never center when there are many columns
+  // Instead, keep reference column pinned to left and enable horizontal scroll
   const shouldCenter = visibleColumns.length <= 3;
   
   useEffect(() => {
