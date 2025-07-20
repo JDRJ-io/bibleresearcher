@@ -320,13 +320,29 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     }
   };
 
+  // Split columns: Ref column stays fixed, others scroll (matching ColumnHeaders layout)
+  const refColumn = visibleColumns.find(col => col.slot === 0);
+  const scrollableColumns = visibleColumns.filter(col => col.slot !== 0);
+
   return (
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {visibleColumns.map(renderSlot)}
+      {/* Fixed Reference Column - Never scrolls away */}
+      {refColumn && (
+        <div className="flex-shrink-0 z-40">
+          {renderSlot(refColumn)}
+        </div>
+      )}
+      
+      {/* Scrollable columns container */}
+      <div className="flex-1 overflow-hidden">
+        <div className="flex min-w-max">
+          {scrollableColumns.map(renderSlot)}
+        </div>
+      </div>
     </div>
   );
 };

@@ -34,8 +34,8 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
 
   return (
-    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
-      {column.name}
+    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs h-12 ${bgClass}`}>
+      <span className="truncate">{column.name}</span>
     </div>
   );
 }
@@ -155,34 +155,53 @@ export function ColumnHeaders({
     slot: col.slot
   }));
 
+  // Split columns: Ref column stays fixed, others scroll
+  const refColumn = allColumns.find(col => col.slot === 0);
+  const scrollableColumns = allColumns.filter(col => col.slot !== 0);
+
   return (
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
-        top: '38px', // Mobile header height (matches BiblePage header)
-        height: '40px',
+        top: isMobile ? '48px' : '64px', // Match actual header heights
+        minHeight: '48px', // Ensure minimum height, allow growth
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',
         marginTop: '-1px' // Overlap border to eliminate gap
       }}
     >
-      <div className="overflow-hidden w-full h-full">
-        <div className={shouldCenter ? "flex justify-center w-full h-full" : ""}>
-          <div 
-            className="flex min-w-max h-full"
-            style={{ 
-              transform: shouldCenter ? undefined : `translateX(-${Math.round(scrollLeft)}px)`,
-              willChange: shouldCenter ? undefined : 'transform'
-            }}
-          >
-            {allColumns.map((column) => (
-              <HeaderCell
-                key={`slot-${column.slot}`}
-                column={column}
-                isMain={column.isMain}
-                isMobile={isMobile}
-              />
-            ))}
+      <div className="overflow-hidden w-full h-full flex">
+        {/* Fixed Reference Column - Never scrolls away */}
+        {refColumn && (
+          <div className="flex-shrink-0 z-40">
+            <HeaderCell
+              key={`slot-${refColumn.slot}`}
+              column={refColumn}
+              isMain={refColumn.isMain}
+              isMobile={isMobile}
+            />
+          </div>
+        )}
+        
+        {/* Scrollable columns container */}
+        <div className="flex-1 overflow-hidden">
+          <div className={shouldCenter ? "flex justify-center w-full h-full" : ""}>
+            <div 
+              className="flex min-w-max h-full"
+              style={{ 
+                transform: shouldCenter ? undefined : `translateX(-${Math.round(scrollLeft)}px)`,
+                willChange: shouldCenter ? undefined : 'transform'
+              }}
+            >
+              {scrollableColumns.map((column) => (
+                <HeaderCell
+                  key={`slot-${column.slot}`}
+                  column={column}
+                  isMain={column.isMain}
+                  isMobile={isMobile}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
