@@ -6,7 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus } from "lucide-react";
-import { TranslationSelector } from "./TranslationSelector";
+import { MainTranslationSelector } from './MainTranslationSelector';
+import { AlternateTranslationSelector } from './AlternateTranslationSelector';
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -138,7 +139,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Select Main Translation</h4>
-            <TranslationSelector onUpdate={() => {}} />
+            <MainTranslationSelector onUpdate={() => {}} />
           </div>
         );
 
@@ -146,7 +147,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
-            <TranslationSelector onUpdate={() => console.log('🔄 Translation updated from alt-translations tab')} />
+            <AlternateTranslationSelector onUpdate={() => console.log('🔄 Translation updated from alt-translations tab')} />
           </div>
         );
 
