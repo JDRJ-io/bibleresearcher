@@ -28,17 +28,63 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
   
   // Convert verse reference to the format used in crossRefs store (Gen.1:1)
   const dotFormat = verseReference.replace(/\s+/g, '.');
-  const refs = crossRefs[dotFormat] || [];
+  const rawRefs = crossRefs[dotFormat] || [];
 
   // Get main translation for preview text
   const mainTranslation = 'KJV'; // Default to KJV for cross-ref previews
   
-  // Debug logging for first few verses
-  if (dotFormat === 'Gen.1:1' || dotFormat === 'Gen.1:2') {
-    console.log(`🔍 CrossReferencesCell Debug for ${dotFormat}:`, { refs, crossRefs: crossRefs[dotFormat] });
+  // Parse cross-references if they're in raw format
+  const parsedRefs: string[] = [];
+  
+  if (Array.isArray(rawRefs)) {
+    rawRefs.forEach(rawRef => {
+      if (typeof rawRef === 'string') {
+        if (rawRef.includes('$$')) {
+          // Parse raw format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+          const [, crossRefsText] = rawRef.split('$$', 2);
+          if (crossRefsText) {
+            const groups = crossRefsText.split('$');
+            groups.forEach(group => {
+              const trimmedGroup = group.trim();
+              if (trimmedGroup) {
+                if (trimmedGroup.includes('#')) {
+                  // Handle sequential references within group
+                  const sequentialRefs = trimmedGroup.split('#');
+                  sequentialRefs.forEach(ref => {
+                    const trimmedRef = ref.trim().replace(/\r$/, ''); // Remove carriage return
+                    if (trimmedRef) {
+                      parsedRefs.push(trimmedRef);
+                    }
+                  });
+                } else {
+                  // Single reference in group
+                  const trimmedRef = trimmedGroup.replace(/\r$/, ''); // Remove carriage return
+                  if (trimmedRef) {
+                    parsedRefs.push(trimmedRef);
+                  }
+                }
+              }
+            });
+          }
+        } else {
+          // Already parsed format
+          parsedRefs.push(rawRef);
+        }
+      }
+    });
   }
   
-  if (refs.length === 0) {
+  // Debug logging for first few verses
+  if (dotFormat === 'Gen.1:1' || dotFormat === 'Gen.1:2') {
+    console.log(`🔍 CrossReferencesCell Debug for ${dotFormat}:`, { 
+      rawRefs: Array.isArray(rawRefs) ? rawRefs.slice(0, 5) : rawRefs, 
+      parsedRefs: parsedRefs.slice(0, 10),
+      totalParsed: parsedRefs.length,
+      allRefsAvailable: parsedRefs.length
+    });
+  }
+  
+  if (parsedRefs.length === 0) {
     return (
       <div className="text-xs text-muted-foreground italic p-1 whitespace-nowrap overflow-hidden">
         -
@@ -58,14 +104,13 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
     <div className="text-xs p-1 max-h-[120px] overflow-y-auto overflow-x-hidden">
       {/* Show count badge */}
       <div className="text-sky-600 font-medium mb-1 whitespace-nowrap">
-        {refs.length} ref{refs.length !== 1 ? 's' : ''}
+        {parsedRefs.length} ref{parsedRefs.length !== 1 ? 's' : ''}
       </div>
       
-      {/* Render cross-reference buttons with proper text wrapping */}
+      {/* Render ALL cross-reference buttons with full verse text */}
       <div className="space-y-1">
-        {refs.slice(0, 8).map((ref, index) => {
+        {parsedRefs.map((ref, index) => {
           const verseText = getVerseText(ref, mainTranslation) || '';
-          const previewText = verseText.length > 35 ? verseText.slice(0, 35) + '…' : verseText;
           
           return (
             <button
@@ -81,23 +126,16 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
               <div className="font-mono text-xs text-blue-600 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                 {ref}
               </div>
-              {/* Verse text preview with text wrapping */}
-              {previewText && (
+              {/* Full verse text with text wrapping */}
+              {verseText && (
                 <div className="text-xs text-gray-600 dark:text-gray-300 leading-tight mt-0.5 break-words">
-                  {previewText}
+                  {verseText}
                 </div>
               )}
             </button>
           );
         })}
       </div>
-      
-      {/* Show truncation indicator if there are more refs */}
-      {refs.length > 8 && (
-        <div className="text-xs text-muted-foreground italic mt-1 whitespace-nowrap">
-          +{refs.length - 8} more
-        </div>
-      )}
     </div>
   );
 };

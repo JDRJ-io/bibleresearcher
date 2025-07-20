@@ -73,14 +73,16 @@ const VirtualBibleTable = ({
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
   
+  // CROSS-REFERENCES INTEGRATION: Load cross-refs for visible verses
+  const visibleVerseRefs = slice.verseIDs?.map(id => {
+    const verseKey = getVerseKeyByIndex(verseKeys.indexOf(id));
+    return verseKey ? verseKey.replace(/\./g, ' ') : '';
+  }).filter(Boolean) || [];
+  
+  useCrossRefsIntegration(visibleVerseRefs);
+  
   // B-1: Load slice data for cross-references and prophecy
   const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs, mainTranslation);
-  
-  // B-2: Load cross-references with worker integration
-  useCrossRefsIntegration(slice.verseIDs);
-  
-  // Legacy cross-ref loader for backwards compatibility
-  useCrossRefLoader(slice.verseIDs, 'cf1');
   
   // B-3: Eager-load main translation for cross-ref snippets
   const { crossRefs: crossRefsStore } = useBibleStore();
