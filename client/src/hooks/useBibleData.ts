@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase, masterCache } from "@/lib/supabaseClient";
+import { masterCache } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
-// All data loading through BibleDataAPI facade ONLY - single source of truth
-// No global translation maps - use BibleDataAPI cache directly
+// ARCHITECTURE: Use ONLY BibleDataAPI facade for all data - eliminates duplicate loading
 
 // Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
 const loadFullBibleIndex = async (
@@ -18,12 +17,12 @@ const loadFullBibleIndex = async (
   }
 
   try {
-    // Load complete canonical verse reference list from BibleDataAPI
-    console.log("Loading canonical verse references from BibleDataAPI...");
+    // Use ONLY BibleDataAPI facade for verse keys - eliminates legacy loaders
+    console.log("Loading canonical verse references via BibleDataAPI facade...");
     const { loadVerseKeys } = await import('@/data/BibleDataAPI');
-    const verseKeys = await loadVerseKeys();
+    const verseKeys = await loadVerseKeys('canonical');
     console.log(
-      `Loaded ${verseKeys.length} canonical verse references from Supabase`,
+      `✅ Loaded ${verseKeys.length} canonical verse keys via BibleDataAPI`,
     );
 
     if (progressCallback) {
@@ -1309,14 +1308,14 @@ export function useBibleData() {
   );
   const scrollOffset = calculateScrollOffset();
 
-  // Load translation when selected from Supabase
+  // Load translation using ONLY BibleDataAPI facade
   const loadTranslationData = async (translationId: string) => {
     try {
-      console.log(`Loading ${translationId} translation from Supabase...`);
+      console.log(`Loading ${translationId} translation via BibleDataAPI...`);
       
-      // Import the translation loader
-      const { loadTranslationSecure } = await import('../lib/supabaseClient');
-      const translationData = await loadTranslationSecure(translationId);
+      // Use ONLY BibleDataAPI facade - single source of truth
+      const { loadTranslation } = await import('@/data/BibleDataAPI');
+      const translationData = await loadTranslation(translationId);
 
       if (translationData.size > 0) {
         // Update all verses (both display and full set) with the new translation

@@ -7,7 +7,7 @@ import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useTranslationMaps as useTranslationSlice } from "@/store/translationSlice";
 import { useBibleStore } from "@/App";
 import { useToast } from "@/hooks/use-toast";
-import { loadTranslation, getVerseText } from "@/lib/translationLoader";
+import { getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
