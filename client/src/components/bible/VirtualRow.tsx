@@ -34,37 +34,41 @@ function ReferenceCell({ verse }: CellProps) {
   );
 }
 
-function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
+interface CrossReferencesCellProps extends CellProps {
+  width: string;
+}
+
+function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick, width }: CrossReferencesCellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
   
-  // Get cross-references from the Bible store (loaded from Supabase)
+  // Get cross-references from the Bible store (loaded via worker from Supabase)
   const crossRefs = crossRefsStore[verse.reference] ?? [];
+  
+  // Create compact display for cross-references 
+  const crossRefDisplay = crossRefs.length > 0 
+    ? crossRefs.slice(0, 3).map(ref => {
+        // Convert reference to short form (e.g., "John.1:1" -> "Jn1:1")
+        if (typeof ref === 'string') {
+          return ref.split('.')[0].substring(0, 3) + ref.split('.')[1]?.replace(':', ':') || ref;
+        }
+        return '';
+      }).join(', ') + (crossRefs.length > 3 ? `+${crossRefs.length - 3}` : '')
+    : '';
 
   return (
-    <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-      {crossRefs.map((ref, index) => {
-        const txt = getVerseText(ref, mainTranslation) ?? "(loading…)";
-        return (
-          <button
-            key={ref}
-            className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
-            onClick={(e) => {
-              e.stopPropagation();
-              onVerseClick?.(ref);
-            }}
-          >
-            <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
-              {ref}
-            </span>
-            <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
-              {txt}
-            </span>
-          </button>
-        );
-      })}
-      {crossRefs.length === 0 && (
-        <div className="text-gray-400 italic text-xs">No cross-references</div>
-      )}
+    <div className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+      <div 
+        className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 cell-content cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30" 
+        title={crossRefs.length > 0 ? `${crossRefs.length} cross-references: ${crossRefs.join(', ')}` : 'No cross-references'}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (crossRefs.length > 0 && onVerseClick) {
+            onVerseClick(crossRefs[0]); // Navigate to first cross-reference
+          }
+        }}
+      >
+        {crossRefDisplay || ''}
+      </div>
     </div>
   );
 }
@@ -248,22 +252,14 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        // Get actual cross-reference data for this verse
-        const crossRefs = verse.crossReferences || [];
-        const crossRefDisplay = crossRefs.length > 0 
-          ? crossRefs.slice(0, 3).map(ref => {
-              if (typeof ref === 'string') return ref.split('.')[0];
-              if (ref && typeof ref === 'object' && 'reference' in ref) return ref.reference?.split('.')[0] || '';
-              return '';
-            }).join(', ') + (crossRefs.length > 3 ? '...' : '')
-          : '';
-        return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-xs text-blue-600 cell-content" title={crossRefs.join(', ')}>
-              {crossRefDisplay || ''}
-            </div>
-          </div>
-        );
+        return <CrossReferencesCell 
+          key={slot} 
+          verse={verse} 
+          getVerseText={getVerseText} 
+          mainTranslation={main}
+          onVerseClick={onVerseClick}
+          width={width}
+        />;
 
       case 'context':
         return (

@@ -13,6 +13,7 @@ import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
+import { useCrossRefsIntegration } from "@/hooks/useCrossRefsIntegration";
 import { useBibleStore } from "@/App";
 import { useBibleData } from "@/hooks/useBibleData";
 
@@ -77,6 +78,9 @@ const VirtualBibleTable = ({
   
   // B-2: Load cross-references with offset-based approach
   useCrossRefLoader(slice.verseIDs, 'cf1');
+  
+  // B-2.5: Integrate cross-references worker with store
+  useCrossRefsIntegration(slice.verseIDs);
   
   // B-3: Eager-load main translation for cross-ref snippets
   const { crossRefs: crossRefsStore } = useBibleStore();

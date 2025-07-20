@@ -59,6 +59,8 @@ export const useBibleStore = create<{
   toggleNotes: () => void;
   toggleDates: () => void;
   toggleLabel: (labelId: string) => void;
+  setCrossRefs: (verseRef: string, refs: string[]) => void;
+  setBulkCrossRefs: (data: Record<string, string[]>) => void;
   columnState: ColumnState;
   sizeState: SizeState;
   isInitialized: boolean;
@@ -143,6 +145,20 @@ export const useBibleStore = create<{
     showLabels: {
       ...state.showLabels,
       [labelId]: !state.showLabels[labelId]
+    }
+  })),
+
+  setCrossRefs: (verseRef: string, refs: string[]) => set(state => ({
+    crossRefs: {
+      ...state.crossRefs,
+      [verseRef]: refs
+    }
+  })),
+
+  setBulkCrossRefs: (data: Record<string, string[]>) => set(state => ({
+    crossRefs: {
+      ...state.crossRefs,
+      ...data
     }
   })),
 
