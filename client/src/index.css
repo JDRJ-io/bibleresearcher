@@ -73,6 +73,33 @@ body {
   font-size: var(--text-base);
 }
 
+/* Atmospheric Background for Empty Areas */
+.bible-atmosphere {
+  background: linear-gradient(135deg, 
+    rgba(248, 250, 252, 0.98) 0%,
+    rgba(241, 245, 249, 0.98) 25%, 
+    rgba(248, 250, 252, 0.98) 50%,
+    rgba(241, 245, 249, 0.98) 75%,
+    rgba(248, 250, 252, 0.98) 100%),
+    radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.04) 0%, transparent 35%),
+    radial-gradient(circle at 75% 75%, rgba(30, 64, 175, 0.03) 0%, transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.02) 0%, transparent 50%);
+  position: relative;
+}
+
+.bible-atmosphere::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(212, 175, 55, 0.008) 35px, rgba(212, 175, 55, 0.008) 70px),
+    repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(30, 64, 175, 0.005) 35px, rgba(30, 64, 175, 0.005) 70px);
+  pointer-events: none;
+}
+
 /* Apply font size scaling to verse content AND row height */
 .verse-text {
   font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
