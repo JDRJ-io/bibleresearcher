@@ -444,6 +444,39 @@ body.menu-open {
 }
 /* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
 
+/* UI SPEC SIZING MODEL - Device-responsive base sizing */
+@media (max-width: 639px)  { 
+  :root { 
+    --baseRem: .875rem; 
+    --baseColW: 420px; 
+    --sizeMult: 1; 
+  } 
+}
+@media (min-width: 640px) and (max-width: 1023px) { 
+  :root { 
+    --baseRem: 1rem;   
+    --baseColW: 480px; 
+    --sizeMult: 1; 
+  } 
+}
+@media (min-width: 1024px) { 
+  :root { 
+    --baseRem: 1.125rem; 
+    --baseColW: 520px; 
+    --sizeMult: 1; 
+  } 
+}
+
+/* Size multiplier affects all text and columns */
+html { 
+  font-size: calc(var(--baseRem) * var(--sizeMult)); 
+}
+
+/* Column width class for all columns */
+.w-col { 
+  width: calc(var(--baseColW) * var(--sizeMult)); 
+}
+
 /* ①  base rule – works on every viewport width */
 .bible-table-wrapper{
   min-width:fit-content;

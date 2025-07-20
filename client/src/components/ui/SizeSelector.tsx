@@ -27,6 +27,13 @@ export function SizeSelector({ className = '' }: SizeSelectorProps) {
     }
   }, [setSizeMult]);
 
+  React.useEffect(() => {
+    // Apply size multiplier to CSS custom property
+    document.documentElement.style.setProperty('--sizeMult', sizeMult.toString());
+    // Save to localStorage when changed
+    localStorage.setItem('bibleSizeMult', sizeMult.toString());
+  }, [sizeMult]);
+
   return (
     <div className={`flex gap-1 ${className}`}>
       <span className="text-sm font-medium text-gray-600 dark:text-gray-300 mr-2">
