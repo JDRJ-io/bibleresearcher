@@ -106,17 +106,31 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onExpandVerse,
 }) => {
   const { main, alternates } = useTranslationSlice();
-  const { showCrossRefs, showProphecies } = useBibleStore();
+  const { showCrossRefs, showProphecies, columnState } = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
-  // Match the column order from ColumnHeaders exactly
-  const columnOrder = [
-    "Reference", 
-    main,
-    ...alternates,
-    ...(showCrossRefs ? ["Cross References"] : []),
-    ...(showProphecies ? ["P", "F", "V"] : [])
-  ];
+  // UI Layout Spec slot-based system (slots 0-19)
+  const slotConfig = {
+    0: { type: 'reference', header: 'Ref' },
+    1: { type: 'notes', header: 'Notes' },
+    2: { type: 'main-translation', header: main, translationCode: main },
+    3: { type: 'cross-references', header: 'Cross References' },
+    4: { type: 'dates', header: 'Date' },
+    // Slots 5-16: Alternate translations
+    ...Object.fromEntries(alternates.map((alt, i) => [
+      5 + i, { type: 'alt-translation', header: alt, translationCode: alt }
+    ])),
+    17: { type: 'prophecy-p', header: 'P' },
+    18: { type: 'prophecy-f', header: 'F' },
+    19: { type: 'prophecy-v', header: 'V' }
+  };
+  
+  // Get visible columns from store and sort by slot
+  const visibleColumns = columnState.columns
+    .filter(col => col.visible)
+    .sort((a, b) => a.slot - b.slot)
+    .map(col => ({ ...col, config: slotConfig[col.slot] }))
+    .filter(col => col.config); // Only render slots that have config
 
   const handleDoubleClick = () => {
     if (onExpandVerse) {
@@ -124,63 +138,92 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     }
   };
 
-  const renderColumn = (columnKey: string) => {
-    const isMain = columnKey === main;
-    // Mobile-optimized widths to match attached image
+  const renderSlot = (column: any) => {
+    const { slot, config, widthRem } = column;
+    const isMain = config.translationCode === main;
+    
+    // Calculate width based on slot type and mobile
     const width = isMobile ? 
-      (columnKey === "Reference" ? "w-16" : 
-       columnKey === "Cross References" ? "w-12" : 
-       ["P", "F", "V"].includes(columnKey) ? "w-8" : "flex-1") :
-      (columnKey === "Reference" ? "w-20" : 
-       columnKey === "Cross References" ? "w-60" : 
-       ["P", "F", "V"].includes(columnKey) ? "w-20" : "w-80");
+      (slot === 0 ? "w-16" :        // Reference 
+       slot === 3 ? "w-12" :        // Cross References
+       slot >= 17 ? "w-8" :         // Prophecy P/F/V
+       "flex-1") :                  // Translations
+      (slot === 0 ? "w-20" :        // Reference
+       slot === 3 ? "w-60" :        // Cross References  
+       slot >= 17 ? "w-20" :        // Prophecy P/F/V
+       "w-80");                     // Translations
     
-    if (columnKey === "Reference") {
-      return (
-        <div key="ref" className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-          <ReferenceCell 
-            verse={verse}
-            getVerseText={getVerseText}
-            mainTranslation={mainTranslation}
-            onVerseClick={onVerseClick}
-          />
-        </div>
-      );
-    }
-    
-    if (columnKey === "Cross References") {
-      return (
-        <div key="cross-references" className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-          <CrossReferencesCell 
-            verse={verse}
-            getVerseText={getVerseText}
-            mainTranslation={mainTranslation}
-            onVerseClick={onVerseClick}
-          />
-        </div>
-      );
-    }
-    
-    if (["P", "F", "V"].includes(columnKey)) {
-      return (
-        <div key={columnKey} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-          <ProphecyCell verse={verse} type={columnKey as "P" | "F" | "V"} />
-        </div>
-      );
-    }
-    
-    // Translation column
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
-    return (
-      <div key={columnKey} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
-        <TranslationCell 
-          verse={verse}
-          translation={columnKey}
-          getVerseText={getVerseText}
-          isMain={isMain}
-        />
-      </div>
-    );
+    
+    switch (config.type) {
+      case 'reference':
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <ReferenceCell 
+              verse={verse}
+              getVerseText={getVerseText}
+              mainTranslation={mainTranslation}
+              onVerseClick={onVerseClick}
+            />
+          </div>
+        );
+        
+      case 'notes':
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <div className="px-2 py-1 text-sm text-gray-500">
+              [Notes placeholder]
+            </div>
+          </div>
+        );
+        
+      case 'main-translation':
+      case 'alt-translation':
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
+            <TranslationCell 
+              verse={verse}
+              translation={config.translationCode}
+              getVerseText={getVerseText}
+              isMain={isMain}
+            />
+          </div>
+        );
+        
+      case 'cross-references':
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <CrossReferencesCell 
+              verse={verse}
+              getVerseText={getVerseText}
+              mainTranslation={mainTranslation}
+              onVerseClick={onVerseClick}
+            />
+          </div>
+        );
+        
+      case 'dates':
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <div className="px-2 py-1 text-sm text-gray-500">
+              [Date placeholder]
+            </div>
+          </div>
+        );
+        
+      case 'prophecy-p':
+      case 'prophecy-f':
+      case 'prophecy-v':
+        const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <ProphecyCell verse={verse} type={type} />
+          </div>
+        );
+        
+      default:
+        return null;
+    }
   };
 
   return (
@@ -189,7 +232,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {columnOrder.map(renderColumn)}
+      {visibleColumns.map(renderSlot)}
     </div>
   );
 };

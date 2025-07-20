@@ -52,41 +52,45 @@ export function ColumnHeaders({
   const { main, alternates } = useTranslationMaps();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
-  // Get store states for column visibility
-  const { showCrossRefs: storeShowCrossRefs, showProphecies } = useBibleStore();
+  // Get store states for column visibility  
+  const { showCrossRefs: storeShowCrossRefs, showProphecies, columnState } = useBibleStore();
   
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   
-  // Calculate visible columns for centering logic
-  const visibleColumns = [
-    "Reference", 
-    main,
-    ...alternates,
-    ...(showCrossRefs ? ["Cross References"] : []),
-    ...(showProphecies ? ["P", "F", "V"] : [])
-  ];
+  // UI Layout Spec slot-based system (slots 0-19)
+  const slotConfig = {
+    0: { type: 'reference', header: 'Ref' },
+    1: { type: 'notes', header: 'Notes' },
+    2: { type: 'main-translation', header: main, translationCode: main },
+    3: { type: 'cross-references', header: 'Cross References' },
+    4: { type: 'dates', header: 'Date' },
+    // Slots 5-16: Alternate translations
+    ...Object.fromEntries(alternates.map((alt, i) => [
+      5 + i, { type: 'alt-translation', header: alt, translationCode: alt }
+    ])),
+    17: { type: 'prophecy-p', header: 'P' },
+    18: { type: 'prophecy-f', header: 'F' },
+    19: { type: 'prophecy-v', header: 'V' }
+  };
+  
+  // Get visible columns from store and sort by slot
+  const visibleColumns = columnState.columns
+    .filter(col => col.visible)
+    .sort((a, b) => a.slot - b.slot)
+    .map(col => ({ ...col, config: slotConfig[col.slot] }))
+    .filter(col => col.config); // Only render slots that have config
   
   // Centering rule from UI_layout_spec.md: center when visibleColumns <= 3
   const shouldCenter = visibleColumns.length <= 3;
   
-  // Column order matching VirtualRow exactly - use main + alternates
-  const headerOrder = [
-    "Reference", 
-    main,
-    ...alternates,
-    ...(showCrossRefs ? ["Cross References"] : []),
-    ...(showProphecies ? ["P", "F", "V"] : [])
-  ];
-  
-  const allColumns = headerOrder.map((name, index) => ({
-    id: name.toLowerCase().replace(' ', '-'),
-    name: name,
-    type: name === 'Reference' ? 'reference' : 
-          name === 'Cross References' ? 'cross-ref' :
-          ['P', 'F', 'V'].includes(name) ? 'prophecy' : 'translation',
-    position: index,
-    isMain: name === main
+  const allColumns = visibleColumns.map(col => ({
+    id: col.config.header.toLowerCase().replace(' ', '-'),
+    name: col.config.header,
+    type: col.config.type,
+    position: col.slot,
+    isMain: col.config.translationCode === main,
+    slot: col.slot
   }));
   
   return (
@@ -111,7 +115,7 @@ export function ColumnHeaders({
           >
             {allColumns.map((column) => (
               <HeaderCell
-                key={column.id}
+                key={`slot-${column.slot}`}
                 column={column}
                 isMain={column.isMain}
                 isMobile={isMobile}

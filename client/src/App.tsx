@@ -63,8 +63,24 @@ export const useBibleStore = create<{
       store: { crossRefs: {}, prophecies: {} },
       showCrossRefs: true,  // Default ON for free users (optimal mobile display)
       showProphecies: false, // Default OFF for free users (cleaner mobile)
-      toggleCrossRefs: () => set(state => ({ showCrossRefs: !state.showCrossRefs })),
-      toggleProphecies: () => set(state => ({ showProphecies: !state.showProphecies })),
+      toggleCrossRefs: () => set(state => ({ 
+        showCrossRefs: !state.showCrossRefs,
+        columnState: {
+          ...state.columnState,
+          columns: state.columnState.columns.map(col => 
+            col.slot === 3 ? { ...col, visible: !state.showCrossRefs } : col
+          )
+        }
+      })),
+      toggleProphecies: () => set(state => ({ 
+        showProphecies: !state.showProphecies,
+        columnState: {
+          ...state.columnState,
+          columns: state.columnState.columns.map(col => 
+            col.slot >= 17 && col.slot <= 19 ? { ...col, visible: !state.showProphecies } : col
+          )
+        }
+      })),
       
       // UI Layout Spec Column State (slots 0-19)
       columnState: {
@@ -72,13 +88,13 @@ export const useBibleStore = create<{
           { slot: 0, visible: true, widthRem: 5 },     // Reference
           { slot: 1, visible: false, widthRem: 8 },    // Notes  
           { slot: 2, visible: true, widthRem: 20 },    // Main translation
-          { slot: 3, visible: true, widthRem: 15 },    // Cross References
+          { slot: 3, visible: true, widthRem: 15 },    // Cross References (default ON)
           { slot: 4, visible: false, widthRem: 6 },    // Dates
           // Slots 5-16 for alternate translations
           ...Array.from({ length: 12 }, (_, i) => ({ slot: i + 5, visible: false, widthRem: 18 })),
-          { slot: 17, visible: false, widthRem: 5 },   // Prophecy P
-          { slot: 18, visible: false, widthRem: 5 },   // Prophecy F  
-          { slot: 19, visible: false, widthRem: 5 },   // Prophecy V
+          { slot: 17, visible: false, widthRem: 5 },   // Prophecy P (default OFF)
+          { slot: 18, visible: false, widthRem: 5 },   // Prophecy F (default OFF)
+          { slot: 19, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
         ],
         setVisible: (slot: number, visible: boolean) => set(state => ({
           columnState: {
