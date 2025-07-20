@@ -24,9 +24,11 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   // Mobile-optimized width logic matching VirtualRow exactly - updated for new slot numbers
   const width = isMobile ? 
     (column.name === "Ref" || column.name === "Reference" ? "w-14" : 
+     column.name === "Notes" ? "w-16" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-12" : 
      ["P", "F", "V"].includes(column.name) ? "w-8" : "flex-1") :
     (column.name === "Ref" || column.name === "Reference" ? "w-16" : 
+     column.name === "Notes" ? "w-64" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-60" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
@@ -84,31 +86,36 @@ export function ColumnHeaders({
   columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
-        // Notes column (moved to slot 1 between Ref and Main)
+        // Notes column (slot 1 between Ref and Main)
         slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
       case 7:
-        // Cross References column (moved from slot 6 to 7)
+        // Cross References column (slot 7)
         slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
       case 8:
-        // Prophecy P column (moved from slot 7 to 8)
+        // Prophecy P column (slot 8)
         slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
       case 9:
-        // Prophecy F column (moved from slot 8 to 9)
+        // Prophecy F column (slot 9)
         slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
       case 10:
-        // Prophecy V column (moved from slot 9 to 10)
+        // Prophecy V column (slot 10)
         slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
       case 11:
-        // Dates column (unchanged)
+        // Dates column (slot 11)
         slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });
+
+  // Ensure Notes column is always in slotConfig when showNotes is true
+  if (showNotes && !slotConfig[1]) {
+    slotConfig[1] = { type: 'notes', header: 'Notes', visible: true };
+  }
 
   // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {
