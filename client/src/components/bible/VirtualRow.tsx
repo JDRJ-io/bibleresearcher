@@ -132,6 +132,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     .map(col => ({ ...col, config: slotConfig[col.slot] }))
     .filter(col => col.config); // Only render slots that have config
 
+  // Debug logging for first verse
+  if (verse.reference === "Gen 1:1") {
+    console.log('🔍 VirtualRow Debug - All columns:', columnState.columns.map(c => `slot ${c.slot}: ${c.visible ? 'visible' : 'hidden'}`));
+    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type})`));
+  }
+
   const handleDoubleClick = () => {
     if (onExpandVerse) {
       onExpandVerse(verse);

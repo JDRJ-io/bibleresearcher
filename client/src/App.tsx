@@ -72,42 +72,62 @@ export const useBibleStore = create<{
       showNotes: false,     // Notes column toggle
       showDates: false,     // Dates column toggle
       showLabels: {},       // Labels state object for semantic highlighting
-      toggleCrossRefs: () => set(state => ({ 
-        showCrossRefs: !state.showCrossRefs,
-        columnState: {
-          ...state.columnState,
-          columns: state.columnState.columns.map(col => 
-            col.slot === 3 ? { ...col, visible: !state.showCrossRefs } : col
-          )
-        }
-      })),
-      toggleProphecies: () => set(state => ({ 
-        showProphecies: !state.showProphecies,
-        columnState: {
-          ...state.columnState,
-          columns: state.columnState.columns.map(col => 
-            col.slot >= 17 && col.slot <= 19 ? { ...col, visible: !state.showProphecies } : col
-          )
-        }
-      })),
-      toggleNotes: () => set(state => ({
-        showNotes: !state.showNotes,
-        columnState: {
-          ...state.columnState,
-          columns: state.columnState.columns.map(col => 
-            col.slot === 1 ? { ...col, visible: !state.showNotes } : col
-          )
-        }
-      })),
-      toggleDates: () => set(state => ({
-        showDates: !state.showDates,
-        columnState: {
-          ...state.columnState,
-          columns: state.columnState.columns.map(col => 
-            col.slot === 4 ? { ...col, visible: !state.showDates } : col
-          )
-        }
-      })),
+      toggleCrossRefs: () => set(state => {
+        console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
+        const newState = {
+          showCrossRefs: !state.showCrossRefs,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === 3 ? { ...col, visible: !state.showCrossRefs } : col
+            )
+          }
+        };
+        console.log('🔄 TOGGLE CROSS REFS - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+        return newState;
+      }),
+      toggleProphecies: () => set(state => {
+        console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
+        const newState = {
+          showProphecies: !state.showProphecies,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot >= 17 && col.slot <= 19 ? { ...col, visible: !state.showProphecies } : col
+            )
+          }
+        };
+        console.log('🔄 TOGGLE PROPHECIES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+        return newState;
+      }),
+      toggleNotes: () => set(state => {
+        console.log('🔄 TOGGLE NOTES - Current:', state.showNotes, '→ New:', !state.showNotes);
+        const newState = {
+          showNotes: !state.showNotes,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === 1 ? { ...col, visible: !state.showNotes } : col
+            )
+          }
+        };
+        console.log('🔄 TOGGLE NOTES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+        return newState;
+      }),
+      toggleDates: () => set(state => {
+        console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
+        const newState = {
+          showDates: !state.showDates,
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === 4 ? { ...col, visible: !state.showDates } : col
+            )
+          }
+        };
+        console.log('🔄 TOGGLE DATES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+        return newState;
+      }),
       toggleLabel: (labelId: string) => set(state => ({
         showLabels: {
           ...state.showLabels,
