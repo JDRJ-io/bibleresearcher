@@ -864,10 +864,24 @@ body.overlay-open {
   margin-inline: auto;
 }
 
+/* Force global horizontal scrollbar - always visible when needed */
+body {
+  overflow-x: auto !important;
+}
+
+.virtual-bible-table {
+  min-width: 100vw;
+  overflow-x: auto !important;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
+  height: 12px !important; /* Make horizontal scrollbar more prominent */
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 12px !important;
 }
 
 ::-webkit-scrollbar-track {
