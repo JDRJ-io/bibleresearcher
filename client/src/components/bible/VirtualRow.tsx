@@ -108,6 +108,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
+  // DEBUG: Check if VirtualRow is being called
+  if (verse.reference === "Gen 1:1") {
+    console.log('🔥 VirtualRow RENDERING for Gen 1:1');
+    console.log('🔥 Store states:', { showCrossRefs, showProphecies, showNotes, showDates });
+  }
+  
   // UI Layout Spec slot-based system (slots 0-19)
   // Following the established translation system from translationSlice.ts
   const slotConfig = {
