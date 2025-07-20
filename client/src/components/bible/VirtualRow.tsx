@@ -128,43 +128,43 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Always show main translation (slot 1 per store config)
-  slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
+  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
-  // Map all column types based on store state - use actual slot assignments from App.tsx
+  // Map all column types based on store state - updated slot assignments
   columnState.columns.forEach(col => {
     switch (col.slot) {
-      case 6:
-        // Cross References column (actual slot from store)
-        slotConfig[6] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+      case 1:
+        // Notes column (moved to slot 1 between Ref and Main)
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
       case 7:
-        // Prophecy P column (actual slot from store)
-        slotConfig[7] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        // Cross References column (moved from slot 6 to 7)
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
       case 8:
-        // Prophecy F column (actual slot from store)
-        slotConfig[8] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        // Prophecy P column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
       case 9:
-        // Prophecy V column (actual slot from store)
-        slotConfig[9] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        // Prophecy F column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
       case 10:
-        // Notes column (actual slot from store)
-        slotConfig[10] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        // Prophecy V column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
       case 11:
-        // Dates column (actual slot from store)
+        // Dates column (unchanged)
         slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });
 
-  // Dynamically add alternate translation columns to slots 2-5 (per actual store config)
+  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {
-    const slot = 2 + index; // Start at slot 2 for alternates per store config
-    if (slot <= 5) { // Max 4 alternate translations (slots 2-5)
+    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
@@ -222,15 +222,17 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on slot type and mobile - updated for new slot numbers
+    // Calculate width based on slot type and mobile - updated for new slot layout
     const width = isMobile ? 
       (slot === 0 ? "w-14" :        // Reference (narrower)
-       slot === 6 ? "w-12" :        // Cross References (slot 6)
-       slot >= 7 && slot <= 9 ? "w-8" : // Prophecy P/F/V (slots 7-9)
+       slot === 1 ? "w-16" :        // Notes (between Ref and Main)
+       slot === 7 ? "w-12" :        // Cross References (moved to slot 7)
+       slot >= 8 && slot <= 10 ? "w-8" : // Prophecy P/F/V (slots 8-10)
        "flex-1") :                  // Translations
       (slot === 0 ? "w-16" :        // Reference (narrower)
-       slot === 6 ? "w-60" :        // Cross References (slot 6) 
-       slot >= 7 && slot <= 9 ? "w-20" : // Prophecy P/F/V (slots 7-9)
+       slot === 1 ? "w-64" :        // Notes (between Ref and Main) 
+       slot === 7 ? "w-60" :        // Cross References (moved to slot 7)
+       slot >= 8 && slot <= 10 ? "w-20" : // Prophecy P/F/V (slots 8-10)
        "w-80");                     // Translations
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
