@@ -24,6 +24,7 @@ import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { TranslationSelector } from "./TranslationSelector";
 import { useBibleStore } from "@/App";
 import { useTheme } from "./ThemeProvider";
+import { SizeSelector } from "@/components/ui/SizeSelector";
 
 export function HamburgerMenu({
   isOpen,
@@ -297,27 +298,13 @@ export function HamburgerMenu({
               Display Settings
             </h3>
             
-            {/* Text Size */}
+            {/* UI Layout Spec Size Control */}
             <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
-              <Label className="text-sm font-medium mb-2 block">Text Size</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { value: 'small', label: 'S', desc: 'Small' },
-                  { value: 'medium', label: 'M', desc: 'Medium' },
-                  { value: 'large', label: 'L', desc: 'Large' }
-                ].map((size) => (
-                  <Button
-                    key={size.value}
-                    variant={fontSize === size.value ? "default" : "outline"}
-                    size="sm"
-                    className={`text-xs h-10 flex flex-col ${fontSize === size.value ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
-                    onClick={() => handleFontSizeChange(size.value)}
-                  >
-                    <span className="font-bold">{size.label}</span>
-                    <span className="text-[10px]">{size.desc}</span>
-                  </Button>
-                ))}
-              </div>
+              <Label className="text-sm font-medium mb-2 block">Content Size</Label>
+              <SizeSelector className="w-full" />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Adjusts font size, column width, and row height globally
+              </p>
             </div>
           </div>
 

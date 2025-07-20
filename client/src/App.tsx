@@ -20,6 +20,25 @@ interface TranslationState {
   columnKeys: string[];
 }
 
+// UI Layout Spec Column State Interface
+interface ColumnInfo {
+  slot: number;
+  visible: boolean;
+  widthRem: number;
+}
+
+interface ColumnState {
+  columns: ColumnInfo[];
+  setVisible: (slot: number, visible: boolean) => void;
+  reorder: (from: number, to: number) => void;
+  resize: (slot: number, deltaRem: number) => void;
+}
+
+interface SizeState {
+  sizeMult: number;
+  setSizeMult: (mult: number) => void;
+}
+
 export const useBibleStore = create<{
   translations: Record<string, Map<number, string>>;
   actives: string[];
@@ -34,6 +53,8 @@ export const useBibleStore = create<{
   showProphecies: boolean;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
+  columnState: ColumnState;
+  sizeState: SizeState;
 }>((set, get) => ({
       translations: {},
       actives: ["KJV"],
@@ -44,6 +65,60 @@ export const useBibleStore = create<{
       showProphecies: false, // Default OFF for free users (cleaner mobile)
       toggleCrossRefs: () => set(state => ({ showCrossRefs: !state.showCrossRefs })),
       toggleProphecies: () => set(state => ({ showProphecies: !state.showProphecies })),
+      
+      // UI Layout Spec Column State (slots 0-19)
+      columnState: {
+        columns: [
+          { slot: 0, visible: true, widthRem: 5 },     // Reference
+          { slot: 1, visible: false, widthRem: 8 },    // Notes  
+          { slot: 2, visible: true, widthRem: 20 },    // Main translation
+          { slot: 3, visible: true, widthRem: 15 },    // Cross References
+          { slot: 4, visible: false, widthRem: 6 },    // Dates
+          // Slots 5-16 for alternate translations
+          ...Array.from({ length: 12 }, (_, i) => ({ slot: i + 5, visible: false, widthRem: 18 })),
+          { slot: 17, visible: false, widthRem: 5 },   // Prophecy P
+          { slot: 18, visible: false, widthRem: 5 },   // Prophecy F  
+          { slot: 19, visible: false, widthRem: 5 },   // Prophecy V
+        ],
+        setVisible: (slot: number, visible: boolean) => set(state => ({
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === slot ? { ...col, visible } : col
+            )
+          }
+        })),
+        reorder: (from: number, to: number) => set(state => {
+          const columns = [...state.columnState.columns];
+          const fromCol = columns.find(col => col.slot === from);
+          const toCol = columns.find(col => col.slot === to);
+          if (fromCol && toCol) {
+            fromCol.slot = to;
+            toCol.slot = from;
+          }
+          return { columnState: { ...state.columnState, columns } };
+        }),
+        resize: (slot: number, deltaRem: number) => set(state => ({
+          columnState: {
+            ...state.columnState,
+            columns: state.columnState.columns.map(col => 
+              col.slot === slot ? { ...col, widthRem: Math.max(3, col.widthRem + deltaRem) } : col
+            )
+          }
+        }))
+      },
+      
+      // Size State (UI Layout Spec presets: S=0.85, M=1.0, L=1.35, XL=1.70)
+      sizeState: {
+        sizeMult: 1.0, // Default to Medium
+        setSizeMult: (mult: number) => {
+          set({ sizeState: { sizeMult: mult, setSizeMult: get().sizeState.setSizeMult } });
+          // Apply CSS variable to root
+          document.documentElement.style.setProperty('--sizeMult', mult.toString());
+          // Persist to localStorage
+          localStorage.setItem('bibleSizeMult', mult.toString());
+        }
+      },
       translationState: {
         main: "KJV",
         alternates: [],

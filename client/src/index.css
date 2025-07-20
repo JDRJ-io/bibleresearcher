@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* UI Layout Spec CSS Foundation - Device-responsive sizing */
+@media (max-width: 639px) { 
+  :root { 
+    --baseRem: 0.875rem; 
+    --baseColW: 420px; 
+  } 
+}
+
+@media (min-width: 640px) and (max-width: 1023px) { 
+  :root { 
+    --baseRem: 1rem; 
+    --baseColW: 480px; 
+  } 
+}
+
+@media (min-width: 1024px) { 
+  :root { 
+    --baseRem: 1.125rem; 
+    --baseColW: 520px; 
+  } 
+}
+
+:root { 
+  --sizeMult: 1; /* Default size multiplier - can be set by user preference */
+}
+
+/* Apply responsive sizing to HTML root and column widths */
+html { 
+  font-size: calc(var(--baseRem) * var(--sizeMult)); 
+}
+
+.w-col { 
+  width: calc(var(--baseColW) * var(--sizeMult)); 
+}
+
 /* Font size variables for dynamic scaling */
 :root {
   --font-size-multiplier: 1.0;
