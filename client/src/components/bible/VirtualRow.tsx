@@ -168,7 +168,7 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       (slot === 0 ? "w-14" :        // Reference (slot 0)
        slot === 1 ? "w-16" :        // Notes (slot 1)
        slot === 2 ? "flex-1" :      // Main translation (slot 2)
-       slot === 3 ? "w-12" :        // Cross References (slot 3 per UI spec)
+       slot === 3 ? "w-20" :        // Cross References (slot 3 per UI spec) - wider for links
        slot === 4 ? "w-12" :        // Dates (slot 4)
        slot >= 5 && slot <= 16 ? "w-20" : // Alt translations (slots 5-16)
        slot >= 17 && slot <= 19 ? "w-8" : // Prophecy P/F/V (slots 17-19 per UI spec)
@@ -176,7 +176,7 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       (slot === 0 ? "w-16" :        // Reference (slot 0)
        slot === 1 ? "w-64" :        // Notes (slot 1) 
        slot === 2 ? "w-80" :        // Main translation (slot 2)
-       slot === 3 ? "w-60" :        // Cross References (slot 3 per UI spec)
+       slot === 3 ? "w-80" :        // Cross References (slot 3 per UI spec) - wider for links
        slot === 4 ? "w-32" :        // Dates (slot 4)
        slot >= 5 && slot <= 16 ? "w-80" : // Alt translations (slots 5-16)
        slot >= 17 && slot <= 19 ? "w-20" : // Prophecy P/F/V (slots 17-19 per UI spec)

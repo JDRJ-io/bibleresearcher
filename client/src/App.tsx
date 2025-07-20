@@ -174,7 +174,7 @@ export const useBibleStore = create<{
       { slot: 0, visible: true, widthRem: 5 },     // Reference (always visible)
       { slot: 1, visible: false, widthRem: 16 },   // Notes (slot 1 per spec)
       { slot: 2, visible: true, widthRem: 20 },    // Main translation (always visible)
-      { slot: 3, visible: true, widthRem: 15 },    // Cross References (slot 3 per spec, default ON)
+      { slot: 3, visible: true, widthRem: 20 },    // Cross References (slot 3 per spec, default ON) - wider
       { slot: 4, visible: false, widthRem: 8 },    // Dates (slot 4 per spec)
       { slot: 5, visible: false, widthRem: 18 },   // Alt translation 1 (slots 5-16 per spec)
       { slot: 6, visible: false, widthRem: 18 },   // Alt translation 2

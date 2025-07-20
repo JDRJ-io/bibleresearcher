@@ -96,7 +96,10 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
     if (onNavigateToVerse) {
       // Convert back to space format for navigation (Gen.1:1 -> Gen 1:1)
       const spaceFormat = ref.replace(/\./g, ' ');
+      console.log(`🧭 NavigateToVerse called: ${ref} -> ${spaceFormat}`);
       onNavigateToVerse(spaceFormat);
+    } else {
+      console.warn('🧭 No onNavigateToVerse function provided');
     }
   };
 
