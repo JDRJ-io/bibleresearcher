@@ -444,40 +444,38 @@ body.menu-open {
 }
 /* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
 
-/* Simple centering with auto margins - no JavaScript needed */
-.bible-table-wrapper {
-  min-width: fit-content;         /* grows with columns */
-  margin-inline: auto;            /* centers when table < viewport */
-  overflow: auto;                 /* vertical + horizontal scroll  */
+/* ①  base rule – works on every viewport width */
+.bible-table-wrapper{
+  min-width:fit-content;
+  margin-inline:auto;          /* centre until wider than viewport */
+  overflow:auto;               /* always show both axes */
 }
+
+/* ②  mobile dual‑column tweaks */
+:root{ --colW: 640px; }        /* or whatever your column width function returns */
+
+@media (max-width:639px){
+  .dual-col{
+    width:calc(var(--colW)*2); /* ref + one column */
+    scroll-snap-type: x mandatory;
+  }
+  .dual-col::-webkit-scrollbar{ height:8px; }   /* keep bar visible */
+
+  .cell-ref{
+    position:sticky; left:0; z-index:10;
+  }
+  .cell-ref span{
+    writing-mode:vertical-rl; transform:rotate(180deg);
+  }
+}
+
+/* always show bar in desktop WebKit */
+.bible-table-wrapper::-webkit-scrollbar{ height:8px; }
 
 /* Reference column styling for proper layout */
 .cell-ref {
   background: inherit;
 }
-
-/* --- mobile dual‑column tweaks --- */
-@media (max-width:639px){
-  .dual-col {                 /* applied via React when <640px */
-    width: calc(var(--colW) * 2);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-  }
-  .dual-col::-webkit-scrollbar{ height:8px; }
-
-  .cell-ref{
-    position: sticky;
-    left: 0;
-    z-index: 10;
-  }
-  .cell-ref span{
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-  }
-}
-
-/* keep horizontal bar visible on desktop too */
-.bible-table-wrapper::-webkit-scrollbar{ height:8px; }
 
 /* Verse hover and highlight animations matching original design */
 @keyframes highlight-anim {

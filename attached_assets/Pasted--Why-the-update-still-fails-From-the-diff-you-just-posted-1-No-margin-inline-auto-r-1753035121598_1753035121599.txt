@@ -1,0 +1,111 @@
+### Why the update still fails
+
+From the diff you just posted:
+
+1. **No `margin-inline:auto`** rule was added to `.bible‑table‑wrapper`, so the
+   table is still inside the old flex layout.
+2. `overflow‑x:auto` is present **only inside the mobile `@media` block**,
+   therefore the bar never appears on desktop (and WebKit hides it on portrait
+   if the element isn’t wider yet).
+3. The CSS variable `--colW` is never defined, so
+   `width: calc(var(--colW) * 2)` resolves to `auto`; nothing narrows the table.
+4. The JSX toggle inserts `dual-col` **before** the `bible‑table‑wrapper`
+   class‐name string, so the selector `.dual-col .bible‑table‑wrapper` (from my
+   example) no longer matches.
+
+---
+
+## Minimal working patch (copy‑paste)
+
+### 1 CSS — `index.css`
+
+```css
+/* ①  base rule – works on every viewport width */
+.bible-table-wrapper{
+  min-width:fit-content;
+  margin-inline:auto;          /* centre until wider than viewport */
+  overflow:auto;               /* always show both axes */
+}
+
+/* ②  mobile dual‑column tweaks */
+:root{ --colW: 640px; }        /* or whatever your column width function returns */
+
+@media (max-width:639px){
+  .dual-col{
+    width:calc(var(--colW)*2); /* ref + one column */
+    scroll-snap-type: x mandatory;
+  }
+  .dual-col::-webkit-scrollbar{ height:8px; }   /* keep bar visible */
+
+  .cell-ref{
+    position:sticky; left:0; z-index:10;
+  }
+  .cell-ref span{
+    writing-mode:vertical-rl; transform:rotate(180deg);
+  }
+}
+
+/* always show bar in desktop WebKit */
+.bible-table-wrapper::-webkit-scrollbar{ height:8px; }
+```
+
+### 2 React — `VirtualBibleTable.tsx`
+
+```tsx
+const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+
+<div
+  ref={wrapperRef}
+  className={`bible-table-wrapper ${isMobile ? "dual-col" : ""}`}
+  style={{ touchAction:"pan-y", marginTop:"-1px" }}
+>
+```
+
+*No extra wrapper div, no flex container.*
+
+---
+
+### 3 Delete the old flex wrapper
+
+Make sure only **one** element wraps the `<table>` grid—whatever you called
+`wrapperRef`. Remove `center-wrapper` and its CSS entirely.
+
+---
+
+### 4 Define `--colW` properly
+
+If your column width changes with `sizeMultiplier`, update the variable
+dynamically:
+
+```tsx
+useEffect(()=>{
+  document.documentElement.style.setProperty(
+    "--colW",
+    `${BASE_COL_W * sizeMultiplier}px`
+  );
+},[sizeMultiplier]);
+```
+
+---
+
+## Quick verification
+
+| Scenario                  | Expected                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| Desktop, ≤3 columns       | Table centred, no h‑scroll bar                                                     |
+| Desktop, toggle 5 columns | Table left‑aligned, horizontal bar visible, you can drag fully left/right          |
+| iPhone portrait           | Ref + one column visible, bar visible, swipe horizontally snaps exactly one column |
+| iPhone landscape          | Behaves like a small tablet: centred or scrollable depending on column count       |
+
+---
+
+### Tell the AI agent to:
+
+1. **Replace** the entire `.bible-table-wrapper` CSS with the block above.
+2. **Add** the `@media (max-width:639px)` section exactly as written.
+3. **Remove** any extra flex container and related JS.
+4. **Insert** the wrapper class toggle (`dual-col`) as shown.
+5. **Define `--colW`** via a `useEffect`, or hard‑code it for now.
+
+No other files should change.
+After that, the scrollbar and dual‑column portrait mode will both work.

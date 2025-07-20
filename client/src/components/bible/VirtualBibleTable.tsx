@@ -307,6 +307,16 @@ const VirtualBibleTable = ({
   }, []);
 
   // CSS handles centering automatically with margin-inline: auto
+  
+  // Define --colW CSS variable for mobile dual-column layout
+  useEffect(() => {
+    const BASE_COL_W = 300; // Base column width
+    const sizeMultiplier = preferences.fontSize === 'small' ? 0.9 : preferences.fontSize === 'large' ? 1.1 : 1;
+    document.documentElement.style.setProperty(
+      "--colW",
+      `${BASE_COL_W * sizeMultiplier}px`
+    );
+  }, [preferences.fontSize]);
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
