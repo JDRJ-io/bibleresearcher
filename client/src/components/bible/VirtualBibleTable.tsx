@@ -76,11 +76,11 @@ const VirtualBibleTable = ({
   // B-1: Load slice data for cross-references and prophecy
   const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs, mainTranslation);
   
-  // B-2: Load cross-references with offset-based approach
-  useCrossRefLoader(slice.verseIDs, 'cf1');
-  
-  // B-2.5: Integrate cross-references worker with store
+  // B-2: Load cross-references with worker integration
   useCrossRefsIntegration(slice.verseIDs);
+  
+  // Legacy cross-ref loader for backwards compatibility
+  useCrossRefLoader(slice.verseIDs, 'cf1');
   
   // B-3: Eager-load main translation for cross-ref snippets
   const { crossRefs: crossRefsStore } = useBibleStore();

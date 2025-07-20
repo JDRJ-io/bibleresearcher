@@ -4,6 +4,7 @@ import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
+import { CrossReferencesCell } from './CrossReferencesCell';
 
 interface VirtualRowProps {
   verseID: string;
@@ -34,44 +35,7 @@ function ReferenceCell({ verse }: CellProps) {
   );
 }
 
-interface CrossReferencesCellProps extends CellProps {
-  width: string;
-}
-
-function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick, width }: CrossReferencesCellProps) {
-  const { crossRefs: crossRefsStore } = useBibleStore();
-  
-  // Get cross-references from the Bible store (loaded via worker from Supabase)
-  const crossRefs = crossRefsStore[verse.reference] ?? [];
-  
-  // Create compact display for cross-references 
-  const crossRefDisplay = crossRefs.length > 0 
-    ? crossRefs.slice(0, 3).map(ref => {
-        // Convert reference to short form (e.g., "John.1:1" -> "Jn1:1")
-        if (typeof ref === 'string') {
-          return ref.split('.')[0].substring(0, 3) + ref.split('.')[1]?.replace(':', ':') || ref;
-        }
-        return '';
-      }).join(', ') + (crossRefs.length > 3 ? `+${crossRefs.length - 3}` : '')
-    : '';
-
-  return (
-    <div className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-      <div 
-        className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 cell-content cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30" 
-        title={crossRefs.length > 0 ? `${crossRefs.length} cross-references: ${crossRefs.join(', ')}` : 'No cross-references'}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (crossRefs.length > 0 && onVerseClick) {
-            onVerseClick(crossRefs[0]); // Navigate to first cross-reference
-          }
-        }}
-      >
-        {crossRefDisplay || ''}
-      </div>
-    </div>
-  );
-}
+// CrossReferencesCell is now imported from separate file
 
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
@@ -252,14 +216,14 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        return <CrossReferencesCell 
-          key={slot} 
-          verse={verse} 
-          getVerseText={getVerseText} 
-          mainTranslation={main}
-          onVerseClick={onVerseClick}
-          width={width}
-        />;
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <CrossReferencesCell 
+              verseReference={verse.reference}
+              onNavigateToVerse={onVerseClick}
+            />
+          </div>
+        );
 
       case 'context':
         return (

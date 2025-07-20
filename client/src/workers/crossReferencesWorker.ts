@@ -28,7 +28,9 @@ function initializeCrossRefs(cf1Data: string) {
         });
         
         const cleanRefs = allRefs.filter(ref => ref.trim()).map(ref => ref.trim());
-        crossRefsMap[verseID] = cleanRefs;
+        if (crossRefsMap) {
+          crossRefsMap[verseID] = cleanRefs;
+        }
         crossRefsCache[verseID] = cleanRefs; // Also populate legacy cache
       }
     });
@@ -70,7 +72,7 @@ self.onmessage = async (e) => {
   
   // Step 4: Worker round-trip test
   if (type === 'ping') {
-    (self as DedicatedWorkerGlobalScope).postMessage('pong');
+    self.postMessage('pong');
     return;
   }
   
@@ -78,14 +80,14 @@ self.onmessage = async (e) => {
   if (type === 'cfData') {
     const refs = text.split('|').filter((ref: string) => ref.trim());
     crossRefsCache[key] = refs;
-    (self as DedicatedWorkerGlobalScope).postMessage({ key, refs });
+    self.postMessage({ key, refs });
     return;
   }
   
   // Handle initialization from main thread
   if (type === 'init') {
     initializeCrossRefs(data);
-    (self as DedicatedWorkerGlobalScope).postMessage({ type: 'initialized' });
+    self.postMessage({ type: 'initialized' });
     return;
   }
   
@@ -99,7 +101,7 @@ self.onmessage = async (e) => {
     });
     
     console.log(`📖 Cross-references fetched for ${ids.length} verses, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
-    (self as DedicatedWorkerGlobalScope).postMessage({ type: 'result', data: result });
+    self.postMessage({ type: 'result', data: result });
     return;
   }
   
@@ -112,7 +114,7 @@ self.onmessage = async (e) => {
       result[id] = crossRefsMap?.[id] || crossRefsCache[id] || [];
     });
     
-    (self as DedicatedWorkerGlobalScope).postMessage(result);
+    self.postMessage(result);
   }
 };
 
