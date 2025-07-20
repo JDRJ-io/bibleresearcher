@@ -118,7 +118,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     ...(showProphecies ? ["P", "F", "V"] : [])
   ];
 
-  const handleRowClick = () => {
+  const handleDoubleClick = () => {
     if (onExpandVerse) {
       onExpandVerse(verse);
     }
@@ -187,7 +187,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
-      onClick={handleRowClick}
+      onDoubleClick={handleDoubleClick}
     >
       {columnOrder.map(renderColumn)}
     </div>
