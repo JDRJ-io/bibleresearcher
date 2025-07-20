@@ -159,12 +159,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'reference':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <ReferenceCell 
-              verse={verse}
-              getVerseText={getVerseText}
-              mainTranslation={mainTranslation}
-              onVerseClick={onVerseClick}
-            />
+            <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800">
+              {verse.reference}
+            </div>
           </div>
         );
         
@@ -181,24 +178,18 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'alt-translation':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
-            <TranslationCell 
-              verse={verse}
-              translation={config.translationCode}
-              getVerseText={getVerseText}
-              isMain={isMain}
-            />
+            <div className="px-2 py-1 text-sm">
+              [{config.translationCode} Text]
+            </div>
           </div>
         );
         
       case 'cross-references':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <CrossReferencesCell 
-              verse={verse}
-              getVerseText={getVerseText}
-              mainTranslation={mainTranslation}
-              onVerseClick={onVerseClick}
-            />
+            <div className="px-2 py-1 text-sm text-blue-600">
+              [Cross Refs]
+            </div>
           </div>
         );
         
@@ -215,9 +206,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'prophecy-f':
       case 'prophecy-v':
         const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
+        const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <ProphecyCell verse={verse} type={type} />
+            <div className={`px-1 py-1 text-xs text-center ${color}`}>
+              {type}
+            </div>
           </div>
         );
         

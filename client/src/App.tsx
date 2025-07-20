@@ -51,8 +51,14 @@ export const useBibleStore = create<{
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
+  showNotes: boolean;
+  showDates: boolean;
+  showLabels: Record<string, boolean>;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
+  toggleNotes: () => void;
+  toggleDates: () => void;
+  toggleLabel: (labelId: string) => void;
   columnState: ColumnState;
   sizeState: SizeState;
 }>((set, get) => ({

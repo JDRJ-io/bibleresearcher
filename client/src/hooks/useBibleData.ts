@@ -1498,6 +1498,8 @@ export function useBibleData() {
     getProphecyDataForVerse,
     // Global verse text lookup
     getGlobalVerseText,
+    // Verse text retrieval for components
+    getVerseText,
     // Center-anchored verse loading
     centerVerseIndex,
     loadVerseRange,
