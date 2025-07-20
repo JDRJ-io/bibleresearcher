@@ -128,12 +128,12 @@ self.onmessage = async (e) => {
   if (type === 'query' && ids) {
     const result: Record<string, string[]> = {};
     
-    // Use cached data if available, otherwise mark for lazy loading
+    // For now, return empty arrays (cross-references will be loaded via main thread byte-range requests)
     ids.forEach((id: string) => {
       result[id] = crossRefsCache[id] || [];
     });
     
-    console.log(`📖 Cross-references fetched for ${ids.length} verses from cache, ${Object.keys(result).filter(k => result[k].length > 0).length} have data`);
+    console.log(`📖 Cross-references query processed for ${ids.length} verses (memory-optimized mode)`);
     self.postMessage({ type: 'result', data: result });
     return;
   }

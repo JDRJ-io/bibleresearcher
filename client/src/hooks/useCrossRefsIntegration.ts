@@ -19,62 +19,29 @@ export function useCrossRefsIntegration(visibleVerseRefs: string[]) {
 
     const loadCrossRefsForVerses = async () => {
       try {
-        // First ensure the main translation is loaded before querying cross-refs
-        const { ensureTranslationLoaded } = await import('@/data/BibleDataAPI');
-        await ensureTranslationLoaded('KJV');
-        
-        // Get worker instance (this triggers initialization with cf1 data from BibleDataAPI)
-        const worker = await getCrossRefWorker();
-        workerRef.current = worker;
+        // PERFORMANCE FIX: Load cross-references directly via main thread
+        const { getCrossRefSlice } = await import('@/data/BibleDataAPI');
 
         // Filter to new verses that haven't been processed
         const newRefs = visibleVerseRefs.filter(ref => !processedRefs.current.has(ref));
         if (newRefs.length === 0) return;
 
-        console.log(`📖 Querying cross-references worker for ${newRefs.length} verses...`);
+        console.log(`📖 Loading cross-references directly for ${newRefs.length} verses (memory optimized)...`);
 
-        // Set up worker message handler for this query
-        const handleWorkerMessage = (e: MessageEvent) => {
-          const { type, data, key, refs } = e.data;
-          
-          // Handle single verse result from worker
-          if (key && refs) {
-            setBulkCrossRefs({ [key]: refs });
-            processedRefs.current.add(key);
-            console.log(`✅ Cross-reference loaded for ${key}: ${refs.length} references`);
-            return;
-          }
-          
-          // Handle bulk result from worker
-          if (type === 'result' && data) {
-            setBulkCrossRefs(data);
-            
-            // Mark these verses as processed
-            Object.keys(data).forEach(ref => processedRefs.current.add(ref));
-            
-            const versesWithRefs = Object.keys(data).filter(k => data[k].length > 0);
-            console.log(`✅ Cross-references bulk loaded for ${versesWithRefs.length}/${Object.keys(data).length} verses`);
-          }
-        };
-
-        // Clean up previous handler
-        if (messageHandlerRef.current) {
-          worker.removeEventListener('message', messageHandlerRef.current);
-        }
+        // Convert to worker format (Gen 1:1 -> Gen.1:1)
+        const verseIDs = newRefs.map(ref => ref.replace(/\s+/g, '.'));
         
-        // Set up new handler
-        messageHandlerRef.current = handleWorkerMessage;
-        worker.addEventListener('message', handleWorkerMessage);
-
-        // Convert verse references to the format expected by the worker
-        // (e.g., "Gen 1:1" -> "Gen.1:1") 
-        const workerRefs = newRefs.map(ref => ref.replace(/\s+/g, '.'));
+        // Load cross-references directly from main thread (faster than worker)
+        const crossRefData = await getCrossRefSlice(verseIDs);
         
-        // Query worker for cross-references
-        worker.postMessage({ 
-          type: 'query', 
-          ids: workerRefs 
-        });
+        // Update store with loaded data
+        setBulkCrossRefs(crossRefData);
+        
+        // Mark verses as processed
+        newRefs.forEach(ref => processedRefs.current.add(ref));
+        
+        const versesWithRefs = Object.keys(crossRefData).filter(k => crossRefData[k].length > 0);
+        console.log(`✅ Cross-references loaded directly for ${versesWithRefs.length}/${Object.keys(crossRefData).length} verses`);
 
       } catch (error) {
         console.error('Failed to load cross-references from worker:', error);

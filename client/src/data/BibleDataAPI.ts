@@ -212,25 +212,49 @@ export async function loadCrossRefOffsets(set: 'cf1' | 'cf2' = 'cf1') {
   });
 }
 
-// DOCUMENTED: getCrossRefSlice(set, verseRef) - byte-range requests only
-export async function getCrossRefSlice(set: 'cf1' | 'cf2', verseRef: string): Promise<string> {
-  console.log(`🔗 getCrossRefSlice(${set}, ${verseRef}) - BYTE RANGE REQUEST`);
+// DOCUMENTED: getCrossRefSlice(verseIDs) - FAST byte-range requests for cross-reference data
+export async function getCrossRefSlice(verseIDs: string[]): Promise<Record<string, string[]>> {
+  if (verseIDs.length === 0) return {};
   
-  // Step 1: Load offset index (small JSON, ~200KB max)
-  const offsets = await loadCrossRefOffsets(set);
-  const range = offsets[verseRef];
+  console.log(`🔗 getCrossRefSlice(${verseIDs.length} verses) - MEMORY OPTIMIZED`);
   
-  if (!range) {
-    console.log(`🔗 No cross-ref data for ${verseRef} in ${set}`);
-    return '';
-  }
+  const offsets = await loadCrossRefOffsets('cf1');
+  const result: Record<string, string[]> = {};
   
-  // Step 2: Byte-range request for just this verse (2-4KB typical)
-  const [start, end] = range;
-  const slice = await fetchFromStorage(paths.crossRef(set), { start, end });
-  console.log(`🔗 Fetched ${slice.length} bytes for ${verseRef} from ${set}`);
+  // Process verses in parallel for better performance
+  const promises = verseIDs.map(async (verseID) => {
+    if (!offsets[verseID]) {
+      result[verseID] = [];
+      return;
+    }
+    
+    const [start, end] = offsets[verseID];
+    try {
+      const slice = await fetchFromStorageRange(paths.cf1, start, end);
+      
+      // Parse cross-reference format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+      if (slice.includes('$$')) {
+        const refsStr = slice.split('$$')[1];
+        if (refsStr) {
+          const allRefs = refsStr.split('$')
+            .flatMap(group => group.includes('#') ? group.split('#') : [group])
+            .map(ref => ref.trim())
+            .filter(ref => ref.length > 0);
+          
+          result[verseID] = allRefs;
+          return;
+        }
+      }
+      result[verseID] = [];
+    } catch (error) {
+      console.warn(`Failed to load cross-ref for ${verseID}:`, error);
+      result[verseID] = [];
+    }
+  });
   
-  return slice;
+  await Promise.all(promises);
+  console.log(`🔗 Loaded cross-refs for ${Object.keys(result).filter(k => result[k].length > 0).length}/${verseIDs.length} verses`);
+  return result;
 }
 
 // DOCUMENTED: Ensure translation loaded - uses main getTranslation method
