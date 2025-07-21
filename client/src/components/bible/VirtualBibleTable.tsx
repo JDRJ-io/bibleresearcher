@@ -171,6 +171,31 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
     );
   }
 
+  // 🚨 COMPREHENSIVE DEBUG TRACE
+  console.log('🎯 VirtualBibleTable RENDER DEBUG:', {
+    verses: {
+      total: verses.length,
+      first5: verses.slice(0, 5).map(v => ({ id: v.id, reference: v.reference }))
+    },
+    viewport: {
+      containerHeight,
+      scrollTop,
+      startIndex,
+      endIndex,
+      visibleVersesCount: visibleVerses.length
+    },
+    translations: {
+      main,
+      alternates,
+      storeState: store ? 'LOADED' : 'NULL'
+    },
+    firstVisibleVerse: visibleVerses[0] ? {
+      id: visibleVerses[0].id,
+      reference: visibleVerses[0].reference,
+      hasText: !!visibleVerses[0].text
+    } : 'NO_VISIBLE_VERSES'
+  });
+
   return (
     <div className="flex flex-col h-full">
       <ColumnHeaders />
@@ -195,21 +220,35 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
               right: 0,
             }}
           >
-            {visibleVerses.map((verse, index) => (
-              <VirtualRow
-                key={verse.id}
-                verseID={verse.id}
-                rowHeight={ROW_HEIGHT}
-                verse={verse}
-                columnData={{}}
-                getVerseText={getVerseTextSync}
-                getMainVerseText={getMainVerseText}
-                activeTranslations={[main, ...alternates]}
-                mainTranslation={main}
-                onVerseClick={onVerseClick}
-                onExpandVerse={onExpandVerse}
-              />
-            ))}
+            {visibleVerses.length === 0 ? (
+              <div className="p-4 text-center text-red-600">
+                🚨 DEBUG: No visible verses to render! startIndex: {startIndex}, endIndex: {endIndex}, verses.length: {verses.length}
+              </div>
+            ) : (
+              visibleVerses.map((verse, index) => {
+                console.log(`🔧 Rendering VirtualRow ${index}:`, {
+                  verseID: verse.id,
+                  reference: verse.reference,
+                  mainTranslation: main
+                });
+                
+                return (
+                  <VirtualRow
+                    key={verse.id}
+                    verseID={verse.id}
+                    rowHeight={ROW_HEIGHT}
+                    verse={verse}
+                    columnData={{}}
+                    getVerseText={getVerseTextSync}
+                    getMainVerseText={getMainVerseText}
+                    activeTranslations={[main, ...alternates]}
+                    mainTranslation={main}
+                    onVerseClick={onVerseClick}
+                    onExpandVerse={onExpandVerse}
+                  />
+                );
+              })
+            )}
           </div>
         </div>
       </div>
