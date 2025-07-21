@@ -30,8 +30,8 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
   const dotFormat = verseReference.replace(/\s+/g, '.');
   const rawRefs = crossRefs[dotFormat] || [];
 
-  // Get main translation for preview text
-  const mainTranslation = 'KJV'; // Default to KJV for cross-ref previews
+  // Get main translation from store instead of hardcoded value
+  const mainTranslation = useTranslationMaps((state) => state.main) || 'KJV';
   
   // Parse cross-references if they're in raw format
   const parsedRefs: string[] = [];
