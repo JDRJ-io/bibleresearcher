@@ -55,4 +55,5 @@ export const useColumnKeys = () => {
   return [store.main, ...store.alternates];  // column order: main first, then alternates
 };
 
-export { useTranslationMaps, useTranslationMaps as useTranslationSlice };
+export { useTranslationMaps };
+export { useTranslationMaps as useTranslationSlice };
