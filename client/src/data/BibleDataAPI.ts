@@ -323,6 +323,51 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
 
 
 
+// Add cross-references data loading functionality  
+export async function getCrossReferences(verseId: string): Promise<string[]> {
+  try {
+    // Load cf1 offsets first
+    const offsets = await getCfOffsets('cf1');
+    const verseOffset = offsets[verseId];
+    
+    if (!verseOffset) {
+      return []; // No cross-references for this verse
+    }
+    
+    // Load the specific verse's cross-reference line using slice
+    const [start, end] = verseOffset;
+    const crossRefLine = await getCrossRefSlice('cf1', start, end);
+    
+    // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+    const [baseVerse, referencesData] = crossRefLine.split('$$');
+    if (!referencesData) return [];
+    
+    // Split by $ to get groups, then by # to get individual references
+    const referenceGroups = referencesData.split('$');
+    const allReferences: string[] = [];
+    
+    referenceGroups.forEach(group => {
+      const refs = group.split('#');
+      allReferences.push(...refs.filter(ref => ref.trim()));
+    });
+    
+    console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
+    return allReferences;
+    
+  } catch (error) {
+    console.error(`❌ Error loading cross-references for ${verseId}:`, error);
+    return [];
+  }
+}
+
+// Enhanced prophecy loading with detailed index
+export async function getProphecyIndexDetailed(): Promise<Record<string, any>> {
+  return getOrFetch('prophecy-index', async () => {
+    const text = await fetchFromStorage(paths.prophecyIdx);
+    return JSON.parse(text);
+  });
+}
+
 // Unified API object for backwards compatibility
 export const BibleDataAPI = {
   getTranslationText: async (verseIDs: string[], translationId: string) => {
@@ -336,6 +381,7 @@ export const BibleDataAPI = {
   getCfOffsets,
   getCrossRef,
   getCrossRefSlice,
+  getCrossReferences,
   loadCrossReferences,
   getProphecy,
   getProphecyRows,

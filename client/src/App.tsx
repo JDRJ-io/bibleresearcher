@@ -101,6 +101,21 @@ export const useBibleStore = create<{
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
     const newValue = !state.showCrossRefs;
+    
+    // Load cross-references data when toggling on
+    if (newValue) {
+      console.log('📚 Loading cross-references data...');
+      import('@/data/BibleDataAPI').then(async ({ getCrossReferences }) => {
+        try {
+          // Load cross-references for Genesis 1:1 as a test
+          const testRefs = await getCrossReferences('Gen.1:1');
+          console.log('✅ Cross-references test loaded:', testRefs.length, 'references for Gen.1:1');
+        } catch (error) {
+          console.error('❌ Failed to load cross-references:', error);
+        }
+      });
+    }
+    
     const newState = {
       showCrossRefs: newValue,
       columnState: {
@@ -121,9 +136,13 @@ export const useBibleStore = create<{
     // Load prophecy data when toggling on
     if (newValue && Object.keys(state.prophecyData).length === 0) {
       console.log('🔮 Loading prophecy data from Supabase...');
-      import('@/data/BibleDataAPI').then(async ({ getProphecyRows }) => {
+      import('@/data/BibleDataAPI').then(async ({ getProphecyRows, getProphecyIndex }) => {
         try {
-          const propRows = await getProphecyRows();
+          const [propRows, propIndex] = await Promise.all([
+            getProphecyRows(),
+            getProphecyIndex()
+          ]);
+          
           const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
           
           // Parse prophecy_rows.txt format: [VerseID]$[id:type, id:type, …]
@@ -143,6 +162,7 @@ export const useBibleStore = create<{
           
           get().setProphecyData(parsedData);
           console.log('✅ Prophecy data loaded:', Object.keys(parsedData).length, 'verses with prophecy links');
+          console.log('✅ Prophecy index loaded:', Object.keys(propIndex).length, 'prophecy definitions');
         } catch (error) {
           console.error('❌ Failed to load prophecy data:', error);
         }
