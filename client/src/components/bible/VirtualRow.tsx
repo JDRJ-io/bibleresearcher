@@ -41,15 +41,7 @@ function ReferenceCell({ verse }: CellProps) {
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
-  // DEBUG: For Gen 1:1, log the text retrieval process
-  if (verse.reference === "Gen 1:1") {
-    console.log(`📖 MainTranslationCell Debug for ${verse.reference}:`, {
-      mainTranslation,
-      getVerseTextResult: getVerseText(verse.reference, mainTranslation),
-      verseTextProperty: verse.text?.[mainTranslation],
-      finalVerseText: verseText
-    });
-  }
+  // Text retrieval for main translation
 
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
@@ -83,12 +75,7 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // DEBUG: Check if VirtualRow is being called
-  if (verse.reference === "Gen 1:1") {
-    console.log('🔥 VirtualRow RENDERING for Gen 1:1');
-    console.log('🔥 Store states:', { showCrossRefs, showProphecies, showNotes, showDates });
-    console.log('🔥 Translation states:', { main, alternates, activeTranslations });
-  }
+  // Clean rendering without excessive debug logs
 
   // PROPER SLOT ARCHITECTURE matching UI spec and ColumnHeaders exactly
   const slotConfig: Record<number, SlotConfig> = {};
@@ -154,15 +141,7 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     }
   }
 
-  // Debug logging for first verse
-  if (verse.reference === "Gen 1:1") {
-    console.log('🔍 VirtualRow Debug - Translation state:', { main, alternates });
-    console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
-    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
-    console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
-    console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
-    console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
-  }
+  // Simplified logging for critical issues only
 
   const handleDoubleClick = () => {
     if (onExpandVerse) {
@@ -219,11 +198,7 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
         // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
         const verseText = getVerseText(verse.reference, config.translationCode);
         
-        // Debug: Show more info if translation loading fails
-        if (!verseText) {
-          console.log(`🔍 VirtualRow: Missing text for ${verse.reference} in ${config.translationCode}`);
-          console.log(`🔍 VirtualRow: Verse formats tried: [${verse.reference}, ${verse.reference.replace(/\s+/g, '.')}, ${verse.reference.replace(/\./g, ' ')}]`);
-        }
+        // Handle missing translation text gracefully
         
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>

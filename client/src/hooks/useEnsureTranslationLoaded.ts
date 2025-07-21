@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 
 // CLEAN IMPLEMENTATION: Use ONLY BibleDataAPI facade
@@ -9,7 +8,7 @@ export function useEnsureTranslationLoaded(translationCode: string) {
   useEffect(() => {
     const ensureLoaded = async () => {
       if (!translationCode || isLoaded) return;
-      
+
       setIsLoading(true);
       try {
         // Use ONLY BibleDataAPI - single source of truth
