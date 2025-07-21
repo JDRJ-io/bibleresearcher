@@ -62,8 +62,9 @@ const VirtualBibleTable = ({
   const queryClient = useQueryClient();
 
   // Integrate translation maps system for verse text loading
-  const translationMaps = useTranslationMaps();
-  const { activeTranslations, getVerseText, getMainVerseText, mainTranslation: translationMainTranslation } = translationMaps;
+  const { main, alternates } = useTranslationMaps();
+  const activeTranslations = [main, ...alternates];
+  const translationMainTranslation = main;
 
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
