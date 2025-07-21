@@ -1,3 +1,4 @@
+
 import { useRef, useState, useLayoutEffect } from "react";
 import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
@@ -6,19 +7,19 @@ import { ROW_HEIGHT } from "@/constants/layout";
 function loadChunk(anchorIndex: number, buffer: number = 100) {
   const allVerseKeys = getVerseKeys();
   const totalRows = allVerseKeys.length;
-
+  
   // VERSE LOADING FIX: Ensure we have valid verse keys
   if (!allVerseKeys || totalRows === 0) {
     console.warn('No verse keys available for chunk loading');
     return { start: 0, end: 0, slice: [] };
   }
-
+  
   const start = Math.max(0, anchorIndex - buffer);
   const end = Math.min(totalRows - 1, anchorIndex + buffer);
   const slice = allVerseKeys.slice(start, end + 1);
-
+  
   console.log(`📖 loadChunk: anchor=${anchorIndex}, buffer=${buffer}, start=${start}, end=${end}, sliceLength=${slice.length}`);
-
+  
   return {
     start,
     end,
@@ -40,7 +41,7 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
     const onScroll = () => {
       const anchor = Math.floor((el.scrollTop + el.clientHeight / 2) / ROW_HEIGHT);
       const lastAnchor = anchorIndexRef.current;
-
+      
       if (Math.abs(anchor - lastAnchor) >= THRESH) {
         anchorIndexRef.current = anchor;
         setAnchorIndex(anchor);
@@ -52,17 +53,8 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
     return () => el.removeEventListener("scroll", onScroll);
   }, [containerRef]);
 
-  // Enhanced setAnchorIndex with navigation debugging
-  const enhancedSetAnchorIndex = (newIndex: number, reason?: string) => {
-    console.log(`🎯 setAnchorIndex called: ${anchorIndex} → ${newIndex} (${reason || 'no reason given'})`);
-    anchorIndexRef.current = newIndex;
-    setAnchorIndex(newIndex);
-    setSlice(loadChunk(newIndex));
-  };
-
   return {
     anchorIndex,
-    setAnchorIndex: enhancedSetAnchorIndex,
     slice: {
       start: slice.start,
       end: slice.end,

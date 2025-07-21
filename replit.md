@@ -276,17 +276,6 @@ Comprehensive layout architecture overhaul for optimal responsive behavior:
 Ensured that all data comes from Supabase. Hard-coded all Supabase Storage paths in one place, added a dev-only guard to catch any unwanted API calls, and verified no other data sources are used. After this, 100% of content is loaded via the BibleDataAPI facade from Supabase, with no calls to the old Express endpoints. Web workers were adjusted to request data through main thread messaging to avoid independent network calls. This change unified data access and closed potential inconsistency issues.
 ## Memory Optimizations & Cache Consolidation (July 15–16, 2025): 
 Removed duplicate loading of translations – fixed a bug where the same translation could load multiple times, notably KJV on startup, by refining the caching checks. Also removed an unnecessary heavy loading screen that was consuming memory on mobile. Consolidated multiple verse caches into a single master cache with LRU eviction, as mentioned, thereby reducing memory footprint and complexity. These optimizations resolved performance issues on mobile (particularly iPhone) and made the app more efficient.
-
-## Critical Memory Optimization - Byte-Range Loading (July 20, 2025):
-**MAJOR BREAKTHROUGH COMPLETE**: Successfully implemented and verified memory-efficient byte-range loading system:
-- **Memory Reduced to 3.5MB**: System now uses small offset files (~200KB) instead of 6MB+ full file downloads
-- **Cross-References Working**: Byte-range requests functioning perfectly with 62/80 verses loading successfully
-- **BibleDataAPI Complete**: fetchFromStorageRange() implemented using Supabase public URLs with Range headers
-- **Behavior Contracts**: Cross-reference navigation now complies with contract X-1 (setAnchorIndex within 30ms)
-- **Performance Verified**: Faster loads, reduced bandwidth, excellent mobile responsiveness confirmed
-- **Architecture Simplified**: Moved from complex worker-based to reliable main thread cross-references loading
-- **Data Flow**: getCrossRefSlice() processes verses in parallel with proper error handling and caching
-This optimization represents a fundamental performance breakthrough enabling the app to scale efficiently across all device types.
 ## Removal of Legacy Code (PR-A & PR-B refactors): 
 Deleted outdated modules such as an old BibleSlice provider, old fetch utilities, and inlined the BibleDataProvider (merging it into the main app flow). Combined Supabase helper code into one file and ensured all components use the new unified approach. This cleanup was essential to implement the one-path data flow and to simplify future maintenance.
 ## PWA and Offline Implementation Completion (July 2025): 

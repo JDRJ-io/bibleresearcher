@@ -22,9 +22,9 @@ export const getCrossRefWorker = async () => {
   }
   
   if (!workerInitialized) {
-    // MEMORY OPTIMIZED: Initialize worker with offset data only (small JSON files)
-    const { loadCrossRefOffsets } = await import('@/data/BibleDataAPI');
-    const cf1Offsets = await loadCrossRefOffsets('cf1');
+    // Initialize worker with cross-reference data from main thread
+    const { getCrossRef } = await import('@/data/BibleDataAPI');
+    const cf1Data = await getCrossRef('cf1');
     
     return new Promise<Worker>((resolve) => {
       crossRefWorkerInstance!.onmessage = (e) => {
@@ -33,7 +33,7 @@ export const getCrossRefWorker = async () => {
           resolve(crossRefWorkerInstance!);
         }
       };
-      crossRefWorkerInstance!.postMessage({ type: 'init', offsets: cf1Offsets });
+      crossRefWorkerInstance!.postMessage({ type: 'init', data: cf1Data });
     });
   }
   

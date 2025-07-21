@@ -10,6 +10,16 @@ import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
 
+// Inlined BibleDataProvider - Bible Store
+interface TranslationState {
+  main: string;
+  alternates: string[];
+  setMain: (id: string) => void;
+  toggleAlternate: (id: string) => void;
+  clearAlternates: (id: string) => void;
+  columnKeys: string[];
+}
+
 // UI Layout Spec Column State Interface
 interface ColumnInfo {
   slot: number;
@@ -24,136 +34,109 @@ interface ColumnState {
   resize: (slot: number, deltaRem: number) => void;
 }
 
-// Translation state interface
-interface TranslationState {
-  main: string;
-  alternates: string[];
-  setMain: (id: string) => void;
-  toggleAlternate: (id: string) => void;
-  clearAlternates: (id: string) => void;
-  resetMobileDefaults: (mainId: string) => void;
-  columnKeys: string[];
-}
-
-// Size state interface
 interface SizeState {
   sizeMult: number;
   setSizeMult: (mult: number) => void;
 }
 
-// Complete Bible Store Interface - SINGLE DECLARATION
 export const useBibleStore = create<{
-  // Translation management
   translations: Record<string, any>;
   actives: string[];
   translationState: TranslationState;
   setActives: (ids: string[]) => void;
   setTranslations: (id: string, data: any) => void;
   getAllActive: () => string[];
-
-  // Data storage
   crossRefs: Record<string, string[]>;
   prophecies: Record<string, any>;
-  prophecyData: Record<string, { P: number[]; F: number[]; V: number[] }>;
   store: any;
-
-  // UI state flags
   showCrossRefs: boolean;
   showProphecies: boolean;
   showNotes: boolean;
   showDates: boolean;
   showLabels: Record<string, boolean>;
-
-  // UI actions
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
   toggleNotes: () => void;
   toggleDates: () => void;
   toggleLabel: (labelId: string) => void;
-
-  // Data setters
-  setCrossRefs: (verseRef: string, refs: string[]) => void;
-  setBulkCrossRefs: (data: Record<string, string[]>) => void;
-  setProphecyData: (data: Record<string, { P: number[]; F: number[]; V: number[] }>) => void;
-
-  // Column and size state
   columnState: ColumnState;
   sizeState: SizeState;
-
-  // Initialization
   isInitialized: boolean;
 }>((set, get) => ({
-  // Initialize all state
   isInitialized: true,
   translations: {},
   actives: ["KJV"],
   crossRefs: {},
   prophecies: {},
-  prophecyData: {},
   store: { crossRefs: {}, prophecies: {} },
+  showCrossRefs: true,  // Default ON for free users (optimal mobile display)
+  showProphecies: false, // Default OFF for free users (cleaner mobile)
+  showNotes: false,     // Notes column toggle
+  showDates: false,     // Dates column toggle
+  showLabels: {},       // Labels state object for semantic highlighting
 
-  // UI defaults optimized for guest mode
-  showCrossRefs: true,   // ON by default for optimal mobile display
-  showProphecies: false, // OFF for cleaner mobile
-  showNotes: false,      // OFF by default
-  showDates: false,      // OFF by default
-  showLabels: {},
-
-  // UI toggle actions
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
     const newValue = !state.showCrossRefs;
-    return {
+    const newState = {
       showCrossRefs: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 2 ? { ...col, visible: newValue } : col // Cross refs in slot 2
+          col.slot === 7 ? { ...col, visible: newValue } : col // Slot 7 = Cross References (moved from 6)
         )
       }
     };
+    console.log('🔄 TOGGLE CROSS REFS - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
   }),
 
   toggleProphecies: () => set(state => {
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
     const newValue = !state.showProphecies;
-    return {
+    const newState = {
       showProphecies: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          (col.slot >= 15 && col.slot <= 17) ? { ...col, visible: newValue } : col // Prophecy P/F/V slots 15-17
+          (col.slot >= 8 && col.slot <= 10) ? { ...col, visible: newValue } : col // Slots 8-10 = Prophecy P/F/V (moved from 7-9)
         )
       }
     };
+    console.log('🔄 TOGGLE PROPHECIES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
   }),
 
   toggleNotes: () => set(state => {
     console.log('🔄 TOGGLE NOTES - Current:', state.showNotes, '→ New:', !state.showNotes);
     const newValue = !state.showNotes;
-    return {
+    const newState = {
       showNotes: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 18 ? { ...col, visible: newValue } : col // Notes in slot 18
+          col.slot === 1 ? { ...col, visible: newValue } : col // Slot 1 = Notes (moved to between Ref and Main)
         )
       }
     };
+    console.log('🔄 TOGGLE NOTES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
   }),
 
   toggleDates: () => set(state => {
     console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
     const newValue = !state.showDates;
-    return {
+    const newState = {
       showDates: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 19 ? { ...col, visible: newValue } : col // Dates in slot 19
+          col.slot === 11 ? { ...col, visible: newValue } : col // Slot 11 = Context/Dates (unchanged)
         )
       }
     };
+    console.log('🔄 TOGGLE DATES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
   }),
 
   toggleLabel: (labelId: string) => set(state => ({
@@ -163,57 +146,27 @@ export const useBibleStore = create<{
     }
   })),
 
-  // Data management
-  setCrossRefs: (verseRef: string, refs: string[]) => set(state => ({
-    crossRefs: {
-      ...state.crossRefs,
-      [verseRef]: refs
-    }
-  })),
-
-  setBulkCrossRefs: (data: Record<string, string[]>) => set(state => ({
-    crossRefs: {
-      ...state.crossRefs,
-      ...data
-    }
-  })),
-
-  setProphecyData: (data: Record<string, { P: number[]; F: number[]; V: number[] }>) => set(state => ({
-    prophecyData: {
-      ...state.prophecyData,
-      ...data
-    }
-  })),
-
   setActives: (ids: string[]) => set({ actives: ids }),
   setTranslations: (id: string, data: any) => set(state => ({
     translations: { ...state.translations, [id]: data }
   })),
   getAllActive: () => get().actives,
 
-  // Column state following UI Layout Spec slot architecture
+  // UI Layout Spec Column State - Notes between Ref and Main Translation
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5 },     // Reference (always visible)
-      { slot: 1, visible: true, widthRem: 20 },    // Main translation (always visible)
-      { slot: 2, visible: true, widthRem: 15 },    // Cross References (default ON)
+      { slot: 1, visible: false, widthRem: 16 },   // Notes (between Ref and Main)
+      { slot: 2, visible: true, widthRem: 20 },    // Main translation (always visible)
       { slot: 3, visible: false, widthRem: 18 },   // Alt translation 1
       { slot: 4, visible: false, widthRem: 18 },   // Alt translation 2
       { slot: 5, visible: false, widthRem: 18 },   // Alt translation 3
       { slot: 6, visible: false, widthRem: 18 },   // Alt translation 4
-      { slot: 7, visible: false, widthRem: 18 },   // Alt translation 5
-      { slot: 8, visible: false, widthRem: 18 },   // Alt translation 6
-      { slot: 9, visible: false, widthRem: 18 },   // Alt translation 7
-      { slot: 10, visible: false, widthRem: 18 },  // Alt translation 8
-      { slot: 11, visible: false, widthRem: 18 },  // Alt translation 9
-      { slot: 12, visible: false, widthRem: 18 },  // Alt translation 10
-      { slot: 13, visible: false, widthRem: 18 },  // Alt translation 11
-      { slot: 14, visible: false, widthRem: 18 },  // Alt translation 12
-      { slot: 15, visible: false, widthRem: 5 },   // Prophecy P
-      { slot: 16, visible: false, widthRem: 5 },   // Prophecy F
-      { slot: 17, visible: false, widthRem: 5 },   // Prophecy V
-      { slot: 18, visible: false, widthRem: 16 },  // Notes
-      { slot: 19, visible: false, widthRem: 8 },   // Dates/Context
+      { slot: 7, visible: true, widthRem: 15 },    // Cross References (default ON)
+      { slot: 8, visible: false, widthRem: 5 },    // Prophecy P (default OFF)
+      { slot: 9, visible: false, widthRem: 5 },    // Prophecy F (default OFF)
+      { slot: 10, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
+      { slot: 11, visible: false, widthRem: 8 },   // Context/Dates (default OFF)
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {
@@ -243,7 +196,7 @@ export const useBibleStore = create<{
     }))
   },
 
-  // Size state (UI Layout Spec presets: S=0.85, M=1.0, L=1.35, XL=1.70)
+  // Size State (UI Layout Spec presets: S=0.85, M=1.0, L=1.35, XL=1.70)
   sizeState: {
     sizeMult: 1.0, // Default to Medium
     setSizeMult: (mult: number) => {
@@ -255,11 +208,9 @@ export const useBibleStore = create<{
     }
   },
 
-  // Translation state management - ensure it's always properly initialized
   translationState: {
     main: "KJV",
     alternates: [],
-    columnKeys: ["KJV"], // Ensure columnKeys is initialized
     setMain: (id: string) => set(state => {
       if (id === state.translationState.main) return state;
 
@@ -305,14 +256,7 @@ export const useBibleStore = create<{
         columnKeys: [state.translationState.main]
       }
     })),
-    resetMobileDefaults: (mainId: string) => set(state => ({
-      translationState: {
-        ...state.translationState,
-        main: mainId,
-        alternates: [],
-        columnKeys: [mainId]
-      }
-    }))
+    columnKeys: []
   }
 }));
 

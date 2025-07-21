@@ -1,18 +1,12 @@
+import { BibleDataAPI } from "@/data/BibleDataAPI";
+import { useQuery } from "@tanstack/react-query";
 
-import { useMemo } from 'react';
-import type { BibleVerse } from '@/types/bible';
-
-// Simple row data preparation - text loading handled by individual components
-export function useRowData(verses: BibleVerse[]) {
-  const rowData = useMemo(() => {
-    return verses.map((verse, index) => ({
-      ...verse,
-      index,
-    }));
-  }, [verses]);
-
-  return {
-    rowData,
-    totalRows: verses.length
-  };
+export function useRowData(verseIDs: string[], mainTranslation: string) {
+  return useQuery({
+    queryKey: ["chunk", verseIDs, mainTranslation],
+    queryFn: () => BibleDataAPI.getTranslationText(verseIDs, mainTranslation),
+    staleTime: 30_000,
+    enabled: verseIDs.length > 0,
+    select: (verses) => Object.fromEntries(verses.map((v: { id: string, text: string }) => [v.id, v])),
+  });
 }

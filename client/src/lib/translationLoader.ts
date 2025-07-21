@@ -1,38 +1,55 @@
+// Translation loading utilities - uses secure Supabase loader
+import { loadTranslationSecure, masterCache } from './supabaseClient';
 
-// DEPRECATED: Use BibleDataAPI.loadTranslation() directly instead
+export async function loadTranslation(translationId: string): Promise<Map<string, string>> {
+  const cacheKey = `translation-${translationId}`;
+  
+  // Check master cache first
+  if (masterCache.has(cacheKey)) {
+    return masterCache.get(cacheKey)!;
+  }
 
-console.warn('⚠️ translationLoader.ts is deprecated. Use BibleDataAPI.loadTranslation() directly.');
+  try {
+    // Use secure Supabase loader (which also uses master cache)
+    const textMap = await loadTranslationSecure(translationId);
+    
+    return textMap;
+  } catch (error) {
+    console.error(`Failed to load ${translationId} translation:`, error);
+    return new Map();
+  }
+}
 
-// All methods redirect to BibleDataAPI to prevent legacy usage
 export async function loadMultipleTranslations(translationIds: string[]): Promise<Map<string, Map<string, string>>> {
-  console.warn('⚠️ loadMultipleTranslations is deprecated. Use BibleDataAPI.loadTranslation() directly.');
+  const results = new Map<string, Map<string, string>>();
   
-  // Redirect to BibleDataAPI
-  const { loadTranslation } = await import('@/data/BibleDataAPI');
-  const result = new Map<string, Map<string, string>>();
+  // Load translations in parallel
+  const promises = translationIds.map(async (id) => {
+    const textMap = await loadTranslation(id);
+    results.set(id, textMap);
+  });
   
-  for (const id of translationIds) {
-    try {
-      const translationMap = await loadTranslation(id);
-      result.set(id, translationMap);
-    } catch (error) {
-      console.error(`Failed to load ${id} via BibleDataAPI:`, error);
+  await Promise.all(promises);
+  return results;
+}
+
+export function getVerseText(
+  translationMap: Map<string, string>, 
+  reference: string
+): string {
+  // Try different reference formats
+  const formats = [
+    reference,
+    reference.replace('.', ' '),
+    reference.replace(/\s/g, '.'),
+    reference.replace(/\./g, ' ')
+  ];
+  
+  for (const format of formats) {
+    if (translationMap.has(format)) {
+      return translationMap.get(format)!;
     }
   }
   
-  return result;
-}
-
-export function getVerseText(translationMap: Map<string, string>, reference: string): string {
-  console.warn('⚠️ getVerseText from translationLoader is deprecated. Use BibleDataAPI.loadTranslation() directly.');
-  return translationMap.get(reference) || `[${reference} - Use BibleDataAPI]`;
-}
-
-// Legacy method - DEPRECATED
-export async function loadTranslation(translationId: string): Promise<Map<string, string>> {
-  console.warn('⚠️ loadTranslation from translationLoader is deprecated. Use BibleDataAPI.loadTranslation() directly.');
-  
-  // Redirect to BibleDataAPI
-  const { loadTranslation: apiLoadTranslation } = await import('@/data/BibleDataAPI');
-  return apiLoadTranslation(translationId);
+  return `[${reference} - Loading...]`;
 }

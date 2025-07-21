@@ -1,9 +1,8 @@
-
 import { useMemo } from 'react';
 import type { Translation } from '@/types/bible';
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
-import { createSlotConfig, getVisibleColumns } from '@/constants/slotConfig';
+import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -53,60 +52,79 @@ export function ColumnHeaders({
   preferences, 
   isGuest = true 
 }: ColumnHeadersProps) {
-  try {
-    console.log('🔍 ColumnHeaders DEBUG:', {
-      selectedTranslations: selectedTranslations ? selectedTranslations.length : 'NULL',
-      propShowNotes: typeof propShowNotes,
-      showProphecy: typeof showProphecy,
-      propShowCrossRefs: typeof propShowCrossRefs,
-      showContext: typeof showContext,
-      scrollLeft: typeof scrollLeft,
-      preferences: preferences ? 'EXISTS' : 'NULL'
-    });
+  const { main, alternates } = useTranslationMaps();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-    const { main, alternates } = useTranslationMaps();
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
-    console.log('🔍 ColumnHeaders Translation Data:', {
-      main: typeof main,
-      mainValue: main,
-      alternates: alternates ? alternates.length : 'NULL'
-    });
-
-    // Get store states for column visibility with safety checks
-    const store = useBibleStore();
-    
-    if (!store) {
-      console.error('❌ ColumnHeaders: Store not available');
-      return <div className="h-10 bg-gray-100">Loading headers...</div>;
-    }
-
+  // Get store states for column visibility
   const { 
-    showCrossRefs: storeShowCrossRefs = true, 
-    showProphecies = false, 
-    showNotes: storeShowNotes = false, 
-    showDates = false, 
+    showCrossRefs: storeShowCrossRefs, 
+    showProphecies, 
+    showNotes: storeShowNotes, 
+    showDates, 
     columnState,
-    isInitialized = false
-  } = store;
+    isInitialized 
+  } = useBibleStore();
+
+  // Prevent render if store not initialized
+  if (!isInitialized) {
+    return null;
+  }
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   const showNotes = propShowNotes ?? storeShowNotes;
 
-  // Ensure we have valid translation data
-  const mainTranslation = main || 'KJV';
-  const alternateTranslations = alternates || [];
+  // Use store's columnState as the authoritative source, enhanced with translation data
+  const slotConfig: Record<number, any> = {};
 
-  // Use centralized slot configuration - single source of truth
-  const slotConfig = createSlotConfig(
-    mainTranslation,
-    alternateTranslations,
-    showCrossRefs,
-    showProphecies,
-    showNotes,
-    showDates
-  );
+  // Always show reference column (slot 0)
+  slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
+  
+  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
+  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+
+  // Map all column types based on store state - updated slot assignments
+  columnState.columns.forEach(col => {
+    switch (col.slot) {
+      case 1:
+        // Notes column (moved to slot 1 between Ref and Main)
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        break;
+      case 7:
+        // Cross References column (moved from slot 6 to 7)
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+        break;
+      case 8:
+        // Prophecy P column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        break;
+      case 9:
+        // Prophecy F column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        break;
+      case 10:
+        // Prophecy V column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        break;
+      case 11:
+        // Dates column (unchanged)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+        break;
+    }
+  });
+
+  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
+  alternates.forEach((translationCode, index) => {
+    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
+      slotConfig[slot] = { 
+        type: 'alt-translation', 
+        header: translationCode, 
+        translationCode, 
+        visible: true  // Show all active alternate translations
+      };
+    }
+  });
 
   // Debug logging
   console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
@@ -116,15 +134,18 @@ export function ColumnHeaders({
     visible: slotConfig[parseInt(slot)]?.visible 
   })));
 
-  // Use centralized visible columns helper - matching VirtualRow exactly
-  const visibleColumns = getVisibleColumns(slotConfig).map(({ slot, config }) => ({
-    slot,
-    config,
-    name: config?.header || '',
-    type: config?.type || '',
-    isMain: config?.type === 'main-translation',
-    visible: config?.visible !== false
-  }));
+  // Get all visible columns sorted by slot position, matching VirtualRow exactly  
+  const visibleColumns = Object.entries(slotConfig)
+    .map(([slotStr, config]) => ({
+      slot: parseInt(slotStr),
+      config,
+      name: config?.header || '',
+      type: config?.type || '',
+      isMain: config?.type === 'main-translation',
+      visible: config?.visible !== false
+    }))
+    .filter(col => col.config && col.visible) // Only render valid, visible slots
+    .sort((a, b) => a.slot - b.slot);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
@@ -135,22 +156,22 @@ export function ColumnHeaders({
     width += 320; // Main translation ~320px
     if (showCrossRefs) width += 240; // Cross refs ~240px
     if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (alternateTranslations.length * 320); // Alt translations ~320px each
+    width += (alternates.length * 320); // Alt translations ~320px each
     return width;
-  }, [showCrossRefs, showProphecies, alternateTranslations]);
-
+  }, [showCrossRefs, showProphecies, alternates]);
+  
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-
+  
   // Center only if total width fits in viewport, otherwise left-anchor
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
 
   const allColumns = visibleColumns.map(col => ({
-    id: col.config?.header?.toLowerCase().replace(' ', '-') || `slot-${col.slot}`,
-    name: col.config?.header || `Column ${col.slot}`,
-    type: col.config?.type || 'unknown',
+    id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
+    name: col.config?.header || '',
+    type: col.config?.type || '',
     position: col.slot,
-    isMain: col.config?.translationCode === mainTranslation,
+    isMain: col.config?.translationCode === main,
     slot: col.slot
   }));
 
@@ -208,18 +229,4 @@ export function ColumnHeaders({
       </div>
     </div>
   );
-  } catch (error) {
-    console.error('🚨 ColumnHeaders CRASH DEBUG:', {
-      error: error.message,
-      stack: error.stack,
-      main,
-      alternates,
-      store: store ? 'EXISTS' : 'NULL'
-    });
-    return (
-      <div className="h-10 bg-red-50 border border-red-200 flex items-center justify-center">
-        <div className="text-red-600 text-xs">HEADER ERROR: {error.message}</div>
-      </div>
-    );
-  }
 }

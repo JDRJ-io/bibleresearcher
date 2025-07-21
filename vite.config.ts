@@ -7,15 +7,14 @@ export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
-    // Temporarily disabled due to traverse compatibility issue with Vite 5
-    // ...(process.env.NODE_ENV !== "production" &&
-    // process.env.REPL_ID !== undefined
-    //   ? [
-    //       await import("@replit/vite-plugin-cartographer")
-    //         .then((m) => m.cartographer())
-    //         .catch(() => null),
-    //     ].filter(Boolean)
-    //   : []),
+    ...(process.env.NODE_ENV !== "production" &&
+    process.env.REPL_ID !== undefined
+      ? [
+          await import("@replit/vite-plugin-cartographer").then((m) =>
+            m.cartographer(),
+          ),
+        ]
+      : []),
   ],
   resolve: {
     alias: {
