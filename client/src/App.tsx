@@ -64,6 +64,7 @@ export const useBibleStore = create<{
   setSearchOpen: (open: boolean) => void;
   activeLabels: string[];
   setActiveLabels: (labels: string[]) => void;
+  loadCrossRefsData: () => void;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
   toggleNotes: () => void;
@@ -98,58 +99,70 @@ export const useBibleStore = create<{
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
 
+  // Load cross-references data automatically on startup
   loadCrossRefsData: () => {
     const state = get();
     if (Object.keys(state.crossRefs).length > 0) {
       console.log('✅ Cross-references already loaded, skipping');
       return;
     }
-      console.log('📚 Loading cross-references data...');
-      // Load cross-references data for all verses
-      import('@/data/BibleDataAPI').then(async ({ getCrossReferences, loadCrossReferences }) => {
-        try {
-          console.log('📚 Loading complete cross-references dataset...');
-          
-          // Load the complete cross-reference data from cf1 and parse it
-          const crossRefData = await loadCrossReferences('cf1');
-          const lines = crossRefData.split('\n').filter(line => line.trim());
-          
-          const crossRefsMap: Record<string, string[]> = {};
-          
-          // Parse all cross-reference data at once
-          lines.forEach(line => {
-            if (line.includes('$$')) {
-              const [baseVerse, referencesData] = line.split('$$');
-              if (baseVerse && referencesData) {
-                // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-                const referenceGroups = referencesData.split('$');
-                const allReferences: string[] = [];
-                
-                referenceGroups.forEach(group => {
-                  const refs = group.split('#');
-                  allReferences.push(...refs.filter(ref => ref.trim()));
-                });
-                
-                // Store with both formats for compatibility
-                const dotFormat = baseVerse.trim(); // "Gen.1:1"
-                const spaceFormat = dotFormat.replace('.', ' '); // "Gen 1:1"
-                
-                crossRefsMap[spaceFormat] = allReferences; // Store with space format for VirtualRow lookup
-                crossRefsMap[dotFormat] = allReferences; // Also store with dot format
-              }
+    
+    console.log('📚 Loading cross-references data...');
+    // Load cross-references data for all verses
+    import('@/data/BibleDataAPI').then(async ({ getCrossReferences, loadCrossReferences }) => {
+      try {
+        console.log('📚 Loading complete cross-references dataset...');
+        
+        // Load the complete cross-reference data from cf1 and parse it
+        const crossRefData = await loadCrossReferences('cf1');
+        const lines = crossRefData.split('\n').filter(line => line.trim());
+        
+        const crossRefsMap: Record<string, string[]> = {};
+        
+        // Parse all cross-reference data at once
+        lines.forEach(line => {
+          if (line.includes('$$')) {
+            const [baseVerse, referencesData] = line.split('$$');
+            if (baseVerse && referencesData) {
+              // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+              const referenceGroups = referencesData.split('$');
+              const allReferences: string[] = [];
+              
+              referenceGroups.forEach(group => {
+                const refs = group.split('#');
+                allReferences.push(...refs.filter(ref => ref.trim()));
+              });
+              
+              // Store with both formats for compatibility
+              const dotFormat = baseVerse.trim(); // "Gen.1:1"
+              const spaceFormat = dotFormat.replace('.', ' '); // "Gen 1:1"
+              
+              crossRefsMap[spaceFormat] = allReferences; // Store with space format for VirtualRow lookup
+              crossRefsMap[dotFormat] = allReferences; // Also store with dot format
             }
-          });
-          
-          console.log('✅ Cross-references loaded for', Object.keys(crossRefsMap).length / 2, 'verses');
-          console.log('✅ Sample cross-refs:', Object.keys(crossRefsMap).slice(0, 6));
-          
-          // Update store with all cross-reference data
-          get().setCrossRefs(crossRefsMap);
-          
-        } catch (error) {
-          console.error('❌ Failed to load cross-references:', error);
-        }
-      });
+          }
+        });
+        
+        console.log('✅ Cross-references loaded for', Object.keys(crossRefsMap).length / 2, 'verses');
+        console.log('✅ Sample cross-refs:', Object.keys(crossRefsMap).slice(0, 6));
+        
+        // Update store with all cross-reference data
+        set({ crossRefs: crossRefsMap });
+        
+      } catch (error) {
+        console.error('❌ Failed to load cross-references:', error);
+      }
+    });
+  },
+
+  toggleCrossRefs: () => set(state => {
+    console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
+    const newValue = !state.showCrossRefs;
+    
+    // Load cross-references data when toggling on
+    if (newValue && Object.keys(state.crossRefs).length === 0) {
+      // Trigger data loading
+      setTimeout(() => get().loadCrossRefsData(), 0);
     }
     
     const newState = {

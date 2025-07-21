@@ -74,9 +74,17 @@ export default function BiblePage() {
   // Get translation store for mobile defaults
   const { resetMobileDefaults } = useTranslationStore();
   
-  // Get Bible store for cross-references toggle
+  // Get Bible store for cross-references toggle and auto-loading
   const bibleStore = useBibleStore();
-  const { showCrossRefs, toggleCrossRefs } = bibleStore;
+  const { showCrossRefs, toggleCrossRefs, loadCrossRefsData } = bibleStore;
+
+  // Auto-load cross-references when the page initializes (since showCrossRefs is default true)
+  useEffect(() => {
+    if (showCrossRefs) {
+      console.log('🚀 Auto-loading cross-references on startup...');
+      loadCrossRefsData();
+    }
+  }, [showCrossRefs, loadCrossRefsData]);
 
   // MOBILE PORTRAIT DEFAULT: Reset to exactly two data columns on first load
   useEffect(() => {
