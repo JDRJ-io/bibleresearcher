@@ -81,22 +81,16 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   // Slot 0: Reference (always visible)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Slot 1: Notes (default hidden)
-  slotConfig[1] = { type: 'notes', header: 'Notes', visible: showNotes };
+  // Slot 1: Main translation (always visible) - moved to slot 1 for proper center loading
+  slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: true };
   
-  // Slot 2: Main translation (always visible)
-  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  // Slot 2: Cross References (center column when enabled)
+  slotConfig[2] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
   
-  // Slot 3: Cross References (per UI spec)
-  slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
-  
-  // Slot 4: Dates (default hidden)
-  slotConfig[4] = { type: 'context', header: 'Dates', visible: showDates };
-  
-  // Slots 5-16: Alternate translations (per UI spec)
+  // Slots 3-14: Alternate translations (load to the right first, then left)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Alternates start at slot 5
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 3 + index; // Alternates start at slot 3
+    if (slot <= 14) { // Max 12 alternate translations (slots 3-14)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
@@ -106,10 +100,16 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     }
   });
   
-  // Slots 17-19: Prophecy P/F/V (per UI spec)
-  slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
-  slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
-  slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
+  // Slots 15-17: Prophecy P/F/V (rightmost columns)
+  slotConfig[15] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
+  slotConfig[16] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
+  slotConfig[17] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
+  
+  // Slot 18: Notes (rightmost)
+  slotConfig[18] = { type: 'notes', header: 'Notes', visible: showNotes };
+  
+  // Slot 19: Context/Dates (rightmost)
+  slotConfig[19] = { type: 'context', header: 'Dates', visible: showDates };
 
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
@@ -151,23 +151,23 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on PROPER UI SPEC slot assignments
+    // Calculate width based on updated slot assignments
     const width = isMobile ? 
       (slot === 0 ? "w-14" :        // Reference (slot 0)
-       slot === 1 ? "w-16" :        // Notes (slot 1)
-       slot === 2 ? "flex-1" :      // Main translation (slot 2)
-       slot === 3 ? "w-12" :        // Cross References (slot 3 per UI spec)
-       slot === 4 ? "w-12" :        // Dates (slot 4)
-       slot >= 5 && slot <= 16 ? "w-20" : // Alt translations (slots 5-16)
-       slot >= 17 && slot <= 19 ? "w-8" : // Prophecy P/F/V (slots 17-19 per UI spec)
+       slot === 1 ? "flex-1" :      // Main translation (slot 1)
+       slot === 2 ? "w-12" :        // Cross References (slot 2)
+       slot >= 3 && slot <= 14 ? "w-20" : // Alt translations (slots 3-14)
+       slot >= 15 && slot <= 17 ? "w-8" : // Prophecy P/F/V (slots 15-17)
+       slot === 18 ? "w-16" :       // Notes (slot 18)
+       slot === 19 ? "w-12" :       // Dates (slot 19)
        "flex-1") :                  // Default
       (slot === 0 ? "w-16" :        // Reference (slot 0)
-       slot === 1 ? "w-64" :        // Notes (slot 1) 
-       slot === 2 ? "w-80" :        // Main translation (slot 2)
-       slot === 3 ? "w-60" :        // Cross References (slot 3 per UI spec)
-       slot === 4 ? "w-32" :        // Dates (slot 4)
-       slot >= 5 && slot <= 16 ? "w-80" : // Alt translations (slots 5-16)
-       slot >= 17 && slot <= 19 ? "w-20" : // Prophecy P/F/V (slots 17-19 per UI spec)
+       slot === 1 ? "w-80" :        // Main translation (slot 1)
+       slot === 2 ? "w-60" :        // Cross References (slot 2)
+       slot >= 3 && slot <= 14 ? "w-80" : // Alt translations (slots 3-14)
+       slot >= 15 && slot <= 17 ? "w-20" : // Prophecy P/F/V (slots 15-17)
+       slot === 18 ? "w-64" :       // Notes (slot 18)
+       slot === 19 ? "w-32" :       // Dates (slot 19)
        "w-80");                     // Default
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
@@ -242,7 +242,7 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     }
   };
 
-  // Calculate layout logic matching ColumnHeaders
+  // Center-then-left loading behavior: calculate if content fits in viewport
   const estimatedTotalWidth = useMemo(() => {
     let width = 0;
     width += 80; // Reference column ~80px
@@ -250,22 +250,32 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     if (showCrossRefs) width += 240; // Cross refs ~240px
     if (showProphecies) width += 180; // P+F+V ~60px each
     width += (alternates.length * 320); // Alt translations ~320px each
+    if (showNotes) width += 256; // Notes ~256px
+    if (showDates) width += 128; // Dates ~128px
     return width;
-  }, [showCrossRefs, showProphecies, alternates]);
+  }, [showCrossRefs, showProphecies, alternates, showNotes, showDates]);
   
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
+  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.9;
 
-  // Clean layout without complex splitting
+  // Apply center-then-left loading: center content when it fits, left-align when it overflows
 
   return (
     <div 
-      className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
+      className="w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Simple layout - all columns in order */}
-      {visibleColumns.map(renderSlot)}
+      {/* Center-then-left loading wrapper */}
+      <div 
+        className={`flex h-full ${shouldCenter ? 'justify-center' : 'justify-start'}`}
+        style={{ 
+          minWidth: shouldCenter ? 'auto' : `${estimatedTotalWidth}px`,
+          width: shouldCenter ? '100%' : 'max-content'
+        }}
+      >
+        {visibleColumns.map(renderSlot)}
+      </div>
     </div>
   );
 }, (prevProps, nextProps) => {

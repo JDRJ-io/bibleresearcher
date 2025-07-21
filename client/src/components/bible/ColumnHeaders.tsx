@@ -77,39 +77,41 @@ export function ColumnHeaders({
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
 
-  // PROPER SLOT ARCHITECTURE according to UI spec docs:
+  // PROPER SLOT ARCHITECTURE matching VirtualRow exactly
+  const slotConfig: Record<number, any> = {};
+
   // Slot 0: Reference (always visible)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
-  
-  // Slot 1: Notes (default hidden)
-  slotConfig[1] = { type: 'notes', header: 'Notes', visible: showNotes };
-  
-  // Slot 2: Main translation (always visible)
-  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
-  
-  // Slot 3: Cross References (per UI spec)
-  slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
-  
-  // Slot 4: Dates (default hidden)
-  slotConfig[4] = { type: 'context', header: 'Dates', visible: showDates };
-  
-  // Slots 5-16: Alternate translations (per UI spec)
+
+  // Slot 1: Main translation (always visible) - center loading position
+  slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+
+  // Slot 2: Cross References (center column when enabled)
+  slotConfig[2] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
+
+  // Slots 3-14: Alternate translations (load to the right first, then left)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Alternates start at slot 5
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 3 + index; // Alternates start at slot 3
+    if (slot <= 14) { // Max 12 alternate translations (slots 3-14)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
         translationCode, 
-        visible: true  // Show all active alternate translations
+        visible: true 
       };
     }
   });
-  
-  // Slots 17-19: Prophecy P/F/V (per UI spec)
-  slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
-  slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
-  slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
+
+  // Slots 15-17: Prophecy P/F/V (rightmost columns)
+  slotConfig[15] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
+  slotConfig[16] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
+  slotConfig[17] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
+
+  // Slot 18: Notes (rightmost)
+  slotConfig[18] = { type: 'notes', header: 'Notes', visible: showNotes };
+
+  // Slot 19: Context/Dates (rightmost)
+  slotConfig[19] = { type: 'context', header: 'Dates', visible: showDates };
 
   // Debug logging
   console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
@@ -144,10 +146,10 @@ export function ColumnHeaders({
     width += (alternates.length * 320); // Alt translations ~320px each
     return width;
   }, [showCrossRefs, showProphecies, alternates]);
-  
+
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  
+
   // Center only if total width fits in viewport, otherwise left-anchor
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
 
