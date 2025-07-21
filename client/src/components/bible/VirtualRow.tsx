@@ -322,50 +322,14 @@ interface TranslationCellProps {
 }
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
-  const [verseText, setVerseText] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    const loadVerseText = async () => {
-      try {
-        // Use BibleDataAPI as documented
-        const { loadTranslation } = await import('@/data/BibleDataAPI');
-        const translationMap = await loadTranslation(translation);
-        
-        // Try different reference formats as per docs
-        const formats = [
-          verse.reference,
-          verse.reference.replace('.', ' '),
-          verse.reference.replace(/\s/g, '.'),
-          verse.reference.replace(/\./g, ' ')
-        ];
-        
-        let text = '';
-        for (const format of formats) {
-          if (translationMap.has(format)) {
-            text = translationMap.get(format) || '';
-            break;
-          }
-        }
-        
-        setVerseText(text);
-      } catch (error) {
-        console.warn(`Failed to load ${translation} for ${verse.reference}:`, error);
-        setVerseText(`[${translation} error]`);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadVerseText();
-  }, [verse.reference, translation]);
-  
+  // Try to get text from the verse object first, then fall back to getVerseText
+  const verseText = verse.text?.[translation] || getVerseText?.(verse.reference, translation) || "";
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
   return (
     <div className={`px-2 py-1 text-sm cell-content ${bgClass}`}>
       <div className="overflow-auto h-full verse-text">
-        {isLoading ? `[${translation} loading...]` : (verseText || `[${translation} not found]`)}
+        {verseText || `[${translation} loading...]`}
       </div>
     </div>
   );

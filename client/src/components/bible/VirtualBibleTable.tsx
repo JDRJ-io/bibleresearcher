@@ -289,15 +289,17 @@ const VirtualBibleTable = ({
     width += 320; // Main translation ~320px
     if (showCrossRefs) width += 240; // Cross refs ~240px
     if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    width += (alternates.length * 320); // Alt translations ~320px each
     return width;
-  }, [showCrossRefs, showProphecies, activeTranslations, mainTranslation]);
+  }, [showCrossRefs, showProphecies, alternates]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
   // Center only if total width fits in viewport, otherwise left-anchor
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
+  
+  console.log(`🎯 Layout calculation: estimatedWidth=${estimatedTotalWidth}px, viewportWidth=${viewportWidth}px, shouldCenter=${shouldCenter}`);
 
   useEffect(() => {
     if (!wrapperRef.current) return;
@@ -460,8 +462,8 @@ const VirtualBibleTable = ({
         data-scroll-direction={scrollDirection}
       >
         <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 75px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
-          <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"}>
-            <div className={shouldCenter ? "min-w-max" : "min-w-max"}>
+          <div className={shouldCenter ? "flex justify-center w-full" : "w-full"}>
+            <div className="min-w-max">
               <div style={{height: slice.start * ROW_HEIGHT}} />
               {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure

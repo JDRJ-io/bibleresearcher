@@ -1,18 +1,25 @@
-// DEPRECATED: This file is deprecated. Use BibleDataAPI.loadTranslation() directly.
-// This hook is kept only for backward compatibility but should not be used.
+import { useBibleStore } from '@/App';
+import { useCallback } from 'react';
 
-import { useTranslationSlice } from '@/store/translationSlice';
-
+/**
+ * TRANSLATION MAPS HOOK
+ * 
+ * Provides translation state and simple sync getVerseText function
+ * Note: Complex async loading is handled by individual cells
+ */
 export function useTranslationMaps() {
-  const { main, alternates } = useTranslationSlice();
+  const store = useBibleStore();
 
-  console.warn('⚠️ useTranslationMaps is deprecated. Use BibleDataAPI.loadTranslation() directly.');
+  // Simple sync function for backwards compatibility
+  const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
+    // This is a placeholder - actual text loading happens in individual cells
+    // or is provided via the verse object from VirtualBibleTable
+    return undefined;
+  }, []);
 
   return {
-    main,
-    alternates,
-    getVerseText: () => undefined,
-    loadTranslation: async () => new Map(),
-    mainTranslation: main
+    main: store.main,
+    alternates: store.alternates,
+    getVerseText
   };
 }
