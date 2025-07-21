@@ -183,7 +183,7 @@ export function ColumnHeaders({
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
-        top: isMobile ? '120px' : '200px', // Match TopHeader actual height
+        top: '38px', // Mobile header height (matches BiblePage header)
         height: '40px',
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',

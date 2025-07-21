@@ -46,7 +46,7 @@ export function TopHeader({
 
   return (
     <header 
-      className="divine-header fixed top-0 left-0 right-0 z-50 border-b-8 flex items-center justify-between px-8 max-w-full shadow-2xl sacred-glow"
+      className="divine-header sticky top-0 z-50 border-b-8 flex items-center justify-between px-8 max-w-full shadow-2xl sacred-glow"
       style={{ 
         background: 'linear-gradient(45deg, #FFD700, #FF6B35, #8A2BE2, #4169E1, #FF1493) !important',
         borderBottomColor: '#FFD700 !important',

@@ -338,9 +338,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-1 py-1 text-xs overflow-y-auto h-full space-y-1 max-h-[120px] custom-scrollbar">
+            <div className="px-1 py-1 text-xs overflow-y-auto h-full space-y-1">
               {crossRefsForVerse.length > 0 ? (
-                crossRefsForVerse.map((ref, i) => {
+                crossRefsForVerse.slice(0, 3).map((ref, i) => {
                   // Use the same translation lookup as the main translation column
                   const refText = getVerseText(ref, mainTranslation) || 
                                   getVerseText(ref.replace(' ', '.'), mainTranslation) ||
@@ -349,15 +349,15 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                   return (
                     <button
                       key={i}
-                      className="block text-xs hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded w-full text-left mb-1"
+                      className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded w-full text-left"
                       onClick={() => onVerseClick?.(ref)}
                     >
-                      <div className="font-mono text-blue-600 dark:text-blue-400 text-[10px] mb-0.5">
+                      <span className="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0 min-w-0">
                         {ref}
-                      </div>
-                      <div className="text-gray-600 dark:text-gray-400 text-xs leading-tight whitespace-normal break-words">
-                        {refText || 'Loading...'}
-                      </div>
+                      </span>
+                      <span className="text-gray-600 dark:text-gray-400 truncate flex-1 min-w-0">
+                        {refText ? refText.substring(0, 50) + (refText.length > 50 ? '...' : '') : 'Loading...'}
+                      </span>
                     </button>
                   );
                 })
