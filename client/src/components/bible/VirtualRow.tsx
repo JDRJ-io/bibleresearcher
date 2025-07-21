@@ -338,31 +338,38 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-1 py-1 text-xs overflow-y-auto h-full space-y-1">
+            <div className="px-2 py-2 cross-ref-container custom-scrollbar">
               {crossRefsForVerse.length > 0 ? (
-                crossRefsForVerse.slice(0, 3).map((ref, i) => {
-                  // Use the same translation lookup as the main translation column
-                  const refText = getVerseText(ref, mainTranslation) || 
-                                  getVerseText(ref.replace(' ', '.'), mainTranslation) ||
-                                  getMainVerseText(ref);
-                  
-                  return (
-                    <button
-                      key={i}
-                      className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded w-full text-left"
-                      onClick={() => onVerseClick?.(ref)}
-                    >
-                      <span className="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0 min-w-0">
-                        {ref}
-                      </span>
-                      <span className="text-gray-600 dark:text-gray-400 truncate flex-1 min-w-0">
-                        {refText ? refText.substring(0, 50) + (refText.length > 50 ? '...' : '') : 'Loading...'}
-                      </span>
-                    </button>
-                  );
-                })
+                <div className="space-y-2">
+                  {crossRefsForVerse.map((ref, i) => {
+                    // Use the same translation lookup as the main translation column
+                    const refText = getVerseText(ref, mainTranslation) || 
+                                    getVerseText(ref.replace(' ', '.'), mainTranslation) ||
+                                    getMainVerseText(ref);
+                    
+                    return (
+                      <button
+                        key={i}
+                        className="cross-ref-item block w-full text-left px-2 py-2 rounded"
+                        onClick={() => onVerseClick?.(ref)}
+                      >
+                        <div className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                          {ref}
+                        </div>
+                        <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
+                          {refText || 'Loading...'}
+                        </div>
+                      </button>
+                    );
+                  })}
+                  {crossRefsForVerse.length > 0 && (
+                    <div className="text-center text-xs text-gray-400 mt-2 py-1">
+                      {crossRefsForVerse.length} reference{crossRefsForVerse.length > 1 ? 's' : ''}
+                    </div>
+                  )}
+                </div>
               ) : (
-                <span className="text-gray-400 italic">—</span>
+                <span className="text-gray-400 italic text-xs">—</span>
               )}
             </div>
           </div>
