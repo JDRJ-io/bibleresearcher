@@ -53,16 +53,33 @@ export function ColumnHeaders({
   preferences, 
   isGuest = true 
 }: ColumnHeadersProps) {
-  const { main, alternates } = useTranslationMaps();
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  try {
+    console.log('🔍 ColumnHeaders DEBUG:', {
+      selectedTranslations: selectedTranslations ? selectedTranslations.length : 'NULL',
+      propShowNotes: typeof propShowNotes,
+      showProphecy: typeof showProphecy,
+      propShowCrossRefs: typeof propShowCrossRefs,
+      showContext: typeof showContext,
+      scrollLeft: typeof scrollLeft,
+      preferences: preferences ? 'EXISTS' : 'NULL'
+    });
 
-  // Get store states for column visibility with safety checks
-  const store = useBibleStore();
-  
-  if (!store) {
-    console.error('❌ ColumnHeaders: Store not available');
-    return <div className="h-10 bg-gray-100">Loading headers...</div>;
-  }
+    const { main, alternates } = useTranslationMaps();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    console.log('🔍 ColumnHeaders Translation Data:', {
+      main: typeof main,
+      mainValue: main,
+      alternates: alternates ? alternates.length : 'NULL'
+    });
+
+    // Get store states for column visibility with safety checks
+    const store = useBibleStore();
+    
+    if (!store) {
+      console.error('❌ ColumnHeaders: Store not available');
+      return <div className="h-10 bg-gray-100">Loading headers...</div>;
+    }
 
   const { 
     showCrossRefs: storeShowCrossRefs = true, 
@@ -221,4 +238,18 @@ export function ColumnHeaders({
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('🚨 ColumnHeaders CRASH DEBUG:', {
+      error: error.message,
+      stack: error.stack,
+      main,
+      alternates,
+      store: store ? 'EXISTS' : 'NULL'
+    });
+    return (
+      <div className="h-10 bg-red-50 border border-red-200 flex items-center justify-center">
+        <div className="text-red-600 text-xs">HEADER ERROR: {error.message}</div>
+      </div>
+    );
+  }
 }

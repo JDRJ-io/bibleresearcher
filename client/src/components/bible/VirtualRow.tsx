@@ -73,19 +73,44 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   onVerseClick,
   onExpandVerse,
 }) => {
-  const translationMaps = useTranslationMaps();
-  const store = useBibleStore();
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  // 🚨 TEMPORARY DEBUGGING: Catch the 'split' error at the source
+  try {
+    console.log('🔍 VirtualRow DEBUG:', {
+      verseID: typeof verseID,
+      verseIDValue: verseID,
+      verse: verse ? {
+        reference: typeof verse.reference,
+        referenceValue: verse.reference,
+        text: typeof verse.text
+      } : 'VERSE IS NULL/UNDEFINED',
+      mainTranslation: typeof mainTranslation,
+      mainTranslationValue: mainTranslation
+    });
 
-  // Safety checks for store and translation data
-  if (!store || !translationMaps) {
-    console.warn('⚠️ VirtualRow: Store or translation maps not available');
-    return (
-      <div className="w-full border-b border-gray-200 dark:border-gray-700 flex items-center justify-center" style={{ height: rowHeight }}>
-        <div className="text-gray-500">Loading row...</div>
-      </div>
-    );
-  }
+    // Check if anything that might call .split() is undefined
+    if (verseID && typeof verseID !== 'string') {
+      console.error('🚨 DEBUG: verseID is not a string!', verseID);
+    }
+    if (verse?.reference && typeof verse.reference !== 'string') {
+      console.error('🚨 DEBUG: verse.reference is not a string!', verse.reference);
+    }
+    if (mainTranslation && typeof mainTranslation !== 'string') {
+      console.error('🚨 DEBUG: mainTranslation is not a string!', mainTranslation);
+    }
+
+    const translationMaps = useTranslationMaps();
+    const store = useBibleStore();
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    // Safety checks for store and translation data
+    if (!store || !translationMaps) {
+      console.warn('⚠️ VirtualRow: Store or translation maps not available');
+      return (
+        <div className="w-full border-b border-gray-200 dark:border-gray-700 flex items-center justify-center" style={{ height: rowHeight }}>
+          <div className="text-gray-500">Loading row...</div>
+        </div>
+      );
+    }
 
   const { main = 'KJV', alternates = [] } = translationMaps;
   const { 
@@ -311,6 +336,22 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('🚨 VirtualRow CRASH DEBUG:', {
+      error: error.message,
+      stack: error.stack,
+      verseID,
+      verse,
+      mainTranslation,
+      translationMaps,
+      store
+    });
+    return (
+      <div className="w-full border-b border-red-200 bg-red-50 flex items-center justify-center" style={{ height: rowHeight }}>
+        <div className="text-red-600 text-xs">ERROR: {error.message}</div>
+      </div>
+    );
+  }
 }, (prevProps, nextProps) => {
   // Custom comparison to prevent re-renders unless verse data actually changes
   return (
