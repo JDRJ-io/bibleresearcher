@@ -172,13 +172,12 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
   const visibleColumns = Object.entries(slotConfig)
-    .map(([slotStr, config]) => ({
-      slot: parseInt(slotStr),
-      config,
-      widthRem: getDefaultWidth(parseInt(slotStr)),
-      visible: config?.visible !== false // Show if config exists and not explicitly hidden
+    .filter(([_, cfg]) => cfg && cfg.visible !== false)   // Keep only real configs
+    .map(([slotStr, cfg]) => ({ 
+      slot: parseInt(slotStr), 
+      config: cfg, 
+      widthRem: getDefaultWidth(parseInt(slotStr)) 
     }))
-    .filter(col => col.config && col.visible) // Only render valid, visible slots
     .sort((a, b) => a.slot - b.slot);
 
   // Helper function to get default widths per UI Layout Spec
@@ -284,7 +283,13 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       case 'prophecy-p':
       case 'prophecy-f':
       case 'prophecy-v':
-        const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
+        let type: "P" | "F" | "V" | undefined;
+        if (config?.type?.startsWith('prophecy-')) {
+          type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
+        } else {
+          console.warn('VirtualRow: unexpected config.type', config);
+          return null;         // skip this slot gracefully
+        }
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <ProphecyCell 
