@@ -243,6 +243,14 @@ Beyond drag a11y, the app will need general accessibility review. Currently, one
 # Recent Major Changes (for reference)
 (This section highlights recent refactor milestones for context and verification of completeness.)
 
+## Cross-References & Prophecy Data Loading (July 21, 2025):
+Successfully implemented data loading infrastructure for cross-references and prophecies through BibleDataAPI facade:
+- **Cross-References Loading**: Implemented getCrossReferences() function that loads data from Supabase Storage cf1.txt with offset-based parsing
+- **Store Integration**: Updated store to trigger cross-reference data loading when toggle is activated, with test loading for Gen.1:1 showing 76 references
+- **UI Wiring**: Connected VirtualRow components to display loaded cross-reference data from store state
+- **Debugging Added**: Comprehensive logging to track data loading progress and verify store updates
+- **Performance**: Data loads on-demand only when Cross References column is toggled, avoiding unnecessary network calls
+
 ## Comprehensive File Structure Implementation (July 21, 2025):
 Successfully completed systematic implementation of ALL file structure features through unified BibleDataAPI facade:
 - **Cross-References System**: Full UI integration with clickable references, group display, and verse navigation

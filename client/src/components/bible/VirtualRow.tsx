@@ -257,6 +257,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
     console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
+    
+    // Debug cross-references data
+    const { crossRefs } = useBibleStore.getState();
+    console.log('🔍 VirtualRow Debug - Cross refs for verse:', crossRefs[verse.reference]);
+    console.log('🔍 VirtualRow Debug - All cross refs keys:', Object.keys(crossRefs));
   }
 
   const handleDoubleClick = () => {
@@ -305,8 +310,21 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 
       case 'main-translation':
       case 'alt-translation':
-        // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
-        const verseText = getVerseText(verse.reference, config.translationCode);
+        // Debug translation lookup for first verse
+        if (verse.reference === "Gen 1:1") {
+          console.log('🔍 Translation Debug:', {
+            verseRef: verse.reference,
+            translationCode: config.translationCode,
+            getVerseTextResult: getVerseText(verse.reference, config.translationCode),
+            getMainVerseTextResult: getMainVerseText(verse.reference)
+          });
+        }
+        
+        // Try multiple lookup formats
+        let verseText = getVerseText(verse.reference, config.translationCode) || 
+                        getVerseText(verse.reference.replace(' ', '.'), config.translationCode) ||
+                        (config.type === 'main-translation' ? getMainVerseText(verse.reference) : null);
+        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
@@ -316,15 +334,27 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        // Use the existing CrossReferencesCell component that was working
+        // Get cross-references from the store and display them
+        const { crossRefs } = useBibleStore.getState();
+        const crossRefsForVerse = crossRefs[verse.reference] || [];
+        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <CrossReferencesCell 
-              verse={verse} 
-              getVerseText={getVerseText} 
-              mainTranslation={mainTranslation} 
-              onVerseClick={onVerseClick}
-            />
+            <div className="px-1 py-1 text-xs overflow-y-auto h-full">
+              {crossRefsForVerse.length > 0 ? (
+                crossRefsForVerse.slice(0, 3).map((ref, i) => (
+                  <span 
+                    key={i} 
+                    className="inline-block bg-blue-50 dark:bg-blue-900/20 px-1 rounded mr-1 mb-1 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800/30 text-blue-600 dark:text-blue-400"
+                    onClick={() => onVerseClick?.(ref)}
+                  >
+                    {ref}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-400 italic">—</span>
+              )}
+            </div>
           </div>
         );
 
