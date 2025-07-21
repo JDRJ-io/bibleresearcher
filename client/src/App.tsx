@@ -98,12 +98,12 @@ export const useBibleStore = create<{
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
 
-  toggleCrossRefs: () => set(state => {
-    console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
-    const newValue = !state.showCrossRefs;
-    
-    // Load cross-references data when toggling on
-    if (newValue) {
+  loadCrossRefsData: () => {
+    const state = get();
+    if (Object.keys(state.crossRefs).length > 0) {
+      console.log('✅ Cross-references already loaded, skipping');
+      return;
+    }
       console.log('📚 Loading cross-references data...');
       // Load cross-references data for all verses
       import('@/data/BibleDataAPI').then(async ({ getCrossReferences, loadCrossReferences }) => {
