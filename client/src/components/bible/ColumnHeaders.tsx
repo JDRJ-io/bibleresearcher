@@ -75,8 +75,6 @@ export function ColumnHeaders({
   const showNotes = propShowNotes ?? storeShowNotes;
 
   // Use store's columnState as the authoritative source, enhanced with translation data
-  const slotConfig: Record<number, any> = {};
-
   // PROPER SLOT ARCHITECTURE matching VirtualRow exactly
   const slotConfig: Record<number, any> = {};
 
