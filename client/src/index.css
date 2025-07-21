@@ -864,20 +864,10 @@ body.overlay-open {
   margin-inline: auto;
 }
 
-/* Ensure scrollbar stays within table viewport */
-.virtual-bible-table {
-  overflow-x: auto !important;
-  width: 100%;
-}
-
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
-  height: 12px !important; /* Make horizontal scrollbar more prominent */
-}
-
-::-webkit-scrollbar:horizontal {
-  height: 12px !important;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {

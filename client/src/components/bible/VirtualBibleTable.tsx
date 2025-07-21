@@ -348,10 +348,7 @@ const VirtualBibleTable = ({
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ 
-      paddingTop: '0px',
-      width: '100%'
-    }}>
+    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
@@ -370,15 +367,15 @@ const VirtualBibleTable = ({
           touchAction: "pan-y", 
           marginTop: '-1px',
           height: "calc(100vh - 75px)",
-          overflowX: 'auto',
-          overflowY: 'auto',
-          width: '100%'
+          overflowX: shouldCenter ? 'hidden' : 'auto',
+          overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div style={{ width: `${estimatedTotalWidth}px`, minWidth: 'max-content' }}>
+        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"}>
+          <div className={shouldCenter ? "min-w-max" : "min-w-max"} style={{ minWidth: shouldCenter ? 'auto' : `${estimatedTotalWidth}px` }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -438,6 +435,7 @@ const VirtualBibleTable = ({
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+          </div>
         </div>
       </div>
     </div>
