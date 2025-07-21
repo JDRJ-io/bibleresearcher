@@ -412,25 +412,40 @@ interface TranslationCellProps {
 }
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
-  // Add safety checks to prevent errors
-  if (!verse || !translation) {
-    return (
-      <div className="px-2 py-1 text-sm cell-content">
-        <div className="overflow-auto h-full verse-text">Loading...</div>
-      </div>
-    );
-  }
+  const [verseText, setVerseText] = useState<string>('');
 
-  // Try to get text from the verse object first, then fall back to getVerseText
-  const verseText = verse.text?.[translation] || 
-                    getVerseText?.(verse.reference, translation) || 
-                    `Sample ${translation} text for ${verse.reference}`;
+  useEffect(() => {
+    const loadText = async () => {
+      if (verse?.text?.[translation]) {
+        setVerseText(verse.text[translation]);
+        return;
+      }
+
+      if (getVerseText) {
+        try {
+          const text = await getVerseText(verse.reference, translation);
+          setVerseText(text || `Loading ${translation}...`);
+        } catch (error) {
+          setVerseText(getVerseText(verse.reference, translation) || `[${translation}]`);
+        }
+      }
+    };
+
+    loadText();
+  }, [verse.reference, translation, getVerseText]);
+
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
   return (
-    <div className={`px-2 py-1 text-sm cell-content ${bgClass}`}>
-      <div className="overflow-auto h-full verse-text">
-        {verseText}
+    <div 
+      className={`px-2 py-1 text-sm cell-content ${bgClass} cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+      onClick={() => {
+        // Restore click functionality
+        console.log(`Clicked on ${verse.reference} - ${translation}`);
+      }}
+    >
+      <div className="overflow-auto h-full verse-text leading-relaxed">
+        {verseText || `Loading ${translation}...`}
       </div>
     </div>
   );

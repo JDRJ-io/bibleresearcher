@@ -63,10 +63,10 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Calculate viewport - ensure we show enough verses
-  const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT));
+  const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - 10);
   const viewportRows = Math.ceil(containerHeight / ROW_HEIGHT);
-  const bufferRows = 10; // Add buffer for smooth scrolling
-  const endIndex = Math.min(startIndex + viewportRows + bufferRows, verses.length);
+  const bufferRows = 50; // Increased buffer for better performance
+  const endIndex = Math.min(startIndex + viewportRows + bufferRows * 2, verses.length);
   const visibleVerses = verses.slice(startIndex, endIndex);
 
   // Handle scroll
@@ -115,15 +115,36 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
     }
   }, []);
 
-  // Sync wrapper for backwards compatibility - return actual text from verse objects
-  const getVerseTextSync = useCallback((verseReference: string, translationCode: string): string | undefined => {
-    // Find verse in current verses array
+  // Restore proper verse text loading
+  const getVerseTextSync = useCallback(async (verseReference: string, translationCode: string): Promise<string> => {
+    try {
+      // First check if we have it in the verse object
+      const verse = verses.find(v => v.reference === verseReference);
+      if (verse?.text?.[translationCode]) {
+        return verse.text[translationCode];
+      }
+
+      // Load from BibleDataAPI
+      const { loadTranslation } = await import('@/data/BibleDataAPI');
+      const translationMap = await loadTranslation(translationCode);
+      
+      if (translationMap.has(verseReference)) {
+        return translationMap.get(verseReference) || '';
+      }
+      
+      return `[${translationCode} text for ${verseReference}]`;
+    } catch (error) {
+      console.warn(`Failed to load ${translationCode} for ${verseReference}:`, error);
+      return '';
+    }
+  }, [verses]);
+
+  // Sync version for immediate rendering
+  const getVerseTextSyncImmediate = useCallback((verseReference: string, translationCode: string): string => {
     const verse = verses.find(v => v.reference === verseReference);
     if (verse?.text?.[translationCode]) {
       return verse.text[translationCode];
     }
-
-    // Return placeholder text to show columns are working
     return `Loading ${translationCode}...`;
   }, [verses]);
 
@@ -228,7 +249,7 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
                   rowHeight={ROW_HEIGHT}
                   verse={verse}
                   columnData={{}}
-                  getVerseText={getVerseTextSync}
+                  getVerseText={getVerseTextSyncImmediate}
                   getMainVerseText={getMainVerseText}
                   activeTranslations={[main, ...alternates]}
                   mainTranslation={main}

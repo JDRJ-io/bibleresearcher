@@ -63,8 +63,33 @@ export function useBibleData() {
           };
         });
 
+        // Ensure we have all verses loaded
+        console.log(`📊 Loaded ${verseObjects.length} verse objects`);
         setVerses(verseObjects);
         setIsLoading(false);
+        
+        // Pre-load main translation for first 100 verses for immediate display
+        if (verseObjects.length > 0) {
+          const { loadTranslation } = await import('@/data/BibleDataAPI');
+          try {
+            const kjvMap = await loadTranslation('KJV');
+            const updatedVerses = verseObjects.slice(0, 100).map(verse => ({
+              ...verse,
+              text: {
+                ...verse.text,
+                KJV: kjvMap.get(verse.reference) || ''
+              }
+            }));
+            
+            // Update just the first 100 verses with actual text
+            setVerses(prev => [
+              ...updatedVerses,
+              ...prev.slice(100)
+            ]);
+          } catch (error) {
+            console.warn('Failed to pre-load KJV text:', error);
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load Bible structure');
         setIsLoading(false);
