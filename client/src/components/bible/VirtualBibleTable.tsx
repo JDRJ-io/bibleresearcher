@@ -171,11 +171,18 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
     );
   }
 
-  // 🚨 COMPREHENSIVE DEBUG TRACE
+  // 🚨 COMPREHENSIVE DEBUG TRACE - Check for undefined values that might cause .split() errors
   console.log('🎯 VirtualBibleTable RENDER DEBUG:', {
     verses: {
       total: verses.length,
-      first5: verses.slice(0, 5).map(v => ({ id: v.id, reference: v.reference }))
+      first5: verses.slice(0, 5).map(v => ({ 
+        id: v.id, 
+        idType: typeof v.id,
+        reference: v.reference, 
+        referenceType: typeof v.reference,
+        hasUndefinedId: v.id === undefined,
+        hasUndefinedRef: v.reference === undefined
+      }))
     },
     viewport: {
       containerHeight,
@@ -185,15 +192,32 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
       visibleVersesCount: visibleVerses.length
     },
     translations: {
-      main,
-      alternates,
+      main: main,
+      mainType: typeof main,
+      alternates: alternates,
+      alternatesType: typeof alternates,
       storeState: store ? 'LOADED' : 'NULL'
     },
     firstVisibleVerse: visibleVerses[0] ? {
       id: visibleVerses[0].id,
+      idType: typeof visibleVerses[0].id,
       reference: visibleVerses[0].reference,
-      hasText: !!visibleVerses[0].text
+      referenceType: typeof visibleVerses[0].reference,
+      hasText: !!visibleVerses[0].text,
+      textKeys: visibleVerses[0].text ? Object.keys(visibleVerses[0].text) : 'NO_TEXT'
     } : 'NO_VISIBLE_VERSES'
+  });
+
+  // 🚨 CRITICAL: Check for undefined values that could cause .split() to fail
+  visibleVerses.forEach((verse, index) => {
+    if (verse.id === undefined || verse.reference === undefined || main === undefined) {
+      console.error(`🚨 FOUND UNDEFINED VALUES at index ${index}:`, {
+        verseId: verse.id,
+        verseReference: verse.reference,
+        mainTranslation: main,
+        fullVerse: verse
+      });
+    }
   });
 
   return (
@@ -228,25 +252,57 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
               visibleVerses.map((verse, index) => {
                 console.log(`🔧 Rendering VirtualRow ${index}:`, {
                   verseID: verse.id,
+                  verseIDType: typeof verse.id,
                   reference: verse.reference,
-                  mainTranslation: main
+                  referenceType: typeof verse.reference,
+                  mainTranslation: main,
+                  mainTranslationType: typeof main
                 });
                 
-                return (
-                  <VirtualRow
-                    key={verse.id}
-                    verseID={verse.id}
-                    rowHeight={ROW_HEIGHT}
-                    verse={verse}
-                    columnData={{}}
-                    getVerseText={getVerseTextSync}
-                    getMainVerseText={getMainVerseText}
-                    activeTranslations={[main, ...alternates]}
-                    mainTranslation={main}
-                    onVerseClick={onVerseClick}
-                    onExpandVerse={onExpandVerse}
-                  />
-                );
+                // 🚨 CRITICAL: Prevent rendering if key data is undefined
+                if (!verse.id || !verse.reference || !main) {
+                  console.error(`🚨 SKIPPING ROW ${index} - Missing required data:`, {
+                    hasId: !!verse.id,
+                    hasReference: !!verse.reference,
+                    hasMain: !!main,
+                    verse
+                  });
+                  return (
+                    <div key={`error-${index}`} className="p-2 bg-red-100 text-red-600 text-xs">
+                      ERROR: Missing data - id:{!!verse.id}, ref:{!!verse.reference}, main:{!!main}
+                    </div>
+                  );
+                }
+                
+                try {
+                  return (
+                    <VirtualRow
+                      key={verse.id}
+                      verseID={verse.id}
+                      rowHeight={ROW_HEIGHT}
+                      verse={verse}
+                      columnData={{}}
+                      getVerseText={getVerseTextSync}
+                      getMainVerseText={getMainVerseText}
+                      activeTranslations={[main, ...alternates]}
+                      mainTranslation={main}
+                      onVerseClick={onVerseClick}
+                      onExpandVerse={onExpandVerse}
+                    />
+                  );
+                } catch (error) {
+                  console.error(`🚨 VirtualRow RENDER ERROR at index ${index}:`, {
+                    error: error.message,
+                    stack: error.stack,
+                    verse,
+                    main
+                  });
+                  return (
+                    <div key={`crash-${index}`} className="p-2 bg-red-200 text-red-800 text-xs">
+                      RENDER ERROR: {error.message}
+                    </div>
+                  );
+                }
               })
             )}
           </div>
