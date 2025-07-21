@@ -106,7 +106,7 @@ export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
 
 export async function loadCrossRefSlice(start: number, end: number) {
   // Remove obsolete slice loaders
-  console.warn('loadCrossRefSlice is deprecated, use crossRefsWorker instead');
+  console.warn('loadCrossRefSlice is deprecated, use getCrossReferences instead');
   return {};
 }
 
@@ -323,23 +323,24 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
 
 
 
-// Add cross-references data loading functionality  
+// Cross-reference data parsing with proper BibleDataAPI facade
 export async function getCrossReferences(verseId: string): Promise<string[]> {
   try {
-    // Load cf1 offsets first
-    const offsets = await getCfOffsets('cf1');
-    const verseOffset = offsets[verseId];
+    // Load complete cross-reference data from cf1
+    const crossRefData = await loadCrossReferences('cf1');
+    const lines = crossRefData.split('\n').filter(line => line.trim());
     
-    if (!verseOffset) {
-      return []; // No cross-references for this verse
+    // Find the line for this verse (convert "Gen 1:1" to "Gen.1:1" format)
+    const searchKey = verseId.replace(/\s/g, '.');
+    const targetLine = lines.find(line => line.startsWith(searchKey + '$$'));
+    
+    if (!targetLine) {
+      console.log(`No cross-references found for ${verseId}`);
+      return [];
     }
     
-    // Load the specific verse's cross-reference line using slice
-    const [start, end] = verseOffset;
-    const crossRefLine = await getCrossRefSlice('cf1', start, end);
-    
     // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-    const [baseVerse, referencesData] = crossRefLine.split('$$');
+    const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
     
     // Split by $ to get groups, then by # to get individual references

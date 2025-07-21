@@ -105,17 +105,47 @@ export const useBibleStore = create<{
     // Load cross-references data when toggling on
     if (newValue) {
       console.log('📚 Loading cross-references data...');
-      import('@/data/BibleDataAPI').then(async ({ getCrossReferences }) => {
+      // Load cross-references data for all verses
+      import('@/data/BibleDataAPI').then(async ({ getCrossReferences, loadCrossReferences }) => {
         try {
-          // Load cross-references for Genesis 1:1 as a test
-          const testRefs = await getCrossReferences('Gen.1:1');
-          console.log('✅ Cross-references test loaded:', testRefs.length, 'references for Gen.1:1');
-          console.log('✅ Sample references:', testRefs.slice(0, 3));
+          console.log('📚 Loading complete cross-references dataset...');
           
-          // Update store with test data
-          if (testRefs.length > 0) {
-            get().setCrossRefs({ 'Gen 1:1': testRefs });
-          }
+          // Load the complete cross-reference data from cf1 and parse it
+          const crossRefData = await loadCrossReferences('cf1');
+          const lines = crossRefData.split('\n').filter(line => line.trim());
+          
+          const crossRefsMap: Record<string, string[]> = {};
+          
+          // Parse all cross-reference data at once
+          lines.forEach(line => {
+            if (line.includes('$$')) {
+              const [baseVerse, referencesData] = line.split('$$');
+              if (baseVerse && referencesData) {
+                // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+                const referenceGroups = referencesData.split('$');
+                const allReferences: string[] = [];
+                
+                referenceGroups.forEach(group => {
+                  const refs = group.split('#');
+                  allReferences.push(...refs.filter(ref => ref.trim()));
+                });
+                
+                // Store with both formats for compatibility
+                const dotFormat = baseVerse.trim(); // "Gen.1:1"
+                const spaceFormat = dotFormat.replace('.', ' '); // "Gen 1:1"
+                
+                crossRefsMap[spaceFormat] = allReferences; // Store with space format for VirtualRow lookup
+                crossRefsMap[dotFormat] = allReferences; // Also store with dot format
+              }
+            }
+          });
+          
+          console.log('✅ Cross-references loaded for', Object.keys(crossRefsMap).length / 2, 'verses');
+          console.log('✅ Sample cross-refs:', Object.keys(crossRefsMap).slice(0, 6));
+          
+          // Update store with all cross-reference data
+          get().setCrossRefs(crossRefsMap);
+          
         } catch (error) {
           console.error('❌ Failed to load cross-references:', error);
         }
