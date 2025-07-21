@@ -656,173 +656,100 @@ export default function BiblePage() {
         paddingBottom: "70px", // Reserve space for sticky footer
       }}
     >
-      {/* Majestic Divine Header - Worthy of the LORD */}
-      <div
-        className={`divine-header sacred-glow ${isMenuOpen ? 'fixed' : 'sticky'} top-0 z-50 w-full flex items-center justify-between px-3 md:px-8 py-2 md:py-4 border-b-2 md:border-b-4`}
-        style={{
-          background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #FF6B35 50%, #8A2BE2 75%, #4169E1 100%)',
-          borderBottomColor: '#FFD700',
-          height: "48px",
-          minHeight: "48px",
-          boxShadow: '0 2px 8px rgba(255, 215, 0, 0.3), 0 4px 15px rgba(138, 43, 226, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-          borderWidth: '2px',
-          borderStyle: 'solid',
-          borderImage: 'linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700) 1'
+      {/* TopHeader component - render it properly */}
+      <TopHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onBack={hookGoBack}
+        onForward={hookGoForward}
+        canGoBack={hookCanGoBack}
+        canGoForward={hookCanGoForward}
+        onMenuToggle={() => setIsMenuOpen(!isMenuOpen)}
+      />
+
+      {/* Main content with proper top padding for fixed header */}
+      <div 
+        className="min-h-screen"
+        style={{ 
+          paddingTop: typeof window !== 'undefined' && window.innerWidth < 640 ? '120px' : '200px' // Match TopHeader height
         }}
       >
-        {/* Left: Logo & Brand */}
-        <div className="flex items-center gap-2 md:gap-4">
-          <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden border border-white/30" 
-               style={{ 
-                 background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
-                 boxShadow: '0 0 15px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,215,0,0.05)',
-                 backdropFilter: 'blur(10px)'
-               }}>
-            <svg className="w-5 h-5 md:w-7 md:h-7 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-            </svg>
-          </div>
-          
-          <div className="flex items-center gap-1 md:gap-3">
-            <span className="sacred-title font-bold text-base md:text-xl text-white drop-shadow-lg tracking-wide" 
-                  style={{ 
-                    textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    letterSpacing: '0.025em'
-                  }}>
-              Anointed.io
-            </span>
-            
-            {/* Navigation buttons */}
-            <button
-              onClick={hookGoBack}
-              disabled={!hookCanGoBack}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
-              aria-label="Go back"
-            >
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={hookGoForward}
-              disabled={!hookCanGoForward}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
-              aria-label="Go forward"
-            >
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
+        <HamburgerMenu
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+        />
 
-        {/* Center - Navigation and Search */}
-        <div className="flex-1 flex items-center gap-3 mx-6">
-          <VerseSelector onNavigate={navigateToVerse} />
+        <VirtualBibleTable
+          verses={filteredVerses}
+          selectedTranslations={displayTranslations}
+          preferences={preferences}
+          mainTranslation={mainTranslation}
+          onExpandVerse={localExpandVerse}
+          onNavigateToVerse={navigateToVerse}
 
-          {/* Enhanced Search Bar - Always Expanded on Desktop */}
-          <div className="flex-1 max-w-xl">
-            <div className="relative">
-              <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/70"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search verses, words, or references..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleGlobalSearch(searchQuery);
-                  }
-                }}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40"
-              />
-            </div>
-          </div>
-        </div>
+          getProphecyDataForVerse={getProphecyDataForVerse}
+          getGlobalVerseText={getGlobalVerseText}
+          totalRows={verses.length}
+          onCenterVerseChange={(globalCenterIndex) => {
+            // CENTER-ANCHORED LOADING: Only trigger when center changes significantly
+            if (Math.abs(globalCenterIndex - lastLoadedCenter) > 50) {
+              console.log(`🎯 VirtualBibleTable center-anchored load: ${globalCenterIndex} (${verses[globalCenterIndex]?.reference || 'unknown'})`);
+              if (verses.length > 0 && loadVerseRange) {
+                loadVerseRange(verses, globalCenterIndex, false);
+                setLastLoadedCenter(globalCenterIndex);
+              }
+            }
+          }}
+          centerVerseIndex={centerVerseIndex}
+          onPreserveAnchor={(callback) => setPreserveAnchor(() => callback)}
+        />
 
-        {/* Right: Auth + Menu */}
-        <div className="flex items-center gap-3">
-          {/* Enhanced Authentication Button */}
-          <button
-            onClick={() => setIsSignUpOpen(true)}
-            className="bg-white/15 hover:bg-white/25 text-white px-6 py-2 font-medium rounded-lg flex items-center gap-2 backdrop-blur-sm border border-white/20 transition-all"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Sign In
-          </button>
-          
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMenuOpen ? (
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
+        <ExpandedVerseOverlay
+          verse={localExpandedVerse}
+          onClose={closeLocalExpandedVerse}
+          onStrongsClick={handleStrongsClick}
+          mainTranslation={mainTranslation}
+        />
+
+        <AuthModals
+          isSignUpOpen={isSignUpOpen}
+          isSignInOpen={isSignInOpen}
+          onCloseSignUp={() => setIsSignUpOpen(false)}
+          onCloseSignIn={() => setIsSignInOpen(false)}
+        />
+
+        <SearchModal 
+          isOpen={bibleStore.isSearchOpen} 
+          onClose={() => bibleStore.setSearchOpen(false)}
+          onNavigateToVerse={(index: number) => {
+            console.log(`🔍 Navigating to verse index ${index}`);
+            // Navigate to the verse using existing navigation
+            if (allVerses[index]) {
+              navigateToVerse(allVerses[index].reference);
+            }
+          }}
+        />
+
+        <ProphecyDetailDrawer
+          isOpen={prophecyDrawer.isOpen}
+          onClose={() => setProphecyDrawer(prev => ({ ...prev, isOpen: false }))}
+          prophecyIds={prophecyDrawer.prophecyIds.map(id => Number(id))}
+          onNavigateToVerse={navigateToVerse}
+        />
+
+        <StrongsDetailDrawer
+          isOpen={strongsDrawer.isOpen}
+          onClose={() => setStrongsDrawer(prev => ({ ...prev, isOpen: false }))}
+          selectedWord={strongsDrawer.selectedWord}
+          relatedVerses={strongsDrawer.relatedVerses}
+          onNavigateToVerse={navigateToVerse}
+        />
+
+        <OnlineStatusIndicator />
       </div>
+    </div>
+  );
+}
 
       <HamburgerMenu
         isOpen={isMenuOpen}
