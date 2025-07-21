@@ -195,16 +195,14 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
 
       case 'main-translation':
       case 'alt-translation':
-        // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
-        const verseText = getVerseText(verse.reference, config.translationCode);
-        
-        // Handle missing translation text gracefully
-        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
-            <div className="px-2 py-1 text-sm cell-content">
-              {verseText || `[${config.translationCode} loading...]`}
-            </div>
+            <TranslationCell 
+              verse={verse}
+              translation={config.translationCode}
+              getVerseText={getVerseText}
+              isMain={isMain}
+            />
           </div>
         );
 
@@ -326,13 +324,50 @@ interface TranslationCellProps {
 }
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
-  const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
+  const [verseText, setVerseText] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const loadVerseText = async () => {
+      try {
+        // Use BibleDataAPI as documented
+        const { loadTranslation } = await import('@/data/BibleDataAPI');
+        const translationMap = await loadTranslation(translation);
+        
+        // Try different reference formats as per docs
+        const formats = [
+          verse.reference,
+          verse.reference.replace('.', ' '),
+          verse.reference.replace(/\s/g, '.'),
+          verse.reference.replace(/\./g, ' ')
+        ];
+        
+        let text = '';
+        for (const format of formats) {
+          if (translationMap.has(format)) {
+            text = translationMap.get(format) || '';
+            break;
+          }
+        }
+        
+        setVerseText(text);
+      } catch (error) {
+        console.warn(`Failed to load ${translation} for ${verse.reference}:`, error);
+        setVerseText(`[${translation} error]`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadVerseText();
+  }, [verse.reference, translation]);
+  
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
   return (
-    <div className={`w-80 px-2 py-1 text-sm flex-shrink-0 ${bgClass}`}>
+    <div className={`px-2 py-1 text-sm cell-content ${bgClass}`}>
       <div className="overflow-auto h-full verse-text">
-        {verseText || "Loading..."}
+        {isLoading ? `[${translation} loading...]` : (verseText || `[${translation} not found]`)}
       </div>
     </div>
   );
