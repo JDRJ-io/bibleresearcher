@@ -41,15 +41,13 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Get cross-references from the Bible store (loaded from Supabase)
   const crossRefs = crossRefsStore[verse.reference] ?? [];
   
-  // TODO: Load cross-references on demand when not in store
-  // This will be implemented as part of the BibleDataAPI integration
-
-
-
   return (
     <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
       {crossRefs.map((ref, index) => {
-        const txt = getVerseText(ref, mainTranslation) ?? "(loading…)";
+        // Use the same translation loader system that feeds the main verses
+        const txt = getVerseText(ref, mainTranslation);
+        const displayText = txt || "(loading…)";
+        
         return (
           <button
             key={ref}
@@ -63,7 +61,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               {ref}
             </span>
             <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
-              {txt}
+              {displayText}
             </span>
           </button>
         );

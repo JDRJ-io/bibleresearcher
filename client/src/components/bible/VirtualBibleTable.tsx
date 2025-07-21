@@ -362,8 +362,8 @@ const VirtualBibleTable = ({
       
       <div 
         ref={(node) => {
-          wrapperRef.current = node;
-          containerRef.current = node; // Connect containerRef for anchor slice system
+          if (wrapperRef.current !== node) wrapperRef.current = node;
+          if (containerRef.current !== node) containerRef.current = node; // Connect containerRef for anchor slice system
         }}
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
