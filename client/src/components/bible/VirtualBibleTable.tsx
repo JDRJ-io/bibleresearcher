@@ -13,8 +13,6 @@ import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
-import { useCrossRefsIntegration } from "@/hooks/useCrossRefsIntegration";
-import { useProphecyIntegration } from "@/hooks/useProphecyIntegration";
 import { useBibleStore } from "@/App";
 import { useBibleData } from "@/hooks/useBibleData";
 
@@ -60,34 +58,26 @@ const VirtualBibleTable = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
+  
   // Integrate translation maps system for verse text loading
   const translationMaps = useTranslationMaps();
   const { activeTranslations, getVerseText, getMainVerseText, mainTranslation: translationMainTranslation } = translationMaps;
-
+  
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
-  const { anchorIndex, setAnchorIndex, slice } = useAnchorSlice(containerRef);
-
+  const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
   const totalHeight = verseKeys.length * ROW_HEIGHT;
-
-  // CROSS-REFERENCES INTEGRATION: Load cross-refs for visible verses
-  const visibleVerseRefs = slice.verseIDs?.map(id => {
-    const verseKey = getVerseKeyByIndex(verseKeys.indexOf(id));
-    return verseKey ? verseKey.replace(/\./g, ' ') : '';
-  }).filter(Boolean) || [];
-
-  useCrossRefsIntegration(visibleVerseRefs);
-
-  // Prophecy integration for current slice
-  useProphecyIntegration(visibleVerseRefs);
-
+  
   // B-1: Load slice data for cross-references and prophecy
   const { isLoading: isSliceLoading } = useSliceDataLoader(slice.verseIDs, mainTranslation);
-
+  
+  // B-2: Load cross-references with offset-based approach
+  useCrossRefLoader(slice.verseIDs, 'cf1');
+  
   // B-3: Eager-load main translation for cross-ref snippets
   const { crossRefs: crossRefsStore } = useBibleStore();
   useEffect(() => {
@@ -98,27 +88,26 @@ const VirtualBibleTable = ({
         console.log(`📖 Loading ${need.length} cross-ref verse texts for main translation`);
       }
     };
-
+    
     if (slice.verseIDs.length > 0) {
       loadCrossRefTranslations().catch(console.error);
     }
   }, [slice.verseIDs, crossRefsStore, mainTranslation, getVerseText]);
-
+  
   // Load column-specific data when columns are toggled
   useColumnData();
-
+  
   // Get store state for column toggles
   const { showCrossRefs, showProphecies } = useBibleStore();
-
+  
   // Get verse text retrieval function from useBibleData
   const { getVerseText: getBibleVerseText, getGlobalVerseText: getGlobalVerseTextFromHook } = useBibleData();
-
-  // CRITICAL FIX: Use the working getVerseText from useTranslationMaps (not useBibleData)
+  
+  // Create getVerseText wrapper for VirtualRow (any translation) - use getBibleVerseText to avoid conflict
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
-    // Use getVerseText from translationMaps which actually works with the cache
-    return getVerseText(verseID, translationCode);
-  }, [getVerseText]);
-
+    return getBibleVerseText(verseID, translationCode);
+  }, [getBibleVerseText]);
+  
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
     if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
@@ -132,16 +121,16 @@ const VirtualBibleTable = ({
   // 3-B. Preserve scroll position during slice swaps - SMOOTH FIX: apply only the delta, not an absolute reset
   const prevStart = useRef(slice.start);
   const prevScroll = useRef(0);
-
+  
   // 2-C. Stop rubber-band by clamping scroll compensation
   const MAX_COMPENSATION_ROWS = 150; // < 1 screen height
-
+  
   useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container || !onPreserveAnchor) return;
-
+    
     // Browser's native inertial scrolling handles movement - no manual assignments needed
-
+    
     // Save latest for next pass
     prevStart.current = slice.start;
   }, [slice.start, anchorIndex, onPreserveAnchor]);
@@ -167,42 +156,17 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // BEHAVIOR CONTRACT X-1: Cross-reference navigation via setAnchorIndex within 30ms
-      console.log(`🔗 onVerseClick called with: "${ref}"`);
-      console.log(`🔍 Looking for verse in verseKeys array (first 5): [${verseKeys.slice(0, 5).join(', ')}]`);
-
-      // Try multiple formats to find the verse
-      const formats = [
-        ref,                           // Original format
-        ref.replace(/\s+/g, '.'),     // Space to dot: "Gen 1:1" → "Gen.1:1"
-        ref.replace(/\./g, ' '),      // Dot to space: "Gen.1:1" → "Gen 1:1"
-        ref.replace(/(\w+)\s(\d+):(\d+)/, '$1.$2:$3') // "Gen 1:1" → "Gen.1:1"
-      ];
-
-      let verseIndex = -1;
-      let foundFormat = '';
-
-      for (const format of formats) {
-        verseIndex = verseKeys.findIndex(key => key === format);
-        if (verseIndex >= 0) {
-          foundFormat = format;
-          break;
-        }
-      }
-
+      // Convert reference to verse index for anchor jumping
+      const verseIndex = verseKeys.findIndex(key => key === ref || key.replace('.', ' ') === ref);
       if (verseIndex >= 0) {
-        console.log(`✅ Found verse "${ref}" as "${foundFormat}" at index ${verseIndex}`);
-        // Use setAnchorIndex for proper anchor-centered navigation (contract X-1)
-        setAnchorIndex(verseIndex);
-        // Scroll to center the target verse in viewport (contract A-2: within ±12px of center)
-        const targetScrollTop = verseIndex * ROW_HEIGHT - (containerRef.current?.clientHeight || 0) / 2 + ROW_HEIGHT / 2;
+        // Use the anchor system to jump to the verse
+        const targetScrollTop = verseIndex * ROW_HEIGHT;
         if (containerRef.current) {
-          containerRef.current.scrollTop = Math.max(0, targetScrollTop);
+          containerRef.current.scrollTop = targetScrollTop;
         }
-        console.log(`📖 Cross-ref navigation: ${ref} → index ${verseIndex} (contract X-1 compliance)`);
+        console.log(`📖 Jumping to verse ${ref} at index ${verseIndex}`);
       } else {
-        console.warn(`⚠️ Could not find verse index for "${ref}" in any format: [${formats.join(', ')}]`);
-        console.log(`🔍 Total verseKeys length: ${verseKeys.length}`);
+        console.warn(`⚠️ Could not find verse index for ${ref}`);
       }
     },
   };
@@ -255,7 +219,7 @@ const VirtualBibleTable = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
-
+  
   // Calculate visible columns for layout logic
   const visibleColumns = useMemo(() => {
     const columns = [
@@ -267,7 +231,7 @@ const VirtualBibleTable = ({
     ];
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
-
+  
   // Layout rule: Center when few columns, left-anchor when many columns overflow screen
   // Calculate approximate total width needed for all columns
   const estimatedTotalWidth = useMemo(() => {
@@ -279,13 +243,13 @@ const VirtualBibleTable = ({
     width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
     return width;
   }, [showCrossRefs, showProphecies, activeTranslations, mainTranslation]);
-
+  
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-
+  
   // Center only if total width fits in viewport, otherwise left-anchor
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
-
+  
   useEffect(() => {
     if (!wrapperRef.current) return;
 
@@ -303,7 +267,7 @@ const VirtualBibleTable = ({
       if (!isScrolling) {
         const dx = Math.abs(e.touches[0].clientX - startX);
         const dy = Math.abs(e.touches[0].clientY - startY);
-
+        
         // Determine scroll direction based on initial movement
         if (dx > dy && dx > 15) {
           // Horizontal scrolling detected
@@ -345,7 +309,7 @@ const VirtualBibleTable = ({
     if (container) {
       container.addEventListener("scroll", onScroll);
     }
-
+    
     return () => {
       if (wrapper) {
         wrapper.removeEventListener("touchstart", onTouchStart);
@@ -359,7 +323,7 @@ const VirtualBibleTable = ({
   }, []);
 
   // CSS handles centering automatically with margin-inline: auto
-
+  
   // Define --colW CSS variable for mobile dual-column layout
   useEffect(() => {
     const BASE_COL_W = 640; // Base column width to match CSS
@@ -383,50 +347,6 @@ const VirtualBibleTable = ({
   // Mobile detection for dual-column layout
   const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
-  // Get all verse keys
-  const masterVerseKeys = useMemo(() => {
-    return getVerseKeys();
-  }, []);
-
-  // Navigation function to handle cross-reference clicks
-  const handleVerseClick = (verseRef: string) => {
-    console.log(`🎯 Navigating to verse: ${verseRef}`);
-
-    // Find the verse index in the master verse keys
-    if (masterVerseKeys.length === 0) {
-      console.warn('Master verse keys not loaded yet');
-      return;
-    }
-
-    // Convert space format to dot format for lookup (Gen 1:1 -> Gen.1:1)
-    const dotFormat = verseRef.replace(/\s+/g, '.');
-    const spaceFormat = verseRef.includes('.') ? verseRef.replace(/\./g, ' ') : verseRef;
-
-    // Try to find the verse index in multiple formats
-    let targetIndex = masterVerseKeys.findIndex(key => 
-      key === dotFormat || key === spaceFormat || key === verseRef
-    );
-
-    if (targetIndex === -1) {
-      console.warn(`Verse not found in master keys: ${verseRef} (tried: ${dotFormat}, ${spaceFormat})`);
-      return;
-    }
-
-    console.log(`✅ Found verse ${verseRef} at index ${targetIndex}, navigating...`);
-
-    // Update the anchor index to center on the target verse
-    setAnchorIndex(targetIndex);
-
-    // Update URL hash to reflect the new position
-    const hashFormat = verseRef.replace(/\s+/g, '.');
-    window.location.hash = `#${hashFormat}`;
-
-    // Scroll to top to show the newly centered verse
-    if (containerRef.current) {
-      containerRef.current.scrollTop = 0;
-    }
-  };
-
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
       <ColumnHeaders 
@@ -439,18 +359,25 @@ const VirtualBibleTable = ({
         preferences={preferences}
         isGuest={true}
       />
-
+      
       <div 
         ref={wrapperRef} 
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
-        style={{ touchAction: "pan-y", marginTop: '-1px' }}
+        style={{ 
+          touchAction: "pan-y", 
+          marginTop: '-1px',
+          height: "calc(100vh - 75px)",
+          overflowX: shouldCenter ? 'hidden' : 'auto',
+          overflowY: 'auto'
+        }}
         data-scroll-direction={scrollDirection}
+        onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
+        data-testid="bible-table"
       >
-        <div ref={containerRef} className="scroll-container overflow-auto" style={{ height: "calc(100vh - 75px)" }} data-testid="bible-table" onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
-          <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"}>
-            <div className={shouldCenter ? "min-w-max" : "min-w-max"}>
-              <div style={{height: slice.start * ROW_HEIGHT}} />
-              {slice.verseIDs.map((id, i) => {
+        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"}>
+          <div className={shouldCenter ? "min-w-max" : "min-w-max"} style={{ minWidth: shouldCenter ? 'auto' : `${estimatedTotalWidth}px` }}>
+            <div style={{height: slice.start * ROW_HEIGHT}} />
+            {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
                 const verseData = rowData?.[id];
                 const parts = id.split('.');
@@ -458,15 +385,15 @@ const VirtualBibleTable = ({
                 const chapterVerse = parts[1].split(':');
                 const chapter = parseInt(chapterVerse[0]);
                 const verse = parseInt(chapterVerse[1]);
-
+                
                 // Build text object for all active translations
                 const textObj: Record<string, string> = {};
-
+                
                 // Add main translation text
                 if (verseData) {
                   textObj[mainTranslation] = verseData.text;
                 }
-
+                
                 // Add alternate translation text from the translation maps
                 activeTranslations.forEach(translationCode => {
                   if (translationCode !== mainTranslation) {
@@ -476,7 +403,7 @@ const VirtualBibleTable = ({
                     }
                   }
                 });
-
+                
                 const bibleVerse: BibleVerse = {
                   id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
                   index: slice.start + i,
@@ -490,7 +417,7 @@ const VirtualBibleTable = ({
                   labels: [],
                   contextGroup: "standard" as const
                 };
-
+                
                 return (
                   <VirtualRow 
                     key={id}
@@ -499,16 +426,15 @@ const VirtualBibleTable = ({
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
                     getVerseText={getVerseTextForRow}
-                    getMainVerseText={getVerseText}  
+                    getMainVerseText={getMainVerseText}
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
-                    onVerseClick={columnData.onVerseClick}
+                    onVerseClick={onNavigateToVerse}
                     onExpandVerse={onExpandVerse}
                   />
                 );
-              })}
-              <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-            </div>
+            })}
+            <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
           </div>
         </div>
       </div>

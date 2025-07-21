@@ -1,0 +1,125 @@
+### A quick note on the screenshots
+
+Several of the images you just referenced have already expired in Replit’s temp storage— all I can see is a *“file expired”* placeholder.
+If you want me to replicate the *exact* layout you’re showing, please drag‑and‑drop the relevant PNG/JPEGs again (especially the “old site” cross‑reference layout and the menu mock‑ups).
+In the meantime I’ll outline code‑level fixes that solve the functional issues you described.
+
+---
+
+## 1  Fix the two functional problems first
+
+| Problem                                                                      | Cause                                                                                                                                                              | One‑line fix                                                                                                                                                                     |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hyperlink in Cross‑Ref cell triggers whole row click / doesn’t re‑anchor** | The `<div onClick={…}>` wrapper is inside the flex row; pointer events reach it before the anchor setter.                                                          | Replace the outer `<div className="flex …" onClick={…}>` with **`<button>`** (or add `e.stopPropagation()` inside the onClick for the reference link).                           |
+| **Verse text not loading in Cross‑Ref cells on real device**                 | `getVerseText(ref, main)` returns `undefined` until the translation is cached. On desktop you scrolled long enough for cache to fill, on iPhone it never had time. | Inside `useSliceDataLoader` already fetch cf slice → **call `ensureTranslationLoaded(main)` in that same effect** so the main translation is guaranteed in cache for those refs. |
+
+> **Commit diff (pseudo):**
+>
+> ```tsx
+> // CrossReferencesCell.tsx, inside map()
+> <button   // instead of <div>
+>   key={i}
+>   onClick={(e)=>{e.stopPropagation(); onVerseClick?.(ref);}}
+>   className="flex gap-1 w-full text-left hover:bg-gray-50 …"
+> >
+>   …
+> </button>
+> ```
+>
+> ```ts
+> // useSliceDataLoader.ts
+> useEffect(() => {
+>   ensureTranslationLoaded(main);   // guarantees text for cross‑ref cells
+> }, [sliceStart, main]);
+> ```
+
+---
+
+## 2  Mobile layout tweaks (CSS‑only)
+
+### 2.1 Row height
+
+*You mentioned the rows became shorter on mobile.*
+That’s because the new Cross‑Ref cell wrapper uses `text-xs` (12 px) and Tailwind’s default leading.
+Add this media query to `index.css`:
+
+```css
+@media (max-width: 640px) {
+  .virtual-row { line-height: 1.35rem; }        /* back to comfortable height */
+  .virtual-row .text-xs { font-size: 0.80rem; } /* slightly larger cross‑ref font */
+}
+```
+
+### 2.2 Column widths
+
+```css
+/* Desktop default remains 15rem for verse column; 13rem for cross‑ref */
+@media (max-width: 640px) {
+  .w-80 { width: 100vw; }       /* main translation takes full width */
+  .w-60 { width: 100vw; }       /* cross‑reference column stacks under it */
+  .virtual-row { flex-wrap: wrap; }
+}
+```
+
+(That stacks the cross‑reference cell below the verse on narrow screens—matching the “Lorem ipsum” mock ‑ the blue scrollbar becomes a vertical mini area on the right.)
+
+### 2.3 Header bar
+
+* Remove suggested verse shortcuts (`1 Sam 17:1`, `Isa 61:1`, …) below **sm** breakpoint. on mobile
+* Merge **Sign Up** and **Sign In** into one solid button for all browser modes:
+
+```tsx
+{width < 640 ? (
+  <Button size="sm" variant="secondary" onClick={()=>openAuth()}>
+    Sign In
+  </Button>
+) : (
+  <>
+    <Button variant="gradient" onClick={()=>openSignup()}>★ Sign Up</Button>
+    <Button onClick={()=>openAuth()}>Sign In</Button>
+  </>
+)}
+```
+
+* Replace `<SearchButton>` text with `<MagnifyingGlassIcon className="h-5 w-5" />` on the same breakpoint. (for all browser modes
+
+---
+
+## 3  Ordering inside Cross‑Ref cell
+
+The mock shows:
+
+```
+Gen 1:3   : verse text …                     │ blue thumb
+```
+
+–that’s exactly what the new `flex gap‑1` row renders once `verseText` is available.
+If you want **reference on right** (your old site), flip the flex order:
+
+```tsx
+<div className="flex justify-between">
+  <div className="text-xs text-gray-600 flex-1">{verseText.slice(0,40)}…</div>
+  <div className="w-12 text-right font-mono">{ref}</div>
+</div>
+```
+
+---
+
+## 4  Performance on iPhone 15
+
+*The white page after scroll is Safari killing the JS thread due to memory.*
+Two simple guards:
+
+1. **Virtualised row height caching** – pass `itemKey={verseID}` to `react‑window` so rows recycle instead of re‑creating DOM nodes every scroll fling.
+2. **Throttle state updates** in `useSliceDataLoader` with `requestIdleCallback`, so a burst of cross‑ref text doesn’t trigger 100 renders at once.
+
+---
+
+### Next steps 🔧
+
+1. **Commit the hyperlink & translation‑ensure fixes** – should make Cross‑Ref cells fully functional.
+2. Apply the CSS tweaks (they do not affect desktop, besides the ).
+3. Re‑upload any design mock screenshots that are still missing if you want pixel‑perfect guidance.
+
+
+whatever text limiting we have with the corss references needs to stop, we need to show allt ext for cross reference verses

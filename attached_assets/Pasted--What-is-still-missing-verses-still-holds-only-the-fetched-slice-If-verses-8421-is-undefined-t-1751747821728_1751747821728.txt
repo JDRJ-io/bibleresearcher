@@ -1,0 +1,67 @@
+❌ What is still missing 
+verses still holds only the fetched slice
+If verses[8421] is undefined, the row pool has nothing to show → blank strip.
+
+Row pool still remounts <VerseRow>
+The wrapper <div> is reused, but a fresh <VerseRow> component is created every time, so there is a frame where the row is empty.
+
+scrollLeft is still kept in React state
+You still call setScrollLeft(newScrollLeft). That extra state update can delay row updates on a fast fling.
+
+Parent page isn’t using preserveAnchor() yet
+Notes/prophecy/font-size toggles still scroll-jump because nothing wraps them in the callback.
+
+Loader still fires only when you hit the slice edge
+loadVerseRange() is called once you get within 20 rows of the start/end of the current slice. That’s better, but if the user scrolls faster than the network, you can still outrun it.
+
+🎯 Four precise actions to finish the job
+Hand these lines verbatim to the engineer.
+
+Fill verses once, keep the length 31 102 forever
+
+ts
+Copy
+Edit
+// after loading verseKeys.json
+const verses = verseKeys.map(k => ({ key: k, text: undefined }));
+When text for a key arrives, mutate verses[index].text = fetchedText — never push / splice the array.
+
+Change all clamps to use totalRows (already done), not verses.length.
+
+Mutate pool rows instead of remounting <VerseRow>
+
+Inside renderRowPool() replace the JSX return with a call:
+
+ts
+Copy
+Edit
+updateVerseRow(rowRefs.current[i].current, verse);
+updateVerseRow should set row.dataset.key, innerText, notes, highlights, etc., in place.
+
+Result: DOM node is never missing; user can’t outrun the paint.
+
+Remove setScrollLeft
+
+Delete the setScrollLeft(newScrollLeft) call and the scrollLeft prop on ColumnHeaders.
+
+The header already follows the scroll via the ref; React state is redundant and adds jitter.
+
+Wrap every expensive toggle in preserveAnchor()
+
+ts
+Copy
+Edit
+preserveAnchor(() => setShowProphecy(!showProphecy));
+preserveAnchor(() => setFontScale(1.2));
+// etc.
+This guarantees the centre verse stays fixed after any UI change.
+
+(Optional but bullet-proof)
+5. Pull ahead loader by centre index
+In updateVisibleRows() after you compute centerVerseIndex, call
+
+ts
+Copy
+Edit
+if (onCenterVerseChange) onCenterVerseChange(centerVerseIndex);
+so the parent can start fetching text before the user reaches an unloaded zone.

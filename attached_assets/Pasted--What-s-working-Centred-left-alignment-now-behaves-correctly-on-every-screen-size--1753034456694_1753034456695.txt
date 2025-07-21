@@ -1,0 +1,70 @@
+### ✅ What’s working
+
+* **Centred ⇢ left alignment** now behaves correctly on every screen size.
+* Reference column is sticky and never scrolls out of view.
+
+### 🟦 Next (final) touches
+
+| Goal                                                                  | Code change                                                                                                                                                                                                                                                                                                                          | Why |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- |
+| **1 Always show horizontal scrollbar when table wider than viewport** | `overflow‑x:auto; overflow‑y:hidden;` is already set on `.bible‑table‑wrapper`; the scrollbar is present but WebKit hides it until you start scrolling. <br>**Add**:  `css  .bible-table-wrapper::-webkit-scrollbar { height: 8px; }  ` <br>This forces the bar to stay visible (8 px) giving users the cue that more columns exist. |     |
+| **2 Dual‑column portrait view exactly like the mock‑up**              | Add a **utility class** that is toggled below 640 px (`@media (max-width:639px)`).  `css  .dual-col { width: calc(var(--colW) * 2); }  .dual-col .cell-ref { position:sticky; left:0; }  ` <br>→ wrapper width = 2 columns, Ref always visible.                                                                                      |     |
+| **3 Rotate reference text to vertical on phones**                     | `css  @media (max-width:639px){ .cell-ref span { writing-mode:vertical-rl; transform:rotate(180deg); } } `                                                                                                                                                                                                                           |     |
+| **4 Smooth snap between columns**                                     | Inside `VirtualBibleTable`, when `dualMode && isMobile`, add:  `jsx  wrapperRef.current.scrollTo({ left: Math.round(wrapperRef.current.scrollLeft / colW)*colW, behavior:'smooth'});  `  in the `touchend` handler.                                                                                                                  |     |
+| **5 Hide unused column slots**                                        | Slot grid already allocates widths only for toggled columns. No blank gaps will appear; nothing to do.                                                                                                                                                                                                                               |     |
+
+### Single‐file diff — `index.css` (add to the bottom)
+
+```css
+/* --- mobile dual‑column tweaks --- */
+@media (max-width:639px){
+  .dual-col {                 /* applied via React when <640px */
+    width: calc(var(--colW) * 2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .dual-col::-webkit-scrollbar{ height:8px; }
+
+  .cell-ref{
+    position: sticky;
+    left: 0;
+    z-index: 10;
+  }
+  .cell-ref span{
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+}
+
+/* keep horizontal bar visible on desktop too */
+.bible-table-wrapper::-webkit-scrollbar{ height:8px; }
+```
+
+### React toggle (2 lines)
+
+```tsx
+// BiblePage.tsx – after computing visibleColumns
+const mobileDual = window.innerWidth < 640;
+<div ref={wrapperRef}
+     className={`bible-table-wrapper ${mobileDual ? "dual-col" : ""}`}>
+```
+
+---
+
+## What to tell the AI agent
+
+> 1. **Do not create new files** – only modify `index.css` and
+>    `BiblePage.tsx` as above.
+> 2. **Add the CSS block** for dual‑column and always‑visible scrollbar.
+> 3. **Add the “dual‑col” class toggle** when `innerWidth < 640 px`.
+> 4. No other structural changes; slot & cache logic stay as‑is.
+> 5. Verify on iPhone portrait: Ref + one column visible, horizontal swipe
+>    snaps to the next column; scrollbar always visible.
+
+Once those two edits are in place the layout will:
+
+* centre with ≤ 3 columns,
+* left‑align & scroll with > 3 columns,
+* show the dual‑column portrait view exactly like your mock‑up.
+
+Let me know when you’re ready to move to the next refinement.

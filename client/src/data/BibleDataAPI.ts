@@ -9,8 +9,6 @@ const paths = {
   translation:  (id: string) => `translations/${id}.txt`,
   crossRef:     (set: 'cf1' | 'cf2') => `references/${set}.txt`,
   crossRefOffsets: (set: 'cf1' | 'cf2') => `references/${set}_offsets.json`,
-  cf1: 'references/cf1.txt',
-  cf2: 'references/cf2.txt',
   prophecyRows: 'references/prophecy_rows.txt',
   prophecyIdx:  'references/prophecy_index.json',
   strongsVerseOffsets: 'references/strongsVerseOffsets.json',
@@ -21,13 +19,7 @@ const paths = {
   datesChronological: 'metadata/dates-chronological.txt',
 };
 
-// ARCHITECTURE: Master verse keys array for anchor-centered loading
-let masterVerseKeys: string[] = [];
-let currentAnchorIndex = 0;
-
-// MEMORY OPTIMIZED: fetchFromStorage for full files (small offsets only)
 export async function fetchFromStorage(path: string): Promise<string> {
-  console.log(`🌐 fetchFromStorage: ${path}`);
   const { data, error } = await supabase
     .storage
     .from(BUCKET)
@@ -37,83 +29,24 @@ export async function fetchFromStorage(path: string): Promise<string> {
   return await data.text();
 }
 
-// MEMORY OPTIMIZED: fetchFromStorageRange for byte-range requests
-export async function fetchFromStorageRange(path: string, start: number, end: number): Promise<string> {
-  console.log(`🌐 fetchFromStorageRange: ${path} [${start}-${end}]`);
-  
-  // Use Supabase public URL with Range header for byte-range requests
-  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  
-  const response = await fetch(urlData.publicUrl, {
-    headers: {
-      'Range': `bytes=${start}-${end}`
-    }
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Range request failed → ${path}: ${response.statusText}`);
-  }
-  
-  return await response.text();
-}
-
-// Promise deduplication to prevent multiple concurrent fetches
-const pendingLoads: Record<string, Promise<any>> = {};
-
 function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
     return Promise.resolve(masterCache.get(key));
   }
   
-  // Promise deduplication - if already loading, return existing promise
-  if (key in pendingLoads) {
-    return pendingLoads[key];
-  }
-  
-  pendingLoads[key] = fetchFn().then(result => {
+  return fetchFn().then(result => {
     masterCache.set(key, result);
-    delete pendingLoads[key]; // Clean up
     return result;
-  }).catch(error => {
-    delete pendingLoads[key]; // Clean up on error too
-    throw error;
   });
-  
-  return pendingLoads[key];
 }
 
-// DOCUMENTED: loadChunk(anchorIndex, ±100) - anchor-centered loading pattern
-export async function loadChunk(anchorIndex: number, sliceSize: number = 100): Promise<{
-  verseKeys: string[],
-  chunks: Map<string, Map<string, string>>
-}> {
-  // Ensure we have master verse keys
-  if (masterVerseKeys.length === 0) {
-    masterVerseKeys = await loadVerseKeys();
-  }
-  
-  // Calculate slice boundaries around anchor
-  const start = Math.max(0, anchorIndex - sliceSize);
-  const end = Math.min(masterVerseKeys.length, anchorIndex + sliceSize + 1);
-  const sliceKeys = masterVerseKeys.slice(start, end);
-  
-  console.log(`📊 loadChunk: anchor=${anchorIndex}, slice=${start}-${end}, verses=${sliceKeys.length}`);
-  
-  // Return verse keys for this chunk - text loaded on demand per translation
-  return {
-    verseKeys: sliceKeys,
-    chunks: new Map() // Empty - will be populated by getTranslationText()
-  };
-}
-
-// DOCUMENTED: getTranslation(id) - Primary documented method per FILE_CONNECTIONS_MAP.md
-export async function getTranslation(translationId: string): Promise<Map<string, string>> {
-  const cacheKey = `translation-${translationId}`;
-  
-  return await getOrFetch(cacheKey, async () => {
-    const fullText = await fetchFromStorage(paths.translation(translationId));
-    const verseMap = new Map<string, string>();
-    const lines = fullText.split('\n').filter(line => line.trim());
+export async function loadTranslation(id: string) {
+  return getOrFetch(`translation-${id}`, async () => {
+    const textData = await fetchFromStorage(paths.translation(id));
+    const textMap = new Map<string, string>();
+    
+    // Parse the translation text format: "Gen.1:1 #In the beginning..."
+    const lines = textData.split('\n').filter(line => line.trim());
     
     for (const line of lines) {
       const cleanLine = line.trim().replace(/\r/g, '');
@@ -123,24 +56,15 @@ export async function getTranslation(translationId: string): Promise<Map<string,
         const cleanRef = reference.trim();
         const cleanText = text.trim();
         
-        // Store both formats for compatibility: "Gen.1:1" and "Gen 1:1"
-        verseMap.set(cleanRef, cleanText);
-        verseMap.set(cleanRef.replace(/\./g, " "), cleanText);
-        
-        // Debug first few entries
-        if (verseMap.size <= 3) {
-          console.log(`📖 Stored verse: "${cleanRef}" and "${cleanRef.replace(/\./g, " ")}" -> "${cleanText.substring(0, 50)}..."`);
-        }
+        // Store multiple key formats for compatibility
+        textMap.set(cleanRef, cleanText); // "Gen.1:1"
+        textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
       }
     }
     
-    console.log(`📖 Translation ${translationId} loaded: ${verseMap.size} verses`);
-    return verseMap;
+    return textMap;
   });
 }
-
-// Legacy alias for backward compatibility 
-export const loadTranslation = getTranslation;
 
 export async function loadTranslationAsText(id: string) {
   return getOrFetch(`translation-text-${id}`, async () => {
@@ -148,56 +72,11 @@ export async function loadTranslationAsText(id: string) {
   });
 }
 
-// DOCUMENTED: Primary verse keys loader - loads master index
-export async function loadVerseKeys(order: 'canonical' | 'chronological' = 'canonical'): Promise<string[]> {
-  const cacheKey = `verse-keys-${order}`;
-  return getOrFetch(cacheKey, async () => {
-    const path = order === 'canonical' ? paths.verseKeys : paths.verseKeysChronological;
-    const textData = await fetchFromStorage(path);
-    const keys = JSON.parse(textData);
-    
-    // Set master keys if this is canonical
-    if (order === 'canonical') {
-      masterVerseKeys = keys;
-    }
-    
-    console.log(`📑 Loaded ${keys.length} ${order} verse keys`);
-    return keys;
+export async function loadVerseKeys() {
+  return getOrFetch('verse-keys-canonical', async () => {
+    const textData = await fetchFromStorage(paths.verseKeys);
+    return JSON.parse(textData);
   });
-}
-
-// DOCUMENTED: getVerseMeta() - get metadata for specific verse
-export async function getVerseMeta(verseKey: string): Promise<{
-  dates?: string;
-  contextGroup?: string;
-  strongsData?: any;
-}> {
-  // Load metadata files as needed
-  const meta: any = {};
-  
-  try {
-    // Load dates if available
-    const datesText = await getOrFetch('dates-canonical', async () => {
-      return await fetchFromStorage(paths.datesCanonical);
-    });
-    
-    // Find verse index and get corresponding date
-    if (masterVerseKeys.length === 0) {
-      masterVerseKeys = await loadVerseKeys();
-    }
-    
-    const verseIndex = masterVerseKeys.indexOf(verseKey);
-    if (verseIndex >= 0) {
-      const dateLines = datesText.split('\n');
-      if (dateLines[verseIndex]) {
-        meta.dates = dateLines[verseIndex].trim();
-      }
-    }
-  } catch (error) {
-    console.warn('Could not load verse dates:', error);
-  }
-  
-  return meta;
 }
 
 export async function loadVerseKeysAsText() {
@@ -213,85 +92,22 @@ export async function loadChronologicalVerseKeys() {
   });
 }
 
-// MEMORY OPTIMIZED: Cross-reference byte-range loading only
-// DO NOT load entire 6MB+ files - use offsets for 2-4KB slices only
-export async function loadCrossRefOffsets(set: 'cf1' | 'cf2' = 'cf1') {
-  return getOrFetch(`crossref-offsets-${set}`, async () => {
-    const offsetData = await fetchFromStorage(paths.crossRefOffsets(set));
-    return JSON.parse(offsetData);
+// Cross-reference loading with proper caching
+export async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
+  return getOrFetch(`crossref-${set}`, async () => {
+    return await fetchFromStorage(paths.crossRef(set));
   });
 }
 
-// DOCUMENTED: getCrossRefSlice(verseIDs) - FAST byte-range requests for cross-reference data
-export async function getCrossRefSlice(verseIDs: string[]): Promise<Record<string, string[]>> {
-  if (verseIDs.length === 0) return {};
-  
-  console.log(`🔗 getCrossRefSlice(${verseIDs.length} verses) - MEMORY OPTIMIZED`);
-  
-  const offsets = await loadCrossRefOffsets('cf1');
-  const result: Record<string, string[]> = {};
-  
-  // Process verses in parallel for better performance
-  const promises = verseIDs.map(async (verseID) => {
-    if (!offsets[verseID]) {
-      result[verseID] = [];
-      return;
-    }
-    
-    const [start, end] = offsets[verseID];
-    try {
-      const slice = await fetchFromStorageRange(paths.cf1, start, end);
-      
-      // Parse cross-reference format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-      if (slice.includes('$$')) {
-        const refsStr = slice.split('$$')[1];
-        if (refsStr) {
-          const allRefs = refsStr.split('$')
-            .flatMap(group => group.includes('#') ? group.split('#') : [group])
-            .map(ref => ref.trim())
-            .filter(ref => ref.length > 0);
-          
-          result[verseID] = allRefs;
-          return;
-        }
-      }
-      result[verseID] = [];
-    } catch (error) {
-      console.warn(`Failed to load cross-ref for ${verseID}:`, error);
-      result[verseID] = [];
-    }
-  });
-  
-  await Promise.all(promises);
-  console.log(`🔗 Loaded cross-refs for ${Object.keys(result).filter(k => result[k].length > 0).length}/${verseIDs.length} verses`);
-  return result;
-}
-
-// DOCUMENTED: Ensure translation loaded - uses main getTranslation method with promise dedup
-export async function ensureTranslationLoaded(translationId: string): Promise<Map<string, string>> {
-  const cacheKey = `translation-${translationId}`;
-  
-  // Return cached promise if translation already loading/loaded (promise dedup)
-  if (masterCache.has(cacheKey)) {
-    console.log(`✅ Translation ${translationId} already cached, returning immediately`);
-    return masterCache.get(cacheKey) as Map<string, string>;
-  }
-  
-  console.log(`🔄 Ensuring translation ${translationId} is loaded...`);
-  const translation = await getTranslation(translationId);
-  console.log(`✅ Translation ${translationId} ensured loaded: ${translation.size} verses`);
-  return translation;
-}
-
-// Legacy method - DEPRECATED to prevent memory bloat  
+// Get cross-reference data for BibleDataAPI facade
 export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
-  console.warn(`getCrossRef() DEPRECATED - use getCrossRefSlice() for byte-range requests only`);
-  return ''; // Empty fallback to prevent breaking changes
+  return await loadCrossReferences(set);
 }
 
-// DOCUMENTED: getCfOffsets(set) - alias for loadCrossRefOffsets
-export async function getCfOffsets(set: 'cf1' | 'cf2'): Promise<any> {
-  return await loadCrossRefOffsets(set);
+export async function loadCrossRefSlice(start: number, end: number) {
+  // Remove obsolete slice loaders
+  console.warn('loadCrossRefSlice is deprecated, use crossRefsWorker instead');
+  return {};
 }
 
 // Prophecy loading with proper caching
@@ -308,7 +124,14 @@ export async function loadProphecyIndex(): Promise<any> {
   });
 }
 
-// Get prophecy data for BibleDataAPI facade - redirect to load functions
+// Get prophecy data for BibleDataAPI facade
+export async function getProphecyRows(): Promise<string> {
+  return await loadProphecyRows();
+}
+
+export async function getProphecyIndex(): Promise<any> {
+  return await loadProphecyIndex();
+}
 
 export async function loadProphecySlice(start: number, end: number) {
   // Remove obsolete slice loaders
@@ -339,16 +162,6 @@ export async function getNotes(): Promise<any[]> {
   return data;
 }
 
-// DOCUMENTED: getProphecyRows() - loads prophecy_rows.txt for P/F/V mapping
-export async function getProphecyRows(): Promise<string> {
-  return await loadProphecyRows();
-}
-
-// DOCUMENTED: getProphecyIndex() - loads prophecy_index.json for metadata  
-export async function getProphecyIndex(): Promise<any> {
-  return await loadProphecyIndex();
-}
-
 // WRITE - with offline queue
 export async function saveNote(note: any, preserveAnchor?: (ref: string, index: number) => void) {
   const local = { ...note, updated_at: Date.now(), pending: true };
@@ -364,20 +177,21 @@ export async function saveNote(note: any, preserveAnchor?: (ref: string, index: 
 // -------- Cross-reference offsets ----------
 const cfOffsetsCache = new Map<'cf1' | 'cf2', Record<string, [number, number]>>();
 
-
+export async function getCfOffsets(set: 'cf1' | 'cf2') {
+  if (cfOffsetsCache.has(set)) return cfOffsetsCache.get(set)!;
+  const path = paths.crossRefOffsets(set);
+  const txt = await fetchFromStorage(path);
+  const obj = JSON.parse(txt) as Record<string, [number, number]>;
+  cfOffsetsCache.set(set, obj);
+  return obj;
+}
 
 // -------- Strong's offsets ----------
 let strongsVerseOffsets: Record<string, [number, number]> | null = null;
 let strongsIndexOffsets: Record<string, [number, number]> | null = null;
 
-// DOCUMENTED: getStrongsOffsets() - returns verse & lemma ranges for Strong's concordance
-export async function getStrongsOffsets(): Promise<{ 
-  strongsVerseOffsets: Record<string, [number, number]>, 
-  strongsIndexOffsets: Record<string, [number, number]> 
-}> {
-  if (strongsVerseOffsets && strongsIndexOffsets) {
-    return { strongsVerseOffsets, strongsIndexOffsets };
-  }
+export async function getStrongsOffsets() {
+  if (strongsVerseOffsets && strongsIndexOffsets) return { strongsVerseOffsets, strongsIndexOffsets };
 
   const [vTxt, iTxt] = await Promise.all([
     fetchFromStorage(paths.strongsVerseOffsets),
@@ -386,41 +200,33 @@ export async function getStrongsOffsets(): Promise<{
 
   strongsVerseOffsets = JSON.parse(vTxt);
   strongsIndexOffsets = JSON.parse(iTxt);
-  
-  console.log(`🔍 Strong's offsets loaded: ${Object.keys(strongsVerseOffsets || {}).length} verses, ${Object.keys(strongsIndexOffsets || {}).length} lemmas`);
-  return { strongsVerseOffsets: strongsVerseOffsets || {}, strongsIndexOffsets: strongsIndexOffsets || {} };
+  return { strongsVerseOffsets, strongsIndexOffsets };
 }
 
 // -------- Prophecy loaders ----------
 let prophecyIndex: Record<string, [number, number]> | null = null;
 let prophecyRowsTxt: string | null = null;
 
-// DOCUMENTED: getProphecy(key) - TSV row P/F/V from prophecy system  
-export async function getProphecy(indexKey: string): Promise<string | null> {
+export async function getProphecy(indexKey: string) {
   // Lazy load index JSON
   if (!prophecyIndex) {
     const idx = await fetchFromStorage(paths.prophecyIdx);
     prophecyIndex = JSON.parse(idx);
-    console.log(`📜 Prophecy index loaded: ${Object.keys(prophecyIndex || {}).length} entries`);
   }
   // Lazy load rows file
   if (!prophecyRowsTxt) {
     prophecyRowsTxt = await fetchFromStorage(paths.prophecyRows);
-    console.log(`📜 Prophecy rows loaded: ${prophecyRowsTxt.length} bytes`);
   }
-  
   const slice = prophecyIndex![indexKey];
-  if (!slice) {
-    console.warn(`⚠️ Prophecy key not found: ${indexKey}`);
-    return null;
-  }
-  
-  const result = prophecyRowsTxt!.substring(slice[0], slice[1]);
-  console.log(`📜 getProphecy(${indexKey}) → ${result.length} chars`);
-  return result;
+  if (!slice) return null;
+  return prophecyRowsTxt!.substring(slice[0], slice[1]);
 }
 
-
+// Cross-reference slice loader
+export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
+  const fullText = await loadCrossReferences(cfSet);
+  return fullText.substring(start, end);
+}
 
 export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string, index: number) => void) {
   const local = { ...bookmark, updated_at: Date.now(), pending: true };
@@ -455,15 +261,15 @@ export const BibleDataAPI = {
   },
   loadTranslation,
   getCfOffsets,
+  getCrossRef,
   getCrossRefSlice,
-  loadCrossRefOffsets,
+  loadCrossReferences,
   getProphecy,
   getProphecyRows,
   getProphecyIndex,
   loadProphecyRows,
   loadProphecyIndex,
   getStrongsOffsets,
-  ensureTranslationLoaded,
   saveBookmark,
   saveHighlight,
   saveNote,

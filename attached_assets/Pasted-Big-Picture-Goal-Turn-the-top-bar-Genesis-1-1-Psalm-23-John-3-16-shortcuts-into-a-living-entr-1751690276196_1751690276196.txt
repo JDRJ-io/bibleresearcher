@@ -1,0 +1,79 @@
+Big‑Picture Goal
+Turn the top‑bar “Genesis 1:1 / Psalm 23 / John 3:16” shortcuts into a living entrance to the site:
+
+If the visitor is not signed in → show two glowing buttons: sign up, sign in
+
+If the visitor is signed in → replace those buttons with a small, circular avatar (use their first initial as the fallback) plus their chosen display name, e.g. “👤 Jacob Brinhad ”.
+
+Everything else flows from making that tiny area feel like the doorway to a holy library.
+
+---
+supabase has an automatic sign on via email only where you don't need to create a password
+
+What the engineer needs to wire up (plain English, no code)
+Supabase Auth settings
+
+Leave “Email / Magic Link” switched on (it’s enabled by default).
+
+In the Auth → Settings → Redirect URLs field, add the production domain, the dev URL (e.g. http://localhost:3000), and any staging URL. That’s where users land after clicking their one‑time link.
+
+Default cooldown (request only once every 60 s, link dies after 1 h) is fine—no changes needed.
+
+Button behaviour (logged‑out state)
+
+“sgn up” → opens a soft‑glow modal.
+
+Ask first: “What's your name? (This is your Display name for Forum as well)  ____ 
+
+Second line:  (email) _____
+
+Submits both values together.
+
+“sign in” → opens a simpler modal that only asks for their email (name is already on file).
+
+Behind the scenes on submit
+
+Call Supabase’s sign‑in‑with‑OTP helper (that’s the magic‑link method).
+
+Pass the email and the redirect URL you registered.
+
+✅ Auto‑signup left ON – so new visitors are created in the same step.
+
+Immediately stash the “What's your name?” value in auth.users → user_metadata.display_name.
+
+You can do this in the same client call using the data property, or with a quick follow‑up update after Supabase confirms the request.
+
+Email arrives
+
+Supabase sends its default “Magic Link” email. (We can later swap the template copy for mystical language—see polish section.)
+
+User clicks → lands back on the site at /auth/callback (or whatever route you choose).
+
+Supabase JS client detects the hash in the URL, verifies it automatically, and drops a session in localStorage.
+
+Logged‑in state rendering
+
+On every page load, check supabase.auth.getSession().
+
+If session exists, grab session.user.user_metadata.display_name.
+
+Render the avatar circle + name in the header.
+
+Clicking that mini‑profile should open a dropdown:
+
+“My Profile” (future), “Sign Out”, maybe “Pay It Forward” link. Gift a friend a months subscription link, change display name like or change profile picture
+
+Testing checklist
+
+Use two or three real email addresses (Gmail, Outlook) and confirm that:
+
+Link email arrives within a few seconds.
+
+Clicking logs in, session persists on refresh.
+
+Cooldown kicks in if you spam the “send” button.
+
+Check that user_metadata.display_name actually holds the chosen name.
+
+Make sure the header swaps instantly from buttons to avatar the moment we get the session.
+

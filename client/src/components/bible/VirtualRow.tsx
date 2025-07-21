@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
-import { CrossReferencesCell } from './CrossReferencesCell';
-import { ProphecyCell } from './ProphecyColumns';
 
 interface VirtualRowProps {
   verseID: string;
@@ -36,25 +34,48 @@ function ReferenceCell({ verse }: CellProps) {
   );
 }
 
-// CrossReferencesCell is now imported from separate file
+function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
+  const { crossRefs: crossRefsStore } = useBibleStore();
+  
+  // Get cross-references from the Bible store (loaded from Supabase)
+  const crossRefs = crossRefsStore[verse.reference] ?? [];
+
+  return (
+    <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
+      {crossRefs.map((ref, index) => {
+        const txt = getVerseText(ref, mainTranslation) ?? "(loading…)";
+        return (
+          <button
+            key={ref}
+            className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
+            onClick={(e) => {
+              e.stopPropagation();
+              onVerseClick?.(ref);
+            }}
+          >
+            <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
+              {ref}
+            </span>
+            <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
+              {txt}
+            </span>
+          </button>
+        );
+      })}
+      {crossRefs.length === 0 && (
+        <div className="text-gray-400 italic text-xs">No cross-references</div>
+      )}
+    </div>
+  );
+}
 
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
-  // DEBUG: For Gen 1:1, log the text retrieval process
-  if (verse.reference === "Gen 1:1") {
-    console.log(`📖 MainTranslationCell Debug for ${verse.reference}:`, {
-      mainTranslation,
-      getVerseTextResult: getVerseText(verse.reference, mainTranslation),
-      verseTextProperty: verse.text?.[mainTranslation],
-      finalVerseText: verseText
-    });
-  }
-
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
       <div className="leading-relaxed verse-text">
-        {verseText || `[${mainTranslation} loading...]`}
+        {verseText || "Loading..."}
       </div>
     </div>
   );
@@ -67,7 +88,7 @@ interface SlotConfig {
   visible: boolean;
 }
 
-const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
+const VirtualRow: React.FC<VirtualRowProps> = ({
   verseID,
   rowHeight,
   verse,
@@ -90,41 +111,57 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     console.log('🔥 Translation states:', { main, alternates, activeTranslations });
   }
 
-  // PROPER SLOT ARCHITECTURE matching UI spec and ColumnHeaders exactly
+  // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, SlotConfig> = {};
-  
-  // Slot 0: Reference (always visible)
+
+  // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Slot 1: Notes (default hidden)
-  slotConfig[1] = { type: 'notes', header: 'Notes', visible: showNotes };
-  
-  // Slot 2: Main translation (always visible)
+  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
-  
-  // Slot 3: Cross References (per UI spec)
-  slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
-  
-  // Slot 4: Dates (default hidden)
-  slotConfig[4] = { type: 'context', header: 'Dates', visible: showDates };
-  
-  // Slots 5-16: Alternate translations (per UI spec)
+
+  // Map all column types based on store state - updated slot assignments
+  columnState.columns.forEach(col => {
+    switch (col.slot) {
+      case 1:
+        // Notes column (moved to slot 1 between Ref and Main)
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        break;
+      case 7:
+        // Cross References column (moved from slot 6 to 7)
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+        break;
+      case 8:
+        // Prophecy P column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        break;
+      case 9:
+        // Prophecy F column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        break;
+      case 10:
+        // Prophecy V column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        break;
+      case 11:
+        // Dates column (unchanged)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+        break;
+    }
+  });
+
+  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Alternates start at slot 5
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
         translationCode, 
-        visible: true 
+        visible: true  // Show all active alternate translations
       };
     }
   });
-  
-  // Slots 17-19: Prophecy P/F/V (per UI spec)
-  slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
-  slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
-  slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
 
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
@@ -174,24 +211,18 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on PROPER UI SPEC slot assignments
+    // Calculate width based on slot type and mobile - updated for new slot layout
     const width = isMobile ? 
-      (slot === 0 ? "w-14" :        // Reference (slot 0)
-       slot === 1 ? "w-16" :        // Notes (slot 1)
-       slot === 2 ? "flex-1" :      // Main translation (slot 2)
-       slot === 3 ? "w-12" :        // Cross References (slot 3 per UI spec)
-       slot === 4 ? "w-12" :        // Dates (slot 4)
-       slot >= 5 && slot <= 16 ? "w-20" : // Alt translations (slots 5-16)
-       slot >= 17 && slot <= 19 ? "w-8" : // Prophecy P/F/V (slots 17-19 per UI spec)
-       "flex-1") :                  // Default
-      (slot === 0 ? "w-16" :        // Reference (slot 0)
-       slot === 1 ? "w-64" :        // Notes (slot 1) 
-       slot === 2 ? "w-80" :        // Main translation (slot 2)
-       slot === 3 ? "w-60" :        // Cross References (slot 3 per UI spec)
-       slot === 4 ? "w-32" :        // Dates (slot 4)
-       slot >= 5 && slot <= 16 ? "w-80" : // Alt translations (slots 5-16)
-       slot >= 17 && slot <= 19 ? "w-20" : // Prophecy P/F/V (slots 17-19 per UI spec)
-       "w-80");                     // Default
+      (slot === 0 ? "w-14" :        // Reference (narrower)
+       slot === 1 ? "w-16" :        // Notes (between Ref and Main)
+       slot === 7 ? "w-12" :        // Cross References (moved to slot 7)
+       slot >= 8 && slot <= 10 ? "w-8" : // Prophecy P/F/V (slots 8-10)
+       "flex-1") :                  // Translations
+      (slot === 0 ? "w-16" :        // Reference (narrower)
+       slot === 1 ? "w-64" :        // Notes (between Ref and Main) 
+       slot === 7 ? "w-60" :        // Cross References (moved to slot 7)
+       slot >= 8 && slot <= 10 ? "w-20" : // Prophecy P/F/V (slots 8-10)
+       "w-80");                     // Translations
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
@@ -218,13 +249,6 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       case 'alt-translation':
         // Use the verse.reference format (Gen 1:1) for text lookup, not verse.id
         const verseText = getVerseText(verse.reference, config.translationCode);
-        
-        // Debug: Show more info if translation loading fails
-        if (!verseText) {
-          console.log(`🔍 VirtualRow: Missing text for ${verse.reference} in ${config.translationCode}`);
-          console.log(`🔍 VirtualRow: Verse formats tried: [${verse.reference}, ${verse.reference.replace(/\s+/g, '.')}, ${verse.reference.replace(/\./g, ' ')}]`);
-        }
-        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
@@ -234,12 +258,20 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
         );
 
       case 'cross-refs':
+        // Get actual cross-reference data for this verse
+        const crossRefs = verse.crossReferences || [];
+        const crossRefDisplay = crossRefs.length > 0 
+          ? crossRefs.slice(0, 3).map(ref => {
+              if (typeof ref === 'string') return ref.split('.')[0];
+              if (ref && typeof ref === 'object' && 'reference' in ref) return ref.reference?.split('.')[0] || '';
+              return '';
+            }).join(', ') + (crossRefs.length > 3 ? '...' : '')
+          : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <CrossReferencesCell 
-              verseReference={verse.reference}
-              onNavigateToVerse={onVerseClick}
-            />
+            <div className="px-2 py-1 text-xs text-blue-600 cell-content" title={crossRefs.join(', ')}>
+              {crossRefDisplay || ''}
+            </div>
           </div>
         );
 
@@ -256,13 +288,18 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       case 'prophecy-f':
       case 'prophecy-v':
         const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
+        const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
+        // Get prophecy data from verse if available
+        const prophecyData = verse.prophecy || {};
+        const count = prophecyData && typeof prophecyData === 'object' && type in prophecyData 
+          ? (prophecyData as any)[type]?.length || 0 
+          : 0;
+        const displayContent = count > 0 ? count.toString() : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <ProphecyCell 
-              verseReference={verse.reference}
-              type={type}
-              onNavigateToVerse={onVerseClick}
-            />
+            <div className={`px-1 py-1 text-xs text-center ${color} cell-content`} title={count > 0 ? `${count} ${type === "P" ? "Prediction" : type === "F" ? "Fulfillment" : "Verification"} references` : ''}>
+              {displayContent}
+            </div>
           </div>
         );
 
@@ -297,39 +334,40 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       {visibleColumns.map(renderSlot)}
     </div>
   );
-});
+};
 
 export default VirtualRow;
 export { VirtualRow };
 
-interface ProphecySlotCellProps {
+interface ProphecyCellProps {
   verse: BibleVerse;
   type: "P" | "F" | "V";
 }
 
-function ProphecySlotCell({ verse, type }: ProphecySlotCellProps) {
+function ProphecyCell({ verse, type }: ProphecyCellProps) {
   const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-  const [prophecyCount, setProphecyCount] = useState<number>(0);
-  
-  useEffect(() => {
-    (async () => {
-      try {
-        const { getProphecyForVerse, ensureProphecyLoaded } = await import('@/lib/prophecyCache');
-        await ensureProphecyLoaded();
-        const data = getProphecyForVerse(verse.reference);
-        setProphecyCount(data[type]?.length || 0);
-      } catch (error) {
-        console.warn(`Failed to load prophecy data for ${verse.reference}:`, error);
-        setProphecyCount(0);
-      }
-    })();
-  }, [verse.reference, type]);
-  
-  const displayContent = prophecyCount > 0 ? prophecyCount.toString() : '';
-  
+  const { prophecies } = useBibleStore();
+
+  // Access prophecies data from the store using verse.reference
+  const verseProphecies = prophecies[verse.reference] || {};
+
+  // Direct access to P/F/V arrays
+  const items = verseProphecies[type] || [];
+  const hasProphecy = items.length > 0;
+  const prophecyCount = items.length;
+
   return (
-    <div className="px-1 py-1 text-xs text-center cell-content" title={prophecyCount > 0 ? `${prophecyCount} ${type === "P" ? "Prediction" : type === "F" ? "Fulfillment" : "Verification"} references` : ''}>
-      <span className={color}>{displayContent}</span>
+    <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className={`${color} text-center`}>
+        {hasProphecy && (
+          <div className="flex items-center justify-center gap-1">
+            <span className={`text-xs ${color} cursor-pointer`} title={`${prophecyCount} ${type} references`}>
+              ●
+            </span>
+            <span className="text-xs text-gray-500">{prophecyCount}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

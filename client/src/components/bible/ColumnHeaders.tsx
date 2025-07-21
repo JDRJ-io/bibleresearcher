@@ -77,26 +77,46 @@ export function ColumnHeaders({
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
 
-  // PROPER SLOT ARCHITECTURE according to UI spec docs:
-  // Slot 0: Reference (always visible)
+  // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
   
-  // Slot 1: Notes (default hidden)
-  slotConfig[1] = { type: 'notes', header: 'Notes', visible: showNotes };
-  
-  // Slot 2: Main translation (always visible)
+  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
-  
-  // Slot 3: Cross References (per UI spec)
-  slotConfig[3] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
-  
-  // Slot 4: Dates (default hidden)
-  slotConfig[4] = { type: 'context', header: 'Dates', visible: showDates };
-  
-  // Slots 5-16: Alternate translations (per UI spec)
+
+  // Map all column types based on store state - updated slot assignments
+  columnState.columns.forEach(col => {
+    switch (col.slot) {
+      case 1:
+        // Notes column (moved to slot 1 between Ref and Main)
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        break;
+      case 7:
+        // Cross References column (moved from slot 6 to 7)
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+        break;
+      case 8:
+        // Prophecy P column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        break;
+      case 9:
+        // Prophecy F column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        break;
+      case 10:
+        // Prophecy V column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        break;
+      case 11:
+        // Dates column (unchanged)
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+        break;
+    }
+  });
+
+  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {
-    const slot = 5 + index; // Alternates start at slot 5
-    if (slot <= 16) { // Max 12 alternate translations (slots 5-16)
+    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
       slotConfig[slot] = { 
         type: 'alt-translation', 
         header: translationCode, 
@@ -105,11 +125,6 @@ export function ColumnHeaders({
       };
     }
   });
-  
-  // Slots 17-19: Prophecy P/F/V (per UI spec)
-  slotConfig[17] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
-  slotConfig[18] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
-  slotConfig[19] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
 
   // Debug logging
   console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 

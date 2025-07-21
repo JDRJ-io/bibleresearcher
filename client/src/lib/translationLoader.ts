@@ -1,14 +1,27 @@
 // Translation loading utilities - uses secure Supabase loader
-import { masterCache } from './supabaseClient';
+import { loadTranslationSecure, masterCache } from './supabaseClient';
 
-// REMOVED: Legacy loading system - use ONLY BibleDataAPI facade per documentation
-// All translation loading must go through BibleDataAPI.loadTranslation() only
+export async function loadTranslation(translationId: string): Promise<Map<string, string>> {
+  const cacheKey = `translation-${translationId}`;
+  
+  // Check master cache first
+  if (masterCache.has(cacheKey)) {
+    return masterCache.get(cacheKey)!;
+  }
+
+  try {
+    // Use secure Supabase loader (which also uses master cache)
+    const textMap = await loadTranslationSecure(translationId);
+    
+    return textMap;
+  } catch (error) {
+    console.error(`Failed to load ${translationId} translation:`, error);
+    return new Map();
+  }
+}
 
 export async function loadMultipleTranslations(translationIds: string[]): Promise<Map<string, Map<string, string>>> {
   const results = new Map<string, Map<string, string>>();
-  
-  // Use ONLY BibleDataAPI facade - single source of truth
-  const { loadTranslation } = await import('@/data/BibleDataAPI');
   
   // Load translations in parallel
   const promises = translationIds.map(async (id) => {

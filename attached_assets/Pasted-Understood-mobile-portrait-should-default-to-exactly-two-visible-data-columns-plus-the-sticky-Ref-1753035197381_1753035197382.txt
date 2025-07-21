@@ -1,0 +1,35 @@
+Understood—**mobile portrait should default to exactly two visible data columns, plus the sticky Ref column**:
+
+```
+| Ref | Main‑translation | Cross References |
+```
+
+All other columns (alternate translations, dates, P / F / V, notes, etc.) start **hidden** and can be toggled on later by the user. Here’s how to enforce that:
+
+---
+
+## Implementation checklist
+
+| Step | File(s)                                                                                                                        | What to change                                                                                                                                                                                                                                                                                                                             |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | `translationSlice.ts` (`useTranslationMaps` store)                                                                             | • Add a helper `resetMobileDefaults(mainId: string)` that sets<br>`ts<br>state.visible = ['Ref', mainId, 'Cross'];<br>state.hidden = allOthers;<br>`                                                                                                                                                                                       |
+| 2    | `BiblePage.tsx` (or the first mount in `App`)                                                                                  | `tsx<br>useEffect(() => {<br>  const mobilePortrait = window.innerWidth < 640 && window.innerHeight > window.innerWidth;<br>  if (mobilePortrait && !sessionStorage.getItem('mobileInit')) {<br>    resetMobileDefaults(defaultMain);<br>    sessionStorage.setItem('mobileInit','1');   // don’t rerun on rotation<br>  }<br>}, []);<br>` |
+| 3    | Make sure the **slot grid** code consumes `state.visible` in that order, so the first two non‑Ref columns are Main then Cross. |                                                                                                                                                                                                                                                                                                                                            |
+| 4    | UI menu (“Column Picker”) should reflect the defaults—on portrait it shows only those two toggled.                             |                                                                                                                                                                                                                                                                                                                                            |
+
+*No change* is needed to the centring/scroll code we just fixed; the layout now:
+
+1. Loads 2 + Ref columns on phones, centred (because width ≤ viewport).
+2. As soon as the user enables a third data column, the table left‑aligns and the horizontal bar appears.
+3. Desktop / tablet keep their previous behaviour.
+
+---
+
+### What to tell the AI agent
+
+> *“Please add `resetMobileDefaults` in `translationSlice`; call it once on first mount when `innerWidth < 640 px && portrait`. That function should make the visible‑columns array `[Ref, mainTranslation, Cross]` and hide all others. No new files.”*
+
+Once those two small changes are in, every guest on a phone will begin with the
+clean two‑column view you want, and can still expand as much as they like.
+
+Let me know if you’d like an exact diff or a quick Cypress test for the default‑column assertion.

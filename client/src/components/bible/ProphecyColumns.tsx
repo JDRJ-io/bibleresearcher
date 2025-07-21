@@ -1,68 +1,106 @@
-import React from 'react';
-import { useBibleStore } from '@/App';
+import React, { useState, useEffect } from 'react';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { getProphecy } from '@/data/BibleDataAPI';
+
+const SkeletonCell = () => (
+  <td className="table-cell">
+    <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
+  </td>
+);
 
 interface ProphecyRowData {
-  P: number[];  // Prediction IDs
-  F: number[];  // Fulfillment IDs 
-  V: number[];  // Verification IDs
+  pred: string | null;
+  ful: string | null;
+  ver: string | null;
 }
 
-interface ProphecyCellProps {
-  verseReference: string;
-  type: 'P' | 'F' | 'V';
-  onNavigateToVerse?: (ref: string) => void;
-}
-
-/**
- * Individual Prophecy Cell for P, F, or V columns (slots 17-19)
- * Shows count of prophecy references and allows navigation to prophecy details
- */
-export const ProphecyCell: React.FC<ProphecyCellProps> = ({ 
-  verseReference, 
-  type,
-  onNavigateToVerse 
-}) => {
-  const { prophecyData } = useBibleStore();
+function ProphecyRow({ verseKey }: { verseKey: string }) {
+  const translationMaps = useTranslationMaps();
+  const [data, setData] = useState<ProphecyRowData | null>(null);
   
-  // Convert verse reference to the format used in prophecy data (Gen.1:1)
-  const dotFormat = verseReference.replace(/\s+/g, '.');
-  const verseData = prophecyData[dotFormat];
+  useEffect(() => {
+    getProphecy(verseKey).then((row) => {
+      if (!row) {
+        setData({ pred: null, ful: null, ver: null });
+        return;
+      }
+      
+      // Parse the prophecy row format: "verseID $ id:type , id:type , …"
+      const parts = row.split('$');
+      if (parts.length < 2) {
+        setData({ pred: null, ful: null, ver: null });
+        return;
+      }
+      
+      const items = parts[1].split(',');
+      let pred = null, ful = null, ver = null;
+      
+      for (const item of items) {
+        const [id, type] = item.trim().split(':');
+        if (type === 'P') pred = id;
+        else if (type === 'F') ful = id;
+        else if (type === 'V') ver = id;
+      }
+      
+      setData({ pred, ful, ver });
+    });
+  }, [verseKey]);
   
-  if (!verseData || !verseData[type] || verseData[type].length === 0) {
+  if (!data) {
     return (
-      <div className="w-8 px-1 py-1 text-xs text-center text-gray-400">
-        —
-      </div>
+      <>
+        <SkeletonCell />
+        <SkeletonCell />
+        <SkeletonCell />
+      </>
     );
   }
   
-  const count = verseData[type].length;
-  const typeColors = {
-    P: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20',  // Prediction - blue
-    F: 'text-green-600 bg-green-50 dark:bg-green-900/20', // Fulfillment - green  
-    V: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20' // Verification - purple
-  };
-  
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onNavigateToVerse) {
-      // TODO: Open prophecy detail drawer with specific prophecy IDs
-      console.log(`📜 Prophecy ${type} clicked for ${verseReference}: IDs ${verseData[type].join(', ')}`);
-      // For now, just navigate to the verse itself
-      onNavigateToVerse(verseReference);
-    }
-  };
-  
   return (
-    <button
-      onClick={handleClick}
-      className={`w-8 px-1 py-1 text-xs text-center font-medium rounded hover:opacity-75 transition-opacity cursor-pointer ${typeColors[type]}`}
-      title={`${type === 'P' ? 'Prediction' : type === 'F' ? 'Fulfillment' : 'Verification'}: ${count} reference${count !== 1 ? 's' : ''} - Click to navigate`}
-    >
-      {count}
-    </button>
+    <>
+      <td className="table-cell w-16 text-center">
+        {data.pred ? (
+          <div className="flex items-center justify-center">
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs font-bold">
+              {data.pred}
+            </span>
+          </div>
+        ) : (
+          <span className="text-gray-400">—</span>
+        )}
+      </td>
+      <td className="table-cell w-16 text-center">
+        {data.ful ? (
+          <div className="flex items-center justify-center">
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs font-bold">
+              {data.ful}
+            </span>
+          </div>
+        ) : (
+          <span className="text-gray-400">—</span>
+        )}
+      </td>
+      <td className="table-cell w-16 text-center">
+        {data.ver ? (
+          <div className="flex items-center justify-center">
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-xs font-bold">
+              {data.ver}
+            </span>
+          </div>
+        ) : (
+          <span className="text-gray-400">—</span>
+        )}
+      </td>
+    </>
   );
-};
+}
 
-export default ProphecyCell;
+export function ProphecyColumns({ verseIDs }: { verseIDs: string[] }) {
+  return (
+    <>
+      {verseIDs.map(verseKey => (
+        <ProphecyRow key={verseKey} verseKey={verseKey} />
+      ))}
+    </>
+  );
+}

@@ -1,0 +1,447 @@
+
+🔹 GLOBAL NAVIGATION & CONTROL PANEL
+Header Features:
+
+Search Bar:
+Global search across all active translations.
+Placeholder: "search random w/ '%'"
+Location: Top center
+
+Back / Forward Arrows:
+Navigate verse history (hyperlink jumps, etc.)
+Location: Left side of search bar
+
+Hamburger Menu:
+Opens floating panel with full settings
+Location: Top-right
+
+🔹 HAMBURGER MENU PANEL (Floating)
+Dropdown Groups & Features:
+
+Translations:
+Multi-select dropdown. Always one required. Adds new verse columns
+Data: /translations/*.txt
+
+Labels:
+Toggleable list ("who", "what", "when", etc.). Changes verse text appearance
+Data: /labels/TRANSLATION/ALL.json or chunked
+
+Extra Details:
+Toggle cross refs, prophecy columns, notes, dates
+Shows/hides table columns
+Data: cf1.txt, cf2.txt, prophecy-file.txt, notes db
+
+Cross Ref Set:
+Select between cf1 / cf2. Updates ref data instantly
+Data: /references/
+
+Lock Layout:
+Locks manual resizing/rearrangement of columns
+UI-only toggle
+
+Reset Button:
+Resets to default view: Index + Verse + Cross columns
+
+Bookmarks:
+Dropdown list of saved index positions. Loads and jumps to scrollIndex
+Data: bookmarks DB
+
+Auth Access:
+Sign in / Sign up. Loads profile layout
+Auth: Supabase
+
+🔹 TABLE COLUMNS (Modular, Draggable, Scrollable)
+Columns & Content:
+
+#
+Canonical or Chronological index (e.g., Gen.1:1)
+Source: verseKeys.json, verseKeys-chrono.json
+Always visible
+
+Verse
+Main verse text column (can show multiple)
+Source: translations/*.txt
+Text wraps. Vertical scroll inside cell if overflow
+
+Cross Refs
+Full verse text for each reference
+Source: cf1.txt, cf2.txt + translation files
+Scrollable vertically
+
+Predictions
+Prophecy prediction references & text
+Source: prophecy-file.txt
+Scrollable vertically
+
+Fulfillments
+Prophetic fulfillment references
+Source: prophecy-file.txt
+Scrollable vertically
+
+Verifications
+Confirmations of fulfillment
+Source: prophecy-file.txt
+Scrollable vertically
+
+Notes
+Per-user verse notes
+Source: user_notes table
+First column when shown; scrollable if long
+
+🔹 INTERACTIVE FUNCTIONALITY
+Double Click Verse (on any row):
+Expands verse in center, blurs background
+Loads Strong’s view
+Shows horizontal scroll row of origin words (file: strongsVerses.txt)
+
+Click origin word:
+Opens list of verses where that word appears
+Source: strongsIndex.txt
+
+Close (double-click screen or press Close):
+Collapses expanded verse view with smooth animation
+
+Highlighting (select text + tap):
+Opens highlight palette
+Highlight stored per user, color adapts to theme
+
+🔹 LABEL TOGGLES & TEXT EFFECTS
+Label → Effect in Verse Text
+
+who → Bold
+
+what → Outline + shadow
+
+where → {Curly Brackets}
+
+when → Underline
+
+why → Handwritten font
+
+action → Italicized
+
+seed → Superscript * before word
+
+harvest → Superscript = before word
+
+prediction → Superscript ~ before word
+
+🔹 CONTEXTUAL BOUNDARIES
+Context Toggle (button in Hamburger Menu):
+Shows light-blue boxes around verse groups
+File: context_groups.json
+Color adapts to theme
+
+🔹 THEMES & CUSTOMIZATION
+Customization Options:
+
+Theme Mode:
+Dark, Light, Sepia, Fireworks, Aurora
+→ Full color shift, animations included
+
+Font Size:
+Small, Medium, Large
+→ Verse text resized accordingly
+
+Adaptive Highlighting:
+Highlight colors change across themes
+→ Color mapping per theme palette
+
+Context Borders:
+Light blue by default; transforms with theme
+
+🔹 USER PROFILE SYSTEM
+Flow / Fields / Behavior:
+
+Sign Up: Name, Email, Password → Sends verification email
+
+Sign In: Email, Password → Loads personalized layout (notes, highlights)
+
+Auto-Save: On every change → Saves column layout, verse, notes, highlights
+
+Intro Banner: After login → Shows greeting, patch notes, verse
+
+Mobile Profile: Opens last spot with default layout; Notes column enabled if active
+
+🔹 BOOKMARKING SYSTEM
+Save Bookmark:
+Button in menu → Saves center index, label, and color
+Storage: Supabase DB
+
+View Bookmarks:
+Dropdown or scrollbar track → Shows visual color dots
+Behavior: Scroll-jump support
+
+🔹 COMMUNITY FORUM
+Feature Access & Behavior:
+
+View Forum: Signed-in users → Can browse posts
+
+Post Topic / Reply: Verified humans only → Anti-bot verified tools
+
+Upvote / Vote on Fixes: Verified users → Crowdsourced feature ranking
+
+Profile Picture + Bio: Upload picture + 25-char description → Shows on posts
+
+🔹 DEV FILE STRUCTURE (Supabase)
+Type → Folder → Example Files
+
+Translations → /translations/ → KJV.txt, ESV.txt, YLT.txt, etc.
+
+Labels → /labels/AMP/ → 00001_00001-00500.json, or ALL.json
+
+References → /references/ → cf1.txt, cf2.txt, prophecy-file.txt
+
+Strongs → /strongs/ → strongsVerses.txt, strongsIndex.json
+
+Metadata → /metadata/ → dates-normal.txt, dates-chronological.txt, context_groups.json
+
+Final Note:
+This document outlines the fully implemented blueprint of Anointed.io, integrating Supabase backend, modular columns, prophecy mapping, Strong’s concordance, user accounts, full interactivity, and customization systems.
+
+----enhanced understanding of these changes below----
+
+🌟 Comprehensive Blueprint for Anointed.io Bible Website
+This document covers:
+
+Current strengths you want to preserve.
+
+New features and enhancements to implement clearly.
+
+Specific files and their exact usage.
+
+Clear rules and explicit instructions for developers.
+
+🚩 1. Existing Website Strengths
+Speed & Responsiveness
+
+Fast lazy loading, smooth virtual scrolling.
+
+Instant responsiveness on user actions.
+
+Structured Column Layout
+
+Organized clearly: Index | Verse | Cross Refs.
+
+Sticky headers for continuous clarity.
+
+Never stack columns vertically on mobile.
+
+Customization & Themes
+
+Multiple themes: Dark, Sepia, Aurora, etc.
+
+Font size and layout easily adjustable.
+
+Data Interaction & Rich Content
+
+Easy toggles (translations, cross references, Strong’s).
+
+Rich cross-reference display.
+
+Deep original language (Strong's) integration.
+
+🚩 2. Explicit Data Files
+All these files must load smoothly from Supabase storage:
+
+Translations (12 total):
+
+KJV.txt, NKJV.txt, ESV.txt, NIV.txt, NLT.txt, AMP.txt, CSB.txt, BSB.txt, NASB.txt, YLT.txt, WEB.txt, NRSV.txt
+
+Label JSON:
+
+KJV_Labels.json, NKJV_Labels.json, etc.
+
+Strong’s Concordance:
+
+strongsVerses.txt, strongsIndex.txt
+
+Prophecy Data:
+
+prophecy-file.txt
+
+Cross References:
+
+cf1.txt, cf2.txt
+
+Date Files:
+
+dates-normal.txt, dates-chronological.txt
+
+Context Mapping:
+
+context_groups.json
+
+🚩 3. New Features & Enhancements (Detailed)
+🔹 Translation Enhancements
+Instantly load 12 translations.
+
+Multi-translation view: Users select multiple translations, adding new verse columns (no extra index columns).
+
+🔹 Cross References Overhaul
+Two cross-reference sets (cf1.txt, cf2.txt), toggled by a button.
+
+Show full verse text dynamically matched to selected translation.
+
+Formatting:
+
+# for consecutive verses
+
+$ for separate verses
+
+🔹 Prophecy Section (3-Column System)
+Columns: Predictions | Fulfillments | Verifications.
+
+Populate dynamically based on prophecy-file.txt.
+
+Clear "Summary" titles for grouping verses.
+
+Maccabean references: text only (no links).
+
+🔹 Strong’s Interactive Expansion
+Double-click verse: Expands verse prominently, blurs background.
+
+Displays horizontally scrollable original Hebrew/Greek word cells beneath.
+
+Clicking original word opens global search results from strongsIndex.txt.
+
+🔹 Highlighting System
+Select text, tap once to highlight.
+
+Adaptive colors—mapped for good contrast across themes (dark, light, sepia).
+
+🔹 Personal User Notes Column
+First column before Index, editable per verse.
+
+Only available for logged-in users.
+
+🔹 Layout Control (Lock / Unlock)
+Unlocked: Drag/drop rearrange columns, resize uniformly, delete columns.
+
+Locked: Prevent accidental changes (doesn't reset user's arrangement).
+
+🔹 Reset Button
+Restores default: Index | Verse | Cross Refs.
+
+Never deletes notes or highlights.
+
+🔹 Random Verse Search
+% in search bar returns random verse.
+
+Placeholder clearly: "search random w/ '%'"
+
+🔹 Contextual Boundaries Toggle
+Clearly outlined borders toggle around verse groups (defined by context_groups.json).
+
+🔹 Header & Footer Refinements
+Integrate back/forward buttons & hamburger menu into top header.
+
+Footer placeholder links: FAQ | Sign-Up | Login | Forum | Email | Donate.
+
+🔹 Launch Pair Window (Synchronized Windows)
+Opens additional synchronized window.
+
+Scrolling sync between windows.
+
+Ideal for large screens/desktop.
+
+🚩 4. Personalized Profiles (Logged-in Users)
+🔹 Sign-up / Login System
+Collect: Email, Name, Password.
+
+Email verification required.
+
+Identity verification for forum voting.
+
+🔹 Automatic Saving & Loading
+User's custom layout & last-read position remembered.
+
+Highlights & notes auto-saved, restored upon login.
+
+Mobile defaults simplified but remembers notes.
+
+🔹 Personalized Intro Banner
+Custom greeting upon login:
+
+"God bless your quiet time today! Thank you God for filling [Name] with wisdom & revelation."
+
+🚩 5. Community Forum
+Logged-in members only.
+
+Post topics, replies, errors, suggestions.
+
+Vote on ideas (verified accounts only).
+
+Profile: picture upload, short bio (25 chars).
+
+🚩 6. Explicit User Experience Rules
+Mobile (Vertical):
+
+Columns never stack; horizontal scroll only.
+
+Desktop:
+
+Columns side-by-side, independently scrollable.
+
+Column headers constantly sync width with columns.
+
+Animations always smooth and non-disruptive.
+
+All interactions clearly animated (verse expansion, toggles).
+
+🚩 7. Critical Layout & Design Rules
+Perfectly matched header-column alignment.
+
+Smooth transition between themes & highlight color maps.
+
+No deletion of notes/highlights without explicit action.
+
+Data always loaded dynamically—fast and seamless.
+
+🚩 8. Technical Implementation Checklist
+Feature	Implementation Status
+Multi-translations	✅ Explicitly detailed
+Cross references toggle	✅ Explicitly detailed
+Prophecy section	✅ Explicitly detailed
+Strong’s concordance	✅ Explicitly detailed
+Highlights system	✅ Explicitly detailed
+User notes	✅ Explicitly detailed
+Lock/Unlock layout	✅ Explicitly detailed
+Reset button	✅ Explicitly detailed
+Random verse search	✅ Explicitly detailed
+Context toggle	✅ Explicitly detailed
+Header/Footer updates	✅ Explicitly detailed
+Launch pair window	✅ Explicitly detailed
+Personalized profiles	✅ Explicitly detailed
+Community forum	✅ Explicitly detailed
+
+🚩 9. Master File Reference (Recap)
+Bible translations:
+KJV.txt, NKJV.txt, ESV.txt, NIV.txt, NLT.txt, AMP.txt, CSB.txt, BSB.txt, NASB.txt, YLT.txt, WEB.txt, NRSV.txt
+
+Label JSON:
+KJV_Labels.json, etc.
+
+Strong’s Concordance:
+strongsVerses.txt, strongsIndex.txt
+
+Prophecy:
+prophecy-file.txt
+
+Cross References:
+cf1.txt, cf2.txt
+
+Date Files:
+dates-normal.txt, dates-chronological.txt
+
+Contextual Mapping:
+context_groups.json
+
+🚩 10. Security & Verification
+Standard email/password system.
+
+Identity checks for forum participation.
+
+🚩 11. Final Note
+No assumptions outside of these explicit instructions.
+Follow this blueprint meticulously to ensure accuracy, alignment, and a flawless user experience aligned perfectly with your vision.
