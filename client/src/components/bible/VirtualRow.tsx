@@ -207,8 +207,19 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   const renderSlot = (column: any) => {
     const { slot, config, widthRem } = column;
 
-    // ⬇️ add this line to freeze execution and inspect config values
-    debugger;
+    // 🔍 Targeted logging to catch split() error
+    if (!config) {
+      console.error('🚨 renderSlot: config is undefined!', { slot, column });
+      return null;
+    }
+    if (!config.type) {
+      console.error('🚨 renderSlot: config.type is undefined!', { slot, config });
+      return null;
+    }
+    if (typeof config.type !== 'string') {
+      console.error('🚨 renderSlot: config.type is not a string!', { slot, config, typeOf: typeof config.type });
+      return null;
+    }
 
     const isMain = config.translationCode === main;
 
