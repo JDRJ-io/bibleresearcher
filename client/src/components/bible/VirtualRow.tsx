@@ -354,7 +354,10 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                       >
                         <button
                           className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
-                          onClick={() => onVerseClick?.(ref)}
+                          onClick={() => {
+                            console.log('🔗 Cross-reference clicked:', ref, 'onVerseClick:', !!onVerseClick);
+                            onVerseClick?.(ref);
+                          }}
                         >
                           {ref}
                         </button>

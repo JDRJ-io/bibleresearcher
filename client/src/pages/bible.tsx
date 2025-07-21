@@ -78,13 +78,18 @@ export default function BiblePage() {
   const bibleStore = useBibleStore();
   const { showCrossRefs, toggleCrossRefs, loadCrossRefsData } = bibleStore;
 
-  // Auto-load cross-references when the page initializes (since showCrossRefs is default true)
+  // Load cross-references for visible verses when cross-refs are enabled
   useEffect(() => {
-    if (showCrossRefs) {
-      console.log('🚀 Auto-loading cross-references on startup...');
-      loadCrossRefsData();
+    if (showCrossRefs && verses.length > 0) {
+      // Get verse IDs for current visible range (smaller window to conserve memory)
+      const startIndex = Math.max(0, centerVerseIndex - 25);
+      const endIndex = Math.min(verses.length - 1, centerVerseIndex + 25);
+      const visibleVerseIds = verses.slice(startIndex, endIndex).map(v => v.reference);
+      
+      console.log(`🚀 Loading cross-references for ${visibleVerseIds.length} visible verses around index ${centerVerseIndex}`);
+      loadCrossRefsData(visibleVerseIds);
     }
-  }, [showCrossRefs, loadCrossRefsData]);
+  }, [showCrossRefs, centerVerseIndex, verses.length]);
 
   // MOBILE PORTRAIT DEFAULT: Reset to exactly two data columns on first load
   useEffect(() => {
