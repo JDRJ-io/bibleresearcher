@@ -2,14 +2,11 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Removed dev-mode fetch guard - may be causing interference with error boundaries
-
-// Service Worker registration will be handled by vite-plugin-pwa
-// The plugin auto-adds this code to main.tsx at build time
-
-// Dev guard: SW disabled in dev - enable by setting VITE_PWA_DEV=true
-if (import.meta.env.DEV && !import.meta.env.VITE_PWA_DEV && 'serviceWorker' in navigator) {
-  console.log('SW disabled in dev - enable by setting VITE_PWA_DEV=true');
+// Clean initialization without dev-mode interference
+const container = document.getElementById("root");
+if (!container) {
+  throw new Error("Root container not found");
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+const root = createRoot(container);
+root.render(<App />);
