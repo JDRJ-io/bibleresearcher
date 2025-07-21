@@ -111,7 +111,7 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
     if (verse?.text?.[translationCode]) {
       return verse.text[translationCode];
     }
-    
+
     // Return placeholder text to show columns are working
     return `Loading ${translationCode}...`;
   }, [verses]);
