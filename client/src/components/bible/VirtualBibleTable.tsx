@@ -62,7 +62,7 @@ const VirtualBibleTable = ({
   const queryClient = useQueryClient();
 
   // Integrate translation maps system for verse text loading
-  const { main, alternates } = useTranslationMaps();
+  const { main, alternates, getVerseText } = useTranslationMaps();
   const activeTranslations = [main, ...alternates];
   const translationMainTranslation = main;
 
@@ -500,7 +500,7 @@ const VirtualBibleTable = ({
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
                     getVerseText={getVerseTextForRow}
-                    getMainVerseText={getVerseText}  
+                    getMainVerseText={(verseID: string) => getVerseText(verseID, translationMainTranslation)}  
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
                     onVerseClick={columnData.onVerseClick}
