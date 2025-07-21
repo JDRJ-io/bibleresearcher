@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { signInWithMagicLink } from '@/lib/supabaseClient'
+import { sendMagicLink } from '@/lib/auth'
 import { Loader2, Mail, Sparkles } from 'lucide-react'
 
 interface AuthModalsProps {
@@ -33,12 +33,12 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
     setIsLoading(true)
     try {
-      const { error } = await signInWithMagicLink(signUpData.email, signUpData.displayName)
+      const result = await sendMagicLink(signUpData.email)
       
-      if (error) {
+      if (!result.success) {
         toast({
           title: "Sign Up Failed",
-          description: error.message,
+          description: result.message,
           variant: "destructive"
         })
       } else {
@@ -73,12 +73,12 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
     setIsLoading(true)
     try {
-      const { error } = await signInWithMagicLink(signInEmail)
+      const result = await sendMagicLink(signInEmail)
       
-      if (error) {
+      if (!result.success) {
         toast({
           title: "Sign In Failed",
-          description: error.message,
+          description: result.message,
           variant: "destructive"
         })
       } else {

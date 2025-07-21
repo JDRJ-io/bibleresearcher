@@ -19,6 +19,8 @@ import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
 import SearchModal from "@/components/bible/SearchModal";
 import { ProphecyDetailDrawer } from "@/components/bible/ProphecyDetailDrawer";
+import { StrongsDetailDrawer } from "@/components/bible/StrongsDetailDrawer";
+import { useStrongsWorker } from "@/hooks/useStrongsWorker";
 import { Button } from "@/components/ui/button";
 import type { AppPreferences, Translation } from "@/types/bible";
 
@@ -160,6 +162,29 @@ export default function BiblePage() {
     type: 'P' | 'F' | 'V';
     verseReference: string;
   }>({ isOpen: false, prophecyIds: [], type: 'P', verseReference: '' });
+
+  const [strongsDrawer, setStrongsDrawer] = useState({
+    isOpen: false,
+    selectedWord: null as any,
+    relatedVerses: [] as string[]
+  });
+
+  const strongsWorker = useStrongsWorker();
+
+  // Strong's word click handler
+  const handleStrongsClick = async (word: any) => {
+    console.log('🔤 Strong\'s word clicked:', word);
+    try {
+      const relatedVerses = await strongsWorker.getLemmaVerses(word.strongs);
+      setStrongsDrawer({
+        isOpen: true,
+        selectedWord: word,
+        relatedVerses
+      });
+    } catch (error) {
+      console.error('Error loading Strong\'s data:', error);
+    }
+  };
 
   const localExpandVerse = (verse: any) => setLocalExpandedVerse(verse);
   const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
@@ -359,13 +384,7 @@ export default function BiblePage() {
     }
   };
 
-  const handleStrongsClick = (word: any) => {
-    // Open Strong's definition modal or navigate to Strong's search
-    toast({
-      title: "Strong's Definition",
-      description: `${word.strongs}: ${word.definition}`,
-    });
-  };
+
 
   const handleProphecyClick = (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => {
     console.log(`🔮 Opening prophecy drawer for ${type} - ${verseRef}:`, prophecyIds);
@@ -867,6 +886,14 @@ export default function BiblePage() {
         prophecyIds={prophecyDrawer.prophecyIds}
         type={prophecyDrawer.type}
         verseReference={prophecyDrawer.verseReference}
+        onNavigateToVerse={navigateToVerse}
+      />
+
+      <StrongsDetailDrawer
+        isOpen={strongsDrawer.isOpen}
+        onClose={() => setStrongsDrawer(prev => ({ ...prev, isOpen: false }))}
+        selectedWord={strongsDrawer.selectedWord}
+        relatedVerses={strongsDrawer.relatedVerses}
         onNavigateToVerse={navigateToVerse}
       />
       

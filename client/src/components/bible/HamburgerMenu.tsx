@@ -14,7 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { useBibleStore } from "@/App";
-import { useTheme } from "./ThemeProvider";
+import { useTheme } from "@/contexts/ThemeContext";
 import { SizeSelector } from "@/components/ui/SizeSelector";
 
 interface HorizontalMenuProps {
