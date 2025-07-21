@@ -1,7 +1,8 @@
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
-import { useTranslationMaps } from '@/store/translationSlice';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { CrossReferencesCell } from './CrossReferencesCell';
 import { ProphecyCell } from './ProphecyColumns';
 

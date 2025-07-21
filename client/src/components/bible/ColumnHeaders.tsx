@@ -1,6 +1,7 @@
+
 import { useMemo } from 'react';
 import type { Translation } from '@/types/bible';
-import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useBibleStore } from '@/App';
 import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
 
