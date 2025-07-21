@@ -173,7 +173,7 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
     if (allEntries.length > 0) {
       const randomEntry = allEntries[Math.floor(Math.random() * allEntries.length)];
       const verseKeys = await loadVerseKeys();
-      const index = verseKeys.findIndex(key => key === randomEntry[0]);
+      const index = verseKeys.findIndex((key: string) => key === randomEntry[0]);
       return [{
         reference: randomEntry[0],
         text: randomEntry[1],
@@ -187,9 +187,9 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
   const searchLower = query.toLowerCase();
   const verseKeys = await loadVerseKeys();
   
-  for (const [reference, text] of translationMap.entries()) {
+  for (const [reference, text] of Array.from(translationMap.entries())) {
     if (text.toLowerCase().includes(searchLower)) {
-      const index = verseKeys.findIndex(key => key === reference);
+      const index = verseKeys.findIndex((key: string) => key === reference);
       results.push({
         reference,
         text,
