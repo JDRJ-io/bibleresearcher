@@ -18,6 +18,7 @@ import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
 import SearchModal from "@/components/bible/SearchModal";
+import { ProphecyDetailDrawer } from "@/components/bible/ProphecyDetailDrawer";
 import { Button } from "@/components/ui/button";
 import type { AppPreferences, Translation } from "@/types/bible";
 
@@ -153,6 +154,12 @@ export default function BiblePage() {
   const [localExpandedVerse, setLocalExpandedVerse] = useState<any>(null);
   const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
   const [lastLoadedCenter, setLastLoadedCenter] = useState<number>(-1);
+  const [prophecyDrawer, setProphecyDrawer] = useState<{
+    isOpen: boolean;
+    prophecyIds: string[];
+    type: 'P' | 'F' | 'V';
+    verseReference: string;
+  }>({ isOpen: false, prophecyIds: [], type: 'P', verseReference: '' });
 
   const localExpandVerse = (verse: any) => setLocalExpandedVerse(verse);
   const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
@@ -358,7 +365,17 @@ export default function BiblePage() {
       title: "Strong's Definition",
       description: `${word.strongs}: ${word.definition}`,
     });
-  }
+  };
+
+  const handleProphecyClick = (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => {
+    console.log(`🔮 Opening prophecy drawer for ${type} - ${verseRef}:`, prophecyIds);
+    setProphecyDrawer({
+      isOpen: true,
+      prophecyIds,
+      type,
+      verseReference: verseRef,
+    });
+  };
 
   // Enhanced global search function that handles multiple translations and % random
   const handleGlobalSearch = async (query: string) => {
@@ -800,6 +817,7 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
+        onProphecyClick={handleProphecyClick}
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
         totalRows={verses.length}
@@ -841,6 +859,15 @@ export default function BiblePage() {
             navigateToVerse(allVerses[index].reference);
           }
         }}
+      />
+
+      <ProphecyDetailDrawer
+        isOpen={prophecyDrawer.isOpen}
+        onClose={() => setProphecyDrawer(prev => ({ ...prev, isOpen: false }))}
+        prophecyIds={prophecyDrawer.prophecyIds}
+        type={prophecyDrawer.type}
+        verseReference={prophecyDrawer.verseReference}
+        onNavigateToVerse={navigateToVerse}
       />
       
       {/* Connectivity Status */}

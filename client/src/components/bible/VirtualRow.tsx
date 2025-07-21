@@ -16,6 +16,7 @@ interface VirtualRowProps {
   mainTranslation: string;
   onVerseClick?: (verseRef: string) => void;
   onExpandVerse?: (verse: BibleVerse) => void;
+  onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }
 
 // Cell Components
@@ -71,7 +72,10 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   );
 }
 
-function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick }: CellProps & { type: 'P' | 'F' | 'V' }) {
+function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick }: CellProps & { 
+  type: 'P' | 'F' | 'V';
+  onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
+}) {
   const { prophecyData } = useBibleStore();
   
   // Get prophecy data from store (loaded from Supabase)  
@@ -87,9 +91,12 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
       className="w-full h-full flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
       onClick={(e) => {
         e.stopPropagation();
-        // TODO: Open prophecy detail drawer
-        console.log(`📖 Opening prophecy ${type} details for ${verse.reference}:`, verseData[type]);
-        onVerseClick?.(verse.reference);
+        const onProphecyClick = (e.currentTarget as any).onProphecyClick;
+        if (onProphecyClick) {
+          onProphecyClick(verseData[type], type, verse.reference);
+        } else {
+          console.log(`📖 Opening prophecy ${type} details for ${verse.reference}:`, verseData[type]);
+        }
       }}
       title={`${count} ${type === 'P' ? 'Predictions' : type === 'F' ? 'Fulfillments' : 'Verifications'}`}
     >
@@ -102,7 +109,7 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellP
   const { datesData } = useBibleStore();
   
   // Get date for this verse index from loaded dates data
-  const dateText = datesData?.[verse.index] || "";
+  const dateText = datesData?.[verse.index ?? 0] || "";
   
   if (!dateText || dateText.trim() === "") {
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;

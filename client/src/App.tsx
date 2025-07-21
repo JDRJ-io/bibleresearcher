@@ -54,8 +54,6 @@ export const useBibleStore = create<{
   setDatesData: (dates: string[]) => void;
   labelsData: Record<string, any>;
   setLabelsData: (labels: Record<string, any>) => void;
-  isSearchOpen: boolean;
-  setSearchOpen: (open: boolean) => void;
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
@@ -69,6 +67,8 @@ export const useBibleStore = create<{
   toggleNotes: () => void;
   toggleDates: () => void;
   toggleLabel: (labelId: string) => void;
+  toggleContext: () => void;
+  showContext: boolean;
   columnState: ColumnState;
   sizeState: SizeState;
   isInitialized: boolean;
@@ -91,6 +91,7 @@ export const useBibleStore = create<{
   showProphecies: false, // Default OFF for free users (cleaner mobile)
   showNotes: false,     // Notes column toggle
   showDates: false,     // Dates column toggle
+  showContext: false,   // Context boundaries toggle
   showLabels: {},           // Labels state object for semantic highlighting  
   isSearchOpen: false,      // Search modal state
 
@@ -230,6 +231,26 @@ export const useBibleStore = create<{
         [labelId]: newValue
       }
     };
+  }),
+
+  toggleContext: () => set(state => {
+    console.log('🔄 TOGGLE CONTEXT - Current:', state.showContext, '→ New:', !state.showContext);
+    const newValue = !state.showContext;
+    
+    // Load context groups data when toggling on
+    if (newValue) {
+      console.log('🌐 Loading context groups data from Supabase...');
+      import('@/data/BibleDataAPI').then(async ({ getContextGroups }) => {
+        try {
+          const contextData = await getContextGroups();
+          console.log('✅ Context groups data loaded:', contextData.length, 'groups');
+        } catch (error) {
+          console.error('❌ Failed to load context groups:', error);
+        }
+      });
+    }
+    
+    return { showContext: newValue };
   }),
 
   setActives: (ids: string[]) => set({ actives: ids }),
