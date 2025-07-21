@@ -53,9 +53,17 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
     return () => el.removeEventListener("scroll", onScroll);
   }, [containerRef]);
 
+  // Enhanced setAnchorIndex with navigation debugging
+  const enhancedSetAnchorIndex = (newIndex: number, reason?: string) => {
+    console.log(`🎯 setAnchorIndex called: ${anchorIndex} → ${newIndex} (${reason || 'no reason given'})`);
+    anchorIndexRef.current = newIndex;
+    setAnchorIndex(newIndex);
+    setSlice(loadChunk(newIndex));
+  };
+
   return {
     anchorIndex,
-    setAnchorIndex, // Export setAnchorIndex for external navigation
+    setAnchorIndex: enhancedSetAnchorIndex,
     slice: {
       start: slice.start,
       end: slice.end,
