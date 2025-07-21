@@ -93,10 +93,15 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
   }
 
   const handleRefClick = (ref: string) => {
+    console.log(`🎯 handleRefClick called with: "${ref}"`);
+    console.log(`🎯 onNavigateToVerse function exists:`, !!onNavigateToVerse);
     if (onNavigateToVerse) {
       // Convert back to space format for navigation (Gen.1:1 -> Gen 1:1)
       const spaceFormat = ref.replace(/\./g, ' ');
+      console.log(`🎯 Calling onNavigateToVerse with: "${spaceFormat}"`);
       onNavigateToVerse(spaceFormat);
+    } else {
+      console.error(`❌ No onNavigateToVerse function provided!`);
     }
   };
 
