@@ -40,22 +40,33 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Store state
+  // Store state with proper fallbacks
   const store = useBibleStore();
-  const { main, alternates } = useTranslationMaps();
+  const translationMaps = useTranslationMaps();
+  
+  // Ensure we have valid translation data
+  const main = translationMaps?.main || 'KJV';
+  const alternates = translationMaps?.alternates || [];
+  
+  // Return early if store isn't ready
+  if (!store || !translationMaps) {
+    return <StoreNotReady />;
+  }
 
   // Bible data using new BibleDataAPI architecture
   const { verses, isLoading, error } = useBibleData();
 
-  // Virtualization state
-  const [containerHeight, setContainerHeight] = useState(600);
+  // Virtualization state with proper defaults
+  const [containerHeight, setContainerHeight] = useState(800);
   const [scrollTop, setScrollTop] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Calculate viewport
-  const startIndex = Math.floor(scrollTop / ROW_HEIGHT);
-  const endIndex = Math.min(startIndex + Math.ceil(containerHeight / ROW_HEIGHT) + 1, verses.length);
+  // Calculate viewport - ensure we show enough verses
+  const startIndex = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT));
+  const viewportRows = Math.ceil(containerHeight / ROW_HEIGHT);
+  const bufferRows = 10; // Add buffer for smooth scrolling
+  const endIndex = Math.min(startIndex + viewportRows + bufferRows, verses.length);
   const visibleVerses = verses.slice(startIndex, endIndex);
 
   // Handle scroll
@@ -171,54 +182,10 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
     );
   }
 
-  // 🚨 COMPREHENSIVE DEBUG TRACE - Check for undefined values that might cause .split() errors
-  console.log('🎯 VirtualBibleTable RENDER DEBUG:', {
-    verses: {
-      total: verses.length,
-      first5: verses.slice(0, 5).map(v => ({ 
-        id: v.id, 
-        idType: typeof v.id,
-        reference: v.reference, 
-        referenceType: typeof v.reference,
-        hasUndefinedId: v.id === undefined,
-        hasUndefinedRef: v.reference === undefined
-      }))
-    },
-    viewport: {
-      containerHeight,
-      scrollTop,
-      startIndex,
-      endIndex,
-      visibleVersesCount: visibleVerses.length
-    },
-    translations: {
-      main: main,
-      mainType: typeof main,
-      alternates: alternates,
-      alternatesType: typeof alternates,
-      storeState: store ? 'LOADED' : 'NULL'
-    },
-    firstVisibleVerse: visibleVerses[0] ? {
-      id: visibleVerses[0].id,
-      idType: typeof visibleVerses[0].id,
-      reference: visibleVerses[0].reference,
-      referenceType: typeof visibleVerses[0].reference,
-      hasText: !!visibleVerses[0].text,
-      textKeys: visibleVerses[0].text ? Object.keys(visibleVerses[0].text) : 'NO_TEXT'
-    } : 'NO_VISIBLE_VERSES'
-  });
-
-  // 🚨 CRITICAL: Check for undefined values that could cause .split() to fail
-  visibleVerses.forEach((verse, index) => {
-    if (verse.id === undefined || verse.reference === undefined || main === undefined) {
-      console.error(`🚨 FOUND UNDEFINED VALUES at index ${index}:`, {
-        verseId: verse.id,
-        verseReference: verse.reference,
-        mainTranslation: main,
-        fullVerse: verse
-      });
-    }
-  });
+  // Simple validation for debugging
+  if (verses.length === 0) {
+    console.log('VirtualBibleTable: No verses loaded yet');
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -244,67 +211,32 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
               right: 0,
             }}
           >
-            {visibleVerses.length === 0 ? (
-              <div className="p-4 text-center text-red-600">
-                🚨 DEBUG: No visible verses to render! startIndex: {startIndex}, endIndex: {endIndex}, verses.length: {verses.length}
-              </div>
-            ) : (
-              visibleVerses.map((verse, index) => {
-                console.log(`🔧 Rendering VirtualRow ${index}:`, {
-                  verseID: verse.id,
-                  verseIDType: typeof verse.id,
-                  reference: verse.reference,
-                  referenceType: typeof verse.reference,
-                  mainTranslation: main,
-                  mainTranslationType: typeof main
-                });
-                
-                // 🚨 CRITICAL: Prevent rendering if key data is undefined
-                if (!verse.id || !verse.reference || !main) {
-                  console.error(`🚨 SKIPPING ROW ${index} - Missing required data:`, {
-                    hasId: !!verse.id,
-                    hasReference: !!verse.reference,
-                    hasMain: !!main,
-                    verse
-                  });
-                  return (
-                    <div key={`error-${index}`} className="p-2 bg-red-100 text-red-600 text-xs">
-                      ERROR: Missing data - id:{!!verse.id}, ref:{!!verse.reference}, main:{!!main}
-                    </div>
-                  );
-                }
-                
-                try {
-                  return (
-                    <VirtualRow
-                      key={verse.id}
-                      verseID={verse.id}
-                      rowHeight={ROW_HEIGHT}
-                      verse={verse}
-                      columnData={{}}
-                      getVerseText={getVerseTextSync}
-                      getMainVerseText={getMainVerseText}
-                      activeTranslations={[main, ...alternates]}
-                      mainTranslation={main}
-                      onVerseClick={onVerseClick}
-                      onExpandVerse={onExpandVerse}
-                    />
-                  );
-                } catch (error) {
-                  console.error(`🚨 VirtualRow RENDER ERROR at index ${index}:`, {
-                    error: error.message,
-                    stack: error.stack,
-                    verse,
-                    main
-                  });
-                  return (
-                    <div key={`crash-${index}`} className="p-2 bg-red-200 text-red-800 text-xs">
-                      RENDER ERROR: {error.message}
-                    </div>
-                  );
-                }
-              })
-            )}
+            {visibleVerses.map((verse, index) => {
+              // Ensure verse has valid data
+              if (!verse?.id || !verse?.reference) {
+                return (
+                  <div key={`error-${startIndex + index}`} className="h-12 p-2 bg-yellow-100 text-yellow-800 text-xs">
+                    Loading verse...
+                  </div>
+                );
+              }
+              
+              return (
+                <VirtualRow
+                  key={verse.id}
+                  verseID={verse.id}
+                  rowHeight={ROW_HEIGHT}
+                  verse={verse}
+                  columnData={{}}
+                  getVerseText={getVerseTextSync}
+                  getMainVerseText={getMainVerseText}
+                  activeTranslations={[main, ...alternates]}
+                  mainTranslation={main}
+                  onVerseClick={onVerseClick}
+                  onExpandVerse={onExpandVerse}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
