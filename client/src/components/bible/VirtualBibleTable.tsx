@@ -1,7 +1,3 @@
-The code is modified to correctly implement verse navigation on cross-reference clicks by updating the anchor index and scrolling to the target verse.
-```
-
-```replit_final_file
 import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import { ROW_HEIGHT } from '@/constants/layout';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -502,11 +498,11 @@ const VirtualBibleTable = ({
                     verse={bibleVerse}
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
-                    getVerseText={getVerseTextForRow}
+                    getVerseText={(verseID: string) => getVerseTextForRow(verseID, mainTranslation)}
                     getMainVerseText={getVerseText}  
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
-                    onVerseClick={onNavigateToVerse}
+                    onVerseClick={columnData.onVerseClick}
                     onExpandVerse={onExpandVerse}
                   />
                 );
