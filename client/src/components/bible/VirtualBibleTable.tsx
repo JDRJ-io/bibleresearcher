@@ -498,7 +498,7 @@ const VirtualBibleTable = ({
                     verse={bibleVerse}
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
-                    getVerseText={(verseID: string) => getVerseTextForRow(verseID, mainTranslation)}
+                    getVerseText={getVerseTextForRow}
                     getMainVerseText={getVerseText}  
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
