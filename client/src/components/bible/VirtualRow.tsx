@@ -127,14 +127,14 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   function getDefaultWidth(slot: number): number {
     switch (slot) {
       case 0: return 5;   // Reference
-      case 1: return 8;   // Notes
-      case 2: return 20;  // Main translation
-      case 3: return 15;  // Cross References
-      case 4: return 6;   // Dates
-      case 5: case 6: case 7: case 8: case 9: case 10:
-      case 11: case 12: case 13: case 14: case 15: case 16:
+      case 1: return 20;  // Main translation (center position)
+      case 2: return 15;  // Cross References
+      case 3: case 4: case 5: case 6: case 7: case 8:
+      case 9: case 10: case 11: case 12: case 13: case 14:
         return 18; // Alt translations
-      case 17: case 18: case 19: return 5; // Prophecy P/F/V
+      case 15: case 16: case 17: return 5; // Prophecy P/F/V
+      case 18: return 16; // Notes
+      case 19: return 8;  // Dates
       default: return 10;
     }
   }
@@ -151,10 +151,10 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on updated slot assignments
+    // Calculate width based on slot system matching ColumnHeaders
     const width = isMobile ? 
       (slot === 0 ? "w-14" :        // Reference (slot 0)
-       slot === 1 ? "flex-1" :      // Main translation (slot 1)
+       slot === 1 ? "flex-1" :      // Main translation (slot 1) - takes remaining space
        slot === 2 ? "w-12" :        // Cross References (slot 2)
        slot >= 3 && slot <= 14 ? "w-20" : // Alt translations (slots 3-14)
        slot >= 15 && slot <= 17 ? "w-8" : // Prophecy P/F/V (slots 15-17)
