@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useBibleStore } from '@/App';
-import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
+import { createSlotConfig, getVisibleColumns } from '@/constants/slotConfig';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -98,42 +98,15 @@ export function ColumnHeaders({
   const mainTranslation = main || 'KJV';
   const alternateTranslations = alternates || [];
 
-  // Use store's columnState as the authoritative source, enhanced with translation data
-  // PROPER SLOT ARCHITECTURE matching VirtualRow exactly
-  const slotConfig: Record<number, any> = {};
-
-  // Slot 0: Reference (always visible)
-  slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
-
-  // Slot 1: Main translation (always visible) - center loading position
-  slotConfig[1] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
-
-  // Slot 2: Cross References (center column when enabled)
-  slotConfig[2] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
-
-  // Slots 3-14: Alternate translations (load to the right first, then left)
-  alternateTranslations.forEach((translationCode, index) => {
-    const slot = 3 + index; // Alternates start at slot 3
-    if (slot <= 14) { // Max 12 alternate translations (slots 3-14)
-      slotConfig[slot] = { 
-        type: 'alt-translation', 
-        header: translationCode, 
-        translationCode, 
-        visible: true 
-      };
-    }
-  });
-
-  // Slots 15-17: Prophecy P/F/V (rightmost columns)
-  slotConfig[15] = { type: 'prophecy-p', header: 'P', visible: showProphecies };
-  slotConfig[16] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
-  slotConfig[17] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
-
-  // Slot 18: Notes (rightmost)
-  slotConfig[18] = { type: 'notes', header: 'Notes', visible: showNotes };
-
-  // Slot 19: Context/Dates (rightmost)
-  slotConfig[19] = { type: 'context', header: 'Dates', visible: showDates };
+  // Use centralized slot configuration - single source of truth
+  const slotConfig = createSlotConfig(
+    mainTranslation,
+    alternateTranslations,
+    showCrossRefs,
+    showProphecies,
+    showNotes,
+    showDates
+  );
 
   // Debug logging
   console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
@@ -143,18 +116,15 @@ export function ColumnHeaders({
     visible: slotConfig[parseInt(slot)]?.visible 
   })));
 
-  // Get all visible columns sorted by slot position, matching VirtualRow exactly  
-  const visibleColumns = Object.entries(slotConfig)
-    .map(([slotStr, config]) => ({
-      slot: parseInt(slotStr),
-      config,
-      name: config?.header || '',
-      type: config?.type || '',
-      isMain: config?.type === 'main-translation',
-      visible: config?.visible !== false
-    }))
-    .filter(col => col.config && col.visible) // Only render valid, visible slots
-    .sort((a, b) => a.slot - b.slot);
+  // Use centralized visible columns helper - matching VirtualRow exactly
+  const visibleColumns = getVisibleColumns(slotConfig).map(({ slot, config }) => ({
+    slot,
+    config,
+    name: config?.header || '',
+    type: config?.type || '',
+    isMain: config?.type === 'main-translation',
+    visible: config?.visible !== false
+  }));
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
