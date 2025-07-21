@@ -4,7 +4,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBibleData } from "@/hooks/useBibleData";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
-import { useTranslationMaps as useTranslationSlice } from "@/store/translationSlice";
+import { useTranslationMaps as useTranslationStore } from "@/store/translationSlice";
 import { useBibleStore } from "@/App";
 import { useToast } from "@/hooks/use-toast";
 import { loadTranslation, getVerseText } from "@/lib/translationLoader";
@@ -55,9 +55,9 @@ export default function BiblePage() {
   // TRANSLATION MAP SYSTEM INTEGRATION
   const translationMaps = useTranslationMaps();
   const {
-    activeTranslations,
+    activeTranslations = [],
     mainTranslation,
-    alternates,
+    alternates = [],
     toggleTranslation,
     removeTranslation,
     getVerseText,
@@ -65,10 +65,10 @@ export default function BiblePage() {
     setMain,
     setAlternates,
     isLoading: translationsLoading
-  } = translationMaps;
+  } = translationMaps || {};
 
-  // Get translation slice store for mobile defaults
-  const { resetMobileDefaults } = useTranslationSlice();
+  // Get translation store for mobile defaults
+  const { resetMobileDefaults } = useTranslationStore();
   
   // Get Bible store for cross-references toggle
   const { showCrossRefs, toggleCrossRefs } = useBibleStore();
