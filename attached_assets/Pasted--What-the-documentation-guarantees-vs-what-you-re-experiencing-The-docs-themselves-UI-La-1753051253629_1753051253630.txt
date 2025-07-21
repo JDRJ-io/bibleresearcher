@@ -1,0 +1,45 @@
+### What the documentation guarantees vs. what you’re experiencing
+
+**The docs themselves** (UI Layout Spec, Behavior Contracts, and Data‑Storage Map) describe an architecture that should feel snappy:
+
+* Each translation file loads **once per session**, goes into an in‑memory map, and every subsequent verse lookup is an O(1) map read.
+* Cross‑reference and prophecy workers return only the list of verse keys; they never fetch text.
+* React virtual scrolling keeps ≤ 250 rows in the DOM at any time.
+
+If the live site still hesitates or stalls while scrolling, it means one (or more) of those guarantees isn’t being met in the actual code.
+
+---
+
+## Checklist to pinpoint the lag
+
+| Probe                                   | What you should see if the implementation matches the docs                         |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| **Network tab** while scrolling quickly | **Zero** new `translations/*.txt` requests after the first load of each file.      |
+| **Performance tab** – JS flame chart    | `CrossReferencesCell` and`VerseRow` render in < 3 ms each; no long blocking fetch. |
+| **Memory** – translation map size       | One Map per translation (≈ 4 MB) – not 31 k small Maps.                            |
+| **Workers**                             | CPU spikes only when a new slice enters view (< 30 ms); no continuous loops.       |
+
+If any of these fail (for example, you see 100+ network requests or many small Maps being created), you’ve got a code‑path that isn’t following the façade/caching rules—even though the docs say it should.
+
+---
+
+## Likely hot‑spots & quick fixes
+
+1. **Duplicate translation fetches**
+   *Symptom*: many identical `translations/XYZ.txt` requests.
+   *Fix*: add promise‑dedup logic in `BibleDataAPI.getTranslation()` so the second call awaits the ongoing fetch instead of starting a new one.
+
+2. **Worker posts before translation cache ready**
+   *Symptom*: Cross‑reference cell shows `(loading…)` for 200‑500 ms, then text.
+   *Fix*: In `useSliceDataLoader` await `ensureTranslationLoaded(mainId)` **before** posting slice to worker.
+
+3. **React re‑render storm**
+   *Symptom*: CPU flame shows many `VerseRow` re‑renders per scroll tick.
+   *Fix*: Use `React.memo` on `VerseRow` and ensure `rowRenderer` in `react‑window` passes `itemKey` to keep row identity stable.
+
+---
+
+## Action for the agent
+
+> *“Profile scrolling – there should be zero network calls after initial translations load; ensure promise‑dedup in BibleDataAPI, await translation load before cross‑ref worker posts, memoize VerseRow. Fix any path that violates these guarantees.”*
+

@@ -1,0 +1,75 @@
+### Likely cause of the slow‑down
+
+\* Bible text for each cross‑reference verse is being fetched **individually** instead of re‑using the translation map already cached in `BibleDataAPI`.
+That usually happens if the worker / slice loader:
+
+1. Posts back the list of verse keys **before** `ensureTranslationLoaded(mainId)` finishes, **or**
+2. Re‑requests the same translation inside `CrossReferencesCell` for every row.
+
+---
+
+## Verification checklist you can hand to the agent
+
+Ask the agent to run these four console probes—no code changes yet:
+
+| Probe                                                                                     | Expected                                                           |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `console.time('load'); await BibleDataAPI.getTranslation('KJV'); console.timeEnd('load')` | **≤ 150 ms** after first load, **≤ 5 ms** thereafter (from memory) |
+| Toggle Cross column, open DevTools → **Network** → filter `translations/`                 | Only **one** request per translation file the entire session       |
+| In **Console**, for any verse:<br>`getVerseText('John.3:16','KJV')`                       | Returns string instantly without triggering network                |
+| Scroll 100 rows quickly – watch **Performance** tab                                       | No repeated network fetches, JS time below 3 ms per row            |
+
+If any probe fails (especially multiple `translations/**/*.txt` hits), caching
+is being bypassed.
+
+---
+
+## Fix strategy (agent instructions)
+
+1. **Always call `ensureTranslationLoaded(mainId)` once per Bible page mount**
+   (in `useSliceDataLoader` or equivalent) **before** posting cross‑ref slices
+   to workers. This fills the master cache.
+
+2. Inside the worker that builds cross‑reference maps:
+   *Do not fetch* translation text; just return the list of refs.
+   Rendering components must pull verse text from `useTranslationMaps()`.
+
+3. `CrossReferencesCell` should call
+
+   ```ts
+   const txt = getVerseText(ref, mainId) ?? "(loading…)";
+   ```
+
+   and **never** access the network.
+
+4. Guard against redundant loads in `BibleDataAPI`:
+
+   ```ts
+   if(memoryCache.has(id)) return memoryCache.get(id);
+   if(pendingLoads[id]) return pendingLoads[id];   // Promise dedup
+   pendingLoads[id] = fetchTranslation(id).then(map=>{
+     memoryCache.set(id,map); delete pendingLoads[id]; return map;
+   });
+   return pendingLoads[id];
+   ```
+
+5. **Throttle worker messages** – batch refs per slice (e.g. 300 verses) so you
+   don’t post thousands of messages on rapid scroll.
+
+---
+
+## Note about the doc files
+
+Some of the markdown files you uploaded earlier have expired from the session,
+so I can’t re‑open them for exact line references.
+If the agent needs to cross‑check against those docs, please re‑upload
+`BibleDataAPI.ts`, `useCrossRefsLoader.ts`, and any worker script—you don’t
+have to share credentials, only the structure.
+
+---
+
+### One‑sentence directive you can copy‑paste to the agent
+
+> “Verify that each translation file is fetched exactly once per session and that `CrossReferencesCell` pulls verse text from the in‑memory translation map, not via new network requests. Follow the five‑step cache strategy above; no new network calls should occur while scrolling cross references.”
+
+Implementing that will eliminate the per‑verse latency spike.

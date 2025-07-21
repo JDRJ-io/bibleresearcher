@@ -48,6 +48,7 @@ export const useBibleStore = create<{
   getAllActive: () => string[];
   crossRefs: Record<string, string[]>;
   prophecies: Record<string, any>;
+  prophecyData: Record<string, { P: number[]; F: number[]; V: number[] }>;
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
@@ -59,6 +60,9 @@ export const useBibleStore = create<{
   toggleNotes: () => void;
   toggleDates: () => void;
   toggleLabel: (labelId: string) => void;
+  setCrossRefs: (verseRef: string, refs: string[]) => void;
+  setBulkCrossRefs: (data: Record<string, string[]>) => void;
+  setProphecyData: (data: Record<string, { P: number[]; F: number[]; V: number[] }>) => void;
   columnState: ColumnState;
   sizeState: SizeState;
   isInitialized: boolean;
@@ -68,11 +72,12 @@ export const useBibleStore = create<{
   actives: ["KJV"],
   crossRefs: {},
   prophecies: {},
+  prophecyData: {},
   store: { crossRefs: {}, prophecies: {} },
-  showCrossRefs: true,  // Default ON for free users (optimal mobile display)
-  showProphecies: false, // Default OFF for free users (cleaner mobile)
-  showNotes: false,     // Notes column toggle
-  showDates: false,     // Dates column toggle
+  showCrossRefs: true,  // GUEST MODE: Always ON for optimal mobile display
+  showProphecies: false, // GUEST MODE: Default OFF for cleaner mobile
+  showNotes: false,     // GUEST MODE: Default OFF
+  showDates: false,     // GUEST MODE: Default OFF
   showLabels: {},       // Labels state object for semantic highlighting
 
   toggleCrossRefs: () => set(state => {
@@ -83,7 +88,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 7 ? { ...col, visible: newValue } : col // Slot 7 = Cross References (moved from 6)
+          col.slot === 3 ? { ...col, visible: newValue } : col // Slot 3 = Cross References (per UI spec)
         )
       }
     };
@@ -99,7 +104,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          (col.slot >= 8 && col.slot <= 10) ? { ...col, visible: newValue } : col // Slots 8-10 = Prophecy P/F/V (moved from 7-9)
+          (col.slot >= 17 && col.slot <= 19) ? { ...col, visible: newValue } : col // Slots 17-19 = Prophecy P/F/V (per UI spec)
         )
       }
     };
@@ -115,7 +120,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 1 ? { ...col, visible: newValue } : col // Slot 1 = Notes (moved to between Ref and Main)
+          col.slot === 1 ? { ...col, visible: newValue } : col // Slot 1 = Notes (per UI spec)
         )
       }
     };
@@ -131,7 +136,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 11 ? { ...col, visible: newValue } : col // Slot 11 = Context/Dates (unchanged)
+          col.slot === 4 ? { ...col, visible: newValue } : col // Slot 4 = Dates (per UI spec)
         )
       }
     };
@@ -146,27 +151,56 @@ export const useBibleStore = create<{
     }
   })),
 
+  setCrossRefs: (verseRef: string, refs: string[]) => set(state => ({
+    crossRefs: {
+      ...state.crossRefs,
+      [verseRef]: refs
+    }
+  })),
+
+  setBulkCrossRefs: (data: Record<string, string[]>) => set(state => ({
+    crossRefs: {
+      ...state.crossRefs,
+      ...data
+    }
+  })),
+
+  setProphecyData: (data: Record<string, { P: number[]; F: number[]; V: number[] }>) => set(state => ({
+    prophecyData: {
+      ...state.prophecyData,
+      ...data
+    }
+  })),
+
   setActives: (ids: string[]) => set({ actives: ids }),
   setTranslations: (id: string, data: any) => set(state => ({
     translations: { ...state.translations, [id]: data }
   })),
   getAllActive: () => get().actives,
 
-  // UI Layout Spec Column State - Notes between Ref and Main Translation
+  // UI SPEC PROPER COLUMN STATE - following documented slot architecture
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 16 },   // Notes (between Ref and Main)
+      { slot: 1, visible: false, widthRem: 16 },   // Notes (slot 1 per spec)
       { slot: 2, visible: true, widthRem: 20 },    // Main translation (always visible)
-      { slot: 3, visible: false, widthRem: 18 },   // Alt translation 1
-      { slot: 4, visible: false, widthRem: 18 },   // Alt translation 2
-      { slot: 5, visible: false, widthRem: 18 },   // Alt translation 3
-      { slot: 6, visible: false, widthRem: 18 },   // Alt translation 4
-      { slot: 7, visible: true, widthRem: 15 },    // Cross References (default ON)
-      { slot: 8, visible: false, widthRem: 5 },    // Prophecy P (default OFF)
-      { slot: 9, visible: false, widthRem: 5 },    // Prophecy F (default OFF)
-      { slot: 10, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
-      { slot: 11, visible: false, widthRem: 8 },   // Context/Dates (default OFF)
+      { slot: 3, visible: true, widthRem: 15 },    // Cross References (slot 3 per spec, default ON)
+      { slot: 4, visible: false, widthRem: 8 },    // Dates (slot 4 per spec)
+      { slot: 5, visible: false, widthRem: 18 },   // Alt translation 1 (slots 5-16 per spec)
+      { slot: 6, visible: false, widthRem: 18 },   // Alt translation 2
+      { slot: 7, visible: false, widthRem: 18 },   // Alt translation 3
+      { slot: 8, visible: false, widthRem: 18 },   // Alt translation 4
+      { slot: 9, visible: false, widthRem: 18 },   // Alt translation 5
+      { slot: 10, visible: false, widthRem: 18 },  // Alt translation 6
+      { slot: 11, visible: false, widthRem: 18 },  // Alt translation 7
+      { slot: 12, visible: false, widthRem: 18 },  // Alt translation 8
+      { slot: 13, visible: false, widthRem: 18 },  // Alt translation 9
+      { slot: 14, visible: false, widthRem: 18 },  // Alt translation 10
+      { slot: 15, visible: false, widthRem: 18 },  // Alt translation 11
+      { slot: 16, visible: false, widthRem: 18 },  // Alt translation 12
+      { slot: 17, visible: false, widthRem: 5 },   // Prophecy P (slot 17 per spec)
+      { slot: 18, visible: false, widthRem: 5 },   // Prophecy F (slot 18 per spec)
+      { slot: 19, visible: false, widthRem: 5 },   // Prophecy V (slot 19 per spec)
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {

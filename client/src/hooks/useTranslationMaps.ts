@@ -28,7 +28,7 @@ export interface UseTranslationMapsReturn {
 // masterCache.get('translation-KJV') instanceof Map → true
 
 export function useTranslationMaps(): UseTranslationMapsReturn {
-  // activeTranslations array: index 0 = main translation, others are alternates
+  // GUEST MODE: Force default columns without persistence - only KJV for guests
   const [activeTranslations, setActiveTranslations] = useState<string[]>(['KJV']);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -139,12 +139,36 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   }, []);
 
   /**
-   * Get verse text from specific translation
-   * Direct map.get(verseID) lookup - no per-verse fetch
+   * Get verse text from specific translation - FIXED: Enhanced format matching
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
-    const translationMap = masterCache.get(`translation-${translationCode}`);
-    return translationMap?.get(verseID);
+    const cacheKey = `translation-${translationCode}`;
+    const translationMap = masterCache.get(cacheKey);
+    
+    if (translationMap instanceof Map) {
+      // Try multiple reference formats for compatibility
+      const formats = [
+        verseID,                                  // Exact as-is: "Gen 1:1"
+        verseID.replace(/\s+/g, '.'),            // Convert spaces to dots: "Gen.1:1" 
+        verseID.replace(/\./g, ' '),             // Convert dots to spaces: "Gen 1:1"
+        verseID.replace(/(\w+)\s(\d+):(\d+)/, '$1.$2:$3') // "Gen 1:1" -> "Gen.1:1"
+      ];
+      
+      for (const format of formats) {
+        const text = translationMap.get(format);
+        if (text) {
+          console.log(`✅ Found verse text: ${verseID} -> ${format} in ${translationCode}`);
+          return text;
+        }
+      }
+      
+      console.warn(`❌ Verse text not found: ${verseID} in ${translationCode} (map size: ${translationMap.size})`);
+      console.log(`🔍 First 5 keys in ${translationCode}:`, Array.from(translationMap.keys()).slice(0, 5));
+    } else {
+      console.warn(`❌ Translation ${translationCode} not loaded or not a Map:`, typeof translationMap);
+    }
+    
+    return undefined;
   }, []);
 
   /**

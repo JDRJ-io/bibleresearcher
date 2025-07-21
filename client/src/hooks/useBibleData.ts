@@ -2,98 +2,50 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase, masterCache } from "@/lib/supabaseClient";
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
-import {
-  loadTranslation,
-  loadMultipleTranslations,
-  getVerseText,
-} from "@/lib/translationLoader";
-import { loadTranslationAsText } from "@/data/BibleDataAPI";
-import {
-  loadVerseKeys,
-  loadTranslationSecure,
-} from "@/lib/supabaseClient";
+// ARCHITECTURE: Use ONLY BibleDataAPI facade for all data - eliminates duplicate loading
 
-// Global KJV text map for dynamic verse text loading - uses master cache
-let globalKjvTextMap: Map<string, string> | null = null;
-
-// Load KJV text map once and store globally
-const loadKJVTextMap = async (): Promise<void> => {
-  if (globalKjvTextMap && globalKjvTextMap.size > 0) return; // Already loaded
-
-  try {
-    console.log("📖 Loading KJV text map from BibleDataAPI...");
-    const { loadTranslation } = await import('@/data/BibleDataAPI');
-    const kjvMap = await loadTranslation('KJV');
-    
-    globalKjvTextMap = kjvMap;
-    console.log(`📖 KJV text map loaded: ${kjvMap.size} entries`);
-  } catch (error) {
-    console.error("Failed to load KJV from BibleDataAPI:", error);
-    globalKjvTextMap = new Map();
-  }
-};
-
-// Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
+// DOCUMENTED: Load Bible index using anchor-centered architecture  
 const loadFullBibleIndex = async (
   progressCallback?: (progress: any) => void,
 ): Promise<BibleVerse[]> => {
-  console.log(
-    "Loading complete Bible index (references only) from Supabase...",
-  );
+  console.log("Loading Bible index via BibleDataAPI anchor-centered architecture...");
 
   if (progressCallback) {
     progressCallback({ stage: "structure", percentage: 10 });
   }
 
   try {
-    // Load complete canonical verse reference list from BibleDataAPI
-    console.log("Loading canonical verse references from BibleDataAPI...");
+    // Use ONLY BibleDataAPI facade - documented pattern
     const { loadVerseKeys } = await import('@/data/BibleDataAPI');
-    const verseKeys = await loadVerseKeys();
-    console.log(
-      `Loaded ${verseKeys.length} canonical verse references from Supabase`,
-    );
+    const verseKeys = await loadVerseKeys('canonical');
+    console.log(`✅ Loaded ${verseKeys.length} canonical verse keys via BibleDataAPI`);
 
     if (progressCallback) {
       progressCallback({ stage: "index", percentage: 50 });
     }
 
-    // Load KJV text map for dynamic verse loading
-    console.log("📖 Starting KJV text map loading...");
-    await loadKJVTextMap();
-    console.log("📖 KJV text map loading completed, size:", globalKjvTextMap?.size || 0);
-
-    // Create full Bible index with placeholder text only
-    const fullBibleIndex = createFullBibleIndexWithoutText(verseKeys);
-    console.log(
-      `Created complete Bible index with ${fullBibleIndex.length} verse references (no text loaded yet)`,
-    );
-    console.log(
-      `All verse references loaded for proper height mapping and navigation`,
-    );
+    // Create Bible index with empty text - text loaded on demand via loadChunk()
+    const fullBibleIndex = createBibleIndexStructure(verseKeys);
+    console.log(`Created Bible index structure: ${fullBibleIndex.length} verse references`);
 
     if (progressCallback) {
       progressCallback({ stage: "finalizing", percentage: 95 });
     }
 
-    console.log(
-      `Complete Bible index ready - text will load dynamically around scroll position`,
-    );
+    console.log("Bible index ready - text loads via anchor-centered chunks");
     return fullBibleIndex;
   } catch (error) {
-    console.error("Error loading from Supabase canonical references:", error);
-    throw new Error("Failed to load Bible data from Supabase. Please check your internet connection and Supabase credentials.");
+    console.error("Error loading Bible index:", error);
+    throw new Error("Failed to load Bible data from Supabase. Please check your internet connection.");
   }
 };
 
-// Create full Bible index with EMPTY TEXT for height mapping only
-const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
-  console.log(
-    `Creating full Bible index (references only) from ${verseKeys.length} canonical references...`,
-  );
+// DOCUMENTED: Create Bible index structure for anchor-centered loading
+const createBibleIndexStructure = (verseKeys: string[]): BibleVerse[] => {
+  console.log(`Creating Bible index structure from ${verseKeys.length} verse keys...`);
 
   return verseKeys.map((key, index) => {
-    // Handle different possible formats of canonical keys
+    // Parse verse key format (e.g., "Gen.1:1" or "Gen 1:1")
     let book, chapter, verse;
 
     if (key.includes(".")) {
@@ -110,23 +62,22 @@ const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
       chapter = parseInt(verseNumbers[0]) || 1;
       verse = parseInt(verseNumbers[1]) || 1;
     } else {
-      // Fallback format
+      // Fallback
       book = key.substring(0, 3);
       chapter = 1;
       verse = index + 1;
     }
 
-    // Create readable reference format
     const reference = `${book} ${chapter}:${verse}`;
 
     return {
-      id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`, // Include index for uniqueness
+      id: `${book.toLowerCase()}-${chapter}-${verse}-${index}`,
       index,
-      book: book,
-      chapter: chapter,
-      verse: verse,
-      reference: reference,
-      text: {}, // Start with empty text object - translations loaded dynamically
+      book,
+      chapter,
+      verse,
+      reference,
+      text: {}, // Empty - populated by loadChunk() as needed
       crossReferences: [],
       strongsWords: [],
       labels: [],
@@ -384,8 +335,11 @@ const createFullBibleWithHeights = async (
   let kjvTextData = "";
 
   try {
-    console.log("Fetching complete KJV Bible from Supabase storage...");
-    kjvTextData = await loadTranslationAsText('KJV');
+    console.log("Fetching complete KJV Bible from BibleDataAPI...");
+    // Use BibleDataAPI facade only
+    const { loadTranslation } = await import('@/data/BibleDataAPI');
+    const kjvMap = await loadTranslation('KJV');
+    kjvTextData = Array.from(kjvMap.entries()).map(([ref, text]) => `${ref}#${text}`).join('\n');
     console.log(
       `✓ Successfully loaded KJV text from Supabase (${kjvTextData.length} characters)`,
     );
@@ -465,8 +419,7 @@ const createFullBibleWithHeights = async (
     `✓ Created comprehensive text map with ${textMap.size} entries from Supabase KJV`,
   );
 
-  // Store the text map globally for dynamic loading
-  globalKjvTextMap = textMap;
+  // KJV text will be stored in BibleDataAPI cache automatically
 
   // Create verses with actual text and calculated heights
   let versesWithText = 0;
@@ -714,6 +667,7 @@ export function useBibleData() {
     if (kjvTextData) return kjvTextData;
 
     try {
+      const { loadTranslationAsText } = await import('@/data/BibleDataAPI');
       kjvTextData = await loadTranslationAsText('KJV');
       console.log("✅ KJV text data loaded and cached");
       return kjvTextData;
@@ -1338,14 +1292,14 @@ export function useBibleData() {
   );
   const scrollOffset = calculateScrollOffset();
 
-  // Load translation when selected from Supabase
+  // Load translation using ONLY BibleDataAPI facade
   const loadTranslationData = async (translationId: string) => {
     try {
-      console.log(`Loading ${translationId} translation from Supabase...`);
+      console.log(`Loading ${translationId} translation via BibleDataAPI...`);
       
-      // Import the translation loader
-      const { loadTranslationSecure } = await import('../lib/supabaseClient');
-      const translationData = await loadTranslationSecure(translationId);
+      // Use ONLY BibleDataAPI facade - single source of truth
+      const { loadTranslation } = await import('@/data/BibleDataAPI');
+      const translationData = await loadTranslation(translationId);
 
       if (translationData.size > 0) {
         // Update all verses (both display and full set) with the new translation
@@ -1418,13 +1372,13 @@ export function useBibleData() {
   };
 
   // Verse text retrieval function for VirtualRow components
+  // Use ONLY BibleDataAPI facade - no duplicate translation loading  
   const getVerseText = (verseReference: string, translationCode: string): string | undefined => {
-    // Check the master cache first
+    // Use cached translation map from master cache instead of require
     const cacheKey = `translation-${translationCode}`;
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
     
     if (!translationMap) {
-      console.log(`Translation ${translationCode} not found in cache`);
       return undefined;
     }
     
@@ -1433,23 +1387,12 @@ export function useBibleData() {
       verseReference, // "Gen 1:1"
       verseReference.replace(/\s/g, "."), // "Gen 1:1" -> "Gen.1:1"
       verseReference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
-      `${verseReference.split(" ")[0]}.${verseReference.split(" ")[1]}`, // "Gen 1:1" -> "Gen.1:1"
     ];
     
     for (const format of formats) {
       const text = translationMap.get(format);
       if (text) {
         return text;
-      }
-    }
-    
-    // If not found, try with global KJV map as fallback
-    if (translationCode === 'KJV' && globalKjvTextMap) {
-      for (const format of formats) {
-        const text = globalKjvTextMap.get(format);
-        if (text) {
-          return text;
-        }
       }
     }
     

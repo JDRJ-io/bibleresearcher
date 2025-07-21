@@ -7,7 +7,8 @@ import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useTranslationMaps as useTranslationSlice } from "@/store/translationSlice";
 import { useBibleStore } from "@/App";
 import { useToast } from "@/hooks/use-toast";
-import { loadTranslation, getVerseText } from "@/lib/translationLoader";
+import { getVerseText } from "@/lib/translationLoader";
+import { getTranslation } from "@/data/BibleDataAPI";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
@@ -232,7 +233,7 @@ export default function BiblePage() {
 
       try {
         // Load the translation data
-        const translationData = await loadTranslation(translationId);
+        const translationData = await getTranslation(translationId);
 
         if (translationData.size > 0) {
           // Update verses with the new translation data
@@ -460,22 +461,7 @@ export default function BiblePage() {
     }
   };
 
-  const getLoadingMessage = () => {
-    switch (loadingProgress?.stage) {
-      case "structure":
-        return "Loading 31,102 verse references from metadata";
-      case "text":
-        return "Fetching KJV text from Supabase storage";
-      case "cross-refs":
-        return "Parsing cross-reference data with Gen.1:1 format";
-      case "finalizing":
-        return "Finalizing Bible study platform";
-      case "complete":
-        return "Ready to explore Scripture";
-      default:
-        return "Initializing Bible study platform...";
-    }
-  };
+  // Legacy loading messages removed
 
   console.log("BiblePage render state:", {
     isLoading,
@@ -484,9 +470,8 @@ export default function BiblePage() {
     loadingPercentage: loadingProgress?.percentage,
   });
 
-  // Show loading only when we don't have verses yet
-  // MEMORY FIX: Remove heavy loading screen that no longer matches actual loading
-  const shouldShowLoading = false; // Disabled to reduce iPhone lag
+  // COMPLETELY DISABLE legacy loading screen to prevent traverse errors
+  const shouldShowLoading = false;
 
   console.log("🚫 LOADING BYPASSED FOR TESTING:", {
     originalIsLoading: isLoading,
@@ -494,88 +479,7 @@ export default function BiblePage() {
     forcedShouldShowLoading: shouldShowLoading,
   });
 
-  if (shouldShowLoading) {
-    return (
-      <div
-        key="loading-screen"
-        className="flex items-center justify-center min-h-screen bg-background"
-      >
-        <div className="max-w-md w-full p-6">
-          <div className="text-center mb-6">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mb-4 mx-auto"></div>
-            <h2 className="text-xl font-semibold mb-2">
-              Loading Bible Study Platform
-            </h2>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-4">
-            <div className="flex justify-between text-sm text-muted-foreground mb-1">
-              <span>{loadingProgress?.stage || "Loading..."}</span>
-              <span>{loadingProgress?.percentage || 0}%</span>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2.5">
-              <div
-                className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${loadingProgress?.percentage || 0}%` }}
-              ></div>
-            </div>
-          </div>
-
-          {/* Feature Details */}
-          <div className="text-center text-sm text-muted-foreground">
-            <p className="mb-2">{getLoadingMessage()}</p>
-          </div>
-
-          {/* Features Being Set Up */}
-          <div className="mt-6 text-xs text-muted-foreground">
-            <div className="space-y-1">
-              <div
-                className={`flex items-center ${(loadingProgress?.percentage || 0) >= 10 ? "text-green-600 dark:text-green-400" : ""}`}
-              >
-                <span className="mr-2">
-                  {(loadingProgress?.percentage || 0) >= 10 ? "✓" : "○"}
-                </span>
-                Verse structure (31,102 references)
-              </div>
-              <div
-                className={`flex items-center ${(loadingProgress?.percentage || 0) >= 30 ? "text-green-600 dark:text-green-400" : ""}`}
-              >
-                <span className="mr-2">
-                  {(loadingProgress?.percentage || 0) >= 30 ? "✓" : "○"}
-                </span>
-                KJV Bible text from Supabase
-              </div>
-              <div
-                className={`flex items-center ${(loadingProgress?.percentage || 0) >= 60 ? "text-green-600 dark:text-green-400" : ""}`}
-              >
-                <span className="mr-2">
-                  {(loadingProgress?.percentage || 0) >= 60 ? "✓" : "○"}
-                </span>
-                Cross-references with navigation
-              </div>
-              <div
-                className={`flex items-center ${(loadingProgress?.percentage || 0) >= 90 ? "text-green-600 dark:text-green-400" : ""}`}
-              >
-                <span className="mr-2">
-                  {(loadingProgress?.percentage || 0) >= 90 ? "✓" : "○"}
-                </span>
-                Sticky headers and Excel layout
-              </div>
-              <div
-                className={`flex items-center ${(loadingProgress?.percentage || 0) >= 100 ? "text-green-600 dark:text-green-400" : ""}`}
-              >
-                <span className="mr-2">
-                  {(loadingProgress?.percentage || 0) >= 100 ? "✓" : "○"}
-                </span>
-                Prophecy data and user features
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Legacy loading screen completely removed to prevent traverse errors
 
   // Show actual verses for debugging
   // Show main interface when we have verses and not loading

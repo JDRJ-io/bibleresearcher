@@ -33,52 +33,19 @@ self.onmessage = async function(e) {
   }
 };
 
+// DEPRECATED: Legacy worker-based translation loading
+// All translation loading now goes through BibleDataAPI facade only
+// This worker violates the single facade architecture per replit.md
+
 async function loadTranslation(translationId) {
-  try {
-    console.log(`Worker loading ${translationId}...`);
-    
-    // Download from PUBLIC bucket - no authentication needed
-    const response = await fetch(`${supabaseUrl}/storage/v1/object/public/anointed/translations/${translationId}.txt`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load ${translationId}: ${response.status}`);
+  // DEPRECATED: Redirecting to main thread BibleDataAPI facade
+  self.postMessage({
+    type: 'TRANSLATION_ERROR',
+    payload: {
+      translationId,
+      error: 'Worker-based loading deprecated - use BibleDataAPI facade only'
     }
-    
-    const text = await response.text();
-    const lines = text.split('\n').filter(line => line.trim());
-    
-    // Parse translation data
-    const verses = [];
-    lines.forEach((line) => {
-      const cleanLine = line.trim().replace(/\r/g, '');
-      const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
-      if (match) {
-        const [, reference, text] = match;
-        verses.push({
-          ref: reference.trim(),
-          text: text.trim()
-        });
-      }
-    });
-    
-    self.postMessage({
-      type: 'TRANSLATION_LOADED',
-      payload: {
-        translationId,
-        verses,
-        count: verses.length
-      }
-    });
-    
-  } catch (error) {
-    self.postMessage({
-      type: 'TRANSLATION_ERROR',
-      payload: {
-        translationId,
-        error: error.message
-      }
-    });
-  }
+  });
 }
 
 async function loadMultipleTranslations(translationIds) {

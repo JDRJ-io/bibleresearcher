@@ -169,7 +169,7 @@ export function getVisibleColumns(preferences: any, isGuest: boolean = true): Co
       
       // Check preferences
       if (col.type === 'cross-ref' && preferences.showCrossRefs) return true;
-      if (col.type === 'prophecy' && preferences.showProphecy) return true;
+      if (col.type === 'prophecy' && preferences.showProphecies) return true;
       if (col.type === 'notes' && preferences.showNotes) return true;
       if (col.type === 'context' && preferences.showContext) return true;
       
