@@ -2,8 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
-import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
-import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { CrossReferencesCell } from './CrossReferencesCell';
 import { ProphecyCell } from './ProphecyColumns';
 

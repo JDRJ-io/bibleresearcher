@@ -62,7 +62,19 @@ const VirtualBibleTable = ({
   const queryClient = useQueryClient();
 
   // Integrate translation maps system for verse text loading
-  const { main, alternates, getVerseText } = useTranslationMaps();
+  // Use BibleDataAPI directly - no legacy loading hooks
+  const { main, alternates } = useTranslationMaps();
+
+  // Translation text loading via BibleDataAPI - each cell loads its own text
+  const getVerseText = useCallback((verseID: string, translationCode: string) => {
+    // This is a placeholder - actual text loading happens in TranslationCell components
+    return undefined;
+  }, []);
+
+  const getMainVerseText = useCallback((verseID: string) => {
+    // This is a placeholder - actual text loading happens in TranslationCell components  
+    return undefined;
+  }, []);
   const activeTranslations = [main, ...alternates];
   const translationMainTranslation = main;
 
