@@ -17,6 +17,7 @@ import { ConnectivityStatus } from "@/components/ui/connectivity-status";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
+import SearchModal from "@/components/bible/SearchModal";
 import { Button } from "@/components/ui/button";
 import type { AppPreferences, Translation } from "@/types/bible";
 
@@ -71,7 +72,8 @@ export default function BiblePage() {
   const { resetMobileDefaults } = useTranslationStore();
   
   // Get Bible store for cross-references toggle
-  const { showCrossRefs, toggleCrossRefs } = useBibleStore();
+  const bibleStore = useBibleStore();
+  const { showCrossRefs, toggleCrossRefs } = bibleStore;
 
   // MOBILE PORTRAIT DEFAULT: Reset to exactly two data columns on first load
   useEffect(() => {
@@ -827,6 +829,18 @@ export default function BiblePage() {
         isSignInOpen={isSignInOpen}
         onCloseSignUp={() => setIsSignUpOpen(false)}
         onCloseSignIn={() => setIsSignInOpen(false)}
+      />
+
+      <SearchModal 
+        isOpen={bibleStore.isSearchOpen} 
+        onClose={() => bibleStore.setSearchOpen(false)}
+        onVerseSelect={(index) => {
+          console.log(`🔍 Navigating to verse index ${index}`);
+          // Navigate to the verse using existing navigation
+          if (allVerses[index]) {
+            navigateToVerse(allVerses[index].reference);
+          }
+        }}
       />
       
       {/* Connectivity Status */}

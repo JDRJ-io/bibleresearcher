@@ -98,6 +98,23 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   );
 }
 
+function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
+  const { datesData } = useBibleStore();
+  
+  // Get date for this verse index from loaded dates data
+  const dateText = datesData?.[verse.index] || "";
+  
+  if (!dateText || dateText.trim() === "") {
+    return <div className="text-gray-400 text-xs text-center py-1">-</div>;
+  }
+
+  return (
+    <div className="text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 whitespace-nowrap overflow-hidden text-ellipsis">
+      {dateText.trim()}
+    </div>
+  );
+}
+
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
@@ -304,9 +321,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'context':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-sm text-gray-500 cell-content">
-              [Date placeholder]
-            </div>
+            <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} />
           </div>
         );
 

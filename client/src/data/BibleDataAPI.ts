@@ -133,6 +133,77 @@ export async function getProphecyIndex(): Promise<any> {
   return await loadProphecyIndex();
 }
 
+// Dates functionality - loads verse dating metadata
+export async function getDatesCanonical(): Promise<string> {
+  return getOrFetch('dates-canonical', async () => {
+    return await fetchFromStorage(paths.datesCanonical);
+  });
+}
+
+export async function getDatesChronological(): Promise<string> {
+  return getOrFetch('dates-chronological', async () => {
+    return await fetchFromStorage(paths.datesChronological);
+  });
+}
+
+// Labels system - semantic highlighting data
+export async function getLabelsData(translation: string = 'KJV'): Promise<any> {
+  return getOrFetch(`labels-${translation}`, async () => {
+    const text = await fetchFromStorage(`labels/${translation}/ALL.json`);
+    return JSON.parse(text);
+  });
+}
+
+// Context boundaries - verse grouping data  
+export async function getContextGroups(): Promise<any> {
+  return getOrFetch('context-groups', async () => {
+    const text = await fetchFromStorage('metadata/context_groups.json');
+    return JSON.parse(text);
+  });
+}
+
+// Global search functionality
+export async function searchVerses(query: string, translationId: string = 'KJV'): Promise<Array<{ reference: string, text: string, index: number }>> {
+  const translationMap = await loadTranslation(translationId);
+  const results: Array<{ reference: string, text: string, index: number }> = [];
+  
+  // Special random verse feature
+  if (query === '%') {
+    const allEntries = Array.from(translationMap.entries());
+    if (allEntries.length > 0) {
+      const randomEntry = allEntries[Math.floor(Math.random() * allEntries.length)];
+      const verseKeys = await loadVerseKeys();
+      const index = verseKeys.findIndex(key => key === randomEntry[0]);
+      return [{
+        reference: randomEntry[0],
+        text: randomEntry[1],
+        index: index
+      }];
+    }
+    return [];
+  }
+  
+  // Regular text search
+  const searchLower = query.toLowerCase();
+  const verseKeys = await loadVerseKeys();
+  
+  for (const [reference, text] of translationMap.entries()) {
+    if (text.toLowerCase().includes(searchLower)) {
+      const index = verseKeys.findIndex(key => key === reference);
+      results.push({
+        reference,
+        text,
+        index: index >= 0 ? index : 0
+      });
+      
+      // Limit results to prevent UI lag
+      if (results.length >= 100) break;
+    }
+  }
+  
+  return results;
+}
+
 export async function loadProphecySlice(start: number, end: number) {
   // Remove obsolete slice loaders
   console.warn('loadProphecySlice is deprecated, use prophecyCache instead');
@@ -250,6 +321,8 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
   return { data: [{ id: local.id }] };
 }
 
+
+
 // Unified API object for backwards compatibility
 export const BibleDataAPI = {
   getTranslationText: async (verseIDs: string[], translationId: string) => {
@@ -273,5 +346,10 @@ export const BibleDataAPI = {
   saveBookmark,
   saveHighlight,
   saveNote,
-  fetchFromStorage
+  fetchFromStorage,
+  getDatesCanonical,
+  getDatesChronological,
+  getLabelsData,
+  getContextGroups,
+  searchVerses,
 };

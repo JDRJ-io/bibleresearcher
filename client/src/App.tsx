@@ -50,12 +50,20 @@ export const useBibleStore = create<{
   prophecies: Record<string, any>;
   prophecyData: Record<string, { P: string[], F: string[], V: string[] }>;
   setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => void;
+  datesData: string[] | null;
+  setDatesData: (dates: string[]) => void;
+  labelsData: Record<string, any>;
+  setLabelsData: (labels: Record<string, any>) => void;
+  isSearchOpen: boolean;
+  setSearchOpen: (open: boolean) => void;
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
   showNotes: boolean;
   showDates: boolean;
   showLabels: Record<string, boolean>;
+  isSearchOpen: boolean;
+  setSearchOpen: (open: boolean) => void;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
   toggleNotes: () => void;
@@ -72,13 +80,19 @@ export const useBibleStore = create<{
   prophecies: {},
   prophecyData: {},
   setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => set({ prophecyData: data }),
+  datesData: null,
+  setDatesData: (dates: string[]) => set({ datesData: dates }),
+  labelsData: {},
+  setLabelsData: (labels: Record<string, any>) => set({ labelsData: labels }),
+  setSearchOpen: (open: boolean) => set({ isSearchOpen: open }),
   setCrossRefs: (refs: Record<string, string[]>) => set({ crossRefs: refs }),
   store: { crossRefs: {}, prophecies: {} },
   showCrossRefs: true,  // Default ON for free users (optimal mobile display)
   showProphecies: false, // Default OFF for free users (cleaner mobile)
   showNotes: false,     // Notes column toggle
   showDates: false,     // Dates column toggle
-  showLabels: {},       // Labels state object for semantic highlighting
+  showLabels: {},           // Labels state object for semantic highlighting  
+  isSearchOpen: false,      // Search modal state
 
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
@@ -163,6 +177,23 @@ export const useBibleStore = create<{
   toggleDates: () => set(state => {
     console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
     const newValue = !state.showDates;
+    
+    // Load dates data when toggling on
+    if (newValue && !state.datesData) {
+      console.log('📅 Loading dates data from Supabase...');
+      import('@/data/BibleDataAPI').then(async ({ getDatesCanonical }) => {
+        try {
+          const datesText = await getDatesCanonical();
+          const datesArray = datesText.split('\n').filter(line => line.trim());
+          
+          get().setDatesData(datesArray);
+          console.log('✅ Dates data loaded:', datesArray.length, 'verse dates');
+        } catch (error) {
+          console.error('❌ Failed to load dates data:', error);
+        }
+      });
+    }
+    
     const newState = {
       showDates: newValue,
       columnState: {
@@ -176,12 +207,30 @@ export const useBibleStore = create<{
     return newState;
   }),
 
-  toggleLabel: (labelId: string) => set(state => ({
-    showLabels: {
-      ...state.showLabels,
-      [labelId]: !state.showLabels[labelId]
+  toggleLabel: (labelId: string) => set(state => {
+    const newValue = !state.showLabels[labelId];
+    
+    // Load label data when toggling on
+    if (newValue && !state.labelsData[labelId]) {
+      console.log(`🏷️ Loading ${labelId} label data from Supabase...`);
+      import('@/data/BibleDataAPI').then(async ({ getLabelsData }) => {
+        try {
+          const labels = await getLabelsData('KJV');
+          get().setLabelsData({ ...get().labelsData, [labelId]: labels });
+          console.log(`✅ Labels data loaded for ${labelId}:`, Object.keys(labels).length, 'verses');
+        } catch (error) {
+          console.error(`❌ Failed to load ${labelId} labels:`, error);
+        }
+      });
     }
-  })),
+    
+    return {
+      showLabels: {
+        ...state.showLabels,
+        [labelId]: newValue
+      }
+    };
+  }),
 
   setActives: (ids: string[]) => set({ actives: ids }),
   setTranslations: (id: string, data: any) => set(state => ({
