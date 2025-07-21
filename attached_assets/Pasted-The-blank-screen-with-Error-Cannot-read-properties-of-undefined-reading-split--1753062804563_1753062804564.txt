@@ -1,0 +1,66 @@
+The blank screen with 
+
+```
+Error: Cannot read properties of undefined (reading 'split')
+```
+
+means some variable—probably a **reference string**—is arriving as `undefined` and your code calls `.split(':')` (or similar) on it.
+Because the legacy and new loaders produce slightly different shapes, that value is almost always **`verseRef`** or **`verseID`** coming from the slice.
+
+---
+
+## How it usually happens when phasing‑out legacy loaders
+
+| Legacy path                               | New path                                             | Where `.split` fails                                                 |
+| ----------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| Worker sends `{ id:"Gen.1:3", text:"…" }` | Loader now sends `{ reference:"Gen.1:3", text:"…" }` | `const [book,chap] = verse.id.split('.')` → `verse.id` = `undefined` |
+
+If a few rows work and then it crashes, you’re loading two slice formats at once.
+
+---
+
+## 3‑minute pinpoint
+
+1. **Open DevTools → Sources → Pause on Exceptions** (uncaught only).
+   Reload; execution stops exactly on the failing `.split`.
+2. In the right‑hand **Scope** panel look at `verse` (or whatever object) – you’ll see which field is `undefined`.
+3. Hit the **Call Stack**; scroll down to the first file in `/src/`. That’s where the wrong shape enters the pipeline.
+
+You won’t need the full bundle—just the variable name that is `undefined`.
+
+---
+
+## Common fixes after the legacy‑to‑new switchover
+
+| Location                  | Legacy field             | New field                                      | Quick change                                                           |
+| ------------------------- | ------------------------ | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| `VirtualRow.tsx`          | `verse.verseID`          | `verse.id` or `verse.reference`                | replace or add fallback:<br>`const ref = verse.reference ?? verse.id;` |
+| `navigateToVerse.ts`      | expects `"Gen.1.3"`      | new loader uses `"Gen.1:3"`                    | change split regex: `.split(/[.:]/)`                                   |
+| `CrossReferencesCell.tsx` | uses `ref.split(':')[1]` | new format already gives book+verse separately | remove split                                                           |
+
+---
+
+## Why you’re still seeing it after “removing old loaders”
+
+Some files are still importing **`useTranslationLoader.ts`** from `/src/lib/`
+instead of the new one in `/src/hooks/`. Vite bundles both paths, so your app
+mixes two data shapes. Search your repo for:
+
+```
+import { useTranslationLoader } from '../lib'         // legacy
+```
+
+and switch to the new hook.
+
+---
+
+## What to tell the agent
+
+> *“Pause on exceptions; identify which object is `undefined` at the `.split`.
+> Make the loader and all consumers use one consistent field (`reference`).
+> Search for any residual imports from `/src/lib/translationLoader` and replace them with the new `/src/hooks/useSliceDataLoader`.
+> After that the app should render without the ‘split’ error.”*
+
+---
+Once every component consumes the same “new” slice shape, that `undefined.split`
+crash—and the lag caused by dual loaders—will disappear.
