@@ -59,9 +59,12 @@ const VirtualBibleTable = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
+  // Get verse text retrieval function from useBibleData - MUST BE EARLY
+  const { getVerseText: getBibleVerseText } = useBibleData();
+  
   // Integrate translation maps system for verse text loading
   const translationMaps = useTranslationMaps();
-  const { activeTranslations, getVerseText, getMainVerseText, mainTranslation: translationMainTranslation } = translationMaps;
+  const { activeTranslations, mainTranslation: translationMainTranslation } = translationMaps;
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,7 +86,7 @@ const VirtualBibleTable = ({
   useEffect(() => {
     const loadCrossRefTranslations = async () => {
       const refs = slice.verseIDs.flatMap(verseId => crossRefsStore[verseId] ?? []);
-      const need = refs.filter(ref => !getVerseText(ref, mainTranslation));
+      const need = refs.filter(ref => !getBibleVerseText(ref, mainTranslation));
       if (need.length > 0) {
         console.log(`📖 Loading ${need.length} cross-ref verse texts for main translation`);
       }
@@ -92,7 +95,7 @@ const VirtualBibleTable = ({
     if (slice.verseIDs.length > 0) {
       loadCrossRefTranslations().catch(console.error);
     }
-  }, [slice.verseIDs, crossRefsStore, mainTranslation, getVerseText]);
+  }, [slice.verseIDs, crossRefsStore, mainTranslation, getBibleVerseText]);
   
   // Load column-specific data when columns are toggled
   useColumnData();
@@ -100,13 +103,15 @@ const VirtualBibleTable = ({
   // Get store state for column toggles
   const { showCrossRefs, showProphecies } = useBibleStore();
   
-  // Get verse text retrieval function from useBibleData
-  const { getVerseText: getBibleVerseText, getGlobalVerseText: getGlobalVerseTextFromHook } = useBibleData();
-  
   // Create getVerseText wrapper for VirtualRow (any translation) - use getBibleVerseText to avoid conflict
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
     return getBibleVerseText(verseID, translationCode);
   }, [getBibleVerseText]);
+  
+  // Create getMainVerseText wrapper for VirtualRow (main translation)
+  const getMainVerseTextForRow = useCallback((verseID: string) => {
+    return getBibleVerseText(verseID, mainTranslation);
+  }, [getBibleVerseText, mainTranslation]);
   
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
@@ -393,7 +398,7 @@ const VirtualBibleTable = ({
                 const textObj: Record<string, string> = {};
                 
                 // Add main translation text using the translation loader system
-                const mainText = getMainVerseText(id) || getVerseText(id, mainTranslation);
+                const mainText = getBibleVerseText(id, mainTranslation);
                 if (mainText) {
                   textObj[mainTranslation] = mainText;
                 }
@@ -401,7 +406,7 @@ const VirtualBibleTable = ({
                 // Add alternate translation text from the translation maps
                 activeTranslations.forEach(translationCode => {
                   if (translationCode !== mainTranslation) {
-                    const altText = getVerseText(id, translationCode);
+                    const altText = getBibleVerseText(id, translationCode);
                     if (altText) {
                       textObj[translationCode] = altText;
                     }
@@ -429,8 +434,8 @@ const VirtualBibleTable = ({
                     verse={bibleVerse}
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
-                    getVerseText={getVerseText}
-                    getMainVerseText={getMainVerseText}
+                    getVerseText={getVerseTextForRow}
+                    getMainVerseText={getMainVerseTextForRow}
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
                     onVerseClick={onNavigateToVerse}

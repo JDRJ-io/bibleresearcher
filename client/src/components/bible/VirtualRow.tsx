@@ -348,18 +348,20 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                                     getMainVerseText(ref);
                     
                     return (
-                      <button
+                      <div
                         key={i}
-                        className="cross-ref-item block w-full text-left px-2 py-2 rounded"
-                        onClick={() => onVerseClick?.(ref)}
+                        className="cross-ref-item block w-full px-2 py-2 rounded"
                       >
-                        <div className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                        <button
+                          className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                          onClick={() => onVerseClick?.(ref)}
+                        >
                           {ref}
-                        </div>
+                        </button>
                         <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
                           {refText || 'Loading...'}
                         </div>
-                      </button>
+                      </div>
                     );
                   })}
                   {crossRefsForVerse.length > 0 && (

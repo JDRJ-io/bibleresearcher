@@ -1424,9 +1424,11 @@ export function useBibleData() {
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
     
     if (!translationMap) {
-      console.log(`Translation ${translationCode} not found in cache`);
+      console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
       return undefined;
     }
+    
+    console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
     
     // Try multiple reference formats to find the text
     const formats = [
