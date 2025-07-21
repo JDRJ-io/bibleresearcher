@@ -1050,7 +1050,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log("🚀 SMART NAVIGATION to:", reference);
+    console.log("🔗 HYPERLINK NAVIGATION to:", reference);
 
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, " ").trim();
@@ -1079,31 +1079,38 @@ export function useBibleData() {
       setNavigationHistory(newHistory);
       setCurrentHistoryIndex(newHistory.length - 1);
 
-      // DISABLED: VirtualBibleTable handles center-anchored loading
-      console.log(`🎯 Navigation target: ${targetIndex} - VirtualBibleTable will handle loading`);
+      // CRITICAL: Update center anchor IMMEDIATELY for cross-reference loading
+      console.log(`📍 Updating center anchor to index ${targetIndex} for instant cross-ref loading`);
+      setCenterVerseIndex(targetIndex);
 
-      // Precise center positioning for all navigation types
-      setTimeout(() => {
-        const verseElement = document.getElementById(`verse-${targetVerse.id}`);
-        if (verseElement) {
-          // Always center the target verse precisely in the viewport
-          verseElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-            inline: "nearest",
-          });
+      // INSTANT navigation without delay for hyperlinks
+      const verseElement = document.getElementById(`verse-${targetVerse.id}`);
+      if (verseElement) {
+        console.log(`📱 Scrolling to verse element: verse-${targetVerse.id}`);
+        // Always center the target verse precisely in the viewport
+        verseElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest",
+        });
 
-          // Add highlight animation
-          verseElement.classList.add("verse-highlight");
-          setTimeout(() => {
-            verseElement.classList.remove("verse-highlight");
-          }, 2000);
-        }
-      }, 300);
+        // Add highlight animation
+        verseElement.classList.add("verse-highlight");
+        setTimeout(() => {
+          verseElement.classList.remove("verse-highlight");
+        }, 2000);
+      } else {
+        console.warn(`❌ Could not find verse element: verse-${targetVerse.id}`);
+      }
 
-      console.log(`✅ SMART NAVIGATION COMPLETE: ${targetVerse.reference}`);
+      console.log(`✅ INSTANT HYPERLINK NAVIGATION COMPLETE: ${targetVerse.reference} at anchor ${targetIndex}`);
     } else {
       console.warn("❌ Verse not found for reference:", normalizedRef);
+      console.log("Debug - Available formats to try:", [
+        normalizedRef,
+        reference.replace(/\s/g, "."),
+        reference.replace(/\./g, " ")
+      ]);
     }
   };
 
