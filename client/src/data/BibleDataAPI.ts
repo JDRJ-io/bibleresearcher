@@ -247,13 +247,22 @@ export async function getCrossRefSlice(verseIDs: string[]): Promise<Record<strin
       const slice = await fetchFromStorageRange(paths.cf1, start, end);
       
       // Parse cross-reference format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-      if (slice.includes('$$')) {
-        const refsStr = slice.split('$$')[1];
-        if (refsStr) {
+      // 🚨 SAFETY: Check slice is valid before calling .split()
+      if (slice && typeof slice === 'string' && slice.includes('$$')) {
+        const parts = slice.split('$$');
+        const refsStr = parts.length > 1 ? parts[1] : null;
+        
+        if (refsStr && typeof refsStr === 'string') {
           const allRefs = refsStr.split('$')
-            .flatMap(group => group.includes('#') ? group.split('#') : [group])
-            .map(ref => ref.trim())
-            .filter(ref => ref.length > 0);
+            .flatMap(group => {
+              // 🚨 SAFETY: Ensure group is a string before calling .split()
+              if (group && typeof group === 'string' && group.includes('#')) {
+                return group.split('#');
+              }
+              return [group];
+            })
+            .map(ref => ref && typeof ref === 'string' ? ref.trim() : '')
+            .filter(ref => ref && ref.length > 0);
           
           result[verseID] = allRefs;
           return;

@@ -25,17 +25,17 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = React.mem
 }) => {
   const { crossRefs } = useBibleStore();
   const { getVerseText } = useBibleData();
-  
+
   // Convert verse reference to the format used in crossRefs store (Gen.1:1)
   const dotFormat = verseReference.replace(/\s+/g, '.');
   const rawRefs = crossRefs[dotFormat] || [];
 
   // Get main translation for preview text
   const mainTranslation = 'KJV'; // Default to KJV for cross-ref previews
-  
+
   // Parse cross-references if they're in raw format
   const parsedRefs: string[] = [];
-  
+
   if (Array.isArray(rawRefs)) {
     rawRefs.forEach(rawRef => {
       if (typeof rawRef === 'string') {
@@ -73,7 +73,7 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = React.mem
       }
     });
   }
-  
+
   // Debug logging for first few verses
   if (dotFormat === 'Gen.1:1' || dotFormat === 'Gen.1:2') {
     console.log(`🔍 CrossReferencesCell Debug for ${dotFormat}:`, { 
@@ -83,7 +83,7 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = React.mem
       allRefsAvailable: parsedRefs.length
     });
   }
-  
+
   if (parsedRefs.length === 0) {
     return (
       <div className="text-xs text-muted-foreground italic p-1 whitespace-nowrap overflow-hidden">
@@ -111,13 +111,13 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = React.mem
       <div className="text-sky-600 font-medium mb-1 whitespace-nowrap">
         {parsedRefs.length} ref{parsedRefs.length !== 1 ? 's' : ''}
       </div>
-      
+
       {/* Render ALL cross-reference buttons with full verse text */}
       <div className="space-y-1">
         {parsedRefs.map((ref, index) => {
           // Get verse text from cached translation (no network calls)
           const verseText = getVerseText(ref, mainTranslation) || '';
-          
+
           return (
             <div key={index} className="border-b border-gray-100 dark:border-gray-800 pb-1 mb-1 last:border-b-0 last:pb-0 last:mb-0">
               {/* Clickable verse reference with distinct hover state */}
