@@ -40,6 +40,15 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Get cross-references from the Bible store (loaded from Supabase)
   const crossRefs = crossRefsStore[verse.reference] ?? [];
 
+  // DEBUG: Log cross-reference data for first few verses
+  if (verse.reference === "Gen 1:1" || verse.reference === "Gen 1:2") {
+    console.log(`🔍 CrossReferencesCell for ${verse.reference}:`, {
+      storeKeys: Object.keys(crossRefsStore).slice(0, 5),
+      crossRefsForVerse: crossRefs,
+      storeSize: Object.keys(crossRefsStore).length
+    });
+  }
+
   return (
     <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
       {crossRefs.map((ref, index) => {
@@ -258,20 +267,15 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        // Get actual cross-reference data for this verse
-        const crossRefs = verse.crossReferences || [];
-        const crossRefDisplay = crossRefs.length > 0 
-          ? crossRefs.slice(0, 3).map(ref => {
-              if (typeof ref === 'string') return ref.split('.')[0];
-              if (ref && typeof ref === 'object' && 'reference' in ref) return ref.reference?.split('.')[0] || '';
-              return '';
-            }).join(', ') + (crossRefs.length > 3 ? '...' : '')
-          : '';
+        // Use the existing CrossReferencesCell component that was working
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-1 text-xs text-blue-600 cell-content" title={crossRefs.join(', ')}>
-              {crossRefDisplay || ''}
-            </div>
+            <CrossReferencesCell 
+              verse={verse} 
+              getVerseText={getVerseText} 
+              mainTranslation={mainTranslation} 
+              onVerseClick={onVerseClick}
+            />
           </div>
         );
 
