@@ -83,6 +83,8 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps
   );
 }
 
+
+
 interface SlotConfig {
   type: string;
   header: string;
@@ -335,39 +337,6 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 
 export default VirtualRow;
 export { VirtualRow };
-
-interface ProphecyCellProps {
-  verse: BibleVerse;
-  type: "P" | "F" | "V";
-}
-
-function ProphecyCell({ verse, type }: ProphecyCellProps) {
-  const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-  const { prophecies } = useBibleStore();
-
-  // Access prophecies data from the store using verse.reference
-  const verseProphecies = prophecies[verse.reference] || {};
-
-  // Direct access to P/F/V arrays
-  const items = verseProphecies[type] || [];
-  const hasProphecy = items.length > 0;
-  const prophecyCount = items.length;
-
-  return (
-    <div className="w-20 px-1 py-1 text-xs border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
-      <div className={`${color} text-center`}>
-        {hasProphecy && (
-          <div className="flex items-center justify-center gap-1">
-            <span className={`text-xs ${color} cursor-pointer`} title={`${prophecyCount} ${type} references`}>
-              ●
-            </span>
-            <span className="text-xs text-gray-500">{prophecyCount}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 interface TranslationCellProps {
   verse: BibleVerse;

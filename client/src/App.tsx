@@ -68,6 +68,9 @@ export const useBibleStore = create<{
   actives: ["KJV"],
   crossRefs: {},
   prophecies: {},
+  prophecyData: {} as Record<string, { P: string[], F: string[], V: string[] }>,
+  setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => set({ prophecyData: data }),
+  setCrossRefs: (refs: Record<string, string[]>) => set({ crossRefs: refs }),
   store: { crossRefs: {}, prophecies: {} },
   showCrossRefs: true,  // Default ON for free users (optimal mobile display)
   showProphecies: false, // Default OFF for free users (cleaner mobile)

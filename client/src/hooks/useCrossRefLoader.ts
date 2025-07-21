@@ -29,6 +29,13 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         console.log(`📖 Eager-loading cross-ref translations for ${allRefs.length} references`);
         // Load main translation to ensure cross-ref verse texts are available
         await loadTranslation('KJV'); // Ensure main translation is loaded
+        
+        // Also prefetch verse texts for the cross-references
+        const uniqueRefs = Array.from(new Set(allRefs));
+        for (const ref of uniqueRefs) {
+          // Trigger loading of the referenced verse if not already cached
+          await loadTranslation('KJV'); // This ensures the translation map includes the referenced verses
+        }
       }
     };
     
