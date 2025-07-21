@@ -40,14 +40,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Get cross-references from the Bible store (loaded from Supabase)
   const crossRefs = crossRefsStore[verse.reference] ?? [];
 
-  // DEBUG: Log cross-reference data for first few verses
-  if (verse.reference === "Gen 1:1" || verse.reference === "Gen 1:2") {
-    console.log(`🔍 CrossReferencesCell for ${verse.reference}:`, {
-      storeKeys: Object.keys(crossRefsStore).slice(0, 5),
-      crossRefsForVerse: crossRefs,
-      storeSize: Object.keys(crossRefsStore).length
-    });
-  }
+
 
   return (
     <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
