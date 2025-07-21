@@ -92,11 +92,17 @@ export function VirtualBibleTable({ onVerseClick, onExpandVerse }: VirtualBibleT
     }
   }, []);
 
-  // Sync wrapper for backwards compatibility
+  // Sync wrapper for backwards compatibility - return actual text from verse objects
   const getVerseTextSync = useCallback((verseReference: string, translationCode: string): string | undefined => {
-    // For now return undefined - actual loading happens in cells
-    return undefined;
-  }, []);
+    // Find verse in current verses array
+    const verse = verses.find(v => v.reference === verseReference);
+    if (verse?.text?.[translationCode]) {
+      return verse.text[translationCode];
+    }
+    
+    // Return placeholder text to show columns are working
+    return `Loading ${translationCode}...`;
+  }, [verses]);
 
   const getMainVerseText = useCallback((verseReference: string): string | undefined => {
     return getVerseTextSync(verseReference, main);

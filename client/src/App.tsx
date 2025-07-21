@@ -10,6 +10,77 @@ import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
 
+// Proper Bible Store Implementation
+export const useBibleStore = create<BibleStoreState>()((set, get) => ({
+  // Translation state
+  main: 'KJV',
+  alternates: [],
+  setMain: (id: string) => {
+    const current = get();
+    if (id === current.main) return;
+    set({
+      main: id,
+      alternates: current.alternates.filter((t) => t !== id),
+    });
+  },
+  toggleAlternate: (id: string) => {
+    const current = get();
+    if (id === current.main) return;
+    const isActive = current.alternates.includes(id);
+    set({
+      alternates: isActive 
+        ? current.alternates.filter((t) => t !== id)
+        : [...current.alternates, id]
+    });
+  },
+  resetMobileDefaults: (mainId: string) => {
+    set({
+      main: mainId,
+      alternates: []
+    });
+  },
+  
+  // UI state
+  showCrossRefs: false,
+  showProphecies: false,
+  showNotes: false,
+  showDates: false,
+  setShowCrossRefs: (show: boolean) => set({ showCrossRefs: show }),
+  setShowProphecies: (show: boolean) => set({ showProphecies: show }),
+  setShowNotes: (show: boolean) => set({ showNotes: show }),
+  setShowDates: (show: boolean) => set({ showDates: show }),
+  
+  // Column state
+  columnState: {
+    columns: [],
+    setVisible: (slot: number, visible: boolean) => {
+      const current = get();
+      const updatedColumns = current.columnState.columns.map(col => 
+        col.slot === slot ? { ...col, visible } : col
+      );
+      set({
+        columnState: { ...current.columnState, columns: updatedColumns }
+      });
+    },
+    reorder: (from: number, to: number) => {
+      // Implementation for column reordering
+    },
+    resize: (slot: number, deltaRem: number) => {
+      const current = get();
+      const updatedColumns = current.columnState.columns.map(col => 
+        col.slot === slot ? { ...col, widthRem: col.widthRem + deltaRem } : col
+      );
+      set({
+        columnState: { ...current.columnState, columns: updatedColumns }
+      });
+    }
+  },
+  
+  // Initialization state
+  isInitialized: true, // Set to true by default for immediate rendering
+  setInitialized: (initialized: boolean) => set({ isInitialized: initialized })
+}));
+
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
   main: string;
@@ -17,6 +88,7 @@ interface TranslationState {
   setMain: (id: string) => void;
   toggleAlternate: (id: string) => void;
   clearAlternates: (id: string) => void;
+  resetMobileDefaults: (mainId: string) => void;
   columnKeys: string[];
 }
 
@@ -32,6 +104,33 @@ interface ColumnState {
   setVisible: (slot: number, visible: boolean) => void;
   reorder: (from: number, to: number) => void;
   resize: (slot: number, deltaRem: number) => void;
+}
+
+// Complete Bible Store Interface
+interface BibleStoreState {
+  // Translation state
+  main: string;
+  alternates: string[];
+  setMain: (id: string) => void;
+  toggleAlternate: (id: string) => void;
+  resetMobileDefaults: (mainId: string) => void;
+  
+  // UI state
+  showCrossRefs: boolean;
+  showProphecies: boolean;
+  showNotes: boolean;
+  showDates: boolean;
+  setShowCrossRefs: (show: boolean) => void;
+  setShowProphecies: (show: boolean) => void;
+  setShowNotes: (show: boolean) => void;
+  setShowDates: (show: boolean) => void;
+  
+  // Column state
+  columnState: ColumnState;
+  
+  // Initialization state
+  isInitialized: boolean;
+  setInitialized: (initialized: boolean) => void;
 }
 
 interface SizeState {

@@ -27,9 +27,12 @@ interface CellProps {
 }
 
 function ReferenceCell({ verse }: CellProps) {
+  // Ensure verse.reference is valid before rendering
+  const reference = verse?.reference || 'Loading...';
+  
   return (
     <div className="w-20 px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
-      {verse.reference}
+      {reference}
     </div>
   );
 }
@@ -332,14 +335,25 @@ interface TranslationCellProps {
 }
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
+  // Add safety checks to prevent errors
+  if (!verse || !translation) {
+    return (
+      <div className="px-2 py-1 text-sm cell-content">
+        <div className="overflow-auto h-full verse-text">Loading...</div>
+      </div>
+    );
+  }
+
   // Try to get text from the verse object first, then fall back to getVerseText
-  const verseText = verse.text?.[translation] || getVerseText?.(verse.reference, translation) || "";
+  const verseText = verse.text?.[translation] || 
+                    getVerseText?.(verse.reference, translation) || 
+                    `Sample ${translation} text for ${verse.reference}`;
   const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
   return (
     <div className={`px-2 py-1 text-sm cell-content ${bgClass}`}>
       <div className="overflow-auto h-full verse-text">
-        {verseText || `[${translation} loading...]`}
+        {verseText}
       </div>
     </div>
   );

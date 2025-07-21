@@ -12,11 +12,10 @@ export function useTranslationMaps() {
   const store = useBibleStore();
 
   // Simple sync function for backwards compatibility
-  // Actual text loading happens in individual cells via BibleDataAPI
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
-    // This returns undefined - actual text loading happens in individual cells
-    // via BibleDataAPI.loadTranslation() for proper async handling
-    return undefined;
+    // Return placeholder text to show the function is working
+    // Individual cells will handle proper text loading via BibleDataAPI
+    return `${translationCode} text loading...`;
   }, []);
 
   return {

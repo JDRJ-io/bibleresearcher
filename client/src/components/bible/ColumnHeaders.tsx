@@ -65,10 +65,7 @@ export function ColumnHeaders({
     isInitialized 
   } = useBibleStore();
 
-  // Prevent render if store not initialized
-  if (!isInitialized) {
-    return null;
-  }
+  // Store should always be initialized - removed blocking guard
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
