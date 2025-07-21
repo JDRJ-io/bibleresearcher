@@ -168,8 +168,30 @@ const VirtualBibleTable = ({
     },
     onVerseClick: (ref: string) => {
       // BEHAVIOR CONTRACT X-1: Cross-reference navigation via setAnchorIndex within 30ms
-      const verseIndex = verseKeys.findIndex(key => key === ref || key.replace('.', ' ') === ref || key.replace(' ', '.') === ref);
+      console.log(`🔗 onVerseClick called with: "${ref}"`);
+      console.log(`🔍 Looking for verse in verseKeys array (first 5): [${verseKeys.slice(0, 5).join(', ')}]`);
+      
+      // Try multiple formats to find the verse
+      const formats = [
+        ref,                           // Original format
+        ref.replace(/\s+/g, '.'),     // Space to dot: "Gen 1:1" → "Gen.1:1"
+        ref.replace(/\./g, ' '),      // Dot to space: "Gen.1:1" → "Gen 1:1"
+        ref.replace(/(\w+)\s(\d+):(\d+)/, '$1.$2:$3') // "Gen 1:1" → "Gen.1:1"
+      ];
+      
+      let verseIndex = -1;
+      let foundFormat = '';
+      
+      for (const format of formats) {
+        verseIndex = verseKeys.findIndex(key => key === format);
+        if (verseIndex >= 0) {
+          foundFormat = format;
+          break;
+        }
+      }
+      
       if (verseIndex >= 0) {
+        console.log(`✅ Found verse "${ref}" as "${foundFormat}" at index ${verseIndex}`);
         // Use setAnchorIndex for proper anchor-centered navigation (contract X-1)
         setAnchorIndex(verseIndex);
         // Scroll to center the target verse in viewport (contract A-2: within ±12px of center)
@@ -179,7 +201,8 @@ const VirtualBibleTable = ({
         }
         console.log(`📖 Cross-ref navigation: ${ref} → index ${verseIndex} (contract X-1 compliance)`);
       } else {
-        console.warn(`⚠️ Could not find verse index for ${ref}`);
+        console.warn(`⚠️ Could not find verse index for "${ref}" in any format: [${formats.join(', ')}]`);
+        console.log(`🔍 Total verseKeys length: ${verseKeys.length}`);
       }
     },
   };
