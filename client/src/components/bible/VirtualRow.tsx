@@ -206,6 +206,10 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
 
   const renderSlot = (column: any) => {
     const { slot, config, widthRem } = column;
+
+    // ⬇️ add this line to freeze execution and inspect config values
+    debugger;
+
     const isMain = config.translationCode === main;
 
     // Calculate width based on slot system matching ColumnHeaders
