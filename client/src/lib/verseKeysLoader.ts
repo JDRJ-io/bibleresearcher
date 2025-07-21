@@ -2,68 +2,36 @@
 
 console.warn('⚠️ verseKeysLoader.ts is deprecated. Use BibleDataAPI.loadVerseKeys() directly.');
 
-export const loadVerseKeys = async () => {
-  console.warn('⚠️ loadVerseKeys is deprecated. Use BibleDataAPI.loadVerseKeys() instead.');
-  const { loadVerseKeys: apiLoadVerseKeys } = await import('@/data/BibleDataAPI');
-  return apiLoadVerseKeys();
-};
+// Cache for backwards compatibility
+let cachedVerseKeys: string[] | null = null;
 
-export async function loadVerseKeysCanonical(): Promise<string[]> {
-  console.warn('⚠️ loadVerseKeysCanonical is deprecated. Use BibleDataAPI.loadVerseKeys() instead.');
-  const { loadVerseKeys: apiLoadVerseKeys } = await import('@/data/BibleDataAPI');
-  return apiLoadVerseKeys('canonical');
+// All methods redirect to BibleDataAPI to prevent legacy usage
+export async function getVerseKeys(): Promise<string[]> {
+  console.warn('⚠️ getVerseKeys is deprecated. Use BibleDataAPI.loadVerseKeys() directly.');
+
+  if (cachedVerseKeys) return cachedVerseKeys;
+
+  // Redirect to BibleDataAPI
+  const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+  cachedVerseKeys = await loadVerseKeys();
+  return cachedVerseKeys;
+}
+
+export function getVerseCount(): number {
+  console.warn('⚠️ getVerseCount is deprecated. Use BibleDataAPI.loadVerseKeys().length directly.');
+  return cachedVerseKeys?.length || 0;
 }
 
 export function getVerseKeyByIndex(index: number): string {
-  console.warn('⚠️ getVerseKeyByIndex is deprecated.');
-  return `Unknown.${index}:1`;
+  console.warn('⚠️ getVerseKeyByIndex is deprecated. Use BibleDataAPI.loadVerseKeys()[index] directly.');
+  return cachedVerseKeys?.[index] || '';
 }
 
-/**
- * Create verse objects from verse keys
- * This creates the skeleton structure that other data plugs into
- */
-export function createVerseObjectsFromKeys(verseKeys: string[]): BibleVerse[] {
-  console.log("🏗️ Creating verse objects from master key index...");
+// Legacy method - DEPRECATED
+export async function loadVerseKeys(): Promise<string[]> {
+  console.warn('⚠️ loadVerseKeys from verseKeysLoader is deprecated. Use BibleDataAPI.loadVerseKeys() directly.');
 
-  const verses: BibleVerse[] = verseKeys.map((key, index) => {
-    const [bookChapter, verseNum] = key.split(':');
-    const [book, chapter] = bookChapter.split('.');
-
-    return {
-      id: `${book.toLowerCase()}-${chapter}-${verseNum}-${index}`,
-      index: index,
-      book: book,
-      chapter: parseInt(chapter),
-      verse: parseInt(verseNum),
-      reference: key.replace('.', ' '), // Convert Gen.1:1 to Gen 1:1
-      text: {}, // Empty - text will be loaded on demand
-      crossReferences: [],
-      strongsWords: [],
-      labels: [],
-      contextGroup: "standard"
-    };
-  });
-
-  console.log(`🏗️ Created ${verses.length} verse objects from key index`);
-  return verses;
-}
-
-/**
- * Helper functions for VirtualBibleTable compatibility
- */
-export function getVerseCount(): number {
-  console.warn('⚠️ getVerseCount is deprecated.');
-  return 31102; // Expected total verse count
-}
-
-export function getVerseKeys(): string[] {
-  console.warn('⚠️ getVerseKeys is deprecated.');
-  return [];
-}
-
-export async function loadVerseKeysChronological(): Promise<string[]> {
-  console.warn('⚠️ loadVerseKeysChronological is deprecated. Use BibleDataAPI.loadVerseKeys() instead.');
+  // Redirect to BibleDataAPI
   const { loadVerseKeys: apiLoadVerseKeys } = await import('@/data/BibleDataAPI');
-  return apiLoadVerseKeys('chronological');
+  return apiLoadVerseKeys();
 }
