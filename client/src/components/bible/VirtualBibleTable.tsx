@@ -392,15 +392,16 @@ const VirtualBibleTable = ({
                 // Build text object for all active translations
                 const textObj: Record<string, string> = {};
                 
-                // Add main translation text
-                if (verseData) {
-                  textObj[mainTranslation] = verseData.text;
+                // Add main translation text using the translation loader system
+                const mainText = getMainVerseText(id) || getVerseText(id, mainTranslation);
+                if (mainText) {
+                  textObj[mainTranslation] = mainText;
                 }
                 
                 // Add alternate translation text from the translation maps
                 activeTranslations.forEach(translationCode => {
                   if (translationCode !== mainTranslation) {
-                    const altText = getVerseTextForRow(id, translationCode);
+                    const altText = getVerseText(id, translationCode);
                     if (altText) {
                       textObj[translationCode] = altText;
                     }
@@ -428,7 +429,7 @@ const VirtualBibleTable = ({
                     verse={bibleVerse}
                     rowHeight={ROW_HEIGHT}
                     columnData={columnData}
-                    getVerseText={getVerseTextForRow}
+                    getVerseText={getVerseText}
                     getMainVerseText={getMainVerseText}
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}

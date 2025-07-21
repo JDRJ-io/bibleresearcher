@@ -334,23 +334,35 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        // Get cross-references from the store and display them
+        // Get cross-references from the store and display them with verse text from main translation
         const { crossRefs } = useBibleStore.getState();
         const crossRefsForVerse = crossRefs[verse.reference] || [];
         
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-1 py-1 text-xs overflow-y-auto h-full">
+            <div className="px-1 py-1 text-xs overflow-y-auto h-full space-y-1">
               {crossRefsForVerse.length > 0 ? (
-                crossRefsForVerse.slice(0, 3).map((ref, i) => (
-                  <span 
-                    key={i} 
-                    className="inline-block bg-blue-50 dark:bg-blue-900/20 px-1 rounded mr-1 mb-1 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-800/30 text-blue-600 dark:text-blue-400"
-                    onClick={() => onVerseClick?.(ref)}
-                  >
-                    {ref}
-                  </span>
-                ))
+                crossRefsForVerse.slice(0, 3).map((ref, i) => {
+                  // Use the same translation lookup as the main translation column
+                  const refText = getVerseText(ref, mainTranslation) || 
+                                  getVerseText(ref.replace(' ', '.'), mainTranslation) ||
+                                  getMainVerseText(ref);
+                  
+                  return (
+                    <button
+                      key={i}
+                      className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded w-full text-left"
+                      onClick={() => onVerseClick?.(ref)}
+                    >
+                      <span className="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0 min-w-0">
+                        {ref}
+                      </span>
+                      <span className="text-gray-600 dark:text-gray-400 truncate flex-1 min-w-0">
+                        {refText ? refText.substring(0, 50) + (refText.length > 50 ? '...' : '') : 'Loading...'}
+                      </span>
+                    </button>
+                  );
+                })
               ) : (
                 <span className="text-gray-400 italic">—</span>
               )}
