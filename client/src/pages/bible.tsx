@@ -78,16 +78,28 @@ export default function BiblePage() {
   const bibleStore = useBibleStore();
   const { showCrossRefs, toggleCrossRefs, loadCrossRefsData } = bibleStore;
 
-  // Load cross-references for visible verses when cross-refs are enabled
+  // Load cross-references for all verses in the current viewport slice with throttling
   useEffect(() => {
     if (showCrossRefs && verses.length > 0) {
-      // Get verse IDs for current visible range (smaller window to conserve memory)
-      const startIndex = Math.max(0, centerVerseIndex - 25);
-      const endIndex = Math.min(verses.length - 1, centerVerseIndex + 25);
+      // Calculate viewport slice size based on row height and viewport height
+      const rowHeight = 48; // Standard row height in pixels
+      const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+      const visibleRows = Math.ceil(viewportHeight / rowHeight);
+      
+      // Load cross-references for entire viewport + buffer for smooth scrolling
+      const bufferSize = Math.max(100, visibleRows * 2); // Viewport size * 2 for smooth scrolling
+      const startIndex = Math.max(0, centerVerseIndex - bufferSize);
+      const endIndex = Math.min(verses.length - 1, centerVerseIndex + bufferSize);
       const visibleVerseIds = verses.slice(startIndex, endIndex).map(v => v.reference);
       
-      console.log(`🚀 Loading cross-references for ${visibleVerseIds.length} visible verses around index ${centerVerseIndex}`);
-      loadCrossRefsData(visibleVerseIds);
+      console.log(`🚀 Loading cross-references for ${visibleVerseIds.length} viewport verses (${startIndex}-${endIndex}) around center ${centerVerseIndex}`);
+      
+      // Throttle loading to prevent excessive API calls during rapid scrolling
+      const timeoutId = setTimeout(() => {
+        loadCrossRefsData(visibleVerseIds);
+      }, 150); // 150ms delay to batch scroll events
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [showCrossRefs, centerVerseIndex, verses.length]);
 

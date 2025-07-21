@@ -144,7 +144,26 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
     const translationMap = masterCache.get(`translation-${translationCode}`);
-    return translationMap?.get(verseID);
+    
+    // Debug logging for first few lookups
+    if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
+      console.log('🔍 getVerseText DEBUG:', {
+        verseID,
+        translationCode,
+        cacheKey: `translation-${translationCode}`,
+        hasMap: !!translationMap,
+        mapSize: translationMap?.size,
+        cacheKeys: Array.from(masterCache.keys()),
+        mapHasVerse: translationMap?.has(verseID),
+        mapHasVerseAlt: translationMap?.has(verseID.replace(' ', '.')) || translationMap?.has(verseID.replace('.', ' ')),
+        sampleKeys: translationMap ? Array.from(translationMap.keys()).slice(0, 5) : []
+      });
+    }
+    
+    // Try both formats: "Gen 1:1" and "Gen.1:1"
+    return translationMap?.get(verseID) || 
+           translationMap?.get(verseID.replace(' ', '.')) ||
+           translationMap?.get(verseID.replace('.', ' '));
   }, []);
 
   /**
@@ -153,6 +172,24 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    */
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
     const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
+    
+    // Debug logging for main translation lookups
+    if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
+      console.log('🔍 getMainVerseText DEBUG:', {
+        verseID,
+        mainTranslation,
+        cacheKey: `translation-${mainTranslation}`,
+        hasMap: !!mainTranslationMap,
+        mapSize: mainTranslationMap?.size,
+        mapHasVerse: mainTranslationMap?.has(verseID),
+        mapHasVerseAlt: mainTranslationMap?.has(verseID.replace(' ', '.')) || mainTranslationMap?.has(verseID.replace('.', ' ')),
+      });
+    }
+    
+    // Try both formats: "Gen 1:1" and "Gen.1:1"
+    return mainTranslationMap?.get(verseID) || 
+           mainTranslationMap?.get(verseID.replace(' ', '.')) ||
+           mainTranslationMap?.get(verseID.replace('.', ' '));
     return mainTranslationMap?.get(verseID);
   }, [mainTranslation]);
 
