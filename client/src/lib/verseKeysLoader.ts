@@ -14,6 +14,15 @@ import { loadVerseKeysAsText, loadChronologicalVerseKeys } from '@/data/BibleDat
 // Global verse keys cache
 let cachedVerseKeys: string[] | null = null;
 
+// REMOVED: Legacy verse keys loader
+// Use ONLY BibleDataAPI.loadVerseKeys() per documentation
+
+export const loadVerseKeys = async () => {
+  console.warn('⚠️ verseKeysLoader is deprecated. Use BibleDataAPI.loadVerseKeys() instead.');
+  const { loadVerseKeys: apiLoadVerseKeys } = await import('@/data/BibleDataAPI');
+  return apiLoadVerseKeys();
+};
+
 // Load verse keys from the attached file
 export async function loadVerseKeysCanonical(): Promise<string[]> {
   if (cachedVerseKeys) {
@@ -291,4 +300,3 @@ export async function loadVerseKeysChronological(): Promise<string[]> {
     return await loadVerseKeysCanonical();
   }
 }
-
