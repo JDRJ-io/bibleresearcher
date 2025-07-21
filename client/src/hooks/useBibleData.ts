@@ -16,15 +16,52 @@ export function useBibleData() {
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const verseKeys = await loadVerseKeys();
 
-        // Convert keys to verse objects
-        const verseObjects = verseKeys.map((reference, index) => ({
-          id: `${index}`,
-          reference,
-          book: reference.split(' ')[0],
-          chapter: parseInt(reference.split(' ')[1].split(':')[0]),
-          verse: parseInt(reference.split(':')[1]),
-          text: {} // Text loaded on-demand via BibleDataAPI
-        }));
+        // Convert keys to verse objects with robust reference parsing
+        const verseObjects = verseKeys.map((reference, index) => {
+          // Safety check for valid reference string
+          if (!reference || typeof reference !== 'string') {
+            console.warn(`Invalid reference at index ${index}:`, reference);
+            return {
+              id: `${index}`,
+              reference: reference || '',
+              book: 'Unknown',
+              chapter: 0,
+              verse: 0,
+              text: {}
+            };
+          }
+
+          // Robust parser - supports "Gen.1:1" or "Genesis 1:1"
+          const [bookPart, chapterVerse] = reference.includes(' ')
+            ? reference.split(' ')
+            : reference.split('.');
+
+          if (!chapterVerse || !chapterVerse.includes(':')) {
+            console.warn(`Invalid chapter:verse format in reference: ${reference}`);
+            return {
+              id: `${index}`,
+              reference,
+              book: bookPart || 'Unknown',
+              chapter: 0,
+              verse: 0,
+              text: {}
+            };
+          }
+
+          const [chapterStr, verseStr] = chapterVerse.split(':');
+          const book = bookPart || 'Unknown';
+          const chapter = Number(chapterStr) || 0;
+          const verse = Number(verseStr) || 0;
+
+          return {
+            id: `${index}`,
+            reference,
+            book,
+            chapter,
+            verse,
+            text: {} // Text loaded on-demand via BibleDataAPI
+          };
+        });
 
         setVerses(verseObjects);
         setIsLoading(false);
