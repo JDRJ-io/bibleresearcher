@@ -19,7 +19,7 @@ interface CrossReferencesCellProps {
  * 
  * UI Spec: Text wrapping with vertical scroll, no horizontal overflow
  */
-export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({ 
+export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = React.memo(({ 
   verseReference, 
   onNavigateToVerse 
 }) => {
@@ -145,6 +145,6 @@ export const CrossReferencesCell: React.FC<CrossReferencesCellProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default CrossReferencesCell;

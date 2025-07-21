@@ -67,14 +67,18 @@ function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   
   // Promise deduplication - if already loading, return existing promise
   if (key in pendingLoads) {
+    console.log(`⚡ Deduping request for ${key} - returning existing promise`);
     return pendingLoads[key];
   }
   
+  console.log(`🔄 Starting fresh load for ${key}`);
   pendingLoads[key] = fetchFn().then(result => {
     masterCache.set(key, result);
+    console.log(`✅ Cached ${key}, cleaning up pending promise`);
     delete pendingLoads[key]; // Clean up
     return result;
   }).catch(error => {
+    console.error(`❌ Failed to load ${key}:`, error);
     delete pendingLoads[key]; // Clean up on error too
     throw error;
   });

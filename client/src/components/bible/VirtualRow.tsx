@@ -272,6 +272,15 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       {visibleColumns.map(renderSlot)}
     </div>
   );
+}, (prevProps, nextProps) => {
+  // Custom comparison to prevent re-renders unless verse data actually changes
+  return (
+    prevProps.verseID === nextProps.verseID &&
+    prevProps.rowHeight === nextProps.rowHeight &&
+    prevProps.verse.reference === nextProps.verse.reference &&
+    prevProps.mainTranslation === nextProps.mainTranslation &&
+    JSON.stringify(prevProps.activeTranslations) === JSON.stringify(nextProps.activeTranslations)
+  );
 });
 
 export default VirtualRow;
