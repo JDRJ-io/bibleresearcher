@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus } from "lucide-react";
+import { LabelsLegend } from './LabelsLegend';
 import { MainTranslationSelector } from './MainTranslationSelector';
 import { AlternateTranslationSelector } from './AlternateTranslationSelector';
 import { useAuth } from "@/hooks/useAuth";
@@ -154,23 +155,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
       case "toggle-labels":
         return (
           <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Semantic Highlighting</h4>
-            <div className="space-y-1">
-              {labels.map((label) => (
-                <div key={label.id} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={label.id} 
-                    className="w-3 h-3"
-                    checked={showLabels[label.id] || false}
-                    onCheckedChange={() => toggleLabel(label.id)}
-                  />
-                  <div className="flex-1">
-                    <Label htmlFor={label.id} className="text-xs font-medium">{label.name}</Label>
-                    <div className="text-[10px] text-gray-500 dark:text-gray-400">{label.description}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <LabelsLegend />
           </div>
         );
 

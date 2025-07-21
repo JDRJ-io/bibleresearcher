@@ -62,6 +62,8 @@ export const useBibleStore = create<{
   showLabels: Record<string, boolean>;
   isSearchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
+  activeLabels: string[];
+  setActiveLabels: (labels: string[]) => void;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
   toggleNotes: () => void;
@@ -94,6 +96,7 @@ export const useBibleStore = create<{
   showContext: false,   // Context boundaries toggle
   showLabels: {},           // Labels state object for semantic highlighting  
   isSearchOpen: false,      // Search modal state
+  activeLabels: [],         // Active semantic labels array
 
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
@@ -258,6 +261,7 @@ export const useBibleStore = create<{
     translations: { ...state.translations, [id]: data }
   })),
   getAllActive: () => get().actives,
+  setActiveLabels: (labels: string[]) => set({ activeLabels: labels }),
 
   // UI Layout Spec Column State - Notes between Ref and Main Translation
   columnState: {

@@ -17,7 +17,7 @@ import { ConnectivityStatus } from "@/components/ui/connectivity-status";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { VerseSelector } from "@/components/bible/VerseSelector";
 import { TranslationSelector } from "@/components/bible/TranslationSelector";
-import SearchModal from "@/components/bible/SearchModal";
+import { SearchModal } from "@/components/bible/SearchModal";
 import { ProphecyDetailDrawer } from "@/components/bible/ProphecyDetailDrawer";
 import { StrongsDetailDrawer } from "@/components/bible/StrongsDetailDrawer";
 import { useStrongsWorker } from "@/hooks/useStrongsWorker";
@@ -836,7 +836,7 @@ export default function BiblePage() {
         mainTranslation={mainTranslation}
         onExpandVerse={localExpandVerse}
         onNavigateToVerse={navigateToVerse}
-        onProphecyClick={handleProphecyClick}
+
         getProphecyDataForVerse={getProphecyDataForVerse}
         getGlobalVerseText={getGlobalVerseText}
         totalRows={verses.length}
@@ -871,7 +871,7 @@ export default function BiblePage() {
       <SearchModal 
         isOpen={bibleStore.isSearchOpen} 
         onClose={() => bibleStore.setSearchOpen(false)}
-        onVerseSelect={(index) => {
+        onNavigateToVerse={(index: number) => {
           console.log(`🔍 Navigating to verse index ${index}`);
           // Navigate to the verse using existing navigation
           if (allVerses[index]) {
@@ -883,9 +883,7 @@ export default function BiblePage() {
       <ProphecyDetailDrawer
         isOpen={prophecyDrawer.isOpen}
         onClose={() => setProphecyDrawer(prev => ({ ...prev, isOpen: false }))}
-        prophecyIds={prophecyDrawer.prophecyIds}
-        type={prophecyDrawer.type}
-        verseReference={prophecyDrawer.verseReference}
+        prophecyIds={prophecyDrawer.prophecyIds.map(id => Number(id))}
         onNavigateToVerse={navigateToVerse}
       />
 

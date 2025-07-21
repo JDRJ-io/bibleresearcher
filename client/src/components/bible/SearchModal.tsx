@@ -1,150 +1,211 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, X } from 'lucide-react';
-import { searchVerses } from '@/data/BibleDataAPI';
+import { Badge } from '@/components/ui/badge';
+import { Search, X, Book } from 'lucide-react';
 import { useBibleStore } from '@/App';
+import { LoadingWheel } from '@/components/LoadingWheel';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onVerseSelect: (index: number) => void;
+  onNavigateToVerse: (verseIndex: number) => void;
 }
 
 interface SearchResult {
+  verseId: string;
   reference: string;
   text: string;
   index: number;
+  highlightedText: string;
 }
 
-export default function SearchModal({ isOpen, onClose, onVerseSelect }: SearchModalProps) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
+export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const { actives } = useBibleStore();
+  const [hasSearched, setHasSearched] = useState(false);
   
-  const currentTranslation = actives[0] || 'KJV';
+  const bibleStore = useBibleStore();
+  const verses = bibleStore?.verses || [];
+  const translations = bibleStore?.actives || [];
+  const activeTranslation = translations[0] || 'KJV';
 
-  const handleSearch = useCallback(async () => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
+  // Clear search when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchQuery('');
+      setSearchResults([]);
+      setHasSearched(false);
     }
+  }, [isOpen]);
 
+  const performSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
     setIsSearching(true);
+    setHasSearched(true);
+    
     try {
-      console.log(`🔍 Searching for "${query}" in ${currentTranslation}...`);
-      const searchResults = await searchVerses(query.trim(), currentTranslation);
-      setResults(searchResults);
-      console.log(`✅ Found ${searchResults.length} results`);
+      // Small delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const query = searchQuery.toLowerCase().trim();
+      const results: SearchResult[] = [];
+      
+      // Search through verses in the active translation
+      for (let i = 0; i < verses.length; i++) {
+        const verse = verses[i];
+        const text = verse.text[activeTranslation] || '';
+        
+        if (text.toLowerCase().includes(query)) {
+          // Create highlighted text
+          const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+          const highlightedText = text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+          
+          results.push({
+            verseId: verse.id,
+            reference: verse.reference,
+            text: text,
+            index: i,
+            highlightedText
+          });
+          
+          // Limit results for performance
+          if (results.length >= 100) break;
+        }
+      }
+      
+      setSearchResults(results);
     } catch (error) {
-      console.error('❌ Search failed:', error);
-      setResults([]);
+      console.error('Search error:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
     }
-    setIsSearching(false);
-  }, [query, currentTranslation]);
+  };
 
-  const handleVerseClick = (result: SearchResult) => {
-    console.log(`📖 Navigating to ${result.reference} (index ${result.index})`);
-    onVerseSelect(result.index);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  };
+
+  const handleResultClick = (result: SearchResult) => {
+    onNavigateToVerse(result.index);
     onClose();
   };
 
-  const handleRandomVerse = async () => {
-    setQuery('%');
-    setIsSearching(true);
-    try {
-      const randomResult = await searchVerses('%', currentTranslation);
-      if (randomResult.length > 0) {
-        setResults(randomResult);
-        console.log(`🎲 Random verse: ${randomResult[0].reference}`);
-      }
-    } catch (error) {
-      console.error('❌ Random verse failed:', error);
-    }
-    setIsSearching(false);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const highlightMatch = (text: string, query: string) => {
-    if (!query || query === '%') return text;
+  const getRandomVerse = () => {
+    if (verses.length === 0) return;
     
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
-      regex.test(part) ? 
-        <span key={index} className="bg-yellow-200 dark:bg-yellow-800 font-semibold">{part}</span> : 
-        part
-    );
+    const randomIndex = Math.floor(Math.random() * verses.length);
+    onNavigateToVerse(randomIndex);
+    onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Search className="w-5 h-5" />
-            Search Bible ({currentTranslation})
+            Search the Bible
           </DialogTitle>
         </DialogHeader>
         
         <div className="flex gap-2 mb-4">
-          <Input
-            placeholder="Enter search terms or '%' for random verse..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="flex-1"
-            autoFocus
-          />
-          <Button onClick={handleSearch} disabled={isSearching}>
-            {isSearching ? 'Searching...' : 'Search'}
-          </Button>
-          <Button onClick={handleRandomVerse} variant="outline" disabled={isSearching}>
-            Random
+          <div className="flex-1 relative">
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search for words or phrases..."
+              className="pr-10"
+              autoFocus
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+                onClick={() => setSearchQuery('')}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+          <Button onClick={performSearch} disabled={!searchQuery.trim() || isSearching}>
+            {isSearching ? <LoadingWheel size="small" /> : <Search className="w-4 h-4" />}
           </Button>
         </div>
 
-        {results.length > 0 && (
-          <ScrollArea className="flex-1 max-h-96">
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={getRandomVerse}
+            className="flex items-center gap-1"
+          >
+            <Book className="w-4 h-4" />
+            Random Verse
+          </Button>
+          <Badge variant="secondary" className="text-xs">
+            Searching in {activeTranslation}
+          </Badge>
+        </div>
+
+        <div className="flex-1 overflow-auto">
+          {isSearching && (
+            <div className="flex items-center justify-center py-8">
+              <LoadingWheel size="large" />
+              <span className="ml-2">Searching...</span>
+            </div>
+          )}
+          
+          {!isSearching && hasSearched && searchResults.length === 0 && (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Search className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No results found for "{searchQuery}"</p>
+              <p className="text-sm mt-1">Try different keywords or check your spelling</p>
+            </div>
+          )}
+          
+          {!isSearching && searchResults.length > 0 && (
             <div className="space-y-2">
-              {results.map((result, index) => (
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Found {searchResults.length} results{searchResults.length >= 100 ? ' (showing first 100)' : ''}
+              </div>
+              
+              {searchResults.map((result) => (
                 <div
-                  key={`${result.reference}-${index}`}
-                  className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  onClick={() => handleVerseClick(result)}
+                  key={result.verseId}
+                  className="p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                  onClick={() => handleResultClick(result)}
                 >
-                  <div className="font-semibold text-blue-600 dark:text-blue-400 mb-1">
-                    {result.reference}
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="outline" className="text-xs">
+                      {result.reference}
+                    </Badge>
                   </div>
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
-                    {highlightMatch(result.text, query === '%' ? '' : query)}
-                  </div>
+                  <div 
+                    className="text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: result.highlightedText }}
+                  />
                 </div>
               ))}
             </div>
-          </ScrollArea>
-        )}
-
-        {query && results.length === 0 && !isSearching && (
-          <div className="text-center text-gray-500 py-8">
-            No results found for "{query}"
-          </div>
-        )}
-
-        {!query && (
-          <div className="text-center text-gray-500 py-8">
-            Enter search terms to find verses, or use "%" for a random verse
-          </div>
-        )}
+          )}
+          
+          {!hasSearched && !isSearching && (
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <Search className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>Enter a word or phrase to search the Bible</p>
+              <p className="text-sm mt-1">Use the Random Verse button to explore</p>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
