@@ -20,7 +20,7 @@ export const useTranslationMaps = create<TranslationState>()((set, get) => ({
       setMain: (id: string) => {
         const current = get();
         if (id === current.main) return;  // no-op
-        
+
         set({
           main: id,
           alternates: current.alternates.filter((t) => t !== id),  // 1. remove new main
@@ -29,7 +29,7 @@ export const useTranslationMaps = create<TranslationState>()((set, get) => ({
       toggleAlternate: (id: string) => {
         const current = get();
         if (id === current.main) return;  // cannot demote main here
-        
+
         const alts = current.alternates.filter((t) => t !== id);
         if (alts.length === current.alternates.length) {
           // wasn't there, add it
@@ -54,3 +54,6 @@ export const useColumnKeys = () => {
   const store = useTranslationMaps();
   return [store.main, ...store.alternates];  // column order: main first, then alternates
 };
+
+export { useTranslationMaps };
+export { useTranslationMaps as useTranslationSlice }; // Backward compatibility
