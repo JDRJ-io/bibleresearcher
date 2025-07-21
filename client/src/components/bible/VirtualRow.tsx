@@ -71,6 +71,33 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   );
 }
 
+function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick }: CellProps & { type: 'P' | 'F' | 'V' }) {
+  const { prophecyData } = useBibleStore();
+  
+  // Get prophecy data from store (loaded from Supabase)  
+  const verseData = prophecyData[verse.reference] ?? { P: [], F: [], V: [] };
+  const count = verseData[type]?.length ?? 0;
+
+  if (count === 0) {
+    return <div className="text-gray-400 text-xs text-center py-1">-</div>;
+  }
+
+  return (
+    <button
+      className="w-full h-full flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+      onClick={(e) => {
+        e.stopPropagation();
+        // TODO: Open prophecy detail drawer
+        console.log(`📖 Opening prophecy ${type} details for ${verse.reference}:`, verseData[type]);
+        onVerseClick?.(verse.reference);
+      }}
+      title={`${count} ${type === 'P' ? 'Predictions' : type === 'F' ? 'Fulfillments' : 'Verifications'}`}
+    >
+      {count}
+    </button>
+  );
+}
+
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
@@ -286,19 +313,15 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'prophecy-p':
       case 'prophecy-f':
       case 'prophecy-v':
-        const type = config.type.split('-')[1].toUpperCase() as "P" | "F" | "V";
-        const color = type === "P" ? "text-blue-600" : type === "F" ? "text-green-600" : "text-purple-600";
-        // Get prophecy data from verse if available
-        const prophecyData = verse.prophecy || {};
-        const count = prophecyData && typeof prophecyData === 'object' && type in prophecyData 
-          ? (prophecyData as any)[type]?.length || 0 
-          : 0;
-        const displayContent = count > 0 ? count.toString() : '';
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className={`px-1 py-1 text-xs text-center ${color} cell-content`} title={count > 0 ? `${count} ${type === "P" ? "Prediction" : type === "F" ? "Fulfillment" : "Verification"} references` : ''}>
-              {displayContent}
-            </div>
+            <ProphecyCell 
+              verse={verse} 
+              type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
+              getVerseText={getVerseText}
+              mainTranslation={mainTranslation}
+              onVerseClick={onVerseClick}
+            />
           </div>
         );
 

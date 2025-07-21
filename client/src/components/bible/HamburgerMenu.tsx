@@ -296,10 +296,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                       : "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
-                  <div
-                    className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0"
-                    style={{ backgroundColor: themeOption.color }}
-                  />
+                  <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" />
                   <span className="text-xs">{themeOption.name}</span>
                 </button>
               ))}

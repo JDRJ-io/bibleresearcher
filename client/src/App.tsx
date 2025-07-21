@@ -48,6 +48,8 @@ export const useBibleStore = create<{
   getAllActive: () => string[];
   crossRefs: Record<string, string[]>;
   prophecies: Record<string, any>;
+  prophecyData: Record<string, { P: string[], F: string[], V: string[] }>;
+  setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => void;
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
@@ -68,7 +70,7 @@ export const useBibleStore = create<{
   actives: ["KJV"],
   crossRefs: {},
   prophecies: {},
-  prophecyData: {} as Record<string, { P: string[], F: string[], V: string[] }>,
+  prophecyData: {},
   setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => set({ prophecyData: data }),
   setCrossRefs: (refs: Record<string, string[]>) => set({ crossRefs: refs }),
   store: { crossRefs: {}, prophecies: {} },
@@ -97,6 +99,38 @@ export const useBibleStore = create<{
   toggleProphecies: () => set(state => {
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
     const newValue = !state.showProphecies;
+    
+    // Load prophecy data when toggling on
+    if (newValue && Object.keys(state.prophecyData).length === 0) {
+      console.log('🔮 Loading prophecy data from Supabase...');
+      import('@/data/BibleDataAPI').then(async ({ getProphecyRows }) => {
+        try {
+          const propRows = await getProphecyRows();
+          const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
+          
+          // Parse prophecy_rows.txt format: [VerseID]$[id:type, id:type, …]
+          propRows.split('\n').forEach(line => {
+            const [verseId, data] = line.split('$');
+            if (verseId && data) {
+              const P: string[] = [], F: string[] = [], V: string[] = [];
+              data.split(',').forEach(item => {
+                const [id, type] = item.trim().split(':');
+                if (type === 'P') P.push(id);
+                else if (type === 'F') F.push(id);
+                else if (type === 'V') V.push(id);
+              });
+              parsedData[verseId] = { P, F, V };
+            }
+          });
+          
+          get().setProphecyData(parsedData);
+          console.log('✅ Prophecy data loaded:', Object.keys(parsedData).length, 'verses with prophecy links');
+        } catch (error) {
+          console.error('❌ Failed to load prophecy data:', error);
+        }
+      });
+    }
+    
     const newState = {
       showProphecies: newValue,
       columnState: {
