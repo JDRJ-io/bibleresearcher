@@ -40,6 +40,9 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   
   // Get cross-references from the Bible store (loaded from Supabase)
   const crossRefs = crossRefsStore[verse.reference] ?? [];
+  
+  // TODO: Load cross-references on demand when not in store
+  // This will be implemented as part of the BibleDataAPI integration
 
 
 

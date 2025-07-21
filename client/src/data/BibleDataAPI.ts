@@ -385,7 +385,7 @@ export const BibleDataAPI = {
   loadCrossReferences,
   getProphecy,
   getProphecyRows,
-  getProphecyIndex,
+  getProphecyIndexDetailed,
   loadProphecyRows,
   loadProphecyIndex,
   getStrongsOffsets,

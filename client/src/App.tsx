@@ -110,6 +110,12 @@ export const useBibleStore = create<{
           // Load cross-references for Genesis 1:1 as a test
           const testRefs = await getCrossReferences('Gen.1:1');
           console.log('✅ Cross-references test loaded:', testRefs.length, 'references for Gen.1:1');
+          console.log('✅ Sample references:', testRefs.slice(0, 3));
+          
+          // Update store with test data
+          if (testRefs.length > 0) {
+            get().setCrossRefs({ 'Gen 1:1': testRefs });
+          }
         } catch (error) {
           console.error('❌ Failed to load cross-references:', error);
         }
@@ -136,11 +142,11 @@ export const useBibleStore = create<{
     // Load prophecy data when toggling on
     if (newValue && Object.keys(state.prophecyData).length === 0) {
       console.log('🔮 Loading prophecy data from Supabase...');
-      import('@/data/BibleDataAPI').then(async ({ getProphecyRows, getProphecyIndex }) => {
+      import('@/data/BibleDataAPI').then(async ({ getProphecyRows, getProphecyIndexDetailed }) => {
         try {
           const [propRows, propIndex] = await Promise.all([
             getProphecyRows(),
-            getProphecyIndex()
+            getProphecyIndexDetailed()
           ]);
           
           const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
