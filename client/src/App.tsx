@@ -255,10 +255,11 @@ export const useBibleStore = create<{
     }
   },
 
-  // Translation state management
+  // Translation state management - ensure it's always properly initialized
   translationState: {
     main: "KJV",
     alternates: [],
+    columnKeys: ["KJV"], // Ensure columnKeys is initialized
     setMain: (id: string) => set(state => {
       if (id === state.translationState.main) return state;
 

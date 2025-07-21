@@ -10,6 +10,18 @@ import { useBibleStore } from "@/App";
 import { useTranslationMaps } from "@/store/translationSlice";
 import { useBibleData } from "@/hooks/useBibleData";
 
+// Add a simple component to show when store is not ready
+function StoreNotReady() {
+  return (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="text-center text-muted-foreground">
+        <div className="text-lg mb-2">Initializing Bible application...</div>
+        <div className="text-sm">Loading store and translations</div>
+      </div>
+    </div>
+  );
+}
+
 import type {
   BibleVerse,
   Translation,

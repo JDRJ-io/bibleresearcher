@@ -73,9 +73,38 @@ const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   onVerseClick,
   onExpandVerse,
 }) => {
-  const { main, alternates } = useTranslationMaps();
-  const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
+  const translationMaps = useTranslationMaps();
+  const store = useBibleStore();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // Safety checks for store and translation data
+  if (!store || !translationMaps) {
+    console.warn('⚠️ VirtualRow: Store or translation maps not available');
+    return (
+      <div className="w-full border-b border-gray-200 dark:border-gray-700 flex items-center justify-center" style={{ height: rowHeight }}>
+        <div className="text-gray-500">Loading row...</div>
+      </div>
+    );
+  }
+
+  const { main = 'KJV', alternates = [] } = translationMaps;
+  const { 
+    showCrossRefs = true, 
+    showProphecies = false, 
+    showNotes = false, 
+    showDates = false, 
+    columnState 
+  } = store;
+
+  // Safety check for verse data
+  if (!verse || !verse.reference) {
+    console.warn('⚠️ VirtualRow: Invalid verse data');
+    return (
+      <div className="w-full border-b border-gray-200 dark:border-gray-700 flex items-center justify-center" style={{ height: rowHeight }}>
+        <div className="text-gray-500">Invalid verse data</div>
+      </div>
+    );
+  }
 
   // Clean rendering without excessive debug logs
 

@@ -56,21 +56,30 @@ export function ColumnHeaders({
   const { main, alternates } = useTranslationMaps();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // Get store states for column visibility
-  const { 
-    showCrossRefs: storeShowCrossRefs, 
-    showProphecies, 
-    showNotes: storeShowNotes, 
-    showDates, 
-    columnState,
-    isInitialized 
-  } = useBibleStore();
+  // Get store states for column visibility with safety checks
+  const store = useBibleStore();
+  
+  if (!store) {
+    console.error('❌ ColumnHeaders: Store not available');
+    return <div className="h-10 bg-gray-100">Loading headers...</div>;
+  }
 
-  // Store should always be initialized - removed blocking guard
+  const { 
+    showCrossRefs: storeShowCrossRefs = true, 
+    showProphecies = false, 
+    showNotes: storeShowNotes = false, 
+    showDates = false, 
+    columnState,
+    isInitialized = false
+  } = store;
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
   const showNotes = propShowNotes ?? storeShowNotes;
+
+  // Ensure we have valid translation data
+  const mainTranslation = main || 'KJV';
+  const alternateTranslations = alternates || [];
 
   // Use store's columnState as the authoritative source, enhanced with translation data
   // PROPER SLOT ARCHITECTURE matching VirtualRow exactly
@@ -80,13 +89,13 @@ export function ColumnHeaders({
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
 
   // Slot 1: Main translation (always visible) - center loading position
-  slotConfig[1] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  slotConfig[1] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
 
   // Slot 2: Cross References (center column when enabled)
   slotConfig[2] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
 
   // Slots 3-14: Alternate translations (load to the right first, then left)
-  alternates.forEach((translationCode, index) => {
+  alternateTranslations.forEach((translationCode, index) => {
     const slot = 3 + index; // Alternates start at slot 3
     if (slot <= 14) { // Max 12 alternate translations (slots 3-14)
       slotConfig[slot] = { 
@@ -139,9 +148,9 @@ export function ColumnHeaders({
     width += 320; // Main translation ~320px
     if (showCrossRefs) width += 240; // Cross refs ~240px
     if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (alternates.length * 320); // Alt translations ~320px each
+    width += (alternateTranslations.length * 320); // Alt translations ~320px each
     return width;
-  }, [showCrossRefs, showProphecies, alternates]);
+  }, [showCrossRefs, showProphecies, alternateTranslations]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
@@ -150,11 +159,11 @@ export function ColumnHeaders({
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
 
   const allColumns = visibleColumns.map(col => ({
-    id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
-    name: col.config?.header || '',
-    type: col.config?.type || '',
+    id: col.config?.header?.toLowerCase().replace(' ', '-') || `slot-${col.slot}`,
+    name: col.config?.header || `Column ${col.slot}`,
+    type: col.config?.type || 'unknown',
     position: col.slot,
-    isMain: col.config?.translationCode === main,
+    isMain: col.config?.translationCode === mainTranslation,
     slot: col.slot
   }));
 
