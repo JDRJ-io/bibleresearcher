@@ -312,8 +312,7 @@ export const useBibleStore = create<{
         alternates: [],
         columnKeys: [mainId]
       }
-    })),
-    columnKeys: ["KJV"]
+    }))
   }
 }));
 
