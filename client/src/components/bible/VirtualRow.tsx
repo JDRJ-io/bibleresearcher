@@ -334,27 +334,30 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const getColumnWidth = (slotNumber: number) => {
       if (screenSize === 'mobile') {
         switch (slotNumber) {
-          case 0: return "w-12";        // Reference (minimal)
-          case 1: return "w-14";        // Notes (compact)
-          case 7: return "flex-1";      // Cross References (flexible)
-          case 8: case 9: case 10: return "w-6"; // Prophecy P/F/V (tiny)
-          default: return "flex-1";     // Translations (flexible)
+          case 0: return "w-16";        // Reference - compact but readable (64px)
+          case 1: return "w-20";        // Notes - when visible (80px)
+          case 2: return "w-44";        // Main translation - balanced (176px) 
+          case 7: return "w-36";        // Cross References - readable (144px)
+          case 8: case 9: case 10: return "w-8"; // Prophecy P/F/V - minimal (32px)
+          default: return "w-40";       // Alt translations - if any (160px)
         }
       } else if (screenSize === 'tablet') {
         switch (slotNumber) {
-          case 0: return "w-14";        // Reference
+          case 0: return "w-20";        // Reference
           case 1: return "w-48";        // Notes
+          case 2: return "w-64";        // Main translation
           case 7: return "w-64";        // Cross References
           case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V
-          default: return "w-64";       // Translations
+          default: return "w-64";       // Alt translations
         }
       } else { // desktop
         switch (slotNumber) {
-          case 0: return "w-16";        // Reference
+          case 0: return "w-20";        // Reference
           case 1: return "w-64";        // Notes
+          case 2: return "w-80";        // Main translation
           case 7: return "w-80";        // Cross References
           case 8: case 9: case 10: return "w-20"; // Prophecy P/F/V
-          default: return "w-80";       // Translations
+          default: return "w-80";       // Alt translations
         }
       }
     };
@@ -394,10 +397,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
           });
         }
 
-        // Try multiple lookup formats
+        // Simple fallback to hook functions - let debugging show the issue
         let verseText = getVerseText(verse.reference, config.translationCode) || 
-                        getVerseText(verse.reference.replace(' ', '.'), config.translationCode) ||
-                        (config.type === 'main-translation' ? getMainVerseText(verse.reference) : null);
+                        getMainVerseText(verse.reference);
 
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>

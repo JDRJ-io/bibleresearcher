@@ -145,9 +145,9 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
     const translationMap = masterCache.get(`translation-${translationCode}`);
     
-    // Debug logging for first few lookups
+    // Debug logging for first few lookups - comprehensive format checking
     if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
-      console.log('🔍 getVerseText DEBUG:', {
+      console.log('🔍 getVerseText DETAILED DEBUG:', {
         verseID,
         translationCode,
         cacheKey: `translation-${translationCode}`,
@@ -155,8 +155,12 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         mapSize: translationMap?.size,
         cacheKeys: Array.from(masterCache.keys()),
         mapHasVerse: translationMap?.has(verseID),
-        mapHasVerseAlt: translationMap?.has(verseID.replace(' ', '.')) || translationMap?.has(verseID.replace('.', ' ')),
-        sampleKeys: translationMap ? Array.from(translationMap.keys()).slice(0, 5) : []
+        mapHasVerseAlt1: translationMap?.has(verseID.replace(' ', '.')), // "Gen 1:1" -> "Gen.1:1"
+        mapHasVerseAlt2: translationMap?.has(verseID.replace('.', ' ')), // "Gen.1:1" -> "Gen 1:1"
+        sampleKeys: translationMap ? Array.from(translationMap.keys()).slice(0, 10) : [],
+        lookupResult1: translationMap?.get(verseID),
+        lookupResult2: translationMap?.get(verseID.replace(' ', '.')),
+        lookupResult3: translationMap?.get(verseID.replace('.', ' '))
       });
     }
     
@@ -173,16 +177,21 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
     const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
     
-    // Debug logging for main translation lookups
+    // Debug logging for main translation lookups - comprehensive  
     if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
-      console.log('🔍 getMainVerseText DEBUG:', {
+      console.log('🔍 getMainVerseText DETAILED DEBUG:', {
         verseID,
         mainTranslation,
         cacheKey: `translation-${mainTranslation}`,
         hasMap: !!mainTranslationMap,
         mapSize: mainTranslationMap?.size,
         mapHasVerse: mainTranslationMap?.has(verseID),
-        mapHasVerseAlt: mainTranslationMap?.has(verseID.replace(' ', '.')) || mainTranslationMap?.has(verseID.replace('.', ' ')),
+        mapHasVerseAlt1: mainTranslationMap?.has(verseID.replace(' ', '.')), 
+        mapHasVerseAlt2: mainTranslationMap?.has(verseID.replace('.', ' ')),
+        sampleKeys: mainTranslationMap ? Array.from(mainTranslationMap.keys()).slice(0, 10) : [],
+        lookupResult1: mainTranslationMap?.get(verseID),
+        lookupResult2: mainTranslationMap?.get(verseID.replace(' ', '.')),
+        lookupResult3: mainTranslationMap?.get(verseID.replace('.', ' '))
       });
     }
     

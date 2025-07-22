@@ -236,18 +236,44 @@ body {
     padding: 0.5rem 0.25rem;
   }
 
-  /* Optimize column widths for mobile */
-  .w-80 {
-    width: 100%;
-    min-width: 280px;
+  /* Mobile column optimization for uniform layout */
+  .w-16 { width: 64px; }   /* Reference column */
+  .w-44 { width: 176px; }  /* Main translation column */  
+  .w-36 { width: 144px; }  /* Cross References column */
+  .w-8 { width: 32px; }    /* Prophecy P/F/V columns */
+  
+  /* Ensure proper spacing and text wrapping */
+  .cell-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    padding: 0.25rem 0.5rem;
+    line-height: 1.3;
   }
-
-  .w-60 {
-    width: 200px;
+  
+  .cell-ref {
+    font-size: 10px;
+    text-align: center;
+    padding: 0.25rem 0.125rem;
   }
-
-  .w-20 {
-    width: 60px;
+  
+  /* Mobile cross-reference styling */
+  .cross-ref-container {
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 11px;
+    scrollbar-width: thin;
+  }
+  
+  .cross-ref-item {
+    margin-bottom: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    border-radius: 2px;
+    background: rgba(59, 130, 246, 0.05);
+  }
+  
+  .cross-ref-item:hover {
+    background: rgba(59, 130, 246, 0.1);
   }
 }
 

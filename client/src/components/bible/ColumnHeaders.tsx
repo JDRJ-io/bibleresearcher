@@ -22,13 +22,13 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // Mobile-optimized width logic matching VirtualRow exactly - updated for new slot numbers
+  // Mobile-optimized width logic matching VirtualRow exactly - uniform mobile layout
   const width = isMobile ? 
-    (column.name === "Ref" || column.name === "Reference" ? "w-14" : 
-     column.name === "Notes" ? "w-16" :
-     column.name === "Cross Refs" || column.name === "Cross References" ? "w-12" : 
-     ["P", "F", "V"].includes(column.name) ? "w-8" : "flex-1") :
-    (column.name === "Ref" || column.name === "Reference" ? "w-16" : 
+    (column.name === "Ref" || column.name === "Reference" ? "w-16" :     // 64px - Reference
+     column.name === "Notes" ? "w-20" :                                  // 80px - Notes  
+     column.name === "Cross Refs" || column.name === "Cross References" ? "w-36" : // 144px - Cross Refs
+     ["P", "F", "V"].includes(column.name) ? "w-8" : "w-44") :           // 32px P/F/V, 176px Main translation
+    (column.name === "Ref" || column.name === "Reference" ? "w-20" : 
      column.name === "Notes" ? "w-64" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
