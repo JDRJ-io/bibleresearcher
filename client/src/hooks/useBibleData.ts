@@ -1397,8 +1397,8 @@ export function useBibleData() {
 
   // Global verse text lookup function for prophecy column and other components
   const getGlobalVerseText = (reference: string): string => {
-    // Use the selected main translation for cross-references
-    const translationCode = mainTranslation;
+    // Use the main translation from the selected translations (first one)
+    const translationCode = selectedTranslations.length > 0 ? selectedTranslations[0].id : mainTranslation;
     const cacheKey = `translation-${translationCode}`;
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
 
@@ -1406,6 +1406,8 @@ export function useBibleData() {
       console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
       return "";
     }
+
+    console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
 
     // Try multiple reference formats to find the text
     const formats = [
@@ -1418,8 +1420,8 @@ export function useBibleData() {
     for (const format of formats) {
       const text = translationMap.get(format);
       if (text) {
-        // Truncate long verses for display in prophecy columns
-        return text.length > 60 ? text.substring(0, 60) + "..." : text;
+        // Truncate long verses for display in cross-references
+        return text.length > 100 ? text.substring(0, 100) + "..." : text;
       }
     }
 

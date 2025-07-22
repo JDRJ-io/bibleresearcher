@@ -36,7 +36,7 @@ export function VerseRow({
   allVerses,
 }: VerseRowProps) {
   const { store } = useBibleStore();
-  
+
   // Create preferences object for consistency
   const preferences = {
     showNotes,
@@ -102,26 +102,29 @@ export function VerseRow({
               );
             })()}
           </div>
-          
+
           {(() => {
             const dotFormat = verse.reference.replace(/\s/g, '.');
             const crossRefs = store.crossRefs[dotFormat] || [];
-            
+
             if (crossRefs.length > 0) {
               return crossRefs.map((ref, index) => {
-                // Get verse text from the main translation (first selected translation)
+                // Get verse text from the main translation using the facade function
                 const mainTranslation = selectedTranslations[0];
-                const refText = mainTranslation ? 
-                  (verse.text && verse.text[mainTranslation.id] ? 
-                    // Try to get from current verse data first
-                    (allVerses.find(v => v.reference === ref)?.text?.[mainTranslation.id]) ||
-                    // Fallback to global getter
-                    (getGlobalVerseText ? getGlobalVerseText(ref) : '')
-                    : (getGlobalVerseText ? getGlobalVerseText(ref) : '')
-                  ) : '';
+                let refText = '';
+
+                if (mainTranslation && getGlobalVerseText) {
+                  // Convert reference format for cross-reference lookup
+                  const displayRef = ref.replace(/\./g, ' '); // "Gen.1:1" -> "Gen 1:1"
+                  const lookupRef = ref; // Keep original dot format as backup
+
+                  // Use the global verse text getter which should use the main translation
+                  refText = getGlobalVerseText(displayRef) || getGlobalVerseText(lookupRef) || '';
+                }
+
                 const displayText = refText && refText.length > 150 ? 
                   refText.substring(0, 150) + '...' : refText;
-                
+
                 return (
                   <div key={index} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
                     <button 
@@ -151,7 +154,7 @@ export function VerseRow({
           <ProphecyColumns verseIDs={[verse.reference]} />
         </div>
       )}
-      
+
       {/* Notes Column */}
       {showNotes && (
         <div className="w-60 flex-shrink-0 border-r">
