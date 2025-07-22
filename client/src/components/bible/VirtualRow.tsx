@@ -336,12 +336,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const getColumnWidth = (slotNumber: number) => {
       if (screenSize === 'mobile') {
         switch (slotNumber) {
-          case 0: return "w-6";         // Reference - THIN (16px)
-          case 1: return "w-20";        // Notes - when visible (80px)
-          case 2: return "w-52";        // Main translation - (200px) 
-          case 7: return "w-52";        // Cross References - SAME as main (200px)
-          case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V - minimal (64px)
-          default: return "w-40";       // Alt translations - if any (160px)
+          case 0: return "cell-ref";         // Reference - uses CSS var
+          case 1: return "w-20";             // Notes - when visible
+          case 2: return "cell-main";        // Main translation - uses CSS var
+          case 7: return "cell-cross";       // Cross References - uses CSS var
+          case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V
+          default: return "w-40";            // Alt translations - if any
         }
       } else if (screenSize === 'tablet') {
         switch (slotNumber) {
@@ -373,7 +373,9 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref">
-              <span>{verse.reference}</span>
+              <span className="transform -rotate-90 whitespace-nowrap origin-center text-center block">
+                {verse.reference}
+              </span>
             </div>
           </div>
         );

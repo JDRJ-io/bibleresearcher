@@ -22,7 +22,7 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // MATCH EXACT CSS ADAPTIVE WIDTHS - No Tailwind classes, use inline styles that match the CSS
+  // MATCH EXACT CSS ADAPTIVE WIDTHS - Use CSS variables for consistency
   const getAdaptiveStyle = () => {
     if (!isMobile) {
       // Desktop widths
@@ -33,31 +33,21 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
       return { width: '320px' }; // Main translation
     }
     
-    // Mobile adaptive widths - EXACTLY match the CSS media queries
-    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
-    
+    // Mobile - use CSS variables to match the unified system
     if (column.name === "Ref" || column.name === "Reference" || column.name === "#") {
-      // Reference column responsive sizing
-      if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: '40px' }; // Tablet
-      if (viewportWidth >= 667 && viewportWidth <= 896) return { width: '32px' }; // Landscape
-      return { width: '24px' }; // Base mobile
+      return { width: 'var(--mobile-ref-width)' };
     }
     
-    if (column.name === "Notes") return { width: '80px' };
+    if (column.name === "Notes") return { width: 'var(--mobile-notes-width)' };
     
     if (column.name === "Cross Refs" || column.name === "Cross References") {
-      // Cross-refs responsive sizing
-      if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
-      if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
-      return { width: `calc((100vw - 60px) * 0.48)` };
+      return { width: 'var(--mobile-cross-width)' };
     }
     
-    if (["P", "F", "V"].includes(column.name)) return { width: '64px' };
+    if (["P", "F", "V"].includes(column.name)) return { width: 'var(--mobile-prophecy-width)' };
     
-    // Main translation responsive sizing
-    if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
-    if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
-    return { width: `calc((100vw - 60px) * 0.48)` };
+    // Main translation
+    return { width: 'var(--mobile-main-width)' };
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
