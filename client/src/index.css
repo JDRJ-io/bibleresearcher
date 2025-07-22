@@ -771,11 +771,8 @@ body.sepia-mode {
   --column-bg: hsl(45, 26%, 88%);
   --link-color: hsl(20, 79%, 52%);
   --hover-bg: hsla(20, 79%, 52%, 0.1);
-  --button-hover: hsl(54, 77%, 75%);```text
+  --button-hover: hsl(54, 77%, 75%);
   --accent-color: hsl(20, 79%, 52%);
-  --success-color: hsl(28, 45%, 34%);
-  --warning-color: hsl(38, 67%, 52%);
-  --error-color: hsl(20, 45%, 52%);
 }
 
 body.aurora-mode {
@@ -788,9 +785,6 @@ body.aurora-mode {
   --hover-bg: hsla(159, 100%, 67%, 0.2);
   --button-hover: hsl(240, 37%, 22%);
   --accent-color: hsl(159, 100%, 67%);
-  --success-color: hsl(120, 100%, 50%);
-  --warning-color: hsl(51, 100%, 50%);
-  --error-color: hsl(9, 100%, 64%);
 }
 
 body.electric-mode {
@@ -803,9 +797,6 @@ body.electric-mode {
   --hover-bg: hsla(56, 94%, 59%, 0.2);
   --button-hover: hsl(231, 48%, 48%);
   --accent-color: hsl(56, 94%, 59%);
-  --success-color: hsl(120, 100%, 63%);
-  --warning-color: hsl(36, 100%, 50%);
-  --error-color: hsl(4, 90%, 58%);
 }
 
 body.fireworks-mode {
@@ -818,9 +809,6 @@ body.fireworks-mode {
   --hover-bg: hsla(25, 100%, 59%, 0.2);
   --button-hover: hsl(55, 100%, 50%);
   --accent-color: hsl(25, 100%, 59%);
-  --success-color: hsl(120, 61%, 50%);
-  --warning-color: hsl(39, 100%, 50%);
-  --error-color: hsl(14, 100%, 57%);
 }
 
 /* Theme Animations */

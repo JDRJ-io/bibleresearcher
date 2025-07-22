@@ -208,28 +208,28 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
-        // Notes column (moved to slot 1 between Ref and Main) - HIDDEN ON MOBILE
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes && !isMobile };
+        // Notes column (moved to slot 1 between Ref and Main) - TOGGLEABLE ON MOBILE
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
       case 7:
-        // Cross References column (moved from slot 6 to 7) - ALWAYS VISIBLE ON MOBILE
-        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: isMobile ? true : (col.visible && showCrossRefs) };
+        // Cross References column (moved from slot 6 to 7) - DEFAULT ON MOBILE
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
       case 8:
-        // Prophecy P column (moved from slot 7 to 8) - HIDDEN ON MOBILE
-        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies && !isMobile };
+        // Prophecy P column (moved from slot 7 to 8) - TOGGLEABLE ON MOBILE
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
         break;
       case 9:
-        // Prophecy F column (moved from slot 8 to 9) - HIDDEN ON MOBILE
-        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies && !isMobile };
+        // Prophecy F column (moved from slot 8 to 9) - TOGGLEABLE ON MOBILE
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
         break;
       case 10:
-        // Prophecy V column (moved from slot 9 to 10) - HIDDEN ON MOBILE
-        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies && !isMobile };
+        // Prophecy V column (moved from slot 9 to 10) - TOGGLEABLE ON MOBILE
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
         break;
       case 11:
-        // Dates column (unchanged) - HIDDEN ON MOBILE
-        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates && !isMobile };
+        // Dates column (unchanged) - TOGGLEABLE ON MOBILE
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
   });
