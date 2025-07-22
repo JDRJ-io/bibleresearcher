@@ -92,11 +92,15 @@ export function VerseRow({
         <div className="h-[120px] overflow-y-auto p-3 text-xs">
           {/* Cross-reference badge */}
           <div className="flex items-center gap-2 mb-2">
-            {store.crossRefs[verse.reference]?.length > 0 && (
-              <span className="text-sky-500 text-xs cursor-pointer" aria-label={`${store.crossRefs[verse.reference].length} cross references`}>
-                📖 {store.crossRefs[verse.reference].length}
-              </span>
-            )}
+            {(() => {
+              const dotFormat = verse.reference.replace(/\s/g, '.');
+              const refs = store.crossRefs[dotFormat];
+              return refs?.length > 0 && (
+                <span className="text-sky-500 text-xs cursor-pointer" aria-label={`${refs.length} cross references`}>
+                  📖 {refs.length}
+                </span>
+              );
+            })()}
           </div>
           
           {verse.crossReferences && verse.crossReferences.length > 0 ? (

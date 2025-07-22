@@ -81,21 +81,8 @@ const VirtualBibleTable = ({
   // B-2: Load cross-references with offset-based approach
   useCrossRefLoader(slice.verseIDs, 'cf1');
   
-  // B-3: Eager-load main translation for cross-ref snippets
+  // Cross-reference text loading handled by main translation system - no duplication
   const { crossRefs: crossRefsStore } = useBibleStore();
-  useEffect(() => {
-    const loadCrossRefTranslations = async () => {
-      const refs = slice.verseIDs.flatMap(verseId => crossRefsStore[verseId] ?? []);
-      const need = refs.filter(ref => !getBibleVerseText(ref, mainTranslation));
-      if (need.length > 0) {
-        console.log(`📖 Loading ${need.length} cross-ref verse texts for main translation`);
-      }
-    };
-    
-    if (slice.verseIDs.length > 0) {
-      loadCrossRefTranslations().catch(console.error);
-    }
-  }, [slice.verseIDs, crossRefsStore, mainTranslation, getBibleVerseText]);
   
   // Load column-specific data when columns are toggled
   useColumnData();

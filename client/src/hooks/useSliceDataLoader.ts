@@ -44,19 +44,9 @@ export function useSliceDataLoader(verseIDs: string[], mainTranslation?: string)
   const { translationState } = useBibleStore();
   const { main } = translationState;
 
-  // Preload main translation when slice changes
-  useEffect(() => {
-    if (mainTranslation && verseIDs.length > 0) {
-      ensureTranslationLoaded(mainTranslation);
-    }
-  }, [verseIDs, mainTranslation, ensureTranslationLoaded]);
+  // Translation loading handled centrally by useBibleData - no duplication
 
-  // Expert's requirement: ensureTranslationLoaded(main) added to useSliceDataLoader's effect
-  useEffect(() => {
-    if (main && verseIDs.length > 0) {
-      ensureTranslationLoaded(main);
-    }
-  }, [main, verseIDs, ensureTranslationLoaded]);
+  // Remove duplicate translation loading - handled by main useBibleData hook
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['/api/slice-data', verseIDs],

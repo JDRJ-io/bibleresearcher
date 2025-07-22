@@ -62,6 +62,7 @@ export async function loadTranslation(id: string) {
       }
     }
     
+    console.log(`✓ Found translation ${id} in cache with ${textMap.size} verses (Bible has 31,102 verses)`);
     return textMap;
   });
 }

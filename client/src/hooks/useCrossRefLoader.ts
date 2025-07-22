@@ -1,73 +1,69 @@
+
 import { useEffect, useRef } from 'react';
-import { getCfOffsets, getCrossRefSlice, loadTranslation } from '@/data/BibleDataAPI';
-import { getCrossRefWorker } from '@/lib/workers';
+import { getCrossReferences } from '@/data/BibleDataAPI';
 import { useBibleStore } from '@/App';
 
 export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'cf1') {
   const { crossRefs: crossRefsStore, setCrossRefs } = useBibleStore();
+  const loadingRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const loadCrossRefs = async () => {
       if (verseKeys.length === 0) return;
 
-      // INSTANT UI: Pre-populate with empty arrays to show "No cross references" immediately
-      const newCrossRefs: Record<string, string[]> = { ...crossRefsStore };
-      const neededVerses: string[] = [];
-
-      verseKeys.forEach(verseId => {
-        const spaceFormat = verseId.replace(/\./g, ' ');
+      // CENTER-ANCHORED: Only load cross-refs for verses we don't already have
+      const neededVerses = verseKeys.filter(verseId => {
         const dotFormat = verseId.replace(/\s/g, '.');
-        
-        if (!crossRefsStore[spaceFormat] && !crossRefsStore[dotFormat]) {
-          // Pre-populate with empty array for instant UI
-          newCrossRefs[spaceFormat] = [];
-          newCrossRefs[dotFormat] = [];
-          neededVerses.push(verseId);
-        }
+        const spaceFormat = verseId.replace(/\./g, ' ');
+        return !crossRefsStore[dotFormat] && !crossRefsStore[spaceFormat] && !loadingRef.current.has(dotFormat);
       });
-
-      // Update UI immediately with empty arrays
-      if (neededVerses.length > 0) {
-        setCrossRefs(newCrossRefs);
-      }
 
       if (neededVerses.length === 0) return;
 
+      // Mark as loading to prevent duplicate requests
+      neededVerses.forEach(verseId => {
+        const dotFormat = verseId.replace(/\s/g, '.');
+        loadingRef.current.add(dotFormat);
+      });
+
       try {
-        // Load actual cross-references in background
-        const { getCrossReferences } = await import('@/data/BibleDataAPI');
+        console.log(`🔄 Loading cross-references for ${neededVerses.length} center-anchored verses`);
+        
+        // Batch load cross-references
         const batchPromises = neededVerses.map(async verseId => {
           try {
             const refs = await getCrossReferences(verseId);
             return { verseId, refs: refs || [] };
           } catch (error) {
+            console.warn(`Failed to load cross-refs for ${verseId}:`, error);
             return { verseId, refs: [] };
           }
         });
 
         const results = await Promise.all(batchPromises);
 
-        // Update with actual data
-        const updatedCrossRefs: Record<string, string[]> = { ...newCrossRefs };
+        // Store in single format to reduce memory usage (dot format only)
+        const updatedCrossRefs: Record<string, string[]> = { ...crossRefsStore };
         results.forEach(({ verseId, refs }) => {
-          const spaceFormat = verseId.replace(/\./g, ' ');
           const dotFormat = verseId.replace(/\s/g, '.');
-          updatedCrossRefs[spaceFormat] = refs;
           updatedCrossRefs[dotFormat] = refs;
+          // Remove from loading set
+          loadingRef.current.delete(dotFormat);
         });
 
         setCrossRefs(updatedCrossRefs);
+        console.log(`✅ Loaded cross-references for ${results.length} verses around center anchor`);
 
-        // Pre-load verse text for cross-references
-        const allCrossRefs = results.flatMap(r => r.refs);
-        if (allCrossRefs.length > 0) {
-          await loadTranslation('KJV');
-        }
       } catch (error) {
         console.error('Failed to batch load cross-references:', error);
+        // Clear loading flags on error
+        neededVerses.forEach(verseId => {
+          const dotFormat = verseId.replace(/\s/g, '.');
+          loadingRef.current.delete(dotFormat);
+        });
       }
     };
 
     loadCrossRefs().catch(console.error);
-  }, [verseKeys, cfSet, crossRefsStore, setCrossRefs])
+  }, [verseKeys.join(','), cfSet, crossRefsStore, setCrossRefs]); // Only re-run when verse list changes
 }
