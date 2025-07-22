@@ -41,21 +41,6 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Get cross-references from the Bible store (loaded from Supabase)
   const crossRefs = crossRefsStore[verse.reference] ?? [];
   
-  const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    // Debug logging for hyperlink navigation
-    console.log('🔗 Cross-reference hyperlink clicked:', ref);
-    console.log('🔗 Navigation handler available:', !!onVerseClick);
-    
-    if (onVerseClick) {
-      onVerseClick(ref);
-    } else {
-      console.warn('🔗 No navigation handler provided for cross-reference:', ref);
-    }
-  };
-  
   return (
     <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
       {crossRefs.map((ref, index) => {
@@ -64,21 +49,21 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
         const displayText = txt || "(loading…)";
         
         return (
-          <div key={ref} className="cross-ref-item">
-            <a
-              href={`#${ref}`}
-              className="flex text-xs gap-1 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors cursor-pointer no-underline"
-              onClick={(e) => handleCrossRefClick(ref, e)}
-              title={`Navigate to ${ref}`}
-            >
-              <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate font-semibold hover:text-blue-800 dark:hover:text-blue-300">
-                {ref}
-              </span>
-              <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
-                {displayText}
-              </span>
-            </a>
-          </div>
+          <button
+            key={ref}
+            className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
+            onClick={(e) => {
+              e.stopPropagation();
+              onVerseClick?.(ref);
+            }}
+          >
+            <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
+              {ref}
+            </span>
+            <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
+              {displayText}
+            </span>
+          </button>
         );
       })}
       {crossRefs.length === 0 && (
@@ -351,24 +336,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         const { crossRefs } = useBibleStore.getState();
         const crossRefsForVerse = crossRefs[verse.reference] || [];
         
-        const handleHyperlinkClick = (ref: string, e: React.MouseEvent) => {
-          e.stopPropagation();
-          e.preventDefault();
-          
-          console.log('🔗 Cross-reference hyperlink activated:', ref, 'Handler available:', !!onVerseClick);
-          
-          if (onVerseClick) {
-            onVerseClick(ref);
-          } else {
-            console.warn('🔗 No verse navigation handler available for:', ref);
-          }
-        };
-        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-2 cross-ref-container custom-scrollbar" style={{ maxHeight: rowHeight - 4 }}>
+            <div className="px-2 py-2 cross-ref-container custom-scrollbar">
               {crossRefsForVerse.length > 0 ? (
-                <div className="space-y-1">
+                <div className="space-y-2">
                   {crossRefsForVerse.map((ref, i) => {
                     // Use the same translation lookup as the main translation column
                     const refText = getVerseText(ref, mainTranslation) || 
@@ -378,26 +350,25 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                     return (
                       <div
                         key={i}
-                        className="cross-ref-item block w-full px-1 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        className="cross-ref-item block w-full px-2 py-2 rounded"
                       >
-                        <a
-                          href={`#${ref}`}
-                          className="block no-underline"
-                          onClick={(e) => handleHyperlinkClick(ref, e)}
-                          title={`Navigate to ${ref}`}
+                        <button
+                          className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                          onClick={() => {
+                            console.log('🔗 Cross-reference clicked:', ref, 'onVerseClick:', !!onVerseClick);
+                            onVerseClick?.(ref);
+                          }}
                         >
-                          <div className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer">
-                            {ref}
-                          </div>
-                          <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
-                            {refText || 'Loading...'}
-                          </div>
-                        </a>
+                          {ref}
+                        </button>
+                        <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
+                          {refText || 'Loading...'}
+                        </div>
                       </div>
                     );
                   })}
                   {crossRefsForVerse.length > 0 && (
-                    <div className="text-center text-xs text-gray-400 mt-1 py-1">
+                    <div className="text-center text-xs text-gray-400 mt-2 py-1">
                       {crossRefsForVerse.length} reference{crossRefsForVerse.length > 1 ? 's' : ''}
                     </div>
                   )}
