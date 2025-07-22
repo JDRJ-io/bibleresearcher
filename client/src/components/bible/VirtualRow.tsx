@@ -69,7 +69,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             let refText = '';
             if (getVerseText && mainTranslation) {
               refText = getVerseText(displayRef, mainTranslation.id) || getVerseText(lookupRef, mainTranslation.id) || '';
-            }, '.');
+            }
 
             // Try to get verse text from the main translation
             // First check if we have this verse already loaded in our current data
