@@ -302,11 +302,21 @@ export async function loadProphecyData(): Promise<{
   prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;
 }> {
   try {
+    console.log('📁 Attempting to load prophecy files from paths:', { 
+      rows: paths.prophecyRows, 
+      index: paths.prophecyIdx 
+    });
+    
     // Load both files from Supabase Storage
     const [prophecyRows, prophecyIndex] = await Promise.all([
       fetchFromStorage(paths.prophecyRows),
       fetchFromStorage(paths.prophecyIdx)
     ]);
+
+    console.log('📋 Raw file lengths:', { 
+      prophecyRowsLength: prophecyRows.length, 
+      prophecyIndexLength: prophecyIndex.length 
+    });
 
     // Initialize prophecy worker if needed
     if (!prophecyWorker) {
@@ -351,8 +361,8 @@ export async function loadProphecyData(): Promise<{
     });
 
   } catch (error) {
-    console.error('❌ Failed to load prophecy data:', error);
-    return { verseRoles: {}, prophecyIndex: {} };
+    console.error('❌ Failed to load prophecy data from authentic source:', error);
+    throw error; // Re-throw to trigger fallback in App.tsx
   }
 }
 

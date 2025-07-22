@@ -147,12 +147,23 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   // Extract count for this specific column type
   const count = verseRoles[type]?.length || 0;
 
+  // Debug logging
+  if (verse.reference === 'Gen.3:15') {
+    console.log('🔍 Debugging Gen.3:15 prophecy:', {
+      verseRoles,
+      uniqueIds,
+      groupedProphecies,
+      type,
+      count
+    });
+  }
+
   return (
     <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
       {uniqueIds.length > 0 ? (
         <div className="space-y-1">
           {Object.values(groupedProphecies).map((prophecyBlock, blockIndex) => (
-            <div key={blockIndex} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0">
+            <div key={blockIndex} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-1">
               {/* Summary bar spans across all columns */}
               <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center">
                 {prophecyBlock.summary}
@@ -167,18 +178,30 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                       onClick={() => onVerseClick && onVerseClick(verseRef)}
                       className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
                     >
-                      <div className="text-blue-600 dark:text-blue-400 font-medium">
+                      <div className="text-blue-600 dark:text-blue-400 font-medium text-xs">
                         {verseRef}
                       </div>
                       <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
-                        {getVerseText(verseRef, mainTranslation)?.substring(0, 80)}...
+                        {getVerseText(verseRef, mainTranslation)?.substring(0, 60)}...
                       </div>
                     </button>
                   ))}
                 </div>
               )}
+              
+              {/* Show placeholder if no content for this type but prophecy exists */}
+              {prophecyBlock[type].length === 0 && (
+                <div className="text-gray-400 text-center text-xs py-1">
+                  No {type === 'P' ? 'predictions' : type === 'F' ? 'fulfillments' : 'verifications'}
+                </div>
+              )}
             </div>
           ))}
+        </div>
+      ) : count > 0 ? (
+        // Fallback for old system - show count
+        <div className="text-center">
+          <span className="font-semibold text-blue-600 dark:text-blue-400">{count}</span>
         </div>
       ) : (
         <div className="text-gray-400 text-center">—</div>
