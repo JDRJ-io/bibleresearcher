@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
@@ -37,14 +37,14 @@ function ReferenceCell({ verse }: CellProps) {
 
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
-  
+
   // Get cross-references from the Bible store (loaded from Supabase)
   // Try both formats: "Gen 1:1" and "Gen.1:1"
   const spaceFormat = verse.reference;
   const dotFormat = verse.reference.replace(/\s/g, ".");
-  
+
   const crossRefs = crossRefsStore[spaceFormat] ?? crossRefsStore[dotFormat] ?? [];
-  
+
   // DEBUG: Log cross-reference loading attempts
   if (verse.reference === "Gen 1:1") { // Debug first verse
     console.log("🔍 CROSS-REF FORMAT DEBUG:", {
@@ -57,14 +57,14 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
       storeKeysFirst5: Object.keys(crossRefsStore).slice(0, 5)
     });
   }
-  
+
   return (
     <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
       {crossRefs.map((ref, index) => {
         // Use the same translation loader system that feeds the main verses
         const txt = getVerseText(ref, mainTranslation);
         const displayText = txt || "(loading…)";
-        
+
         return (
           <button
             key={ref}
@@ -72,16 +72,16 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              
+
               // Ensure the reference is in the correct format (book.chapter:verse)
               const normalizedRef = ref.includes('.') ? ref : ref.replace(' ', '.');
-              
+
               console.log('🔗 CrossReferencesCell HYPERLINK CLICKED:', {
                 originalRef: ref,
                 normalizedRef,
                 timestamp: Date.now()
               });
-              
+
               onVerseClick?.(normalizedRef);
             }}
           >
@@ -106,7 +106,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
   const { prophecyData } = useBibleStore();
-  
+
   // Get prophecy data from store (loaded from Supabase)  
   const verseData = prophecyData[verse.reference] ?? { P: [], F: [], V: [] };
   const count = verseData[type]?.length ?? 0;
@@ -135,10 +135,10 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
 function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { datesData } = useBibleStore();
-  
+
   // Get date for this verse index from loaded dates data
   const dateText = datesData?.[verse.index ?? 0] || "";
-  
+
   if (!dateText || dateText.trim() === "") {
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
@@ -200,7 +200,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
-  
+
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
@@ -283,7 +283,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
     console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
-    
+
     // Debug cross-references data
     const { crossRefs } = useBibleStore.getState();
     console.log('🔍 VirtualRow Debug - Cross refs for verse:', crossRefs[verse.reference]);
@@ -295,6 +295,37 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       onExpandVerse(verse);
     }
   };
+
+  // Handle cross-reference clicks
+  const handleCrossRefClick = useCallback((e: React.MouseEvent, refId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    console.log('🔗 Cross-ref clicked:', refId);
+
+    // Parse the reference and navigate
+    const verseIndex = useBibleStore.getState().verseKeys.findIndex(key => 
+      key.replace('.', ' ') === refId || 
+      key === refId ||
+      key.replace(' ', '.') === refId
+    );
+
+    console.log('📍 Found verse index:', verseIndex, 'for ref:', refId);
+
+    if (verseIndex !== -1 && onVerseClick) {
+      onVerseClick(useBibleStore.getState().verseKeys[verseIndex]);
+      // Add visual feedback
+      //const targetElement = document.querySelector(`[data-verse-index="${verseIndex}"]`);
+      //if (targetElement) {
+      //  targetElement.classList.add('bg-blue-100');
+      //  setTimeout(() => {
+      //    targetElement.classList.remove('bg-blue-100');
+      //  }, 1000);
+      //}
+    } else {
+      console.warn('❌ Could not find verse for reference:', refId);
+    }
+  }, [onVerseClick]);
 
   const renderSlot = (column: any) => {
     const { slot, config, widthRem } = column;
@@ -345,14 +376,28 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             getMainVerseTextResult: getMainVerseText(verse.reference)
           });
         }
-        
+
         // Try multiple lookup formats
         let verseText = getVerseText(verse.reference, config.translationCode) || 
                         getVerseText(verse.reference.replace(' ', '.'), config.translationCode) ||
                         (config.type === 'main-translation' ? getMainVerseText(verse.reference) : null);
-        
+
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}
+               onClick={(e) => {
+                  // Handle any links within the verse text
+                  const target = e.target as HTMLElement;
+                  if (target.tagName === 'A' || target.closest('a')) {
+                    const link = target.closest('a') || target;
+                    const href = link.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                      e.preventDefault();
+                      const refId = href.substring(1);
+                      handleCrossRefClick(e, refId);
+                    }
+                  }
+                }}
+          >
             <div className="px-2 py-1 text-sm cell-content">
               {verseText || `[${config.translationCode} loading...]`}
             </div>
@@ -363,7 +408,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         // Get cross-references from the store and display them with verse text from main translation
         const { crossRefs } = useBibleStore.getState();
         const crossRefsForVerse = crossRefs[verse.reference] || [];
-        
+
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <div className="px-2 py-2 cross-ref-container custom-scrollbar">
@@ -374,21 +419,21 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                     const refText = getVerseText(ref, mainTranslation) || 
                                     getVerseText(ref.replace(' ', '.'), mainTranslation) ||
                                     getMainVerseText(ref);
-                    
+
                     return (
                       <div
                         key={i}
                         className="cross-ref-item block w-full px-2 py-2 rounded"
                       >
                         <button
-                          className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                          className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors bg-transparent border-none p-0 font-inherit text-inherit"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            
+
                             // Ensure the reference is in the correct format (book.chapter:verse)
                             const normalizedRef = ref.includes('.') ? ref : ref.replace(' ', '.');
-                            
+
                             console.log('🔗 CROSS-REFERENCE HYPERLINK CLICKED:', {
                               originalRef: ref,
                               normalizedRef,
@@ -397,7 +442,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                               clickEvent: e.type,
                               timestamp: Date.now()
                             });
-                            
+
                             if (onVerseClick) {
                               console.log('📞 CALLING onVerseClick with normalized ref:', normalizedRef);
                               onVerseClick(normalizedRef);
@@ -405,6 +450,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                               console.error('❌ onVerseClick is undefined! Navigation will not work.');
                             }
                           }}
+                          type="button"
                         >
                           {ref}
                         </button>
@@ -465,12 +511,13 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     width += (alternates.length * 320); // Alt translations ~320px each
     return width;
   }, [showCrossRefs, showProphecies, alternates]);
-  
+
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
 
-  // Clean layout without complex splitting
+  const { verseKeys } = useBibleStore();
 
+  // Clean layout without complex splitting
   return (
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
