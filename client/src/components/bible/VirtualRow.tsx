@@ -90,7 +90,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   );
 }
 
-function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick }: CellProps & { 
+function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick, onProphecyClick }: CellProps & { 
   type: 'P' | 'F' | 'V';
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
@@ -109,7 +109,6 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
       className="w-full h-full flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
       onClick={(e) => {
         e.stopPropagation();
-        const onProphecyClick = (e.currentTarget as any).onProphecyClick;
         if (onProphecyClick) {
           onProphecyClick(verseData[type], type, verse.reference);
         } else {
@@ -172,6 +171,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   mainTranslation,
   onVerseClick,
   onExpandVerse,
+  onProphecyClick,
 }) => {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
@@ -429,6 +429,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
               getVerseText={getVerseText}
               mainTranslation={mainTranslation}
               onVerseClick={onVerseClick}
+              onProphecyClick={onProphecyClick}
             />
           </div>
         );
