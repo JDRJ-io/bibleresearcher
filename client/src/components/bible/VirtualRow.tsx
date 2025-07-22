@@ -305,12 +305,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const width = isMobile ? 
       (slot === 0 ? "w-14" :        // Reference (narrower)
        slot === 1 ? "w-16" :        // Notes (between Ref and Main)
-       slot === 7 ? "w-12" :        // Cross References (moved to slot 7)
+       slot === 7 ? "flex-1" :      // Cross References (matches translations)
        slot >= 8 && slot <= 10 ? "w-8" : // Prophecy P/F/V (slots 8-10)
        "flex-1") :                  // Translations
       (slot === 0 ? "w-16" :        // Reference (narrower)
        slot === 1 ? "w-64" :        // Notes (between Ref and Main) 
-       slot === 7 ? "w-60" :        // Cross References (moved to slot 7)
+       slot === 7 ? "w-80" :        // Cross References (matches translations)
        slot >= 8 && slot <= 10 ? "w-20" : // Prophecy P/F/V (slots 8-10)
        "w-80");                     // Translations
 
