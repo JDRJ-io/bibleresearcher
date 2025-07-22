@@ -309,7 +309,10 @@ export function ColumnHeaders({
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',
         marginTop: '0px', // Eliminate any gap between headers
-        zIndex: 30 // Ensure it stays above content but below top header
+        marginBottom: '0px',
+        paddingTop: '0px',
+        zIndex: 30, // Ensure it stays above content but below top header
+        position: 'sticky'
       }}
     >
       <div className="overflow-hidden w-full h-full flex">

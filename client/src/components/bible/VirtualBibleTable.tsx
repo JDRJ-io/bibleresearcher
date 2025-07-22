@@ -371,7 +371,7 @@ const VirtualBibleTable = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
+    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
