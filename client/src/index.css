@@ -72,6 +72,11 @@
 
 :root { 
   --sizeMult: 1; /* Default size multiplier - can be set by user preference */
+  --font-size-multiplier: 1.0;
+  --base-font-size: 14px;
+  --text-sm: calc(var(--base-font-size) * 0.875 * var(--font-size-multiplier));
+  --text-base: calc(var(--base-font-size) * var(--font-size-multiplier));
+  --text-lg: calc(var(--base-font-size) * 1.125 * var(--font-size-multiplier));
 }
 
 /* Apply responsive sizing to HTML root and column widths */
@@ -81,15 +86,6 @@ html {
 
 .w-col { 
   width: calc(var(--baseColW) * var(--sizeMult)); 
-}
-
-/* Font size variables for dynamic scaling */
-:root {
-  --font-size-multiplier: 1.0;
-  --base-font-size: 14px;
-  --text-sm: calc(var(--base-font-size) * 0.875 * var(--font-size-multiplier));
-  --text-base: calc(var(--base-font-size) * var(--font-size-multiplier));
-  --text-lg: calc(var(--base-font-size) * 1.125 * var(--font-size-multiplier));
 }
 
 /* Cell scrollbar styling - only show when content overflows */
@@ -1102,11 +1098,22 @@ body.overlay-open {
   .w-48 { width: calc(12rem * var(--font-size-multiplier, 1)); }
   .w-64 { width: calc(16rem * var(--font-size-multiplier, 1)); }
   .w-80 { width: calc(20rem * var(--font-size-multiplier, 1)); }
-}
-}
 
   /* Mobile column width overrides - use CSS variables for consistency */
   .dual-col .w-80 { width: calc(var(--colW) * 1) !important; }
+  .dual-col .w-60 { width: calc(var(--colW) * 0.75) !important; }
+  .dual-col .w-20 { width: calc(var(--colW) * 0.25) !important; }
+  .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
+  .dual-col .w-14 { width: calc(var(--colW) * 0.175) !important; }
+  .dual-col .w-12 { width: calc(var(--colW) * 0.15) !important; }
+
+  /* Rotated reference column for mobile */
+  .dual-col .cell-ref span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.75rem;
+  }
+}
   .dual-col .w-60 { width: calc(var(--colW) * 0.75) !important; }
   .dual-col .w-20 { width: calc(var(--colW) * 0.25) !important; }
   .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
