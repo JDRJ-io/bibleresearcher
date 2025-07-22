@@ -718,31 +718,9 @@ export default function BiblePage() {
           </span>
         </div>
 
-        {/* Mobile: Logo + Navigation */}
+        {/* Mobile: Navigation + Logo */}
         <div className="flex md:hidden items-center gap-2">
-          {/* Mobile Logo */}
-          <div className="flex items-center gap-1">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden border border-white/30" 
-                 style={{ 
-                   background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
-                   boxShadow: '0 0 15px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,215,0,0.05)',
-                   backdropFilter: 'blur(10px)'
-                 }}>
-              <svg className="w-5 h-5 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-              </svg>
-            </div>
-            <span className="sacred-title font-bold text-sm text-white drop-shadow-lg tracking-wide" 
-                  style={{ 
-                    textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    letterSpacing: '0.025em'
-                  }}>
-              Anointed.io
-            </span>
-          </div>
-          
-          {/* Navigation buttons */}
+          {/* Navigation buttons - LEFT SIDE */}
           <button
             onClick={hookGoBack}
             disabled={!hookCanGoBack}
@@ -783,6 +761,16 @@ export default function BiblePage() {
               />
             </svg>
           </button>
+          
+          {/* Mobile Logo - NO ICON */}
+          <span className="sacred-title font-bold text-sm text-white drop-shadow-lg tracking-wide" 
+                style={{ 
+                  textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  letterSpacing: '0.025em'
+                }}>
+            Anointed.io
+          </span>
         </div>
 
         {/* Center - Navigation and Search - Desktop Only */}
