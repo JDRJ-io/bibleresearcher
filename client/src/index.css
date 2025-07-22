@@ -477,55 +477,26 @@ body {
   }
 }
 
-/* UNIFIED MOBILE COLUMN SYSTEM - Single source of truth */
-:root {
-  /* Mobile column widths - ultra-thin reference, balanced main/cross */
-  --mobile-ref-width: 24px;
-  --mobile-main-width: calc((100vw - var(--mobile-ref-width) - var(--mobile-cross-width) - 16px) * 0.52);
-  --mobile-cross-width: calc((100vw - var(--mobile-ref-width) - 16px) * 0.46);
-  --mobile-notes-width: 80px;
-  --mobile-prophecy-width: 48px;
-}
-
-/* Mobile-first adaptive column system */
+/* Mobile-optimized column widths and touch behavior */
 @media (max-width: 640px) {
   .bible-table-wrapper {
     touch-action: pan-y;
   }
 
-  /* Reference column - ULTRA thin for rotated text */
-  .cell-ref, 
-  .w-6 { 
-    width: var(--mobile-ref-width) !important;
-    min-width: var(--mobile-ref-width) !important;
+  .col-ref {
+    width: calc(48px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
   }
 
-  /* Main translation - slightly larger share */
-  .cell-main,
-  .w-52 { 
-    width: var(--mobile-main-width) !important;
-    min-width: 0;
+  .col-main {
+    width: calc(300px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
   }
 
-  /* Cross references - balanced with main */
-  .cell-cross,
-  .cross-ref-container { 
-    width: var(--mobile-cross-width) !important;
-    min-width: 0;
+  .col-cross {
+    width: calc(280px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
   }
-
-  /* Other columns when visible */
-  .w-20 { width: var(--mobile-notes-width) !important; }
-  .w-16 { width: var(--mobile-prophecy-width) !important; }
-
-  /* Header alignment - ensure headers match column widths exactly */
-  .column-headers-adaptive .flex-shrink-0 {
-    flex-shrink: 0;
-  }
-}
 
   .virtual-bible-table {
     overflow-x: auto;
