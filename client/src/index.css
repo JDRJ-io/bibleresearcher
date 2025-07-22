@@ -1114,16 +1114,3 @@ body.overlay-open {
     font-size: 0.75rem;
   }
 }
-  .dual-col .w-60 { width: calc(var(--colW) * 0.75) !important; }
-  .dual-col .w-20 { width: calc(var(--colW) * 0.25) !important; }
-  .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
-  .dual-col .w-14 { width: calc(var(--colW) * 0.175) !important; }
-  .dual-col .w-12 { width: calc(var(--colW) * 0.15) !important; }
-
-  /* Rotated reference column for mobile */
-  .dual-col .cell-ref span {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 0.75rem;
-  }
-}
