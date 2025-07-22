@@ -113,46 +113,86 @@ export async function loadTranslationSecure(
   const cacheKey = `translation-${translationId}`;
   
   if (masterCache.has(cacheKey)) {
-    console.log(`✅ Cached translation: ${translationId}`);
-    return masterCache.get(cacheKey);
+    const cachedMap = masterCache.get(cacheKey);
+    console.log(`✅ Cached translation: ${translationId} (${cachedMap?.size || 0} verses)`);
+    return cachedMap;
   }
 
   try {
-    console.log(`Loading ${translationId} from private Supabase bucket...`);
-
+    console.log(`🔄 Loading ${translationId} from private Supabase bucket...`);
+    
+    // Create signed URL for the translation file
     const { data: signedData, error: signError } = await supabase.storage
       .from("anointed")
       .createSignedUrl(`translations/${translationId}.txt`, 600);
 
     if (signError) {
-      console.error(`Error creating signed URL for ${translationId}:`, signError);
-      throw signError;
+      console.error(`❌ Error creating signed URL for ${translationId}:`, signError);
+      throw new Error(`Failed to create signed URL: ${signError.message}`);
     }
 
+    if (!signedData?.signedUrl) {
+      throw new Error(`No signed URL returned for ${translationId}`);
+    }
+
+    console.log(`📥 Fetching ${translationId} from signed URL...`);
     const response = await fetch(signedData.signedUrl);
+    
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error(`❌ HTTP error for ${translationId}: ${response.status} - ${response.statusText}`);
+      throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
     }
 
     const text = await response.text();
-    const translationMap = new Map<string, string>();
+    console.log(`📄 Downloaded ${translationId} file: ${text.length} characters`);
     
+    const translationMap = new Map<string, string>();
     const lines = text.split('\n');
+    let processedLines = 0;
+    let skippedLines = 0;
+    
     for (const line of lines) {
-      if (line.trim()) {
-        const [verseId, ...textParts] = line.split('#');
-        if (verseId && textParts.length > 0) {
-          translationMap.set(verseId.trim(), textParts.join('#').trim());
+      const trimmedLine = line.trim();
+      if (trimmedLine) {
+        const hashIndex = trimmedLine.indexOf('#');
+        if (hashIndex > 0) {
+          const verseId = trimmedLine.substring(0, hashIndex).trim();
+          const verseText = trimmedLine.substring(hashIndex + 1).trim();
+          
+          if (verseId && verseText) {
+            translationMap.set(verseId, verseText);
+            processedLines++;
+          } else {
+            skippedLines++;
+          }
+        } else {
+          skippedLines++;
         }
       }
     }
 
+    console.log(`📊 Parsed ${translationId}: ${processedLines} verses processed, ${skippedLines} lines skipped`);
+    
+    // Log sample verses for verification
+    if (translationMap.size > 0) {
+      const sampleEntries = Array.from(translationMap.entries()).slice(0, 3);
+      console.log(`📝 Sample verses from ${translationId}:`, sampleEntries);
+    } else {
+      console.warn(`⚠️ No verses found in ${translationId} - file format may be incorrect`);
+    }
+
     masterCache.set(cacheKey, translationMap);
-    console.log(`${translationId} loaded with ${translationMap.size} verses from private bucket`);
+    console.log(`✅ ${translationId} loaded with ${translationMap.size} verses from private bucket`);
 
     return translationMap;
   } catch (error) {
-    console.error(`Failed to load ${translationId}:`, error);
+    console.error(`❌ Failed to load ${translationId}:`, error);
+    
+    // Cache an empty map to prevent repeated failed requests
+    const emptyMap = new Map<string, string>();
+    masterCache.set(cacheKey, emptyMap);
+    
     throw error;
   }
 }
