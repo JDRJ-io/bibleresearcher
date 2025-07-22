@@ -35,7 +35,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
 
   return (
-    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
+    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-bold text-xs leading-none ${bgClass}`}>
       {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : column.name}
     </div>
   );
@@ -304,11 +304,11 @@ export function ColumnHeaders({
     <div 
       className="sticky left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
-        top: '38px', // Mobile header height (matches BiblePage header)
-        height: '40px',
+        top: '48px', // Match TopHeader mobile height EXACTLY
+        height: '36px', // Reduce column header height to save space
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',
-        marginTop: '-1px' // Overlap border to eliminate gap
+        marginTop: '0px' // Eliminate any gap between headers
       }}
     >
       <div className="overflow-hidden w-full h-full flex">

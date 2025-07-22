@@ -243,6 +243,20 @@ body {
   .w-16 { width: 64px !important; }    /* Prophecy P/F/V columns */
   /* Total: 16px + 200px + 200px = 416px (Main = Cross Refs) */
   
+  /* Mobile header optimizations */
+  @media (max-width: 767px) {
+    .divine-header {
+      height: 48px !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+    }
+    
+    /* Reduce column header height for more content space */
+    .sticky[style*="top: 48px"] {
+      height: 36px !important;
+    }
+  }
+  
   /* Ensure proper spacing and text wrapping */
   .cell-content {
     word-wrap: break-word;

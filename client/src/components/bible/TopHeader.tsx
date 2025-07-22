@@ -62,12 +62,9 @@ export function TopHeader({
       {/* Mobile Layout */}
       {isMobile ? (
         <div className="flex items-center justify-between w-full h-full">
-          {/* Left: Logo + Navigation */}
+          {/* Left: Navigation Only (NO LOGO) */}
           <div className="flex items-center gap-1">
-            <div className="w-7 h-7 bg-gradient-to-br from-yellow-400 via-purple-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden">
-              <Book className="w-4 h-4 text-white z-10" />
-            </div>
-            <div className="flex gap-1 ml-1">
+            <div className="flex gap-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -126,60 +123,30 @@ export function TopHeader({
             )}
           </div>
 
-          {/* Right: Quick Passages + Auth + Menu */}
-          <div className="flex items-center gap-1">
-            {/* Quick Passage Buttons */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onSearchChange("Genesis 1:1")}
-              className="px-2 h-7 text-xs rounded-lg bg-emerald-50/90 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-medium shadow-sm"
-              title="Genesis 1:1"
-            >
-              Gen
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onSearchChange("Psalm 23")}
-              className="px-2 h-7 text-xs rounded-lg bg-blue-50/90 hover:bg-blue-100 border border-blue-200 text-blue-700 font-medium shadow-sm"
-              title="Psalm 23"
-            >
-              Ps23
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onSearchChange("John 3:16")}
-              className="px-2 h-7 text-xs rounded-lg bg-rose-50/90 hover:bg-rose-100 border border-rose-200 text-rose-700 font-medium shadow-sm"
-              title="John 3:16"
-            >
-              Jn3:16
-            </Button>
-
-            {/* Auth Button */}
+          {/* Right: Auth + Menu (Remove Quick Passages to save space) */}
+          <div className="flex items-center gap-2">
+            {/* Auth Button - Compact for Mobile */}
             {!user && (
               <Button
                 variant="default"
                 size="sm"
-                className="px-3 h-8 text-xs bg-gradient-to-r from-amber-400 to-purple-500 hover:from-amber-300 hover:to-purple-400 text-white font-bold shadow-sm rounded-lg"
+                className="h-9 px-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-white font-bold shadow-lg rounded-lg text-xs"
                 onClick={() => setIsAuthModalOpen(true)}
-                title="Sign In"
               >
                 <KeyRound className="w-3 h-3 mr-1" />
                 Sign In
               </Button>
             )}
 
-            {/* Menu Button */}
+            {/* Menu Button - Larger for better touch */}
             <Button
               variant="outline"
               size="sm"
-              className="w-8 h-8 p-0 bg-white/90 hover:bg-amber-50 border border-amber-300 hover:border-amber-400 shadow-sm rounded-lg"
+              className="w-10 h-9 p-0 bg-white/90 hover:bg-amber-50 border border-amber-300 hover:border-amber-400 shadow-sm rounded-lg"
               onClick={onMenuToggle}
               title="Menu"
             >
-              <Menu className="w-4 h-4 text-amber-600" />
+              <Menu className="w-5 h-5 text-amber-600" />
             </Button>
           </div>
         </div>
