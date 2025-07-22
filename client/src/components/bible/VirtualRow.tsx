@@ -68,13 +68,6 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             // Get verse text using the current main translation
             let refText = '';
             if (getVerseText && mainTranslation) {
-              refText = getVerseText(displayRef, mainTranslation.id) || getVerseText(lookupRef, mainTranslation.id) || '';
-            }
-
-            // Try to get verse text from the main translation
-            // First check if we have this verse already loaded in our current data
-            let refText = '';
-            if (mainTranslation) {
               // Try the getVerseText function which should use the cached translation data
               refText = getVerseText(displayRef, mainTranslation) || 
                         getVerseText(lookupRef, mainTranslation) || 
