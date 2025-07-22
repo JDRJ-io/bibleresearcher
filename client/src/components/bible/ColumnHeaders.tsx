@@ -67,8 +67,18 @@ export function ColumnHeaders({
 
   // Prevent render if store not initialized
   if (!isInitialized) {
+    console.log('⚠️ ColumnHeaders: Store not initialized, skipping render');
     return null;
   }
+
+  console.log('📋 ColumnHeaders render state:', { 
+    isInitialized, 
+    showCrossRefs, 
+    showProphecies, 
+    showNotes,
+    main,
+    alternates: alternates.length
+  });
 
   // Use prop if provided, otherwise fall back to store state
   const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
@@ -81,10 +91,11 @@ export function ColumnHeaders({
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
 
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
-  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  slotConfig[2] = { type: 'main-translation', header: main || 'KJV', translationCode: main || 'KJV', visible: true };
 
   // Map all column types based on store state - updated slot assignments
-  columnState.columns.forEach(col => {
+  if (columnState?.columns) {
+    columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
         // Notes column (moved to slot 1 between Ref and Main)
@@ -111,7 +122,17 @@ export function ColumnHeaders({
         slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
-  });
+    });
+  } else {
+    // Fallback when columnState is not available
+    console.log('⚠️ ColumnHeaders: columnState not available, using fallback');
+    if (showCrossRefs) slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: true };
+    if (showProphecies) {
+      slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: true };
+      slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: true };
+      slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: true };
+    }
+  }
 
   // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   alternates.forEach((translationCode, index) => {

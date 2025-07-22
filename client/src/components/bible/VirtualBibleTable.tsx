@@ -374,12 +374,12 @@ const VirtualBibleTable = ({
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
-        showNotes={preferences.showNotes}
+        showNotes={preferences?.showNotes || false}
         showProphecy={showProphecies}
         showCrossRefs={showCrossRefs}
         showContext={false}
         scrollLeft={scrollLeft}
-        preferences={preferences}
+        preferences={preferences || {}}
         isGuest={true}
       />
 
