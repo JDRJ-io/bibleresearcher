@@ -64,6 +64,12 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             // Convert cross-ref to space format for display and lookup
             const displayRef = ref.replace(/\./g, ' ');
             const lookupRef = ref.replace(/\s/g, '.');
+            
+            // Get verse text using the current main translation
+            let refText = '';
+            if (getVerseText && mainTranslation) {
+              refText = getVerseText(displayRef, mainTranslation.id) || getVerseText(lookupRef, mainTranslation.id) || '';
+            }, '.');
 
             // Try to get verse text from the main translation
             // First check if we have this verse already loaded in our current data

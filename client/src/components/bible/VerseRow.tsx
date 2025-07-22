@@ -131,7 +131,8 @@ export function VerseRow({
                     refText = crossRefVerse.text[mainTranslation.id];
                   } else if (getGlobalVerseText) {
                     // Fallback to global verse text getter using the correct translation
-                    refText = getGlobalVerseText(displayRef) || getGlobalVerseText(lookupRef) || '';
+                    // Pass the translation ID to ensure we get the right translation
+                    refText = getGlobalVerseText(displayRef, mainTranslation.id) || getGlobalVerseText(lookupRef, mainTranslation.id) || '';
                   }
                 }
 
