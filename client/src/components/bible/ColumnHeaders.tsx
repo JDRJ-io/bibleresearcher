@@ -308,7 +308,8 @@ export function ColumnHeaders({
         height: '36px', // Reduce column header height to save space
         backgroundColor: 'var(--header-bg)',
         borderBottomColor: 'var(--border-color)',
-        marginTop: '0px' // Eliminate any gap between headers
+        marginTop: '0px', // Eliminate any gap between headers
+        zIndex: 30 // Ensure it stays above content but below top header
       }}
     >
       <div className="overflow-hidden w-full h-full flex">

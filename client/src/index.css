@@ -249,11 +249,22 @@ body {
       height: 48px !important;
       min-height: 48px !important;
       max-height: 48px !important;
+      z-index: 50 !important;
     }
     
-    /* Reduce column header height for more content space */
+    /* Reduce column header height for more content space and position correctly */
     .sticky[style*="top: 48px"] {
       height: 36px !important;
+      top: 48px !important;
+      z-index: 30 !important;
+      margin-top: 0px !important;
+      border-top: none !important;
+    }
+    
+    /* Ensure no gap between top header and column headers */
+    .divine-header + * {
+      margin-top: 0px !important;
+      padding-top: 0px !important;
     }
   }
   

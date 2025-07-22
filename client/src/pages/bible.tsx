@@ -809,19 +809,9 @@ export default function BiblePage() {
           </div>
         </div>
 
-        {/* Mobile: Search + Sign In + Menu */}
+        {/* Mobile: Sign In + Search + Menu */}
         <div className="flex md:hidden items-center gap-2 ml-auto">
-          <button
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
-            onClick={() => bibleStore.setSearchOpen(true)}
-            aria-label="Search"
-          >
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-          
-          {/* Mobile Sign In Button */}
+          {/* Mobile Sign In Button - MOVED FIRST */}
           <button
             onClick={() => setIsSignUpOpen(true)}
             className="bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1 backdrop-blur-sm border border-white/20 transition-all"
@@ -830,6 +820,16 @@ export default function BiblePage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             Sign In
+          </button>
+          
+          <button
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
+            onClick={() => bibleStore.setSearchOpen(true)}
+            aria-label="Search"
+          >
+            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </button>
           
           <button
