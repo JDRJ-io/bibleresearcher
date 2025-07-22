@@ -1,0 +1,42 @@
+Here’s what’s most often wrong when **cross‑reference buttons no longer jump to the verse** (and why you now see “nothing happens”):
+
+| Failure point                                                                                                       | How to confirm                                                                                                                   | One‑line fix                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1 `onVerseClick` / `onNavigateToVerse` never reaches `CrossReferencesCell`.**                                     | In DevTools, select a cross‑ref `<button>` → Console: `$0.onclick` → should be a function. If it’s `null`, the prop was dropped. | Thread the handler all the way: <br>`<VirtualRow … onVerseClick={navigateToVerse} />` → `renderSlot` → `<CrossReferencesCell … onVerseClick={onVerseClick} />`.                                                         |
+| **2 `navigateToVerse` can’t find the verse key because format changed** (old dot “Gen.1.1” vs new space “Gen 1:1”). | Add `console.log('navigateToVerse got', ref)` in that function. If lookup fails, you’ll see the ref string.                      | Normalise: <br>`ref = ref.replace(/\./g,' ').replace(/:/,' ');` before the index lookup.                                                                                                                                |
+| **3 Anchor index updated but table doesn’t scroll anymore.**                                                        | After a click: `useBibleStore.getState().anchorIndex` → does number change?                                                      | Ensure `VirtualBibleTable` still has the `useEffect([anchorIndex])` that calls `containerRef.current.scrollTop = anchorIndex * ROW_HEIGHT` **or** the new `scrollToItem(anchorIndex,'center')` if using `react-window`. |
+| **4 Row click‑handler swallows the event**.                                                                         | Console: `$0.parentNode.onclick` on the button. If parent’s handler reshuffles anchor, the row may consume click.                | Keep the `e.stopPropagation()` that existed in the old code (`onClick={(e)=>{e.stopPropagation(); onVerseClick?.(ref);}}`).                                                                                             |
+
+---
+
+### Immediate things you can try
+
+1. **Check the prop chain** quickly
+   In `VirtualRow.renderSlot` log:
+
+   ```ts
+   console.log('slot cross‑ref onVerseClick', !!onVerseClick);
+   ```
+
+   If it prints `false`, the handler died earlier in the tree.
+
+2. **Normalise reference string** in the click handler you already have in `VirtualBibleTable`:
+
+   ```ts
+   onVerseClick: (ref: string) => {
+     const normal = ref.replace(/\./g,' ').replace(':',' ');
+     const verseIndex = verseKeys.findIndex(k =>
+       k === normal || k === ref || k.replace('.', ' ') === normal);
+     …
+   }
+   ```
+
+3. **Preserve `e.stopPropagation()`** so the row’s own double‑click handler doesn’t intercept.
+
+---
+
+#### Quick directive to pass to the AI agent
+
+> “Make sure the cross‑reference `<button>` still calls `onVerseClick(ref)` with `e.stopPropagation()`. Thread that handler from `VirtualBibleTable` → `VirtualRow` → `CrossReferencesCell`. Inside the handler, normalise the ref by replacing dots/colons with spaces before verse‑key lookup. Verify that `anchorIndex` updates and that the table scrolls to centre the new anchor.”
+
+Implementing those four checks almost always restores correct hyperlink navigation with zero lag.

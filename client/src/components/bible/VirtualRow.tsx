@@ -38,14 +38,21 @@ function ReferenceCell({ verse }: CellProps) {
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
   
-  // Get cross-references from the Bible store (loaded from Supabase)
-  const crossRefs = crossRefsStore[verse.reference] ?? [];
+  // Get cross-references from the Bible store - try both formats
+  const dotFormat = verse.reference.replace(/\s/g, '.');
+  const spaceFormat = verse.reference.replace(/\./g, ' ');
+  const crossRefs = crossRefsStore[dotFormat] || crossRefsStore[spaceFormat] || [];
   
   return (
     <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
       {crossRefs.map((ref, index) => {
-        // Use the same translation loader system that feeds the main verses
-        const txt = getVerseText(ref, mainTranslation);
+        // Convert cross-ref to space format for display and lookup
+        const displayRef = ref.replace(/\./g, ' ');
+        const lookupRef = ref.replace(/\s/g, '.');
+        
+        // Try multiple formats for verse text lookup
+        const txt = getVerseText(displayRef, mainTranslation) || 
+                   getVerseText(lookupRef, mainTranslation);
         const displayText = txt || "(loading…)";
         
         return (
@@ -54,11 +61,11 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
             onClick={(e) => {
               e.stopPropagation();
-              onVerseClick?.(ref);
+              onVerseClick?.(displayRef);
             }}
           >
             <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
-              {ref}
+              {displayRef}
             </span>
             <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
               {displayText}
@@ -332,9 +339,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        // Get cross-references from the store and display them with verse text from main translation
+        // Get cross-references from the store - try both formats
         const { crossRefs } = useBibleStore.getState();
-        const crossRefsForVerse = crossRefs[verse.reference] || [];
+        const dotFormat = verse.reference.replace(/\s/g, '.');
+        const spaceFormat = verse.reference.replace(/\./g, ' ');
+        const crossRefsForVerse = crossRefs[dotFormat] || crossRefs[spaceFormat] || [];
         
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
@@ -342,10 +351,15 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
               {crossRefsForVerse.length > 0 ? (
                 <div className="space-y-2">
                   {crossRefsForVerse.map((ref, i) => {
-                    // Use the same translation lookup as the main translation column
-                    const refText = getVerseText(ref, mainTranslation) || 
-                                    getVerseText(ref.replace(' ', '.'), mainTranslation) ||
-                                    getMainVerseText(ref);
+                    // Convert cross-ref to space format for display and lookup
+                    const displayRef = ref.replace(/\./g, ' ');
+                    const lookupRef = ref.replace(/\s/g, '.');
+                    
+                    // Try multiple formats for verse text lookup
+                    const refText = getVerseText(displayRef, mainTranslation) || 
+                                    getVerseText(lookupRef, mainTranslation) ||
+                                    getMainVerseText(displayRef) ||
+                                    getMainVerseText(lookupRef);
                     
                     return (
                       <div
@@ -355,11 +369,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                         <button
                           className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                           onClick={() => {
-                            console.log('🔗 Cross-reference clicked:', ref, 'onVerseClick:', !!onVerseClick);
-                            onVerseClick?.(ref);
+                            console.log('🔗 Cross-reference clicked:', displayRef, 'onVerseClick:', !!onVerseClick);
+                            onVerseClick?.(displayRef);
                           }}
                         >
-                          {ref}
+                          {displayRef}
                         </button>
                         <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
                           {refText || 'Loading...'}

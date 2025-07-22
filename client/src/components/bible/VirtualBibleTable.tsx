@@ -162,7 +162,15 @@ const VirtualBibleTable = ({
     },
     onVerseClick: (ref: string) => {
       // Convert reference to verse index for anchor jumping
-      const verseIndex = verseKeys.findIndex(key => key === ref || key.replace('.', ' ') === ref);
+      // Try both space and dot formats
+      const spaceFormat = ref.replace(/\./g, ' ');
+      const dotFormat = ref.replace(/\s/g, '.');
+      const verseIndex = verseKeys.findIndex(key => 
+        key === spaceFormat || 
+        key === dotFormat || 
+        key.replace('.', ' ') === spaceFormat ||
+        key.replace(' ', '.') === dotFormat
+      );
       if (verseIndex >= 0) {
         // Use the anchor system to jump to the verse
         const targetScrollTop = verseIndex * ROW_HEIGHT;
