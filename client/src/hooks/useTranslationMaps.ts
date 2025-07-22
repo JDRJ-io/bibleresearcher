@@ -64,30 +64,33 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     try {
       // Check if translation is already in master cache
       if (!masterCache.has(`translation-${code}`)) {
-        console.log(`🔄 Fetching translation: ${code} from Supabase...`);
+        console.log(`🔄 Fetching translation: ${code}`);
         
         // Use BibleDataAPI for unified data access
         const { loadTranslation } = await import('@/data/BibleDataAPI');
         const translationMap = await loadTranslation(code);
         
-        // Enhanced logging for debugging
+        // Task 2.1: Log map size, duration, and Supabase path on every load
         console.log(`✅ Cached translation: ${code} (${translationMap.size} verses)`);
         console.log(`📊 TRANSLATION LOAD: ${code} - ${translationMap.size} verses, from anointed/translations/${code}.txt`);
         console.log(`🔍 VALIDATION: masterCache.get('translation-${code}') instanceof Map → ${masterCache.get(`translation-${code}`) instanceof Map}`);
         
-        // Log sample verses for verification
-        if (translationMap.size > 0) {
-          const sampleEntries = Array.from(translationMap.entries()).slice(0, 3);
-          console.log(`📝 Sample verses from ${code}:`, sampleEntries);
-        }
-        
-        // Warn if map size is 0 but don't prevent toggling (empty maps are cached to avoid repeated requests)
+        // Task 2.2: Fail-loud toast if map size === 0
         if (translationMap.size === 0) {
-          console.warn(`⚠️ Translation ${code} loaded with 0 verses - file may be missing or corrupted`);
+          console.error(`🚨 FAILED TO LOAD: ${code} - map size is 0, check CDN path`);
+          // User-visible toast for translation loading failures
+          if (typeof window !== 'undefined') {
+            import('@/hooks/use-toast').then(({ toast }) => {
+              toast({
+                title: "FAILED to load " + code,
+                description: "Translation file may be missing or corrupted. Check console for details.",
+                variant: "destructive",
+              });
+            });
+          }
         }
       } else {
-        const cachedMap = masterCache.get(`translation-${code}`);
-        console.log(`✅ Translation ${code} already cached with ${cachedMap?.size || 0} verses, skipping duplicate load`);
+        console.log(`✅ Translation ${code} already cached, skipping duplicate load`);
       }
       
       // Update activeTranslations array - avoid duplicates with Array.from(new Set())
@@ -170,45 +173,24 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
     const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
     
-    if (!mainTranslationMap) {
-      console.warn(`⚠️ Main translation ${mainTranslation} not found in cache for verse ${verseID}`);
-      return undefined;
-    }
-    
-    // Try multiple reference formats to find the verse
-    const formats = [
-      verseID,                          // Original format
-      verseID.replace(' ', '.'),        // "Gen 1:1" → "Gen.1:1"
-      verseID.replace('.', ' '),        // "Gen.1:1" → "Gen 1:1"
-      verseID.replace(/\s+/g, '.'),     // Handle multiple spaces
-      verseID.replace(/\.+/g, ' ')      // Handle multiple dots
-    ];
-    
-    for (const format of formats) {
-      const text = mainTranslationMap.get(format);
-      if (text) {
-        // Debug logging for successful lookups (only for first few)
-        if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
-          console.log(`🔍 getMainVerseText SUCCESS: ${verseID} → ${format} in ${mainTranslation}`);
-        }
-        return text;
-      }
-    }
-    
-    // Debug logging for failed lookups
-    if (verseID.startsWith("Gen") || verseID.startsWith("Matt")) {
-      console.log('🔍 getMainVerseText DEBUG (failed):', {
+    // Debug logging for main translation lookups
+    if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
+      console.log('🔍 getMainVerseText DEBUG:', {
         verseID,
         mainTranslation,
         cacheKey: `translation-${mainTranslation}`,
         hasMap: !!mainTranslationMap,
         mapSize: mainTranslationMap?.size,
-        triedFormats: formats,
-        availableKeys: Array.from(mainTranslationMap.keys()).slice(0, 10)
+        mapHasVerse: mainTranslationMap?.has(verseID),
+        mapHasVerseAlt: mainTranslationMap?.has(verseID.replace(' ', '.')) || mainTranslationMap?.has(verseID.replace('.', ' ')),
       });
     }
     
-    return undefined;
+    // Try both formats: "Gen 1:1" and "Gen.1:1"
+    return mainTranslationMap?.get(verseID) || 
+           mainTranslationMap?.get(verseID.replace(' ', '.')) ||
+           mainTranslationMap?.get(verseID.replace('.', ' '));
+    return mainTranslationMap?.get(verseID);
   }, [mainTranslation]);
 
   /**

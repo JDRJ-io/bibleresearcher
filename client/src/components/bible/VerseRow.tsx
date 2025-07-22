@@ -109,44 +109,22 @@ export function VerseRow({
             
             if (crossRefs.length > 0) {
               return crossRefs.map((ref, index) => {
-                // Always use the main translation for cross-reference text
-                const mainTranslation = selectedTranslations[0]; // First translation is always main
-                let refText = '';
-                
-                if (getGlobalVerseText) {
-                  refText = getGlobalVerseText(ref);
-                } else if (mainTranslation) {
-                  // Fallback: try to get text from the main translation in verse.text
-                  const refKey = ref.replace(/\./g, ' '); // Convert to space format
-                  // We need to find this verse in allVerses and get its text
-                  const foundVerse = allVerses.find(v => 
-                    v.reference === refKey || 
-                    v.reference === ref ||
-                    v.reference.replace(/\s/g, '.') === ref
-                  );
-                  if (foundVerse && foundVerse.text && foundVerse.text[mainTranslation.id]) {
-                    refText = foundVerse.text[mainTranslation.id];
-                  }
-                }
-                
+                // Get verse text from the global translation system
+                const refText = getGlobalVerseText ? getGlobalVerseText(ref) : '';
                 const displayText = refText && refText.length > 150 ? 
                   refText.substring(0, 150) + '...' : refText;
                 
                 return (
-                  <div key={`${ref}-${index}-${mainTranslation?.id || 'none'}`} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
+                  <div key={index} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
                     <button 
                       onClick={() => onNavigateToVerse(ref)}
                       className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block mb-1"
                     >
                       {ref.replace(/\./g, ' ')}
                     </button>
-                    {displayText ? (
+                    {displayText && (
                       <div className="text-muted-foreground break-words text-xs leading-relaxed">
                         {displayText}
-                      </div>
-                    ) : (
-                      <div className="text-muted-foreground italic text-xs">
-                        [{ref.replace(/\./g, ' ')} - {mainTranslation?.abbreviation || 'Loading'}...]
                       </div>
                     )}
                   </div>
