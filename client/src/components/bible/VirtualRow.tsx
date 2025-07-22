@@ -70,8 +70,19 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             key={ref}
             className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
-              onVerseClick?.(ref);
+              
+              // Ensure the reference is in the correct format (book.chapter:verse)
+              const normalizedRef = ref.includes('.') ? ref : ref.replace(' ', '.');
+              
+              console.log('🔗 CrossReferencesCell HYPERLINK CLICKED:', {
+                originalRef: ref,
+                normalizedRef,
+                timestamp: Date.now()
+              });
+              
+              onVerseClick?.(normalizedRef);
             }}
           >
             <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
@@ -374,8 +385,13 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
+                            
+                            // Ensure the reference is in the correct format (book.chapter:verse)
+                            const normalizedRef = ref.includes('.') ? ref : ref.replace(' ', '.');
+                            
                             console.log('🔗 CROSS-REFERENCE HYPERLINK CLICKED:', {
-                              ref,
+                              originalRef: ref,
+                              normalizedRef,
                               hasOnVerseClick: !!onVerseClick,
                               onVerseClickType: typeof onVerseClick,
                               clickEvent: e.type,
@@ -383,8 +399,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                             });
                             
                             if (onVerseClick) {
-                              console.log('📞 CALLING onVerseClick with ref:', ref);
-                              onVerseClick(ref);
+                              console.log('📞 CALLING onVerseClick with normalized ref:', normalizedRef);
+                              onVerseClick(normalizedRef);
                             } else {
                               console.error('❌ onVerseClick is undefined! Navigation will not work.');
                             }
