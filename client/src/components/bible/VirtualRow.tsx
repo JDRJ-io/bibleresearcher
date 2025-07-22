@@ -336,11 +336,11 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const getColumnWidth = (slotNumber: number) => {
       if (screenSize === 'mobile') {
         switch (slotNumber) {
-          case 0: return "w-16";        // Reference - compact but readable (64px)
+          case 0: return "w-6";         // Reference - THIN (16px)
           case 1: return "w-20";        // Notes - when visible (80px)
-          case 2: return "w-44";        // Main translation - balanced (176px) 
-          case 7: return "w-36";        // Cross References - readable (144px)
-          case 8: case 9: case 10: return "w-8"; // Prophecy P/F/V - minimal (32px)
+          case 2: return "w-52";        // Main translation - balanced (180px) 
+          case 7: return "w-40";        // Cross References - WIDER than main (200px)
+          case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V - minimal (64px)
           default: return "w-40";       // Alt translations - if any (160px)
         }
       } else if (screenSize === 'tablet') {
