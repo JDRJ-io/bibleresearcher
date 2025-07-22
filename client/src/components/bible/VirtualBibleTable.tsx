@@ -161,15 +161,6 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      console.log('🔗 Cross-reference clicked:', ref);
-      
-      // INSTANT NAVIGATION: Add immediate visual feedback
-      const clickedElement = document.activeElement;
-      if (clickedElement) {
-        clickedElement.classList.add('cross-ref-clicked');
-        setTimeout(() => clickedElement.classList.remove('cross-ref-clicked'), 150);
-      }
-      
       // Try the reference as-is first, then try various formats
       const searchFormats = [
         ref,                                    // Original format
@@ -191,32 +182,26 @@ const VirtualBibleTable = ({
       }
       
       if (verseIndex >= 0) {
-        console.log(`📖 Found verse ${foundFormat} at index ${verseIndex}`);
-        
         if (containerRef.current) {
           const containerHeight = containerRef.current.clientHeight;
           const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
           
-          // PERFECTED AESTHETICS: Instant jump with subtle highlight
+          // Instant jump with simple highlight
           containerRef.current.scrollTo({
             top: Math.max(0, targetScrollTop),
-            behavior: 'auto' // Changed from 'smooth' to 'auto' for instant feel
+            behavior: 'auto'
           });
           
-          // Add a subtle flash highlight to the target verse after jump
+          // Simple highlight feedback
           setTimeout(() => {
             const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
                                document.querySelector(`[data-verse-ref="${foundFormat}"]`);
             if (targetVerse) {
               targetVerse.classList.add('verse-highlight-flash');
-              setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 800);
+              setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 400);
             }
-          }, 50); // Small delay to ensure DOM is ready after scroll
+          }, 25);
         }
-      } else {
-        console.warn(`⚠️ Could not find verse: ${ref}`);
-        console.log('🔍 Tried formats:', searchFormats);
-        console.log('🔍 Sample verse keys:', verseKeys.slice(0, 5));
       }
     },
   };
