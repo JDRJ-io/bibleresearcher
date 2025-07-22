@@ -236,12 +236,37 @@ body {
     padding: 0.5rem 0.25rem;
   }
 
-  /* Mobile column optimization - EQUAL MAIN & CROSS REFS */
-  .w-6 { width: 16px !important; }     /* Reference column - THIN */
-  .w-52 { width: 200px !important; }   /* Main translation & Cross References - SAME SIZE */  
-  .w-40 { width: 200px !important; }   /* Cross References - SAME as main (200px) */
+  /* ADAPTIVE MOBILE COLUMNS - Responsive to all device orientations */
+  
+  /* Base mobile columns (portrait phones ~375px-414px) */
+  .w-6 { width: 24px !important; }     /* Reference column - Bigger for readability */
+  .w-52 { width: calc((100vw - 60px) * 0.48) !important; }   /* Main translation - 48% of available space */  
+  .w-40 { width: calc((100vw - 60px) * 0.48) !important; }   /* Cross References - 48% of available space */
   .w-16 { width: 64px !important; }    /* Prophecy P/F/V columns */
-  /* Total: 16px + 200px + 200px = 416px (Main = Cross Refs) */
+  
+  /* Wider mobile screens (landscape phones ~667px-896px) */
+  @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
+    .w-6 { width: 32px !important; }   /* Reference column - Even bigger for landscape */
+    .w-52 { width: calc((100vw - 80px) * 0.46) !important; }   /* Main translation */  
+    .w-40 { width: calc((100vw - 80px) * 0.46) !important; }   /* Cross References */
+    
+    /* Column headers must match content widths */
+    .column-headers-adaptive .w-6 { width: 32px !important; }
+    .column-headers-adaptive .w-52 { width: calc((100vw - 80px) * 0.46) !important; }
+    .column-headers-adaptive .w-40 { width: calc((100vw - 80px) * 0.46) !important; }
+  }
+  
+  /* Tablet portrait (768px-1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .w-6 { width: 40px !important; }   /* Reference column - Tablet proportions */
+    .w-52 { width: calc((100vw - 100px) * 0.45) !important; }   /* Main translation */  
+    .w-40 { width: calc((100vw - 100px) * 0.45) !important; }   /* Cross References */
+    
+    /* Column headers must match content widths */
+    .column-headers-adaptive .w-6 { width: 40px !important; }
+    .column-headers-adaptive .w-52 { width: calc((100vw - 100px) * 0.45) !important; }
+    .column-headers-adaptive .w-40 { width: calc((100vw - 100px) * 0.45) !important; }
+  }
   
   /* Mobile header optimizations */
   @media (max-width: 767px) {
@@ -253,10 +278,11 @@ body {
       margin-bottom: 0px !important;
     }
     
-    /* Force column headers to be EXACTLY under top header */
+    /* Force column headers to be EXACTLY under top header AND adaptive */
     .sticky[style*="top: 48px"], 
     .sticky.z-30,
     .column-headers,
+    .column-headers-adaptive,
     [class*="ColumnHeaders"] {
       height: 36px !important;
       top: 48px !important;
@@ -266,7 +292,14 @@ body {
       padding-top: 0px !important;
       border-top: none !important;
       position: sticky !important;
+      width: 100% !important;
+      display: flex !important;
     }
+    
+    /* Ensure column headers use the same adaptive widths as content */
+    .column-headers-adaptive .w-6 { width: 24px !important; }  /* Reference header */
+    .column-headers-adaptive .w-52 { width: calc((100vw - 60px) * 0.48) !important; }  /* Main translation header */
+    .column-headers-adaptive .w-40 { width: calc((100vw - 60px) * 0.48) !important; }  /* Cross-refs header */
     
     /* Remove ALL gaps between headers and content */
     .divine-header + *,
@@ -295,16 +328,33 @@ body {
   }
   
   .cell-ref {
-    font-size: 7px;
+    font-size: 10px !important;        /* Bigger, bolder text for mobile readability */
+    font-weight: bold !important;      /* Make reference text bold */
     text-align: center;
-    padding: 0.03125rem 0.015625rem; /* ULTRA-MINIMAL padding for 12px width */
-    line-height: 0.9;
+    padding: 0.125rem 0.0625rem !important; /* More padding for bigger reference column */
+    line-height: 1.1 !important;       /* Better line height for readability */
     writing-mode: vertical-rl;
     text-orientation: mixed;
     transform: rotate(180deg);
     white-space: nowrap;
     margin: 0;
     overflow: hidden;
+    color: var(--text-primary) !important; /* Ensure good contrast */
+  }
+  
+  /* Adaptive reference text for different screen sizes */
+  @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
+    .cell-ref {
+      font-size: 12px !important;      /* Even bigger for landscape */
+      padding: 0.1875rem 0.09375rem !important;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .cell-ref {
+      font-size: 14px !important;      /* Tablet size */
+      padding: 0.25rem 0.125rem !important;
+    }
   }
   
   /* Mobile cross-reference styling */

@@ -22,20 +22,42 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // Mobile-optimized width logic matching VirtualRow EXACTLY - PERFECT proportions
-  const width = isMobile ? 
-    (column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-6" :     // 16px - THIN Reference
-     column.name === "Notes" ? "w-20" :                                  // 80px - Notes  
-     column.name === "Cross Refs" || column.name === "Cross References" ? "w-52" : // 200px - SAME as main translation
-     ["P", "F", "V"].includes(column.name) ? "w-16" : "w-52") :          // 64px P/F/V, 200px Main translation
-    (column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-20" : 
-     column.name === "Notes" ? "w-64" :
-     column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
-     ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
+  // ADAPTIVE COLUMN WIDTHS - Match the new responsive CSS classes exactly
+  const getAdaptiveWidth = () => {
+    if (!isMobile) {
+      // Desktop widths
+      return column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-20" : 
+             column.name === "Notes" ? "w-64" :
+             column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
+             ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80";
+    }
+    
+    // Mobile adaptive widths - using the new responsive CSS classes
+    if (column.name === "Ref" || column.name === "Reference" || column.name === "#") {
+      return "w-6"; // Uses new adaptive reference width (24px base, scales to 32px landscape, 40px tablet)
+    }
+    if (column.name === "Notes") {
+      return "w-20"; // Notes column
+    }
+    if (column.name === "Cross Refs" || column.name === "Cross References") {
+      return "w-40"; // Uses new adaptive cross-refs width (responsive to viewport)
+    }
+    if (["P", "F", "V"].includes(column.name)) {
+      return "w-16"; // Prophecy columns
+    }
+    return "w-52"; // Main translation - uses new adaptive width (responsive to viewport)
+  };
+
+  const width = getAdaptiveWidth();
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
+  
+  // Enhanced text styling for reference column
+  const textClass = (column.name === "Ref" || column.name === "Reference" || column.name === "#") 
+    ? "font-bold text-sm" // Bigger, bolder text for reference header
+    : "font-bold text-xs";
 
   return (
-    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-bold text-xs leading-none ${bgClass}`}>
+    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass}`}>
       {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : column.name}
     </div>
   );
@@ -302,7 +324,7 @@ export function ColumnHeaders({
 
   return (
     <div 
-      className="sticky left-0 right-0 z-30 border-b shadow-sm"
+      className="column-headers-adaptive sticky left-0 right-0 z-30 border-b shadow-sm"
       style={{ 
         top: '48px', // Match TopHeader mobile height EXACTLY
         height: '36px', // Reduce column header height to save space
@@ -312,7 +334,9 @@ export function ColumnHeaders({
         marginBottom: '0px',
         paddingTop: '0px',
         zIndex: 30, // Ensure it stays above content but below top header
-        position: 'sticky'
+        position: 'sticky',
+        display: 'flex', // Use flexbox for perfect column alignment
+        width: '100%'
       }}
     >
       <div className="overflow-hidden w-full h-full flex">
