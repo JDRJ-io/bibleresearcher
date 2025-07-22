@@ -155,15 +155,90 @@ export function ColumnHeaders({
     visible: slotConfig[parseInt(slot)]?.visible 
   })));
 
+  // Build visible columns directly from our state
   const visibleColumns = useMemo(() => {
-    const columns = getVisibleColumns({
-      showCrossRefs,
-      showProphecies,
-      showNotes,
-      showDates,
-      main,
-      alternates
+    const columns = [];
+    
+    // Always add reference column
+    columns.push({
+      slot: 0,
+      type: 'reference',
+      name: 'Ref',
+      visible: true,
+      isMain: false
     });
+
+    // Add notes column if enabled
+    if (showNotes) {
+      columns.push({
+        slot: 1,
+        type: 'notes',
+        name: 'Notes',
+        visible: true,
+        isMain: false
+      });
+    }
+
+    // Always add main translation
+    columns.push({
+      slot: 2,
+      type: 'main-translation',
+      name: main || 'KJV',
+      visible: true,
+      isMain: true
+    });
+
+    // Add alternate translations (slots 3-6)
+    alternates.forEach((translationCode, index) => {
+      const slot = 3 + index;
+      if (slot <= 6) {
+        columns.push({
+          slot,
+          type: 'alt-translation',
+          name: translationCode,
+          visible: true,
+          isMain: false
+        });
+      }
+    });
+
+    // Add cross references if enabled
+    if (showCrossRefs) {
+      columns.push({
+        slot: 7,
+        type: 'cross-refs',
+        name: 'Cross Refs',
+        visible: true,
+        isMain: false
+      });
+    }
+
+    // Add prophecy columns if enabled
+    if (showProphecies) {
+      columns.push(
+        {
+          slot: 8,
+          type: 'prophecy-p',
+          name: 'P',
+          visible: true,
+          isMain: false
+        },
+        {
+          slot: 9,
+          type: 'prophecy-f',
+          name: 'F',
+          visible: true,
+          isMain: false
+        },
+        {
+          slot: 10,
+          type: 'prophecy-v',
+          name: 'V',
+          visible: true,
+          isMain: false
+        }
+      );
+    }
 
     // On mobile, only show Reference, Main Translation, and Cross References
     if (isMobile) {
@@ -175,7 +250,7 @@ export function ColumnHeaders({
     }
 
     return columns;
-  }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, isMobile]);
+  }, [showCrossRefs, showProphecies, showNotes, main, alternates, isMobile]);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
@@ -197,11 +272,11 @@ export function ColumnHeaders({
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
 
   const allColumns = visibleColumns.map(col => ({
-    id: col.config?.header?.toLowerCase().replace(' ', '-') || '',
-    name: col.config?.header || '',
-    type: col.config?.type || '',
+    id: col.name.toLowerCase().replace(' ', '-'),
+    name: col.name,
+    type: col.type,
     position: col.slot,
-    isMain: col.config?.translationCode === main,
+    isMain: col.isMain,
     slot: col.slot
   }));
 
