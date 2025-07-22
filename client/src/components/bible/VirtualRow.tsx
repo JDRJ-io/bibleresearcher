@@ -65,8 +65,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('🔗 Cross-reference clicked:', displayRef, 'onVerseClick:', !!onVerseClick);
-                    onVerseClick?.(displayRef);
+                    console.log('🔗 Cross-reference button clicked:', ref);
+                    onVerseClick?.(ref); // Use original ref format
                   }}
                 >
                   {displayRef}

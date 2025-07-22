@@ -161,33 +161,42 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      console.log('🔗 onVerseClick called with ref:', ref);
+      console.log('🔗 Cross-reference clicked:', ref);
       
-      // Normalize reference string - convert dots/colons to spaces
-      const normalizedRef = ref.replace(/\./g, ' ').replace(/:/g, ' ').trim();
+      // Try the reference as-is first, then try various formats
+      const searchFormats = [
+        ref,                                    // Original format
+        ref.replace(/\s/g, '.'),               // Spaces to dots
+        ref.replace(/\./g, ' '),               // Dots to spaces  
+        ref.replace(/:/g, '.'),                // Colon to dot
+        ref.replace(/\./g, ' ').replace(/:/g, ' '), // All to spaces
+      ];
       
-      // Try multiple formats to find the verse
-      const verseIndex = verseKeys.findIndex(key => {
-        const keySpaceFormat = key.replace(/\./g, ' ').replace(/:/g, ' ').trim();
-        const keyDotFormat = key.replace(/\s/g, '.').replace(/:/g, '.');
-        const refDotFormat = normalizedRef.replace(/\s/g, '.');
-        
-        return key === normalizedRef || 
-               key === ref || 
-               keySpaceFormat === normalizedRef ||
-               keyDotFormat === refDotFormat;
-      });
+      let verseIndex = -1;
+      let foundFormat = '';
+      
+      for (const format of searchFormats) {
+        verseIndex = verseKeys.findIndex(key => key === format.trim());
+        if (verseIndex >= 0) {
+          foundFormat = format;
+          break;
+        }
+      }
       
       if (verseIndex >= 0) {
-        // Use the anchor system to jump to the verse
+        console.log(`📖 Found verse ${foundFormat} at index ${verseIndex}`);
+        // Calculate target scroll position to center the verse
         const targetScrollTop = verseIndex * ROW_HEIGHT;
         if (containerRef.current) {
-          containerRef.current.scrollTop = targetScrollTop;
+          containerRef.current.scrollTo({
+            top: targetScrollTop,
+            behavior: 'smooth'
+          });
         }
-        console.log(`📖 Successfully jumping to verse ${normalizedRef} at index ${verseIndex}`);
       } else {
-        console.warn(`⚠️ Could not find verse index for ${ref} (normalized: ${normalizedRef})`);
-        console.log('🔍 Available verse keys sample:', verseKeys.slice(0, 10));
+        console.warn(`⚠️ Could not find verse: ${ref}`);
+        console.log('🔍 Tried formats:', searchFormats);
+        console.log('🔍 Sample verse keys:', verseKeys.slice(0, 5));
       }
     },
   };
