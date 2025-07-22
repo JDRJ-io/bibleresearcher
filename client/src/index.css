@@ -236,11 +236,12 @@ body {
     padding: 0.5rem 0.25rem;
   }
 
-  /* Mobile column optimization for uniform layout */
-  .w-6 { width: 24px; }    /* Ultra-compact Reference column - minimal width */
-  .w-52 { width: 208px; }  /* Main translation column - expanded */  
-  .w-40 { width: 160px; }  /* Cross References column - expanded */
-  .w-16 { width: 64px; }   /* Prophecy P/F/V columns */
+  /* Mobile column optimization - FULL WIDTH USAGE */
+  .w-6 { width: 20px; }     /* Ultra-compact Reference column */
+  .w-52 { width: 280px; }   /* Main translation - MUCH LARGER */  
+  .w-40 { width: 120px; }   /* Cross References - fills remaining space */
+  .w-16 { width: 64px; }    /* Prophecy P/F/V columns */
+  /* Total: 20px + 280px + 120px = 420px (uses full mobile width) */
   
   /* Ensure proper spacing and text wrapping */
   .cell-content {
