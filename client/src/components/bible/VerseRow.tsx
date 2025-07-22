@@ -87,8 +87,8 @@ export function VerseRow({
         </div>
       ))}
 
-      {/* Cross References Column - Fixed Width */}
-      <div className="w-60 flex-shrink-0 border-r">
+      {/* Cross References Column - Fixed Width (matches translation columns) */}
+      <div className="w-80 flex-shrink-0 border-r">
         <div className="h-[120px] overflow-y-auto p-3 text-xs">
           {/* Cross-reference badge */}
           <div className="flex items-center gap-2 mb-2">
@@ -103,21 +103,37 @@ export function VerseRow({
             })()}
           </div>
           
-          {verse.crossReferences && verse.crossReferences.length > 0 ? (
-            verse.crossReferences.map((ref, index) => (
-              <div key={index} className="mb-2">
-                <button 
-                  onClick={() => onNavigateToVerse(ref.reference)}
-                  className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                >
-                  {ref.reference}
-                </button>
-                <div className="text-muted-foreground break-words mt-1">{ref.text}</div>
-              </div>
-            ))
-          ) : (
-            <span className="text-muted-foreground italic">No cross references</span>
-          )}
+          {(() => {
+            const dotFormat = verse.reference.replace(/\s/g, '.');
+            const crossRefs = store.crossRefs[dotFormat] || [];
+            
+            if (crossRefs.length > 0) {
+              return crossRefs.map((ref, index) => {
+                // Get verse text from the global translation system
+                const refText = getGlobalVerseText ? getGlobalVerseText(ref) : '';
+                const displayText = refText && refText.length > 150 ? 
+                  refText.substring(0, 150) + '...' : refText;
+                
+                return (
+                  <div key={index} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
+                    <button 
+                      onClick={() => onNavigateToVerse(ref)}
+                      className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block mb-1"
+                    >
+                      {ref.replace(/\./g, ' ')}
+                    </button>
+                    {displayText && (
+                      <div className="text-muted-foreground break-words text-xs leading-relaxed">
+                        {displayText}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            } else {
+              return <span className="text-muted-foreground italic">No cross references</span>;
+            }
+          })()}
         </div>
       </div>
 

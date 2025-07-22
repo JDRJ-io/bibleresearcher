@@ -260,7 +260,7 @@ const VirtualBibleTable = ({
     let width = 0;
     width += 80; // Reference column ~80px
     width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 240; // Cross refs ~240px
+    if (showCrossRefs) width += 320; // Cross refs ~320px (matches translations)
     if (showProphecies) width += 180; // P+F+V ~60px each
     width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
     return width;

@@ -30,7 +30,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
      ["P", "F", "V"].includes(column.name) ? "w-8" : "flex-1") :
     (column.name === "Ref" || column.name === "Reference" ? "w-16" : 
      column.name === "Notes" ? "w-64" :
-     column.name === "Cross Refs" || column.name === "Cross References" ? "w-60" : 
+     column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
 
@@ -154,7 +154,7 @@ export function ColumnHeaders({
     let width = 0;
     width += 80; // Reference column ~80px
     width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 240; // Cross refs ~240px
+    if (showCrossRefs) width += 320; // Cross refs ~320px (matches translations)
     if (showProphecies) width += 180; // P+F+V ~60px each
     width += (alternates.length * 320); // Alt translations ~320px each
     return width;
