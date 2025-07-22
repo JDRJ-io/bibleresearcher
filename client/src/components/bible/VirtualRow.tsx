@@ -44,37 +44,47 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   const crossRefs = crossRefsStore[dotFormat] || crossRefsStore[spaceFormat] || [];
   
   return (
-    <div className="cell-cross flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-      {crossRefs.map((ref, index) => {
-        // Convert cross-ref to space format for display and lookup
-        const displayRef = ref.replace(/\./g, ' ');
-        const lookupRef = ref.replace(/\s/g, '.');
-        
-        // Try multiple formats for verse text lookup
-        const txt = getVerseText(displayRef, mainTranslation) || 
-                   getVerseText(lookupRef, mainTranslation);
-        const displayText = txt || "(loading…)";
-        
-        return (
-          <button
-            key={ref}
-            className="flex text-xs gap-1 hover:bg-gray-50 dark:hover:bg-gray-700 px-1 py-0.5 rounded"
-            onClick={(e) => {
-              e.stopPropagation();
-              onVerseClick?.(displayRef);
-            }}
-          >
-            <span className="font-mono w-14 text-blue-600 dark:text-blue-400 truncate">
-              {displayRef}
-            </span>
-            <span className="flex-1 text-gray-600 dark:text-gray-400 truncate">
-              {displayText}
-            </span>
-          </button>
-        );
-      })}
-      {crossRefs.length === 0 && (
-        <div className="text-gray-400 italic text-xs">No cross-references</div>
+    <div className="px-2 py-2 cross-ref-container custom-scrollbar h-full overflow-y-auto">
+      {crossRefs.length > 0 ? (
+        <div className="space-y-2">
+          {crossRefs.map((ref, i) => {
+            // Convert cross-ref to space format for display and lookup
+            const displayRef = ref.replace(/\./g, ' ');
+            const lookupRef = ref.replace(/\s/g, '.');
+            
+            // Try multiple formats for verse text lookup
+            const refText = getVerseText(displayRef, mainTranslation) || 
+                            getVerseText(lookupRef, mainTranslation);
+            
+            return (
+              <div
+                key={i}
+                className="cross-ref-item block w-full px-2 py-2 rounded"
+              >
+                <button
+                  className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('🔗 Cross-reference clicked:', displayRef, 'onVerseClick:', !!onVerseClick);
+                    onVerseClick?.(displayRef);
+                  }}
+                >
+                  {displayRef}
+                </button>
+                <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
+                  {refText || 'Loading...'}
+                </div>
+              </div>
+            );
+          })}
+          {crossRefs.length > 0 && (
+            <div className="text-center text-xs text-gray-400 mt-2 py-1">
+              {crossRefs.length} reference{crossRefs.length > 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
+      ) : (
+        <span className="text-gray-400 italic text-xs">—</span>
       )}
     </div>
   );
@@ -260,13 +270,14 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
     console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
+    console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
     console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
     
     // Debug cross-references data
     const { crossRefs } = useBibleStore.getState();
     console.log('🔍 VirtualRow Debug - Cross refs for verse:', crossRefs[verse.reference]);
-    console.log('🔍 VirtualRow Debug - All cross refs keys:', Object.keys(crossRefs));
+    console.log('🔍 VirtualRow Debug - All cross refs keys:', Object.keys(crossRefs).slice(0, 10));
   }
 
   const handleDoubleClick = () => {
@@ -339,58 +350,14 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
-        // Get cross-references from the store - try both formats
-        const { crossRefs } = useBibleStore.getState();
-        const dotFormat = verse.reference.replace(/\s/g, '.');
-        const spaceFormat = verse.reference.replace(/\./g, ' ');
-        const crossRefsForVerse = crossRefs[dotFormat] || crossRefs[spaceFormat] || [];
-        
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-2 py-2 cross-ref-container custom-scrollbar">
-              {crossRefsForVerse.length > 0 ? (
-                <div className="space-y-2">
-                  {crossRefsForVerse.map((ref, i) => {
-                    // Convert cross-ref to space format for display and lookup
-                    const displayRef = ref.replace(/\./g, ' ');
-                    const lookupRef = ref.replace(/\s/g, '.');
-                    
-                    // Try multiple formats for verse text lookup
-                    const refText = getVerseText(displayRef, mainTranslation) || 
-                                    getVerseText(lookupRef, mainTranslation) ||
-                                    getMainVerseText(displayRef) ||
-                                    getMainVerseText(lookupRef);
-                    
-                    return (
-                      <div
-                        key={i}
-                        className="cross-ref-item block w-full px-2 py-2 rounded"
-                      >
-                        <button
-                          className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
-                          onClick={() => {
-                            console.log('🔗 Cross-reference clicked:', displayRef, 'onVerseClick:', !!onVerseClick);
-                            onVerseClick?.(displayRef);
-                          }}
-                        >
-                          {displayRef}
-                        </button>
-                        <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
-                          {refText || 'Loading...'}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {crossRefsForVerse.length > 0 && (
-                    <div className="text-center text-xs text-gray-400 mt-2 py-1">
-                      {crossRefsForVerse.length} reference{crossRefsForVerse.length > 1 ? 's' : ''}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <span className="text-gray-400 italic text-xs">—</span>
-              )}
-            </div>
+            <CrossReferencesCell 
+              verse={verse} 
+              getVerseText={getVerseText} 
+              mainTranslation={mainTranslation} 
+              onVerseClick={onVerseClick} 
+            />
           </div>
         );
 

@@ -161,25 +161,33 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // Convert reference to verse index for anchor jumping
-      // Try both space and dot formats
-      const spaceFormat = ref.replace(/\./g, ' ');
-      const dotFormat = ref.replace(/\s/g, '.');
-      const verseIndex = verseKeys.findIndex(key => 
-        key === spaceFormat || 
-        key === dotFormat || 
-        key.replace('.', ' ') === spaceFormat ||
-        key.replace(' ', '.') === dotFormat
-      );
+      console.log('🔗 onVerseClick called with ref:', ref);
+      
+      // Normalize reference string - convert dots/colons to spaces
+      const normalizedRef = ref.replace(/\./g, ' ').replace(/:/g, ' ').trim();
+      
+      // Try multiple formats to find the verse
+      const verseIndex = verseKeys.findIndex(key => {
+        const keySpaceFormat = key.replace(/\./g, ' ').replace(/:/g, ' ').trim();
+        const keyDotFormat = key.replace(/\s/g, '.').replace(/:/g, '.');
+        const refDotFormat = normalizedRef.replace(/\s/g, '.');
+        
+        return key === normalizedRef || 
+               key === ref || 
+               keySpaceFormat === normalizedRef ||
+               keyDotFormat === refDotFormat;
+      });
+      
       if (verseIndex >= 0) {
         // Use the anchor system to jump to the verse
         const targetScrollTop = verseIndex * ROW_HEIGHT;
         if (containerRef.current) {
           containerRef.current.scrollTop = targetScrollTop;
         }
-        console.log(`📖 Jumping to verse ${ref} at index ${verseIndex}`);
+        console.log(`📖 Successfully jumping to verse ${normalizedRef} at index ${verseIndex}`);
       } else {
-        console.warn(`⚠️ Could not find verse index for ${ref}`);
+        console.warn(`⚠️ Could not find verse index for ${ref} (normalized: ${normalizedRef})`);
+        console.log('🔍 Available verse keys sample:', verseKeys.slice(0, 10));
       }
     },
   };
