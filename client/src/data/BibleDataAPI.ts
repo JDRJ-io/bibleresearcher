@@ -33,106 +33,38 @@ function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
     return Promise.resolve(masterCache.get(key));
   }
-
+  
   return fetchFn().then(result => {
     masterCache.set(key, result);
     return result;
   });
 }
 
-// Global master cache for all translation data
-const masterCache = new Map<string, Map<string, string>>();
-
-/**
- * Load a Bible translation from Supabase storage
- * Returns a Map<verseId, verseText> for the translation
- */
-export async function loadTranslation(translationCode: string): Promise<Map<string, string>> {
-  const cacheKey = `translation-${translationCode}`;
-
-  // Check cache first
-  if (masterCache.has(cacheKey)) {
-    const cached = masterCache.get(cacheKey)!;
-    console.log(`✓ Found translation ${translationCode} in cache with ${cached.size} verses`);
-    return cached;
-  }
-
-  try {
-    console.log(`🔄 Fetching translation from Supabase: ${translationCode}`);
-
-    // Get signed URL for the translation file
-    const { data, error } = await supabase.storage
-      .from('anointed')
-      .createSignedUrl(`translations/${translationCode}.txt`, 3600); // 1 hour expiry
-
-    if (error) {
-      console.error(`❌ Error getting signed URL for ${translationCode}:`, error);
-      throw new Error(`Failed to get translation file URL: ${error.message}`);
+export async function loadTranslation(id: string) {
+  return getOrFetch(`translation-${id}`, async () => {
+    const textData = await fetchFromStorage(paths.translation(id));
+    const textMap = new Map<string, string>();
+    
+    // Parse the translation text format: "Gen.1:1 #In the beginning..."
+    const lines = textData.split('\n').filter(line => line.trim());
+    
+    for (const line of lines) {
+      const cleanLine = line.trim().replace(/\r/g, '');
+      const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
+      if (match) {
+        const [, reference, text] = match;
+        const cleanRef = reference.trim();
+        const cleanText = text.trim();
+        
+        // Store multiple key formats for compatibility
+        textMap.set(cleanRef, cleanText); // "Gen.1:1"
+        textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
+      }
     }
-
-    if (!data?.signedUrl) {
-      throw new Error(`No signed URL returned for translation: ${translationCode}`);
-    }
-
-    console.log(`📡 Fetching translation data from: ${data.signedUrl}`);
-
-    // Fetch the translation file
-    const response = await fetch(data.signedUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const textContent = await response.text();
-    console.log(`📥 Downloaded ${textContent.length} characters for ${translationCode}`);
-
-    // Parse the translation data
-    const translationMap = parseTranslationText(textContent);
-
-    if (translationMap.size === 0) {
-      console.error(`🚨 FAILED TO LOAD: ${translationCode} - map size is 0, check file format`);
-      throw new Error(`Translation ${translationCode} produced empty verse map`);
-    }
-
-    // Cache the translation
-    masterCache.set(cacheKey, translationMap);
-
-    console.log(`✅ Cached translation: ${translationCode} (${translationMap.size} verses)`);
-    console.log(`📊 TRANSLATION LOAD: ${translationCode} - ${translationMap.size} verses, from anointed/translations/${translationCode}.txt`);
-
-    return translationMap;
-
-  } catch (error) {
-    console.error(`❌ Failed to load translation ${translationCode}:`, error);
-    throw error;
-  }
-}
-
-/**
- * Get verse text for a specific translation
- * Ensures the translation is loaded first
- */
-export async function getVerseText(verseId: string, translationCode: string): Promise<string | undefined> {
-  try {
-    const translationMap = await loadTranslation(translationCode);
-    return translationMap.get(verseId);
-  } catch (error) {
-    console.error(`Failed to get verse text for ${verseId} in ${translationCode}:`, error);
-    return undefined;
-  }
-}
-
-/**
- * Check if a translation is loaded in cache
- */
-export function isTranslationLoaded(translationCode: string): boolean {
-  return masterCache.has(`translation-${translationCode}`);
-}
-
-/**
- * Get cached translation map (returns undefined if not loaded)
- */
-export function getCachedTranslation(translationCode: string): Map<string, string> | undefined {
-  return masterCache.get(`translation-${translationCode}`);
+    
+    console.log(`✓ Found translation ${id} in cache with ${textMap.size} verses (Bible has 31,102 verses)`);
+    return textMap;
+  });
 }
 
 export async function loadTranslationAsText(id: string) {
@@ -235,7 +167,7 @@ export async function getContextGroups(): Promise<any> {
 export async function searchVerses(query: string, translationId: string = 'KJV'): Promise<Array<{ reference: string, text: string, index: number }>> {
   const translationMap = await loadTranslation(translationId);
   const results: Array<{ reference: string, text: string, index: number }> = [];
-
+  
   // Special random verse feature
   if (query === '%') {
     const allEntries = Array.from(translationMap.entries());
@@ -251,11 +183,11 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
     }
     return [];
   }
-
+  
   // Regular text search
   const searchLower = query.toLowerCase();
   const verseKeys = await loadVerseKeys();
-
+  
   for (const [reference, text] of Array.from(translationMap.entries())) {
     if (text.toLowerCase().includes(searchLower)) {
       const index = verseKeys.findIndex((key: string) => key === reference);
@@ -264,12 +196,12 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
         text,
         index: index >= 0 ? index : 0
       });
-
+      
       // Limit results to prevent UI lag
       if (results.length >= 100) break;
     }
   }
-
+  
   return results;
 }
 
@@ -307,7 +239,7 @@ export async function saveNote(note: any, preserveAnchor?: (ref: string, index: 
   const local = { ...note, updated_at: Date.now(), pending: true };
   await db.notes.add(local);
   await queueSync(); // Triggers BG sync or immediate push
-
+  
   if (preserveAnchor) {
     preserveAnchor(note.verseReference, note.verseIndex);
   }
@@ -372,7 +304,7 @@ export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string,
   const local = { ...bookmark, updated_at: Date.now(), pending: true };
   await db.bookmarks.add(local);
   await queueSync();
-
+  
   if (preserveAnchor) {
     preserveAnchor(bookmark.verseReference, bookmark.verseIndex);
   }
@@ -383,7 +315,7 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
   const local = { ...highlight, updated_at: Date.now(), pending: true };
   await db.highlights.add(local);
   await queueSync();
-
+  
   if (preserveAnchor) {
     preserveAnchor(highlight.verseReference, highlight.verseIndex);
   }
@@ -398,32 +330,32 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     // Load complete cross-reference data from cf1
     const crossRefData = await loadCrossReferences('cf1');
     const lines = crossRefData.split('\n').filter(line => line.trim());
-
+    
     // Find the line for this verse (convert "Gen 1:1" to "Gen.1:1" format)
     const searchKey = verseId.replace(/\s/g, '.');
     const targetLine = lines.find(line => line.startsWith(searchKey + '$$'));
-
+    
     if (!targetLine) {
       console.log(`No cross-references found for ${verseId}`);
       return [];
     }
-
+    
     // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
     const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
-
+    
     // FIXED: Proper parsing that handles numbered books like 1Cor, 2Tim, 3John
     const allReferences: string[] = [];
-
+    
     // Split by $ first to get reference groups
     const referenceGroups = referencesData.split('$');
-
+    
     referenceGroups.forEach(group => {
       if (!group.trim()) return;
-
+      
       // Split by # to get sequential references within a group
       const sequentialRefs = group.split('#');
-
+      
       sequentialRefs.forEach(ref => {
         const cleanRef = ref.trim();
         if (cleanRef) {
@@ -436,10 +368,10 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
         }
       });
     });
-
+    
     console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
     return allReferences;
-
+    
   } catch (error) {
     console.error(`❌ Error loading cross-references for ${verseId}:`, error);
     return [];

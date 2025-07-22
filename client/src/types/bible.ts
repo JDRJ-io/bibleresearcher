@@ -117,19 +117,3 @@ export interface ForumVote {
   postId: number;
   value: number; // 1 for upvote, -1 for downvote
 }
-
-export interface BibleStore {
-  // Basic navigation state
-  anchorIndex: number;
-  anchorRef: string;
-  isInitialized: boolean;
-
-  // Cross-references data
-  crossRefs: Record<string, string[]>;
-
-  // Actions
-  setAnchorIndex: (index: number) => void;
-  setAnchorRef: (ref: string) => void;
-  setCrossRefs: (refs: Record<string, string[]>) => void;
-  setInitialized: (initialized: boolean) => void;
-}

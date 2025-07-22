@@ -31,7 +31,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   // activeTranslations array: index 0 = main translation, others are alternates
   const [activeTranslations, setActiveTranslations] = useState<string[]>(['KJV']);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const mainTranslation = activeTranslations[0] || 'KJV';
   const alternates = activeTranslations.slice(1);
 
@@ -40,7 +40,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   useEffect(() => {
     if (initialLoadRef.current) return; // Prevent duplicate loads
     initialLoadRef.current = true;
-
+    
     const loadInitialMain = async () => {
       const initialMain = mainTranslation;
       if (!masterCache.has(`translation-${initialMain}`)) {
@@ -60,34 +60,67 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const toggleTranslation = useCallback(async (code: string, setAsMain = false) => {
     console.log(`🔄 TOGGLE TRANSLATION: ${code}, setAsMain: ${setAsMain}`);
     setIsLoading(true);
-
+    
     try {
-      // Use BibleDataAPI facade to ensure translation is loaded
-      const { isTranslationLoaded, loadTranslation } = await import('@/data/BibleDataAPI');
-
-      if (!isTranslationLoaded(code)) {
-        console.log(`🔄 Loading translation through BibleDataAPI: ${code}`);
-        await loadTranslation(code);
+      // Check if translation is already in master cache
+      if (!masterCache.has(`translation-${code}`)) {
+        console.log(`🔄 Fetching translation: ${code}`);
+        
+        // Use BibleDataAPI for unified data access
+        const { loadTranslation } = await import('@/data/BibleDataAPI');
+        const translationMap = await loadTranslation(code);
+        
+        // Task 2.1: Log map size, duration, and Supabase path on every load
+        console.log(`✅ Cached translation: ${code} (${translationMap.size} verses)`);
+        console.log(`📊 TRANSLATION LOAD: ${code} - ${translationMap.size} verses, from anointed/translations/${code}.txt`);
+        console.log(`🔍 VALIDATION: masterCache.get('translation-${code}') instanceof Map → ${masterCache.get(`translation-${code}`) instanceof Map}`);
+        
+        // Task 2.2: Fail-loud toast if map size === 0
+        if (translationMap.size === 0) {
+          console.error(`🚨 FAILED TO LOAD: ${code} - map size is 0, check CDN path`);
+          // User-visible toast for translation loading failures
+          if (typeof window !== 'undefined') {
+            import('@/hooks/use-toast').then(({ toast }) => {
+              toast({
+                title: "FAILED to load " + code,
+                description: "Translation file may be missing or corrupted. Check console for details.",
+                variant: "destructive",
+              });
+            });
+          }
+        }
+      } else {
+        console.log(`✅ Translation ${code} already cached, skipping duplicate load`);
       }
-
+      
+      // Update activeTranslations array - avoid duplicates with Array.from(new Set())
       setActiveTranslations(prev => {
-        const filtered = prev.filter(t => t !== code);
-        if (setAsMain) {
-          return [code, ...filtered];
-        } else if (filtered.length === prev.length) {
-          // wasn't in the list, add it
-          return [...prev, code];
+        const isActive = prev.includes(code);
+        console.log(`📋 Current translations: [${prev.join(', ')}], ${code} is active: ${isActive}`);
+        
+        if (isActive && !setAsMain) {
+          // Toggle OFF - remove from active but keep in cache
+          const newTranslations = prev.filter(t => t !== code);
+          console.log(`🔴 REMOVING ${code}: [${newTranslations.join(', ')}]`);
+          return newTranslations;
         } else {
-          // was in the list, removed
-          return filtered;
+          // Toggle ON or set as main
+          let newTranslations;
+          if (setAsMain) {
+            // Place at index 0 (main translation)
+            newTranslations = Array.from(new Set([code, ...prev.filter(t => t !== code)]));
+            console.log(`🎯 SETTING ${code} AS MAIN: [${newTranslations.join(', ')}]`);
+          } else {
+            // Append as alternate
+            newTranslations = Array.from(new Set([...prev, code]));
+            console.log(`➕ ADDING ${code} AS ALTERNATE: [${newTranslations.join(', ')}]`);
+          }
+          return newTranslations;
         }
       });
-
+      
     } catch (error) {
-      console.error(`Error loading translation ${code}:`, error);
-      if (typeof window !== 'undefined' && window.showToast) {
-        window.showToast(`Failed to load ${code}: ${error.message}`, 'error');
-      }
+      console.error('Error toggling translation:', error);
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +144,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
     const translationMap = masterCache.get(`translation-${translationCode}`);
-
+    
     // Debug logging for first few lookups
     if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
       console.log('🔍 getVerseText DEBUG:', {
@@ -126,7 +159,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         sampleKeys: translationMap ? Array.from(translationMap.keys()).slice(0, 5) : []
       });
     }
-
+    
     // Try both formats: "Gen 1:1" and "Gen.1:1"
     return translationMap?.get(verseID) || 
            translationMap?.get(verseID.replace(' ', '.')) ||
@@ -139,7 +172,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    */
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
     const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
-
+    
     // Debug logging for main translation lookups
     if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
       console.log('🔍 getMainVerseText DEBUG:', {
@@ -152,7 +185,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         mapHasVerseAlt: mainTranslationMap?.has(verseID.replace(' ', '.')) || mainTranslationMap?.has(verseID.replace('.', ' ')),
       });
     }
-
+    
     // Try both formats: "Gen 1:1" and "Gen.1:1"
     return mainTranslationMap?.get(verseID) || 
            mainTranslationMap?.get(verseID.replace(' ', '.')) ||
