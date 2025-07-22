@@ -208,44 +208,47 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
-        // Notes column (moved to slot 1 between Ref and Main)
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        // Notes column (moved to slot 1 between Ref and Main) - HIDDEN ON MOBILE
+        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes && !isMobile };
         break;
       case 7:
-        // Cross References column (moved from slot 6 to 7)
-        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+        // Cross References column (moved from slot 6 to 7) - ALWAYS VISIBLE ON MOBILE
+        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: isMobile ? true : (col.visible && showCrossRefs) };
         break;
       case 8:
-        // Prophecy P column (moved from slot 7 to 8)
-        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        // Prophecy P column (moved from slot 7 to 8) - HIDDEN ON MOBILE
+        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies && !isMobile };
         break;
       case 9:
-        // Prophecy F column (moved from slot 8 to 9)
-        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        // Prophecy F column (moved from slot 8 to 9) - HIDDEN ON MOBILE
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies && !isMobile };
         break;
       case 10:
-        // Prophecy V column (moved from slot 9 to 10)
-        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        // Prophecy V column (moved from slot 9 to 10) - HIDDEN ON MOBILE
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies && !isMobile };
         break;
       case 11:
-        // Dates column (unchanged)
-        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+        // Dates column (unchanged) - HIDDEN ON MOBILE
+        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates && !isMobile };
         break;
     }
   });
 
   // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
-  alternates.forEach((translationCode, index) => {
-    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
-    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
-      slotConfig[slot] = { 
-        type: 'alt-translation', 
-        header: translationCode, 
-        translationCode, 
-        visible: true  // Show all active alternate translations
-      };
-    }
-  });
+  // HIDDEN ON MOBILE for clean dual-column layout
+  if (!isMobile) {
+    alternates.forEach((translationCode, index) => {
+      const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
+      if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
+        slotConfig[slot] = { 
+          type: 'alt-translation', 
+          header: translationCode, 
+          translationCode, 
+          visible: true  // Show all active alternate translations
+        };
+      }
+    });
+  }
 
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
@@ -320,8 +323,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'reference':
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-            <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content">
-              {verse.reference}
+            <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref">
+              <span>{verse.reference}</span>
             </div>
           </div>
         );

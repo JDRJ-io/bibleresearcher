@@ -771,7 +771,7 @@ body.sepia-mode {
   --column-bg: hsl(45, 26%, 88%);
   --link-color: hsl(20, 79%, 52%);
   --hover-bg: hsla(20, 79%, 52%, 0.1);
-  --button-hover: hsl(54, 77%, 75%);
+  --button-hover: hsl(54, 77%, 75%);```text
   --accent-color: hsl(20, 79%, 52%);
   --success-color: hsl(28, 45%, 34%);
   --warning-color: hsl(38, 67%, 52%);
@@ -1067,4 +1067,26 @@ body.overlay-open {
 
 .bible-cell::-webkit-scrollbar-thumb:hover {
   background: var(--accent-color);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 639px) {
+  .bible-table-wrapper.dual-col {
+    justify-content: flex-start;
+  }
+
+  /* Mobile column width overrides - use CSS variables for consistency */
+  .dual-col .w-80 { width: calc(var(--colW) * 1) !important; }
+  .dual-col .w-60 { width: calc(var(--colW) * 0.75) !important; }
+  .dual-col .w-20 { width: calc(var(--colW) * 0.25) !important; }
+  .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
+  .dual-col .w-14 { width: calc(var(--colW) * 0.175) !important; }
+  .dual-col .w-12 { width: calc(var(--colW) * 0.15) !important; }
+
+  /* Rotated reference column for mobile */
+  .dual-col .cell-ref span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.75rem;
+  }
 }

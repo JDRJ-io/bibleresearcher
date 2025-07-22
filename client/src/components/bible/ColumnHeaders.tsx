@@ -79,7 +79,7 @@ export function ColumnHeaders({
 
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
-  
+
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
@@ -134,18 +134,27 @@ export function ColumnHeaders({
     visible: slotConfig[parseInt(slot)]?.visible 
   })));
 
-  // Get all visible columns sorted by slot position, matching VirtualRow exactly  
-  const visibleColumns = Object.entries(slotConfig)
-    .map(([slotStr, config]) => ({
-      slot: parseInt(slotStr),
-      config,
-      name: config?.header || '',
-      type: config?.type || '',
-      isMain: config?.type === 'main-translation',
-      visible: config?.visible !== false
-    }))
-    .filter(col => col.config && col.visible) // Only render valid, visible slots
-    .sort((a, b) => a.slot - b.slot);
+  const visibleColumns = useMemo(() => {
+    const columns = getVisibleColumns({
+      showCrossRefs,
+      showProphecies,
+      showNotes,
+      showDates,
+      main,
+      alternates
+    });
+
+    // On mobile, only show Reference, Main Translation, and Cross References
+    if (isMobile) {
+      return columns.filter(col => 
+        col.type === 'reference' || 
+        col.type === 'main-translation' || 
+        col.type === 'cross-refs'
+      );
+    }
+
+    return columns;
+  }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, isMobile]);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
@@ -159,10 +168,10 @@ export function ColumnHeaders({
     width += (alternates.length * 320); // Alt translations ~320px each
     return width;
   }, [showCrossRefs, showProphecies, alternates]);
-  
+
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  
+
   // Center only if total width fits in viewport, otherwise left-anchor
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
 
