@@ -1,0 +1,28 @@
+ we need each prophecy to fill each row in the references of each prophecy, with each prediction, verification & fulfillment described so that each cell is filled, wherever a prophecy is mentioned, people can look at all the cells seeing all the data pertaining to it, and there will be a small summary at the top of each of those cells to show the summary of that prophecy, & that also serves as a dividing line for when there are multiple prophecies relating to one verse, you can scroll and if there is a second summary it would show that there is another prophecy in connection to that verse, and the cells would populate the references and bible text for that second prophecy in the same cells, and so on if there would be more prophecies; ## Prophecy Fulfillment System (references/prophecy_rows.txt & prophecy_index.json):
+This system tracks biblical prophecies – predictions, their fulfillments, and extra verification verses. It uses a two-file approach:
+
+### prophecy_rows.txt – 
+a line for each verse that is involved in a prophecy. Format:
+
+[VerseID]$[id:type, id:type, …]
+For example:
+1Chr.10:13$127:V,128:V
+1Chr.11:1$128:P
+1Chr.11:3$129:F
+This means verse 1 Chronicles 10:13 has two prophecy references (IDs 127 and 128) both as V(erifications), 1 Chronicles 11:1 is a P(rediction) with ID 128, and 1 Chronicles 11:3 is an F(ulfillment) of prophecy ID 129. The parser will convert this into a structure like:
+json
+Copy
+"1Chr.10:13": { P: [], F: [], V: [127,128] },
+"1Chr.11:1":  { P: [128], F: [], V: [] },
+"1Chr.11:3":  { P: [], F: [129], V: [] },
+mapping each verse to lists of prophecy IDs categorized by role.
+
+### prophecy_index.json – 
+a detailed index keyed by prophecy ID, giving the full details of each prophecy. For each prophecy ID, it provides a short summary and lists of verses under keys prophecy (the prediction verses), fulfillment, and verification. For example (abbreviated):
+json
+Copy
+"128": {
+  "summary": "David’s descendants will become kings",
+  "prophecy": ["1Chr.11:1", "..."],
+  "fulfillment": ["1Chr.11:3", "..."],
+  "verification": ["1Chr.10:13", "1Chr.10:14", "..."]

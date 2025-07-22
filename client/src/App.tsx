@@ -48,8 +48,10 @@ export const useBibleStore = create<{
   getAllActive: () => string[];
   crossRefs: Record<string, string[]>;
   prophecies: Record<string, any>;
-  prophecyData: Record<string, { P: string[], F: string[], V: string[] }>;
-  setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => void;
+  prophecyData: Record<string, { P: number[], F: number[], V: number[] }>;
+  prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;
+  setProphecyData: (data: Record<string, { P: number[], F: number[], V: number[] }>) => void;
+  setProphecyIndex: (data: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>) => void;
   datesData: string[] | null;
   setDatesData: (dates: string[]) => void;
   labelsData: Record<string, any>;
@@ -82,7 +84,9 @@ export const useBibleStore = create<{
   crossRefs: {},
   prophecies: {},
   prophecyData: {},
-  setProphecyData: (data: Record<string, { P: string[], F: string[], V: string[] }>) => set({ prophecyData: data }),
+  prophecyIndex: {},
+  setProphecyData: (data: Record<string, { P: number[], F: number[], V: number[] }>) => set({ prophecyData: data }),
+  setProphecyIndex: (data: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>) => set({ prophecyIndex: data }),
   datesData: null,
   setDatesData: (dates: string[]) => set({ datesData: dates }),
   labelsData: {},
@@ -177,47 +181,20 @@ export const useBibleStore = create<{
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
     const newValue = !state.showProphecies;
     
-    // Load prophecy data when toggling on - using the new translation-based parsing
+    // Load prophecy data when toggling on - using prophecy_rows.txt and prophecy_index.json
     if (newValue && Object.keys(state.prophecyData).length === 0) {
-      console.log('🔮 Loading prophecy data from already-loaded translation...');
-      import('@/data/BibleDataAPI').then(async ({ getPropheciesFromTranslation, loadVerseKeys }) => {
+      console.log('🔮 Loading prophecy data from Supabase files...');
+      import('@/data/BibleDataAPI').then(async ({ loadProphecyData }) => {
         try {
-          // Get current main translation and verse keys
-          const mainTranslation = state.translationState?.main || 'KJV';
-          const verseKeys = await loadVerseKeys();
+          const { verseRoles, prophecyIndex } = await loadProphecyData();
           
-          // Parse prophecy patterns from the already-loaded translation
-          const parsedData = await getPropheciesFromTranslation(mainTranslation, verseKeys);
+          // Store both the verse roles and the prophecy index
+          get().setProphecyData(verseRoles);
+          get().setProphecyIndex(prophecyIndex);
           
-          get().setProphecyData(parsedData);
-          console.log(`✅ Prophecy data parsed from ${mainTranslation}:`, Object.keys(parsedData).length, 'verses with prophecy patterns');
+          console.log(`✅ Prophecy system loaded: ${Object.keys(verseRoles).length} verses with roles, ${Object.keys(prophecyIndex).length} prophecies`);
         } catch (error) {
-          console.error('❌ Failed to parse prophecy data from translation:', error);
-          // Fallback to Supabase data if available
-          try {
-            const { getProphecyRows } = await import('@/data/BibleDataAPI');
-            const propRows = await getProphecyRows();
-            const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
-            
-            propRows.split('\n').forEach(line => {
-              const [verseId, data] = line.split('$');
-              if (verseId && data) {
-                const P: string[] = [], F: string[] = [], V: string[] = [];
-                data.split(',').forEach(item => {
-                  const [id, type] = item.trim().split(':');
-                  if (type === 'P') P.push(id);
-                  else if (type === 'F') F.push(id);
-                  else if (type === 'V') V.push(id);
-                });
-                parsedData[verseId] = { P, F, V };
-              }
-            });
-            
-            get().setProphecyData(parsedData);
-            console.log('✅ Fallback prophecy data loaded from Supabase:', Object.keys(parsedData).length, 'verses');
-          } catch (fallbackError) {
-            console.error('❌ Fallback prophecy loading also failed:', fallbackError);
-          }
+          console.error('❌ Failed to load prophecy data:', error);
         }
       });
     }

@@ -294,20 +294,19 @@ export async function getProphecy(indexKey: string) {
   return prophecyRowsTxt!.substring(slice[0], slice[1]);
 }
 
-// -------- Prophecy data parsing from main translation (similar to cross-refs) ----------
+// -------- Prophecy data parsing from prophecy_rows.txt and prophecy_index.json ----------
 let prophecyWorker: Worker | null = null;
 
-export async function getPropheciesFromTranslation(
-  translationCode: string, 
-  verseKeys: string[]
-): Promise<Record<string, { P: string[], F: string[], V: string[] }>> {
+export async function loadProphecyData(): Promise<{
+  verseRoles: Record<string, { P: number[], F: number[], V: number[] }>;
+  prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;
+}> {
   try {
-    // Get the already-loaded translation data from the master cache
-    const translationMap = masterCache.get(`translation-${translationCode}`) as Map<string, string>;
-    if (!translationMap) {
-      console.warn(`Translation ${translationCode} not loaded in cache`);
-      return {};
-    }
+    // Load both files from Supabase Storage
+    const [prophecyRows, prophecyIndex] = await Promise.all([
+      fetchFromStorage(paths.prophecyRows),
+      fetchFromStorage(paths.prophecyIdx)
+    ]);
 
     // Initialize prophecy worker if needed
     if (!prophecyWorker) {
@@ -323,12 +322,15 @@ export async function getPropheciesFromTranslation(
         clearTimeout(timeout);
         const { type, payload } = event.data;
         
-        if (type === 'PROPHECIES_PARSED') {
+        if (type === 'PROPHECY_FILES_PARSED') {
           if (payload.success) {
-            console.log(`✅ Parsed ${Object.keys(payload.prophecyData).length} verses with prophecy patterns from ${translationCode}`);
-            resolve(payload.prophecyData);
+            console.log(`✅ Loaded prophecy data: ${Object.keys(payload.verseRoles).length} verses with roles, ${Object.keys(payload.prophecyIndex).length} prophecy definitions`);
+            resolve({
+              verseRoles: payload.verseRoles,
+              prophecyIndex: payload.prophecyIndex
+            });
           } else {
-            reject(new Error(payload.error || 'Failed to parse prophecies'));
+            reject(new Error(payload.error || 'Failed to parse prophecy files'));
           }
         }
       };
@@ -338,19 +340,19 @@ export async function getPropheciesFromTranslation(
         reject(error);
       };
 
-      // Send translation data to worker for parsing
+      // Send file contents to worker for parsing
       prophecyWorker!.postMessage({
-        type: 'PARSE_PROPHECIES_FROM_TRANSLATION',
+        type: 'PARSE_PROPHECY_FILES',
         payload: {
-          translationData: translationMap,
-          verseKeys: verseKeys
+          prophecyRows,
+          prophecyIndex
         }
       });
     });
 
   } catch (error) {
-    console.error('❌ Failed to parse prophecies from translation:', error);
-    return {};
+    console.error('❌ Failed to load prophecy data:', error);
+    return { verseRoles: {}, prophecyIndex: {} };
   }
 }
 
