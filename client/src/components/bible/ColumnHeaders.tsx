@@ -26,8 +26,8 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   const width = isMobile ? 
     (column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-6" :     // 16px - THIN Reference
      column.name === "Notes" ? "w-20" :                                  // 80px - Notes  
-     column.name === "Cross Refs" || column.name === "Cross References" ? "w-40" : // 180px - Cross Refs (smaller than main)
-     ["P", "F", "V"].includes(column.name) ? "w-16" : "w-52") :          // 64px P/F/V, 200px Main translation (LARGER)
+     column.name === "Cross Refs" || column.name === "Cross References" ? "w-52" : // 200px - SAME as main translation
+     ["P", "F", "V"].includes(column.name) ? "w-16" : "w-52") :          // 64px P/F/V, 200px Main translation
     (column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-20" : 
      column.name === "Notes" ? "w-64" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
@@ -321,7 +321,7 @@ export function ColumnHeaders({
                   key={`slot-${column.slot}`}
                   column={column}
                   isMain={column.isMain}
-                  isMobile={isMobile}
+                  isMobile={adaptiveIsMobile}
                 />
               ))}
             </div>
@@ -341,7 +341,7 @@ export function ColumnHeaders({
                   key={`slot-${column.slot}`}
                   column={column}
                   isMain={column.isMain}
-                  isMobile={isMobile}
+                  isMobile={adaptiveIsMobile}
                 />
               ))}
             </div>
