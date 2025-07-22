@@ -495,18 +495,15 @@ body {
 
   /* Reference column - ULTRA thin for rotated text */
   .cell-ref, 
-  .w-6,
-  .w-12 { 
+  .w-6 { 
     width: var(--mobile-ref-width) !important;
     min-width: var(--mobile-ref-width) !important;
-    max-width: var(--mobile-ref-width) !important;
     flex-shrink: 0;
   }
 
   /* Main translation - slightly larger share */
   .cell-main,
-  .w-52,
-  .w-80:first-of-type { 
+  .w-52 { 
     width: var(--mobile-main-width) !important;
     min-width: 0;
     flex-shrink: 0;
@@ -514,8 +511,7 @@ body {
 
   /* Cross references - balanced with main */
   .cell-cross,
-  .cross-ref-container,
-  .w-80:nth-of-type(2) { 
+  .cross-ref-container { 
     width: var(--mobile-cross-width) !important;
     min-width: 0;
     flex-shrink: 0;
@@ -524,25 +520,17 @@ body {
   /* Other columns when visible */
   .w-20 { width: var(--mobile-notes-width) !important; }
   .w-16 { width: var(--mobile-prophecy-width) !important; }
-  .w-60 { width: var(--mobile-notes-width) !important; }
 
   /* Header alignment - ensure headers match column widths exactly */
   .column-headers-adaptive .flex-shrink-0 {
     flex-shrink: 0;
-  }
-
-  /* Force all reference columns to use the same width */
-  [class*="w-"]:first-child,
-  .verse-row > div:first-child {
-    width: var(--mobile-ref-width) !important;
-    min-width: var(--mobile-ref-width) !important;
-    max-width: var(--mobile-ref-width) !important;
   }
 }
 
   .virtual-bible-table {
     overflow-x: auto;
   }
+}
 
 /* Tablet responsive breakpoint */
 @media (min-width: 641px) and (max-width: 1023px) {
