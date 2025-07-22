@@ -343,13 +343,29 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
     
-    // Split by $ to get groups, then by # to get individual references
-    const referenceGroups = referencesData.split('$');
+    // FIXED: Proper parsing that handles numbered books like 1Cor, 2Tim, 3John
     const allReferences: string[] = [];
     
+    // Split by $ first to get reference groups
+    const referenceGroups = referencesData.split('$');
+    
     referenceGroups.forEach(group => {
-      const refs = group.split('#');
-      allReferences.push(...refs.filter(ref => ref.trim()));
+      if (!group.trim()) return;
+      
+      // Split by # to get sequential references within a group
+      const sequentialRefs = group.split('#');
+      
+      sequentialRefs.forEach(ref => {
+        const cleanRef = ref.trim();
+        if (cleanRef) {
+          // Validate this looks like a proper verse reference before adding
+          if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+            allReferences.push(cleanRef);
+          } else {
+            console.warn(`Skipping invalid cross-reference format: "${cleanRef}" from verse ${verseId}`);
+          }
+        }
+      });
     });
     
     console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
