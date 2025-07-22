@@ -65,6 +65,10 @@ export function ColumnHeaders({
     isInitialized 
   } = useBibleStore();
 
+  // Use prop if provided, otherwise fall back to store state
+  const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
+  const showNotes = propShowNotes ?? storeShowNotes;
+
   // Prevent render if store not initialized
   if (!isInitialized) {
     console.log('⚠️ ColumnHeaders: Store not initialized, skipping render');
@@ -79,10 +83,6 @@ export function ColumnHeaders({
     main,
     alternates: alternates.length
   });
-
-  // Use prop if provided, otherwise fall back to store state
-  const showCrossRefs = propShowCrossRefs ?? storeShowCrossRefs;
-  const showNotes = propShowNotes ?? storeShowNotes;
 
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
