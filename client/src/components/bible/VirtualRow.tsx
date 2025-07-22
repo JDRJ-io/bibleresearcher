@@ -65,9 +65,14 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             const displayRef = ref.replace(/\./g, ' ');
             const lookupRef = ref.replace(/\s/g, '.');
 
-            // Try multiple formats for verse text lookup
-            const refText = getVerseText(displayRef, mainTranslation) || 
-                            getVerseText(lookupRef, mainTranslation);
+            // Try to get verse text from the main translation
+            // First check if we have this verse already loaded in our current data
+            let refText = '';
+            if (mainTranslation) {
+              // Try the getVerseText function which should use the cached translation data
+              refText = getVerseText(displayRef, mainTranslation) || 
+                        getVerseText(lookupRef, mainTranslation) || 
+                        getVerseText(ref, mainTranslation) || '';ation);
 
             return (
               <div

@@ -109,17 +109,30 @@ export function VerseRow({
 
             if (crossRefs.length > 0) {
               return crossRefs.map((ref, index) => {
-                // Get verse text from the main translation using the facade function
+                // Get verse text from the main translation (first selected translation)
                 const mainTranslation = selectedTranslations[0];
                 let refText = '';
 
-                if (mainTranslation && getGlobalVerseText) {
+                if (mainTranslation) {
                   // Convert reference format for cross-reference lookup
                   const displayRef = ref.replace(/\./g, ' '); // "Gen.1:1" -> "Gen 1:1"
                   const lookupRef = ref; // Keep original dot format as backup
 
-                  // Use the global verse text getter which should use the main translation
-                  refText = getGlobalVerseText(displayRef) || getGlobalVerseText(lookupRef) || '';
+                  // First try to find the cross-referenced verse in the current verses array
+                  // This ensures we use the same translation data that's already loaded
+                  const crossRefVerse = allVerses.find(v => 
+                    v.reference === displayRef || 
+                    v.reference === lookupRef ||
+                    `${v.book}.${v.chapter}:${v.verse}` === ref ||
+                    v.reference.replace(/\s/g, '.') === ref
+                  );
+
+                  if (crossRefVerse && crossRefVerse.text && crossRefVerse.text[mainTranslation.id]) {
+                    refText = crossRefVerse.text[mainTranslation.id];
+                  } else if (getGlobalVerseText) {
+                    // Fallback to global verse text getter using the correct translation
+                    refText = getGlobalVerseText(displayRef) || getGlobalVerseText(lookupRef) || '';
+                  }
                 }
 
                 const displayText = refText && refText.length > 150 ? 

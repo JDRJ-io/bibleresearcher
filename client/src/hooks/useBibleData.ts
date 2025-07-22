@@ -1397,8 +1397,8 @@ export function useBibleData() {
 
   // Global verse text lookup function for prophecy column and other components
   const getGlobalVerseText = (reference: string): string => {
-    // Use the main translation from the selected translations (first one)
-    const translationCode = selectedTranslations.length > 0 ? selectedTranslations[0].id : mainTranslation;
+    // Use the main translation from the selected translations (first one) or fallback to mainTranslation
+    const translationCode = selectedTranslations.length > 0 ? selectedTranslations[0] : mainTranslation;
     const cacheKey = `translation-${translationCode}`;
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
 
