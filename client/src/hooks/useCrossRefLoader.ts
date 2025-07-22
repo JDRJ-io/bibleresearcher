@@ -24,7 +24,8 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         return;
       }
 
-      console.log(`📚 BATCH Loading cross-references for ${neededVerses.length}/${verseKeys.length} verses in slice`);
+      // Silent batch loading for instant feel
+        // console.log(`📚 BATCH Loading cross-references for ${neededVerses.length}/${verseKeys.length} verses in slice`);
 
       try {
         // OPTIMIZATION: Batch load all cross-references at once instead of one-by-one
@@ -55,14 +56,16 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         // Update store once with all new cross-references
         setCrossRefs(newCrossRefs);
 
-        console.log(`✅ BATCH Cross-references loaded for ${results.filter(r => r.refs.length > 0).length} verses`);
+        // Silent completion for instant feel
+        // console.log(`✅ BATCH Cross-references loaded for ${results.filter(r => r.refs.length > 0).length} verses`);
 
         // Pre-load verse text for cross-references that point to verses outside current slice
         const allCrossRefs = results.flatMap(r => r.refs);
 
         // Load the KJV translation for cross-reference snippets if needed
         if (allCrossRefs.length > 0) {
-          console.log(`📖 Eager-loading cross-ref translations for ${allCrossRefs.length} references`);
+          // Silent eager-loading for instant feel
+          // console.log(`📖 Eager-loading cross-ref translations for ${allCrossRefs.length} references`);
           await loadTranslation('KJV'); // This ensures the translation map includes the referenced verses
         }
       } catch (error) {

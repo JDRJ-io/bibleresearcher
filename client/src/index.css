@@ -320,6 +320,52 @@ body {
   overscroll-behavior: contain;
 }
 
+/* PERFECTED CROSS-REFERENCE NAVIGATION AESTHETICS */
+.cross-ref-clicked {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  transform: scale(0.95);
+  transition: all 0.1s ease-out;
+}
+
+.verse-highlight-flash {
+  background-color: rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  border-left: 4px solid #FFD700;
+  transition: all 0.2s ease-in;
+  animation: subtle-pulse 0.8s ease-out;
+}
+
+@keyframes subtle-pulse {
+  0% { 
+    background-color: rgba(255, 215, 0, 0.4);
+    transform: translateX(2px);
+  }
+  50% { 
+    background-color: rgba(255, 215, 0, 0.2);
+    transform: translateX(0px);
+  }
+  100% { 
+    background-color: rgba(255, 215, 0, 0.1);
+    transform: translateX(0px);
+  }
+}
+
+/* Cross-reference button enhanced aesthetics */
+.cross-ref-button {
+  transition: all 0.1s ease;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.cross-ref-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.cross-ref-button:active {
+  transform: translateY(0px) scale(0.98);
+}
+
 .scroll-container {
   overscroll-behavior: auto;
   scroll-behavior: smooth;

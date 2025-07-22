@@ -104,7 +104,7 @@ export function VerseRow({
               <div key={index} className="mb-2">
                 <button 
                   onClick={() => onNavigateToVerse(ref.reference)}
-                  className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                  className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                 >
                   {ref.reference}
                 </button>

@@ -163,6 +163,13 @@ const VirtualBibleTable = ({
     onVerseClick: (ref: string) => {
       console.log('🔗 Cross-reference clicked:', ref);
       
+      // INSTANT NAVIGATION: Add immediate visual feedback
+      const clickedElement = document.activeElement;
+      if (clickedElement) {
+        clickedElement.classList.add('cross-ref-clicked');
+        setTimeout(() => clickedElement.classList.remove('cross-ref-clicked'), 150);
+      }
+      
       // Try the reference as-is first, then try various formats
       const searchFormats = [
         ref,                                    // Original format
@@ -185,14 +192,26 @@ const VirtualBibleTable = ({
       
       if (verseIndex >= 0) {
         console.log(`📖 Found verse ${foundFormat} at index ${verseIndex}`);
-        // Calculate target scroll position to center the verse in viewport
+        
         if (containerRef.current) {
           const containerHeight = containerRef.current.clientHeight;
           const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
+          
+          // PERFECTED AESTHETICS: Instant jump with subtle highlight
           containerRef.current.scrollTo({
-            top: Math.max(0, targetScrollTop), // Prevent negative scroll
-            behavior: 'smooth'
+            top: Math.max(0, targetScrollTop),
+            behavior: 'auto' // Changed from 'smooth' to 'auto' for instant feel
           });
+          
+          // Add a subtle flash highlight to the target verse after jump
+          setTimeout(() => {
+            const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
+                               document.querySelector(`[data-verse-ref="${foundFormat}"]`);
+            if (targetVerse) {
+              targetVerse.classList.add('verse-highlight-flash');
+              setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 800);
+            }
+          }, 50); // Small delay to ensure DOM is ready after scroll
         }
       } else {
         console.warn(`⚠️ Could not find verse: ${ref}`);
