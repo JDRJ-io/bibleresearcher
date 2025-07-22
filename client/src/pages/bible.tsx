@@ -718,17 +718,39 @@ export default function BiblePage() {
           </span>
         </div>
 
-        {/* Mobile: Navigation Only */}
-        <div className="flex md:hidden items-center gap-1">
+        {/* Mobile: Logo + Navigation */}
+        <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Logo */}
+          <div className="flex items-center gap-1">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden border border-white/30" 
+                 style={{ 
+                   background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
+                   boxShadow: '0 0 15px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,215,0,0.05)',
+                   backdropFilter: 'blur(10px)'
+                 }}>
+              <svg className="w-5 h-5 text-amber-300 z-10" fill="currentColor" viewBox="0 0 24 24" style={{ filter: 'drop-shadow(0 0 2px rgba(255,215,0,0.3))' }}>
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+              </svg>
+            </div>
+            <span className="sacred-title font-bold text-sm text-white drop-shadow-lg tracking-wide" 
+                  style={{ 
+                    textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                    letterSpacing: '0.025em'
+                  }}>
+              Anointed.io
+            </span>
+          </div>
+          
           {/* Navigation buttons */}
           <button
             onClick={hookGoBack}
             disabled={!hookCanGoBack}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
             aria-label="Go back"
           >
             <svg
-              className="h-5 w-5 text-white"
+              className="h-4 w-4 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -744,11 +766,11 @@ export default function BiblePage() {
           <button
             onClick={hookGoForward}
             disabled={!hookCanGoForward}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
             aria-label="Go forward"
           >
             <svg
-              className="h-5 w-5 text-white"
+              className="h-4 w-4 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -799,7 +821,7 @@ export default function BiblePage() {
           </div>
         </div>
 
-        {/* Mobile: Just search and menu buttons */}
+        {/* Mobile: Search + Sign In + Menu */}
         <div className="flex md:hidden items-center gap-2 ml-auto">
           <button
             className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
@@ -809,6 +831,17 @@ export default function BiblePage() {
             <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
+          </button>
+          
+          {/* Mobile Sign In Button */}
+          <button
+            onClick={() => setIsSignUpOpen(true)}
+            className="bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1 backdrop-blur-sm border border-white/20 transition-all"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Sign In
           </button>
           
           <button
