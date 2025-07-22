@@ -67,7 +67,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
 
             // Try multiple formats for verse text lookup
             const refText = getVerseText(displayRef, mainTranslation) || 
-                            getVerseText(lookupRef, mainTranslation);
+                            getVerseText(lookupRef, mainTranslation)ation);
 
             return (
               <div

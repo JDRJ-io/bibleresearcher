@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase, masterCache } from "@/lib/supabaseClient";
+import { useTranslationMaps } from './useTranslationMaps';
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
 import {
   loadTranslation,
@@ -24,7 +25,7 @@ const loadKJVTextMap = async (): Promise<void> => {
     console.log("📖 Loading KJV text map from BibleDataAPI...");
     const { loadTranslation } = await import('@/data/BibleDataAPI');
     const kjvMap = await loadTranslation('KJV');
-    
+
     globalKjvTextMap = kjvMap;
     console.log(`📖 KJV text map loaded: ${kjvMap.size} entries`);
   } catch (error) {
@@ -581,17 +582,17 @@ const loadProphecyDataOnDemand = async () => {
 
   try {
     console.log("Loading prophecy data on-demand from Supabase...");
-    
+
     // Load both prophecy files
     const { getProphecyIndex, getProphecyRows } = await import('@/data/BibleDataAPI');
     const [index, rows] = await Promise.all([
       getProphecyIndex(),
       getProphecyRows()
     ]);
-    
+
     prophecyIndex = index;
     prophecyRows = typeof rows === 'string' ? JSON.parse(rows) : rows;
-    
+
     console.log(`Prophecy data loaded: ${index.size} verses indexed, ${Object.keys(rows).length} prophecies`);
     return { index, rows };
   } catch (error) {
@@ -657,7 +658,7 @@ export function useBibleData() {
     cf2: Map<string, string[]>;
   }>({ cf1: new Map(), cf2: new Map() });
   const [prophecyData, setProphecyData] = useState<Map<string, any>>(new Map());
-  
+
   // CHRONOLOGICAL ORDER SWITCHING: Ground rule implementation
   const [verseOrder, setVerseOrder] = useState<"canonical" | "chronological">("canonical");
 
@@ -690,7 +691,7 @@ export function useBibleData() {
     } else {
       setMainTranslation(translationId);
     }
-    
+
     // Step 2: Update activeTranslations as single source of truth
     setActiveTranslations((prev) => {
       if (prev.includes(translationId)) {
@@ -829,7 +830,7 @@ export function useBibleData() {
     const startIndex = Math.max(0, centerIndex - 100);
     const endIndex = Math.min(allVerseKeys.length - 1, centerIndex + 100);
     const slice = allVerseKeys.slice(startIndex, endIndex + 1);
-    
+
     console.log(`📍 ANCHOR LOAD: Center=${centerIndex}, Range=${startIndex}-${endIndex}, Slice=${slice.length} verses`);
 
     // Generate unique request ID to prevent race conditions
@@ -867,11 +868,11 @@ export function useBibleData() {
                    globalKjvTextMap.get(verseKey.replace('.', ' ')) ||
                    globalKjvTextMap.get(allVerses[i].reference);
         }
-        
+
         if (!kjvText) {
           kjvText = `Loading ${allVerses[i].reference}...`;
         }
-        
+
         // Only populate text for center-anchored range
         allVerses[i].text = { KJV: kjvText };
         allVerses[i].labels = [...(allVerses[i].labels || []), 'kjv-loaded'];
@@ -893,7 +894,7 @@ export function useBibleData() {
     console.log(
       `✓ Loaded text for range ${startIndex}-${endIndex} in full array`,
     );
-    
+
     // Force re-render by updating verses reference
     setVerses([...allVerses]);
     return allVerses;
@@ -948,33 +949,33 @@ export function useBibleData() {
   // CHRONOLOGICAL ORDER SWITCHING FUNCTION: Ground rule implementation
   const switchVerseOrder = async (newOrder: "canonical" | "chronological") => {
     console.log(`🔄 Switching verse order from ${verseOrder} to ${newOrder}`);
-    
+
     try {
       setIsLoading(true);
       setLoadingProgress({ stage: "verse-keys", percentage: 10 });
-      
+
       // Load the appropriate verse keys file
       const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
-      
+
       const verseKeys = newOrder === "canonical" 
         ? await loadVerseKeysCanonical()
         : await loadVerseKeysChronological();
-      
+
       console.log(`📋 Loaded ${verseKeys.length} verse keys in ${newOrder} order`);
-      
+
       setLoadingProgress({ stage: "structure", percentage: 50 });
-      
+
       // Recreate verses with new order but keep existing text data
       const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
       console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${newOrder} timeline`);
-      
+
       setLoadingProgress({ stage: "complete", percentage: 100 });
-      
+
       setVerses(reorderedVerses);
       setVerseOrder(newOrder);
       setCenterVerseIndex(0); // Reset to start of new order
       setIsLoading(false);
-      
+
       console.log(`✓ Successfully switched to ${newOrder} order`);
     } catch (error) {
       console.error(`Failed to switch to ${newOrder} order:`, error);
@@ -991,18 +992,18 @@ export function useBibleData() {
         // VERSE KEYS FIRST: Load the master row index foundation
         setLoadingProgress({ stage: "verse-keys", percentage: 10 });
         console.log("🔑 Starting verse keys foundation architecture...");
-        
+
         const { loadVerseKeysCanonical, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
-        
+
         const verseKeys = await loadVerseKeysCanonical();
         console.log(`🔑 Loaded ${verseKeys.length} verse keys as master index`);
-        
+
         setLoadingProgress({ stage: "structure", percentage: 50 });
-        
+
         // Create verse objects from the master key index
         const verseObjects = createVerseObjectsFromKeys(verseKeys);
         console.log(`🏗️ Created ${verseObjects.length} verse structure from keys`);
-        
+
         setLoadingProgress({ stage: "complete", percentage: 100 });
 
         // Set the verses using the verse keys foundation
@@ -1266,14 +1267,14 @@ export function useBibleData() {
     // Helper function to get verse text from the global KJV text map
     const getVerseText = (dotReference: string): string => {
       if (!globalKjvTextMap) return "";
-      
+
       // Try multiple formats to find the text
       const formats = [
         dotReference, // Gen.1:1
         dotReference.replace(/\./g, " "), // Gen 1:1
         dotReference.replace(/\./g, " ").replace(":", "."), // Gen 1.1
       ];
-      
+
       for (const format of formats) {
         const text = globalKjvTextMap.get(format);
         if (text) {
@@ -1281,7 +1282,7 @@ export function useBibleData() {
           return text.length > 100 ? text.substring(0, 100) + "..." : text;
         }
       }
-      
+
       return "";
     };
 
@@ -1342,7 +1343,7 @@ export function useBibleData() {
   const loadTranslationData = async (translationId: string) => {
     try {
       console.log(`Loading ${translationId} translation from Supabase...`);
-      
+
       // Import the translation loader
       const { loadTranslationSecure } = await import('../lib/supabaseClient');
       const translationData = await loadTranslationSecure(translationId);
@@ -1380,10 +1381,10 @@ export function useBibleData() {
         // Update both display verses and full verse set
         const updatedDisplayVerses = updateVersesWithTranslation(verses);
         const updatedAllVerses = updateVersesWithTranslation(verses);
-        
+
         setVerses(updatedDisplayVerses);
         setVerses(updatedAllVerses);
-        
+
         console.log(`✓ ${translationId} translation loaded with ${translationData.size} verses`);
         return true;
       }
@@ -1396,8 +1397,16 @@ export function useBibleData() {
 
   // Global verse text lookup function for prophecy column and other components
   const getGlobalVerseText = (reference: string): string => {
-    if (!globalKjvTextMap) return "";
-    
+    // Use the selected main translation for cross-references
+    const translationCode = mainTranslation;
+    const cacheKey = `translation-${translationCode}`;
+    const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
+
+    if (!translationMap) {
+      console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
+      return "";
+    }
+
     // Try multiple reference formats to find the text
     const formats = [
       reference, // Exact as provided
@@ -1405,15 +1414,15 @@ export function useBibleData() {
       reference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
       reference.replace(/\./g, " ").replace(":", "."), // "Gen.1:1" -> "Gen 1.1"
     ];
-    
+
     for (const format of formats) {
-      const text = globalKjvTextMap.get(format);
+      const text = translationMap.get(format);
       if (text) {
         // Truncate long verses for display in prophecy columns
         return text.length > 60 ? text.substring(0, 60) + "..." : text;
       }
     }
-    
+
     return "";
   };
 
@@ -1422,14 +1431,14 @@ export function useBibleData() {
     // Check the master cache first
     const cacheKey = `translation-${translationCode}`;
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
-    
+
     if (!translationMap) {
       console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
       return undefined;
     }
-    
+
     console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
-    
+
     // Try multiple reference formats to find the text
     const formats = [
       verseReference, // "Gen 1:1"
@@ -1437,14 +1446,14 @@ export function useBibleData() {
       verseReference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
       `${verseReference.split(" ")[0]}.${verseReference.split(" ")[1]}`, // "Gen 1:1" -> "Gen.1:1"
     ];
-    
+
     for (const format of formats) {
       const text = translationMap.get(format);
       if (text) {
         return text;
       }
     }
-    
+
     // If not found, try with global KJV map as fallback
     if (translationCode === 'KJV' && globalKjvTextMap) {
       for (const format of formats) {
@@ -1454,7 +1463,7 @@ export function useBibleData() {
         }
       }
     }
-    
+
     return undefined;
   };
 

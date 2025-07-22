@@ -109,8 +109,16 @@ export function VerseRow({
             
             if (crossRefs.length > 0) {
               return crossRefs.map((ref, index) => {
-                // Get verse text from the global translation system
-                const refText = getGlobalVerseText ? getGlobalVerseText(ref) : '';
+                // Get verse text from the main translation (first selected translation)
+                const mainTranslation = selectedTranslations[0];
+                const refText = mainTranslation ? 
+                  (verse.text && verse.text[mainTranslation.id] ? 
+                    // Try to get from current verse data first
+                    (allVerses.find(v => v.reference === ref)?.text?.[mainTranslation.id]) ||
+                    // Fallback to global getter
+                    (getGlobalVerseText ? getGlobalVerseText(ref) : '')
+                    : (getGlobalVerseText ? getGlobalVerseText(ref) : '')
+                  ) : '';
                 const displayText = refText && refText.length > 150 ? 
                   refText.substring(0, 150) + '...' : refText;
                 
