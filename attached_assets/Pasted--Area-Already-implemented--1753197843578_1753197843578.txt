@@ -1,0 +1,23 @@
+
+| Area                           | Already implemented                                                                                                                                                             | Still missing / needs tightening                                                                                                                                                                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Device detection**           | In `VirtualBibleTable.tsx` you set `isMobile = window.innerWidth < 640` and add the class `dual‑col` to `.bible‑table-wrapper`.                                                 | The same check is sprinkled in a few other components; keep the *single* source of truth in `VirtualBibleTable` and pass it down as a prop to avoid diverging behaviour.                                                                                                            |
+| **CSS column widths**          | A root var `--colW` is written in a `useEffect`, multiplied by font‑size.                                                                                                       | The Tailwind / CSS you shipped only overrides `width: calc(var(--colW) * N)` for *desktop*.  Add a dedicated mobile rule:  `css  @media (max-width: 639px){   .dual‑col .w‑80{width:var(--colW)}   .dual‑col .w‑60{width:calc(var(--colW)*0.75)}   /* …same for 20/16/12 etc… */ }` |
+| **Reference column rotated**   | In the *old* `VerseRow` component you had `transform: ‑rotate‑90`; that snippet never made it into the new virtualised rows.                                                    | Add it back just for mobile:  `css  @media (max-width: 639px){.cell-ref span{writing-mode:vertical-rl;transform:rotate(180deg)}} `                                                                                                                                                  |
+| **Cross‑reference column**     | Slot 2 (`cross‑refs`) is always rendered; it has its own scroll container so long references don’t stretch the row.                                                             | ✅ Behaviour matches the mock‑up.                                                                                                                                                                                                                                                    |
+| **Dual‑column centring logic** | Your `shouldCenter` calculation works for desktop but on mobile you switch to `justify-center` *and* set `overflow-x:hidden`, so the 2‑column layout can’t scroll horizontally. | Don’t hide overflow on mobile.  Inside the same block:  `overflowX: isMobile ? 'auto' : (shouldCenter ? 'hidden':'auto')`                                                                                                                                                           |
+
+### Quick checklist for you / the agent
+
+1. **One “dual‑col” CSS file** – Everything mobile‑only goes there: rotated ref column, narrower widths, hiding columns beyond “main + cross”.
+2. **Exactly two data columns by default** on `<640px`:
+
+   * Slot 1 → main translation
+   * Slot 2 → cross refs
+     The rest must have `visible:false` unless the user toggles them on.
+3. **Horizontal scrolling always allowed** when `scrollWidth > clientWidth`. Never set `overflow‑x:hidden` once the wrapper is wider than the viewport.
+4. **Touch‑handling guard** – your `onTouchMove` logic already flips between `pan‑x` and `pan‑y`; keep that untouched.
+
+If you make those small CSS / visibility tweaks you’ll get the exact portrait layout in the screenshot automatically.
+
+---
