@@ -695,8 +695,8 @@ export default function BiblePage() {
           borderImage: 'linear-gradient(90deg, #FFD700, #FFFFFF, #FFD700) 1'
         }}
       >
-        {/* Left: Logo & Brand */}
-        <div className="flex items-center gap-2 md:gap-4">
+        {/* Left: Logo & Brand - HIDE ON MOBILE */}
+        <div className="hidden md:flex items-center gap-2 md:gap-4">
           <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg flex items-center justify-center shadow-lg relative overflow-hidden border border-white/30" 
                style={{ 
                  background: 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,215,0,0.1), rgba(255,255,255,0.05))',
@@ -708,62 +708,63 @@ export default function BiblePage() {
             </svg>
           </div>
           
-          <div className="flex items-center gap-1 md:gap-3">
-            <span className="sacred-title font-bold text-base md:text-xl text-white drop-shadow-lg tracking-wide" 
-                  style={{ 
-                    textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    letterSpacing: '0.025em'
-                  }}>
-              Anointed.io
-            </span>
-            
-            {/* Navigation buttons */}
-            <button
-              onClick={hookGoBack}
-              disabled={!hookCanGoBack}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
-              aria-label="Go back"
-            >
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={hookGoForward}
-              disabled={!hookCanGoForward}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
-              aria-label="Go forward"
-            >
-              <svg
-                className="h-5 w-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
+          <span className="sacred-title font-bold text-base md:text-xl text-white drop-shadow-lg tracking-wide" 
+                style={{ 
+                  textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  letterSpacing: '0.025em'
+                }}>
+            Anointed.io
+          </span>
         </div>
 
-        {/* Center - Navigation and Search */}
-        <div className="flex-1 flex items-center gap-3 mx-6">
+        {/* Mobile: Navigation Only */}
+        <div className="flex md:hidden items-center gap-1">
+          {/* Navigation buttons */}
+          <button
+            onClick={hookGoBack}
+            disabled={!hookCanGoBack}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+            aria-label="Go back"
+          >
+            <svg
+              className="h-5 w-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={hookGoForward}
+            disabled={!hookCanGoForward}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-white/10 backdrop-blur-sm"
+            aria-label="Go forward"
+          >
+            <svg
+              className="h-5 w-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Center - Navigation and Search - Desktop Only */}
+        <div className="hidden md:flex flex-1 items-center gap-3 mx-6">
           <VerseSelector onNavigate={navigateToVerse} />
 
           {/* Enhanced Search Bar - Always Expanded on Desktop */}
@@ -798,8 +799,37 @@ export default function BiblePage() {
           </div>
         </div>
 
-        {/* Right: Auth + Menu */}
-        <div className="flex items-center gap-3">
+        {/* Mobile: Just search and menu buttons */}
+        <div className="flex md:hidden items-center gap-2 ml-auto">
+          <button
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
+            onClick={() => bibleStore.setSearchOpen(true)}
+            aria-label="Search"
+          >
+            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+          
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMenuOpen ? (
+              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Right: Auth + Menu - Desktop Only */}
+        <div className="hidden md:flex items-center gap-3">
           {/* Enhanced Authentication Button */}
           <button
             onClick={() => setIsSignUpOpen(true)}
