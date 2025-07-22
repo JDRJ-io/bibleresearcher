@@ -19,30 +19,24 @@ function ProphecyRow({ verseKey }: { verseKey: string }) {
   const [data, setData] = useState<ProphecyRowData | null>(null);
   
   useEffect(() => {
-    getProphecy(verseKey).then((row) => {
-      if (!row) {
+    // Use the same data loading approach as cross-references
+    import('@/lib/prophecyCache').then(({ getProphecyForVerse }) => {
+      const prophecyData = getProphecyForVerse(verseKey);
+      
+      if (!prophecyData || prophecyData.length === 0) {
         setData({ pred: null, ful: null, ver: null });
         return;
       }
       
-      // Parse the prophecy row format: "verseID $ id:type , id:type , …"
-      const parts = row.split('$');
-      if (parts.length < 2) {
-        setData({ pred: null, ful: null, ver: null });
-        return;
-      }
-      
-      const items = parts[1].split(',');
-      let pred = null, ful = null, ver = null;
-      
-      for (const item of items) {
-        const [id, type] = item.trim().split(':');
-        if (type === 'P') pred = id;
-        else if (type === 'F') ful = id;
-        else if (type === 'V') ver = id;
-      }
-      
-      setData({ pred, ful, ver });
+      // Extract P, F, V arrays from the first prophecy entry
+      const entry = prophecyData[0];
+      setData({
+        pred: entry.P && entry.P.length > 0 ? entry.P.join(',') : null,
+        ful: entry.F && entry.F.length > 0 ? entry.F.join(',') : null,
+        ver: entry.V && entry.V.length > 0 ? entry.V.join(',') : null
+      });
+    }).catch(() => {
+      setData({ pred: null, ful: null, ver: null });
     });
   }, [verseKey]);
   
@@ -61,8 +55,8 @@ function ProphecyRow({ verseKey }: { verseKey: string }) {
       <td className="table-cell w-16 text-center">
         {data.pred ? (
           <div className="flex items-center justify-center">
-            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs font-bold">
-              {data.pred}
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-blue-600">
+              P
             </span>
           </div>
         ) : (
@@ -72,8 +66,8 @@ function ProphecyRow({ verseKey }: { verseKey: string }) {
       <td className="table-cell w-16 text-center">
         {data.ful ? (
           <div className="flex items-center justify-center">
-            <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs font-bold">
-              {data.ful}
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-green-600">
+              F
             </span>
           </div>
         ) : (
@@ -83,8 +77,8 @@ function ProphecyRow({ verseKey }: { verseKey: string }) {
       <td className="table-cell w-16 text-center">
         {data.ver ? (
           <div className="flex items-center justify-center">
-            <span className="inline-flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-xs font-bold">
-              {data.ver}
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-purple-600">
+              V
             </span>
           </div>
         ) : (

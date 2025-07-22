@@ -5,6 +5,7 @@ import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
+import { useColumnData } from '@/hooks/useColumnData';
 
 interface VirtualRowProps {
   verseID: string;
@@ -65,7 +66,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             // Convert cross-ref to space format for display and lookup
             const displayRef = ref.replace(/\./g, ' ');
             const lookupRef = ref.replace(/\s/g, '.');
-            
+
             // Get verse text using the current main translation from the translation maps
             let refText = '';
             if (getVerseText && main) {
@@ -192,7 +193,10 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onExpandVerse,
 }) => {
   const { main, alternates } = useTranslationMaps();
-  const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
+  const { showCrossRefs, showStrongsWords, showNotes, showDates, showProphecies } = useBibleStore();
+
+  // Ensure data loading is triggered when columns are enabled
+  useColumnData();
   const isMobile = useIsMobile();
   const screenSize = useScreenSize();
 
@@ -340,7 +344,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         }
       }
     };
-    
+
     const width = getColumnWidth(slot);
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
