@@ -237,10 +237,10 @@ body {
   }
 
   /* Mobile column optimization for uniform layout */
-  .w-16 { width: 64px; }   /* Reference column */
-  .w-44 { width: 176px; }  /* Main translation column */  
-  .w-36 { width: 144px; }  /* Cross References column */
-  .w-8 { width: 32px; }    /* Prophecy P/F/V columns */
+  .w-6 { width: 24px; }    /* Ultra-compact Reference column - minimal width */
+  .w-52 { width: 208px; }  /* Main translation column - expanded */  
+  .w-40 { width: 160px; }  /* Cross References column - expanded */
+  .w-16 { width: 64px; }   /* Prophecy P/F/V columns */
   
   /* Ensure proper spacing and text wrapping */
   .cell-content {
@@ -252,9 +252,15 @@ body {
   }
   
   .cell-ref {
-    font-size: 10px;
+    font-size: 8px;
     text-align: center;
-    padding: 0.25rem 0.125rem;
+    padding: 0.0625rem 0.03125rem; /* Minimal padding for 24px width */
+    line-height: 1.0;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    margin: 0; /* Remove all margins */
   }
   
   /* Mobile cross-reference styling */

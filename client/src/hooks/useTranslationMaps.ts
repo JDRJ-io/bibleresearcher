@@ -35,19 +35,28 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   const mainTranslation = activeTranslations[0] || 'KJV';
   const alternates = activeTranslations.slice(1);
 
-  // MEMORY FIX: Guard against duplicate initial load - only ONE translation at startup
-  const initialLoadRef = useRef(false);
+  // FORCE LOAD KJV on initialization - critical fix
   useEffect(() => {
-    if (initialLoadRef.current) return; // Prevent duplicate loads
-    initialLoadRef.current = true;
-    
-    const loadInitialMain = async () => {
-      const initialMain = mainTranslation;
-      if (!masterCache.has(`translation-${initialMain}`)) {
-        await toggleTranslationRef.current(initialMain, true);
+    const forceLoadKJV = async () => {
+      console.log('🔄 INITIALIZING KJV translation load');
+      setIsLoading(true);
+      
+      try {
+        if (!masterCache.has('translation-KJV')) {
+          const { loadTranslation } = await import('@/data/BibleDataAPI');
+          const translationMap = await loadTranslation('KJV');
+          console.log(`✅ KJV FORCE LOADED: ${translationMap.size} verses`);
+        } else {
+          console.log('✅ KJV already in cache');
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('❌ CRITICAL: Failed to load KJV:', error);
+        setIsLoading(false);
       }
     };
-    loadInitialMain();
+    
+    forceLoadKJV();
   }, []); // Only run once on mount
 
   // All translation parsing is now handled by BibleDataAPI facade
