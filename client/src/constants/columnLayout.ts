@@ -20,7 +20,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     name: '#',
     type: 'reference',
     width: 'w-20',
-    mobileWidth: 'w-6', // Ultra-compact for rotated text (20px = minimal width)
+    mobileWidth: 'w-6', // ULTRA-THIN for rotated text (12px = minimal possible)
     position: 0,
     defaultVisible: true,
     guestMode: true
@@ -32,7 +32,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     name: 'Main Translation',
     type: 'translation',
     width: 'w-80',
-    mobileWidth: 'w-52', // Main translation - MAXIMUM readable width
+    mobileWidth: 'w-52', // Main translation - MAXIMUM possible width (300px)
     position: 1,
     defaultVisible: true,
     guestMode: true
@@ -86,7 +86,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     name: 'Cross References',
     type: 'cross-ref',
     width: 'w-80',
-    mobileWidth: 'w-40', // Cross references - fills remaining width
+    mobileWidth: 'w-40', // Cross references - remaining pixels (108px)
     position: 6,
     defaultVisible: true, // Default ON for free users
     guestMode: true

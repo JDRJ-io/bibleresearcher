@@ -236,12 +236,12 @@ body {
     padding: 0.5rem 0.25rem;
   }
 
-  /* Mobile column optimization - FULL WIDTH USAGE */
-  .w-6 { width: 20px; }     /* Ultra-compact Reference column */
-  .w-52 { width: 280px; }   /* Main translation - MUCH LARGER */  
-  .w-40 { width: 120px; }   /* Cross References - fills remaining space */
+  /* Mobile column optimization - MAXIMUM WIDTH USAGE */
+  .w-6 { width: 12px; }     /* ULTRA-THIN Reference column - minimal possible */
+  .w-52 { width: 300px; }   /* Main translation - MAXIMUM width */  
+  .w-40 { width: 108px; }   /* Cross References - remaining space */
   .w-16 { width: 64px; }    /* Prophecy P/F/V columns */
-  /* Total: 20px + 280px + 120px = 420px (uses full mobile width) */
+  /* Total: 12px + 300px + 108px = 420px (uses EVERY pixel) */
   
   /* Ensure proper spacing and text wrapping */
   .cell-content {
@@ -253,15 +253,16 @@ body {
   }
   
   .cell-ref {
-    font-size: 8px;
+    font-size: 7px;
     text-align: center;
-    padding: 0.0625rem 0.03125rem; /* Minimal padding for 24px width */
-    line-height: 1.0;
+    padding: 0.03125rem 0.015625rem; /* ULTRA-MINIMAL padding for 12px width */
+    line-height: 0.9;
     writing-mode: vertical-rl;
     text-orientation: mixed;
     transform: rotate(180deg);
     white-space: nowrap;
-    margin: 0; /* Remove all margins */
+    margin: 0;
+    overflow: hidden;
   }
   
   /* Mobile cross-reference styling */
