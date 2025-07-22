@@ -79,12 +79,39 @@ html {
   width: calc(var(--baseColW) * var(--sizeMult)); 
 }
 
-/* Cell scrollbar styling - only show when content overflows */
+/* Cell scrollbar styling and word-wrapping - only show when content overflows */
 .cell-content {
   max-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Force word-wrapping utilities */
+.word-wrap {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.overflow-wrap-break-word {
+  overflow-wrap: break-word !important;
+}
+
+/* Ensure all text content stays within cell bounds */
+.bible-cell-text {
+  width: 100%;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  box-sizing: border-box;
 }
 
 .cell-content::-webkit-scrollbar {
@@ -203,29 +230,41 @@ body {
   font-size: inherit;
 }
 
-/* Proportional column widths that scale with viewport */
+/* Proportional column widths that scale with viewport - Fixed base sizes */
 .w-80 {
-  width: calc(20rem * var(--viewport-scale) * var(--font-size-multiplier, 1));
+  width: calc(320px * var(--viewport-scale)) !important;
+  min-width: calc(240px * var(--viewport-scale)) !important;
+  max-width: calc(480px * var(--viewport-scale)) !important;
 }
 
 .w-60 {
-  width: calc(15rem * var(--viewport-scale) * var(--font-size-multiplier, 1));
+  width: calc(240px * var(--viewport-scale)) !important;
+  min-width: calc(180px * var(--viewport-scale)) !important;
+  max-width: calc(360px * var(--viewport-scale)) !important;
 }
 
 .w-20 {
-  width: calc(5rem * var(--viewport-scale) * var(--font-size-multiplier, 1));
+  width: calc(80px * var(--viewport-scale)) !important;
+  min-width: calc(60px * var(--viewport-scale)) !important;
+  max-width: calc(120px * var(--viewport-scale)) !important;
 }
 
 .w-16 {
-  width: calc(4rem * var(--viewport-scale) * var(--font-size-multiplier, 1));
+  width: calc(64px * var(--viewport-scale)) !important;
+  min-width: calc(48px * var(--viewport-scale)) !important;
+  max-width: calc(96px * var(--viewport-scale)) !important;
 }
 
 .w-14 {
-  width: calc(3.5rem * var(--viewport-scale) * var(--font-size-multiplier, 1));
+  width: calc(56px * var(--viewport-scale)) !important;
+  min-width: calc(42px * var(--viewport-scale)) !important;
+  max-width: calc(84px * var(--viewport-scale)) !important;
 }
 
 .w-12 {
-  width: calc(3rem * var(--viewport-scale) * var(--font-size-multiplier, 1));
+  width: calc(48px * var(--viewport-scale)) !important;
+  min-width: calc(36px * var(--viewport-scale)) !important;
+  max-width: calc(72px * var(--viewport-scale)) !important;
 }
 
 /* Proportional responsive design - no hard breakpoints */

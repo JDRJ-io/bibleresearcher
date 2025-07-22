@@ -65,18 +65,29 @@ export function VerseRow({
       onDoubleClick={handleDoubleClick}
       onMouseUp={handleMouseUp}
     >
-      {/* Reference Column - Fixed Width with vertical text */}
-      <div className="w-12 flex-shrink-0 flex items-center justify-center border-r px-1 text-xs font-medium">
+      {/* Reference Column - Proportionally scaled with vertical text */}
+      <div className="w-12 flex-shrink-0 flex items-center justify-center border-r border-gray-200 dark:border-gray-700" 
+           style={{ 
+             fontSize: 'calc(0.75rem * var(--viewport-scale))',
+             padding: 'calc(0.25rem * var(--viewport-scale))'
+           }}>
         <span className="transform -rotate-90 whitespace-nowrap origin-center text-center">
           {verse.reference}
         </span>
       </div>
 
-      {/* Translation Text Columns - Dynamic based on selected translations */}
+      {/* Translation Text Columns - Proportionally scaled with word-wrapping */}
       {selectedTranslations.map((translation) => (
-        <div key={translation.id} className="w-80 flex-shrink-0 border-r">
-          <div className="overflow-y-auto text-sm" style={{ height: 'calc(120px * var(--viewport-scale))', padding: 'calc(0.75rem * var(--viewport-scale))' }}>
-            <div className="whitespace-pre-wrap break-words leading-relaxed">
+        <div key={translation.id} className="w-80 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+          <div 
+            className="overflow-y-auto overflow-x-hidden cell-content" 
+            style={{ 
+              height: 'calc(120px * var(--viewport-scale))', 
+              padding: 'calc(0.75rem * var(--viewport-scale))',
+              fontSize: 'calc(0.875rem * var(--viewport-scale))'
+            }}
+          >
+            <div className="whitespace-pre-wrap break-words word-wrap overflow-wrap-break-word leading-relaxed w-full">
               {verse.text[translation.id] || (
                 <span className="text-muted-foreground italic">
                   [{verse.reference} - {translation.abbreviation} loading...]
@@ -87,9 +98,16 @@ export function VerseRow({
         </div>
       ))}
 
-      {/* Cross References Column - Fixed Width (matches translation columns) */}
-      <div className="w-80 flex-shrink-0 border-r">
-        <div className="overflow-y-auto text-xs" style={{ height: 'calc(120px * var(--viewport-scale))', padding: 'calc(0.75rem * var(--viewport-scale))' }}>
+      {/* Cross References Column - Proportionally scaled with word-wrapping */}
+      <div className="w-80 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+        <div 
+          className="overflow-y-auto overflow-x-hidden cell-content" 
+          style={{ 
+            height: 'calc(120px * var(--viewport-scale))', 
+            padding: 'calc(0.75rem * var(--viewport-scale))',
+            fontSize: 'calc(0.75rem * var(--viewport-scale))'
+          }}
+        >
           {/* Cross-reference badge */}
           <div className="flex items-center gap-2 mb-2">
             {(() => {
@@ -118,12 +136,16 @@ export function VerseRow({
                   <div key={index} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
                     <button 
                       onClick={() => onNavigateToVerse(ref)}
-                      className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block mb-1"
+                      className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block mb-1 w-full text-left"
+                      style={{ fontSize: 'calc(0.75rem * var(--viewport-scale))' }}
                     >
                       {ref.replace(/\./g, ' ')}
                     </button>
                     {displayText && (
-                      <div className="text-muted-foreground break-words text-xs leading-relaxed">
+                      <div 
+                        className="text-muted-foreground break-words whitespace-pre-wrap overflow-wrap-break-word leading-relaxed w-full"
+                        style={{ fontSize: 'calc(0.7rem * var(--viewport-scale))' }}
+                      >
                         {displayText}
                       </div>
                     )}
@@ -144,12 +166,19 @@ export function VerseRow({
         </div>
       )}
       
-      {/* Notes Column */}
+      {/* Notes Column - Proportionally scaled with word-wrapping */}
       {showNotes && (
-        <div className="w-60 flex-shrink-0 border-r">
-          <div className="overflow-y-auto text-xs" style={{ height: 'calc(120px * var(--viewport-scale))', padding: 'calc(0.75rem * var(--viewport-scale))' }}>
+        <div className="w-60 flex-shrink-0 border-r border-gray-200 dark:border-gray-700">
+          <div 
+            className="overflow-y-auto overflow-x-hidden cell-content" 
+            style={{ 
+              height: 'calc(120px * var(--viewport-scale))', 
+              padding: 'calc(0.75rem * var(--viewport-scale))',
+              fontSize: 'calc(0.75rem * var(--viewport-scale))'
+            }}
+          >
             {userNote ? (
-              <div className="whitespace-pre-wrap break-words">{userNote.note}</div>
+              <div className="whitespace-pre-wrap break-words word-wrap overflow-wrap-break-word w-full">{userNote.note}</div>
             ) : (
               <span className="text-muted-foreground italic">Add notes...</span>
             )}
