@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
@@ -22,13 +22,13 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // Mobile-optimized width logic matching VirtualRow exactly - uniform mobile layout
+  // Mobile-optimized width logic matching VirtualRow EXACTLY - PERFECT proportions
   const width = isMobile ? 
-    (column.name === "Ref" || column.name === "Reference" ? "w-16" :     // 64px - Reference
+    (column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-6" :     // 16px - THIN Reference
      column.name === "Notes" ? "w-20" :                                  // 80px - Notes  
-     column.name === "Cross Refs" || column.name === "Cross References" ? "w-36" : // 144px - Cross Refs
-     ["P", "F", "V"].includes(column.name) ? "w-8" : "w-44") :           // 32px P/F/V, 176px Main translation
-    (column.name === "Ref" || column.name === "Reference" ? "w-20" : 
+     column.name === "Cross Refs" || column.name === "Cross References" ? "w-40" : // 180px - Cross Refs (smaller than main)
+     ["P", "F", "V"].includes(column.name) ? "w-16" : "w-52") :          // 64px P/F/V, 200px Main translation (LARGER)
+    (column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-20" : 
      column.name === "Notes" ? "w-64" :
      column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
      ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80");
@@ -36,7 +36,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
 
   return (
     <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 font-semibold text-xs ${bgClass}`}>
-      {column.name}
+      {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : column.name}
     </div>
   );
 }
@@ -54,6 +54,22 @@ export function ColumnHeaders({
 }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
+  // Make headers adaptive to screen size changes
+  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768);
+  
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const adaptiveIsMobile = screenWidth < 768;
 
   // Get store states for column visibility
   const { 
@@ -241,7 +257,7 @@ export function ColumnHeaders({
     }
 
     // On mobile, only show Reference, Main Translation, and Cross References
-    if (isMobile) {
+    if (adaptiveIsMobile) {
       return columns.filter(col => 
         col.type === 'reference' || 
         col.type === 'main-translation' || 
@@ -250,7 +266,7 @@ export function ColumnHeaders({
     }
 
     return columns;
-  }, [showCrossRefs, showProphecies, showNotes, main, alternates, isMobile]);
+  }, [showCrossRefs, showProphecies, showNotes, main, alternates, adaptiveIsMobile]);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 

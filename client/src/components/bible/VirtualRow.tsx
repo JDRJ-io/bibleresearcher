@@ -338,8 +338,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         switch (slotNumber) {
           case 0: return "w-6";         // Reference - THIN (16px)
           case 1: return "w-20";        // Notes - when visible (80px)
-          case 2: return "w-52";        // Main translation - balanced (180px) 
-          case 7: return "w-40";        // Cross References - WIDER than main (200px)
+          case 2: return "w-52";        // Main translation - LARGER (200px) 
+          case 7: return "w-40";        // Cross References - smaller than main (180px)
           case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V - minimal (64px)
           default: return "w-40";       // Alt translations - if any (160px)
         }
