@@ -464,7 +464,7 @@ const VirtualBibleTable = ({
                     getMainVerseText={getMainVerseTextForRow}
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
-                    onVerseClick={onNavigateToVerse}
+                    onVerseClick={columnData.onVerseClick}
                     onExpandVerse={onExpandVerse}
                   />
                 );
