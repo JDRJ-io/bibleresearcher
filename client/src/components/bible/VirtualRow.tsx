@@ -72,7 +72,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               // Try the getVerseText function which should use the cached translation data
               refText = getVerseText(displayRef, mainTranslation) || 
                         getVerseText(lookupRef, mainTranslation) || 
-                        getVerseText(ref, mainTranslation) || '';ation);
+                        getVerseText(ref, mainTranslation) || '';
+            }
 
             return (
               <div
