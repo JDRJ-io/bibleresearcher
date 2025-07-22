@@ -328,11 +328,11 @@ body {
   }
   
   .cell-ref {
-    font-size: 10px !important;        /* Bigger, bolder text for mobile readability */
+    font-size: 12px !important;        /* Even bigger text for mobile readability */
     font-weight: bold !important;      /* Make reference text bold */
     text-align: center;
-    padding: 0.125rem 0.0625rem !important; /* More padding for bigger reference column */
-    line-height: 1.1 !important;       /* Better line height for readability */
+    padding: 0.1875rem 0.09375rem !important; /* More padding for bigger reference column */
+    line-height: 1.2 !important;       /* Better line height for readability */
     writing-mode: vertical-rl;
     text-orientation: mixed;
     transform: rotate(180deg);

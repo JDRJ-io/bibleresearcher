@@ -255,7 +255,7 @@ const VirtualBibleTable = ({
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // Layout rule: Center when few columns, left-anchor when many columns overflow screen
+  // MOBILE-FIRST LAYOUT LOGIC: Always left-align on mobile, center only on wide desktop
   // Calculate approximate total width needed for all columns
   const estimatedTotalWidth = useMemo(() => {
     let width = 0;
@@ -270,8 +270,12 @@ const VirtualBibleTable = ({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // Center only if total width fits in viewport, otherwise left-anchor
-  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
+  // Mobile detection for dual-column layout
+  const isMobile = useIsMobile();
+
+  // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
+  // Only center on wide desktop screens when content fits
+  const shouldCenter = !isMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
 
   useEffect(() => {
     if (!wrapperRef.current) return;
@@ -366,9 +370,6 @@ const VirtualBibleTable = ({
       w.scrollLeft = w.scrollWidth - w.clientWidth;
     }
   }, [visibleColumns]); // Trigger when visible columns change
-
-  // Mobile detection for dual-column layout
-  const isMobile = useIsMobile();
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>

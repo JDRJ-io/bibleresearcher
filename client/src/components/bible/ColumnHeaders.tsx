@@ -306,8 +306,9 @@ export function ColumnHeaders({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // Center only if total width fits in viewport, otherwise left-anchor
-  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95; // 5% margin
+  // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
+  // Only center on wide desktop screens when content fits
+  const shouldCenter = !adaptiveIsMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
 
   const allColumns = visibleColumns.map(col => ({
     id: col.name.toLowerCase().replace(' ', '-'),
