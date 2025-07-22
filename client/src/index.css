@@ -602,12 +602,23 @@ html {
 .cross-ref-container {
   max-height: 120px;
   overflow-y: auto;
+  position: relative;
+  z-index: 10;
 }
 
 .cross-ref-item {
   border: 1px solid rgba(229, 231, 235, 0.6);
   background: rgba(249, 250, 251, 0.5);
   margin-bottom: 8px;
+  position: relative;
+  pointer-events: auto;
+}
+
+.cross-ref-item button {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto !important;
+  user-select: none;
 }
 
 .dark .cross-ref-item {

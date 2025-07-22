@@ -43,8 +43,20 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   const spaceFormat = verse.reference.replace(/\./g, ' ');
   const crossRefs = crossRefsStore[dotFormat] || crossRefsStore[spaceFormat] || [];
   
+  const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🔗 Cross-reference clicked in cell:', ref, 'Handler available:', !!onVerseClick);
+    
+    if (onVerseClick) {
+      onVerseClick(ref);
+    } else {
+      console.warn('⚠️ No onVerseClick handler available');
+    }
+  };
+  
   return (
-    <div className="px-2 py-2 cross-ref-container custom-scrollbar h-full overflow-y-auto">
+    <div className="px-2 py-2 cross-ref-container custom-scrollbar h-full overflow-y-auto relative z-10">
       {crossRefs.length > 0 ? (
         <div className="space-y-2">
           {crossRefs.map((ref, i) => {
@@ -59,15 +71,14 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             return (
               <div
                 key={i}
-                className="cross-ref-item block w-full px-2 py-2 rounded"
+                className="cross-ref-item block w-full px-2 py-2 rounded relative"
               >
                 <button
-                  className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('🔗 Cross-reference button clicked:', ref);
-                    onVerseClick?.(ref); // Use original ref format
-                  }}
+                  type="button"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors relative z-20 inline-block"
+                  onClick={(e) => handleCrossRefClick(ref, e)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  style={{ pointerEvents: 'auto' }}
                 >
                   {displayRef}
                 </button>
@@ -350,6 +361,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         );
 
       case 'cross-refs':
+        console.log('🔍 VirtualRow rendering cross-refs cell, onVerseClick:', !!onVerseClick);
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <CrossReferencesCell 
