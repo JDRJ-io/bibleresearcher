@@ -250,10 +250,7 @@ body {
     .w-52 { width: calc((100vw - 80px) * 0.46) !important; }   /* Main translation */  
     .w-40 { width: calc((100vw - 80px) * 0.46) !important; }   /* Cross References */
     
-    /* Column headers must match content widths */
-    .column-headers-adaptive .w-6 { width: 32px !important; }
-    .column-headers-adaptive .w-52 { width: calc((100vw - 80px) * 0.46) !important; }
-    .column-headers-adaptive .w-40 { width: calc((100vw - 80px) * 0.46) !important; }
+    /* Headers use inline styles - no Tailwind overrides needed */
   }
   
   /* Tablet portrait (768px-1024px) */
@@ -262,10 +259,7 @@ body {
     .w-52 { width: calc((100vw - 100px) * 0.45) !important; }   /* Main translation */  
     .w-40 { width: calc((100vw - 100px) * 0.45) !important; }   /* Cross References */
     
-    /* Column headers must match content widths */
-    .column-headers-adaptive .w-6 { width: 40px !important; }
-    .column-headers-adaptive .w-52 { width: calc((100vw - 100px) * 0.45) !important; }
-    .column-headers-adaptive .w-40 { width: calc((100vw - 100px) * 0.45) !important; }
+    /* Headers use inline styles - no Tailwind overrides needed */
   }
   
   /* Mobile header optimizations */
@@ -296,10 +290,7 @@ body {
       display: flex !important;
     }
     
-    /* Ensure column headers use the same adaptive widths as content */
-    .column-headers-adaptive .w-6 { width: 24px !important; }  /* Reference header */
-    .column-headers-adaptive .w-52 { width: calc((100vw - 60px) * 0.48) !important; }  /* Main translation header */
-    .column-headers-adaptive .w-40 { width: calc((100vw - 60px) * 0.48) !important; }  /* Cross-refs header */
+    /* Remove Tailwind class overrides - headers now use inline styles */
     
     /* Remove ALL gaps between headers and content */
     .divine-header + *,

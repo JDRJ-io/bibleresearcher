@@ -22,33 +22,44 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // ADAPTIVE COLUMN WIDTHS - Match the new responsive CSS classes exactly
-  const getAdaptiveWidth = () => {
+  // MATCH EXACT CSS ADAPTIVE WIDTHS - No Tailwind classes, use inline styles that match the CSS
+  const getAdaptiveStyle = () => {
     if (!isMobile) {
       // Desktop widths
-      return column.name === "Ref" || column.name === "Reference" || column.name === "#" ? "w-20" : 
-             column.name === "Notes" ? "w-64" :
-             column.name === "Cross Refs" || column.name === "Cross References" ? "w-80" : 
-             ["P", "F", "V"].includes(column.name) ? "w-20" : "w-80";
+      if (column.name === "Ref" || column.name === "Reference" || column.name === "#") return { width: '80px' };
+      if (column.name === "Notes") return { width: '256px' };
+      if (column.name === "Cross Refs" || column.name === "Cross References") return { width: '320px' };
+      if (["P", "F", "V"].includes(column.name)) return { width: '80px' };
+      return { width: '320px' }; // Main translation
     }
     
-    // Mobile adaptive widths - using the new responsive CSS classes
+    // Mobile adaptive widths - EXACTLY match the CSS media queries
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
+    
     if (column.name === "Ref" || column.name === "Reference" || column.name === "#") {
-      return "w-6"; // Uses new adaptive reference width (24px base, scales to 32px landscape, 40px tablet)
+      // Reference column responsive sizing
+      if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: '40px' }; // Tablet
+      if (viewportWidth >= 667 && viewportWidth <= 896) return { width: '32px' }; // Landscape
+      return { width: '24px' }; // Base mobile
     }
-    if (column.name === "Notes") {
-      return "w-20"; // Notes column
-    }
+    
+    if (column.name === "Notes") return { width: '80px' };
+    
     if (column.name === "Cross Refs" || column.name === "Cross References") {
-      return "w-40"; // Uses new adaptive cross-refs width (responsive to viewport)
+      // Cross-refs responsive sizing
+      if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
+      if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
+      return { width: `calc((100vw - 60px) * 0.48)` };
     }
-    if (["P", "F", "V"].includes(column.name)) {
-      return "w-16"; // Prophecy columns
-    }
-    return "w-52"; // Main translation - uses new adaptive width (responsive to viewport)
+    
+    if (["P", "F", "V"].includes(column.name)) return { width: '64px' };
+    
+    // Main translation responsive sizing
+    if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
+    if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
+    return { width: `calc((100vw - 60px) * 0.48)` };
   };
 
-  const width = getAdaptiveWidth();
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
   
   // Enhanced text styling for reference column
@@ -57,7 +68,10 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
     : "font-bold text-xs";
 
   return (
-    <div className={`${width} flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass}`}>
+    <div 
+      className={`flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass}`}
+      style={getAdaptiveStyle()}
+    >
       {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : column.name}
     </div>
   );
