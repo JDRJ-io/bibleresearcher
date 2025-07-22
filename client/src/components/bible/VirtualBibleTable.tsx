@@ -394,7 +394,7 @@ const VirtualBibleTable = ({
           touchAction: "pan-y", 
           marginTop: '-1px',
           height: "calc(100vh - 75px)",
-          overflowX: isMobile ? 'auto' : (shouldCenter ? 'hidden' : 'auto'),
+          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
           overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}

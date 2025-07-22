@@ -239,27 +239,38 @@ body {
   /* ADAPTIVE MOBILE COLUMNS - Responsive to all device orientations */
   
   /* Base mobile columns (portrait phones ~375px-414px) */
-  .w-6 { width: 24px !important; }     /* Reference column - Bigger for readability */
-  .w-52 { width: calc((100vw - 60px) * 0.48) !important; }   /* Main translation - 48% of available space */  
-  .w-40 { width: calc((100vw - 60px) * 0.48) !important; }   /* Cross References - 48% of available space */
-  .w-16 { width: 64px !important; }    /* Prophecy P/F/V columns */
+  .w-6 { width: 16px !important; }     /* Reference column - ULTRA-THIN for mobile */
+  .w-52 { width: calc((100vw - 32px) * 0.49) !important; }   /* Main translation - 49% of available space */  
+  .w-40 { width: calc((100vw - 32px) * 0.49) !important; }   /* Cross References - 49% of available space */
+  .w-16 { width: 48px !important; }    /* Prophecy P/F/V columns - Thinner */
+  
+  /* Column headers must match content widths */
+  .column-headers-adaptive .w-6 { width: 16px !important; }  /* Reference header */
+  .column-headers-adaptive .w-52 { width: calc((100vw - 32px) * 0.49) !important; }  /* Main translation header */
+  .column-headers-adaptive .w-40 { width: calc((100vw - 32px) * 0.49) !important; }  /* Cross-refs header */
   
   /* Wider mobile screens (landscape phones ~667px-896px) */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
-    .w-6 { width: 32px !important; }   /* Reference column - Even bigger for landscape */
-    .w-52 { width: calc((100vw - 80px) * 0.46) !important; }   /* Main translation */  
-    .w-40 { width: calc((100vw - 80px) * 0.46) !important; }   /* Cross References */
+    .w-6 { width: 20px !important; }   /* Reference column - Thin for landscape */
+    .w-52 { width: calc((100vw - 40px) * 0.47) !important; }   /* Main translation */  
+    .w-40 { width: calc((100vw - 40px) * 0.47) !important; }   /* Cross References */
     
-    /* Headers use inline styles - no Tailwind overrides needed */
+    /* Column headers must match content widths */
+    .column-headers-adaptive .w-6 { width: 20px !important; }
+    .column-headers-adaptive .w-52 { width: calc((100vw - 40px) * 0.47) !important; }
+    .column-headers-adaptive .w-40 { width: calc((100vw - 40px) * 0.47) !important; }
   }
   
   /* Tablet portrait (768px-1024px) */
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    .w-6 { width: 40px !important; }   /* Reference column - Tablet proportions */
-    .w-52 { width: calc((100vw - 100px) * 0.45) !important; }   /* Main translation */  
-    .w-40 { width: calc((100vw - 100px) * 0.45) !important; }   /* Cross References */
+    .w-6 { width: 24px !important; }   /* Reference column - Tablet proportions */
+    .w-52 { width: calc((100vw - 48px) * 0.47) !important; }   /* Main translation */  
+    .w-40 { width: calc((100vw - 48px) * 0.47) !important; }   /* Cross References */
     
-    /* Headers use inline styles - no Tailwind overrides needed */
+    /* Column headers must match content widths */
+    .column-headers-adaptive .w-6 { width: 24px !important; }
+    .column-headers-adaptive .w-52 { width: calc((100vw - 48px) * 0.47) !important; }
+    .column-headers-adaptive .w-40 { width: calc((100vw - 48px) * 0.47) !important; }
   }
   
   /* Mobile header optimizations */
