@@ -354,9 +354,23 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
                       >
                         <button
                           className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
-                          onClick={() => {
-                            console.log('🔗 Cross-reference clicked:', ref, 'onVerseClick:', !!onVerseClick);
-                            onVerseClick?.(ref);
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('🔗 CROSS-REFERENCE HYPERLINK CLICKED:', {
+                              ref,
+                              hasOnVerseClick: !!onVerseClick,
+                              onVerseClickType: typeof onVerseClick,
+                              clickEvent: e.type,
+                              timestamp: Date.now()
+                            });
+                            
+                            if (onVerseClick) {
+                              console.log('📞 CALLING onVerseClick with ref:', ref);
+                              onVerseClick(ref);
+                            } else {
+                              console.error('❌ onVerseClick is undefined! Navigation will not work.');
+                            }
                           }}
                         >
                           {ref}

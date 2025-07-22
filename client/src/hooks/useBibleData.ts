@@ -1050,7 +1050,12 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log("🔗 HYPERLINK NAVIGATION to:", reference);
+    console.log("🚀 NAVIGATION FUNCTION CALLED:", {
+      reference,
+      timestamp: Date.now(),
+      currentAnchor: centerVerseIndex,
+      stackTrace: new Error().stack?.split('\n').slice(1, 4)
+    });
 
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, " ").trim();

@@ -143,27 +143,49 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Direct map.get(verseID) lookup - no per-verse fetch
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
-    const translationMap = masterCache.get(`translation-${translationCode}`);
+    const cacheKey = `translation-${translationCode}`;
+    const translationMap = masterCache.get(cacheKey);
     
-    // Debug logging for first few lookups
+    // CRITICAL: Handle missing translation cache gracefully
+    if (!translationMap) {
+      console.error(`❌ Translation ${translationCode} not found in cache!`, {
+        requested: cacheKey,
+        availableKeys: 'Cache keys access not available'
+      });
+      return `[${translationCode} not loaded]`;
+    }
+    
+    // Try multiple verse reference formats
+    const formats = [
+      verseID,                        // "Gen 1:1"
+      verseID.replace(' ', '.'),      // "Gen.1:1" 
+      verseID.replace('.', ' '),      // "Gen 1:1" from "Gen.1:1"
+    ];
+    
+    // Debug logging for critical first verse
     if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
-      console.log('🔍 getVerseText DEBUG:', {
+      console.log('🔍 VERSE TEXT LOOKUP:', {
         verseID,
         translationCode,
-        cacheKey: `translation-${translationCode}`,
-        hasMap: !!translationMap,
-        mapSize: translationMap?.size,
-        cacheKeys: Array.from(masterCache.keys()),
-        mapHasVerse: translationMap?.has(verseID),
-        mapHasVerseAlt: translationMap?.has(verseID.replace(' ', '.')) || translationMap?.has(verseID.replace('.', ' ')),
-        sampleKeys: translationMap ? Array.from(translationMap.keys()).slice(0, 5) : []
+        mapSize: translationMap.size,
+        formats,
+        results: formats.map(fmt => ({ 
+          format: fmt, 
+          found: translationMap.has(fmt),
+          text: translationMap.get(fmt)?.substring(0, 50) 
+        }))
       });
     }
     
-    // Try both formats: "Gen 1:1" and "Gen.1:1"
-    return translationMap?.get(verseID) || 
-           translationMap?.get(verseID.replace(' ', '.')) ||
-           translationMap?.get(verseID.replace('.', ' '));
+    // Find the first format that has text
+    for (const format of formats) {
+      const text = translationMap.get(format);
+      if (text) {
+        return text;
+      }
+    }
+    
+    return `[${verseID} - Loading...]`;
   }, []);
 
   /**
@@ -190,7 +212,6 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     return mainTranslationMap?.get(verseID) || 
            mainTranslationMap?.get(verseID.replace(' ', '.')) ||
            mainTranslationMap?.get(verseID.replace('.', ' '));
-    return mainTranslationMap?.get(verseID);
   }, [mainTranslation]);
 
   /**
