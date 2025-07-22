@@ -294,6 +294,66 @@ export async function getProphecy(indexKey: string) {
   return prophecyRowsTxt!.substring(slice[0], slice[1]);
 }
 
+// -------- Prophecy data parsing from main translation (similar to cross-refs) ----------
+let prophecyWorker: Worker | null = null;
+
+export async function getPropheciesFromTranslation(
+  translationCode: string, 
+  verseKeys: string[]
+): Promise<Record<string, { P: string[], F: string[], V: string[] }>> {
+  try {
+    // Get the already-loaded translation data from the master cache
+    const translationMap = masterCache.get(`translation-${translationCode}`) as Map<string, string>;
+    if (!translationMap) {
+      console.warn(`Translation ${translationCode} not loaded in cache`);
+      return {};
+    }
+
+    // Initialize prophecy worker if needed
+    if (!prophecyWorker) {
+      prophecyWorker = new Worker(new URL('@/workers/prophecyWorker.ts', import.meta.url), { type: 'module' });
+    }
+
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('ProphecyWorker timeout'));
+      }, 10000);
+
+      prophecyWorker!.onmessage = (event) => {
+        clearTimeout(timeout);
+        const { type, payload } = event.data;
+        
+        if (type === 'PROPHECIES_PARSED') {
+          if (payload.success) {
+            console.log(`✅ Parsed ${Object.keys(payload.prophecyData).length} verses with prophecy patterns from ${translationCode}`);
+            resolve(payload.prophecyData);
+          } else {
+            reject(new Error(payload.error || 'Failed to parse prophecies'));
+          }
+        }
+      };
+
+      prophecyWorker!.onerror = (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      };
+
+      // Send translation data to worker for parsing
+      prophecyWorker!.postMessage({
+        type: 'PARSE_PROPHECIES_FROM_TRANSLATION',
+        payload: {
+          translationData: translationMap,
+          verseKeys: verseKeys
+        }
+      });
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to parse prophecies from translation:', error);
+    return {};
+  }
+}
+
 // Cross-reference slice loader
 export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
   const fullText = await loadCrossReferences(cfSet);

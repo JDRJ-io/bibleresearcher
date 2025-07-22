@@ -92,33 +92,33 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     guestMode: true
   },
   
-  // Slots 7-9: Prophecy columns
+  // Slots 7-9: Prophecy columns - WIDER for better visibility
   {
     id: 'prophecy-prediction',
-    name: 'P',
+    name: 'Predictions',
     type: 'prophecy',
-    width: 'w-20',
-    mobileWidth: 'w-16',
+    width: 'w-28',       // Wider desktop columns (112px)
+    mobileWidth: 'w-20', // Wider mobile columns (80px)
     position: 7,
     defaultVisible: false,
     guestMode: true
   },
   {
     id: 'prophecy-fulfillment',
-    name: 'F',
+    name: 'Fulfillments',
     type: 'prophecy',
-    width: 'w-20',
-    mobileWidth: 'w-16',
+    width: 'w-28',       // Wider desktop columns (112px)
+    mobileWidth: 'w-20', // Wider mobile columns (80px)
     position: 8,
     defaultVisible: false,
     guestMode: true
   },
   {
     id: 'prophecy-verification',
-    name: 'V',
+    name: 'Verifications',
     type: 'prophecy',
-    width: 'w-20',
-    mobileWidth: 'w-16',
+    width: 'w-28',       // Wider desktop columns (112px)
+    mobileWidth: 'w-20', // Wider mobile columns (80px)
     position: 9,
     defaultVisible: false,
     guestMode: true

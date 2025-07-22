@@ -177,38 +177,47 @@ export const useBibleStore = create<{
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
     const newValue = !state.showProphecies;
     
-    // Load prophecy data when toggling on
+    // Load prophecy data when toggling on - using the new translation-based parsing
     if (newValue && Object.keys(state.prophecyData).length === 0) {
-      console.log('🔮 Loading prophecy data from Supabase...');
-      import('@/data/BibleDataAPI').then(async ({ getProphecyRows, getProphecyIndexDetailed }) => {
+      console.log('🔮 Loading prophecy data from already-loaded translation...');
+      import('@/data/BibleDataAPI').then(async ({ getPropheciesFromTranslation, loadVerseKeys }) => {
         try {
-          const [propRows, propIndex] = await Promise.all([
-            getProphecyRows(),
-            getProphecyIndexDetailed()
-          ]);
+          // Get current main translation and verse keys
+          const mainTranslation = state.translationState?.main || 'KJV';
+          const verseKeys = await loadVerseKeys();
           
-          const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
-          
-          // Parse prophecy_rows.txt format: [VerseID]$[id:type, id:type, …]
-          propRows.split('\n').forEach(line => {
-            const [verseId, data] = line.split('$');
-            if (verseId && data) {
-              const P: string[] = [], F: string[] = [], V: string[] = [];
-              data.split(',').forEach(item => {
-                const [id, type] = item.trim().split(':');
-                if (type === 'P') P.push(id);
-                else if (type === 'F') F.push(id);
-                else if (type === 'V') V.push(id);
-              });
-              parsedData[verseId] = { P, F, V };
-            }
-          });
+          // Parse prophecy patterns from the already-loaded translation
+          const parsedData = await getPropheciesFromTranslation(mainTranslation, verseKeys);
           
           get().setProphecyData(parsedData);
-          console.log('✅ Prophecy data loaded:', Object.keys(parsedData).length, 'verses with prophecy links');
-          console.log('✅ Prophecy index loaded:', Object.keys(propIndex).length, 'prophecy definitions');
+          console.log(`✅ Prophecy data parsed from ${mainTranslation}:`, Object.keys(parsedData).length, 'verses with prophecy patterns');
         } catch (error) {
-          console.error('❌ Failed to load prophecy data:', error);
+          console.error('❌ Failed to parse prophecy data from translation:', error);
+          // Fallback to Supabase data if available
+          try {
+            const { getProphecyRows } = await import('@/data/BibleDataAPI');
+            const propRows = await getProphecyRows();
+            const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
+            
+            propRows.split('\n').forEach(line => {
+              const [verseId, data] = line.split('$');
+              if (verseId && data) {
+                const P: string[] = [], F: string[] = [], V: string[] = [];
+                data.split(',').forEach(item => {
+                  const [id, type] = item.trim().split(':');
+                  if (type === 'P') P.push(id);
+                  else if (type === 'F') F.push(id);
+                  else if (type === 'V') V.push(id);
+                });
+                parsedData[verseId] = { P, F, V };
+              }
+            });
+            
+            get().setProphecyData(parsedData);
+            console.log('✅ Fallback prophecy data loaded from Supabase:', Object.keys(parsedData).length, 'verses');
+          } catch (fallbackError) {
+            console.error('❌ Fallback prophecy loading also failed:', fallbackError);
+          }
         }
       });
     }

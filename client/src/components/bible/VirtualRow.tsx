@@ -118,17 +118,17 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   const { prophecyData, translations } = useBibleStore();
   const { main } = useTranslationMaps();
 
-  // Try to get prophecy data from the same translation file format as cross-refs
-  // This keeps memory efficient by reusing the same cached data
-  let verseData = { P: [], F: [], V: [] };
+  // Get prophecy data from the same translation file that's already loaded
+  // This follows the cross-reference pattern to avoid multiple downloads
+  let verseData: { P: string[], F: string[], V: string[] } = { P: [], F: [], V: [] };
   
-  // First try the prophecyData store (Supabase data)
+  // First try the prophecyData store (parsed data)
   if (prophecyData[verse.reference]) {
     verseData = prophecyData[verse.reference];
-  } else if (translations[main] && translations[main].prophecies) {
-    // Try to get from translation cache (same approach as cross-refs)
-    const refKey = verse.reference.replace(/\s/g, '.') || verse.reference;
-    verseData = translations[main].prophecies[refKey] || verseData;
+  } else {
+    // Try to trigger parsing from loaded translation if not already done
+    // This will be handled by the store when prophecy columns are toggled
+    console.log(`📖 Prophecy data not yet parsed for ${verse.reference} from ${mainTranslation}`);
   }
 
   const count = verseData[type]?.length ?? 0;
@@ -207,7 +207,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onExpandVerse,
 }) => {
   const { main, alternates } = useTranslationMaps();
-  const { showCrossRefs, showStrongsWords, showNotes, showDates, showProphecies, columnState } = useBibleStore();
+  const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
 
   // Ensure data loading is triggered when columns are enabled
   useColumnData();
