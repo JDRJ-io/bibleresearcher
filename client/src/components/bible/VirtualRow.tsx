@@ -113,10 +113,22 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   type: 'P' | 'F' | 'V';
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
-  const { prophecyData } = useBibleStore();
+  const { prophecyData, translations } = useBibleStore();
+  const { main } = useTranslationMaps();
 
-  // Get prophecy data from store (loaded from Supabase)  
-  const verseData = prophecyData[verse.reference] ?? { P: [], F: [], V: [] };
+  // Try to get prophecy data from the same translation file format as cross-refs
+  // This keeps memory efficient by reusing the same cached data
+  let verseData = { P: [], F: [], V: [] };
+  
+  // First try the prophecyData store (Supabase data)
+  if (prophecyData[verse.reference]) {
+    verseData = prophecyData[verse.reference];
+  } else if (translations[main] && translations[main].prophecies) {
+    // Try to get from translation cache (same approach as cross-refs)
+    const refKey = verse.reference.replace(/\s/g, '.') || verse.reference;
+    verseData = translations[main].prophecies[refKey] || verseData;
+  }
+
   const count = verseData[type]?.length ?? 0;
 
   if (count === 0) {
@@ -193,7 +205,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   onExpandVerse,
 }) => {
   const { main, alternates } = useTranslationMaps();
-  const { showCrossRefs, showStrongsWords, showNotes, showDates, showProphecies } = useBibleStore();
+  const { showCrossRefs, showStrongsWords, showNotes, showDates, showProphecies, columnState } = useBibleStore();
 
   // Ensure data loading is triggered when columns are enabled
   useColumnData();
@@ -217,34 +229,36 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
   // Map all column types based on store state - updated slot assignments
-  columnState.columns.forEach(col => {
-    switch (col.slot) {
-      case 1:
-        // Notes column (moved to slot 1 between Ref and Main) - TOGGLEABLE ON MOBILE
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
-        break;
-      case 7:
-        // Cross References column (moved from slot 6 to 7) - DEFAULT ON MOBILE
-        slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
-        break;
-      case 8:
-        // Prophecy P column (moved from slot 7 to 8) - TOGGLEABLE ON MOBILE
-        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
-        break;
-      case 9:
-        // Prophecy F column (moved from slot 8 to 9) - TOGGLEABLE ON MOBILE
-        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
-        break;
-      case 10:
-        // Prophecy V column (moved from slot 9 to 10) - TOGGLEABLE ON MOBILE
-        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
-        break;
-      case 11:
-        // Dates column (unchanged) - TOGGLEABLE ON MOBILE
-        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
-        break;
-    }
-  });
+  if (columnState?.columns) {
+    columnState.columns.forEach(col => {
+      switch (col.slot) {
+        case 1:
+          // Notes column (moved to slot 1 between Ref and Main) - TOGGLEABLE ON MOBILE
+          slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+          break;
+        case 7:
+          // Cross References column (moved from slot 6 to 7) - DEFAULT ON MOBILE
+          slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+          break;
+        case 8:
+          // Prophecy P column (moved from slot 7 to 8) - TOGGLEABLE ON MOBILE
+          slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+          break;
+        case 9:
+          // Prophecy F column (moved from slot 8 to 9) - TOGGLEABLE ON MOBILE
+          slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+          break;
+        case 10:
+          // Prophecy V column (moved from slot 9 to 10) - TOGGLEABLE ON MOBILE
+          slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+          break;
+        case 11:
+          // Dates column (unchanged) - TOGGLEABLE ON MOBILE
+          slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+          break;
+      }
+    });
+  }
 
   // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
   // HIDDEN ON MOBILE for clean dual-column layout
