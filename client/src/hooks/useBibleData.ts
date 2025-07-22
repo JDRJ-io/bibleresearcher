@@ -1057,17 +1057,40 @@ export function useBibleData() {
       stackTrace: new Error().stack?.split('\n').slice(1, 4)
     });
 
-    // Parse different reference formats to find the verse
-    const normalizedRef = reference.replace(/\s+/g, " ").trim();
+    // CRITICAL: Handle both "Gen.1:1" and "Gen 1:1" formats
+    const dotFormat = reference.replace(/\s/g, ".");      // "Jer.4:23"
+    const spaceFormat = reference.replace(/\./g, " ");    // "Jer 4:23"
+    
+    console.log("🔍 NAVIGATION FORMAT TESTING:", {
+      original: reference,
+      dotFormat,
+      spaceFormat,
+      firstVerseRef: verses[0]?.reference,
+      versesLength: verses.length
+    });
 
-    // Find target verse in complete Bible index
-    const targetVerse = verses.find(
-      (v) =>
-        v.reference === normalizedRef ||
-        v.reference.replace(/\s+/g, " ") === normalizedRef ||
-        `${v.book}.${v.chapter}:${v.verse}` === reference.replace(/\s/g, ".") ||
-        `${v.book} ${v.chapter}:${v.verse}` === normalizedRef,
-    );
+    // Find target verse using multiple format attempts
+    const targetVerse = verses.find((v) => {
+      const matches = [
+        v.reference === reference,
+        v.reference === dotFormat,
+        v.reference === spaceFormat,
+        `${v.book}.${v.chapter}:${v.verse}` === dotFormat,
+        `${v.book} ${v.chapter}:${v.verse}` === spaceFormat,
+      ];
+      
+      if (matches.some(m => m)) {
+        console.log("✅ FOUND MATCH:", {
+          targetRef: v.reference,
+          targetBook: v.book,
+          targetChapter: v.chapter,
+          targetVerse: v.verse,
+          matchedFormat: matches.findIndex(m => m)
+        });
+      }
+      
+      return matches.some(m => m);
+    });
 
     if (targetVerse) {
       const targetIndex = verses.findIndex((v) => v.id === targetVerse.id);
@@ -1110,12 +1133,25 @@ export function useBibleData() {
 
       console.log(`✅ INSTANT HYPERLINK NAVIGATION COMPLETE: ${targetVerse.reference} at anchor ${targetIndex}`);
     } else {
-      console.warn("❌ Verse not found for reference:", normalizedRef);
-      console.log("Debug - Available formats to try:", [
-        normalizedRef,
-        reference.replace(/\s/g, "."),
-        reference.replace(/\./g, " ")
-      ]);
+      console.warn("❌ VERSE NOT FOUND - NAVIGATION FAILED:", {
+        searchedReference: reference,
+        dotFormat,
+        spaceFormat,
+        totalVerses: verses.length,
+        sampleVerseFormats: verses.slice(0, 5).map(v => ({
+          reference: v.reference,
+          book: v.book,
+          constructed: `${v.book} ${v.chapter}:${v.verse}`
+        }))
+      });
+      
+      // Try to find similar verses for debugging
+      const similarVerses = verses.filter(v => 
+        v.book === spaceFormat.split(' ')[0] || 
+        v.book === dotFormat.split('.')[0]
+      ).slice(0, 3);
+      
+      console.log("🔍 Similar verses found:", similarVerses.map(v => v.reference));
     }
   };
 
