@@ -1,18 +1,19 @@
-// 2-A Helper (one place only)
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { masterCache } from '@/lib/supabaseClient';
+import { useCallback } from 'react';
 
 export const useEnsureTranslationLoaded = () => {
-  const { toggleTranslation } = useTranslationMaps();
-  
-  return async (id: string) => {
-    // Check master cache using the correct key format
-    const translationKey = `translation-${id}`;
-    if (!masterCache.has(translationKey)) {
-      console.log(`🔄 Loading translation ${id} on demand...`);
-      await toggleTranslation(id, false); // Load as alternate, not main
-    } else {
-      console.log(`✅ Translation ${id} already cached, skipping duplicate load`);
+  return useCallback(async (translationCode: string) => {
+    try {
+      console.log(`🔄 Ensuring translation loaded: ${translationCode}`);
+
+      // Use BibleDataAPI facade for all translation loading
+      const { loadTranslation } = await import('@/data/BibleDataAPI');
+      await loadTranslation(translationCode);
+
+      console.log(`✅ Translation ${translationCode} ready`);
+
+    } catch (error) {
+      console.error(`❌ Failed to ensure translation ${translationCode} loaded:`, error);
+      throw error;
     }
-  };
+  }, []);
 };

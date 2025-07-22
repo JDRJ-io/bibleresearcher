@@ -334,7 +334,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
         }
       }
     };
-    
+
     const width = getColumnWidth(slot);
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";

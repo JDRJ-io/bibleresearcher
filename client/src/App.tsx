@@ -102,31 +102,31 @@ export const useBibleStore = create<{
   // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {
     const state = get();
-    
+
     // If no specific verses requested, this is a no-op (we load on-demand only)
     if (!verseIds || verseIds.length === 0) {
       console.log('📚 Cross-references will load on-demand as needed');
       return;
     }
-    
+
     // Check which verses we don't have yet
     const neededVerses = verseIds.filter(id => {
       const spaceFormat = id.replace('.', ' ');
       const dotFormat = id.replace(' ', '.');
       return !state.crossRefs[spaceFormat] && !state.crossRefs[dotFormat];
     });
-    
+
     if (neededVerses.length === 0) {
       console.log('✅ All requested cross-references already loaded');
       return;
     }
-    
+
     console.log(`📚 Loading cross-references for ${neededVerses.length} verses...`);
-    
+
     try {
       const { getCrossReferences } = await import('@/data/BibleDataAPI');
       const newCrossRefs: Record<string, string[]> = { ...state.crossRefs };
-      
+
       // Load cross-references for each needed verse individually
       for (const verseId of neededVerses) {
         try {
@@ -141,10 +141,10 @@ export const useBibleStore = create<{
           console.warn(`Failed to load cross-refs for ${verseId}:`, error);
         }
       }
-      
+
       console.log(`✅ Loaded cross-references for ${neededVerses.length} verses`);
       set({ crossRefs: newCrossRefs });
-      
+
     } catch (error) {
       console.error('❌ Failed to load cross-references:', error);
     }
@@ -153,13 +153,13 @@ export const useBibleStore = create<{
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
     const newValue = !state.showCrossRefs;
-    
+
     // Load cross-references data when toggling on
     if (newValue && Object.keys(state.crossRefs).length === 0) {
       // Trigger data loading
       setTimeout(() => get().loadCrossRefsData(), 0);
     }
-    
+
     const newState = {
       showCrossRefs: newValue,
       columnState: {
@@ -176,7 +176,7 @@ export const useBibleStore = create<{
   toggleProphecies: () => set(state => {
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
     const newValue = !state.showProphecies;
-    
+
     // Load prophecy data when toggling on
     if (newValue && Object.keys(state.prophecyData).length === 0) {
       console.log('🔮 Loading prophecy data from Supabase...');
@@ -186,9 +186,9 @@ export const useBibleStore = create<{
             getProphecyRows(),
             getProphecyIndexDetailed()
           ]);
-          
+
           const parsedData: Record<string, { P: string[], F: string[], V: string[] }> = {};
-          
+
           // Parse prophecy_rows.txt format: [VerseID]$[id:type, id:type, …]
           propRows.split('\n').forEach(line => {
             const [verseId, data] = line.split('$');
@@ -203,7 +203,7 @@ export const useBibleStore = create<{
               parsedData[verseId] = { P, F, V };
             }
           });
-          
+
           get().setProphecyData(parsedData);
           console.log('✅ Prophecy data loaded:', Object.keys(parsedData).length, 'verses with prophecy links');
           console.log('✅ Prophecy index loaded:', Object.keys(propIndex).length, 'prophecy definitions');
@@ -212,7 +212,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     const newState = {
       showProphecies: newValue,
       columnState: {
@@ -245,7 +245,7 @@ export const useBibleStore = create<{
   toggleDates: () => set(state => {
     console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
     const newValue = !state.showDates;
-    
+
     // Load dates data when toggling on
     if (newValue && !state.datesData) {
       console.log('📅 Loading dates data from Supabase...');
@@ -253,7 +253,7 @@ export const useBibleStore = create<{
         try {
           const datesText = await getDatesCanonical();
           const datesArray = datesText.split('\n').filter(line => line.trim());
-          
+
           get().setDatesData(datesArray);
           console.log('✅ Dates data loaded:', datesArray.length, 'verse dates');
         } catch (error) {
@@ -261,7 +261,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     const newState = {
       showDates: newValue,
       columnState: {
@@ -277,7 +277,7 @@ export const useBibleStore = create<{
 
   toggleLabel: (labelId: string) => set(state => {
     const newValue = !state.showLabels[labelId];
-    
+
     // Load label data when toggling on
     if (newValue && !state.labelsData[labelId]) {
       console.log(`🏷️ Loading ${labelId} label data from Supabase...`);
@@ -291,7 +291,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     return {
       showLabels: {
         ...state.showLabels,
@@ -303,7 +303,7 @@ export const useBibleStore = create<{
   toggleContext: () => set(state => {
     console.log('🔄 TOGGLE CONTEXT - Current:', state.showContext, '→ New:', !state.showContext);
     const newValue = !state.showContext;
-    
+
     // Load context groups data when toggling on
     if (newValue) {
       console.log('🌐 Loading context groups data from Supabase...');
@@ -316,7 +316,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     return { showContext: newValue };
   }),
 
