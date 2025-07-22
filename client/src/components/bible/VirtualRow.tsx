@@ -37,24 +37,24 @@ function ReferenceCell({ verse }: CellProps) {
 
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
-  
+
   // Get cross-references from the Bible store - try both formats
   const dotFormat = verse.reference.replace(/\s/g, '.');
   const spaceFormat = verse.reference.replace(/\./g, ' ');
   const crossRefs = crossRefsStore[dotFormat] || crossRefsStore[spaceFormat] || [];
-  
+
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     console.log('🔗 Cross-reference clicked in cell:', ref, 'Handler available:', !!onVerseClick);
-    
+
     if (onVerseClick) {
       onVerseClick(ref);
     } else {
       console.warn('⚠️ No onVerseClick handler available');
     }
   };
-  
+
   return (
     <div className="px-2 py-2 cross-ref-container custom-scrollbar h-full overflow-y-auto relative z-10">
       {crossRefs.length > 0 ? (
@@ -63,11 +63,11 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             // Convert cross-ref to space format for display and lookup
             const displayRef = ref.replace(/\./g, ' ');
             const lookupRef = ref.replace(/\s/g, '.');
-            
+
             // Try multiple formats for verse text lookup
             const refText = getVerseText(displayRef, mainTranslation) || 
                             getVerseText(lookupRef, mainTranslation);
-            
+
             return (
               <div
                 key={i}
@@ -106,7 +106,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
   const { prophecyData } = useBibleStore();
-  
+
   // Get prophecy data from store (loaded from Supabase)  
   const verseData = prophecyData[verse.reference] ?? { P: [], F: [], V: [] };
   const count = verseData[type]?.length ?? 0;
@@ -136,10 +136,10 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
 function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { datesData } = useBibleStore();
-  
+
   // Get date for this verse index from loaded dates data
   const dateText = datesData?.[verse.index ?? 0] || "";
-  
+
   if (!dateText || dateText.trim() === "") {
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
@@ -200,7 +200,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
-  
+
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
   slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
 
@@ -284,7 +284,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
     console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
-    
+
     // Debug cross-references data
     const { crossRefs } = useBibleStore.getState();
     console.log('🔍 VirtualRow Debug - Cross refs for verse:', crossRefs[verse.reference]);
@@ -346,12 +346,12 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
             getMainVerseTextResult: getMainVerseText(verse.reference)
           });
         }
-        
+
         // Try multiple lookup formats
         let verseText = getVerseText(verse.reference, config.translationCode) || 
                         getVerseText(verse.reference.replace(' ', '.'), config.translationCode) ||
                         (config.type === 'main-translation' ? getMainVerseText(verse.reference) : null);
-        
+
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
@@ -410,7 +410,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     width += (alternates.length * 320); // Alt translations ~320px each
     return width;
   }, [showCrossRefs, showProphecies, alternates]);
-  
+
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
 
