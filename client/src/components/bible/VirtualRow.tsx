@@ -38,6 +38,7 @@ function ReferenceCell({ verse }: CellProps) {
 
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
+  const { main } = useTranslationMaps(); // Get the current main translation from the store
 
   // Get cross-references from the Bible store - try both formats
   const dotFormat = verse.reference.replace(/\s/g, '.');
@@ -65,13 +66,13 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             const displayRef = ref.replace(/\./g, ' ');
             const lookupRef = ref.replace(/\s/g, '.');
             
-            // Get verse text using the current main translation
+            // Get verse text using the current main translation from the translation maps
             let refText = '';
-            if (getVerseText && mainTranslation) {
+            if (getVerseText && main) {
               // Try the getVerseText function which should use the cached translation data
-              refText = getVerseText(displayRef, mainTranslation) || 
-                        getVerseText(lookupRef, mainTranslation) || 
-                        getVerseText(ref, mainTranslation) || '';
+              refText = getVerseText(displayRef, main) || 
+                        getVerseText(lookupRef, main) || 
+                        getVerseText(ref, main) || '';
             }
 
             return (
