@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huge Bible Website – Forward/Back & Centered Verse</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    :root {
+      --font-size-base: 16px;
+      --font-size-scale: 1;
+      --spacing-unit: 0.5rem;
+      --transition-speed: 0.3s;
+      --row-height-base: 120px;
+      --header-height: 40px;
+      --footer-height: 50px;
+      --button-radius: 50%;
+      --button-size: 40px;
+      --button-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      --popup-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-size: calc(var(--font-size-base) * var(--font-size-scale));
+      line-height: 1.5;
+      transition: background-color var(--transition-speed),
+                  color var(--transition-speed),
+                  font-size var(--transition-speed);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      position: relative;
+      min-height: 100vh;
+      scrollbar-width: thin;
+      scrollbar-color: var(--link-color) var(--column-bg);
+    }
+    /* Theme Definitions */
+    body.light-mode {
+      --bg-color: #ffffff;
+      --text-color: #1a1a1a;
+      --header-bg: #f5f5f5;
+      --border-color: #d1d1d1;
+      --column-bg: #f0f0f0;
+      --link-color: #0288d1;
+      --hover-bg: rgba(2, 136, 209, 0.1);
+      --button-hover: #e0f7fa;
+    }
+    body.dark-mode {
+      --bg-color: #212121;
+      --text-color: #e0e0e0;
+      --header-bg: #424242;
+      --border-color: #616161;
+      --column-bg: #303030;
+      --link-color: #64b5f6;
+      --hover-bg: rgba(100, 181, 246, 0.2);
+      --button-hover: #546e7a;
+    }
+    body.sepia-mode {
+      --bg-color: #faf0e6;
+      --text-color: #4e342e;
+      --header-bg: #d7ccc8;
+      --border-color: #8d5524;
+      --column-bg: #e6d9c6;
+      --link-color: #e91e63;
+      --hover-bg: rgba(233, 30, 99, 0.1);
+      --button-hover: #f8bbd0;
+    }
+    body.electric-mode {
+      --bg-color: #101646;
+      --text-color: #eceff1;
+      --header-bg: #3e2bf7;
+      --border-color: #5c6bc0;
+      --column-bg: #1a237e;
+      --link-color: #f7f232;
+      --hover-bg: rgba(247, 242, 50, 0.2);
+      --button-hover: #7986cb;
+    }
+    body.fireworks-mode {
+      --bg-color: #272727;
+      --text-color: #ffffff;
+      --header-bg: #747474;
+      --border-color: #747474;
+      --column-bg: rgba(58, 58, 58, 0.6);
+      --link-color: #FF852F;
+      --hover-bg: rgba(255, 133, 47, 0.2);
+      --button-hover: #FFE400;
+    }
+    body.fireworks-mode::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: twinkle 3s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -2;
+    }
+    body.fireworks-mode::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 133, 47, 0.3) 0%, transparent 70%),
+                  radial-gradient(circle, rgba(255, 228, 0, 0.3) 0%, transparent 70%),
+                  radial-gradient(circle, rgba(20, 167, 108, 0.3) 0%, transparent 70%);
+      background-size: 200% 200%, 200% 200%, 200% 200%;
+      background-position: 0 0, 50% 50%, 100% 100%;
+      animation: fireworks-burst 5s infinite;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.6;
+    }
+    body.fireworks-mode a {
+      animation: fireworks-link 3s infinite;
+    }
+    body.rainbow-mode {
+      --bg-color: linear-gradient(90deg, #1a0033, #003366, #006633, #663300, #330066);
+      --text-color: #ffffff;
+      --header-bg: rgba(30, 30, 60, 0.9);
+      --border-color: #4d4d80;
+      --column-bg: rgba(20, 20, 40, 0.8);
+      --link-color: #00ffcc;
+      --hover-bg: rgba(0, 255, 204, 0.2);
+      --button-hover: #ff00ff;
+      background: var(--bg-color);
+      background-size: 400% 400%;
+      animation: rainbow-bg 20s ease infinite;
+    }
+    body.rainbow-mode .col-verse,
+    body.rainbow-mode .col-ref,
+    body.rainbow-mode .col-cross,
+    body.rainbow-mode .col-date,
+    body.rainbow-mode .col-pred,
+    body.rainbow-mode .col-ful {
+      background: linear-gradient(90deg, #FADADD, #FFF3B0, #D4E4D1, #D0E8F2, #E8D5F0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: rainbow-text 15s linear infinite;
+    }
+    body.aurora-mode {
+      --bg-color: #0A0A23;
+      --text-color: #E0FFFF;
+      --header-bg: #483D8B;
+      --border-color: #6A5ACD;
+      --column-bg: rgba(25, 25, 112, 0.5);
+      --link-color: #7FFFD4;
+      --hover-bg: rgba(127, 255, 212, 0.2);
+      --button-hover: #5F9EA0;
+    }
+    body.aurora-mode::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, rgba(0, 255, 0, 0.4) 0%, rgba(0, 255, 0, 0) 50%, transparent 100%),
+                  linear-gradient(-45deg, rgba(138, 43, 226, 0.4) 0%, rgba(138, 43, 226, 0) 50%, transparent 100%);
+      background-size: 200% 200%, 200% 200%;
+      animation: aurora-flow 15s ease infinite;
+      pointer-events: none;
+      z-index: -2;
+    }
+    body.aurora-mode::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: twinkle 3s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.7;
+    }
+    body.aurora-mode .col-verse,
+    body.aurora-mode .col-ref,
+    body.aurora-mode .col-cross,
+    body.aurora-mode .col-date,
+    body.aurora-mode .col-pred,
+    body.aurora-mode .col-ful {
+      text-shadow: 0 0 5px rgba(127, 255, 212, 0.5);
+    }
+    /* Animations */
+    @keyframes fireworks-burst {
+      0% { background-position: 0% 0%, 50% 50%, 100% 100%; opacity: 0; }
+      25% { opacity: 0.6; }
+      50% { background-position: 100% 100%, 0% 0%, 50% 50%; opacity: 0.6; }
+      75% { opacity: 0.3; }
+      100% { background-position: 0% 0%, 50% 50%, 100% 100%; opacity: 0; }
+    }
+    @keyframes fireworks-link {
+      0% { color: #FF852F; }
+      33% { color: #FFE400; }
+      66% { color: #14A76C; }
+      100% { color: #FF852F; }
+    }
+    @keyframes aurora-flow {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 0.1; }
+    }
+    @keyframes rainbow-bg {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+    @keyframes rainbow-text {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+    @keyframes highlight-anim {
+      0% { background-color: gold; }
+      100% { background-color: transparent; }
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--column-bg);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--link-color);
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--button-hover);
+    }
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    a:hover { background-color: var(--hover-bg); }
+    /* --- TOP STICKY HEADER --- */
+    .top-header {
+      position: sticky;
+      top: 0;
+      height: var(--header-height);
+      background-color: var(--header-bg);
+      z-index: 10;
+      border-bottom: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+    .column-headers-wrapper {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+    }
+    .column-headers {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      background-color: var(--column-bg);
+      height: 100%;
+      flex-wrap: nowrap;
+    }
+    .col-head {
+      border-right: 1px solid var(--border-color);
+      padding: 0 0.3rem;
+      white-space: nowrap;
+      flex-basis: 0;
+      flex-shrink: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .column-headers div:last-child { border-right: none; }
+    .col-head-ref {
+      flex-grow: 50;
+      min-width: calc(30px * var(--font-size-scale));
+      max-width: calc(100px * var(--font-size-scale));
+    }
+    .col-head-verse, .col-head-cross {
+      flex-grow: 1;
+      min-width: calc(250px * var(--font-size-scale));
+      max-width: none;
+    }
+    .col-head-date, .col-head-pred, .col-head-ful {
+      flex-grow: 50;
+      min-width: calc(30px * var(--font-size-scale));
+      max-width: calc(100px * var(--font-size-scale));
+      display: none;
+    }
+    body.show-details .col-head-date,
+    body.show-details .col-head-pred,
+    body.show-details .col-head-ful {
+      display: flex;
+    }
+    /* --- FLOATING BUTTONS --- */
+    .floating-control-btn,
+    .floating-back-btn,
+    .floating-forward-btn {
+      position: fixed;
+      top: calc(var(--header-height) + 10px);
+      width: var(--button-size);
+      height: var(--button-size);
+      border-radius: var(--button-radius);
+      background-color: var(--header-bg);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      box-shadow: var(--button-shadow);
+      z-index: 20;
+      font-size: 1.2em;
+      line-height: var(--button-size);
+      text-align: center;
+      padding: 0;
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    .floating-control-btn:hover,
+    .floating-back-btn:hover,
+    .floating-forward-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+    .floating-control-btn { right: 1rem; }
+    .floating-back-btn { left: 1rem; }
+    .floating-forward-btn { left: 60px; }
+    /* EXTENDED CONTROLS PANEL */
+    .extended-controls {
+      position: fixed;
+      top: calc(var(--header-height) + 60px);
+      right: 1rem;
+      background-color: var(--header-bg);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem;
+      box-shadow: var(--popup-shadow);
+      display: none;
+      z-index: 20;
+      transition: opacity var(--transition-speed);
+    }
+    .extended-controls.open {
+      display: block;
+      opacity: 1;
+    }
+    .extended-controls:not(.open) {
+      opacity: 0;
+    }
+    .extended-controls .control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .extended-controls .control-buttons button,
+    .extended-controls .control-buttons select {
+      font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.9);
+      padding: 0.4rem 0.7rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--column-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      box-shadow: var(--button-shadow);
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+    }
+    .extended-controls .control-buttons button:hover,
+    .extended-controls .control-buttons select:hover {
+      background-color: var(--button-hover);
+      transform: translateY(-1px);
+    }
+    .extended-controls .control-buttons button:active,
+    .extended-controls .control-buttons select:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    /* --- MAIN CONTENT --- */
+    .main-content {
+      position: absolute;
+      top: var(--header-height);
+      bottom: var(--footer-height);
+      left: 0; right: 0;
+      overflow-y: auto;
+      overflow-x: auto;
+      margin: 0 var(--spacing-unit);
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      background-color: transparent;
+      z-index: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--link-color) var(--column-bg);
+    }
+    .main-content::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .main-content::-webkit-scrollbar-track {
+      background: var(--column-bg);
+      border-radius: 4px;
+    }
+    .main-content::-webkit-scrollbar-thumb {
+      background: var(--link-color);
+      border-radius: 4px;
+    }
+    .main-content::-webkit-scrollbar-thumb:hover {
+      background: var(--button-hover);
+    }
+    .verse-container {
+      display: flex;
+      flex-wrap: nowrap;
+      background-color: transparent;
+      position: relative;
+    }
+    .verse-row {
+      position: absolute;
+      left: 0; right: 0;
+      display: flex;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      height: calc(var(--row-height-base) * var(--font-size-scale));
+      min-height: calc(var(--row-height-base) * var(--font-size-scale));
+      margin-bottom: 1px;
+      background-color: var(--column-bg);
+      transition: background-color var(--transition-speed);
+      box-sizing: border-box;
+    }
+    .verse-row:hover { background-color: var(--hover-bg); }
+    .col-ref, .col-verse, .col-cross, .col-date, .col-pred, .col-ful {
+      flex-basis: 0;
+      padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+      overflow: hidden;
+      line-height: calc(1.2 * var(--font-size-base) * var(--font-size-scale));
+      margin: 0;
+    }
+    .col-ref {
+      flex-grow: 50;
+      border-right: 1px solid var(--border-color);
+      min-width: calc(60px * var(--font-size-scale));
+      max-width: calc(100px * var(--font-size-scale));
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .col-verse {
+      flex-grow: 1;
+      border-right: 1px solid var(--border-color);
+      min-width: calc(250px * var(--font-size-scale));
+      max-width: none;
+      max-height: calc((var(--row-height-base) - (2 * var(--spacing-unit))) * var(--font-size-scale));
+      overflow-y: auto;
+      white-space: pre-wrap;
+      scrollbar-width: thin;
+      scrollbar-color: var(--link-color) var(--column-bg);
+    }
+    .col-verse::-webkit-scrollbar {
+      width: 8px;
+    }
+    .col-verse::-webkit-scrollbar-track {
+      background: var(--column-bg);
+      border-radius: 4px;
+    }
+    .col-verse::-webkit-scrollbar-thumb {
+      background: var(--link-color);
+      border-radius: 4px;
+    }
+    .col-verse::-webkit-scrollbar-thumb:hover {
+      background: var(--button-hover);
+    }
+    .col-cross {
+      flex-grow: 1;
+      border-right: 1px solid var(--border-color);
+      min-width: calc(250px * var(--font-size-scale));
+      max-width: none;
+      max-height: calc((var(--row-height-base) - (2 * var(--spacing-unit))) * var(--font-size-scale));
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      scrollbar-width: thin;
+      scrollbar-color: var(--link-color) var(--column-bg);
+    }
+    .col-cross::-webkit-scrollbar {
+      width: 8px;
+    }
+    .col-cross::-webkit-scrollbar-track {
+      background: var(--column-bg);
+      border-radius: 4px;
+    }
+    .col-cross::-webkit-scrollbar-thumb {
+      background: var(--link-color);
+      border-radius: 4px;
+    }
+    .col-cross::-webkit-scrollbar-thumb:hover {
+      background: var(--button-hover);
+    }
+    .col-date, .col-pred, .col-ful {
+      flex-grow: 50;
+      min-width: calc(80px * var(--font-size-scale));
+      max-width: calc(150px * var(--font-size-scale));
+      max-height: calc((var(--row-height-base) - (2 * var(--spacing-unit))) * var(--font-size-scale));
+      overflow-y: auto;
+      white-space: pre-wrap;
+      border-right: 1px solid var(--border-color);
+      display: none;
+      scrollbar-width: thin;
+      scrollbar-color: var(--link-color) var(--column-bg);
+    }
+    .col-date::-webkit-scrollbar,
+    .col-pred::-webkit-scrollbar,
+    .col-ful::-webkit-scrollbar {
+      width: 8px;
+    }
+    .col-date::-webkit-scrollbar-track,
+    .col-pred::-webkit-scrollbar-track,
+    .col-ful::-webkit-scrollbar-track {
+      background: var(--column-bg);
+      border-radius: 4px;
+    }
+    .col-date::-webkit-scrollbar-thumb,
+    .col-pred::-webkit-scrollbar-thumb,
+    .col-ful::-webkit-scrollbar-thumb {
+      background: var(--link-color);
+      border-radius: 4px;
+    }
+    .col-date::-webkit-scrollbar-thumb:hover,
+    .col-pred::-webkit-scrollbar-thumb:hover,
+    .col-ful::-webkit-scrollbar-thumb:hover {
+      background: var(--button-hover);
+    }
+    body.show-details .col-date,
+    body.show-details .col-pred,
+    body.show-details .col-ful {
+      display: block;
+    }
+    /* --- BOTTOM FOOTER --- */
+    .bottom-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      height: var(--footer-height);
+      background-color: var(--header-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      z-index: 11;
+    }
+    .bottom-footer > div {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .footer-left { justify-content: flex-start; }
+    .footer-center { justify-content: center; }
+    .footer-right { justify-content: flex-end; }
+    .bottom-footer input[type="text"],
+    .bottom-footer select,
+    .bottom-footer button {
+      font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.9);
+      padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--column-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      box-shadow: var(--button-shadow);
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+    }
+    .bottom-footer button:hover {
+      background-color: var(--button-hover);
+      transform: translateY(-1px);
+    }
+    .bottom-footer button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    .bottom-footer a {
+      font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.9);
+      color: var(--link-color);
+    }
+    /* --- GLOBAL SEARCH RESULTS OVERLAY --- */
+    .search-results-overlay {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transform: translateY(100%);
+      height: 40%;
+      background-color: var(--column-bg); /* Opaque background */
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    .search-results-overlay.open {
+      transform: translateY(0);
+    }
+    .overlay-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-unit);
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--header-bg);
+    }
+    .overlay-header input[type="text"] {
+      flex-grow: 1;
+      margin-right: var(--spacing-unit);
+      padding: calc(var(--spacing-unit) * 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--column-bg);
+      color: var(--text-color);
+      font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.9);
+    }
+    .overlay-content {
+      padding: var(--spacing-unit);
+      overflow-y: auto;
+      height: calc(100% - 50px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--link-color) var(--column-bg);
+    }
+    .overlay-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .overlay-content::-webkit-scrollbar-track {
+      background: var(--column-bg);
+      border-radius: 4px;
+    }
+    .overlay-content::-webkit-scrollbar-thumb {
+      background: var(--link-color);
+      border-radius: 4px;
+    }
+    .overlay-content::-webkit-scrollbar-thumb:hover {
+      background: var(--button-hover);
+    }
+    /* --- MOBILE ADJUSTMENTS --- */
+    @media (max-width: 768px) {
+      .main-content {
+        overflow-x: scroll;
+        overflow-y: auto;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: none;
+      }
+      .verse-container {
+        width: max-content;
+        min-width: 100%;
+      }
+      .verse-row {
+        width: max-content;
+        scroll-snap-align: none;
+      }
+      .column-headers-wrapper {
+        overflow-x: scroll;
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: none;
+      }
+      .column-headers {
+        width: max-content;
+        min-width: 100%;
+        flex-wrap: nowrap;
+      }
+      .col-head {
+        scroll-snap-align: none;
+      }
+      .bottom-footer {
+        flex-direction: column;
+        height: auto;
+        gap: 0.5rem;
+        padding: 0.5rem;
+      }
+      .bottom-footer > div {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    /* --- PORTRAIT MODE ADJUSTMENTS --- */
+    @media (max-width: 768px) and (orientation: portrait) {
+      .main-content {
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 100%;
+        margin: 0;
+        border-left: none;
+        border-right: none;
+      }
+      .verse-container {
+        width: 100%;
+        min-width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .verse-row {
+        position: relative;
+        width: 100%;
+        height: auto;
+        min-height: calc(var(--row-height-base) * var(--font-size-scale));
+        display: flex;
+        flex-wrap: wrap;
+        padding: calc(var(--spacing-unit) * 0.5) 0;
+        transition: all var(--transition-speed) ease;
+      }
+      .col-ref, .col-verse, .col-cross {
+        flex-grow: 0;
+        flex-shrink: 1;
+        padding: calc(var(--spacing-unit) * 0.5);
+        border-right: none;
+        max-height: calc((var(--row-height-base) - (2 * var(--spacing-unit))) * var(--font-size-scale));
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--link-color) var(--column-bg);
+      }
+      .col-ref {
+        width: 20%;
+        min-width: 60px;
+        max-width: 100px;
+        font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.9);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .col-verse {
+        width: 80%;
+        min-width: 200px;
+        order: 1;
+      }
+      .col-cross {
+        width: 100%;
+        min-width: 200px;
+        order: 2;
+        padding-top: 0;
+        font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.85);
+      }
+      .col-ref::-webkit-scrollbar,
+      .col-verse::-webkit-scrollbar,
+      .col-cross::-webkit-scrollbar {
+        width: 8px;
+      }
+      .col-ref::-webkit-scrollbar-track,
+      .col-verse::-webkit-scrollbar-track,
+      .col-cross::-webkit-scrollbar-track {
+        background: var(--column-bg);
+        border-radius: 4px;
+      }
+      .col-ref::-webkit-scrollbar-thumb,
+      .col-verse::-webkit-scrollbar-thumb,
+      .col-cross::-webkit-scrollbar-thumb {
+        background: var(--link-color);
+        border-radius: 4px;
+      }
+      .col-ref::-webkit-scrollbar-thumb:hover,
+      .col-verse::-webkit-scrollbar-thumb:hover,
+      .col-cross::-webkit-scrollbar-thumb:hover {
+        background: var(--button-hover);
+      }
+      .col-date, .col-pred, .col-ful {
+        display: none;
+        width: 100%;
+        min-width: 80px;
+        max-width: none;
+        order: 3;
+        max-height: calc((var(--row-height-base) - (2 * var(--spacing-unit))) * var(--font-size-scale));
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--link-color) var(--column-bg);
+      }
+      body.show-details .col-date,
+      body.show-details .col-pred,
+      body.show-details .col-ful {
+        display: block;
+      }
+      .col-date::-webkit-scrollbar,
+      .col-pred::-webkit-scrollbar,
+      .col-ful::-webkit-scrollbar {
+        width: 8px;
+      }
+      .col-date::-webkit-scrollbar-track,
+      .col-pred::-webkit-scrollbar-track,
+      .col-ful::-webkit-scrollbar-track {
+        background: var(--column-bg);
+        border-radius: 4px;
+      }
+      .col-date::-webkit-scrollbar-thumb,
+      .col-pred::-webkit-scrollbar-thumb,
+      .col-ful::-webkit-scrollbar-thumb {
+        background: var(--link-color);
+        border-radius: 4px;
+      }
+      .col-date::-webkit-scrollbar-thumb:hover,
+      .col-pred::-webkit-scrollbar-thumb:hover,
+      .col-ful::-webkit-scrollbar-thumb:hover {
+        background: var(--button-hover);
+      }
+      .column-headers-wrapper {
+        overflow-x: hidden;
+      }
+      .column-headers {
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+        padding: calc(var(--spacing-unit) * 0.5) 0;
+      }
+      .col-head {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: calc(var(--spacing-unit) * 0.5);
+        font-size: calc(var(--font-size-base) * var(--font-size-scale) * 0.9);
+      }
+      .col-head-date, .col-head-pred, .col-head-ful {
+        display: none;
+      }
+      body.show-details .col-head-date,
+      body.show-details .col-head-pred,
+      body.show-details .col-head-ful {
+        display: flex;
+      }
+      .floating-back-btn, .floating-forward-btn, .floating-control-btn {
+        top: calc(var(--header-height) + 5px);
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
+        line-height: 35px;
+      }
+      .floating-back-btn { left: 5px; }
+      .floating-forward-btn { left: 45px; }
+      .floating-control-btn { right: 5px; }
+      .extended-controls {
+        top: calc(var(--header-height) + 45px);
+        right: 5px;
+        width: 90%;
+        max-width: 300px;
+      }
+      .bottom-footer {
+        flex-direction: column;
+        height: auto;
+        padding: calc(var(--spacing-unit) * 0.5);
+      }
+      body.rainbow-mode .col-verse,
+      body.rainbow-mode .col-ref,
+      body.rainbow-mode .col-cross,
+      body.rainbow-mode .col-date,
+      body.rainbow-mode .col-pred,
+      body.rainbow-mode .col-ful {
+        color: var(--text-color);
+        -webkit-background-clip: initial;
+        background-clip: initial;
+        animation: none;
+      }
+    }
+    /* Ensure smooth transitions globally */
+    .verse-row, .col-ref, .col-verse, .col-cross, .col-date, .col-pred, .col-ful {
+      transition: all var(--transition-speed) ease;
+    }
+    :focus {
+      outline: 2px solid var(--link-color);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="light-mode">
+  <!-- TOP STICKY HEADER -->
+  <div class="top-header">
+    <div class="column-headers-wrapper">
+      <div class="column-headers" id="columnHeaders">
+        <div class="col-head col-head-ref">Index</div>
+        <div class="col-head col-head-verse">Verse</div>
+        <div class="col-head col-head-cross">Cross Refs</div>
+        <div class="col-head col-head-date">Date</div>
+        <div class="col-head col-head-pred">Predictions</div>
+        <div class="col-head col-head-ful">Fulfillments</div>
+      </div>
+    </div>
+  </div>
+  <!-- FLOATING BUTTONS -->
+  <button id="toggleControlsBtn" class="floating-control-btn">☰</button>
+  <button id="goBackBtn" class="floating-back-btn">←</button>
+  <button id="goForwardBtn" class="floating-forward-btn">→</button>
+  <!-- EXTENDED CONTROLS PANEL -->
+  <div class="extended-controls" id="extendedControls">
+    <div class="control-buttons">
+      <button id="toggleDateBtn">Toggle Date (Normal/Chronological)</button>
+      <button id="toggleDetailsBtn">Toggle Details</button>
+      <select id="themeSelector">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="sepia">Sepia</option>
+        <option value="electric">Electric</option>
+        <option value="fireworks">Fireworks</option>
+        <option value="rainbow">Rainbow</option>
+        <option value="aurora">Aurora</option>
+      </select>
+      <select id="fontSizeControl">
+        <option value="0.8">Small</option>
+        <option value="1" selected>Normal</option>
+        <option value="1.2">Large</option>
+        <option value="1.5">X-Large</option>
+      </select>
+    </div>
+  </div>
+  <!-- MAIN CONTENT -->
+  <div class="main-content" id="mainContent">
+    <div id="verseContainer" class="verse-container"></div>
+  </div>
+  <!-- BOTTOM FOOTER -->
+  <div class="bottom-footer" id="bottomFooter">
+    <div class="footer-left">
+      <input type="text" id="globalSearchInput" placeholder="Global search (KJV)..." />
+      <button id="globalSearchBtn">Search</button>
+    </div>
+    <div class="footer-center">
+      <label for="selectBook">Book:</label>
+      <select id="selectBook"></select>
+      <label for="selectChapter">Ch:</label>
+      <select id="selectChapter"></select>
+      <label for="selectVerse">Vs:</label>
+      <select id="selectVerse"></select>
+      <button id="goToVerseBtn">Go</button>
+    </div>
+    <div class="footer-right">
+      <a href="mailto:jdrjacobus@yahoo.com">Email Us</a> |
+      <a href="https://donate.example.com" target="_blank">Donate</a>
+    </div>
+  </div>
+  <!-- GLOBAL SEARCH RESULTS OVERLAY -->
+  <div class="search-results-overlay" id="searchResultsOverlay">
+    <div class="overlay-header">
+      <input type="text" id="overlaySearchInput" placeholder="Search within results..." />
+      <button id="closeOverlayBtn">Close</button>
+    </div>
+    <div class="overlay-content" id="overlayContent"></div>
+  </div>
+  <script>
+    "use strict";
+    /*--------------------------------
+      Data & State
+    --------------------------------*/
+    const BIBLICAL_BOOKS = [
+      "Gen","Exod","Lev","Num","Deut","Josh","Judg","Ruth","1Sam","2Sam","1Kgs","2Kgs",
+      "1Chr","2Chr","Ezra","Neh","Esth","Job","Ps","Prov","Eccl","Song",
+      "Isa","Jer","Lam","Ezek","Dan","Hos","Joel","Amos","Obad","Jonah","Mic","Nah",
+      "Hab","Zeph","Hag","Zech","Mal",
+      "Matt","Mark","Luke","John","Acts","Rom","1Cor","2Cor","Gal","Eph","Phil","Col",
+      "1Thess","2Thess","1Tim","2Tim","Titus","Phlm","Heb","Jas","1Pet","2Pet","1John",
+      "2John","3John","Jude","Rev"
+    ];
+    let kjvData = {}, ampData = {},
+        normalDates = {}, chronologicalDates = {},
+        crossRefs = {}, prophecyByVerse = {};
+    let versesCanonical = [], versesChronological = [], allVersesInCurrentOrder = [];
+    let currentTranslation = "KJV", currentDateLayout = "Normal";
+    let ROW_HEIGHT = 120, BUFFER_ROWS = 2, totalRows = 0;
+    let currentStartIndex = 0, currentEndIndex = -1;
+    let verseContainerEl, mainContentEl, columnHeadersEl;
+    let detailsShown = false;
+    const verseHistoryStack = [];
+    const verseForwardStack = [];
+    /*--------------------------------
+      Fetch & Parse
+    --------------------------------*/
+    async function loadAllFiles() {
+      const filePaths = [
+        "kjv file.txt",
+        "amp file.txt",
+        "dates normal.txt",
+        "dates chronological.txt",
+        "prophecy file.txt",
+        "verse refs.txt"
+      ];
+      const promises = filePaths.map(fp => fetch(fp).then(r => r.text()));
+      const [kjvText, ampText, datesNormalText, datesChronoText, prophecyText, refsText] =
+            await Promise.all(promises);
+      kjvData = parseVerseFile(kjvText);
+      ampData = parseVerseFile(ampText);
+      normalDates = parseDatesFile(datesNormalText);
+      const { chronoOrderArray, chronoDateLabels } = parseChronologicalFile(datesChronoText);
+      chronologicalDates = chronoDateLabels;
+      prophecyByVerse = parseProphecyFile(prophecyText);
+      crossRefs = parseReferencesFile(refsText);
+      versesCanonical = gatherAllVersesCanonical();
+      const leftover = versesCanonical.filter(v => !chronoOrderArray.includes(v));
+      versesChronological = [...chronoOrderArray, ...leftover];
+    }
+    function parseVerseFile(fileText) {
+      const lines = fileText.split(/\r?\n/);
+      const result = {};
+      for (const line of lines) {
+        const trimLine = line.trim();
+        if (!trimLine) continue;
+        const [k, content] = trimLine.split(/\s*#\s*/);
+        if (k && content) { result[k.trim()] = content.trim(); }
+      }
+      return result;
+    }
+    function parseDatesFile(fileText) {
+      const lines = fileText.split(/\r?\n/);
+      const result = {};
+      for (const line of lines) {
+        const trimLine = line.trim();
+        if (!trimLine) continue;
+        const [verseKey, dateLabel] = trimLine.split(/\s*#\s*/);
+        if (verseKey && dateLabel) { result[verseKey.trim()] = dateLabel.trim(); }
+      }
+      return result;
+    }
+    function parseChronologicalFile(fileText) {
+      const lines = fileText.split(/\r?\n/);
+      const chronoOrderArray = [];
+      const chronoDateLabels = {};
+      for (const line of lines) {
+        const trimLine = line.trim();
+        if (!trimLine) continue;
+        const [k, dateLabel] = trimLine.split(/\s*#\s*/);
+        if (k && dateLabel) {
+          chronoOrderArray.push(k.trim());
+          chronoDateLabels[k.trim()] = dateLabel.trim();
+        }
+      }
+      return { chronoOrderArray, chronoDateLabels };
+    }
+    function parseProphecyFile(fileText) {
+      const lines = fileText.split(/\r?\n/);
+      const store = {};
+      function ensureEntry(x) {
+        if (!store[x]) store[x] = { predictions: [], fulfillments: [] };
+      }
+      for (const line of lines) {
+        const trimLine = line.trim();
+        if (!trimLine) continue;
+        const [predPart, fulPart] = trimLine.split("$");
+        if (!predPart || !fulPart) continue;
+        const preds = predPart.split(",").map(s => s.trim());
+        const fuls = fulPart.split(",").map(s => s.trim());
+        for (const p of preds) {
+          ensureEntry(p);
+          store[p].fulfillments.push(...fuls);
+        }
+        for (const f of fuls) {
+          ensureEntry(f);
+          store[f].predictions.push(...preds);
+        }
+      }
+      return store;
+    }
+    function parseReferencesFile(fileText) {
+      const lines = fileText.split(/\r?\n/);
+      const refs = {};
+      for (const line of lines) {
+        const trimLine = line.trim();
+        if (!trimLine) continue;
+        const parts = line.split("$");
+        if (parts.length < 3) continue;
+        const verseKey = parts[0].trim();
+        const crossParts = parts.slice(2).map(x => x.trim()).filter(Boolean);
+        refs[verseKey] = crossParts;
+      }
+      return refs;
+    }
+    function gatherAllVersesCanonical() {
+      const setOfKeys = new Set();
+      Object.keys(kjvData).forEach(k => setOfKeys.add(k));
+      Object.keys(crossRefs).forEach(k => setOfKeys.add(k));
+      Object.keys(prophecyByVerse).forEach(k => setOfKeys.add(k));
+      Object.keys(normalDates).forEach(k => setOfKeys.add(k));
+      Object.keys(chronologicalDates).forEach(k => setOfKeys.add(k));
+      const allKeys = Array.from(setOfKeys);
+      const parsed = allKeys.map(k => {
+        const { bookIndex, chapterNum, verseNum } = parseVerseRef(k);
+        return { key: k, bookIndex, chapterNum, verseNum };
+      });
+      parsed.sort((a, b) => {
+        if (a.bookIndex !== b.bookIndex) return a.bookIndex - b.bookIndex;
+        if (a.chapterNum !== b.chapterNum) return a.chapterNum - b.chapterNum;
+        return a.verseNum - b.verseNum;
+      });
+      return parsed.map(o => o.key);
+    }
+    function parseVerseRef(verseKey) {
+      const fallback = { bookIndex: 999, chapterNum: 999, verseNum: 999 };
+      if (!verseKey) return fallback;
+      const [bookChapter, vs] = verseKey.split(":");
+      if (!bookChapter || !vs) return fallback;
+      const [bk, chStr] = bookChapter.split(".");
+      if (!bk || !chStr) return fallback;
+      const bIndex = BIBLICAL_BOOKS.indexOf(bk);
+      const cNum = parseInt(chStr, 10) || 999;
+      const vNum = parseInt(vs, 10) || 999;
+      return {
+        bookIndex: (bIndex >= 0 ? bIndex : 999),
+        chapterNum: cNum,
+        verseNum: vNum
+      };
+    }
+    /*--------------------------------
+      Virtual Scroller Setup
+    --------------------------------*/
+    function initVirtualScroller() {
+      verseContainerEl = document.getElementById("verseContainer");
+      mainContentEl = document.getElementById("mainContent");
+      columnHeadersEl = document.getElementById("columnHeaders");
+      mainContentEl.addEventListener("scroll", () => {
+        requestAnimationFrame(updateVisibleRows);
+        columnHeadersEl.style.transform = `translateX(-${mainContentEl.scrollLeft}px)`;
+        columnHeadersEl.parentElement.scrollLeft = mainContentEl.scrollLeft;
+      });
+    }
+    function setCurrentVerseArray() {
+      const middleVerseKey = getVerseInCenter();
+      allVersesInCurrentOrder = (currentDateLayout === "Normal")
+        ? versesCanonical
+        : versesChronological;
+      totalRows = allVersesInCurrentOrder.length;
+      verseContainerEl.style.height = (totalRows * ROW_HEIGHT) + "px";
+      reRenderAllRows();
+      if (middleVerseKey) {
+        scrollToVerseInNewLayout(middleVerseKey);
+      }
+    }
+    function getVerseInCenter() {
+      const scrollTop = mainContentEl.scrollTop;
+      const clientHeight = mainContentEl.clientHeight;
+      const middlePixel = scrollTop + (clientHeight / 2);
+      const midIndex = Math.floor(middlePixel / ROW_HEIGHT);
+      if (midIndex < 0 || midIndex >= allVersesInCurrentOrder.length) return null;
+      return allVersesInCurrentOrder[midIndex];
+    }
+    function scrollToVerseInNewLayout(verseKey) {
+      const idx = allVersesInCurrentOrder.indexOf(verseKey);
+      if (idx === -1) return;
+      centerVerseByIndex(idx);
+    }
+    function reRenderAllRows() {
+      currentStartIndex = 0;
+      currentEndIndex = -1;
+      verseContainerEl.innerHTML = "";
+      updateVisibleRows();
+    }
+    function updateVisibleRows() {
+      if (!allVersesInCurrentOrder.length) return;
+      const scrollTop = mainContentEl.scrollTop;
+      const clientHeight = mainContentEl.clientHeight;
+      const startIndex = Math.floor(scrollTop / ROW_HEIGHT) - BUFFER_ROWS;
+      const endIndex = Math.floor((scrollTop + clientHeight) / ROW_HEIGHT) + BUFFER_ROWS;
+      const clampedStart = Math.max(0, startIndex);
+      const clampedEnd = Math.min(totalRows - 1, endIndex);
+      if (clampedStart === currentStartIndex && clampedEnd === currentEndIndex) return;
+      currentStartIndex = clampedStart;
+      currentEndIndex = clampedEnd;
+      verseContainerEl.innerHTML = "";
+      for (let i = clampedStart; i <= clampedEnd; i++) {
+        const verseKey = allVersesInCurrentOrder[i];
+        const rowEl = createRowElement(i, verseKey);
+        verseContainerEl.appendChild(rowEl);
+      }
+    }
+    function createRowElement(index, verseKey) {
+      const row = document.createElement("div");
+      row.className = "verse-row";
+      row.style.top = (index * ROW_HEIGHT) + "px";
+      row.id = verseKey.replace(/\./g, "_").replace(/:/g, "_");
+      const colRef = document.createElement("div");
+      colRef.className = "col-ref";
+      colRef.textContent = verseKey;
+      row.appendChild(colRef);
+      const colVerse = document.createElement("div");
+      colVerse.className = "col-verse";
+      let text = (currentTranslation === "KJV")
+        ? (kjvData[verseKey] || "")
+        : (ampData[verseKey] || "");
+      if (!text) text = "(no text in KJV/AMP)";
+      colVerse.textContent = text;
+      row.appendChild(colVerse);
+      const colCross = document.createElement("div");
+      colCross.className = "col-cross";
+      const crArr = crossRefs[verseKey] || [];
+      colCross.innerHTML = crArr.map(line => formatCrossRefLine(line)).join("");
+      row.appendChild(colCross);
+      const colDate = document.createElement("div");
+      colDate.className = "col-date";
+      const dateLabel = (currentDateLayout === "Normal")
+        ? normalDates[verseKey]
+        : chronologicalDates[verseKey];
+      colDate.textContent = dateLabel || "";
+      row.appendChild(colDate);
+      const colPred = document.createElement("div");
+      colPred.className = "col-pred";
+      const predArr = prophecyByVerse[verseKey]?.predictions || [];
+      if (predArr.length > 0) {
+        colPred.innerHTML = predArr.map(ref => `<div>${makeClickableRef(ref)}</div>`).join("");
+      }
+      row.appendChild(colPred);
+      const colFul = document.createElement("div");
+      colFul.className = "col-ful";
+      const fulArr = prophecyByVerse[verseKey]?.fulfillments || [];
+      if (fulArr.length > 0) {
+        colFul.innerHTML = fulArr.map(ref => `<div>${makeClickableRef(ref)}</div>`).join("");
+      }
+      row.appendChild(colFul);
+      return row;
+    }
+    function formatCrossRefLine(fullLine) {
+      const parts = fullLine.split("~");
+      let html = "";
+      parts.forEach(pt => {
+        const clean = pt.replace(/\d+$/, "").trim();
+        if (clean) {
+          html += `<div>${makeClickableRefLine(clean)}</div>`;
+        }
+      });
+      return html;
+    }
+    function makeClickableRefLine(str) {
+      const match = str.match(/^([\w.]+:\d+)\s*:\s*(.*)/);
+      if (!match) return str;
+      const verseRef = match[1];
+      let verseText = (currentTranslation === "KJV")
+        ? kjvData[verseRef]
+        : ampData[verseRef];
+      if (!verseText) verseText = match[2];
+      return `${makeClickableRef(verseRef)}: ${verseText}`;
+    }
+    function makeClickableRef(verse) {
+      const rowId = verse.replace(/\./g, "_").replace(/:/g, "_");
+      return `<a href="#" onclick="jumpToVerse('${rowId}')">${verse}</a>`;
+    }
+    /*--------------------------------
+      Forward/Back + Jumping to Verses
+    --------------------------------*/
+    function centerVerseByIndex(index) {
+      if (index < 0 || index >= allVersesInCurrentOrder.length) return;
+      const mainHeight = mainContentEl.clientHeight;
+      const verseCenter = index * ROW_HEIGHT + (ROW_HEIGHT / 2);
+      const scrollPosition = verseCenter - (mainHeight / 2);
+      mainContentEl.scrollTo({ top: scrollPosition, behavior: "smooth" });
+    }
+    function jumpToVerse(rowId) {
+      const centerVerse = getVerseInCenter();
+      if (centerVerse) verseHistoryStack.push(centerVerse);
+      scrollToVerse(rowId, true);
+    }
+    window.jumpToVerse = jumpToVerse;
+    function scrollToVerse(rowId, center = false) {
+      const finalKey = rowId.replace(/_(\d+)$/, ":$1").replace(/_/g, ".");
+      const index = allVersesInCurrentOrder.indexOf(finalKey);
+      if (index === -1) return;
+      if (center) {
+        centerVerseByIndex(index);
+      } else {
+        const targetScroll = index * ROW_HEIGHT - 50;
+        mainContentEl.scrollTo({ top: targetScroll, behavior: "smooth" });
+      }
+      setTimeout(() => {
+        const rowEl = document.getElementById(rowId);
+        if (rowEl) {
+          rowEl.classList.remove("highlight");
+          void rowEl.offsetWidth;
+          rowEl.classList.add("highlight");
+        }
+      }, 300);
+    }
+    window.scrollToVerse = scrollToVerse;
+    const goBackBtn = document.getElementById("goBackBtn");
+    const goForwardBtn = document.getElementById("goForwardBtn");
+    goBackBtn.addEventListener("click", () => {
+      if (verseHistoryStack.length === 0) return;
+      const centerVerse = getVerseInCenter();
+      if (centerVerse) verseForwardStack.push(centerVerse);
+      const prevKey = verseHistoryStack.pop();
+      if (!prevKey) return;
+      const rowId = prevKey.replace(/\./g, "_").replace(/:/g, "_");
+      scrollToVerse(rowId, true);
+    });
+    goForwardBtn.addEventListener("click", () => {
+      if (verseForwardStack.length === 0) return;
+      const centerVerse = getVerseInCenter();
+      if (centerVerse) verseHistoryStack.push(centerVerse);
+      const nextKey = verseForwardStack.pop();
+      if (!nextKey) return;
+      const rowId = nextKey.replace(/\./g, "_").replace(/:/g, "_");
+      scrollToVerse(rowId, true);
+    });
+    /*--------------------------------
+      Hamburger Menu & Extended Controls
+    --------------------------------*/
+    const toggleControlsBtn = document.getElementById("toggleControlsBtn");
+    const extendedControls = document.getElementById("extendedControls");
+    toggleControlsBtn.addEventListener("click", () => {
+      extendedControls.classList.toggle("open");
+      toggleControlsBtn.textContent = extendedControls.classList.contains("open") ? "×" : "☰";
+    });
+    document.getElementById("toggleDateBtn").addEventListener("click", () => {
+      currentDateLayout = (currentDateLayout === "Normal") ? "Chronological" : "Normal";
+      setCurrentVerseArray();
+    });
+    const toggleDetailsBtn = document.getElementById("toggleDetailsBtn");
+    toggleDetailsBtn.addEventListener("click", () => {
+      detailsShown = !detailsShown;
+      document.body.classList.toggle("show-details", detailsShown);
+      reRenderAllRows();
+    });
+    document.getElementById("themeSelector").addEventListener("change", (e) => {
+      const val = e.target.value;
+      const detailsActive = document.body.classList.contains("show-details");
+      document.body.className = val + "-mode" + (detailsActive ? " show-details" : "");
+    });
+    document.getElementById("fontSizeControl").addEventListener("change", (e) => {
+      const newScale = parseFloat(e.target.value);
+      document.documentElement.style.setProperty('--font-size-scale', newScale);
+      ROW_HEIGHT = 120 * newScale;
+      verseContainerEl.style.height = (totalRows * ROW_HEIGHT) + "px";
+      reRenderAllRows();
+    });
+    /*--------------------------------
+      Bottom Footer: Book/Chapter/Verse
+    --------------------------------*/
+    const selectBook = document.getElementById("selectBook");
+    const selectChapter = document.getElementById("selectChapter");
+    const selectVerse = document.getElementById("selectVerse");
+    const goToVerseBtn = document.getElementById("goToVerseBtn");
+    goToVerseBtn.addEventListener("click", () => {
+      const bk = selectBook.value, ch = selectChapter.value, vs = selectVerse.value;
+      if (!bk || !ch || !vs) return;
+      const centerVerse = getVerseInCenter();
+      if (centerVerse) verseHistoryStack.push(centerVerse);
+      const verseKey = bk + "." + ch + ":" + vs;
+      const rowId = verseKey.replace(/\./g, "_").replace(/:/g, "_");
+      scrollToVerse(rowId, true);
+    });
+    function initSearchSelectors() {
+      const bookMap = {};
+      for (const k of Object.keys(kjvData)) {
+        const { bookIndex, chapterNum, verseNum } = parseVerseRef(k);
+        if (bookIndex < 0 || bookIndex >= BIBLICAL_BOOKS.length) continue;
+        const bName = BIBLICAL_BOOKS[bookIndex];
+        if (!bookMap[bName]) bookMap[bName] = {};
+        if (!bookMap[bName][chapterNum]) bookMap[bName][chapterNum] = [];
+        bookMap[bName][chapterNum].push(verseNum);
+      }
+      selectBook.innerHTML = "";
+      for (const b of BIBLICAL_BOOKS) {
+        if (!bookMap[b]) continue;
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        selectBook.appendChild(opt);
+      }
+      selectBook.onchange = () => buildChapterSelector(bookMap);
+      selectChapter.onchange = () => buildVerseSelector(bookMap);
+      if (selectBook.options.length > 0) {
+        selectBook.selectedIndex = 0;
+        buildChapterSelector(bookMap);
+      }
+    }
+    function buildChapterSelector(bookMap) {
+      const bName = selectBook.value;
+      if (!bName) return;
+      const chapters = Object.keys(bookMap[bName]).map(x => parseInt(x, 10));
+      chapters.sort((a, b) => a - b);
+      selectChapter.innerHTML = "";
+      for (const ch of chapters) {
+        const opt = document.createElement("option");
+        opt.value = ch;
+        opt.textContent = ch;
+        selectChapter.appendChild(opt);
+      }
+      if (selectChapter.options.length > 0) {
+        selectChapter.selectedIndex = 0;
+        buildVerseSelector(bookMap);
+      }
+    }
+    function buildVerseSelector(bookMap) {
+      const bName = selectBook.value, ch = selectChapter.value;
+      if (!bName || !ch) return;
+      const verseArr = bookMap[bName][ch] || [];
+      verseArr.sort((a, b) => a - b);
+      selectVerse.innerHTML = "";
+      for (const v of verseArr) {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        selectVerse.appendChild(opt);
+      }
+    }
+    /*--------------------------------
+      Global Search Overlay
+    --------------------------------*/
+    const searchResultsOverlay = document.getElementById("searchResultsOverlay");
+    const overlayContent = document.getElementById("overlayContent");
+    const closeOverlayBtn = document.getElementById("closeOverlayBtn");
+    closeOverlayBtn.addEventListener("click", () => {
+      searchResultsOverlay.classList.remove("open");
+    });
+    const globalSearchInput = document.getElementById("globalSearchInput");
+    const globalSearchBtn = document.getElementById("globalSearchBtn");
+    globalSearchBtn.addEventListener("click", () => doGlobalSearch());
+    globalSearchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") doGlobalSearch();
+    });
+    function doGlobalSearch() {
+      const query = globalSearchInput.value.trim();
+      overlayContent.innerHTML = "";
+      if (!query) return;
+      const dataSource = (currentTranslation === "KJV") ? kjvData : ampData;
+      const matches = [];
+      for (const [verseKey, verseText] of Object.entries(dataSource)) {
+        if (!verseText) continue;
+        if (verseText.toLowerCase().includes(query.toLowerCase())) {
+          matches.push({ key: verseKey, verseText });
+        }
+      }
+      if (matches.length === 0) {
+        overlayContent.innerHTML = "<div>No matches found.</div>";
+        showSearchResults("");
+        return;
+      }
+      let resultsHtml = "";
+      matches.forEach(m => {
+        const rowId = m.key.replace(/\./g, "_").replace(/:/g, "_");
+        const highlighted = highlightTerm(m.verseText, query);
+        resultsHtml += `
+          <div class="search-result-item">
+            <a href="#" onclick="jumpToFoundVerse('${rowId}')">${m.key}</a>
+            <div>${highlighted}</div>
+          </div>
+        `;
+      });
+      showSearchResults(resultsHtml);
+      document.getElementById("overlaySearchInput").value = query; // Sync input
+    }
+    function showSearchResults(resultsHtml) {
+      overlayContent.innerHTML = resultsHtml;
+      searchResultsOverlay.classList.add("open");
+    }
+    function highlightTerm(text, query) {
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, "gi");
+      return text.replace(regex, (match) => `<span class="highlight-match">${match}</span>`);
+    }
+    function jumpToFoundVerse(rowId) {
+      const centerVerse = getVerseInCenter();
+      if (centerVerse) verseHistoryStack.push(centerVerse);
+      scrollToVerse(rowId, true);
+      searchResultsOverlay.classList.remove("open");
+    }
+    window.jumpToFoundVerse = jumpToFoundVerse;
+    // Add event listener for overlay search input
+    document.getElementById("overlaySearchInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const query = e.target.value.trim();
+        if (query) {
+          globalSearchInput.value = query; // Sync with footer input
+          doGlobalSearch();
+        }
+      }
+    });
+    /*--------------------------------
+      Init on Page Load
+    --------------------------------*/
+    (async function(){
+      try {
+        await loadAllFiles();
+        initVirtualScroller();
+        currentDateLayout = "Normal";
+        setCurrentVerseArray();
+        initSearchSelectors();
+      } catch(e) {
+        console.error("Error loading files:", e);
+      }
+    })();
+  </script>
+</body>
+</html>
