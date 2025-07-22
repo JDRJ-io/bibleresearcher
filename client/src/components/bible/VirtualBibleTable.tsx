@@ -185,11 +185,12 @@ const VirtualBibleTable = ({
       
       if (verseIndex >= 0) {
         console.log(`📖 Found verse ${foundFormat} at index ${verseIndex}`);
-        // Calculate target scroll position to center the verse
-        const targetScrollTop = verseIndex * ROW_HEIGHT;
+        // Calculate target scroll position to center the verse in viewport
         if (containerRef.current) {
+          const containerHeight = containerRef.current.clientHeight;
+          const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
           containerRef.current.scrollTo({
-            top: targetScrollTop,
+            top: Math.max(0, targetScrollTop), // Prevent negative scroll
             behavior: 'smooth'
           });
         }
