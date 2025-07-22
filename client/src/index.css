@@ -1102,8 +1102,8 @@ body.overlay-open {
   .w-48 { width: calc(12rem * var(--font-size-multiplier, 1)); }
   .w-64 { width: calc(16rem * var(--font-size-multiplier, 1)); }
   .w-80 { width: calc(20rem * var(--font-size-multiplier, 1)); }
-}art;
-  }
+}
+}
 
   /* Mobile column width overrides - use CSS variables for consistency */
   .dual-col .w-80 { width: calc(var(--colW) * 1) !important; }
