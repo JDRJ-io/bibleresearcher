@@ -371,22 +371,52 @@ body {
   }
 
   .col-ref {
-    width: 64px;
+    width: calc(48px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
   }
 
   .col-main {
-    width: 420px;
+    width: calc(300px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
   }
 
   .col-cross {
-    width: 320px;
+    width: calc(280px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
   }
 
   .virtual-bible-table {
     overflow-x: auto;
+  }
+}
+
+/* Tablet responsive breakpoint */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .col-ref {
+    width: calc(56px * var(--font-size-multiplier, 1));
+  }
+
+  .col-main {
+    width: calc(400px * var(--font-size-multiplier, 1));
+  }
+
+  .col-cross {
+    width: calc(320px * var(--font-size-multiplier, 1));
+  }
+}
+
+/* Desktop responsive breakpoint */
+@media (min-width: 1024px) {
+  .col-ref {
+    width: calc(64px * var(--font-size-multiplier, 1));
+  }
+
+  .col-main {
+    width: calc(480px * var(--font-size-multiplier, 1));
+  }
+
+  .col-cross {
+    width: calc(400px * var(--font-size-multiplier, 1));
   }
 }
 
@@ -1061,6 +1091,18 @@ body.overlay-open {
 @media (max-width: 639px) {
   .bible-table-wrapper.dual-col {
     justify-content: flex-start;
+    width: calc(var(--colW) * 2.2); /* Slightly wider for better proportions */
+  }
+  
+  /* Responsive column scaling */
+  .w-12 { width: calc(3rem * var(--font-size-multiplier, 1)); }
+  .w-14 { width: calc(3.5rem * var(--font-size-multiplier, 1)); }
+  .w-16 { width: calc(4rem * var(--font-size-multiplier, 1)); }
+  .w-20 { width: calc(5rem * var(--font-size-multiplier, 1)); }
+  .w-48 { width: calc(12rem * var(--font-size-multiplier, 1)); }
+  .w-64 { width: calc(16rem * var(--font-size-multiplier, 1)); }
+  .w-80 { width: calc(20rem * var(--font-size-multiplier, 1)); }
+}art;
   }
 
   /* Mobile column width overrides - use CSS variables for consistency */

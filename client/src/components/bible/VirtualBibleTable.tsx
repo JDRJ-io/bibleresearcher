@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
 import { VirtualRow } from "./VirtualRow";
@@ -367,7 +368,7 @@ const VirtualBibleTable = ({
   }, [visibleColumns]); // Trigger when visible columns change
 
   // Mobile detection for dual-column layout
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+  const isMobile = useIsMobile();
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px' }}>

@@ -1,6 +1,6 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+const MOBILE_BREAKPOINT = 640
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
@@ -16,4 +16,28 @@ export function useIsMobile() {
   }, [])
 
   return !!isMobile
+}
+
+// Additional responsive breakpoints for more granular control
+export function useScreenSize() {
+  const [screenSize, setScreenSize] = React.useState<'mobile' | 'tablet' | 'desktop'>('desktop')
+
+  React.useEffect(() => {
+    const updateScreenSize = () => {
+      const width = window.innerWidth
+      if (width < 640) {
+        setScreenSize('mobile')
+      } else if (width < 1024) {
+        setScreenSize('tablet')
+      } else {
+        setScreenSize('desktop')
+      }
+    }
+
+    updateScreenSize()
+    window.addEventListener('resize', updateScreenSize)
+    return () => window.removeEventListener('resize', updateScreenSize)
+  }, [])
+
+  return screenSize
 }

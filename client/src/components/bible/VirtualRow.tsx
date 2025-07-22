@@ -3,6 +3,7 @@ import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
+import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 
 interface VirtualRowProps {
@@ -186,7 +187,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
 }) => {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showProphecies, showNotes, showDates, columnState } = useBibleStore();
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = useIsMobile();
+  const screenSize = useScreenSize();
 
   // DEBUG: Check if VirtualRow is being called
   if (verse.reference === "Gen 1:1") {
@@ -304,18 +306,36 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
     const { slot, config, widthRem } = column;
     const isMain = config.translationCode === main;
 
-    // Calculate width based on slot type and mobile - updated for new slot layout
-    const width = isMobile ? 
-      (slot === 0 ? "w-14" :        // Reference (narrower)
-       slot === 1 ? "w-16" :        // Notes (between Ref and Main)
-       slot === 7 ? "flex-1" :      // Cross References (matches translations)
-       slot >= 8 && slot <= 10 ? "w-8" : // Prophecy P/F/V (slots 8-10)
-       "flex-1") :                  // Translations
-      (slot === 0 ? "w-16" :        // Reference (narrower)
-       slot === 1 ? "w-64" :        // Notes (between Ref and Main) 
-       slot === 7 ? "w-80" :        // Cross References (matches translations)
-       slot >= 8 && slot <= 10 ? "w-20" : // Prophecy P/F/V (slots 8-10)
-       "w-80");                     // Translations
+    // Calculate responsive width based on slot type and screen size
+    const getColumnWidth = (slotNumber: number) => {
+      if (screenSize === 'mobile') {
+        switch (slotNumber) {
+          case 0: return "w-12";        // Reference (minimal)
+          case 1: return "w-14";        // Notes (compact)
+          case 7: return "flex-1";      // Cross References (flexible)
+          case 8: case 9: case 10: return "w-6"; // Prophecy P/F/V (tiny)
+          default: return "flex-1";     // Translations (flexible)
+        }
+      } else if (screenSize === 'tablet') {
+        switch (slotNumber) {
+          case 0: return "w-14";        // Reference
+          case 1: return "w-48";        // Notes
+          case 7: return "w-64";        // Cross References
+          case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V
+          default: return "w-64";       // Translations
+        }
+      } else { // desktop
+        switch (slotNumber) {
+          case 0: return "w-16";        // Reference
+          case 1: return "w-64";        // Notes
+          case 7: return "w-80";        // Cross References
+          case 8: case 9: case 10: return "w-20"; // Prophecy P/F/V
+          default: return "w-80";       // Translations
+        }
+      }
+    };
+    
+    const width = getColumnWidth(slot);
 
     const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
