@@ -48,23 +48,32 @@
   --highlight-bg: hsl(190, 40%, 20%);
 }
 
-/* Proportional scaling system - scales smoothly across all screen sizes */
-:root {
-  /* Calculate proportional scaling based on viewport width */
-  --viewport-scale: clamp(0.75, calc(100vw / 1200), 1.5);
-  --baseRem: calc(1rem * var(--viewport-scale));
-  --baseColW: calc(480px * var(--viewport-scale));
-  
-  /* Header and component scaling */
-  --header-scale: var(--viewport-scale);
-  --button-scale: var(--viewport-scale);
-  --padding-scale: var(--viewport-scale);
+/* UI Layout Spec CSS Foundation - Device-responsive sizing */
+@media (max-width: 639px) { 
+  :root { 
+    --baseRem: 0.875rem; 
+    --baseColW: 420px; 
+  } 
+}
+
+@media (min-width: 640px) and (max-width: 1023px) { 
+  :root { 
+    --baseRem: 1rem; 
+    --baseColW: 480px; 
+  } 
+}
+
+@media (min-width: 1024px) { 
+  :root { 
+    --baseRem: 1.125rem; 
+    --baseColW: 520px; 
+  } 
 }
 
 :root { 
   --sizeMult: 1; /* Default size multiplier - can be set by user preference */
   --font-size-multiplier: 1.0;
-  --base-font-size: calc(14px * var(--viewport-scale));
+  --base-font-size: 14px;
   --text-sm: calc(var(--base-font-size) * 0.875 * var(--font-size-multiplier));
   --text-base: calc(var(--base-font-size) * var(--font-size-multiplier));
   --text-lg: calc(var(--base-font-size) * 1.125 * var(--font-size-multiplier));
@@ -79,39 +88,12 @@ html {
   width: calc(var(--baseColW) * var(--sizeMult)); 
 }
 
-/* Cell scrollbar styling and word-wrapping - only show when content overflows */
+/* Cell scrollbar styling - only show when content overflows */
 .cell-content {
   max-height: 100%;
   overflow-y: auto;
-  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-/* Force word-wrapping utilities */
-.word-wrap {
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
-}
-
-.overflow-wrap-break-word {
-  overflow-wrap: break-word !important;
-}
-
-/* Ensure all text content stays within cell bounds */
-.bible-cell-text {
-  width: 100%;
-  max-width: 100%;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-  box-sizing: border-box;
 }
 
 .cell-content::-webkit-scrollbar {
@@ -230,58 +212,43 @@ body {
   font-size: inherit;
 }
 
-/* Proportional column widths that scale with viewport - Fixed base sizes */
+/* Scale column widths with font size */
 .w-80 {
-  width: calc(320px * var(--viewport-scale)) !important;
-  min-width: calc(240px * var(--viewport-scale)) !important;
-  max-width: calc(480px * var(--viewport-scale)) !important;
+  width: calc(20rem * var(--font-size-multiplier, 1));
 }
 
 .w-60 {
-  width: calc(240px * var(--viewport-scale)) !important;
-  min-width: calc(180px * var(--viewport-scale)) !important;
-  max-width: calc(360px * var(--viewport-scale)) !important;
+  width: calc(15rem * var(--font-size-multiplier, 1));
 }
 
 .w-20 {
-  width: calc(80px * var(--viewport-scale)) !important;
-  min-width: calc(60px * var(--viewport-scale)) !important;
-  max-width: calc(120px * var(--viewport-scale)) !important;
+  width: calc(5rem * var(--font-size-multiplier, 1));
 }
 
-.w-16 {
-  width: calc(64px * var(--viewport-scale)) !important;
-  min-width: calc(48px * var(--viewport-scale)) !important;
-  max-width: calc(96px * var(--viewport-scale)) !important;
-}
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  .verse-text {
+    font-size: calc(var(--text-sm) * var(--font-size-multiplier, 1));
+    line-height: 1.4;
+  }
 
-.w-14 {
-  width: calc(56px * var(--viewport-scale)) !important;
-  min-width: calc(42px * var(--viewport-scale)) !important;
-  max-width: calc(84px * var(--viewport-scale)) !important;
-}
+  .bible-verse-row {
+    padding: 0.5rem 0.25rem;
+  }
 
-.w-12 {
-  width: calc(48px * var(--viewport-scale)) !important;
-  min-width: calc(36px * var(--viewport-scale)) !important;
-  max-width: calc(72px * var(--viewport-scale)) !important;
-}
+  /* Optimize column widths for mobile */
+  .w-80 {
+    width: 100%;
+    min-width: 280px;
+  }
 
-/* Proportional responsive design - no hard breakpoints */
-.verse-text {
-  font-size: calc(var(--text-base) * var(--viewport-scale) * var(--font-size-multiplier, 1));
-  line-height: calc(1.4 * var(--viewport-scale));
-}
+  .w-60 {
+    width: 200px;
+  }
 
-.bible-verse-row {
-  padding: calc(0.5rem * var(--viewport-scale)) calc(0.25rem * var(--viewport-scale));
-  height: calc(120px * var(--viewport-scale));
-  min-height: calc(120px * var(--viewport-scale));
-}
-
-/* Row height scales proportionally */
-.verse-row {
-  height: calc(120px * var(--viewport-scale));
+  .w-20 {
+    width: 60px;
+  }
 }
 
 /* Divine animations and mystical effects */
@@ -939,24 +906,17 @@ body.aurora-mode::after {
 
 /* Logo is now completely static and peaceful */
 
-/* Proportional header scaling */
+/* Mobile-first responsive header design */
 .divine-header {
-  height: calc(60px * var(--viewport-scale)) !important;
-  min-height: calc(60px * var(--viewport-scale)) !important;
-  padding: calc(0.5rem * var(--viewport-scale)) calc(1rem * var(--viewport-scale));
+  height: 48px !important;
+  min-height: 48px !important;
 }
 
-/* Scale all header elements proportionally */
-.divine-header button {
-  height: calc(40px * var(--viewport-scale));
-  padding: calc(0.5rem * var(--viewport-scale)) calc(1rem * var(--viewport-scale));
-  font-size: calc(1rem * var(--viewport-scale));
-}
-
-.divine-header input {
-  height: calc(40px * var(--viewport-scale));
-  font-size: calc(1rem * var(--viewport-scale));
-  padding: calc(0.5rem * var(--viewport-scale));
+@media (min-width: 768px) {
+  .divine-header {
+    height: 60px !important;
+    min-height: 60px !important;
+  }
 }
 
 /* Mobile verse reference rotation - always applied */
@@ -1123,37 +1083,34 @@ body.overlay-open {
   background: var(--accent-color);
 }
 
-/* Proportional scaling for all viewports - no fixed breakpoints */
-.bible-table-wrapper {
-  width: calc(var(--baseColW) * var(--visible-columns, 3));
-  max-width: 100vw;
-}
-
-/* Dynamic column width calculation based on viewport */
-:root {
-  --colW: var(--baseColW);
-  --visible-columns: 3; /* Default for reference + translation + cross-ref */
-}
-
-/* When viewport is narrow, use proportional dual-column layout */
-@media (max-width: calc(var(--baseColW) * 3)) {
-  .bible-table-wrapper {
-    width: calc(var(--colW) * 2.2);
+/* Mobile Optimizations */
+@media (max-width: 639px) {
+  .bible-table-wrapper.dual-col {
     justify-content: flex-start;
+    width: calc(var(--colW) * 2.2); /* Slightly wider for better proportions */
   }
   
-  /* Proportional column overrides for narrow viewports */
-  .w-80 { width: calc(var(--colW) * var(--viewport-scale)) !important; }
-  .w-60 { width: calc(var(--colW) * 0.75 * var(--viewport-scale)) !important; }
-  .w-20 { width: calc(var(--colW) * 0.25 * var(--viewport-scale)) !important; }
-  .w-16 { width: calc(var(--colW) * 0.2 * var(--viewport-scale)) !important; }
-  .w-14 { width: calc(var(--colW) * 0.175 * var(--viewport-scale)) !important; }
-  .w-12 { width: calc(var(--colW) * 0.15 * var(--viewport-scale)) !important; }
+  /* Responsive column scaling */
+  .w-12 { width: calc(3rem * var(--font-size-multiplier, 1)); }
+  .w-14 { width: calc(3.5rem * var(--font-size-multiplier, 1)); }
+  .w-16 { width: calc(4rem * var(--font-size-multiplier, 1)); }
+  .w-20 { width: calc(5rem * var(--font-size-multiplier, 1)); }
+  .w-48 { width: calc(12rem * var(--font-size-multiplier, 1)); }
+  .w-64 { width: calc(16rem * var(--font-size-multiplier, 1)); }
+  .w-80 { width: calc(20rem * var(--font-size-multiplier, 1)); }
 
-  /* Proportionally scaled reference column text */
-  .cell-ref span {
+  /* Mobile column width overrides - use CSS variables for consistency */
+  .dual-col .w-80 { width: calc(var(--colW) * 1) !important; }
+  .dual-col .w-60 { width: calc(var(--colW) * 0.75) !important; }
+  .dual-col .w-20 { width: calc(var(--colW) * 0.25) !important; }
+  .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
+  .dual-col .w-14 { width: calc(var(--colW) * 0.175) !important; }
+  .dual-col .w-12 { width: calc(var(--colW) * 0.15) !important; }
+
+  /* Rotated reference column for mobile */
+  .dual-col .cell-ref span {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
-    font-size: calc(0.75rem * var(--viewport-scale));
+    font-size: 0.75rem;
   }
 }
