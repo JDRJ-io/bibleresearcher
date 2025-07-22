@@ -61,7 +61,7 @@ export function VerseRow({
       data-verse-ref={verse.reference}
       data-verse-index={verseIndex}
       className="verse-row flex min-w-full border-b transition-colors duration-200 cursor-pointer"
-      style={{ height: '120px' }}
+      style={{ height: 'calc(120px * var(--viewport-scale))' }}
       onDoubleClick={handleDoubleClick}
       onMouseUp={handleMouseUp}
     >
@@ -75,7 +75,7 @@ export function VerseRow({
       {/* Translation Text Columns - Dynamic based on selected translations */}
       {selectedTranslations.map((translation) => (
         <div key={translation.id} className="w-80 flex-shrink-0 border-r">
-          <div className="h-[120px] overflow-y-auto p-3 text-sm">
+          <div className="overflow-y-auto text-sm" style={{ height: 'calc(120px * var(--viewport-scale))', padding: 'calc(0.75rem * var(--viewport-scale))' }}>
             <div className="whitespace-pre-wrap break-words leading-relaxed">
               {verse.text[translation.id] || (
                 <span className="text-muted-foreground italic">
@@ -89,7 +89,7 @@ export function VerseRow({
 
       {/* Cross References Column - Fixed Width (matches translation columns) */}
       <div className="w-80 flex-shrink-0 border-r">
-        <div className="h-[120px] overflow-y-auto p-3 text-xs">
+        <div className="overflow-y-auto text-xs" style={{ height: 'calc(120px * var(--viewport-scale))', padding: 'calc(0.75rem * var(--viewport-scale))' }}>
           {/* Cross-reference badge */}
           <div className="flex items-center gap-2 mb-2">
             {(() => {
@@ -147,7 +147,7 @@ export function VerseRow({
       {/* Notes Column */}
       {showNotes && (
         <div className="w-60 flex-shrink-0 border-r">
-          <div className="h-[120px] overflow-y-auto p-3 text-xs">
+          <div className="overflow-y-auto text-xs" style={{ height: 'calc(120px * var(--viewport-scale))', padding: 'calc(0.75rem * var(--viewport-scale))' }}>
             {userNote ? (
               <div className="whitespace-pre-wrap break-words">{userNote.note}</div>
             ) : (
