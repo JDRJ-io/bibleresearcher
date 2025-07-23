@@ -1,55 +1,66 @@
+
 #!/usr/bin/env python3
 """
-Build offsets for cross-references and prophecy data.
-This script creates JSON offset files for efficient byte-range access.
+Expert's pointer-based offset builder for Strong's files.
+Builds offset maps from the exact files we serve to avoid misalignment.
 """
-
 import json
-import os
+import pathlib
+import sys
 
-def build_crossref_offsets():
-    """Build offset mapping for cross-references."""
-    cf1_path = 'public/references/cf1.txt'
-    if not os.path.exists(cf1_path):
-        print(f"Warning: {cf1_path} not found")
-        return
+def build_offsets(flat_file_path, output_json_path):
+    """Build offsets using pointer-based method (no byte counting math)"""
+    flat_file = pathlib.Path(flat_file_path)
+    output_file = pathlib.Path(output_json_path)
+    
+    if not flat_file.exists():
+        print(f"❌ File not found: {flat_file}")
+        return False
     
     offsets = {}
-    with open(cf1_path, 'r') as f:
-        current_pos = 0
-        for line in f:
-            verse_id = line.split('\t')[0]
-            line_length = len(line.encode('utf-8'))
-            offsets[verse_id] = [current_pos, current_pos + line_length]
-            current_pos += line_length
+    with flat_file.open("rb") as f:
+        while True:
+            start = f.tell()
+            row = f.readline()
+            if not row:
+                break
+            end = f.tell() - 1
+            
+            # Extract key from line (before first #)
+            try:
+                key = row.split(b"#", 1)[0].decode("ascii").strip()
+                if key:  # Only add non-empty keys
+                    offsets[key] = [start, end]
+            except (UnicodeDecodeError, IndexError):
+                continue  # Skip malformed lines
     
-    with open('public/references/cf1_offsets.json', 'w') as f:
-        json.dump(offsets, f)
-    
-    print(f"Built {len(offsets)} cross-reference offsets")
+    # Write JSON
+    output_file.write_text(json.dumps(offsets, indent=2), encoding="utf-8")
+    print(f"✅ Built {output_file} with {len(offsets):,} entries")
+    return True
 
-def build_prophecy_offsets():
-    """Build offset mapping for prophecy data."""
-    prophecy_path = 'public/references/prophecy_rows.txt'
-    if not os.path.exists(prophecy_path):
-        print(f"Warning: {prophecy_path} not found")
-        return
+def main():
+    """Build both Strong's offset files"""
+    print("🔨 Building Strong's offset maps using expert's pointer method...")
     
-    offsets = {}
-    with open(prophecy_path, 'r') as f:
-        current_pos = 0
-        for line in f:
-            verse_id = line.split('$')[0]
-            line_length = len(line.encode('utf-8'))
-            offsets[verse_id] = [current_pos, current_pos + line_length]
-            current_pos += line_length
+    # Build strongsVerses offsets
+    verses_success = build_offsets(
+        "strongsVerses.flat.txt", 
+        "strongsVersesOffsets.json"
+    )
     
-    with open('public/references/prophecy_offsets.json', 'w') as f:
-        json.dump(offsets, f)
+    # Build strongsIndex offsets  
+    index_success = build_offsets(
+        "strongsIndex.flat.txt",
+        "strongsIndexOffsets.json"
+    )
     
-    print(f"Built {len(offsets)} prophecy offsets")
+    if verses_success and index_success:
+        print("✅ All offset maps rebuilt successfully!")
+        print("📋 Upload these JSON files to Supabase: strongsVersesOffsets.json, strongsIndexOffsets.json")
+    else:
+        print("❌ Some offset builds failed")
+        sys.exit(1)
 
-if __name__ == '__main__':
-    build_crossref_offsets()
-    build_prophecy_offsets()
-    print("Offset generation complete!")
+if __name__ == "__main__":
+    main()
