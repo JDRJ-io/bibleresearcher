@@ -1,4 +1,3 @@
-
 // strongsIndex_fetch.ts - lemma look-ups using Range requests
 import { masterCache } from './supabaseClient';
 
@@ -32,15 +31,15 @@ async function getIdxMap(): Promise<Record<string, Range>> {
 export async function fetchLemma(key: string): Promise<string[]> {
   try {
     console.log(`🔍 Fetching Strong's lemma data for: ${key}`);
-    
+
     const offsetMap = await getIdxMap();
     const range = offsetMap[key];
-    
+
     if (!range) {
       console.warn(`❌ No range found for Strong's key: ${key}`);
       return [];
     }
-    
+
     const [start, end] = range;
     const response = await fetch(
       `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsIndex.flat.txt`,
@@ -50,17 +49,17 @@ export async function fetchLemma(key: string): Promise<string[]> {
         } 
       }
     );
-    
+
     if (response.status !== 206 && response.status !== 200) {
       throw new Error(`Strong's lemma range ${key} failed: ${response.status}`);
     }
-    
+
     const text = await response.text();
     const lines = text.trim().split('\n').filter(line => line.trim());
-    
+
     console.log(`✅ Fetched ${lines.length} occurrences for Strong's ${key}`);
     return lines;
-    
+
   } catch (error) {
     console.error(`❌ Error fetching Strong's lemma ${key}:`, error);
     return [];
@@ -81,12 +80,12 @@ export function parseStrongsOccurrence(line: string): StrongsOccurrence | null {
   try {
     // Format: "|Greek|1|Ἄλφα|Alpha|Rev.1:8|Alpha|"I am the **Alpha** and the Omega," says the Lord God, who is and was and is to come—the Almighty.|"
     const parts = line.split('|');
-    
+
     if (parts.length < 7) {
       console.warn('Invalid Strong\'s occurrence format:', line);
       return null;
     }
-    
+
     return {
       original: parts[3] || '',           // Ἄλφα
       strongsNumber: parts[2] || '',      // 1
@@ -98,5 +97,46 @@ export function parseStrongsOccurrence(line: string): StrongsOccurrence | null {
   } catch (error) {
     console.error('Error parsing Strong\'s occurrence:', error);
     return null;
+  }
+}
+
+// Range request for lemma occurrences using gzip + offset system
+export async function fetchLemmaOccurrences(strongsId: string): Promise<string[]> {
+  const indexMap = await getIndexMap();
+  const range = indexMap[strongsId];
+
+  if (!range) {
+    console.warn(`No Strong's index data found for: ${strongsId}`);
+    return [];
+  }
+
+  const [start, end] = range;
+
+  console.log(`🔍 Fetching Strong's index for ${strongsId} at bytes ${start}-${end}`);
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsindex.flat.txt.gz?download=1&noDownload=true`,
+      {
+        headers: {
+          'Range-Unit': 'bytes',
+          'Range': `bytes=${start}-${end}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Range request failed: ${response.status}`);
+    }
+
+    // Pipe through gunzip decompression
+    const stream = response.body!.pipeThrough(new DecompressionStream('gzip'));
+    const rawData = await new Response(stream).text();
+
+    return parseLemmaData(strongsId, rawData);
+
+  } catch (error) {
+    console.error(`❌ Failed to fetch Strong's index for ${strongsId}:`, error);
+    return [];
   }
 }
