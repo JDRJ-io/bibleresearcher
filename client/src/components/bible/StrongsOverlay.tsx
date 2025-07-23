@@ -202,7 +202,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
 
                   <div>
                     <h4 className="text-sm font-medium mb-3">
-                      Occurrences ({useNewSystem ? selectedOccurrences.length : (selectedWord.instances?.length || 0)})
+                      Occurrences ({selectedOccurrences.length})
                     </h4>
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-2">

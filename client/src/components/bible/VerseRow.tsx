@@ -44,8 +44,10 @@ export function VerseRow({
     showContext,
   };
 
-  const handleDoubleClick = () => {
-    console.log(`🔍 VerseRow double-click for ${verse.reference}`);
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(`🔍 VerseRow double-click for ${verse.reference} - opening Strong's overlay`);
     onExpandVerse(verse);
   };
 

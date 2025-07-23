@@ -78,35 +78,77 @@ export function parseInterlinearVerse(raw: string): {
   cells: InterlinearCell[];
 } {
   try {
-    // Format: "1Kgs.14:16#Hebrew And he will give …$Israel …$on account …$of the sins …$Jeroboam …"
-    const [reference, hebrewPart] = raw.split('#', 2);
+    // Format: "Gen.1:1#Hebrew In the beginning ×'Ö¼Ö°×¨Öµ××©×Ö´Ö–×™×ª (bÉ™Â·rÃªÂ·Å¡Ã®á¹¯) Preposition-b | Noun - feminine singular Strong's 7225: The first, in place, time, order, rank$God ×Ö±×œÖ¹×"Ö´Ö'×™× (â€™Ä•Â·lÅÂ·hÃ®m) Noun - masculine plural Strong's 430: gods -- the supreme God, magistrates, a superlative$..."
+    const [reference, content] = raw.split('#', 2);
     
-    if (!hebrewPart) {
+    if (!content) {
       return { reference: reference || '', cells: [] };
     }
     
-    const cellStrings = hebrewPart.split('$').filter(cell => cell.trim());
+    // Remove "Hebrew" or "Greek" language marker
+    const cleanContent = content.replace(/^(Hebrew|Greek)\s+/, '');
+    const cellStrings = cleanContent.split('$').filter(cell => cell.trim());
     const cells: InterlinearCell[] = [];
     
     for (const cellStr of cellStrings) {
-      // Extract Strong's number from patterns like "Strong's 3478:" or "Strong's H3478:"
-      const strongsMatch = cellStr.match(/Strong's (?:H|G)?(\d+):/);
+      const trimmedCell = cellStr.trim();
+      if (!trimmedCell) continue;
+      
+      // Extract Strong's number from patterns like "Strong's 7225:"
+      const strongsMatch = trimmedCell.match(/Strong's (\d+):/);
       if (!strongsMatch) continue;
       
       const strongsNumber = strongsMatch[1];
-      const isHebrew = cellStr.includes('Hebrew') || strongsMatch[0].includes('H');
+      const isHebrew = content.includes('Hebrew') || !content.includes('Greek');
       const strongsKey = `${isHebrew ? 'H' : 'G'}${strongsNumber}`;
       
-      // Parse the cell content - this will need refinement based on actual format
-      const parts = cellStr.split(/\s+/);
+      // Parse the format: "English word Hebrew (transliteration) morphology Strong's number: definition"
+      const strongsIndex = trimmedCell.indexOf("Strong's");
+      const beforeStrongs = trimmedCell.substring(0, strongsIndex).trim();
+      const afterStrongs = trimmedCell.substring(strongsIndex);
+      
+      // Extract definition after the colon
+      const definitionMatch = afterStrongs.match(/Strong's \d+:\s*(.+)$/);
+      const definition = definitionMatch ? definitionMatch[1].trim() : '';
+      
+      // Parse the part before Strong's reference
+      const parts = beforeStrongs.split(/\s+/);
+      let englishWord = '';
+      let originalWord = '';
+      let transliteration = '';
+      let morphology = '';
+      
+      // Look for Hebrew/Greek text (contains non-ASCII characters)
+      const originalWordMatch = beforeStrongs.match(/([\u0590-\u05FF\u0370-\u03FF\u1F00-\u1FFF]+)/);
+      if (originalWordMatch) {
+        originalWord = originalWordMatch[1];
+      }
+      
+      // Look for transliteration in parentheses
+      const transliterationMatch = beforeStrongs.match(/\(([^)]+)\)/);
+      if (transliterationMatch) {
+        transliteration = transliterationMatch[1];
+      }
+      
+      // Extract English word (first part before Hebrew/Greek)
+      const englishMatch = beforeStrongs.match(/^([a-zA-Z\s]+?)(?=\s+[\u0590-\u05FF\u0370-\u03FF\u1F00-\u1FFF])/);
+      if (englishMatch) {
+        englishWord = englishMatch[1].trim();
+      }
+      
+      // Extract morphology (text between transliteration and Strong's)
+      const morphologyMatch = beforeStrongs.match(/\)\s+([^Strong's]+?)(?=\s*$)/);
+      if (morphologyMatch) {
+        morphology = morphologyMatch[1].trim();
+      }
       
       cells.push({
-        original: parts[0] || '',
-        transliteration: parts[1] || '',
-        gloss: parts[2] || '',
+        original: originalWord,
+        transliteration: transliteration,
+        gloss: englishWord || definition.split(',')[0] || '', // Use English word or first part of definition
         strongsNumber,
         strongsKey,
-        morphology: parts[3] || ''
+        morphology: morphology
       });
     }
     

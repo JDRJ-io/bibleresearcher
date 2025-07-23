@@ -80,21 +80,21 @@ export interface StrongsOccurrence {
 
 export function parseStrongsOccurrence(line: string): StrongsOccurrence | null {
   try {
-    // Format: "|Greek|3478|Ἰσραήλ|Israel|Gen.32:28|Israel|…"
-    const parts = line.split('|').filter(p => p.trim());
+    // Format: "|Greek|1|Ἄλφα|Alpha|Rev.1:8|Alpha|"I am the **Alpha** and the Omega," says the Lord God, who is and was and is to come—the Almighty.|"
+    const parts = line.split('|');
     
-    if (parts.length < 6) {
+    if (parts.length < 7) {
       console.warn('Invalid Strong\'s occurrence format:', line);
       return null;
     }
     
     return {
-      original: parts[2] || '',
-      strongsNumber: parts[1] || '',
-      transliteration: parts[3] || '',
-      gloss: parts[4] || '',
-      reference: parts[5] || '',
-      context: parts.slice(6).join('|') || ''
+      original: parts[3] || '',           // Ἄλφα
+      strongsNumber: parts[2] || '',      // 1
+      transliteration: parts[4] || '',    // Alpha
+      gloss: parts[4] || '',              // Alpha (same as transliteration for this format)
+      reference: parts[5] || '',          // Rev.1:8
+      context: parts.slice(6).join('|') || '' // The rest as context
     };
   } catch (error) {
     console.error('Error parsing Strong\'s occurrence:', error);
