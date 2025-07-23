@@ -193,35 +193,8 @@ export const useBibleStore = create<{
           get().setProphecyIndex(prophecyIndex);
           
           console.log(`✅ Prophecy system loaded: ${Object.keys(verseRoles).length} verses with roles, ${Object.keys(prophecyIndex).length} prophecies`);
-          console.log('📖 Sample verse roles:', Object.entries(verseRoles).slice(0, 3));
-          console.log('📚 Sample prophecy index:', Object.entries(prophecyIndex).slice(0, 2));
         } catch (error) {
           console.error('❌ Failed to load prophecy data:', error);
-          
-          // Create sample data for testing the UI
-          const sampleVerseRoles = {
-            'Gen.3:15': { P: [1], F: [], V: [] },
-            'Gen.12:3': { P: [2], F: [], V: [] },
-            'Gen.22:18': { P: [], F: [2], V: [] }
-          };
-          const sampleProphecyIndex = {
-            1: {
-              summary: 'The woman\'s seed will bruise the serpent\'s head',
-              prophecy: ['Gen.3:15'],
-              fulfillment: ['Gal.4:4', 'Rev.12:5'],
-              verification: ['Rom.16:20', '1Jn.3:8']
-            },
-            2: {
-              summary: 'All nations blessed through Abraham\'s seed',
-              prophecy: ['Gen.12:3', 'Gen.18:18'],
-              fulfillment: ['Gen.22:18', 'Gal.3:8'],
-              verification: ['Acts.3:25', 'Gal.3:16']
-            }
-          };
-          
-          get().setProphecyData(sampleVerseRoles);
-          get().setProphecyIndex(sampleProphecyIndex);
-          console.log('📋 Using sample prophecy data for testing UI');
         }
       });
     }
