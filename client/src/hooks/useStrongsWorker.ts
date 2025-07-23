@@ -27,8 +27,14 @@ export function useStrongsWorker(): StrongsWorkerHook {
     // Initialize the Strong's worker
     const initWorker = async () => {
       try {
+        console.log('🔧 Initializing Strong\'s worker...');
         // Create worker from the public directory
         workerRef.current = new Worker('/strongsWorker.js');
+        
+        workerRef.current.onerror = (error) => {
+          console.error('❌ Strong\'s worker error:', error);
+          setIsReady(false);
+        };
         
         // Set up message handler
         workerRef.current.onmessage = (event) => {
@@ -63,14 +69,17 @@ export function useStrongsWorker(): StrongsWorkerHook {
         };
 
         // Load and send offset data to worker
+        console.log('📊 Loading Strong\'s offsets...');
         const offsetsData = await getStrongsOffsets();
+        console.log('📤 Sending init message to Strong\'s worker...');
         workerRef.current.postMessage({
           type: 'INIT',
           offsetsData
         });
 
       } catch (error) {
-        console.error('Failed to initialize Strong\'s worker:', error);
+        console.error('❌ Failed to initialize Strong\'s worker:', error);
+        setIsReady(false);
       }
     };
 

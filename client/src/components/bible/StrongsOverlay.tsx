@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -23,6 +24,8 @@ interface StrongsOverlayProps {
 }
 
 export function StrongsOverlay({ verse, onClose, onNavigateToVerse }: StrongsOverlayProps) {
+  console.log('🔍 StrongsOverlay render - verse:', verse?.reference, 'isOpen:', !!verse);
+  
   const [selectedWord, setSelectedWord] = useState<StrongsWord | null>(null);
   const [strongsData, setStrongsData] = useState<StrongsWord[]>([]);
   const [relatedVerses, setRelatedVerses] = useState<string[]>([]);
@@ -82,186 +85,253 @@ export function StrongsOverlay({ verse, onClose, onNavigateToVerse }: StrongsOve
   return createPortal(
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        onClick={(e) => e.target === e.currentTarget && onClose()}
+        onClick={onClose}
       >
         <motion.div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden"
+          className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Languages className="w-6 h-6 text-blue-600" />
+              <Languages className="w-6 h-6" />
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Strong's Concordance
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {verse.reference} - Original Language Analysis
-                </p>
+                <h2 className="text-xl font-bold">{verse.reference}</h2>
+                <p className="text-blue-100 text-sm">Strong's Concordance - Original Language Analysis</p>
               </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="text-white hover:bg-white/20 rounded-full p-2"
             >
               <X className="w-5 h-5" />
             </Button>
           </div>
 
-          <div className="flex h-[calc(90vh-120px)]">
-            {/* Left Panel - Interlinear Words */}
-            <div className="w-1/2 border-r border-gray-200 dark:border-gray-700">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                  Interlinear Text
-                </h3>
+          {/* Content */}
+          <div className="flex h-[calc(95vh-120px)]">
+            {/* Left Panel - Interlinear Text */}
+            <div className="flex-[2] border-r border-gray-200 dark:border-gray-700 min-w-0">
+              <div className="p-6 h-full flex flex-col">
+                <div className="flex items-center mb-6">
+                  <div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-medium mr-4">
+                    Interlinear Analysis
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Original Language Words
+                  </h3>
+                </div>
                 
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span className="ml-3 text-gray-600 dark:text-gray-400">Loading original words...</span>
+                  <div className="flex items-center justify-center flex-1">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <p className="text-gray-600 dark:text-gray-400">Loading original language data...</p>
+                    </div>
                   </div>
                 ) : strongsData.length > 0 ? (
-                  <ScrollArea className="h-[calc(90vh-220px)]">
-                    <div className="grid grid-cols-2 gap-3">
-                      {strongsData.map((word, index) => (
-                        <div
-                          key={index}
-                          className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
-                            selectedWord?.strongs === word.strongs
-                              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600'
-                              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
-                          }`}
-                          onClick={() => handleWordClick(word)}
-                        >
-                          <div className="text-center space-y-2">
-                            <div className="font-hebrew text-lg font-bold text-gray-900 dark:text-white">
-                              {word.original}
+                  <ScrollArea className="flex-1">
+                    <div className="space-y-4 pr-4">
+                      {/* English Verse Text */}
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center mb-3">
+                          <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium mr-3">
+                            ENGLISH
+                          </span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{verse.reference}</span>
+                        </div>
+                        <p className="text-lg text-gray-800 dark:text-gray-200 leading-relaxed">
+                          {verse.text || 'Verse text not available'}
+                        </p>
+                      </div>
+
+                      {/* Original Language Words Grid */}
+                      <div className="grid gap-4">
+                        <div className="flex items-center border-b border-gray-200 dark:border-gray-700 pb-3">
+                          <span className="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-full text-sm font-medium mr-4">
+                            ORIGINAL WORDS
+                          </span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {strongsData.length} words analyzed
+                          </span>
+                        </div>
+                        
+                        {strongsData.map((word, index) => (
+                          <motion.div
+                            key={index}
+                            className={`group relative p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                              selectedWord?.strongs === word.strongs
+                                ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-400 dark:border-blue-500 shadow-lg'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md'
+                            }`}
+                            onClick={() => handleWordClick(word)}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {/* Word Position Badge */}
+                            <div className="absolute top-3 right-3">
+                              <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs px-2 py-1 rounded-full font-mono">
+                                #{index + 1}
+                              </span>
                             </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {word.strongs}
-                            </Badge>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">
-                              {word.transliteration}
+                            
+                            {/* Main Word Display */}
+                            <div className="mb-4">
+                              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2 font-hebrew">
+                                {word.original}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-3">
+                                <Badge variant="outline" className="font-mono text-xs">
+                                  {word.strongs}
+                                </Badge>
+                                <span className="text-sm text-gray-600 dark:text-gray-400 italic font-medium">
+                                  {word.transliteration}
+                                </span>
+                                {word.pronunciation && (
+                                  <span className="text-xs text-gray-500 dark:text-gray-500 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                                    /{word.pronunciation}/
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            {word.pronunciation && (
-                              <div className="text-xs text-gray-500 dark:text-gray-500 italic">
-                                /{word.pronunciation}/
+                            
+                            {/* Definition Preview */}
+                            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                                {word.definition || 'Definition not available'}
+                              </p>
+                            </div>
+                            
+                            {/* Selection Indicator */}
+                            {selectedWord?.strongs === word.strongs && (
+                              <div className="absolute top-3 left-3">
+                                <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                                  Selected
+                                </div>
                               </div>
                             )}
-                          </div>
-                        </div>
-                      ))}
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   </ScrollArea>
                 ) : (
-                  <div className="text-center py-8">
-                    <Languages className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 dark:text-gray-400">
-                      No Strong's data available for this verse
-                    </p>
+                  <div className="flex items-center justify-center flex-1">
+                    <div className="text-center text-gray-500 dark:text-gray-400">
+                      <Languages className="w-20 h-20 mx-auto mb-4 opacity-30" />
+                      <h4 className="text-xl font-semibold mb-2">No Strong's Data</h4>
+                      <p className="text-sm">Original language data not available for this verse</p>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Right Panel - Word Details and Related Verses */}
-            <div className="w-1/2">
-              <div className="p-6">
+            {/* Right Panel - Selected Word Details */}
+            <div className="w-96 bg-gray-50 dark:bg-gray-800">
+              <div className="p-6 h-full flex flex-col">
                 {selectedWord ? (
-                  <>
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Word Details
-                      </h3>
-                      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="font-hebrew text-2xl font-bold text-gray-900 dark:text-white">
-                            {selectedWord.original}
-                          </span>
-                          <Badge variant="outline">{selectedWord.strongs}</Badge>
+                  <div className="h-full flex flex-col">
+                    {/* Word Details Card */}
+                    <div className="bg-white dark:bg-gray-700 rounded-xl p-6 mb-6 border border-gray-200 dark:border-gray-600 shadow-sm">
+                      <div className="text-center mb-5">
+                        <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-3 font-hebrew">
+                          {selectedWord.original}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          <strong>Transliteration:</strong> {selectedWord.transliteration}
+                        <Badge variant="secondary" className="mb-2">{selectedWord.strongs}</Badge>
+                      </div>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-600">
+                          <span className="text-gray-600 dark:text-gray-400 font-medium">Transliteration:</span>
+                          <span className="text-gray-800 dark:text-gray-200 font-semibold">{selectedWord.transliteration}</span>
                         </div>
                         {selectedWord.pronunciation && (
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            <strong>Pronunciation:</strong> /{selectedWord.pronunciation}/
+                          <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-600">
+                            <span className="text-gray-600 dark:text-gray-400 font-medium">Pronunciation:</span>
+                            <span className="text-gray-800 dark:text-gray-200 font-mono">/{selectedWord.pronunciation}/</span>
                           </div>
                         )}
-                        <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
-                          <strong>Definition:</strong> {selectedWord.definition}
-                        </div>
+                      </div>
+                      
+                      <div className="mt-5 pt-5 border-t border-gray-200 dark:border-gray-600">
+                        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Complete Definition:</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                          {selectedWord.definition}
+                        </p>
                       </div>
                     </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {/* Related Verses Section */}
+                    <div className="flex-1 flex flex-col min-h-0">
+                      <div className="flex items-center mb-4">
+                        <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-medium mr-4">
                           Related Verses
-                        </h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                          <Search className="w-4 h-4 mr-1" />
-                          {loadingWord ? 'Searching...' : `${relatedVerses.length} found`}
                         </div>
+                        {relatedVerses.length > 0 && (
+                          <span className="text-xs text-gray-500 bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">
+                            {relatedVerses.length} found
+                          </span>
+                        )}
                       </div>
-
+                      
                       {loadingWord ? (
-                        <div className="flex items-center justify-center py-4">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        <div className="flex items-center justify-center py-12">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Loading related verses...</p>
+                          </div>
                         </div>
                       ) : relatedVerses.length > 0 ? (
-                        <ScrollArea className="h-[calc(90vh-420px)]">
-                          <div className="space-y-2">
-                            {relatedVerses.slice(0, 50).map((reference, index) => (
-                              <div
+                        <ScrollArea className="flex-1">
+                          <div className="space-y-2 pr-2">
+                            {relatedVerses.slice(0, 100).map((verseRef, index) => (
+                              <button
                                 key={index}
-                                className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors"
-                                onClick={() => handleVerseNavigation(reference)}
+                                className="w-full text-left p-3 text-sm bg-white dark:bg-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-200 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 group"
+                                onClick={() => handleVerseNavigation(verseRef)}
                               >
-                                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                  {reference}
-                                </span>
-                                <ExternalLink className="w-4 h-4 text-gray-400" />
-                              </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-blue-600 dark:text-blue-400 font-medium">{verseRef}</span>
+                                  <ExternalLink className="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                              </button>
                             ))}
-                            {relatedVerses.length > 50 && (
-                              <div className="text-center py-2 text-sm text-gray-500 dark:text-gray-400">
-                                ... and {relatedVerses.length - 50} more verses
+                            {relatedVerses.length > 100 && (
+                              <div className="text-xs text-gray-500 text-center py-4 border-t border-gray-200 dark:border-gray-600">
+                                +{relatedVerses.length - 100} more verses with this word
                               </div>
                             )}
                           </div>
                         </ScrollArea>
                       ) : (
-                        <div className="text-center py-8">
-                          <Search className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">
-                            No related verses found
-                          </p>
+                        <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                          <div className="text-center">
+                            <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                            <p className="text-sm">No related verses found</p>
+                          </div>
                         </div>
                       )}
                     </div>
-                  </>
+                  </div>
                 ) : (
-                  <div className="text-center py-16">
-                    <Languages className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      Select a Word
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Click on any word from the interlinear text to view its definition and find related verses.
-                    </p>
+                  <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <div className="text-center">
+                      <Search className="w-20 h-20 mx-auto mb-4 opacity-30" />
+                      <h4 className="text-xl font-semibold mb-2">Select a Word</h4>
+                      <p className="text-sm leading-relaxed max-w-xs">
+                        Click any original language word on the left to see its detailed definition and find other Bible verses containing this word
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
