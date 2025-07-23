@@ -29,6 +29,15 @@ export async function fetchFromStorage(path: string): Promise<string> {
   return await data.text();
 }
 
+export async function uploadToStorage(path: string, fileContent: string | Blob): Promise<void> {
+  const { error } = await supabase
+    .storage
+    .from(BUCKET)
+    .upload(path, fileContent, { upsert: true });
+
+  if (error) throw new Error(`Supabase upload failed → ${path}: ${error.message}`);
+}
+
 function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
     return Promise.resolve(masterCache.get(key));
