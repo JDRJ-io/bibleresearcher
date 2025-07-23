@@ -86,19 +86,11 @@ export default function BiblePage() {
     loadingPercentage
   });
 
-  // Force bypass loading for testing
-  const forcedShouldShowLoading = false;
-  console.log('🚫 LOADING BYPASSED FOR TESTING:', {
-    originalIsLoading: isLoading,
-    versesLength: verses.length,
-    forcedShouldShowLoading
-  });
-
-  if (forcedShouldShowLoading) {
+  if (shouldShowLoading) {
     console.log('BiblePage SHOWING LOADING:', {
       isLoading,
       versesLength: verses.length,
-      shouldShowLoading: forcedShouldShowLoading
+      shouldShowLoading
     });
     return (
       <div className="min-h-screen bg-background">
@@ -121,7 +113,7 @@ export default function BiblePage() {
     filteredCount: verses.length,
     firstVerse: verses[0],
     isLoading,
-    shouldShowLoading: forcedShouldShowLoading
+    shouldShowLoading
   });
 
   return (
