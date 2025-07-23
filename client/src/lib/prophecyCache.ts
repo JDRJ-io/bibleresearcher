@@ -13,9 +13,13 @@ const PROPHECY_VERSE_META_KEY = 'prophecy-verse-meta';
 const PROPHECY_ROW_META_KEY = 'prophecy-row-meta';
 
 export async function ensureProphecyLoaded() {
-  if (masterCache.has(PROPHECY_VERSE_META_KEY) && masterCache.has(PROPHECY_ROW_META_KEY)) return;
+  if (masterCache.has(PROPHECY_VERSE_META_KEY) && masterCache.has(PROPHECY_ROW_META_KEY)) {
+    console.log('✅ Prophecy data already loaded from cache');
+    return;
+  }
   
   try {
+    console.log('🔮 Loading prophecy data via BibleDataAPI...');
     // Use BibleDataAPI for consistent data access
     const { getProphecyRows, getProphecyIndex } = await import('@/data/BibleDataAPI');
     
@@ -23,6 +27,8 @@ export async function ensureProphecyLoaded() {
       getProphecyRows(),
       getProphecyIndex()
     ]);
+    
+    console.log(`📋 Processing prophecy data: ${verseResp.split('\n').length} verse lines`);
     
     // Parse verseMeta
     const verseMeta: Record<string, { P: string; F: string; V: string }> = {};
@@ -51,9 +57,9 @@ export async function ensureProphecyLoaded() {
     // Store in master cache
     masterCache.set(PROPHECY_VERSE_META_KEY, verseMeta);
     masterCache.set(PROPHECY_ROW_META_KEY, rowResp);
-    console.log('✅ Prophecy data loaded successfully via BibleDataAPI');
+    console.log(`✅ Prophecy data loaded successfully: ${Object.keys(verseMeta).length} verses with prophecy roles`);
   } catch (error) {
-    console.error('Failed to load prophecy data from authentic source:', error);
+    console.error('❌ Failed to load prophecy data from authentic source:', error);
     // Don't fall back to mock data - keep empty
     masterCache.set(PROPHECY_VERSE_META_KEY, {});
     masterCache.set(PROPHECY_ROW_META_KEY, {});
@@ -64,30 +70,44 @@ export function getProphecyForVerse(id: string) {
   const verseMeta = masterCache.get(PROPHECY_VERSE_META_KEY) || {};
   const rowMeta = masterCache.get(PROPHECY_ROW_META_KEY) || {};
   
-  if (!verseMeta || !rowMeta) return [];
+  console.log(`🔍 Looking up prophecy data for verse: ${id}`);
   
-  const verse = verseMeta[id];
-  if (!verse) return [];
-  
-  // Return role-grouped prophecy data
-  const prophecyMap: Record<string, any> = {};
-  
-  if (verse.P) {
-    const pIds = verse.P.split(',').filter((id: string) => id.trim());
-    prophecyMap[id] = { P: pIds, F: [], V: [] };
+  if (!verseMeta || !rowMeta) {
+    console.log('❌ No prophecy metadata available');
+    return [];
   }
   
-  if (verse.F) {
-    const fIds = verse.F.split(',').filter((id: string) => id.trim());
-    if (!prophecyMap[id]) prophecyMap[id] = { P: [], F: [], V: [] };
-    prophecyMap[id].F = fIds;
+  // Try multiple formats for the verse lookup
+  const possibleKeys = [
+    id, // Direct match
+    id.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
+    id.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
+  ];
+  
+  let verse = null;
+  let foundKey = null;
+  for (const key of possibleKeys) {
+    if (verseMeta[key]) {
+      verse = verseMeta[key];
+      foundKey = key;
+      break;
+    }
   }
   
-  if (verse.V) {
-    const vIds = verse.V.split(',').filter((id: string) => id.trim());
-    if (!prophecyMap[id]) prophecyMap[id] = { P: [], F: [], V: [] };
-    prophecyMap[id].V = vIds;
+  if (!verse) {
+    console.log(`❌ No prophecy data found for verse ${id} (tried: ${possibleKeys.join(', ')})`);
+    return [];
   }
   
-  return prophecyMap[id] ? [prophecyMap[id]] : [];
+  console.log(`✅ Found prophecy data for ${id} (key: ${foundKey}):`, verse);
+  
+  // Return role-grouped prophecy data with numeric IDs
+  const result = {
+    P: verse.P ? verse.P.split(',').filter((id: string) => id.trim()).map(Number) : [],
+    F: verse.F ? verse.F.split(',').filter((id: string) => id.trim()).map(Number) : [],
+    V: verse.V ? verse.V.split(',').filter((id: string) => id.trim()).map(Number) : []
+  };
+  
+  console.log(`📊 Prophecy data for ${id}:`, result);
+  return [result];
 }

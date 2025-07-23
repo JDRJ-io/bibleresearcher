@@ -36,16 +36,16 @@ export function useColumnData() {
 
   const loadProphecyData = async () => {
     try {
-      console.log('🔮 Loading prophecy data...');
+      console.log('🔮 Starting prophecy data load...');
       
       // Use the same approach as cross-references - ensure data is loaded via prophecyCache
       const { ensureProphecyLoaded } = await import('@/lib/prophecyCache');
       await ensureProphecyLoaded();
       
-      console.log('✅ Prophecy data loaded via cache system');
+      console.log('✅ Prophecy data loaded successfully via cache system');
     } catch (error) {
       console.error('❌ Failed to load prophecy data:', error);
-      console.error('Error details:', error.message || error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
     }
   };
 

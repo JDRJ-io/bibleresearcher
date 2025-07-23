@@ -1,100 +1,130 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { getProphecy } from '@/data/BibleDataAPI';
 
-const SkeletonCell = () => (
-  <td className="table-cell">
-    <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
-  </td>
-);
+import React, { useState, useEffect } from 'react';
+import { Eye, CheckCircle, Zap } from 'lucide-react';
 
 interface ProphecyRowData {
-  pred: string | null;
-  ful: string | null;
-  ver: string | null;
+  P: number[];
+  F: number[];
+  V: number[];
 }
 
 function ProphecyRow({ verseKey }: { verseKey: string }) {
-  const translationMaps = useTranslationMaps();
   const [data, setData] = useState<ProphecyRowData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    // Use the same data loading approach as cross-references
-    import('@/lib/prophecyCache').then(({ getProphecyForVerse }) => {
-      const prophecyData = getProphecyForVerse(verseKey);
-      
-      if (!prophecyData || prophecyData.length === 0) {
-        setData({ pred: null, ful: null, ver: null });
-        return;
+    // Load prophecy data using the established cache system
+    const loadProphecyData = async () => {
+      try {
+        const { getProphecyForVerse } = await import('@/lib/prophecyCache');
+        const prophecyData = getProphecyForVerse(verseKey);
+        
+        if (!prophecyData || prophecyData.length === 0) {
+          setData({ P: [], F: [], V: [] });
+        } else {
+          // Extract P, F, V arrays from the first prophecy entry
+          const entry = prophecyData[0];
+          setData({
+            P: entry.P || [],
+            F: entry.F || [],
+            V: entry.V || []
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load prophecy data for verse:', verseKey, error);
+        setData({ P: [], F: [], V: [] });
+      } finally {
+        setIsLoading(false);
       }
-      
-      // Extract P, F, V arrays from the first prophecy entry
-      const entry = prophecyData[0];
-      setData({
-        pred: entry.P && entry.P.length > 0 ? entry.P.join(',') : null,
-        ful: entry.F && entry.F.length > 0 ? entry.F.join(',') : null,
-        ver: entry.V && entry.V.length > 0 ? entry.V.join(',') : null
-      });
-    }).catch(() => {
-      setData({ pred: null, ful: null, ver: null });
-    });
+    };
+    
+    loadProphecyData();
   }, [verseKey]);
+  
+  if (isLoading) {
+    return (
+      <div className="flex h-full">
+        {/* Loading skeletons */}
+        <div className="w-16 flex-shrink-0 flex items-center justify-center">
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-4 rounded-full"></div>
+        </div>
+        <div className="w-16 flex-shrink-0 flex items-center justify-center">
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-4 rounded-full"></div>
+        </div>
+        <div className="w-16 flex-shrink-0 flex items-center justify-center">
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-4 rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
   
   if (!data) {
     return (
-      <>
-        <SkeletonCell />
-        <SkeletonCell />
-        <SkeletonCell />
-      </>
+      <div className="flex h-full">
+        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+      </div>
     );
   }
   
   return (
-    <>
-      <td className="table-cell w-16 text-center">
-        {data.pred ? (
-          <div className="flex items-center justify-center">
-            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-blue-600">
+    <div className="flex h-full">
+      {/* Prediction Column */}
+      <div className="w-16 flex-shrink-0 flex items-center justify-center border-r">
+        {data.P && data.P.length > 0 ? (
+          <div className="flex items-center justify-center" title={`${data.P.length} prediction(s): ${data.P.join(', ')}`}>
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-blue-600 transition-colors">
               P
             </span>
           </div>
         ) : (
-          <span className="text-gray-400">—</span>
+          <span className="text-gray-400 text-xs">—</span>
         )}
-      </td>
-      <td className="table-cell w-16 text-center">
-        {data.ful ? (
-          <div className="flex items-center justify-center">
-            <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-green-600">
+      </div>
+      
+      {/* Fulfillment Column */}
+      <div className="w-16 flex-shrink-0 flex items-center justify-center border-r">
+        {data.F && data.F.length > 0 ? (
+          <div className="flex items-center justify-center" title={`${data.F.length} fulfillment(s): ${data.F.join(', ')}`}>
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-green-600 transition-colors">
               F
             </span>
           </div>
         ) : (
-          <span className="text-gray-400">—</span>
+          <span className="text-gray-400 text-xs">—</span>
         )}
-      </td>
-      <td className="table-cell w-16 text-center">
-        {data.ver ? (
-          <div className="flex items-center justify-center">
-            <span className="inline-flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-purple-600">
+      </div>
+      
+      {/* Verification Column */}
+      <div className="w-16 flex-shrink-0 flex items-center justify-center">
+        {data.V && data.V.length > 0 ? (
+          <div className="flex items-center justify-center" title={`${data.V.length} verification(s): ${data.V.join(', ')}`}>
+            <span className="inline-flex items-center justify-center w-6 h-6 bg-purple-500 text-white rounded-full text-xs font-bold cursor-pointer hover:bg-purple-600 transition-colors">
               V
             </span>
           </div>
         ) : (
-          <span className="text-gray-400">—</span>
+          <span className="text-gray-400 text-xs">—</span>
         )}
-      </td>
-    </>
+      </div>
+    </div>
   );
 }
 
 export function ProphecyColumns({ verseIDs }: { verseIDs: string[] }) {
-  return (
-    <>
-      {verseIDs.map(verseKey => (
-        <ProphecyRow key={verseKey} verseKey={verseKey} />
-      ))}
-    </>
-  );
+  // For the VerseRow integration, we only expect one verseID
+  const verseKey = verseIDs[0];
+  
+  if (!verseKey) {
+    return (
+      <div className="flex h-full">
+        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+      </div>
+    );
+  }
+  
+  return <ProphecyRow verseKey={verseKey} />;
 }
