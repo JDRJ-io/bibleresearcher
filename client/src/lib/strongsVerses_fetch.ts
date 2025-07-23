@@ -40,10 +40,30 @@ export async function fetchInterlinearVerse(ref: string): Promise<string> {
       console.log(`📋 Sample keys for ${bookPrefix}:`, availableKeys);
     }
     
-    const range = offsetMap[ref];
+    // Try different reference formats to match what's actually in the offset map
+    const referenceFormats = [
+      ref,                                    // Original format
+      ref.replace(/\s/g, '.'),               // "Gen 1:1" -> "Gen.1:1"  
+      ref.replace(/\./g, ' '),               // "Gen.1:1" -> "Gen 1:1"
+      ref.replace(/\s+/g, '.'),              // Handle multiple spaces
+      ref.replace('Genesis', 'Gen').replace(/\s/g, '.'),
+      ref.replace('Gen ', 'Gen.'),
+    ];
+    
+    let range = null;
+    let usedFormat = '';
+    
+    for (const format of referenceFormats) {
+      range = offsetMap[format];
+      if (range) {
+        usedFormat = format;
+        console.log(`✅ Found range using format: ${format}`);
+        break;
+      }
+    }
     
     if (!range) {
-      console.warn(`❌ No range found for verse: ${ref}`);
+      console.warn(`❌ No range found for verse: ${ref} in any format`);
       console.log(`📋 Total offset entries: ${Object.keys(offsetMap).length}`);
       return '';
     }
