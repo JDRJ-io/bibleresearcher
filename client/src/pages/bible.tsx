@@ -959,11 +959,13 @@ export default function BiblePage() {
         onPreserveAnchor={(callback) => setPreserveAnchor(() => callback)}
       />
 
-      <StrongsOverlay
-        verse={strongsVerse}
-        onClose={closeStrongsOverlay}
-        onNavigateToVerse={navigateToVerse}
-      />
+      {/* Strong's Overlay */}
+      {expandedVerse && (
+        <StrongsOverlay
+          verse={expandedVerse}
+          onClose={() => setExpandedVerse(null)}
+        />
+      )}
 
       <AuthModals
         isSignUpOpen={isSignUpOpen}
