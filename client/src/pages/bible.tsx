@@ -4,14 +4,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBibleData } from "@/hooks/useBibleData";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
-import { useTranslationMaps as useTranslationStore } from "@/store/translationSlice";
 import { useBibleStore } from "@/App";
 import { useToast } from "@/hooks/use-toast";
 import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
-import { StrongsOverlay } from "@/components/bible/StrongsOverlayNew";
+import { StrongsOverlay } from "@/components/bible/StrongsOverlay";
 import { AuthModals } from "@/components/auth/AuthModals";
 import { ConnectivityStatus } from "@/components/ui/connectivity-status";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
@@ -88,8 +87,7 @@ export default function BiblePage() {
     isLoading: translationsLoading
   } = translationMaps || {};
 
-  // Get translation store for mobile defaults
-  const { resetMobileDefaults } = useTranslationStore();
+  // Translation loading will be handled by useTranslationMaps
   
   // Get Bible store for cross-references toggle and auto-loading
   const bibleStore = useBibleStore();
@@ -127,7 +125,7 @@ export default function BiblePage() {
       console.log('🔄 MOBILE PORTRAIT DETECTED: Setting dual-column defaults (Ref + Main + Cross)');
       
       // Reset translations to just main (removes alternates)
-      resetMobileDefaults(mainTranslation || 'KJV');
+      // Mobile defaults handled by useTranslationMaps
       
       // Ensure cross-references are enabled for mobile dual-column layout
       if (!showCrossRefs) {
@@ -137,7 +135,7 @@ export default function BiblePage() {
       // Mark as initialized to prevent rerun on rotation
       sessionStorage.setItem('mobileInit', '1');
     }
-  }, [resetMobileDefaults, mainTranslation, showCrossRefs, toggleCrossRefs]);
+  }, [mainTranslation, showCrossRefs, toggleCrossRefs]);
   
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
