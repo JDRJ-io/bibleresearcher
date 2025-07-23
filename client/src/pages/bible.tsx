@@ -54,7 +54,24 @@ export default function BiblePage() {
     getGlobalVerseText,
     centerVerseIndex,
     loadVerseRange,
+    reloadVersesInNewOrder, // New function to reload verses when chronological order changes
   } = useBibleData();
+  
+  // Listen for chronological order changes and reload verses accordingly
+  useEffect(() => {
+    const handleChronologicalOrderChange = (event: CustomEvent) => {
+      const { isChronological } = event.detail;
+      console.log(`📅 Received chronologicalOrderChanged event: ${isChronological}`);
+      if (reloadVersesInNewOrder) {
+        reloadVersesInNewOrder(isChronological);
+      }
+    };
+
+    window.addEventListener('chronologicalOrderChanged', handleChronologicalOrderChange as EventListener);
+    return () => {
+      window.removeEventListener('chronologicalOrderChanged', handleChronologicalOrderChange as EventListener);
+    };
+  }, [reloadVersesInNewOrder]);
   
   // TRANSLATION MAP SYSTEM INTEGRATION
   const translationMaps = useTranslationMaps();

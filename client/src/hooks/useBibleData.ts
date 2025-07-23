@@ -34,12 +34,14 @@ const loadKJVTextMap = async (): Promise<void> => {
   }
 };
 
-// Load complete Bible index from Supabase canonical reference - REFERENCES ONLY
+// Load complete Bible index from Supabase - respects chronological ordering
 const loadFullBibleIndex = async (
   progressCallback?: (progress: any) => void,
+  isChronological: boolean = false,
 ): Promise<BibleVerse[]> => {
+  const orderType = isChronological ? "chronological" : "canonical";
   console.log(
-    "Loading complete Bible index (references only) from Supabase...",
+    `Loading complete Bible index (${orderType} order) from Supabase...`,
   );
 
   if (progressCallback) {
@@ -47,12 +49,12 @@ const loadFullBibleIndex = async (
   }
 
   try {
-    // Load complete canonical verse reference list from BibleDataAPI
-    console.log("Loading canonical verse references from BibleDataAPI...");
+    // Load verse reference list in the correct order from BibleDataAPI
+    console.log(`Loading ${orderType} verse references from BibleDataAPI...`);
     const { loadVerseKeys } = await import('@/data/BibleDataAPI');
-    const verseKeys = await loadVerseKeys();
+    const verseKeys = await loadVerseKeys(isChronological);
     console.log(
-      `Loaded ${verseKeys.length} canonical verse references from Supabase`,
+      `Loaded ${verseKeys.length} ${orderType} verse references from Supabase`,
     );
 
     if (progressCallback) {
@@ -993,10 +995,18 @@ export function useBibleData() {
         setLoadingProgress({ stage: "verse-keys", percentage: 10 });
         console.log("🔑 Starting verse keys foundation architecture...");
 
-        const { loadVerseKeysCanonical, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+        // Import store to check chronological state
+        const { useBibleStore } = await import('@/App');
+        const store = useBibleStore.getState();
+        const isChronological = store.isChronological || false;
+        
+        const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
-        const verseKeys = await loadVerseKeysCanonical();
-        console.log(`🔑 Loaded ${verseKeys.length} verse keys as master index`);
+        const verseKeys = isChronological 
+          ? await loadVerseKeysChronological()
+          : await loadVerseKeysCanonical();
+        const orderType = isChronological ? "chronological" : "canonical";
+        console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order as master index`);
 
         setLoadingProgress({ stage: "structure", percentage: 50 });
 
@@ -1022,6 +1032,42 @@ export function useBibleData() {
 
     loadData();
   }, []);
+
+  // Function to reload verses when chronological state changes
+  const reloadVersesInNewOrder = async (isChronological: boolean) => {
+    console.log(`🔄 Reloading verses in ${isChronological ? 'chronological' : 'canonical'} order...`);
+    
+    try {
+      setIsLoading(true);
+      
+      const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+      
+      const verseKeys = isChronological 
+        ? await loadVerseKeysChronological()
+        : await loadVerseKeysCanonical();
+      
+      const orderType = isChronological ? "chronological" : "canonical";
+      console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order`);
+      
+      // Update store's currentVerseKeys
+      const { useBibleStore } = await import('@/App');
+      const store = useBibleStore.getState();
+      store.setCurrentVerseKeys(verseKeys);
+      
+      // Recreate verses with new order
+      const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
+      console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${orderType} timeline`);
+      
+      setVerses(reorderedVerses);
+      setCenterVerseIndex(0); // Reset to start of new order
+      setIsLoading(false);
+      
+      console.log(`✅ Successfully switched to ${orderType} order`);
+    } catch (error) {
+      console.error('❌ Failed to reload verses in new order:', error);
+      setIsLoading(false);
+    }
+  };
 
   // DISABLED: Apply cross-references when crossRefSet changes - preventing infinite loading
   // TODO: Re-enable when center-anchored loading is stable
@@ -1519,5 +1565,6 @@ export function useBibleData() {
     // Chronological order switching
     verseOrder,
     switchVerseOrder,
+    reloadVersesInNewOrder, // Expose the new function
   };
 }

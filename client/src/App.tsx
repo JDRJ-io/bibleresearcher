@@ -320,23 +320,20 @@ export const useBibleStore = create<{
     const newChronological = !state.isChronological;
     console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
     
-    // Load the appropriate verse keys when toggling
-    import('@/data/BibleDataAPI').then(async ({ loadVerseKeys, loadDatesData }) => {
-      try {
-        const [verseKeys, datesData] = await Promise.all([
-          loadVerseKeys(newChronological),
-          loadDatesData(newChronological)
-        ]);
-        
-        get().setCurrentVerseKeys(verseKeys);
-        get().setDatesData(datesData);
-        console.log(`✅ Switched to ${newChronological ? 'chronological' : 'canonical'} order with ${verseKeys.length} verses`);
-      } catch (error) {
-        console.error('❌ Failed to load verse keys for chronological toggle:', error);
-      }
-    });
+    // Update state first
+    const newState = { isChronological: newChronological };
     
-    return { isChronological: newChronological };
+    // Trigger verse reloading by dispatching a custom event
+    // This allows the Bible component to react to the change
+    setTimeout(() => {
+      const event = new CustomEvent('chronologicalOrderChanged', { 
+        detail: { isChronological: newChronological } 
+      });
+      window.dispatchEvent(event);
+      console.log(`📅 Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
+    }, 0);
+    
+    return newState;
   }),
 
   setActives: (ids: string[]) => set({ actives: ids }),

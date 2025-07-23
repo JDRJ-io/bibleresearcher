@@ -168,10 +168,16 @@ export function getVerseCount(): number {
 export function getVerseKeys(): string[] {
   // Try to get current verse keys from the store first
   try {
-    const { useBibleStore } = require('@/App');
-    const store = useBibleStore.getState();
-    if (store.currentVerseKeys && store.currentVerseKeys.length > 0) {
-      return store.currentVerseKeys;
+    // Use dynamic import for browser compatibility
+    if (typeof window !== 'undefined') {
+      // Only try to access store in browser environment
+      const appModule = (window as any)._appModule;
+      if (appModule?.useBibleStore) {
+        const store = appModule.useBibleStore.getState();
+        if (store.currentVerseKeys && store.currentVerseKeys.length > 0) {
+          return store.currentVerseKeys;
+        }
+      }
     }
   } catch (error) {
     console.warn('Failed to get verse keys from store, falling back to cache:', error);
