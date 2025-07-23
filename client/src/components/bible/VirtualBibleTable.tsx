@@ -382,7 +382,7 @@ const VirtualBibleTable = ({
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
-        topHeaderHeight={60}
+        topHeaderHeight={72}
       />
 
       <div 
@@ -394,7 +394,7 @@ const VirtualBibleTable = ({
         style={{ 
           touchAction: "pan-y", 
           marginTop: '-1px',
-          height: "calc(100vh - 75px)",
+          height: "calc(100vh - 85px)",
           overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
           overflowY: 'auto'
         }}

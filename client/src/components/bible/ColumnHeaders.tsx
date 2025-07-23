@@ -220,8 +220,8 @@ export function ColumnHeaders({
       isMain: false
     });
 
-    // Add notes column only if explicitly enabled in preferences
-    if (showNotes && preferences?.showNotes) {
+    // Add notes column only if both store state AND preferences explicitly enable it
+    if (showNotes && preferences?.showNotes === true) {
       columns.push({
         slot: 1,
         type: 'notes',
