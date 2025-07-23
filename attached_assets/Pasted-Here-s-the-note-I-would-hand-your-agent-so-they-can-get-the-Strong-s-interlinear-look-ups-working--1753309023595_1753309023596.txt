@@ -1,0 +1,64 @@
+Here’s the note I would hand your agent so they can get the Strong’s + interlinear look‑ups working in one shot.
+
+---
+
+## 🔑  90‑second Checklist
+
+1. **Serve the SAME file you built the offsets from**
+   *Option A – simplest (recommended)*
+
+   * Serve the **plain** `.flat.txt` objects.
+   * Re‑generate the two offsets JSON files from those `.txt` files.
+   * No manual gunzip code needed; Supabase/CDN compresses after slicing.
+     *Option B – stay with `.gz`*
+   * Re‑generate the offsets JSON files **from each `.gz` itself**.
+   * When fetching, add `?download=1&noDownload=true`, plus headers
+     `Range-Unit: bytes` and `Range: bytes=start-end`.
+   * Pipe the response through `new DecompressionStream('gzip')`.
+   * Safari needs a `DecompressionStream` polyfill.
+
+2. **Pointer‑based offset builder only (no byte‑count math)**
+
+   ```python
+   start = f.tell()
+   row   = f.readline()
+   end   = f.tell() - 1
+   offsets[key] = [start, end]
+   ```
+
+3. **Frontend helpers**
+   *For lemmas* → `fetchLemma('G3478')` pulls the slice from `strongsIndex.flat.txt(.gz)`
+   *For verses* → `fetchInterlinearVerse('Gen.1:2')` pulls the slice from `strongsVerses.flat.txt(.gz)`.
+
+4. **Debug order**
+   \* DevTools → Network: confirm 206 response and matching byte range.
+   \* If 200/404/empty => map/file mismatch ➜ rebuild JSON from the served file.
+   \* If 206 but `{}` text => you fetched a truncated gz slice ➜ use Option A or full Option B headers + manual gunzip.
+
+---
+
+### Exact files to keep in Supabase (`anointed/strongs/`)
+
+| File                                                        | Used for                                |
+| ----------------------------------------------------------- | --------------------------------------- |
+| `strongsIndex.flat.txt` **or** `strongsIndex.flat.txt.gz`   | Lemma stream                            |
+| `strongsIndexOffsets.json`                                  | Lemma byte map (must match chosen file) |
+| `strongsVerses.flat.txt` **or** `strongsverses.flat.txt.gz` | Verse‑interlinear stream                |
+| `strongsVersesOffsets.json`                                 | Verse byte map (must match chosen file) |
+
+*(Keep the `.gz` versions only if you follow Option B exactly.)*
+
+---
+
+#### If anything still fails
+
+> 1. Verify the byte slice by hand
+>
+>    ```bash
+>    python check.py strongsVerses.flat.txt 1Kgs.14:16
+>    # prints first 120 chars of the slice; if wrong, rebuild map
+>    ```
+> 2. Confirm the helper URL and the map JSON point to the **same** object.
+> 3. Re‑run the pointer builder (5 s) and redeploy the JSON.
+
+Once those steps are correct you will never see “0 Strong’s words” again, and every overlay will populate instantly.
