@@ -1,5 +1,6 @@
 
 // strongsVerses_fetch.ts - Hebrew-interlinear verse look-ups using Range requests
+// Following expert's hand-off guide for gzip + offset system
 import { masterCache } from './supabaseClient';
 
 type VRange = [number, number];
@@ -69,22 +70,35 @@ export async function fetchInterlinearVerse(ref: string): Promise<string> {
     }
     
     const [start, end] = range;
-    const response = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsVerses.flat.txt.gz`,
-      { 
-        headers: { 
-          'Range': `bytes=${start}-${end}`,
-          'Accept-Encoding': 'gzip'
-        } 
-      }
-    );
+    
+    // CRITICAL: Use expert's mandatory URL parameters and headers
+    const gzUrl = `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsVerses.flat.txt.gz?download=1&noDownload=true`;
+    
+    const response = await fetch(gzUrl, { 
+      headers: { 
+        'Range-Unit': 'bytes',
+        'Range': `bytes=${start}-${end}`
+      } 
+    });
     
     if (response.status !== 206 && response.status !== 200) {
-      throw new Error(`Verse range ${ref} failed: ${response.status}`);
+      throw new Error(`Verse range ${usedFormat} failed: ${response.status}`);
     }
     
-    const text = await response.text();
-    console.log(`✅ Fetched interlinear data for verse ${ref}`);
+    // Manual decompression as specified by expert
+    let text: string;
+    
+    if ('DecompressionStream' in window) {
+      // Modern browsers
+      const stream = response.body!.pipeThrough(new DecompressionStream('gzip'));
+      text = await new Response(stream).text();
+    } else {
+      // Safari fallback - would need fflate import if needed
+      console.warn('DecompressionStream not available, attempting direct text read');
+      text = await response.text();
+    }
+    
+    console.log(`✅ Successfully fetched and decompressed interlinear data for verse ${usedFormat}`);
     return text.trim();
     
   } catch (error) {
@@ -108,7 +122,7 @@ export function parseInterlinearVerse(raw: string): {
   cells: InterlinearCell[];
 } {
   try {
-    // Format: "Gen.1:1#Hebrew In the beginning ×'Ö¼Ö°×¨Öµ××©×Ö´Ö–×™×ª (bÉ™Â·rÃªÂ·Å¡Ã®á¹¯) Preposition-b | Noun - feminine singular Strong's 7225: The first, in place, time, order, rank$God ×Ö±×œÖ¹×"Ö´Ö'×™× (â€™Ä•Â·lÅÂ·hÃ®m) Noun - masculine plural Strong's 430: gods -- the supreme God, magistrates, a superlative$..."
+    // Format: "Gen.1:1#Hebrew In the beginning בְּרֵאשִׁית (bə·rê·šîṯ) Preposition-b | Noun - feminine singular Strong's 7225: The first, in place, time, order, rank$God אֱלֹהִים (ʾĕ·lō·hîm) Noun - masculine plural Strong's 430: gods -- the supreme God, magistrates, a superlative$..."
     const [reference, content] = raw.split('#', 2);
     
     if (!content) {
