@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useBibleStore } from '@/App';
 import { TopHeader } from '@/components/bible/TopHeader';
-import { VirtualBibleTable } from '@/components/bible/VirtualBibleTable';
+import VirtualBibleTable from '@/components/bible/VirtualBibleTable';
 import { StrongsOverlay } from '@/components/bible/StrongsOverlay';
 import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
 import { SearchModal } from '@/components/bible/SearchModal';
@@ -122,16 +122,15 @@ export default function BiblePage() {
       
       <main className="flex-1 overflow-hidden">
         <VirtualBibleTable
-          ref={tableRef}
-          verses={verses}
           selectedTranslations={selectedTranslations}
+          preferences={{ 
+            showNotes: true, 
+            selectedTranslations: selectedTranslations.map(t => t.id),
+            fontSize: 'medium'
+          }}
+          mainTranslation={selectedTranslations[0]?.id || 'KJV'}
           onExpandVerse={handleExpandVerse}
-          onHighlight={handleHighlight}
           onNavigateToVerse={handleNavigateToVerse}
-          onOpenProphecyDetail={handleOpenProphecyDetail}
-          getUserNoteForVerse={getUserNoteForVerse}
-          getHighlightsForVerse={getHighlightsForVerse}
-          allVerses={allVerses}
           getGlobalVerseText={getGlobalVerseText}
         />
       </main>
