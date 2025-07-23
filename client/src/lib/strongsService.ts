@@ -76,74 +76,59 @@ class StrongsService {
     }
   }
 
-  // New method: Get verse interlinear data using Range requests
-  async getVerseStrongsData(reference: string): Promise<StrongsVerseData | null> {
+  // Simplified method: Get verse Strong's data using Range requests
+  async getVerseStrongsData(verseKey: string): Promise<StrongsVerseData> {
     try {
       // Check cache first
-      if (this.verseCache.has(reference)) {
-        return this.verseCache.get(reference)!;
+      if (this.verseCache.has(verseKey)) {
+        console.log(`✅ Found ${verseKey} in cache`);
+        return this.verseCache.get(verseKey)!;
       }
 
-      console.log(`🔍 Loading Strong's data for verse: ${reference}`);
+      console.log(`🔍 Loading Strong's verse data: ${verseKey}`);
 
-      // Try multiple reference formats
-      const referenceFormats = [
-        reference,
-        reference.replace(/\s/g, '.'),
-        reference.replace(/\./g, ' '),
-        reference.replace('Gen ', 'Gen.'),
-        reference.replace('Genesis', 'Gen').replace(/\s/g, '.'),
-      ];
-
-      let interlinearData = '';
-      let usedFormat = '';
-
-      for (const format of referenceFormats) {
-        interlinearData = await fetchInterlinearVerse(format);
-        if (interlinearData) {
-          usedFormat = format;
-          console.log(`✅ Found data using format: ${format}`);
-          break;
-        }
-      }
+      // Use the working Range request system
+      const interlinearData = await fetchInterlinearVerse(verseKey);
 
       if (!interlinearData) {
-        console.log(`❌ No interlinear data found for ${reference} in any format`);
-        return null;
+        console.warn(`❌ No interlinear data found for ${verseKey}`);
+        const emptyResult = { reference: verseKey, words: [], interlinearCells: [] };
+        this.verseCache.set(verseKey, emptyResult);
+        return emptyResult;
       }
+
+      console.log(`📊 Raw interlinear data for ${verseKey}:`, interlinearData.substring(0, 200) + '...');
 
       // Parse the interlinear data
-      const { reference: parsedRef, cells } = parseInterlinearVerse(interlinearData);
+      const parsed = parseInterlinearVerse(interlinearData);
+      console.log(`📋 Parsed ${parsed.cells.length} interlinear cells for ${verseKey}`);
 
-      // Convert cells to StrongsWord format for compatibility
-      const words: StrongsWord[] = [];
-      for (const cell of cells) {
-        const word: StrongsWord = {
-          original: cell.original,
-          strongs: cell.strongsKey,
-          transliteration: cell.transliteration,
-          definition: cell.gloss,
-          instances: [parsedRef],
-          morphology: cell.morphology
-        };
-        words.push(word);
-      }
+      // Convert to StrongsWord format
+      const words: StrongsWord[] = parsed.cells.map(cell => ({
+        original: cell.original,
+        strongs: cell.strongsKey,
+        transliteration: cell.transliteration,
+        definition: cell.gloss,
+        instances: [], // Will be populated when needed
+        morphology: cell.morphology
+      }));
 
-      const verseData: StrongsVerseData = {
-        reference: parsedRef || reference,
+      const result: StrongsVerseData = {
+        reference: verseKey,
         words,
-        interlinearCells: cells
+        interlinearCells: parsed.cells
       };
 
       // Cache the result
-      this.verseCache.set(reference, verseData);
-
-      console.log(`✅ Loaded Strong's data for ${reference}: ${words.length} words`);
-      return verseData;
+      this.verseCache.set(verseKey, result);
+      console.log(`✅ Cached Strong's data for ${verseKey}: ${words.length} words`);
+      return result;
 
     } catch (error) {
-      console.error(`❌ Error loading Strong's data for verse ${reference}:`, error);
-      return null;
+      console.error(`❌ Error loading Strong's verse data for ${verseKey}:`, error);
+      const errorResult = { reference: verseKey, words: [], interlinearCells: [] };
+      this.verseCache.set(verseKey, errorResult);
+      return errorResult;
     }
   }
 

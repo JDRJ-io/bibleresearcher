@@ -55,7 +55,7 @@ export default function BiblePage() {
     loadVerseRange,
     reloadVersesInNewOrder, // New function to reload verses when chronological order changes
   } = useBibleData();
-  
+
   // Listen for chronological order changes and reload verses accordingly
   useEffect(() => {
     const handleChronologicalOrderChange = (event: CustomEvent) => {
@@ -71,7 +71,7 @@ export default function BiblePage() {
       window.removeEventListener('chronologicalOrderChanged', handleChronologicalOrderChange as EventListener);
     };
   }, [reloadVersesInNewOrder]);
-  
+
   // TRANSLATION MAP SYSTEM INTEGRATION
   const translationMaps = useTranslationMaps();
   const {
@@ -88,7 +88,7 @@ export default function BiblePage() {
   } = translationMaps || {};
 
   // Translation loading will be handled by useTranslationMaps
-  
+
   // Get Bible store for cross-references toggle and auto-loading
   const bibleStore = useBibleStore();
   const { showCrossRefs, toggleCrossRefs, loadCrossRefsData } = bibleStore;
@@ -100,20 +100,20 @@ export default function BiblePage() {
       const rowHeight = 48; // Standard row height in pixels
       const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
       const visibleRows = Math.ceil(viewportHeight / rowHeight);
-      
+
       // Load cross-references for entire viewport + buffer for smooth scrolling
       const bufferSize = Math.max(100, visibleRows * 2); // Viewport size * 2 for smooth scrolling
       const startIndex = Math.max(0, centerVerseIndex - bufferSize);
       const endIndex = Math.min(verses.length - 1, centerVerseIndex + bufferSize);
       const visibleVerseIds = verses.slice(startIndex, endIndex).map(v => v.reference);
-      
+
       console.log(`🚀 Loading cross-references for ${visibleVerseIds.length} viewport verses (${startIndex}-${endIndex}) around center ${centerVerseIndex}`);
-      
+
       // Throttle loading to prevent excessive API calls during rapid scrolling
       const timeoutId = setTimeout(() => {
         loadCrossRefsData(visibleVerseIds);
       }, 150); // 150ms delay to batch scroll events
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [showCrossRefs, centerVerseIndex, verses.length]);
@@ -123,20 +123,20 @@ export default function BiblePage() {
     const mobilePortrait = window.innerWidth < 640 && window.innerHeight > window.innerWidth;
     if (mobilePortrait && !sessionStorage.getItem('mobileInit')) {
       console.log('🔄 MOBILE PORTRAIT DETECTED: Setting dual-column defaults (Ref + Main + Cross)');
-      
+
       // Reset translations to just main (removes alternates)
       // Mobile defaults handled by useTranslationMaps
-      
+
       // Ensure cross-references are enabled for mobile dual-column layout
       if (!showCrossRefs) {
         toggleCrossRefs();
       }
-      
+
       // Mark as initialized to prevent rerun on rotation
       sessionStorage.setItem('mobileInit', '1');
     }
   }, [mainTranslation, showCrossRefs, toggleCrossRefs]);
-  
+
   const error = null; // No error state needed for now
   const totalRows = allVerses.length;
   const allTranslations = [
@@ -356,7 +356,7 @@ export default function BiblePage() {
         [key]: value,
       }));
     };
-    
+
     if (preserveAnchor) {
       preserveAnchor(updatePreferences);
     } else {
@@ -446,7 +446,7 @@ export default function BiblePage() {
   // Enhanced global search function that handles multiple translations and % random
   const handleGlobalSearch = async (query: string) => {
     const trimmedQuery = query.trim();
-    
+
     // Handle % random verse functionality
     if (trimmedQuery === '%') {
       const randomIndex = Math.floor(Math.random() * allVerses.length);
@@ -470,7 +470,7 @@ export default function BiblePage() {
     // Check if it's a verse reference (like "John 3:16", "Gen 1:1", etc.)
     const verseReferencePattern = /^(\d?\w+)\s*(\d+):(\d+)$/i;
     const match = trimmedQuery.match(verseReferencePattern);
-    
+
     if (match) {
       // It's a verse reference - navigate directly
       console.log(`Verse reference detected: ${trimmedQuery}`);
@@ -490,18 +490,18 @@ export default function BiblePage() {
       : [mainTranslation];
 
     console.log(`Performing text search for "${trimmedQuery}" across translations:`, activeTranslationIds);
-    
+
     // Perform comprehensive search across all verses
     try {
       console.log(`Searching "${trimmedQuery}" across ${allVerses.length} verses`);
       const results = [];
       const lowercaseQuery = trimmedQuery.toLowerCase();
-      
+
       // Search through all verses in the canonical database
       for (let i = 0; i < allVerses.length; i++) {
         const verse = allVerses[i];
         let found = false;
-        
+
         // Search in each active translation
         for (const translationId of activeTranslationIds) {
           const text = verse.text?.[translationId];
@@ -510,7 +510,7 @@ export default function BiblePage() {
             break;
           }
         }
-        
+
         if (found) {
           results.push({
             index: i,
@@ -519,7 +519,7 @@ export default function BiblePage() {
           });
         }
       }
-      
+
       if (results.length > 0) {
         console.log(`Found ${results.length} search results for "${trimmedQuery}"`);
         // For now, navigate to first result - later we'll show a modal
@@ -687,7 +687,7 @@ export default function BiblePage() {
     } else {
       document.body.classList.remove('menu-open');
     }
-    
+
     // Cleanup on unmount
     return () => {
       document.body.classList.remove('menu-open');
@@ -729,7 +729,7 @@ export default function BiblePage() {
               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
             </svg>
           </div>
-          
+
           <span className="sacred-title font-bold text-base md:text-xl text-white drop-shadow-lg tracking-wide" 
                 style={{ 
                   textShadow: '0 2px 4px rgba(0,0,0,0.4), 0 0 8px rgba(255,215,0,0.15)',
@@ -783,7 +783,7 @@ export default function BiblePage() {
               />
             </svg>
           </button>
-          
+
           {/* Mobile Logo - NO ICON */}
           <span className="sacred-title font-bold text-sm text-white drop-shadow-lg tracking-wide" 
                 style={{ 
@@ -843,7 +843,7 @@ export default function BiblePage() {
             </svg>
             Sign In
           </button>
-          
+
           <button
             className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
             onClick={() => bibleStore.setSearchOpen(true)}
@@ -853,7 +853,7 @@ export default function BiblePage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
-          
+
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
@@ -883,7 +883,7 @@ export default function BiblePage() {
             </svg>
             Sign In
           </button>
-          
+
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-2 hover:bg-white/20 rounded-lg transition-colors bg-white/10 backdrop-blur-sm"
@@ -932,7 +932,7 @@ export default function BiblePage() {
         selectedTranslations={displayTranslations}
         preferences={preferences}
         mainTranslation={mainTranslation}
-        onExpandVerse={openStrongsOverlay}
+        onExpandVerse={handleExpandVerse}
         onNavigateToVerse={navigateToVerse}
 
         getProphecyDataForVerse={getProphecyDataForVerse}
@@ -991,12 +991,12 @@ export default function BiblePage() {
         relatedVerses={strongsDrawer.relatedVerses}
         onNavigateToVerse={navigateToVerse}
       />
-      
+
       {/* Connectivity Status */}
       <div className="fixed bottom-4 right-4 z-50">
         <ConnectivityStatus />
       </div>
-      
+
       {/* Offline Status Toast */}
       <OfflineIndicator />
 
