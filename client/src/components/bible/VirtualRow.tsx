@@ -207,15 +207,7 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellP
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
   
-  if (verse.reference === "Gen.1:1") {
-    console.log('🔍 MainTranslationCell DEBUG:', {
-      verseReference: verse.reference,
-      mainTranslation,
-      verseText,
-      getVerseTextResult: getVerseText(verse.reference, mainTranslation),
-      verseTextFallback: verse.text?.[mainTranslation]
-    });
-  }
+  // Translation loading is now working properly
 
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
@@ -453,7 +445,6 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
               {verseText || `[${config.translationCode} loading...]`}
-              {verse.reference === "Gen.1:1" && console.log('🔍 DEBUG Gen.1:1 verseText:', verseText, 'from getMainVerseText:', getMainVerseText(verse.reference))}
             </div>
           </div>
         );
