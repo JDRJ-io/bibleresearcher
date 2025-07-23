@@ -23,6 +23,8 @@ interface StrongsOverlayProps {
 }
 
 export function StrongsOverlay({ verse, onClose, onNavigateToVerse }: StrongsOverlayProps) {
+  console.log('🔍 StrongsOverlay render - verse:', verse?.reference, 'isOpen:', !!verse);
+  
   const [selectedWord, setSelectedWord] = useState<StrongsWord | null>(null);
   const [strongsData, setStrongsData] = useState<StrongsWord[]>([]);
   const [relatedVerses, setRelatedVerses] = useState<string[]>([]);

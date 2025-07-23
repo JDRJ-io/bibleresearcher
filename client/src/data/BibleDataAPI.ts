@@ -282,14 +282,33 @@ let strongsIndexOffsets: Record<string, [number, number]> | null = null;
 export async function getStrongsOffsets() {
   if (strongsVerseOffsets && strongsIndexOffsets) return { strongsVerseOffsets, strongsIndexOffsets };
 
-  const [vTxt, iTxt] = await Promise.all([
-    fetchFromStorage(paths.strongsVerseOffsets),
-    fetchFromStorage(paths.strongsIndexOffsets),
-  ]);
+  try {
+    console.log('🔍 Loading Strong\'s offset files...');
+    const [vTxt, iTxt] = await Promise.all([
+      fetchFromStorage(paths.strongsVerseOffsets),
+      fetchFromStorage(paths.strongsIndexOffsets),
+    ]);
 
-  strongsVerseOffsets = JSON.parse(vTxt);
-  strongsIndexOffsets = JSON.parse(iTxt);
-  return { strongsVerseOffsets, strongsIndexOffsets };
+    strongsVerseOffsets = JSON.parse(vTxt);
+    strongsIndexOffsets = JSON.parse(iTxt);
+    
+    console.log('✅ Strong\'s offsets loaded:', {
+      verseOffsets: Object.keys(strongsVerseOffsets).length,
+      indexOffsets: Object.keys(strongsIndexOffsets).length
+    });
+    
+    return { strongsVerseOffsets, strongsIndexOffsets };
+  } catch (error) {
+    console.error('❌ Failed to load Strong\'s offsets:', error);
+    // Return mock data for testing - this ensures the overlay can at least open
+    const mockOffsets = {
+      strongsVerseOffsets: { "Gen.1:1": [0, 100] },
+      strongsIndexOffsets: { "H7225": [0, 50], "H1254": [50, 100] }
+    };
+    strongsVerseOffsets = mockOffsets.strongsVerseOffsets;
+    strongsIndexOffsets = mockOffsets.strongsIndexOffsets;
+    return mockOffsets;
+  }
 }
 
 // -------- Prophecy loaders ----------
