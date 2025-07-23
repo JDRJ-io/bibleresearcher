@@ -473,3 +473,4 @@ const VirtualBibleTable = ({
 };
 
 export default VirtualBibleTable;
+export { VirtualBibleTable };

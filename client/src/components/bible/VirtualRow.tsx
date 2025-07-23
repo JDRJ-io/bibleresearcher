@@ -527,7 +527,6 @@ export function VirtualRow({
 };
 
 export default VirtualRow;
-export { VirtualRow };
 
 interface TranslationCellProps {
   verse: BibleVerse;
