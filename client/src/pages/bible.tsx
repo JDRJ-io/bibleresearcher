@@ -229,8 +229,12 @@ export default function BiblePage() {
   };
 
   const openStrongsOverlay = (verse: any) => {
-    console.log('🔍 Opening Strong\'s overlay for verse:', verse.reference);
+    console.log('🔍 openStrongsOverlay called with verse:', verse);
+    console.log('🔍 Verse reference:', verse?.reference);
+    console.log('🔍 Current strongsVerse state:', strongsVerse);
+    console.log('🔍 Setting strongsVerse to:', verse);
     setStrongsVerse(verse);
+    console.log('🔍 strongsVerse state should now be updated');
   };
   const closeStrongsOverlay = () => setStrongsVerse(null);
 

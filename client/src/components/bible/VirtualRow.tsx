@@ -354,8 +354,13 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   }
 
   const handleDoubleClick = () => {
+    console.log('🔍 VirtualRow handleDoubleClick triggered for verse:', verse.reference);
+    console.log('🔍 onExpandVerse handler available:', !!onExpandVerse);
     if (onExpandVerse) {
+      console.log('🔍 Calling onExpandVerse with verse:', verse);
       onExpandVerse(verse);
+    } else {
+      console.warn('⚠️ No onExpandVerse handler provided to VirtualRow');
     }
   };
 
