@@ -32,28 +32,28 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
       if (["P", "F", "V"].includes(column.name)) return { width: '80px' };
       return { width: '320px' }; // Main translation
     }
-    
+
     // Mobile adaptive widths - EXACTLY match the CSS media queries
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
-    
+
     if (column.name === "Ref" || column.name === "Reference" || column.name === "#") {
       // Reference column responsive sizing
       if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: '40px' }; // Tablet
       if (viewportWidth >= 667 && viewportWidth <= 896) return { width: '32px' }; // Landscape
       return { width: '24px' }; // Base mobile
     }
-    
+
     if (column.name === "Notes") return { width: '80px' };
-    
+
     if (column.name === "Cross Refs" || column.name === "Cross References") {
       // Cross-refs responsive sizing
       if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
       if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
       return { width: `calc((100vw - 60px) * 0.48)` };
     }
-    
+
     if (["P", "F", "V"].includes(column.name)) return { width: '64px' };
-    
+
     // Main translation responsive sizing
     if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
     if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
@@ -61,7 +61,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
-  
+
   // Enhanced text styling for reference column
   const textClass = (column.name === "Ref" || column.name === "Reference" || column.name === "#") 
     ? "font-bold text-sm" // Bigger, bolder text for reference header
@@ -90,21 +90,21 @@ export function ColumnHeaders({
 }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  
+
   // Make headers adaptive to screen size changes
   const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768);
-  
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const handleResize = () => {
       setScreenWidth(window.innerWidth);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
   const adaptiveIsMobile = screenWidth < 768;
 
   // Get store states for column visibility
@@ -163,11 +163,11 @@ export function ColumnHeaders({
         break;
       case 9:
         // Prophecy F column (moved from slot 8 to 9)
-        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
         break;
       case 10:
         // Prophecy V column (moved from slot 9 to 10)
-        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
         break;
       case 11:
         // Dates column (unchanged)
@@ -210,7 +210,7 @@ export function ColumnHeaders({
   // Build visible columns directly from our state
   const visibleColumns = useMemo(() => {
     const columns = [];
-    
+
     // Always add reference column
     columns.push({
       slot: 0,
@@ -337,18 +337,15 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find(col => col.slot === 0);
   const otherColumns = allColumns.filter(col => col.slot !== 0);
 
+  const topHeaderHeight = adaptiveIsMobile ? '48px' : '64px';
+
   return (
     <div 
-      className="column-headers-adaptive sticky left-0 right-0 z-30 border-b shadow-sm bg-background"
+      className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
       style={{ 
-        top: adaptiveIsMobile ? '48px' : '64px', // Match TopHeader height exactly
-        height: '40px',
-        marginTop: '0px',
-        marginBottom: '0px',
-        paddingTop: '0px',
-        zIndex: 30,
+        top: `${topHeaderHeight || 60}px`,
+        left: -scrollLeft,
         position: 'sticky',
-        display: 'flex',
         width: '100%'
       }}
     >

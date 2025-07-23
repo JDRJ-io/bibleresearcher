@@ -9,16 +9,16 @@ import { useColumnData } from '@/hooks/useColumnData';
 
 interface VirtualRowProps {
   verseID: string;
-  rowHeight: number;
   verse: BibleVerse;
+  rowHeight: number;
   columnData: any;
-  getVerseText: (verseID: string, translationCode: string) => string | undefined;
-  getMainVerseText: (verseID: string) => string | undefined;
+  getVerseText: (verseID: string, translationCode: string) => string;
+  getMainVerseText: (verseID: string) => string;
   activeTranslations: string[];
   mainTranslation: string;
-  onVerseClick?: (verseRef: string) => void;
+  onVerseClick: (ref: string) => void;
   onExpandVerse?: (verse: BibleVerse) => void;
-  onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
+  onDoubleClick?: () => void;
 }
 
 // Cell Components
@@ -31,7 +31,7 @@ interface CellProps {
 
 function ReferenceCell({ verse }: CellProps) {
   const isMobile = useIsMobile();
-  
+
   return (
     <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
       {verse.reference}
@@ -119,7 +119,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
   // Get prophecy roles for this verse from the parsed prophecy_rows.txt data
   const verseRoles = prophecyData[verse.reference] || { P: [], F: [], V: [] };
-  
+
   // Get all unique prophecy IDs that touch this verse in any role
   const allIds = [...verseRoles.P, ...verseRoles.F, ...verseRoles.V];
   const uniqueIds = Array.from(new Set(allIds));
@@ -131,11 +131,11 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
     F: string[];  // verses where this prophecy appears as Fulfillment
     V: string[];  // verses where this prophecy appears as Verification
   }> = {};
-  
+
   uniqueIds.forEach(id => {
     const entry = prophecyIndex[id];
     if (!entry) return; // still loading - show spinner
-    
+
     groupedProphecies[id] = {
       summary: entry.summary,
       P: verseRoles.P.includes(id) ? [verse.reference] : [],
@@ -157,7 +157,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
               <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center">
                 {prophecyBlock.summary}
               </div>
-              
+
               {/* Content for this specific column type */}
               {prophecyBlock[type].length > 0 && (
                 <div className="space-y-0.5">
@@ -206,7 +206,7 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellP
 
 function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
-  
+
   if (verse.reference === "Gen.1:1") {
     console.log('🔍 MainTranslationCell DEBUG:', {
       verseReference: verse.reference,
@@ -235,10 +235,10 @@ interface SlotConfig {
   visible: boolean;
 }
 
-const VirtualRow: React.FC<VirtualRowProps> = ({
+export function VirtualRow({
   verseID,
-  rowHeight,
   verse,
+  rowHeight,
   columnData,
   getVerseText,
   getMainVerseText,
@@ -246,7 +246,8 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   mainTranslation,
   onVerseClick,
   onExpandVerse,
-}) => {
+  onDoubleClick
+}: VirtualRowProps) {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
 
@@ -513,7 +514,6 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
   const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
 
   // Clean layout without complex splitting
-
   return (
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"

@@ -382,6 +382,7 @@ const VirtualBibleTable = ({
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
+        topHeaderHeight={60}
       />
 
       <div 

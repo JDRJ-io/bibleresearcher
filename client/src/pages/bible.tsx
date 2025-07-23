@@ -154,7 +154,9 @@ export default function BiblePage() {
       {selectedVerse && (
         <StrongsOverlay
           verse={selectedVerse}
+          isOpen={!!selectedVerse}
           onClose={handleCloseStrongsOverlay}
+          onNavigateToVerse={handleNavigateToVerse}
         />
       )}
 
