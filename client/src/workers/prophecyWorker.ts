@@ -28,37 +28,60 @@ self.addEventListener('message', async (event: MessageEvent<ProphecyMessage>) =>
     try {
       const { prophecyRows, prophecyIndex } = payload;
       
-      // Parse prophecy_rows.txt into verseRoles
-      // Format: [VerseID]$[id:type, id:type, …]
-      // Example: 1Chr.10:13$127:V,128:V
-      const verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
+      // Parse prophecy_rows.json - now it's JSON format not text format
+      // Check if it's JSON or text format
+      let verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
       
-      const rowLines = prophecyRows.split('\n').filter(line => line.trim());
-      console.log(`🔮 ProphecyWorker: Processing ${rowLines.length} prophecy rows`);
-      
-      for (const line of rowLines) {
-        const [verseId, data] = line.split('$');
-        if (!verseId || !data) continue;
+      try {
+        // Try JSON first (new format)
+        const jsonData = JSON.parse(prophecyRows);
+        console.log(`🔮 ProphecyWorker: Processing JSON prophecy data with ${Object.keys(jsonData).length} entries`);
         
-        const P: number[] = [], F: number[] = [], V: number[] = [];
-        const items = data.split(',');
-        
-        for (const item of items) {
-          const [idStr, type] = item.trim().split(':');
-          const id = parseInt(idStr);
-          if (isNaN(id)) continue;
-          
-          if (type === 'P') P.push(id);
-          else if (type === 'F') F.push(id);
-          else if (type === 'V') V.push(id);
+        // Convert JSON format to expected format
+        for (const [verseId, roles] of Object.entries(jsonData)) {
+          if (typeof roles === 'object' && roles !== null) {
+            const roleData = roles as any;
+            verseRoles[verseId] = {
+              P: roleData.P || [],
+              F: roleData.F || [],
+              V: roleData.V || []
+            };
+          }
         }
         
-        const cleanVerseId = verseId.trim();
-        verseRoles[cleanVerseId] = { P, F, V };
+        console.log(`🔮 ProphecyWorker: Converted ${Object.keys(verseRoles).length} verse entries from JSON`);
         
-        // Debug first few entries
-        if (Object.keys(verseRoles).length <= 3) {
-          console.log(`🔮 ProphecyWorker: Parsed ${cleanVerseId} ->`, { P, F, V });
+      } catch (jsonError) {
+        // Fallback to text format parsing
+        console.log(`🔮 ProphecyWorker: JSON parse failed, trying text format...`);
+        
+        const rowLines = prophecyRows.split('\n').filter(line => line.trim());
+        console.log(`🔮 ProphecyWorker: Processing ${rowLines.length} prophecy rows in text format`);
+        
+        for (const line of rowLines) {
+          const [verseId, data] = line.split('$');
+          if (!verseId || !data) continue;
+          
+          const P: number[] = [], F: number[] = [], V: number[] = [];
+          const items = data.split(',');
+          
+          for (const item of items) {
+            const [idStr, type] = item.trim().split(':');
+            const id = parseInt(idStr);
+            if (isNaN(id)) continue;
+            
+            if (type === 'P') P.push(id);
+            else if (type === 'F') F.push(id);
+            else if (type === 'V') V.push(id);
+          }
+          
+          const cleanVerseId = verseId.trim();
+          verseRoles[cleanVerseId] = { P, F, V };
+          
+          // Debug first few entries
+          if (Object.keys(verseRoles).length <= 3) {
+            console.log(`🔮 ProphecyWorker: Parsed ${cleanVerseId} ->`, { P, F, V });
+          }
         }
       }
       

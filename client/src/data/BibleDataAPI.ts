@@ -9,7 +9,7 @@ const paths = {
   translation:  (id: string) => `translations/${id}.txt`,
   crossRef:     (set: 'cf1' | 'cf2') => `references/${set}.txt`,
   crossRefOffsets: (set: 'cf1' | 'cf2') => `references/${set}_offsets.json`,
-  prophecyRows: 'references/prophecy_rows.txt',
+  prophecyRows: 'references/prophecy_rows.json',
   prophecyIdx:  'references/prophecy_index.json',
   strongsVerseOffsets: 'references/strongsVerseOffsets.json',
   strongsIndexOffsets: 'references/strongsIndexOffsets.json',
@@ -389,6 +389,63 @@ export async function loadProphecyData(): Promise<{
   } catch (error) {
     console.error('❌ Failed to load prophecy data:', error);
     return { verseRoles: {}, prophecyIndex: {} };
+  }
+}
+
+// -------- NEW BibleDataAPI-compatible prophecy functions ----------
+// These load from the same cached translation data without additional file loads
+
+// Get prophecy data for a specific verse using BibleDataAPI format
+export async function getProphecyForVerse(verseRef: string): Promise<{ P: number[], F: number[], V: number[] } | null> {
+  return getOrFetch(`prophecy-verse-${verseRef}`, async () => {
+    try {
+      // Load prophecy data if not already loaded
+      const { verseRoles } = await loadProphecyData();
+      
+      // Return the specific verse's prophecy roles
+      return verseRoles[verseRef] || { P: [], F: [], V: [] };
+    } catch (error) {
+      console.error(`Failed to get prophecy data for verse ${verseRef}:`, error);
+      return { P: [], F: [], V: [] };
+    }
+  });
+}
+
+// Get prophecy index entry by ID using BibleDataAPI format
+export async function getProphecyById(prophecyId: number): Promise<{ 
+  summary: string; 
+  prophecy: string[]; 
+  fulfillment: string[]; 
+  verification: string[] 
+} | null> {
+  return getOrFetch(`prophecy-index-${prophecyId}`, async () => {
+    try {
+      // Load prophecy data if not already loaded
+      const { prophecyIndex } = await loadProphecyData();
+      
+      // Return the specific prophecy details
+      return prophecyIndex[prophecyId] || null;
+    } catch (error) {
+      console.error(`Failed to get prophecy data for ID ${prophecyId}:`, error);
+      return null;
+    }
+  });
+}
+
+// Check if prophecy data is loaded and load if needed
+export async function ensureProphecyDataLoaded(): Promise<boolean> {
+  try {
+    const { verseRoles, prophecyIndex } = await loadProphecyData();
+    const hasData = Object.keys(verseRoles).length > 0 && Object.keys(prophecyIndex).length > 0;
+    
+    if (hasData) {
+      console.log(`✅ Prophecy data confirmed loaded: ${Object.keys(verseRoles).length} verses, ${Object.keys(prophecyIndex).length} prophecies`);
+    }
+    
+    return hasData;
+  } catch (error) {
+    console.error('❌ Failed to ensure prophecy data loaded:', error);
+    return false;
   }
 }
 

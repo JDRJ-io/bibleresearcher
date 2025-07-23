@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
@@ -116,19 +116,47 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
   const { prophecyData, prophecyIndex } = useBibleStore();
+  const [localData, setLocalData] = useState<{ P: number[], F: number[], V: number[] } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Get prophecy roles for this verse from the parsed prophecy_rows.txt data
-  const verseRoles = prophecyData[verse.reference] || { P: [], F: [], V: [] };
-  
-  // Debug for Genesis 1:1 only when prophecy data exists
-  if (verse.reference === "Gen.1:1" && Object.keys(prophecyData).length > 0) {
-    console.log('🔮 ProphecyCell DEBUG:', {
-      verseReference: verse.reference,
-      prophecyDataKeys: Object.keys(prophecyData).slice(0, 5),
-      prophecyIndexKeys: Object.keys(prophecyIndex).slice(0, 5),
-      verseRoles: verseRoles
-    });
-  }
+  // Try to get prophecy data from store first, then fallback to BibleDataAPI
+  useEffect(() => {
+    const loadProphecyForVerse = async () => {
+      // First check store data
+      if (prophecyData && prophecyData[verse.reference]) {
+        setLocalData(prophecyData[verse.reference]);
+        return;
+      }
+
+      // Fallback to BibleDataAPI if store is empty
+      if (Object.keys(prophecyData).length === 0 && !isLoading) {
+        setIsLoading(true);
+        try {
+          const { getProphecyForVerse } = await import('@/data/BibleDataAPI');
+          const verseRoles = await getProphecyForVerse(verse.reference);
+          setLocalData(verseRoles);
+          
+          // Debug for Gen.1:1
+          if (verse.reference === "Gen.1:1" && verseRoles) {
+            console.log('🔮 ProphecyCell BibleDataAPI fallback loaded:', {
+              verseReference: verse.reference,
+              verseRoles: verseRoles
+            });
+          }
+        } catch (error) {
+          console.error('Failed to load prophecy data via BibleDataAPI:', error);
+          setLocalData({ P: [], F: [], V: [] });
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadProphecyForVerse();
+  }, [verse.reference, prophecyData, isLoading]);
+
+  // Use local data or store data
+  const verseRoles = localData || prophecyData[verse.reference] || { P: [], F: [], V: [] };
   
   // Get all unique prophecy IDs that touch this verse in any role
   const allIds = [...verseRoles.P, ...verseRoles.F, ...verseRoles.V];
@@ -156,6 +184,15 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
   // Extract count for this specific column type
   const count = verseRoles[type]?.length || 0;
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex-1 px-1 py-1 text-center">
+        <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-4 rounded-full mx-auto"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
