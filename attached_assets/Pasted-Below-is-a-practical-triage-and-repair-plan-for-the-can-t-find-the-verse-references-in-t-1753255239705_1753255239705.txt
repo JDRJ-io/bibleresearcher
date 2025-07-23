@@ -1,0 +1,164 @@
+Below is a **practical triage‑and‑repair plan** for the
+
+> **“can’t find the verse references in the offset files”**
+> error you’re hitting.
+
+It walks you through:
+
+* ➊ **Confirming the key names** the frontend is requesting
+* ➋ Verifying the offset maps really contain those keys
+* ➌ Regenerating the maps in < 5 s if they do not
+* ➍ (Optionally) sharding the flat file into 200‑row “mini‑chunks” so
+  you never seek inside a 10 MB blob if you don’t want to.
+
+You can copy‑paste each snippet directly into **VS Code’s terminal**;
+no arguments are needed once paths are set.
+
+---
+
+## ➊ Confirm what key the browser is asking for
+
+Open DevTools → Network and look at the **failing request**.
+You should see something like
+`Range: bytes=123456‑124789` on
+
+```
+…/anointed/strongs/strongsVerses.flat.txt.gz
+```
+
+and the calling JS line will show which key it was trying to map, e.g.
+
+```ts
+fetchInterlinearVerse('1Kgs.14:16')
+```
+
+Write down that **exact string** (`1Kgs.14:16` in this example).
+
+---
+
+## ➋ Check whether the key exists in the offsets map
+
+```bash
+python - <<'PY'
+import json, sys, pathlib, textwrap
+
+OFF = pathlib.Path('strongsVersesOffsets.json')     # adjust if needed
+KEY = '1Kgs.14:16'                                  # <‑‑ paste from step 1
+
+off = json.loads(OFF.read_text())
+print("\n✓ found:", off[KEY] if KEY in off else "✗ NOT in map")
+PY
+```
+
+**What you might see**
+
+| Result                      | Meaning                                 | Next step           |
+| --------------------------- | --------------------------------------- | ------------------- |
+| `✓ found: [123456, 125678]` | Key exists ⇒ misalignment or wrong file | Jump to ➍           |
+| `✗ NOT in map`              | Map is missing the key                  | Regenerate: go to ➌ |
+
+---
+
+## ➌ Re‑build the map in < 5 s (pointer‑based, no counting)
+
+Put this **next to your flat file** (no args needed) and run it:
+
+```python
+#!/usr/bin/env python3
+# rebuild_verses_offsets.py
+import json, pathlib, sys
+
+FLAT = pathlib.Path("strongsVerses.flat.txt")        # gzip not needed
+OFF  = pathlib.Path("strongsVersesOffsets.json")
+
+if not FLAT.exists():
+    sys.exit("flat file not found")
+
+offsets = {}
+with FLAT.open("rb") as f:
+    while True:
+        start = f.tell()
+        row   = f.readline()
+        if not row:
+            break
+        end = f.tell() - 1
+        key = row.split(b"#",1)[0].decode("ascii")   # 'Gen.1:1'
+        offsets[key] = [start, end]
+
+OFF.write_text(json.dumps(offsets), encoding="utf‑8")
+print(f"✅ rebuilt {OFF}  ({len(offsets):,} refs)")
+```
+
+*Click “Run Python File in Terminal”*.
+Retry the page—if the error is gone, the old map was stale.
+
+---
+
+## ➍ Key exists but byte slice still 404s (mis‑alignment)
+
+This happens when:
+
+* the flat file was edited (line endings, BOM, etc.) **after** the map was built, or
+* the map was built from the **.txt** but you’re fetching from the **.txt.gz** whose
+  compressed byte positions are obviously different.
+
+**Fix**
+
+* Make sure you always:
+
+  1. regenerate the map **after** every edit to the flat file,
+  2. serve either
+
+     * the un‑gzipped `.txt` (most CDNs auto‑gzip on the fly **and** honour `Range`), **or**
+     * the `.gz` and build the map from the **compressed** file itself.
+
+If you prefer the compressed route, change the script’s `FLAT = "strongsVerses.flat.txt.gz"` and rebuild.
+
+---
+
+## ➎ (OPTIONAL) Shard into 200‑line mini‑chunks
+
+If you truly never need more than \~200 occurrences at once, you can
+create *N* small `.gz` files plus one “chunk index”.
+
+```python
+#!/usr/bin/env python3
+# shard_verses.py   – produces chunk_0001.flat.txt.gz etc.
+import gzip, pathlib, math
+
+SRC = pathlib.Path("strongsVerses.flat.txt")
+CHUNK_SIZE = 200                         # lines per shard
+
+with SRC.open("rb") as fin:
+    for idx, line in enumerate(fin, 1):
+        chunk_no = math.ceil(idx/CHUNK_SIZE)
+        fname = f"chunk_{chunk_no:04d}.flat.txt"
+        with open(fname, "ab") as out:   # append
+            out.write(line)
+
+# gzip them
+for txt in pathlib.Path('.').glob("chunk_*.flat.txt"):
+    with open(txt, "rb") as f_in, gzip.open(f"{txt}.gz", "wb", 9) as f_out:
+        f_out.writelines(f_in)
+    txt.unlink()                         # keep only .gz
+```
+
+*Frontend change*: map each key to `chunkId, start, end` and include the
+chunk filename in the request URL.
+
+Usually this is over‑engineering—browsers happily stream a 10 MB
+compressed file and `Range` fetches are \~2 KB—but the option is here.
+
+---
+
+## What to tell the agent (updated)
+
+> 1. **Verify** the requested key exists in the relevant offsets map.
+> 2. **If missing or mis‑aligned**, run
+>    `rebuild_verses_offsets.py` or its Strong’s counterpart in place; it finishes in seconds.
+> 3. **Serve** the flat `.txt` files (CDN will gzip) **or** serve the `.gz` versions and build the maps from them—never mix.
+> 4. Use `Range` requests exactly as in `fetchLemma()` and `fetchInterlinearVerse()`.
+> 5. If needed, rebuild maps on‑the‑fly; pointer‑based script is fast enough to run during deploy.
+
+With those checks in place the “key not found” error disappears,
+and you’ll always stream just the 1–2 KB needed for a 200‑cell overlay.
