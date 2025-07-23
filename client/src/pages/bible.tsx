@@ -11,7 +11,7 @@ import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
-import { ExpandedVerseOverlay } from "@/components/bible/ExpandedVerseOverlay";
+import { StrongsOverlay } from "@/components/bible/StrongsOverlay";
 import { AuthModals } from "@/components/auth/AuthModals";
 import { ConnectivityStatus } from "@/components/ui/connectivity-status";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
@@ -195,7 +195,7 @@ export default function BiblePage() {
   // Translation state management now handled by useTranslationMaps
   const [multiTranslationMode, setMultiTranslationMode] = useState(false);
 
-  const [localExpandedVerse, setLocalExpandedVerse] = useState<any>(null);
+  const [strongsVerse, setStrongsVerse] = useState<any>(null);
   const [preserveAnchor, setPreserveAnchor] = useState<((callback: () => void) => void) | null>(null);
   const [lastLoadedCenter, setLastLoadedCenter] = useState<number>(-1);
   const [prophecyDrawer, setProphecyDrawer] = useState<{
@@ -228,8 +228,11 @@ export default function BiblePage() {
     }
   };
 
-  const localExpandVerse = (verse: any) => setLocalExpandedVerse(verse);
-  const closeLocalExpandedVerse = () => setLocalExpandedVerse(null);
+  const openStrongsOverlay = (verse: any) => {
+    console.log('🔍 Opening Strong\'s overlay for verse:', verse.reference);
+    setStrongsVerse(verse);
+  };
+  const closeStrongsOverlay = () => setStrongsVerse(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
@@ -927,7 +930,7 @@ export default function BiblePage() {
         selectedTranslations={displayTranslations}
         preferences={preferences}
         mainTranslation={mainTranslation}
-        onExpandVerse={localExpandVerse}
+        onExpandVerse={openStrongsOverlay}
         onNavigateToVerse={navigateToVerse}
 
         getProphecyDataForVerse={getProphecyDataForVerse}
@@ -947,11 +950,10 @@ export default function BiblePage() {
         onPreserveAnchor={(callback) => setPreserveAnchor(() => callback)}
       />
 
-      <ExpandedVerseOverlay
-        verse={localExpandedVerse}
-        onClose={closeLocalExpandedVerse}
-        onStrongsClick={handleStrongsClick}
-        mainTranslation={mainTranslation}
+      <StrongsOverlay
+        verse={strongsVerse}
+        onClose={closeStrongsOverlay}
+        onNavigateToVerse={navigateToVerse}
       />
 
       <AuthModals
