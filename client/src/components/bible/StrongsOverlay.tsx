@@ -26,37 +26,37 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   // New state for Range request data
   const [interlinearCells, setInterlinearCells] = useState<InterlinearCell[]>([]);
   const [selectedOccurrences, setSelectedOccurrences] = useState<StrongsOccurrence[]>([]);
-  const [useNewSystem, setUseNewSystem] = useState(true); // Toggle for testing
 
   const loadStrongsData = async (verse: BibleVerse) => {
     setLoading(true);
     try {
-      if (useNewSystem) {
-        // Use new Range request system
-        console.log(`🔍 Loading Strong's data via new Range system for ${verse.reference}`);
-        const verseData = await strongsService.getVerseStrongsData(verse.reference);
-
-        if (verseData) {
-          setStrongsWords(verseData.words);
-          setInterlinearCells(verseData.interlinearCells);
-          console.log(`✅ Loaded ${verseData.words.length} Strong's words via new system for ${verse.reference}`);
-        } else {
-          console.log(`❌ No Strong's data found via new system for ${verse.reference}`);
-          setStrongsWords([]);
-          setInterlinearCells([]);
+      // Use new Range request system exclusively
+      console.log(`🔍 Loading Strong's data via new Range system for ${verse.reference}`);
+      
+      // Try different reference formats that might exist in the offset files
+      const referenceFormats = [
+        verse.reference,                    // "Gen.1:3"
+        verse.reference.replace(/\./g, ' '), // "Gen 1:3"
+        verse.reference.replace(/\s/g, '.'), // "Gen.1:3"
+      ];
+      
+      let verseData = null;
+      for (const refFormat of referenceFormats) {
+        verseData = await strongsService.getVerseStrongsData(refFormat);
+        if (verseData && verseData.words.length > 0) {
+          console.log(`✅ Found Strong's data using format: ${refFormat}`);
+          break;
         }
+      }
+
+      if (verseData && verseData.words.length > 0) {
+        setStrongsWords(verseData.words);
+        setInterlinearCells(verseData.interlinearCells);
+        console.log(`✅ Loaded ${verseData.words.length} Strong's words for ${verse.reference}`);
       } else {
-        // Fallback to old system (kept for compatibility)
-        if (!verse.strongsWords || verse.strongsWords.length === 0) {
-          console.log(`✅ Loaded 0 Strong's words for ${verse.reference} (old system)`);
-          setStrongsWords([]);
-          setInterlinearCells([]);
-          return;
-        }
-
-        setStrongsWords(verse.strongsWords);
+        console.log(`❌ No Strong's data found for ${verse.reference} in any format`);
+        setStrongsWords([]);
         setInterlinearCells([]);
-        console.log(`✅ Loaded ${verse.strongsWords.length} Strong's words for ${verse.reference} (old system)`);
       }
     } catch (error) {
       console.error('Error loading Strong\'s data:', error);
@@ -71,14 +71,14 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     if (verse) {
       loadStrongsData(verse);
     }
-  }, [verse, useNewSystem]);
+  }, [verse]);
 
   const handleWordClick = async (word: StrongsWord) => {
     const isCurrentlySelected = selectedWord?.strongs === word.strongs;
     setSelectedWord(isCurrentlySelected ? null : word);
 
-    if (!isCurrentlySelected && useNewSystem) {
-      // Load all occurrences for this Strong's number using new system
+    if (!isCurrentlySelected) {
+      // Load all occurrences for this Strong's number
       try {
         console.log(`🔍 Loading occurrences for Strong's ${word.strongs}`);
         const occurrences = await strongsService.getStrongsOccurrences(word.strongs);
@@ -118,20 +118,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                 <div>Loading...</div>
               ) : (
                 <div className="flex-1">
-                  {/* Toggle for testing new vs old system */}
-                  <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={useNewSystem}
-                        onChange={(e) => setUseNewSystem(e.target.checked)}
-                      />
-                      <span className="text-xs">Use new Range request system</span>
-                    </label>
-                  </div>
-
-                  {/* Interlinear cells grid (new system) */}
-                  {useNewSystem && interlinearCells.length > 0 && (
+                  {/* Interlinear cells grid */}
+                  {interlinearCells.length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-sm font-medium mb-3">Hebrew/Greek Interlinear</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-4">
@@ -218,44 +206,30 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     </h4>
                     <ScrollArea className="h-[300px]">
                       <div className="space-y-2">
-                        {useNewSystem ? (
-                          // Show occurrences from new Range request system
-                          selectedOccurrences.length > 0 ? (
-                            selectedOccurrences.map((occurrence, index) => (
-                              <button
-                                key={`${occurrence.reference}-${index}`}
-                                onClick={() => onNavigateToVerse?.(occurrence.reference)}
-                                className="block w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors border"
-                              >
-                                <div className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
-                                  {occurrence.reference}
-                                </div>
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {occurrence.original} • {occurrence.transliteration} • {occurrence.gloss}
-                                </div>
-                                {occurrence.context && (
-                                  <div className="text-xs text-muted-foreground mt-1 truncate">
-                                    {occurrence.context}
-                                  </div>
-                                )}
-                              </button>
-                            ))
-                          ) : (
-                            <p className="text-sm text-muted-foreground italic">Loading occurrences...</p>
-                          )
-                        ) : (
-                          // Show occurrences from old system
-                          selectedWord.instances?.map((reference, index) => (
+                        {selectedOccurrences.length > 0 ? (
+                          selectedOccurrences.map((occurrence, index) => (
                             <button
-                              key={`${reference}-${index}`}
-                              onClick={() => onNavigateToVerse?.(reference)}
-                              className="block w-full text-left p-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors text-blue-600 hover:text-blue-800 hover:underline"
+                              key={`${occurrence.reference}-${index}`}
+                              onClick={() => onNavigateToVerse?.(occurrence.reference)}
+                              className="block w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors border"
                             >
-                              {reference}
+                              <div className="font-medium text-blue-600 hover:text-blue-800 hover:underline">
+                                {occurrence.reference}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {occurrence.original} • {occurrence.transliteration} • {occurrence.gloss}
+                              </div>
+                              {occurrence.context && (
+                                <div className="text-xs text-muted-foreground mt-1 truncate">
+                                  {occurrence.context}
+                                </div>
+                              )}
                             </button>
-                          )) || (
-                            <p className="text-sm text-muted-foreground italic">No occurrences available</p>
-                          )
+                          ))
+                        ) : selectedWord ? (
+                          <p className="text-sm text-muted-foreground italic">Loading occurrences...</p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground italic">Select a word to see occurrences</p>
                         )}
                       </div>
                     </ScrollArea>

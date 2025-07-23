@@ -45,6 +45,7 @@ export function VerseRow({
   };
 
   const handleDoubleClick = () => {
+    console.log(`🔍 VerseRow double-click for ${verse.reference}`);
     onExpandVerse(verse);
   };
 
