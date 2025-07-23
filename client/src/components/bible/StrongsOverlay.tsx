@@ -35,9 +35,13 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       
       // Try different reference formats that might exist in the offset files
       const referenceFormats = [
-        verse.reference,                    // "Gen.1:3"
-        verse.reference.replace(/\./g, ' '), // "Gen 1:3"
-        verse.reference.replace(/\s/g, '.'), // "Gen.1:3"
+        verse.reference,                    // Original format
+        verse.reference.replace(/\s/g, '.'), // "Gen 1:3" -> "Gen.1:3"
+        verse.reference.replace(/\./g, ' '), // "Gen.1:3" -> "Gen 1:3"
+        verse.reference.replace(/\s+/g, '.'), // Handle multiple spaces
+        // Also try with book abbreviations
+        verse.reference.replace('Genesis', 'Gen').replace(/\s/g, '.'),
+        verse.reference.replace('Gen ', 'Gen.'),
       ];
       
       let verseData = null;

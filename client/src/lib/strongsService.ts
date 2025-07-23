@@ -1,4 +1,3 @@
-
 // strongsService.ts - New Strong's data service using Range requests
 import { fetchLemma, fetchInterlinearVerse, parseStrongsOccurrence, parseInterlinearVerse, type StrongsOccurrence, type InterlinearCell } from './strongsIndex_fetch';
 import { fetchInterlinearVerse as fetchVerse } from './strongsVerses_fetch';
@@ -31,10 +30,10 @@ class StrongsService {
       }
 
       console.log(`🔍 Loading Strong's word: ${strongsKey}`);
-      
+
       // Fetch all occurrences for this Strong's number
       const occurrenceLines = await fetchLemma(strongsKey);
-      
+
       if (occurrenceLines.length === 0) {
         console.warn(`❌ No occurrences found for ${strongsKey}`);
         return null;
@@ -67,7 +66,7 @@ class StrongsService {
 
       // Cache the result
       this.cache.set(strongsKey, strongsWord);
-      
+
       console.log(`✅ Loaded Strong's word ${strongsKey}: ${strongsWord.definition}`);
       return strongsWord;
 
@@ -86,18 +85,36 @@ class StrongsService {
       }
 
       console.log(`🔍 Loading Strong's data for verse: ${reference}`);
-      
-      // Fetch interlinear verse data
-      const rawVerseData = await fetchInterlinearVerse(reference);
-      
-      if (!rawVerseData) {
-        console.warn(`❌ No interlinear data found for ${reference}`);
+
+      // Try multiple reference formats
+      const referenceFormats = [
+        reference,
+        reference.replace(/\s/g, '.'),
+        reference.replace(/\./g, ' '),
+        reference.replace('Gen ', 'Gen.'),
+        reference.replace('Genesis', 'Gen').replace(/\s/g, '.'),
+      ];
+
+      let interlinearData = '';
+      let usedFormat = '';
+
+      for (const format of referenceFormats) {
+        interlinearData = await fetchInterlinearVerse(format);
+        if (interlinearData) {
+          usedFormat = format;
+          console.log(`✅ Found data using format: ${format}`);
+          break;
+        }
+      }
+
+      if (!interlinearData) {
+        console.log(`❌ No interlinear data found for ${reference} in any format`);
         return null;
       }
 
       // Parse the interlinear data
-      const { reference: parsedRef, cells } = parseInterlinearVerse(rawVerseData);
-      
+      const { reference: parsedRef, cells } = parseInterlinearVerse(interlinearData);
+
       // Convert cells to StrongsWord format for compatibility
       const words: StrongsWord[] = [];
       for (const cell of cells) {
@@ -120,7 +137,7 @@ class StrongsService {
 
       // Cache the result
       this.verseCache.set(reference, verseData);
-      
+
       console.log(`✅ Loaded Strong's data for ${reference}: ${words.length} words`);
       return verseData;
 
@@ -135,14 +152,14 @@ class StrongsService {
     try {
       const occurrenceLines = await fetchLemma(strongsKey);
       const occurrences: StrongsOccurrence[] = [];
-      
+
       for (const line of occurrenceLines) {
         const parsed = parseStrongsOccurrence(line);
         if (parsed) {
           occurrences.push(parsed);
         }
       }
-      
+
       return occurrences;
     } catch (error) {
       console.error(`❌ Error getting occurrences for ${strongsKey}:`, error);

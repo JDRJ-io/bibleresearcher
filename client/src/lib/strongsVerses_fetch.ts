@@ -31,10 +31,20 @@ export async function fetchInterlinearVerse(ref: string): Promise<string> {
     console.log(`🔍 Fetching interlinear data for verse: ${ref}`);
     
     const offsetMap = await getVerseMap();
+    
+    // Debug: show available keys for the book
+    const bookMatch = ref.match(/^([^.\s]+)/);
+    if (bookMatch) {
+      const bookPrefix = bookMatch[1];
+      const availableKeys = Object.keys(offsetMap).filter(key => key.startsWith(bookPrefix)).slice(0, 5);
+      console.log(`📋 Sample keys for ${bookPrefix}:`, availableKeys);
+    }
+    
     const range = offsetMap[ref];
     
     if (!range) {
       console.warn(`❌ No range found for verse: ${ref}`);
+      console.log(`📋 Total offset entries: ${Object.keys(offsetMap).length}`);
       return '';
     }
     
