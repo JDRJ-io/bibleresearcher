@@ -35,11 +35,13 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const showNotes = bibleStore?.showNotes ?? false;
   const showDates = bibleStore?.showDates ?? false;
   const showLabels = bibleStore?.showLabels ?? {};
+  const isChronological = bibleStore?.isChronological ?? false;
   const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
   const toggleProphecies = bibleStore?.toggleProphecies ?? (() => {});
   const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
   const toggleLabel = bibleStore?.toggleLabel ?? (() => {});
+  const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
 
   const { theme, setTheme, themes } = useTheme();
@@ -236,7 +238,14 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
             {/* Verse Organization */}
             <div className="space-y-1">
               <Label className="text-xs font-medium text-gray-700 dark:text-gray-300">Verse Organization:</Label>
-              <RadioGroup defaultValue="canonical" className="space-y-1">
+              <RadioGroup 
+                value={isChronological ? "chronological" : "canonical"} 
+                onValueChange={(value) => {
+                  console.log('📅 Chronological toggle clicked:', value);
+                  toggleChronological();
+                }}
+                className="space-y-1"
+              >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="canonical" id="canonical" className="w-3 h-3" />
                   <Label htmlFor="canonical" className="text-xs">Canonical Order</Label>

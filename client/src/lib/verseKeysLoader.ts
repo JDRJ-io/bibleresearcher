@@ -166,6 +166,17 @@ export function getVerseCount(): number {
 }
 
 export function getVerseKeys(): string[] {
+  // Try to get current verse keys from the store first
+  try {
+    const { useBibleStore } = require('@/App');
+    const store = useBibleStore.getState();
+    if (store.currentVerseKeys && store.currentVerseKeys.length > 0) {
+      return store.currentVerseKeys;
+    }
+  } catch (error) {
+    console.warn('Failed to get verse keys from store, falling back to cache:', error);
+  }
+  
   // VERSE LOADING FIX: If verse keys aren't loaded yet, initialize them synchronously
   if (!cachedVerseKeys) {
     console.log("📖 Verse keys not loaded yet, initializing synchronously...");
@@ -259,8 +270,9 @@ export function getVerseKeys(): string[] {
 }
 
 export function getVerseKeyByIndex(index: number): string {
-  if (cachedVerseKeys && index >= 0 && index < cachedVerseKeys.length) {
-    return cachedVerseKeys[index];
+  const keys = getVerseKeys();
+  if (keys && index >= 0 && index < keys.length) {
+    return keys[index];
   }
   return `Unknown.${index}:1`; // Fallback format
 }

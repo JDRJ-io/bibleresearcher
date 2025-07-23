@@ -73,10 +73,15 @@ export const useBibleStore = create<{
   toggleDates: () => void;
   toggleLabel: (labelId: string) => void;
   toggleContext: () => void;
+  toggleChronological: () => void;
   showContext: boolean;
   columnState: ColumnState;
   sizeState: SizeState;
   isInitialized: boolean;
+  isChronological: boolean;
+  currentVerseKeys: string[];
+  setChronological: (chronological: boolean) => void;
+  setCurrentVerseKeys: (keys: string[]) => void;
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -102,6 +107,10 @@ export const useBibleStore = create<{
   showLabels: {},           // Labels state object for semantic highlighting  
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
+  isChronological: false,   // Verse order toggle (canonical vs chronological)
+  currentVerseKeys: [],     // Current verse keys array (canonical or chronological)
+  setChronological: (chronological: boolean) => set({ isChronological: chronological }),
+  setCurrentVerseKeys: (keys: string[]) => set({ currentVerseKeys: keys }),
 
   // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {
@@ -304,6 +313,30 @@ export const useBibleStore = create<{
     }
     
     return { showContext: newValue };
+  }),
+
+  // Toggle between canonical and chronological verse order
+  toggleChronological: () => set(state => {
+    const newChronological = !state.isChronological;
+    console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
+    
+    // Load the appropriate verse keys when toggling
+    import('@/data/BibleDataAPI').then(async ({ loadVerseKeys, loadDatesData }) => {
+      try {
+        const [verseKeys, datesData] = await Promise.all([
+          loadVerseKeys(newChronological),
+          loadDatesData(newChronological)
+        ]);
+        
+        get().setCurrentVerseKeys(verseKeys);
+        get().setDatesData(datesData);
+        console.log(`✅ Switched to ${newChronological ? 'chronological' : 'canonical'} order with ${verseKeys.length} verses`);
+      } catch (error) {
+        console.error('❌ Failed to load verse keys for chronological toggle:', error);
+      }
+    });
+    
+    return { isChronological: newChronological };
   }),
 
   setActives: (ids: string[]) => set({ actives: ids }),

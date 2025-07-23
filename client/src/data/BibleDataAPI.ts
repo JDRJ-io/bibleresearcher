@@ -73,10 +73,27 @@ export async function loadTranslationAsText(id: string) {
   });
 }
 
-export async function loadVerseKeys() {
-  return getOrFetch('verse-keys-canonical', async () => {
-    const textData = await fetchFromStorage(paths.verseKeys);
-    return JSON.parse(textData);
+export async function loadVerseKeys(chronological = false): Promise<string[]> {
+  const cacheKey = chronological ? 'verse-keys-chronological' : 'verse-keys-canonical';
+  const filePath = chronological ? paths.verseKeysChronological : paths.verseKeys;
+  
+  return getOrFetch(cacheKey, async () => {
+    const data = await fetchFromStorage(filePath);
+    const verseKeys = JSON.parse(data);
+    console.log(`🔑 Loaded ${verseKeys.length} ${chronological ? 'chronological' : 'canonical'} verse keys as master index`);
+    return verseKeys;
+  });
+}
+
+export async function loadDatesData(chronological = false): Promise<string[]> {
+  const cacheKey = chronological ? 'dates-chronological' : 'dates-canonical';
+  const filePath = chronological ? paths.datesChronological : paths.datesCanonical;
+  
+  return getOrFetch(cacheKey, async () => {
+    const data = await fetchFromStorage(filePath);
+    const dates = data.split('\n').map(line => line.trim()).filter(line => line);
+    console.log(`📅 Loaded ${dates.length} ${chronological ? 'chronological' : 'canonical'} dates`);
+    return dates;
   });
 }
 
