@@ -1,0 +1,103 @@
+
+// strongsIndex_fetch.ts - lemma look-ups using Range requests
+import { masterCache } from './supabaseClient';
+
+// Re-export from strongsVerses_fetch to avoid circular imports
+export { fetchInterlinearVerse, parseInterlinearVerse, type InterlinearCell } from './strongsVerses_fetch';
+
+type Range = [number, number];
+let idxMap: Record<string, Range> | null = null;
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
+async function getIdxMap(): Promise<Record<string, Range>> {
+  if (!idxMap) {
+    const cached = masterCache.get('strongs-index-offsets');
+    if (cached) {
+      idxMap = cached;
+    } else {
+      const response = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsIndexOffsets.json`
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Strong's index offsets: ${response.status}`);
+      }
+      idxMap = await response.json();
+      masterCache.set('strongs-index-offsets', idxMap);
+    }
+  }
+  return idxMap!;
+}
+
+export async function fetchLemma(key: string): Promise<string[]> {
+  try {
+    console.log(`🔍 Fetching Strong's lemma data for: ${key}`);
+    
+    const offsetMap = await getIdxMap();
+    const range = offsetMap[key];
+    
+    if (!range) {
+      console.warn(`❌ No range found for Strong's key: ${key}`);
+      return [];
+    }
+    
+    const [start, end] = range;
+    const response = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsIndex.flat.txt.gz`,
+      { 
+        headers: { 
+          'Range': `bytes=${start}-${end}`,
+          'Accept-Encoding': 'gzip'
+        } 
+      }
+    );
+    
+    if (response.status !== 206 && response.status !== 200) {
+      throw new Error(`Strong's lemma range ${key} failed: ${response.status}`);
+    }
+    
+    const text = await response.text();
+    const lines = text.trim().split('\n').filter(line => line.trim());
+    
+    console.log(`✅ Fetched ${lines.length} occurrences for Strong's ${key}`);
+    return lines;
+    
+  } catch (error) {
+    console.error(`❌ Error fetching Strong's lemma ${key}:`, error);
+    return [];
+  }
+}
+
+// Parse a Strong's occurrence line
+export interface StrongsOccurrence {
+  original: string;
+  strongsNumber: string;
+  transliteration: string;
+  gloss: string;
+  reference: string;
+  context: string;
+}
+
+export function parseStrongsOccurrence(line: string): StrongsOccurrence | null {
+  try {
+    // Format: "|Greek|3478|Ἰσραήλ|Israel|Gen.32:28|Israel|…"
+    const parts = line.split('|').filter(p => p.trim());
+    
+    if (parts.length < 6) {
+      console.warn('Invalid Strong\'s occurrence format:', line);
+      return null;
+    }
+    
+    return {
+      original: parts[2] || '',
+      strongsNumber: parts[1] || '',
+      transliteration: parts[3] || '',
+      gloss: parts[4] || '',
+      reference: parts[5] || '',
+      context: parts.slice(6).join('|') || ''
+    };
+  } catch (error) {
+    console.error('Error parsing Strong\'s occurrence:', error);
+    return null;
+  }
+}
