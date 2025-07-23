@@ -71,12 +71,11 @@ export async function fetchInterlinearVerse(ref: string): Promise<string> {
     
     const [start, end] = range;
     
-    // CRITICAL: Use expert's mandatory URL parameters and headers
-    const gzUrl = `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsVerses.flat.txt.gz?download=1&noDownload=true`;
+    // Use the uploaded flat text file directly
+    const flatUrl = `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsverses.flat.txt`;
     
-    const response = await fetch(gzUrl, { 
+    const response = await fetch(flatUrl, { 
       headers: { 
-        'Range-Unit': 'bytes',
         'Range': `bytes=${start}-${end}`
       } 
     });
@@ -85,20 +84,10 @@ export async function fetchInterlinearVerse(ref: string): Promise<string> {
       throw new Error(`Verse range ${usedFormat} failed: ${response.status}`);
     }
     
-    // Manual decompression as specified by expert
-    let text: string;
+    // Direct text read - no decompression needed for flat files
+    const text = await response.text();
     
-    if ('DecompressionStream' in window) {
-      // Modern browsers
-      const stream = response.body!.pipeThrough(new DecompressionStream('gzip'));
-      text = await new Response(stream).text();
-    } else {
-      // Safari fallback - would need fflate import if needed
-      console.warn('DecompressionStream not available, attempting direct text read');
-      text = await response.text();
-    }
-    
-    console.log(`✅ Successfully fetched and decompressed interlinear data for verse ${usedFormat}`);
+    console.log(`✅ Successfully fetched interlinear data for verse ${usedFormat}`);
     return text.trim();
     
   } catch (error) {

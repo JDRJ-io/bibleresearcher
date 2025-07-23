@@ -43,11 +43,10 @@ export async function fetchLemma(key: string): Promise<string[]> {
     
     const [start, end] = range;
     const response = await fetch(
-      `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsIndex.flat.txt.gz`,
+      `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsIndex.flat.txt`,
       { 
         headers: { 
-          'Range': `bytes=${start}-${end}`,
-          'Accept-Encoding': 'gzip'
+          'Range': `bytes=${start}-${end}`
         } 
       }
     );
