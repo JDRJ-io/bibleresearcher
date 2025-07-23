@@ -220,8 +220,8 @@ export function ColumnHeaders({
       isMain: false
     });
 
-    // Add notes column if enabled
-    if (showNotes) {
+    // Add notes column only if explicitly enabled in preferences
+    if (showNotes && preferences?.showNotes) {
       columns.push({
         slot: 1,
         type: 'notes',
@@ -339,18 +339,16 @@ export function ColumnHeaders({
 
   return (
     <div 
-      className="column-headers-adaptive sticky left-0 right-0 z-30 border-b shadow-sm"
+      className="column-headers-adaptive sticky left-0 right-0 z-30 border-b shadow-sm bg-background"
       style={{ 
-        top: '48px', // Match TopHeader mobile height EXACTLY
-        height: '36px', // Reduce column header height to save space
-        backgroundColor: 'var(--header-bg)',
-        borderBottomColor: 'var(--border-color)',
-        marginTop: '0px', // Eliminate any gap between headers
+        top: adaptiveIsMobile ? '48px' : '64px', // Match TopHeader height exactly
+        height: '40px',
+        marginTop: '0px',
         marginBottom: '0px',
         paddingTop: '0px',
-        zIndex: 30, // Ensure it stays above content but below top header
+        zIndex: 30,
         position: 'sticky',
-        display: 'flex', // Use flexbox for perfect column alignment
+        display: 'flex',
         width: '100%'
       }}
     >

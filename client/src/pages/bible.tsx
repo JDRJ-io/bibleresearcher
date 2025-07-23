@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useBibleStore } from '@/App';
 import { TopHeader } from '@/components/bible/TopHeader';
@@ -94,7 +93,15 @@ export default function BiblePage() {
     });
     return (
       <div className="min-h-screen bg-background">
-        <TopHeader />
+        <TopHeader
+        searchQuery=""
+        onSearchChange={() => {}}
+        onBack={() => {}}
+        onForward={() => {}}
+        canGoBack={false}
+        canGoForward={false}
+        onMenuToggle={() => {}}
+      />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center space-y-4">
             <LoadingWheel />
@@ -118,8 +125,16 @@ export default function BiblePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <TopHeader />
-      
+      <TopHeader
+        searchQuery=""
+        onSearchChange={() => {}}
+        onBack={() => {}}
+        onForward={() => {}}
+        canGoBack={false}
+        canGoForward={false}
+        onMenuToggle={() => {}}
+      />
+
       <main className="flex-1 overflow-hidden">
         <VirtualBibleTable
           selectedTranslations={selectedTranslations}
