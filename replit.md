@@ -241,6 +241,16 @@ Beyond drag a11y, the app will need general accessibility review. Currently, one
 # Recent Major Changes (for reference)
 (This section highlights recent refactor milestones for context and verification of completeness.)
 
+## Chronological Toggle Implementation (July 23, 2025):
+Successfully completed chronological verse ordering functionality:
+- **Root Cause Fixed**: Resolved issue where verse loading system bypassed chronological toggle state from store
+- **Data Flow Integration**: Modified useBibleData.ts to check chronological state from store on initialization 
+- **Event-Driven Architecture**: Implemented custom event system for chronological state changes to trigger verse reordering
+- **Verse Reloading**: Created reloadVersesInNewOrder function that loads appropriate verse keys file (canonical vs chronological) from Supabase
+- **UI Responsiveness**: Connected store's toggleChronological function to actually trigger verse sequence changes in reference column
+- **User Experience**: Toggle now properly reorders all 31,102 verses between canonical Bible book order and chronological historical timeline
+- **Performance**: Maintains translation text caching while reordering verse sequence, ensuring smooth transitions
+
 ## Cross-References & Prophecy Data Loading (July 21, 2025):
 Successfully implemented data loading infrastructure for cross-references and prophecies through BibleDataAPI facade:
 - **Cross-References Loading**: Implemented getCrossReferences() function that loads data from Supabase Storage cf1.txt with offset-based parsing
