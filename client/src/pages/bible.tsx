@@ -242,7 +242,14 @@ export default function BiblePage() {
   const [isForumOpen, setIsForumOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
-  // Translation helper functions (integrated with translation maps system)
+  // Verse expansion handler for Strong's overlay
+  const [expandedVerse, setExpandedVerse] = useState<any>(null);
+
+  const handleExpandVerse = (verse: any) => {
+    console.log(`🔍 Opening Strong's overlay for ${verse.reference}`);
+    setExpandedVerse(verse);
+  };
+
   const handleToggleTranslation = async (translationId: string) => {
     try {
       if (multiTranslationMode) {

@@ -9,18 +9,9 @@ const strongsIndexContent = fs.readFileSync('strongsIndexOffsets.json', 'utf8');
 // Simple upload using the Supabase client
 async function uploadOffsets() {
   try {
-    // Load environment variables from .env file
-    const envContent = fs.readFileSync('.env', 'utf8');
-    const envVars = {};
-    envContent.split('\n').forEach(line => {
-      const [key, value] = line.split('=');
-      if (key && value) {
-        envVars[key.trim()] = value.trim().replace(/^["']|["']$/g, '');
-      }
-    });
-    
-    const supabaseUrl = envVars.VITE_SUPABASE_URL;
-    const supabaseKey = envVars.SUPABASE_SERVICE_KEY || envVars.VITE_SUPABASE_ANON_KEY;
+    // Use environment variables (from Secrets)
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
     
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Missing Supabase environment variables');
