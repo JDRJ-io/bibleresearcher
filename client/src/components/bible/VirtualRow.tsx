@@ -120,6 +120,16 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   // Get prophecy roles for this verse from the parsed prophecy_rows.txt data
   const verseRoles = prophecyData[verse.reference] || { P: [], F: [], V: [] };
   
+  // Debug for Genesis 1:1 only when prophecy data exists
+  if (verse.reference === "Gen.1:1" && Object.keys(prophecyData).length > 0) {
+    console.log('🔮 ProphecyCell DEBUG:', {
+      verseReference: verse.reference,
+      prophecyDataKeys: Object.keys(prophecyData).slice(0, 5),
+      prophecyIndexKeys: Object.keys(prophecyIndex).slice(0, 5),
+      verseRoles: verseRoles
+    });
+  }
+  
   // Get all unique prophecy IDs that touch this verse in any role
   const allIds = [...verseRoles.P, ...verseRoles.F, ...verseRoles.V];
   const uniqueIds = Array.from(new Set(allIds));
@@ -428,7 +438,7 @@ const VirtualRow: React.FC<VirtualRowProps> = ({
       case 'main-translation':
       case 'alt-translation':
         // Debug translation lookup for first verse
-        if (verse.reference === "Gen 1:1") {
+        if (verse.reference === "Gen.1:1") {
           console.log('🔍 Translation Debug:', {
             verseRef: verse.reference,
             translationCode: config.translationCode,

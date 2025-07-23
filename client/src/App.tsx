@@ -197,6 +197,12 @@ export const useBibleStore = create<{
         try {
           const { verseRoles, prophecyIndex } = await loadProphecyData();
           
+          console.log('🔮 RAW PROPHECY DATA RECEIVED:', {
+            verseRolesKeys: Object.keys(verseRoles).slice(0, 10),
+            prophecyIndexKeys: Object.keys(prophecyIndex).slice(0, 5),
+            sampleVerseRole: Object.keys(verseRoles).length > 0 ? verseRoles[Object.keys(verseRoles)[0]] : 'none'
+          });
+          
           // Store both the verse roles and the prophecy index
           get().setProphecyData(verseRoles);
           get().setProphecyIndex(prophecyIndex);

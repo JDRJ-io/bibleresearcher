@@ -34,6 +34,8 @@ self.addEventListener('message', async (event: MessageEvent<ProphecyMessage>) =>
       const verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
       
       const rowLines = prophecyRows.split('\n').filter(line => line.trim());
+      console.log(`🔮 ProphecyWorker: Processing ${rowLines.length} prophecy rows`);
+      
       for (const line of rowLines) {
         const [verseId, data] = line.split('$');
         if (!verseId || !data) continue;
@@ -51,7 +53,13 @@ self.addEventListener('message', async (event: MessageEvent<ProphecyMessage>) =>
           else if (type === 'V') V.push(id);
         }
         
-        verseRoles[verseId.trim()] = { P, F, V };
+        const cleanVerseId = verseId.trim();
+        verseRoles[cleanVerseId] = { P, F, V };
+        
+        // Debug first few entries
+        if (Object.keys(verseRoles).length <= 3) {
+          console.log(`🔮 ProphecyWorker: Parsed ${cleanVerseId} ->`, { P, F, V });
+        }
       }
       
       // Parse prophecy_index.json
