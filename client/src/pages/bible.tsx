@@ -11,7 +11,7 @@ import { loadTranslation, getVerseText } from "@/lib/translationLoader";
 import { TopHeader } from "@/components/bible/TopHeader";
 import { HamburgerMenu } from "@/components/bible/HamburgerMenu";
 import VirtualBibleTable from "@/components/bible/VirtualBibleTable";
-import { StrongsOverlay } from "@/components/bible/StrongsOverlay";
+import { StrongsOverlay } from "@/components/bible/StrongsOverlayNew";
 import { AuthModals } from "@/components/auth/AuthModals";
 import { ConnectivityStatus } from "@/components/ui/connectivity-status";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
