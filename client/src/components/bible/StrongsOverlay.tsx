@@ -108,6 +108,13 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   };
 
   const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
+    console.log(`🚀 NAVIGATION STARTED: direction=${direction}`);
+    console.log(`🚀 verse exists:`, !!verse);
+    console.log(`🚀 verse reference:`, verse?.reference);
+    console.log(`🚀 allVerses.length:`, allVerses.length);
+    console.log(`🚀 onNavigateToVerse exists:`, !!onNavigateToVerse);
+    console.log(`🚀 onNavigateToVerse type:`, typeof onNavigateToVerse);
+    
     if (!verse || !allVerses.length) {
       console.log(`❌ Navigation blocked: verse=${!!verse}, allVerses.length=${allVerses.length}`);
       return;
@@ -211,6 +218,10 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log(`🔼 UP ARROW CLICKED - Starting navigation from ${verse?.reference}`);
+                      console.log(`🔼 onNavigateToVerse callback exists:`, !!onNavigateToVerse);
+                      console.log(`🔼 allVerses.length:`, allVerses.length);
+                      console.log(`🔼 loading state:`, loading);
                       navigateToAdjacentVerse('up');
                     }}
                     disabled={loading}
@@ -224,6 +235,10 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
+                      console.log(`🔽 DOWN ARROW CLICKED - Starting navigation from ${verse?.reference}`);
+                      console.log(`🔽 onNavigateToVerse callback exists:`, !!onNavigateToVerse);
+                      console.log(`🔽 allVerses.length:`, allVerses.length);
+                      console.log(`🔽 loading state:`, loading);
                       navigateToAdjacentVerse('down');
                     }}
                     disabled={loading}
