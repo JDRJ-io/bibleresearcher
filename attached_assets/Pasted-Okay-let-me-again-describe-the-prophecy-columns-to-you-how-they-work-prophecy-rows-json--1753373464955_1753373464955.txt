@@ -1,0 +1,113 @@
+Okay let me again describe the prophecy columns to you & how they work
+
+prophecy_rows.json
+
+{
+  "1": {
+    "summary": "Death will become the normal lot of man",
+    "prophecy": [
+      "Gen.2:17",
+      "Gen.3:19"
+    ],
+    "fulfillment": [
+      "Rom.5:12"
+    ],
+    "verification": [
+      "Eccl.3:2",
+      "Heb.9:27",
+      "Jas.1:15",
+      "1Cor.15:21",
+      "1Cor.15:22"
+    ]
+  },
+
+prophecy_index.txt
+
+Gen.17:5$8:V,9:V,30:P,541:P
+Gen.17:6$30:P,541:P
+Gen.17:7$5:V,491:P,492:F
+Gen.17:8$7:V,77:P,491:P,654:P
+Gen.17:9$491:P
+Gen.18:10$11:P
+Gen.18:14$11:P,11:V
+Gen.18:18$28:P,541:P
+Gen.1:28$664:V
+
+here's how we look at this
+we can see the 1st prophecy in prophecy_rows.json
+
+Gen.2:17, Gen.3:19 (are both under the column of prophecy meaning prediction) **sorry for some reason prediction column is labelled as prophecy column in the prophecy_rows.json
+Rom.5:12 (is under the column of fulfillment)
+Eccl.3:2, Heb.9:27, Jas.1:15, 1Cor.15:21, 1Cor.15:22 (are al under the column of verification)
+so for each verse
+
+here's what we do to connect this data together
+prophecy index is organized alphabetically, not canonically, but it will have a clear mapping to every verse that is associated with prophecy. 
+first step is mapping out prophecy_index.txt to every verse reference (connected to to the reference column)
+that is associated with prophecy.
+so let's take from prophecy_index.txt "Gen.1:28$664:V"
+we can see that this verse is associated with prophecy 664, and is a V for verification of that prophecy.
+to populate the proper prophecy columns in the Row of Gen.1:28 (as identified by it's row from the reference column)
+we look up the prophecy 664 in the prophecy_rows.json
+
+  },
+  "664": {
+    "summary": "No barrenness or miscarriages, population multiplies",
+    "prophecy": [
+      "Exod.23:26",
+      "Deut.7:14",
+      "Deut.28:4",
+      "Deut.28:11",
+      "Isa.9:3",
+      "Lev.26:9"
+    ],
+    "fulfillment": [
+      "Ps.113:9",
+      "Isa.54:1"
+    ],
+    "verification": [
+      "Gen.1:28",
+      "Gen.30:22",
+      "Gen.30:23",
+      "1Sam.2:5",
+      "Luke.1:36",
+      "Luke.1:37",
+      "Acts.2:17",
+      "Acts.2:18"
+    ]
+  },
+
+for Gen.1:28 we will put the title of the prophecy "No barrenness or miscarriages, population multiplies" at the beginning of each of the 3 prophecy cells in that row, showing the summarized title of the prophecy
+then we will fill each of the prophecy cells with the information in this prophecy
+prophecy(prediction) cell for row Gen.1:28 get's these verses (with the same translation text as the main translation being used)
+      "Exod.23:26",
+      "Deut.7:14",
+      "Deut.28:4",
+      "Deut.28:11",
+      "Isa.9:3",
+      "Lev.26:9"
+
+fulfillment cell for row Gen.1:28 gets 
+      "Ps.113:9",
+      "Isa.54:1"
+
+verification cell for row Gen.1:28 get's 
+      "Gen.1:28",
+      "Gen.30:22",
+      "Gen.30:23",
+      "1Sam.2:5",
+      "Luke.1:36",
+      "Luke.1:37",
+      "Acts.2:17",
+      "Acts.2:18"
+
+---
+
+now since we use prophecy_index.txt to populate the rows prophetic column cells with the proper information; if we see a row like this;
+Gen.18:18$28:P,541:P
+that would mean that Gen.18:17 is a prediction(prophecy) for prophecy 28 & a prediction(prophecy) for prophecy 541
+we would look up prophecy 28 and fill the prophetic columns cells with the associated verses, and we would then separate the prophecies with a summary title divider of the next prophecy & then place the associated verses in prophecy 541 below that in those cells. 
+
+also since these cells are connected, the prophecy drawers were an old factor that used to allow us to click on a summary of a prophecy in the columns and close the data of all it's verses, so that people could reach the next prophecy faster
+
+i hope this is pretty straigthforward
