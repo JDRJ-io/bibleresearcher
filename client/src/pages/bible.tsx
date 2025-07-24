@@ -49,17 +49,13 @@ export default function BiblePage() {
   const handleNavigateToVerse = useCallback((reference: string) => {
     console.log(`🔍 BiblePage navigating to verse: ${reference}`);
     
-    // Normalize reference for better matching
-    const normalizeReference = (ref: string) => {
-      return ref.replace(/\s+/g, '').toLowerCase();
-    };
-    
+    // Find the target verse
+    const normalizeReference = (ref: string) => ref.replace(/\s+/g, '').toLowerCase();
     const normalizedRef = normalizeReference(reference);
     
-    // Find the target verse with more robust matching
     let targetVerse = allVerses.find(v => normalizeReference(v.reference) === normalizedRef);
     
-    // If not found, try different formats
+    // Try alternative matching strategies
     if (!targetVerse) {
       targetVerse = allVerses.find(v => 
         v.reference === reference ||
@@ -67,7 +63,7 @@ export default function BiblePage() {
       );
     }
     
-    // If still not found, try book/chapter/verse parsing
+    // Try book/chapter/verse parsing
     if (!targetVerse) {
       const match = reference.match(/^(\w+)\.?(\d+):(\d+)$/);
       if (match) {
@@ -81,17 +77,13 @@ export default function BiblePage() {
     }
     
     if (targetVerse) {
-      console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id})`);
-      console.log(`🔄 Updating selectedVerse to trigger Strong's data reload`);
+      console.log(`✅ Found target verse for navigation: ${targetVerse.reference}`);
       
-      // Force a new object to ensure React detects the change
-      setSelectedVerse({
-        ...targetVerse,
-        // Add a timestamp to ensure the object is considered "new"
-        _navigationTimestamp: Date.now()
-      });
+      // Update the selected verse to trigger Strong's data reload
+      // The StrongsOverlay useEffect will handle loading the Strong's data
+      setSelectedVerse(targetVerse);
       
-      // Optional: Also scroll to the verse in the main table
+      // Scroll to the verse in the main table
       setTimeout(() => {
         const verseElement = document.getElementById(`verse-${targetVerse.id}`);
         if (verseElement) {
@@ -103,7 +95,6 @@ export default function BiblePage() {
       }, 100);
     } else {
       console.warn(`❌ Could not find verse for reference: ${reference}`);
-      console.log(`🔍 Normalized search: ${normalizedRef}`);
       console.log('Available verses sample:', allVerses.slice(0, 5).map(v => ({ 
         ref: v.reference, 
         normalized: normalizeReference(v.reference),

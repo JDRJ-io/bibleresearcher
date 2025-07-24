@@ -109,39 +109,29 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   };
 
   const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
-    console.log(`🚀 NAVIGATION STARTED: direction=${direction}`);
-    console.log(`🚀 verse exists:`, !!verse);
-    console.log(`🚀 verse reference:`, verse?.reference);
-    console.log(`🚀 allVerses.length:`, allVerses.length);
-    console.log(`🚀 onNavigateToVerse exists:`, !!onNavigateToVerse);
-    console.log(`🚀 onNavigateToVerse type:`, typeof onNavigateToVerse);
+    console.log(`🚀 NAVIGATION STARTED: direction=${direction} from ${verse?.reference}`);
     
     if (!verse || !allVerses.length) {
       console.log(`❌ Navigation blocked: verse=${!!verse}, allVerses.length=${allVerses.length}`);
       return;
     }
     
-    console.log(`🔍 StrongsOverlay navigating ${direction} from ${verse.reference}`);
-    console.log(`🔍 All verses length: ${allVerses.length}`);
-    
-    // Create a more robust verse matching function
-    const normalizeReference = (ref: string) => {
-      return ref.replace(/\s+/g, '').toLowerCase();
-    };
-    
-    // Try multiple ways to find the current verse
+    // Find current verse index in allVerses array
     let currentIndex = -1;
+    
+    // Try multiple matching strategies
+    const normalizeReference = (ref: string) => ref.replace(/\s+/g, '').toLowerCase();
     const currentRef = normalizeReference(verse.reference);
     
-    // First try exact match
+    // Strategy 1: Exact reference match
     currentIndex = allVerses.findIndex(v => normalizeReference(v.reference) === currentRef);
     
-    // If not found, try with ID
+    // Strategy 2: ID match
     if (currentIndex === -1) {
       currentIndex = allVerses.findIndex(v => v.id === verse.id);
     }
     
-    // If still not found, try book/chapter/verse matching
+    // Strategy 3: Book/chapter/verse match
     if (currentIndex === -1) {
       currentIndex = allVerses.findIndex(v => 
         v.book === verse.book && 
@@ -150,48 +140,57 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       );
     }
     
-    console.log(`🔍 Current verse index: ${currentIndex}`);
+    console.log(`🔍 Found current verse at index: ${currentIndex}`);
     
     if (currentIndex === -1) {
-      console.log(`❌ Current verse not found in allVerses array`);
-      console.log(`🔍 Looking for: ${verse.reference} (ID: ${verse.id})`);
-      console.log(`🔍 Sample verses:`, allVerses.slice(0, 3).map(v => ({ ref: v.reference, id: v.id })));
+      console.warn(`❌ Could not find current verse in allVerses array`);
       return;
     }
     
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    console.log(`🔍 Target index: ${newIndex}`);
+    // Calculate target index
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     
-    if (newIndex >= 0 && newIndex < allVerses.length) {
-      const newVerse = allVerses[newIndex];
-      console.log(`🔍 Navigating to verse: ${newVerse.reference}`);
-      
-      setLoading(true);
-      try {
-        // Clear current Strong's data before navigation to ensure fresh reload
-        setStrongsWords([]);
-        setInterlinearCells([]);
-        setSelectedWord(null);
-        setSelectedOccurrences([]);
-        setShowSearch(false);
-        setSearchQuery('');
-        
-        // Navigate to the new verse - this will trigger useEffect to reload Strong's data
-        if (onNavigateToVerse) {
-          console.log(`🔍 Calling onNavigateToVerse with: ${newVerse.reference}`);
-          onNavigateToVerse(newVerse.reference);
-        }
-        
-        console.log(`✅ Successfully called navigation to ${newVerse.reference}`);
-      } catch (error) {
-        console.error('❌ Error navigating to adjacent verse:', error);
-      } finally {
-        // Don't set loading to false immediately - let the useEffect handle it after data loads
-        // setLoading(false); // Commented out - loading will be set to false in loadStrongsData
-      }
-    } else {
-      console.log(`❌ Target index ${newIndex} is out of bounds (0-${allVerses.length - 1})`);
+    if (targetIndex < 0 || targetIndex >= allVerses.length) {
+      console.log(`❌ Target index ${targetIndex} is out of bounds (0-${allVerses.length - 1})`);
+      return;
     }
+    
+    const targetVerse = allVerses[targetIndex];
+    console.log(`🎯 Navigating ${direction} to: ${targetVerse.reference} (index ${targetIndex})`);
+    
+    try {
+      setLoading(true);
+      
+      // Clear all current Strong's data to ensure fresh reload
+      setStrongsWords([]);
+      setInterlinearCells([]);
+      setSelectedWord(null);
+      setSelectedOccurrences([]);
+      setShowSearch(false);
+      setSearchQuery('');
+      
+      // This is the key: we're going to trigger the exact same flow as double-clicking a verse
+      // Instead of just calling onNavigateToVerse, we're going to directly load the Strong's data
+      // for the target verse, simulating what happens when someone double-clicks
+      
+      console.log(`🔄 Loading Strong's data for ${targetVerse.reference} (same as double-click)`);
+      
+      // Load Strong's data for the new verse (this is what double-click does)
+      await loadStrongsData(targetVerse);
+      
+      // Also call the navigation callback to update the parent component
+      if (onNavigateToVerse) {
+        console.log(`📞 Calling onNavigateToVerse to update parent: ${targetVerse.reference}`);
+        onNavigateToVerse(targetVerse.reference);
+      }
+      
+      console.log(`✅ Successfully navigated to ${targetVerse.reference} with Strong's data loaded`);
+      
+    } catch (error) {
+      console.error(`❌ Error navigating to ${targetVerse.reference}:`, error);
+      setLoading(false);
+    }
+    // Note: loadStrongsData will set loading to false when it completes
   };
 
   const filteredOccurrences = selectedOccurrences.filter(occ => 
