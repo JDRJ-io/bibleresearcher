@@ -88,8 +88,8 @@ export function ColumnHeaders({
   preferences, 
   isGuest = true 
 }: ColumnHeadersProps) {
+  // Mobile header height from ForceHeaderStyles.css: 120px mobile, 200px desktop
   const { main, alternates } = useTranslationMaps();
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   // Make headers adaptive to screen size changes
   const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768);
@@ -337,7 +337,8 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find(col => col.slot === 0);
   const otherColumns = allColumns.filter(col => col.slot !== 0);
 
-  const topHeaderHeight = adaptiveIsMobile ? '48px' : '64px';
+  // Use actual header heights from ForceHeaderStyles.css
+  const topHeaderHeight = adaptiveIsMobile ? '120px' : '200px';
 
   return (
     <div 
