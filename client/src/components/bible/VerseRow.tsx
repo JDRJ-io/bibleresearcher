@@ -173,7 +173,7 @@ export function VerseRow({
 
       {/* Prophecy Columns - New System */}
       {showProphecy && (
-        <div className="w-[960px] flex-shrink-0 border-r">
+        <div className="w-[1800px] flex-shrink-0 border-r">
           <div className="h-[120px]">
             <ProphecyColumns 
               verseIDs={[verse.reference]} 
