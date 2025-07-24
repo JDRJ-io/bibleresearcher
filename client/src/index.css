@@ -205,110 +205,174 @@ html {
 }
 
 .parchment-mode, :root.parchment {
-  /* Illuminated Manuscript - Medieval scriptoriums and candlelight */
-  --background: hsl(35, 45%, 88%);
-  --foreground: hsl(20, 85%, 12%);
-  --muted: hsl(30, 40%, 82%);
-  --muted-foreground: hsl(25, 50%, 35%);
-  --popover: hsl(35, 50%, 90%);
-  --popover-foreground: hsl(20, 80%, 15%);
-  --card: hsl(33, 48%, 89%);
-  --card-foreground: hsl(22, 82%, 14%);
-  --border: hsl(25, 65%, 55%);
-  --input: hsl(30, 35%, 75%);
-  --primary: hsl(15, 85%, 48%);
-  --primary-foreground: hsl(35, 50%, 92%);
-  --secondary: hsl(30, 45%, 78%);
-  --secondary-foreground: hsl(20, 75%, 18%);
-  --accent: hsl(40, 75%, 65%);
-  --accent-foreground: hsl(20, 85%, 12%);
-  --destructive: hsl(0, 80%, 48%);
-  --destructive-foreground: hsl(35, 50%, 95%);
-  --ring: hsl(15, 75%, 45%);
-  font-family: 'Crimson Text', 'Playfair Display', Georgia, serif;
-  letter-spacing: 0.008em;
-  background: linear-gradient(45deg, 
-    hsl(35, 45%, 88%) 0%, 
-    hsl(40, 50%, 90%) 25%, 
-    hsl(35, 45%, 88%) 50%, 
-    hsl(32, 48%, 86%) 100%);
+  /* Illuminated Manuscript - Rich vellum with golden illumination */
+  --background: hsl(38, 55%, 91%);
+  --foreground: hsl(25, 90%, 8%);
+  --muted: hsl(35, 45%, 85%);
+  --muted-foreground: hsl(28, 60%, 32%);
+  --popover: hsl(38, 50%, 93%);
+  --popover-foreground: hsl(25, 85%, 10%);
+  --card: hsl(36, 52%, 90%);
+  --card-foreground: hsl(27, 88%, 9%);
+  --border: hsl(28, 70%, 58%);
+  --input: hsl(32, 40%, 78%);
+  --primary: hsl(18, 95%, 52%);
+  --primary-foreground: hsl(38, 55%, 95%);
+  --secondary: hsl(32, 50%, 82%);
+  --secondary-foreground: hsl(25, 80%, 15%);
+  --accent: hsl(42, 85%, 68%);
+  --accent-foreground: hsl(25, 90%, 8%);
+  --destructive: hsl(0, 85%, 52%);
+  --destructive-foreground: hsl(38, 55%, 95%);
+  --ring: hsl(18, 85%, 50%);
+  
+  /* Classical serif typography for manuscript feel */
+  font-family: 'Crimson Text', 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: 0.015em;
+  font-weight: 400;
+  line-height: 1.6;
+  
+  /* Rich parchment with illuminated edges */
+  background: 
+    radial-gradient(ellipse at 80% 20%, hsla(42, 85%, 75%, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, hsla(28, 70%, 65%, 0.3) 0%, transparent 55%),
+    radial-gradient(ellipse at 60% 60%, hsla(35, 60%, 80%, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 40% 10%, hsla(45, 50%, 85%, 0.6) 0%, transparent 65%),
+    linear-gradient(125deg, 
+      hsl(38, 55%, 92%) 0%, 
+      hsl(35, 58%, 89%) 25%, 
+      hsl(40, 52%, 93%) 50%, 
+      hsl(36, 60%, 90%) 75%, 
+      hsl(34, 56%, 88%) 100%);
+      
+  /* Subtle parchment texture */
+  background-image: 
+    repeating-conic-gradient(from 0deg at 40% 60%, transparent 0deg, hsla(35, 40%, 70%, 0.02) 2deg, transparent 4deg),
+    linear-gradient(90deg, transparent 90%, hsla(28, 50%, 60%, 0.03) 95%, transparent 100%);
+  background-size: 80px 80px, 120px 120px;
 }
 
 .forest-mode, :root.forest {
-  /* Ancient Grove - Contemplation in nature's wisdom */
-  --background: hsl(145, 75%, 3%);
-  --foreground: hsl(50, 60%, 85%);
-  --muted: hsl(140, 65%, 6%);
-  --muted-foreground: hsl(45, 45%, 68%);
-  --popover: hsl(145, 70%, 4%);
-  --popover-foreground: hsl(48, 55%, 82%);
-  --card: hsl(143, 68%, 4%);
-  --card-foreground: hsl(52, 58%, 84%);
-  --border: hsl(135, 55%, 18%);
-  --input: hsl(140, 60%, 10%);
-  --primary: hsl(42, 85%, 65%);
-  --primary-foreground: hsl(145, 70%, 8%);
-  --secondary: hsl(140, 45%, 15%);
-  --secondary-foreground: hsl(48, 70%, 80%);
-  --accent: hsl(130, 60%, 35%);
-  --accent-foreground: hsl(50, 65%, 88%);
-  --destructive: hsl(15, 80%, 55%);
-  --destructive-foreground: hsl(50, 60%, 90%);
-  --ring: hsl(42, 75%, 55%);
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-  letter-spacing: 0.01em;
-  background: radial-gradient(ellipse at center, hsl(145, 75%, 4%) 0%, hsl(140, 80%, 2%) 100%);
+  /* Ancient Grove - Deep forest wisdom with amber candlelight */
+  --background: hsl(150, 85%, 2%);
+  --foreground: hsl(45, 85%, 88%);
+  --muted: hsl(145, 75%, 4%);
+  --muted-foreground: hsl(48, 65%, 72%);
+  --popover: hsl(148, 80%, 3%);
+  --popover-foreground: hsl(45, 80%, 85%);
+  --card: hsl(147, 78%, 2.5%);
+  --card-foreground: hsl(47, 82%, 86%);
+  --border: hsl(135, 70%, 22%);
+  --input: hsl(142, 70%, 8%);
+  --primary: hsl(40, 90%, 70%);
+  --primary-foreground: hsl(150, 80%, 8%);
+  --secondary: hsl(140, 60%, 18%);
+  --secondary-foreground: hsl(45, 75%, 82%);
+  --accent: hsl(130, 80%, 40%);
+  --accent-foreground: hsl(45, 85%, 90%);
+  --destructive: hsl(15, 90%, 60%);
+  --destructive-foreground: hsl(45, 85%, 92%);
+  --ring: hsl(40, 85%, 65%);
+  
+  /* Natural, readable typography */
+  font-family: 'Source Sans Pro', 'Lato', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+  
+  /* Organic forest depth with dappled light */
+  background: 
+    radial-gradient(ellipse at 25% 75%, hsla(130, 80%, 8%, 0.7) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 25%, hsla(40, 70%, 15%, 0.5) 0%, transparent 65%),
+    radial-gradient(ellipse at 60% 80%, hsla(145, 90%, 6%, 0.8) 0%, transparent 70%),
+    radial-gradient(ellipse at 15% 30%, hsla(35, 60%, 12%, 0.6) 0%, transparent 75%),
+    linear-gradient(170deg, hsl(150, 85%, 1.8%) 0%, hsl(145, 80%, 2.2%) 30%, hsl(140, 85%, 1.5%) 100%);
+    
+  /* Subtle organic texture */
+  background-image: 
+    radial-gradient(circle at 30% 70%, hsla(40, 80%, 50%, 0.015) 1px, transparent 1px),
+    radial-gradient(circle at 70% 30%, hsla(130, 70%, 40%, 0.02) 1px, transparent 1px);
+  background-size: 25px 25px, 40px 40px;
 }
 
 .cyber-mode, :root.cyber {
-  /* Digital Monastery - Deep space with electric cyan precision */
-  --background: hsl(200, 95%, 1%);
-  --foreground: hsl(180, 85%, 92%);
-  --muted: hsl(195, 90%, 3%);
-  --muted-foreground: hsl(185, 60%, 65%);
-  --popover: hsl(200, 90%, 2%);
-  --popover-foreground: hsl(180, 85%, 92%);
-  --card: hsl(200, 85%, 2%);
-  --card-foreground: hsl(180, 80%, 90%);
-  --border: hsl(185, 80%, 15%);
-  --input: hsl(190, 75%, 8%);
-  --primary: hsl(180, 100%, 50%);
-  --primary-foreground: hsl(200, 90%, 8%);
-  --secondary: hsl(195, 80%, 6%);
-  --secondary-foreground: hsl(180, 75%, 85%);
-  --accent: hsl(315, 85%, 65%);
-  --accent-foreground: hsl(200, 90%, 5%);
-  --destructive: hsl(0, 90%, 55%);
-  --destructive-foreground: hsl(180, 85%, 95%);
-  --ring: hsl(180, 90%, 45%);
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-  letter-spacing: 0.025em;
+  /* Digital Monastery - Futuristic precision with ethereal glows */
+  --background: hsl(210, 100%, 1%);
+  --foreground: hsl(180, 100%, 85%);
+  --muted: hsl(205, 95%, 2%);
+  --muted-foreground: hsl(185, 70%, 60%);
+  --popover: hsl(210, 95%, 2%);
+  --popover-foreground: hsl(180, 95%, 85%);
+  --card: hsl(208, 92%, 1.5%);
+  --card-foreground: hsl(182, 88%, 82%);
+  --border: hsl(185, 100%, 25%);
+  --input: hsl(195, 85%, 6%);
+  --primary: hsl(180, 100%, 60%);
+  --primary-foreground: hsl(210, 95%, 5%);
+  --secondary: hsl(200, 90%, 8%);
+  --secondary-foreground: hsl(180, 85%, 80%);
+  --accent: hsl(320, 100%, 70%);
+  --accent-foreground: hsl(210, 90%, 8%);
+  --destructive: hsl(0, 100%, 65%);
+  --destructive-foreground: hsl(180, 100%, 95%);
+  --ring: hsl(180, 100%, 50%);
+  
+  /* Enhanced typography for precision */
+  font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+  letter-spacing: 0.05em;
+  
+  /* Multi-layer background with depth */
+  background: 
+    radial-gradient(circle at 20% 80%, hsla(180, 100%, 5%, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, hsla(320, 100%, 10%, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, hsla(200, 100%, 3%, 0.6) 0%, transparent 60%),
+    linear-gradient(135deg, hsl(210, 100%, 0.5%) 0%, hsl(205, 95%, 1%) 100%);
+    
+  /* Subtle grid overlay for tech aesthetic */
+  background-image: 
+    linear-gradient(hsla(180, 100%, 50%, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(180, 100%, 50%, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .rainbow-mode, :root.rainbow {
-  /* Aurora Scriptura - Divine light breaking through celestial darkness */
-  --background: hsl(240, 85%, 2%);
-  --foreground: hsl(45, 95%, 88%);
-  --muted: hsl(235, 70%, 4%);
-  --muted-foreground: hsl(50, 70%, 70%);
-  --popover: hsl(240, 80%, 3%);
-  --popover-foreground: hsl(45, 90%, 85%);
-  --card: hsl(238, 75%, 3%);
-  --card-foreground: hsl(48, 85%, 87%);
-  --border: hsl(280, 60%, 25%);
-  --input: hsl(245, 70%, 8%);
-  --primary: hsl(285, 90%, 65%);
-  --primary-foreground: hsl(240, 80%, 10%);
-  --secondary: hsl(260, 60%, 12%);
-  --secondary-foreground: hsl(45, 80%, 82%);
-  --accent: hsl(320, 75%, 55%);
-  --accent-foreground: hsl(240, 85%, 8%);
-  --destructive: hsl(0, 85%, 58%);
-  --destructive-foreground: hsl(45, 90%, 92%);
-  --ring: hsl(285, 80%, 50%);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  letter-spacing: 0.015em;
-  background: linear-gradient(135deg, hsl(240, 85%, 2%) 0%, hsl(260, 75%, 3%) 100%);
+  /* Aurora Scriptura - Divine light cascading through cosmic darkness */
+  --background: hsl(245, 95%, 1%);
+  --foreground: hsl(50, 100%, 92%);
+  --muted: hsl(240, 85%, 3%);
+  --muted-foreground: hsl(55, 80%, 75%);
+  --popover: hsl(245, 90%, 2%);
+  --popover-foreground: hsl(50, 95%, 90%);
+  --card: hsl(242, 88%, 1.5%);
+  --card-foreground: hsl(52, 92%, 89%);
+  --border: hsl(285, 70%, 30%);
+  --input: hsl(250, 80%, 6%);
+  --primary: hsl(285, 100%, 75%);
+  --primary-foreground: hsl(245, 90%, 8%);
+  --secondary: hsl(265, 70%, 15%);
+  --secondary-foreground: hsl(50, 85%, 85%);
+  --accent: hsl(320, 90%, 65%);
+  --accent-foreground: hsl(245, 88%, 10%);
+  --destructive: hsl(0, 95%, 68%);
+  --destructive-foreground: hsl(50, 100%, 95%);
+  --ring: hsl(285, 90%, 60%);
+  
+  /* Elegant inter typography with golden warmth */
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.025em;
+  font-weight: 400;
+  
+  /* Multi-dimensional aurora background */
+  background: 
+    radial-gradient(ellipse at 30% 70%, hsla(285, 100%, 15%, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse at 70% 30%, hsla(320, 90%, 12%, 0.5) 0%, transparent 65%),
+    radial-gradient(ellipse at 50% 10%, hsla(270, 80%, 8%, 0.7) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 40%, hsla(240, 100%, 5%, 0.8) 0%, transparent 80%),
+    linear-gradient(155deg, hsl(245, 95%, 0.8%) 0%, hsl(250, 90%, 1.2%) 40%, hsl(240, 95%, 1%) 100%);
+    
+  /* Subtle shimmer effect */
+  background-image: 
+    linear-gradient(45deg, transparent 40%, hsla(285, 100%, 80%, 0.02) 50%, transparent 60%);
+  background-size: 60px 60px;
 }
 
 .aurora-mode, :root.aurora {
