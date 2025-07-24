@@ -120,65 +120,54 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   // Get prophecy roles for this verse from the parsed prophecy_rows.txt data
   const verseRoles = prophecyData[verse.reference] || { P: [], F: [], V: [] };
 
-  // Get all unique prophecy IDs that touch this verse in any role
-  const allIds = [...verseRoles.P, ...verseRoles.F, ...verseRoles.V];
-  const uniqueIds = Array.from(new Set(allIds));
-
-  // Group prophecy data by ID for rendering (following the documentation mental model)
-  const groupedProphecies: Record<number, {
-    summary: string;
-    P: string[];  // verses where this prophecy appears as Prediction  
-    F: string[];  // verses where this prophecy appears as Fulfillment
-    V: string[];  // verses where this prophecy appears as Verification
-  }> = {};
-
-  uniqueIds.forEach(id => {
-    const entry = prophecyIndex[id];
-    if (!entry) return; // still loading - show spinner
-
-    groupedProphecies[id] = {
-      summary: entry.summary,
-      P: verseRoles.P.includes(id) ? [verse.reference] : [],
-      F: verseRoles.F.includes(id) ? [verse.reference] : [],
-      V: verseRoles.V.includes(id) ? [verse.reference] : []
-    };
-  });
-
-  // Extract count for this specific column type
-  const count = verseRoles[type]?.length || 0;
+  // Get prophecy IDs that touch this verse in the specific role (P, F, or V)
+  const prophecyIds = verseRoles[type] || [];
 
   return (
     <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
-      {uniqueIds.length > 0 ? (
-        <div className="space-y-1">
-          {Object.values(groupedProphecies).map((prophecyBlock, blockIndex) => (
-            <div key={blockIndex} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0">
-              {/* Summary bar spans across all columns */}
-              <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center">
-                {prophecyBlock.summary}
-              </div>
+      {prophecyIds.length > 0 ? (
+        <div className="space-y-2">
+          {prophecyIds.map((prophecyId) => {
+            const prophecyDetails = prophecyIndex[prophecyId];
+            if (!prophecyDetails) return null; // still loading
 
-              {/* Content for this specific column type */}
-              {prophecyBlock[type].length > 0 && (
-                <div className="space-y-0.5">
-                  {prophecyBlock[type].map((verseRef, i) => (
+            // Get ALL verses for this prophecy in this column type
+            let versesToShow: string[] = [];
+            if (type === 'P') {
+              versesToShow = prophecyDetails.prophecy || [];
+            } else if (type === 'F') {
+              versesToShow = prophecyDetails.fulfillment || [];
+            } else if (type === 'V') {
+              versesToShow = prophecyDetails.verification || [];
+            }
+
+            return (
+              <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
+                {/* Smaller summary text */}
+                <div className="text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight">
+                  {prophecyId}. {prophecyDetails.summary}
+                </div>
+
+                {/* Show ALL verses for this prophecy in this column */}
+                <div className="space-y-1">
+                  {versesToShow.map((verseRef, i) => (
                     <button
                       key={i}
                       onClick={() => onVerseClick && onVerseClick(verseRef)}
                       className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
                     >
-                      <div className="text-blue-600 dark:text-blue-400 font-medium">
+                      <div className="text-blue-600 dark:text-blue-400 font-medium text-[10px]">
                         {verseRef}
                       </div>
-                      <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
-                        {getVerseText(verseRef, mainTranslation)?.substring(0, 80)}...
+                      <div className="text-gray-600 dark:text-gray-400 text-[9px] mt-0.5 leading-tight">
+                        {getVerseText(verseRef, mainTranslation)?.substring(0, 60)}...
                       </div>
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div className="text-gray-400 text-center">—</div>
