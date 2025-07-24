@@ -1,0 +1,73 @@
+/* Mobile Column Headers Positioning Fix - Direct CSS Override */
+
+/* Mobile specific column header positioning */
+@media (max-width: 640px) {
+  .column-headers {
+    position: sticky !important;
+    top: 120px !important; /* Exactly match mobile header height */
+    z-index: 40 !important;
+    background: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .dark .column-headers {
+    background: #1f2937 !important;
+    border-bottom-color: #374151 !important;
+  }
+}
+
+/* Desktop column header positioning */
+@media (min-width: 641px) {
+  .column-headers {
+    position: sticky !important;
+    top: 200px !important; /* Exactly match desktop header height */
+    z-index: 40 !important;
+    background: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .dark .column-headers {
+    background: #1f2937 !important;
+    border-bottom-color: #374151 !important;
+  }
+}
+
+/* Force no gap between headers */
+.divine-header + * .column-headers,
+.divine-header ~ * .column-headers {
+  margin-top: 0 !important;
+  transform: translateY(0) !important;
+}
+
+/* Ensure content flows properly below column headers */
+.bible-content-container {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Force proper stacking order */
+.divine-header {
+  z-index: 50 !important;
+}
+
+.column-headers {
+  z-index: 40 !important;
+}
+
+/* Remove any unwanted margins/padding that could create gaps */
+.column-headers * {
+  margin: 0 !important;
+}
+
+.column-headers .flex {
+  align-items: center !important;
+  height: 100% !important;
+}
