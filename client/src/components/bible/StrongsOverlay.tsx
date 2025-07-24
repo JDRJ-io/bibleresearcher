@@ -77,7 +77,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
 
   useEffect(() => {
     if (verse) {
-      console.log(`🔍 StrongsOverlay received new verse prop: ${verse.reference}`);
+      console.log(`🔍 StrongsOverlay received new verse prop: ${verse.reference} (ID: ${verse.id})`);
+      // Always reload Strong's data when verse changes - this is crucial for navigation
       loadStrongsData(verse);
       setSelectedWord(null);
       setSelectedOccurrences([]);
@@ -167,7 +168,15 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       
       setLoading(true);
       try {
-        // Directly call the navigation callback with the new verse
+        // Clear current Strong's data before navigation to ensure fresh reload
+        setStrongsWords([]);
+        setInterlinearCells([]);
+        setSelectedWord(null);
+        setSelectedOccurrences([]);
+        setShowSearch(false);
+        setSearchQuery('');
+        
+        // Navigate to the new verse - this will trigger useEffect to reload Strong's data
         if (onNavigateToVerse) {
           console.log(`🔍 Calling onNavigateToVerse with: ${newVerse.reference}`);
           onNavigateToVerse(newVerse.reference);
@@ -177,7 +186,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       } catch (error) {
         console.error('❌ Error navigating to adjacent verse:', error);
       } finally {
-        setLoading(false);
+        // Don't set loading to false immediately - let the useEffect handle it after data loads
+        // setLoading(false); // Commented out - loading will be set to false in loadStrongsData
       }
     } else {
       console.log(`❌ Target index ${newIndex} is out of bounds (0-${allVerses.length - 1})`);

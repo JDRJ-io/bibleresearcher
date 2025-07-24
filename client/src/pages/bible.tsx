@@ -82,7 +82,14 @@ export default function BiblePage() {
     
     if (targetVerse) {
       console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id})`);
-      setSelectedVerse(targetVerse);
+      console.log(`🔄 Updating selectedVerse to trigger Strong's data reload`);
+      
+      // Force a new object to ensure React detects the change
+      setSelectedVerse({
+        ...targetVerse,
+        // Add a timestamp to ensure the object is considered "new"
+        _navigationTimestamp: Date.now()
+      });
       
       // Optional: Also scroll to the verse in the main table
       setTimeout(() => {
