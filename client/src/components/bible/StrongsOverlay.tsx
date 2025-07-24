@@ -11,6 +11,7 @@ import { strongsService, type StrongsOccurrence, type InterlinearCell } from '@/
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useBibleStore } from '@/App';
+import './StrongsOverlay.css';
 
 interface StrongsOverlayProps {
   verse: BibleVerse | null;
@@ -105,7 +106,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     }
   };
 
-  const navigateToAdjacentVerse = (direction: 'up' | 'down') => {
+  const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
     if (!verse || !allVerses.length) return;
     
     const currentIndex = allVerses.findIndex(v => v.reference === verse.reference);
@@ -114,7 +115,19 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
     if (newIndex >= 0 && newIndex < allVerses.length) {
       const newVerse = allVerses[newIndex];
-      onNavigateToVerse?.(newVerse.reference);
+      
+      setLoading(true);
+      try {
+        // Load Strong's data for the new verse
+        await loadStrongsData(newVerse);
+        
+        // Navigate to the verse
+        onNavigateToVerse?.(newVerse.reference);
+      } catch (error) {
+        console.error('Error navigating to adjacent verse:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -135,7 +148,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
         onClick={onClose}
       >
         <motion.div
-          className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden flex flex-col"
+          className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-7xl max-h-[95vh] overflow-hidden flex flex-col mx-2 md:mx-4"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
@@ -188,14 +201,22 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     Strong's Interlinear Analysis
                   </span>
                 </div>
-                <div className="text-lg leading-relaxed text-gray-800 dark:text-gray-200">
+                <div className="text-lg leading-relaxed text-gray-800 dark:text-gray-200 mb-4">
                   {verse.text?.KJV || verse.text?.[Object.keys(verse.text)[0]] || 'Loading verse text...'}
+                </div>
+                
+                {/* Verse Context Info */}
+                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <div>Book: {verse.book} | Chapter: {verse.chapter} | Verse: {verse.verse}</div>
+                  {interlinearCells.length > 0 && (
+                    <div>Original Language Words: {interlinearCells.length}</div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex-1 flex overflow-hidden">
-                {/* Left Panel - Strong's Words Grid */}
-                <div className="flex-1 p-6">
+              <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                {/* Main Panel - Strong's Words Grid */}
+                <div className="flex-1 p-4 md:p-6 overflow-y-auto">
                   {loading ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
@@ -206,14 +227,14 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                   ) : interlinearCells.length > 0 ? (
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Hebrew/Greek Word Analysis</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      <div className="strongs-word-grid">
                         {interlinearCells.map((cell, index) => (
                           <div
                             key={index}
-                            className={`p-4 border-2 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                            className={`strongs-word-card group p-3 md:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${
                               selectedWord?.strongs === cell.strongsKey
-                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                ? 'selected border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 shadow-md'
+                                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                             }`}
                             onClick={async () => {
                               const word: StrongsWord = {
@@ -227,34 +248,56 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                               await handleWordClick(word);
                             }}
                           >
+                            {/* Word Index */}
+                            <div className="absolute top-2 left-2 w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-semibold text-gray-600 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {index + 1}
+                            </div>
+
                             {/* Original Word */}
                             <div className="text-center mb-3">
-                              <div className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-1">
-                                {cell.original}
+                              <div className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 leading-tight">
+                                {cell.original || '—'}
                               </div>
-                              <div className="text-sm text-gray-600 dark:text-gray-400 italic">
-                                {cell.transliteration}
+                              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 italic font-medium">
+                                {cell.transliteration || 'No transliteration'}
                               </div>
                             </div>
 
-                            {/* Strong's Number */}
-                            <div className="text-center mb-2">
-                              <Badge variant="outline" className="font-mono text-xs">
-                                {cell.strongsKey}
+                            {/* Strong's Number with language indicator */}
+                            <div className="text-center mb-3">
+                              <Badge 
+                                variant="outline" 
+                                className={`font-mono text-xs px-2 py-1 ${
+                                  cell.strongsKey?.startsWith('H') 
+                                    ? 'border-amber-300 text-amber-700 bg-amber-50 dark:border-amber-700 dark:text-amber-300 dark:bg-amber-900/20'
+                                    : 'border-blue-300 text-blue-700 bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:bg-blue-900/20'
+                                }`}
+                              >
+                                {cell.strongsKey} {cell.strongsKey?.startsWith('H') ? '🕎' : '🏛️'}
                               </Badge>
                             </div>
 
                             {/* Definition */}
-                            <div className="text-sm text-gray-700 dark:text-gray-300 text-center mb-2 leading-relaxed">
-                              {cell.gloss}
+                            <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 text-center mb-3 leading-relaxed min-h-[2.5rem] flex items-center justify-center">
+                              <span className="line-clamp-2">
+                                {cell.gloss || 'No definition available'}
+                              </span>
                             </div>
 
                             {/* Morphology */}
                             {cell.morphology && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 text-center border-t pt-2">
-                                {cell.morphology}
+                              <div className="text-xs text-gray-500 dark:text-gray-400 text-center border-t pt-2 mt-auto">
+                                <div className="font-semibold text-gray-600 dark:text-gray-300 mb-1">Grammar:</div>
+                                <div className="truncate" title={cell.morphology}>
+                                  {cell.morphology}
+                                </div>
                               </div>
                             )}
+
+                            {/* Additional metadata if available */}
+                            <div className="text-xs text-gray-400 dark:text-gray-500 text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {cell.strongsKey?.startsWith('H') ? 'Hebrew' : 'Greek'} • Word {index + 1}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -276,8 +319,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                 {/* Right Panel - Search Results */}
                 {showSearch && selectedWord && (
                   <>
-                    <Separator orientation="vertical" />
-                    <div className="w-96 flex flex-col">
+                    <Separator orientation="vertical" className="hidden lg:block" />
+                    <Separator orientation="horizontal" className="lg:hidden" />
+                    <div className="w-full lg:w-96 flex flex-col max-h-[50vh] lg:max-h-full">
                       <div className="p-4 border-b bg-gray-50 dark:bg-gray-800">
                         <div className="flex items-center gap-2 mb-3">
                           <Badge className="font-mono">{selectedWord.strongs}</Badge>
@@ -304,7 +348,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                         />
                       </div>
 
-                      <ScrollArea className="flex-1">
+                      <ScrollArea className="flex-1 strongs-search-scroll">
                         <div className="p-4 space-y-2">
                           {filteredOccurrences.length > 0 ? (
                             filteredOccurrences.map((occurrence, index) => (
