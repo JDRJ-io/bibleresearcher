@@ -5,6 +5,7 @@ import VirtualBibleTable from '@/components/bible/VirtualBibleTable';
 import { StrongsOverlay } from '@/components/bible/StrongsOverlay';
 import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
 import { SearchModal } from '@/components/bible/SearchModal';
+import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useHashParams } from '@/hooks/useHashParams';
@@ -15,6 +16,7 @@ export default function BiblePage() {
   const { store } = useBibleStore();
   const [selectedVerse, setSelectedVerse] = useState<BibleVerse | null>(null);
   const [selectedProphecyId, setSelectedProphecyId] = useState<number | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
 
   // Initialize body class
@@ -116,6 +118,17 @@ export default function BiblePage() {
     setSelectedProphecyId(null);
   }, []);
 
+  // Menu toggle handler
+  const handleMenuToggle = useCallback(() => {
+    console.log(`🍔 Toggling menu: ${isMenuOpen} -> ${!isMenuOpen}`);
+    setIsMenuOpen(!isMenuOpen);
+  }, [isMenuOpen]);
+
+  const handleMenuClose = useCallback(() => {
+    console.log('🍔 Closing menu');
+    setIsMenuOpen(false);
+  }, []);
+
   // Add chronological order listener
   useEffect(() => {
     const handleChronologicalChange = (event: CustomEvent) => {
@@ -148,7 +161,7 @@ export default function BiblePage() {
         onForward={() => {}}
         canGoBack={false}
         canGoForward={false}
-        onMenuToggle={() => {}}
+        onMenuToggle={handleMenuToggle}
       />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center space-y-4">
@@ -179,7 +192,7 @@ export default function BiblePage() {
         onForward={() => {}}
         canGoBack={false}
         canGoForward={false}
-        onMenuToggle={() => {}}
+        onMenuToggle={handleMenuToggle}
       />
 
       <main className="flex-1 overflow-hidden">
@@ -226,6 +239,12 @@ export default function BiblePage() {
         isOpen={false}
         onClose={() => {}}
         onNavigateToVerse={(verseIndex: number) => console.log('Navigate to:', verseIndex)}
+      />
+
+      {/* Hamburger Menu */}
+      <HamburgerMenu 
+        isOpen={isMenuOpen}
+        onClose={handleMenuClose}
       />
     </div>
   );
