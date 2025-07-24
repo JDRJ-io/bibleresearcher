@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useBibleStore } from '@/App';
 import { TopHeader } from '@/components/bible/TopHeader';
 import VirtualBibleTable from '@/components/bible/VirtualBibleTable';
-import StrongsOverlay from '@/components/bible/StrongsOverlay';
+import { StrongsOverlay } from '@/components/bible/StrongsOverlay';
 import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
 import { SearchModal } from '@/components/bible/SearchModal';
 import { LoadingWheel } from '@/components/LoadingWheel';
