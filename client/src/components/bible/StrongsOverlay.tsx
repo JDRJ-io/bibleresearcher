@@ -77,13 +77,14 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
 
   useEffect(() => {
     if (verse) {
+      console.log(`🔍 StrongsOverlay received new verse prop: ${verse.reference}`);
       loadStrongsData(verse);
       setSelectedWord(null);
       setSelectedOccurrences([]);
       setShowSearch(false);
       setSearchQuery('');
     }
-  }, [verse]);
+  }, [verse?.reference]); // Use verse.reference to ensure proper updates
 
   const handleWordClick = async (word: StrongsWord) => {
     const isCurrentlySelected = selectedWord?.strongs === word.strongs;
@@ -109,33 +110,48 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
     if (!verse || !allVerses.length) return;
     
+    console.log(`🔍 StrongsOverlay navigating ${direction} from ${verse.reference}`);
+    console.log(`🔍 All verses length: ${allVerses.length}`);
+    
     const currentIndex = allVerses.findIndex(v => v.reference === verse.reference);
-    if (currentIndex === -1) return;
+    console.log(`🔍 Current verse index: ${currentIndex}`);
+    
+    if (currentIndex === -1) {
+      console.log(`❌ Current verse not found in allVerses array`);
+      return;
+    }
     
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    console.log(`🔍 Target index: ${newIndex}`);
+    
     if (newIndex >= 0 && newIndex < allVerses.length) {
       const newVerse = allVerses[newIndex];
+      console.log(`🔍 Navigating to verse: ${newVerse.reference}`);
       
       setLoading(true);
       try {
-        // Load Strong's data for the new verse
-        await loadStrongsData(newVerse);
-        
-        // Navigate to the verse in the main view
+        // First navigate to the verse in the main view
         if (onNavigateToVerse) {
           onNavigateToVerse(newVerse.reference);
         }
+        
+        // Load Strong's data for the new verse
+        await loadStrongsData(newVerse);
         
         // Reset selected word state for new verse
         setSelectedWord(null);
         setSelectedOccurrences([]);
         setShowSearch(false);
         setSearchQuery('');
+        
+        console.log(`✅ Successfully navigated to ${newVerse.reference}`);
       } catch (error) {
-        console.error('Error navigating to adjacent verse:', error);
+        console.error('❌ Error navigating to adjacent verse:', error);
       } finally {
         setLoading(false);
       }
+    } else {
+      console.log(`❌ Target index ${newIndex} is out of bounds (0-${allVerses.length - 1})`);
     }
   };
 
@@ -171,16 +187,26 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigateToAdjacentVerse('up')}
-                    className="w-8 h-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateToAdjacentVerse('up');
+                    }}
+                    disabled={loading}
+                    className="w-8 h-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    title="Previous verse"
                   >
                     <ChevronUp className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigateToAdjacentVerse('down')}
-                    className="w-8 h-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateToAdjacentVerse('down');
+                    }}
+                    disabled={loading}
+                    className="w-8 h-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    title="Next verse"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </Button>
