@@ -40,7 +40,6 @@ export default function BiblePage() {
   // Strong's overlay handler
   const handleExpandVerse = useCallback((verse: BibleVerse) => {
     console.log(`🔍 BiblePage handleExpandVerse called for ${verse.reference}`);
-    console.log(`🔍 Setting selectedVerse state to:`, verse);
     setSelectedVerse(verse);
   }, []);
 
@@ -220,12 +219,14 @@ export default function BiblePage() {
         </main>
 
         {/* Strong's Overlay */}
-        <StrongsOverlay
-          verse={selectedVerse}
-          isOpen={!!selectedVerse}
-          onClose={handleCloseStrongsOverlay}
-          onNavigateToVerse={handleNavigateToVerse}
-        />
+        {selectedVerse && (
+          <StrongsOverlay
+            verse={selectedVerse}
+            isOpen={!!selectedVerse}
+            onClose={handleCloseStrongsOverlay}
+            onNavigateToVerse={handleNavigateToVerse}
+          />
+        )}
 
         {/* Prophecy Detail Drawer */}
         {selectedProphecyId && (

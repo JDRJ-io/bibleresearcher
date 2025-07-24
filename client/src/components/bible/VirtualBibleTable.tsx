@@ -460,10 +460,7 @@ const VirtualBibleTable = ({
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
                     onVerseClick={columnData.onVerseClick}
-                    onExpandVerse={onExpandVerse ? (verse: BibleVerse) => {
-                      console.log(`🔍 VirtualBibleTable onExpandVerse called for ${verse.reference}`);
-                      onExpandVerse(verse);
-                    } : undefined}
+                    onExpandVerse={onExpandVerse}
                   />
                 );
             })}
