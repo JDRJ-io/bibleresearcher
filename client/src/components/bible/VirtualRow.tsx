@@ -520,7 +520,7 @@ export function VirtualRow({
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
-      onDoubleClick={onDoubleClick}
+      onDoubleClick={handleDoubleClick}
     >
       {/* Simple layout - all columns in order */}
       {visibleColumns.map(renderSlot)}
