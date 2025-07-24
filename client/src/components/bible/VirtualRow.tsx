@@ -139,18 +139,25 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
     );
   }
 
-  // Get prophecy IDs that touch this verse in the specific role (P, F, or V)
-  const prophecyIds = verseRoles[type] || [];
+  // Get ALL prophecy IDs that touch this verse in ANY role (P, F, or V)
+  const allProphecyIds = [
+    ...(verseRoles.P || []),
+    ...(verseRoles.F || []),
+    ...(verseRoles.V || [])
+  ];
+  
+  // Remove duplicates
+  const uniqueProphecyIds = [...new Set(allProphecyIds)];
 
   return (
     <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
-      {prophecyIds.length > 0 ? (
+      {uniqueProphecyIds.length > 0 ? (
         <div className="space-y-2">
-          {prophecyIds.map((prophecyId) => {
+          {uniqueProphecyIds.map((prophecyId) => {
             const prophecyDetails = prophecyIndex[prophecyId];
             if (!prophecyDetails) return null; // still loading
 
-            // Get ALL verses for this prophecy in this column type
+            // For each prophecy that touches this verse, show the verses in this column type
             let versesToShow: string[] = [];
             if (type === 'P') {
               versesToShow = prophecyDetails.prophecy || [];
@@ -159,6 +166,9 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
             } else if (type === 'V') {
               versesToShow = prophecyDetails.verification || [];
             }
+
+            // Skip if no verses to show in this column for this prophecy
+            if (versesToShow.length === 0) return null;
 
             return (
               <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
