@@ -4,33 +4,53 @@
 
 /* Theme System - Professional curated color schemes for Bible study */
 :root.light {
-  --header-bg: hsl(220, 15%, 97%);
-  --text-color: hsl(220, 20%, 15%);
-  --accent-color: hsl(210, 85%, 45%);
-  --column-bg: hsl(220, 25%, 99%);
-  --border-color: hsl(220, 15%, 88%);
-  --highlight-bg: hsl(220, 35%, 95%);
+  --header-bg: hsl(0, 0%, 100%);
+  --text-color: hsl(210, 24%, 16%);
+  --accent-color: hsl(221, 83%, 53%);
+  --column-bg: hsl(0, 0%, 100%);
+  --border-color: hsl(214, 32%, 91%);
+  --highlight-bg: hsl(214, 100%, 97%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.dark {
-  --header-bg: hsl(220, 20%, 8%);
-  --text-color: hsl(220, 15%, 88%);
-  --accent-color: hsl(210, 80%, 65%);
-  --column-bg: hsl(220, 18%, 12%);
-  --border-color: hsl(220, 15%, 22%);
-  --highlight-bg: hsl(220, 20%, 16%);
+  --header-bg: hsl(222, 84%, 5%);
+  --text-color: hsl(210, 40%, 98%);
+  --accent-color: hsl(217, 91%, 60%);
+  --column-bg: hsl(222, 47%, 11%);
+  --border-color: hsl(217, 33%, 17%);
+  --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.sepia {
-  --header-bg: hsl(40, 30%, 92%);
-  --text-color: hsl(30, 35%, 18%);
-  --accent-color: hsl(25, 75%, 50%);
-  --column-bg: hsl(42, 28%, 96%);
-  --border-color: hsl(38, 25%, 78%);
-  --highlight-bg: hsl(40, 30%, 88%);
+  --header-bg: hsl(47, 29%, 88%);
+  --text-color: hsl(20, 14%, 4%);
+  --accent-color: hsl(25, 95%, 53%);
+  --column-bg: hsl(60, 9%, 98%);
+  --border-color: hsl(20, 6%, 90%);
+  --highlight-bg: hsl(60, 5%, 96%);
   --font-family: 'Crimson Text', 'Times New Roman', serif;
+}
+
+:root.midnight {
+  --header-bg: hsl(235, 50%, 7%);
+  --text-color: hsl(213, 31%, 91%);
+  --accent-color: hsl(212, 100%, 47%);
+  --column-bg: hsl(240, 10%, 4%);
+  --border-color: hsl(215, 28%, 17%);
+  --highlight-bg: hsl(215, 20%, 65%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root.electric {
+  --header-bg: hsl(240, 10%, 4%);
+  --text-color: hsl(47, 96%, 89%);
+  --accent-color: hsl(212, 100%, 47%);
+  --column-bg: hsl(224, 71%, 4%);
+  --border-color: hsl(212, 82%, 51%);
+  --highlight-bg: hsl(213, 92%, 95%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.parchment {
@@ -163,45 +183,73 @@ html {
 
 /* Professional theme mode classes */
 .light-mode, :root.light {
-  --bg-primary: hsl(220, 25%, 99%);
-  --bg-secondary: hsl(220, 15%, 95%);
-  --text-primary: hsl(220, 20%, 15%);
-  --text-secondary: hsl(220, 15%, 45%);
-  --border-color: hsl(220, 15%, 88%);
-  --accent-color: hsl(210, 85%, 45%);
-  --header-bg: hsl(220, 15%, 97%);
-  --text-color: hsl(220, 20%, 15%);
-  --column-bg: hsl(220, 25%, 99%);
-  --highlight-bg: hsl(220, 35%, 95%);
+  --bg-primary: hsl(0, 0%, 100%);
+  --bg-secondary: hsl(210, 40%, 98%);
+  --text-primary: hsl(210, 24%, 16%);
+  --text-secondary: hsl(215, 16%, 47%);
+  --border-color: hsl(214, 32%, 91%);
+  --accent-color: hsl(221, 83%, 53%);
+  --header-bg: hsl(0, 0%, 100%);
+  --text-color: hsl(210, 24%, 16%);
+  --column-bg: hsl(0, 0%, 100%);
+  --highlight-bg: hsl(214, 100%, 97%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .dark-mode, :root.dark {
-  --bg-primary: hsl(220, 18%, 12%);
-  --bg-secondary: hsl(220, 20%, 8%);
-  --text-primary: hsl(220, 15%, 88%);
-  --text-secondary: hsl(220, 10%, 65%);
-  --border-color: hsl(220, 15%, 22%);
-  --accent-color: hsl(210, 80%, 65%);
-  --header-bg: hsl(220, 20%, 8%);
-  --text-color: hsl(220, 15%, 88%);
-  --column-bg: hsl(220, 18%, 12%);
-  --highlight-bg: hsl(220, 20%, 16%);
+  --bg-primary: hsl(222, 47%, 11%);
+  --bg-secondary: hsl(222, 84%, 5%);
+  --text-primary: hsl(210, 40%, 98%);
+  --text-secondary: hsl(215, 20%, 65%);
+  --border-color: hsl(217, 33%, 17%);
+  --accent-color: hsl(217, 91%, 60%);
+  --header-bg: hsl(222, 84%, 5%);
+  --text-color: hsl(210, 40%, 98%);
+  --column-bg: hsl(222, 47%, 11%);
+  --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .sepia-mode, :root.sepia {
-  --bg-primary: hsl(42, 28%, 96%);
-  --bg-secondary: hsl(40, 30%, 92%);
-  --text-primary: hsl(30, 35%, 18%);
-  --text-secondary: hsl(35, 25%, 35%);
-  --border-color: hsl(38, 25%, 78%);
-  --accent-color: hsl(25, 75%, 50%);
-  --header-bg: hsl(40, 30%, 92%);
-  --text-color: hsl(30, 35%, 18%);
-  --column-bg: hsl(42, 28%, 96%);
-  --highlight-bg: hsl(40, 30%, 88%);
+  --bg-primary: hsl(60, 9%, 98%);
+  --bg-secondary: hsl(47, 29%, 88%);
+  --text-primary: hsl(20, 14%, 4%);
+  --text-secondary: hsl(25, 5%, 45%);
+  --border-color: hsl(20, 6%, 90%);
+  --accent-color: hsl(25, 95%, 53%);
+  --header-bg: hsl(47, 29%, 88%);
+  --text-color: hsl(20, 14%, 4%);
+  --column-bg: hsl(60, 9%, 98%);
+  --highlight-bg: hsl(60, 5%, 96%);
   --font-family: 'Crimson Text', 'Times New Roman', serif;
+}
+
+.midnight-mode, :root.midnight {
+  --bg-primary: hsl(240, 10%, 4%);
+  --bg-secondary: hsl(235, 50%, 7%);
+  --text-primary: hsl(213, 31%, 91%);
+  --text-secondary: hsl(215, 20%, 65%);
+  --border-color: hsl(215, 28%, 17%);
+  --accent-color: hsl(212, 100%, 47%);
+  --header-bg: hsl(235, 50%, 7%);
+  --text-color: hsl(213, 31%, 91%);
+  --column-bg: hsl(240, 10%, 4%);
+  --highlight-bg: hsl(215, 20%, 65%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.electric-mode, :root.electric {
+  --bg-primary: hsl(224, 71%, 4%);
+  --bg-secondary: hsl(240, 10%, 4%);
+  --text-primary: hsl(47, 96%, 89%);
+  --text-secondary: hsl(60, 30%, 96%);
+  --border-color: hsl(212, 82%, 51%);
+  --accent-color: hsl(212, 100%, 47%);
+  --header-bg: hsl(240, 10%, 4%);
+  --text-color: hsl(47, 96%, 89%);
+  --column-bg: hsl(224, 71%, 4%);
+  --highlight-bg: hsl(213, 92%, 95%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .parchment-mode, :root.parchment {

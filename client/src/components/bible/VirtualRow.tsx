@@ -460,7 +460,7 @@ export function VirtualRow({
 
     const width = getColumnWidth(slot);
 
-    const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
+    const bgClass = "";
 
     switch (config.type) {
       case 'reference':
@@ -584,10 +584,9 @@ interface TranslationCellProps {
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
   const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
-  const bgClass = isMain ? "bg-blue-50 dark:bg-blue-900" : "";
 
   return (
-    <div className={`w-80 px-2 py-1 text-sm flex-shrink-0 ${bgClass}`}>
+    <div className="w-80 px-2 py-1 text-sm flex-shrink-0">
       <div className="overflow-auto h-full verse-text">
         {verseText || "Loading..."}
       </div>
