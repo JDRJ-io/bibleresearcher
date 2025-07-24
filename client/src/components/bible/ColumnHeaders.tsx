@@ -22,42 +22,47 @@ interface HeaderCellProps {
 }
 
 function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
-  // MATCH EXACT CSS ADAPTIVE WIDTHS - No Tailwind classes, use inline styles that match the CSS
+  // MATCH EXACT VIRTUALROW WIDTHS - Use same logic as VirtualRow getColumnWidth function
   const getAdaptiveStyle = () => {
-    if (!isMobile) {
-      // Desktop widths
-      if (column.name === "Ref" || column.name === "Reference" || column.name === "#") return { width: '80px' };
-      if (column.name === "Notes") return { width: '256px' };
-      if (column.name === "Cross Refs" || column.name === "Cross References") return { width: '320px' };
-      if (["P", "F", "V"].includes(column.name)) return { width: '80px' };
-      return { width: '320px' }; // Main translation
-    }
-
-    // Mobile adaptive widths - EXACTLY match the CSS media queries
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
-
-    if (column.name === "Ref" || column.name === "Reference" || column.name === "#") {
-      // Reference column responsive sizing
-      if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: '40px' }; // Tablet
-      if (viewportWidth >= 667 && viewportWidth <= 896) return { width: '32px' }; // Landscape
-      return { width: '24px' }; // Base mobile
+    
+    // Determine screen size using same logic as VirtualRow
+    let screenSize = 'desktop';
+    if (viewportWidth < 768) {
+      screenSize = 'mobile';
+    } else if (viewportWidth < 1024) {
+      screenSize = 'tablet';
     }
 
-    if (column.name === "Notes") return { width: '80px' };
-
-    if (column.name === "Cross Refs" || column.name === "Cross References") {
-      // Cross-refs responsive sizing
-      if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
-      if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
-      return { width: `calc((100vw - 60px) * 0.48)` };
+    // Use exact same width calculations as VirtualRow getColumnWidth
+    if (screenSize === 'mobile') {
+      switch (column.slot) {
+        case 0: return { width: '24px' };         // Reference - w-6 (24px)
+        case 1: return { width: '80px' };        // Notes - w-20 (80px)
+        case 2: return { width: '208px' };        // Main translation - w-52 (208px)
+        case 7: return { width: '208px' };        // Cross References - w-52 (208px)
+        case 8: case 9: case 10: return { width: '64px' }; // Prophecy P/F/V - w-16 (64px)
+        default: return { width: '160px' };       // Alt translations - w-40 (160px)
+      }
+    } else if (screenSize === 'tablet') {
+      switch (column.slot) {
+        case 0: return { width: '80px' };        // Reference - w-20 (80px)
+        case 1: return { width: '192px' };        // Notes - w-48 (192px)
+        case 2: return { width: '256px' };        // Main translation - w-64 (256px)
+        case 7: return { width: '256px' };        // Cross References - w-64 (256px)
+        case 8: case 9: case 10: return { width: '64px' }; // Prophecy P/F/V - w-16 (64px)
+        default: return { width: '256px' };       // Alt translations - w-64 (256px)
+      }
+    } else { // desktop
+      switch (column.slot) {
+        case 0: return { width: '80px' };        // Reference - w-20 (80px)
+        case 1: return { width: '256px' };        // Notes - w-64 (256px)
+        case 2: return { width: '320px' };        // Main translation - w-80 (320px)
+        case 7: return { width: '320px' };        // Cross References - w-80 (320px)
+        case 8: case 9: case 10: return { width: '80px' }; // Prophecy P/F/V - w-20 (80px)
+        default: return { width: '320px' };       // Alt translations - w-80 (320px)
+      }
     }
-
-    if (["P", "F", "V"].includes(column.name)) return { width: '64px' };
-
-    // Main translation responsive sizing
-    if (viewportWidth >= 768 && viewportWidth <= 1024) return { width: `calc((100vw - 100px) * 0.45)` };
-    if (viewportWidth >= 667 && viewportWidth <= 896) return { width: `calc((100vw - 80px) * 0.46)` };
-    return { width: `calc((100vw - 60px) * 0.48)` };
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
