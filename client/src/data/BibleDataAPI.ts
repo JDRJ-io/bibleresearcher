@@ -42,7 +42,7 @@ function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
     return Promise.resolve(masterCache.get(key));
   }
-  
+
   return fetchFn().then(result => {
     masterCache.set(key, result);
     return result;
@@ -53,10 +53,10 @@ export async function loadTranslation(id: string) {
   return getOrFetch(`translation-${id}`, async () => {
     const textData = await fetchFromStorage(paths.translation(id));
     const textMap = new Map<string, string>();
-    
+
     // Parse the translation text format: "Gen.1:1 #In the beginning..."
     const lines = textData.split('\n').filter(line => line.trim());
-    
+
     for (const line of lines) {
       const cleanLine = line.trim().replace(/\r/g, '');
       const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
@@ -64,13 +64,13 @@ export async function loadTranslation(id: string) {
         const [, reference, text] = match;
         const cleanRef = reference.trim();
         const cleanText = text.trim();
-        
+
         // Store multiple key formats for compatibility
         textMap.set(cleanRef, cleanText); // "Gen.1:1"
         textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
       }
     }
-    
+
     console.log(`✓ Found translation ${id} in cache with ${textMap.size} verses (Bible has 31,102 verses)`);
     return textMap;
   });
@@ -85,7 +85,7 @@ export async function loadTranslationAsText(id: string) {
 export async function loadVerseKeys(chronological = false): Promise<string[]> {
   const cacheKey = chronological ? 'verse-keys-chronological' : 'verse-keys-canonical';
   const filePath = chronological ? paths.verseKeysChronological : paths.verseKeys;
-  
+
   return getOrFetch(cacheKey, async () => {
     const data = await fetchFromStorage(filePath);
     const verseKeys = JSON.parse(data);
@@ -97,7 +97,7 @@ export async function loadVerseKeys(chronological = false): Promise<string[]> {
 export async function loadDatesData(chronological = false): Promise<string[]> {
   const cacheKey = chronological ? 'dates-chronological' : 'dates-canonical';
   const filePath = chronological ? paths.datesChronological : paths.datesCanonical;
-  
+
   return getOrFetch(cacheKey, async () => {
     const data = await fetchFromStorage(filePath);
     const dates = data.split('\n').map(line => line.trim()).filter(line => line);
@@ -193,7 +193,7 @@ export async function getContextGroups(): Promise<any> {
 export async function searchVerses(query: string, translationId: string = 'KJV'): Promise<Array<{ reference: string, text: string, index: number }>> {
   const translationMap = await loadTranslation(translationId);
   const results: Array<{ reference: string, text: string, index: number }> = [];
-  
+
   // Special random verse feature
   if (query === '%') {
     const allEntries = Array.from(translationMap.entries());
@@ -209,11 +209,11 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
     }
     return [];
   }
-  
+
   // Regular text search
   const searchLower = query.toLowerCase();
   const verseKeys = await loadVerseKeys();
-  
+
   for (const [reference, text] of Array.from(translationMap.entries())) {
     if (text.toLowerCase().includes(searchLower)) {
       const index = verseKeys.findIndex((key: string) => key === reference);
@@ -222,12 +222,12 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
         text,
         index: index >= 0 ? index : 0
       });
-      
+
       // Limit results to prevent UI lag
       if (results.length >= 100) break;
     }
   }
-  
+
   return results;
 }
 
@@ -265,7 +265,7 @@ export async function saveNote(note: any, preserveAnchor?: (ref: string, index: 
   const local = { ...note, updated_at: Date.now(), pending: true };
   await db.notes.add(local);
   await queueSync(); // Triggers BG sync or immediate push
-  
+
   if (preserveAnchor) {
     preserveAnchor(note.verseReference, note.verseIndex);
   }
@@ -300,12 +300,12 @@ export async function getStrongsOffsets() {
 
     strongsVerseOffsets = JSON.parse(vTxt);
     strongsIndexOffsets = JSON.parse(iTxt);
-    
+
     console.log('✅ Strong\'s offsets loaded:', {
       verseOffsets: Object.keys(strongsVerseOffsets).length,
       indexOffsets: Object.keys(strongsIndexOffsets).length
     });
-    
+
     return { strongsVerseOffsets, strongsIndexOffsets };
   } catch (error) {
     console.error('❌ Failed to load Strong\'s offsets:', error);
@@ -342,58 +342,81 @@ export async function getProphecy(indexKey: string) {
 // -------- Prophecy data parsing from prophecy_rows.txt and prophecy_index.json ----------
 let prophecyWorker: Worker | null = null;
 
+// Get prophecy rows data (raw file)
+export async function getProphecyRows(): Promise<string> {
+  try {
+    const { data, error } = await supabase.storage
+      .from('bible-data')
+      .download('prophecy_rows.txt');
+
+    if (error) throw error;
+    return await data.text();
+  } catch (error) {
+    console.error('❌ Failed to load prophecy_rows.txt:', error);
+    throw error;
+  }
+}
+
+// Get prophecy index data (JSON file)
+export async function getProphecyIndex(): Promise<string> {
+  try {
+    const { data, error } = await supabase.storage
+      .from('bible-data')
+      .download('prophecy_index.json');
+
+    if (error) throw error;
+    return await data.text();
+  } catch (error) {
+    console.error('❌ Failed to load prophecy_index.json:', error);
+    throw error;
+  }
+}
+
+// Load prophecy data (if not already cached)
 export async function loadProphecyData(): Promise<{
-  verseRoles: Record<string, { P: number[], F: number[], V: number[] }>;
-  prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;
+  verseRoles: Record<string, { P: number[], F: number[], V: number[] }>,
+  prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>
 }> {
   try {
-    // Load both files from Supabase Storage
-    const [prophecyRows, prophecyIndex] = await Promise.all([
-      fetchFromStorage(paths.prophecyRows),
-      fetchFromStorage(paths.prophecyIdx)
+    console.log('🔮 Loading prophecy data from Supabase...');
+
+    // Load both files in parallel
+    const [prophecyRowsText, prophecyIndexText] = await Promise.all([
+      getProphecyRows(),
+      getProphecyIndex()
     ]);
 
-    // Initialize prophecy worker if needed
-    if (!prophecyWorker) {
-      prophecyWorker = new Worker(new URL('@/workers/prophecyWorker.ts', import.meta.url), { type: 'module' });
-    }
+    console.log('📋 Raw prophecy files loaded, processing...');
 
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('ProphecyWorker timeout'));
-      }, 10000);
+    // Parse prophecy_rows.txt - format: "verse$id:role,id:role"
+    const verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
 
-      prophecyWorker!.onmessage = (event) => {
-        clearTimeout(timeout);
-        const { type, payload } = event.data;
-        
-        if (type === 'PROPHECY_FILES_PARSED') {
-          if (payload.success) {
-            console.log(`✅ Loaded prophecy data: ${Object.keys(payload.verseRoles).length} verses with roles, ${Object.keys(payload.prophecyIndex).length} prophecy definitions`);
-            resolve({
-              verseRoles: payload.verseRoles,
-              prophecyIndex: payload.prophecyIndex
-            });
-          } else {
-            reject(new Error(payload.error || 'Failed to parse prophecy files'));
-          }
-        }
-      };
+    prophecyRowsText.split('\n').forEach(line => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return;
 
-      prophecyWorker!.onerror = (error) => {
-        clearTimeout(timeout);
-        reject(error);
-      };
+      const [verse, rolesData] = trimmedLine.split('$');
+      if (!verse || !rolesData) return;
 
-      // Send file contents to worker for parsing
-      prophecyWorker!.postMessage({
-        type: 'PARSE_PROPHECY_FILES',
-        payload: {
-          prophecyRows,
-          prophecyIndex
+      const roles = { P: [] as number[], F: [] as number[], V: [] as number[] };
+
+      rolesData.split(',').forEach(roleItem => {
+        const [idStr, roleType] = roleItem.split(':');
+        const id = parseInt(idStr);
+        if (!isNaN(id) && (roleType === 'P' || roleType === 'F' || roleType === 'V')) {
+          roles[roleType].push(id);
         }
       });
+
+      verseRoles[verse] = roles;
     });
+
+    // Parse prophecy_index.json
+    const prophecyIndex = JSON.parse(prophecyIndexText);
+
+    console.log(`✅ Prophecy data loaded: ${Object.keys(verseRoles).length} verses, ${Object.keys(prophecyIndex).length} prophecies`);
+
+    return { verseRoles, prophecyIndex };
 
   } catch (error) {
     console.error('❌ Failed to load prophecy data:', error);
@@ -411,7 +434,7 @@ export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string,
   const local = { ...bookmark, updated_at: Date.now(), pending: true };
   await db.bookmarks.add(local);
   await queueSync();
-  
+
   if (preserveAnchor) {
     preserveAnchor(bookmark.verseReference, bookmark.verseIndex);
   }
@@ -422,7 +445,7 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
   const local = { ...highlight, updated_at: Date.now(), pending: true };
   await db.highlights.add(local);
   await queueSync();
-  
+
   if (preserveAnchor) {
     preserveAnchor(highlight.verseReference, highlight.verseIndex);
   }
@@ -437,32 +460,32 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     // Load complete cross-reference data from cf1
     const crossRefData = await loadCrossReferences('cf1');
     const lines = crossRefData.split('\n').filter(line => line.trim());
-    
+
     // Find the line for this verse (convert "Gen 1:1" to "Gen.1:1" format)
     const searchKey = verseId.replace(/\s/g, '.');
     const targetLine = lines.find(line => line.startsWith(searchKey + '$$'));
-    
+
     if (!targetLine) {
       console.log(`No cross-references found for ${verseId}`);
       return [];
     }
-    
+
     // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
     const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
-    
+
     // FIXED: Proper parsing that handles numbered books like 1Cor, 2Tim, 3John
     const allReferences: string[] = [];
-    
+
     // Split by $ first to get reference groups
     const referenceGroups = referencesData.split('$');
-    
+
     referenceGroups.forEach(group => {
       if (!group.trim()) return;
-      
+
       // Split by # to get sequential references within a group
       const sequentialRefs = group.split('#');
-      
+
       sequentialRefs.forEach(ref => {
         const cleanRef = ref.trim();
         if (cleanRef) {
@@ -475,10 +498,10 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
         }
       });
     });
-    
+
     console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
     return allReferences;
-    
+
   } catch (error) {
     console.error(`❌ Error loading cross-references for ${verseId}:`, error);
     return [];
@@ -526,7 +549,7 @@ export const BibleDataAPI = {
   getLabelsData,
   getContextGroups,
   searchVerses,
-  
+
   // New Strong's Range request methods
   getStrongsWord: (strongsKey: string) => strongsService.getStrongsWord(strongsKey),
   getVerseStrongsData: (reference: string) => strongsService.getVerseStrongsData(reference),

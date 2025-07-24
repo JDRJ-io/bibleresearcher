@@ -175,7 +175,11 @@ export function VerseRow({
       {showProphecy && (
         <div className="w-144 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-hidden">
-            <ProphecyColumns verseIDs={[verse.reference]} onVerseClick={onNavigateToVerse} />
+            <ProphecyColumns 
+              verseIDs={[verse.reference]} 
+              onVerseClick={onNavigateToVerse}
+              mainTranslation={selectedTranslations[0]?.id}
+            />
           </div>
         </div>
       )}

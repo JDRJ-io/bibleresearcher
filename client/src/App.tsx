@@ -198,12 +198,17 @@ export const useBibleStore = create<{
           const { verseRoles, prophecyIndex } = await loadProphecyData();
 
           // Store both the verse roles and the prophecy index
-          get().setProphecyData(verseRoles);
-          get().setProphecyIndex(prophecyIndex);
+          const currentState = get();
+          currentState.setProphecyData(verseRoles);
+          currentState.setProphecyIndex(prophecyIndex);
 
           console.log(`✅ Prophecy system loaded: ${Object.keys(verseRoles).length} verses with roles, ${Object.keys(prophecyIndex).length} prophecies`);
         } catch (error) {
           console.error('❌ Failed to load prophecy data:', error);
+          // Set empty data to prevent repeated loading attempts
+          const currentState = get();
+          currentState.setProphecyData({});
+          currentState.setProphecyIndex({});
         }
       });
     }
