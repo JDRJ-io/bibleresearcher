@@ -9,8 +9,8 @@ const paths = {
   translation:  (id: string) => `translations/${id}.txt`,
   crossRef:     (set: 'cf1' | 'cf2') => `references/${set}.txt`,
   crossRefOffsets: (set: 'cf1' | 'cf2') => `references/${set}_offsets.json`,
-  prophecyRows: 'references/prophecy_rows.txt',
-  prophecyIdx:  'references/prophecy_index.json',
+  prophecyRows: 'references/prophecy_rows.json',
+  prophecyIdx:  'references/prophecy_index.txt',
   strongsVerseOffsets: 'strongs/strongsVersesOffsets.json',
   strongsIndexOffsets: 'strongs/strongsIndexOffsets.json',
   verseKeys:    'metadata/verseKeys-canonical.json',
@@ -138,16 +138,16 @@ export async function loadCrossRefSlice(start: number, end: number) {
 }
 
 // Prophecy loading with proper caching
-export async function loadProphecyRows(): Promise<string> {
+export async function loadProphecyRows(): Promise<any> {
   return getOrFetch('prophecy-rows', async () => {
-    return await fetchFromStorage(paths.prophecyRows);
+    const textData = await fetchFromStorage(paths.prophecyRows);
+    return JSON.parse(textData);
   });
 }
 
-export async function loadProphecyIndex(): Promise<any> {
+export async function loadProphecyIndex(): Promise<string> {
   return getOrFetch('prophecy-index', async () => {
-    const textData = await fetchFromStorage(paths.prophecyIdx);
-    return JSON.parse(textData);
+    return await fetchFromStorage(paths.prophecyIdx);
   });
 }
 
@@ -340,38 +340,51 @@ export async function loadProphecyData(): Promise<{
     console.log('🔮 Loading prophecy data from Supabase...');
 
     // Load both files in parallel
-    const [prophecyRowsText, prophecyIndexText] = await Promise.all([
-      getProphecyRows(),
-      getProphecyIndex()
+    const [prophecyRowsData, prophecyIndexText] = await Promise.all([
+      getProphecyRows(), // Now returns JSON data
+      getProphecyIndex() // Now returns text data
     ]);
 
     console.log('📋 Raw prophecy files loaded, processing...');
 
-    // Parse prophecy_rows.txt - format: "verse$id:role,id:role"
+    // Parse prophecy_rows.json - now it's JSON format
     const verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
-
-    prophecyRowsText.split('\n').forEach(line => {
-      const trimmedLine = line.trim();
-      if (!trimmedLine) return;
-
-      const [verse, rolesData] = trimmedLine.split('$');
-      if (!verse || !rolesData) return;
-
+    
+    // If prophecyRowsData is already parsed JSON, use it directly
+    const rowsData = typeof prophecyRowsData === 'string' ? JSON.parse(prophecyRowsData) : prophecyRowsData;
+    
+    // Convert JSON structure to the expected format
+    Object.entries(rowsData).forEach(([verse, rolesData]: [string, any]) => {
       const roles = { P: [] as number[], F: [] as number[], V: [] as number[] };
-
-      rolesData.split(',').forEach(roleItem => {
-        const [idStr, roleType] = roleItem.split(':');
-        const id = parseInt(idStr);
-        if (!isNaN(id) && (roleType === 'P' || roleType === 'F' || roleType === 'V')) {
-          roles[roleType].push(id);
-        }
-      });
-
+      
+      if (rolesData.P) roles.P = Array.isArray(rolesData.P) ? rolesData.P : [rolesData.P];
+      if (rolesData.F) roles.F = Array.isArray(rolesData.F) ? rolesData.F : [rolesData.F];
+      if (rolesData.V) roles.V = Array.isArray(rolesData.V) ? rolesData.V : [rolesData.V];
+      
       verseRoles[verse] = roles;
     });
 
-    // Parse prophecy_index.json
-    const prophecyIndex = JSON.parse(prophecyIndexText);
+    // Parse prophecy_index.txt - now it's text format, parse line by line
+    const prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }> = {};
+    
+    const indexLines = prophecyIndexText.split('\n').filter(line => line.trim());
+    
+    for (const line of indexLines) {
+      try {
+        // Assuming each line is JSON for each prophecy entry
+        const entry = JSON.parse(line);
+        if (entry.id) {
+          prophecyIndex[parseInt(entry.id)] = {
+            summary: entry.summary || '',
+            prophecy: entry.prophecy || [],
+            fulfillment: entry.fulfillment || [],
+            verification: entry.verification || []
+          };
+        }
+      } catch (lineError) {
+        console.warn('Failed to parse prophecy index line:', line);
+      }
+    }
 
     console.log(`✅ Prophecy data loaded: ${Object.keys(verseRoles).length} verses, ${Object.keys(prophecyIndex).length} prophecies`);
 

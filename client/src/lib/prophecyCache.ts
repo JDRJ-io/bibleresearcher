@@ -24,34 +24,22 @@ export async function ensureProphecyLoaded() {
     const { getProphecyRows, getProphecyIndex } = await import('@/data/BibleDataAPI');
     
     const [verseResp, rowResp] = await Promise.all([
-      getProphecyRows(),
-      getProphecyIndex()
+      getProphecyRows(), // Now returns JSON
+      getProphecyIndex() // Now returns text
     ]);
     
-    console.log(`📋 Processing prophecy data: ${verseResp.split('\n').length} verse lines`);
+    console.log(`📋 Processing prophecy data from JSON and text files`);
     
-    // Parse verseMeta
+    // Parse verseMeta from JSON format
     const verseMeta: Record<string, { P: string; F: string; V: string }> = {};
-    verseResp.split('\n').forEach(line => {
-      const [verse, data] = line.split('$');
-      if (verse && data) {
-        const items = data.split(',').map(item => {
-          const [id, type] = item.split(':');
-          return { id, type };
-        });
-        
-        const blocks = items.reduce((acc, item) => {
-          if (!acc[item.type]) acc[item.type] = [];
-          acc[item.type].push(item.id);
-          return acc;
-        }, {} as Record<string, string[]>);
-        
-        verseMeta[verse] = {
-          P: blocks.P ? blocks.P.join(',') : '',
-          F: blocks.F ? blocks.F.join(',') : '',
-          V: blocks.V ? blocks.V.join(',') : ''
-        };
-      }
+    const rowsData = typeof verseResp === 'string' ? JSON.parse(verseResp) : verseResp;
+    
+    Object.entries(rowsData).forEach(([verse, data]: [string, any]) => {
+      verseMeta[verse] = {
+        P: data.P ? (Array.isArray(data.P) ? data.P.join(',') : data.P.toString()) : '',
+        F: data.F ? (Array.isArray(data.F) ? data.F.join(',') : data.F.toString()) : '',
+        V: data.V ? (Array.isArray(data.V) ? data.V.join(',') : data.V.toString()) : ''
+      };
     });
     
     // Store in master cache
