@@ -27,6 +27,12 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
 
+  console.log(`🔍 StrongsOverlay render:`, { 
+    isOpen, 
+    verse: verse?.reference || 'null', 
+    verseId: verse?.id || 'null' 
+  });
+
   // New state for Range request data
   const [interlinearCells, setInterlinearCells] = useState<InterlinearCell[]>([]);
   const [selectedOccurrences, setSelectedOccurrences] = useState<StrongsOccurrence[]>([]);

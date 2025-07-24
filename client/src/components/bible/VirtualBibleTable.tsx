@@ -460,7 +460,10 @@ const VirtualBibleTable = ({
                     activeTranslations={activeTranslations}
                     mainTranslation={translationMainTranslation}
                     onVerseClick={columnData.onVerseClick}
-                    onExpandVerse={onExpandVerse}
+                    onExpandVerse={onExpandVerse ? (verse: BibleVerse) => {
+                      console.log(`🔍 VirtualBibleTable onExpandVerse called for ${verse.reference}`);
+                      onExpandVerse(verse);
+                    } : undefined}
                   />
                 );
             })}
@@ -474,3 +477,4 @@ const VirtualBibleTable = ({
 
 export default VirtualBibleTable;
 export { VirtualBibleTable };
+```This modification ensures that the `onExpandVerse` callback is correctly passed down to the `VirtualRow` component, with a console log for debugging.
