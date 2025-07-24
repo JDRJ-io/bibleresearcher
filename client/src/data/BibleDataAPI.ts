@@ -352,6 +352,8 @@ export async function loadProphecyData(): Promise<{
     
     const indexLines = prophecyIndexText.split('\n').filter(line => line.trim());
     
+    console.log(`📋 Processing ${indexLines.length} prophecy index lines...`);
+    
     for (const line of indexLines) {
       // Parse format: "Gen.1:28$664:V"
       const [verse, mappingsStr] = line.split('$');
@@ -366,14 +368,18 @@ export async function loadProphecyData(): Promise<{
         if (!idStr || !roleStr) continue;
         
         const id = parseInt(idStr);
-        const role = roleStr as 'P' | 'F' | 'V';
+        const role = roleStr.trim() as 'P' | 'F' | 'V';
         
-        if (roles[role]) {
+        if (roles[role] && !isNaN(id)) {
           roles[role].push(id);
         }
       }
       
-      verseRoles[verse.trim()] = roles;
+      // Store with multiple key formats for better lookup
+      const baseVerse = verse.trim();
+      verseRoles[baseVerse] = roles;
+      verseRoles[baseVerse.replace(/\./g, ' ')] = roles;  // "Gen.1:28" -> "Gen 1:28"
+      verseRoles[baseVerse.replace(/\s/g, '.')] = roles;  // "Gen 1:28" -> "Gen.1:28"
     }
 
     // Parse prophecy_rows.json (prophecy definitions)

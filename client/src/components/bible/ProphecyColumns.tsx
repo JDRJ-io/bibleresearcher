@@ -54,7 +54,13 @@ function ProphecyBlock({ prophecyData, type, onVerseClick, getVerseText }: Proph
             </button>
             {getVerseText && (
               <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
-                {getVerseText(ref)?.substring(0, 80)}...
+                {(() => {
+                  const text = getVerseText(ref);
+                  if (text && text.length > 120) {
+                    return text.substring(0, 120) + '...';
+                  }
+                  return text || '';
+                })()}
               </div>
             )}
           </div>
@@ -105,8 +111,9 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
           }
         }
         
-        if (!verseRoles) {
-          console.log(`❌ No prophecy data found for ${verseKey}`);
+        if (!verseRoles || (!verseRoles.P?.length && !verseRoles.F?.length && !verseRoles.V?.length)) {
+          console.log(`❌ No prophecy data found for ${verseKey} (tried keys: ${possibleKeys.join(', ')})`);
+          console.log('Available prophecy data keys sample:', Object.keys(prophecyData).slice(0, 10));
           setProphecies([]);
           setIsLoading(false);
           return;
@@ -137,9 +144,10 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
           prophecyBlocks.push({
             id: parseInt(id.toString()),
             summary: prophecyDetails.summary || `Prophecy ${id}`,
-            prophecy: prophecyDetails.prophecy || [],
-            fulfillment: prophecyDetails.fulfillment || [],
-            verification: prophecyDetails.verification || []
+            // Note: prophecyDetails.prophecy contains prediction verses, not the current verse role
+            prophecy: prophecyDetails.prophecy || [],  // All prediction verses for this prophecy
+            fulfillment: prophecyDetails.fulfillment || [],  // All fulfillment verses for this prophecy
+            verification: prophecyDetails.verification || []  // All verification verses for this prophecy
           });
         }
         
@@ -166,16 +174,16 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   if (isLoading) {
     return (
       <div className="flex h-full">
-        {/* Separate P, F, V columns with loading */}
-        <div className="w-48 flex-shrink-0 border-r p-2">
+        {/* Separate P, F, V columns with loading - wider columns */}
+        <div className="w-80 flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
-        <div className="w-48 flex-shrink-0 border-r p-2">
+        <div className="w-80 flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
-        <div className="w-48 flex-shrink-0 p-2">
+        <div className="w-80 flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
@@ -186,16 +194,16 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   if (prophecies.length === 0) {
     return (
       <div className="flex h-full">
-        {/* Empty P, F, V columns */}
-        <div className="w-48 flex-shrink-0 border-r p-2">
+        {/* Empty P, F, V columns - wider columns */}
+        <div className="w-80 flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-48 flex-shrink-0 border-r p-2">
+        <div className="w-80 flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-48 flex-shrink-0 p-2">
+        <div className="w-80 flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
@@ -205,8 +213,8 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   
   return (
     <div className="flex h-full">
-      {/* Separate P, F, V columns as you specified */}
-      <div className="w-48 flex-shrink-0 border-r p-2 overflow-y-auto">
+      {/* Separate P, F, V columns - wider columns for better content display */}
+      <div className="w-80 flex-shrink-0 border-r p-2 overflow-y-auto">
         <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -219,7 +227,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         ))}
       </div>
       
-      <div className="w-48 flex-shrink-0 border-r p-2 overflow-y-auto">
+      <div className="w-80 flex-shrink-0 border-r p-2 overflow-y-auto">
         <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -232,7 +240,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         ))}
       </div>
       
-      <div className="w-48 flex-shrink-0 p-2 overflow-y-auto">
+      <div className="w-80 flex-shrink-0 p-2 overflow-y-auto">
         <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -258,15 +266,15 @@ export function ProphecyColumns({ verseIDs, onVerseClick, mainTranslation }: {
   if (!verseKey) {
     return (
       <div className="flex h-full">
-        <div className="w-48 flex-shrink-0 border-r p-2">
+        <div className="w-80 flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-48 flex-shrink-0 border-r p-2">
+        <div className="w-80 flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-48 flex-shrink-0 p-2">
+        <div className="w-80 flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="text-gray-400 text-center">—</div>
         </div>

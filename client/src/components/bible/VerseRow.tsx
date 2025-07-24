@@ -173,8 +173,8 @@ export function VerseRow({
 
       {/* Prophecy Columns - New System */}
       {showProphecy && (
-        <div className="w-[576px] flex-shrink-0 border-r">
-          <div className="h-[120px] overflow-hidden"></div>
+        <div className="w-[960px] flex-shrink-0 border-r">
+          <div className="h-[120px]">
             <ProphecyColumns 
               verseIDs={[verse.reference]} 
               onVerseClick={onNavigateToVerse}
