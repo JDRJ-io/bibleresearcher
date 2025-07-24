@@ -484,8 +484,9 @@ export function VirtualRow({
       case 'prophecy-p':
       case 'prophecy-f':
       case 'prophecy-v':
+        const prophecyWidth = 'w-[200px]'; // Much wider prophecy columns
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className={`${prophecyWidth} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
@@ -507,7 +508,7 @@ export function VirtualRow({
     width += 80; // Reference column ~80px
     width += 320; // Main translation ~320px
     if (showCrossRefs) width += 240; // Cross refs ~240px
-    if (showProphecies) width += 180; // P+F+V ~60px each
+    if (showProphecies) width += 600; // P+F+V ~200px each
     width += (alternates.length * 320); // Alt translations ~320px each
     return width;
   }, [showCrossRefs, showProphecies, alternates]);
