@@ -549,21 +549,3 @@ function TranslationCell({ verse, translation, getVerseText, isMain }: Translati
     </div>
   );
 }
-import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
-import { ROW_HEIGHT } from '@/constants/layout';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ColumnHeaders } from "./ColumnHeaders";
-import { useColumnData } from '@/hooks/useColumnData';
-import { VerseRow } from "./VerseRow";
-import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
-import { useAnchorSlice } from "@/hooks/useAnchorSlice";
-import { useTranslationMaps } from "@/hooks/useTranslationMaps";
-import { useRowData } from "@/hooks/useRowData";
-import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
-import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
-import { useBibleStore } from "@/App";
-import { useBibleData } from "@/hooks/useBibleData";
