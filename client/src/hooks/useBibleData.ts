@@ -1069,6 +1069,20 @@ export function useBibleData() {
     }
   };
 
+  // Listen for chronological order changes and reload verses
+  useEffect(() => {
+    const handleChronologicalChange = (event: CustomEvent) => {
+      console.log('📅 useBibleData received chronological order change:', event.detail);
+      const { isChronological } = event.detail;
+      reloadVersesInNewOrder(isChronological);
+    };
+
+    window.addEventListener('chronologicalOrderChanged', handleChronologicalChange as EventListener);
+    return () => {
+      window.removeEventListener('chronologicalOrderChanged', handleChronologicalChange as EventListener);
+    };
+  }, [reloadVersesInNewOrder]);
+
   // DISABLED: Apply cross-references when crossRefSet changes - preventing infinite loading
   // TODO: Re-enable when center-anchored loading is stable
   /*
