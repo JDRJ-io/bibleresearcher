@@ -171,15 +171,15 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
     return (
       <div className="flex h-full">
         {/* Separate P, F, V columns with loading - much wider columns */}
-        <div className="w-[600px] flex-shrink-0 border-r p-2">
+        <div className="w-[800px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
-        <div className="w-[600px] flex-shrink-0 border-r p-2">
+        <div className="w-[800px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
-        <div className="w-[600px] flex-shrink-0 p-2">
+        <div className="w-[800px] flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
@@ -191,15 +191,15 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
     return (
       <div className="flex h-full">
         {/* Empty P, F, V columns - much wider columns */}
-        <div className="w-[600px] flex-shrink-0 border-r p-2">
+        <div className="w-[800px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[600px] flex-shrink-0 border-r p-2">
+        <div className="w-[800px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[600px] flex-shrink-0 p-2">
+        <div className="w-[800px] flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
@@ -210,7 +210,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   return (
     <div className="flex h-full">
       {/* Separate P, F, V columns - much wider columns for better content display */}
-      <div className="w-[600px] flex-shrink-0 border-r p-2 overflow-y-auto">
+      <div className="w-[800px] flex-shrink-0 border-r p-2 overflow-y-auto">
         <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -223,7 +223,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         ))}
       </div>
 
-      <div className="w-[600px] flex-shrink-0 border-r p-2 overflow-y-auto">
+      <div className="w-[800px] flex-shrink-0 border-r p-2 overflow-y-auto">
         <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -236,7 +236,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         ))}
       </div>
 
-      <div className="w-[600px] flex-shrink-0 p-2 overflow-y-auto">
+      <div className="w-[800px] flex-shrink-0 p-2 overflow-y-auto">
         <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -262,15 +262,15 @@ export function ProphecyColumns({ verseIDs, onVerseClick, mainTranslation }: {
   if (!verseKey) {
     return (
       <div className="flex h-full">
-        <div className="w-[600px] flex-shrink-0 border-r p-2">
+        <div className="w-[800px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[600px] flex-shrink-0 border-r p-2">
+        <div className="w-[800px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[600px] flex-shrink-0 p-2">
+        <div className="w-[800px] flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
