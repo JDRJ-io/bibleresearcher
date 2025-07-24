@@ -78,14 +78,21 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   useEffect(() => {
     if (verse) {
       console.log(`🔍 StrongsOverlay received new verse prop: ${verse.reference} (ID: ${verse.id})`);
+      console.log(`🔍 Verse object:`, verse);
+      
       // Always reload Strong's data when verse changes - this is crucial for navigation
-      loadStrongsData(verse);
+      // Clear existing data first to ensure fresh load
+      setStrongsWords([]);
+      setInterlinearCells([]);
       setSelectedWord(null);
       setSelectedOccurrences([]);
       setShowSearch(false);
       setSearchQuery('');
+      
+      // Load new data
+      loadStrongsData(verse);
     }
-  }, [verse?.id, verse?.reference]); // Use both id and reference to ensure proper updates
+  }, [verse]); // Watch the entire verse object to catch all changes including navigation
 
   const handleWordClick = async (word: StrongsWord) => {
     const isCurrentlySelected = selectedWord?.strongs === word.strongs;
@@ -159,38 +166,25 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     console.log(`🎯 Navigating ${direction} to: ${targetVerse.reference} (index ${targetIndex})`);
     
     try {
-      setLoading(true);
+      console.log(`🔄 CRITICAL: This is exactly like double-clicking ${targetVerse.reference}`);
       
-      // Clear all current Strong's data to ensure fresh reload
-      setStrongsWords([]);
-      setInterlinearCells([]);
-      setSelectedWord(null);
-      setSelectedOccurrences([]);
-      setShowSearch(false);
-      setSearchQuery('');
+      // The key insight: we need to trigger the parent to update selectedVerse
+      // which will cause this component to re-render with the new verse
+      // and the useEffect will automatically reload the Strong's data
       
-      // This is the key: we're going to trigger the exact same flow as double-clicking a verse
-      // Instead of just calling onNavigateToVerse, we're going to directly load the Strong's data
-      // for the target verse, simulating what happens when someone double-clicks
-      
-      console.log(`🔄 Loading Strong's data for ${targetVerse.reference} (same as double-click)`);
-      
-      // Load Strong's data for the new verse (this is what double-click does)
-      await loadStrongsData(targetVerse);
-      
-      // Also call the navigation callback to update the parent component
       if (onNavigateToVerse) {
-        console.log(`📞 Calling onNavigateToVerse to update parent: ${targetVerse.reference}`);
+        console.log(`📞 Calling onNavigateToVerse to trigger complete verse change: ${targetVerse.reference}`);
+        // This will cause the parent to update selectedVerse, which will trigger useEffect
         onNavigateToVerse(targetVerse.reference);
+      } else {
+        console.error(`❌ onNavigateToVerse callback is not available!`);
       }
       
-      console.log(`✅ Successfully navigated to ${targetVerse.reference} with Strong's data loaded`);
+      console.log(`✅ Navigation request sent for ${targetVerse.reference}`);
       
     } catch (error) {
       console.error(`❌ Error navigating to ${targetVerse.reference}:`, error);
-      setLoading(false);
     }
-    // Note: loadStrongsData will set loading to false when it completes
   };
 
   const filteredOccurrences = selectedOccurrences.filter(occ => 

@@ -79,9 +79,17 @@ export default function BiblePage() {
     if (targetVerse) {
       console.log(`✅ Found target verse for navigation: ${targetVerse.reference}`);
       
-      // Update the selected verse to trigger Strong's data reload
-      // The StrongsOverlay useEffect will handle loading the Strong's data
-      setSelectedVerse(targetVerse);
+      // CRITICAL: Create a completely new verse object to force React to detect the change
+      // This ensures the Strong's overlay useEffect triggers and reloads all data
+      const newVerseObject = {
+        ...targetVerse,
+        // Force React to see this as a new object
+        _navigationId: `nav_${Date.now()}_${Math.random()}`,
+        _timestamp: Date.now()
+      };
+      
+      console.log(`🔄 Setting new verse object to trigger Strong's reload:`, newVerseObject.reference);
+      setSelectedVerse(newVerseObject);
       
       // Scroll to the verse in the main table
       setTimeout(() => {
