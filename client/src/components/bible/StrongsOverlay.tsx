@@ -77,8 +77,13 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
 
   useEffect(() => {
     if (verse) {
-      console.log(`🔍 StrongsOverlay received new verse prop: ${verse.reference} (ID: ${verse.id})`);
-      console.log(`🔍 Verse object:`, verse);
+      console.log(`🔍 StrongsOverlay useEffect triggered - NEW VERSE: ${verse.reference}`);
+      console.log(`🔍 Verse object details:`, {
+        reference: verse.reference,
+        id: verse.id,
+        navigationId: verse._navigationId,
+        timestamp: verse._timestamp
+      });
       
       // Always reload Strong's data when verse changes - this is crucial for navigation
       // Clear existing data first to ensure fresh load
@@ -90,9 +95,10 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       setSearchQuery('');
       
       // Load new data
+      console.log(`🔄 Loading Strong's data for: ${verse.reference}`);
       loadStrongsData(verse);
     }
-  }, [verse]); // Watch the entire verse object to catch all changes including navigation
+  }, [verse?.reference, verse?._navigationId]); // Watch specific properties that change during navigation
 
   const handleWordClick = async (word: StrongsWord) => {
     const isCurrentlySelected = selectedWord?.strongs === word.strongs;
@@ -116,7 +122,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   };
 
   const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
-    console.log(`🚀 NAVIGATION: ${direction} arrow clicked from ${verse?.reference}`);
+    console.log(`🚀 NAVIGATION START: ${direction} arrow clicked from ${verse?.reference}`);
+    console.log(`🔍 Current verse object:`, verse);
+    console.log(`🔍 AllVerses available: ${allVerses.length} verses`);
     
     if (!verse || !allVerses.length) {
       console.log(`❌ Navigation blocked: verse=${!!verse}, allVerses.length=${allVerses.length}`);
@@ -164,7 +172,13 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     
     // Trigger navigation exactly like double-clicking a verse
     if (onNavigateToVerse) {
-      console.log(`📞 Calling onNavigateToVerse for: ${targetVerse.reference}`);
+      console.log(`📞 CALLING PARENT: onNavigateToVerse("${targetVerse.reference}")`);
+      console.log(`📋 Target verse details:`, {
+        reference: targetVerse.reference,
+        book: targetVerse.book,
+        chapter: targetVerse.chapter,
+        verse: targetVerse.verse
+      });
       onNavigateToVerse(targetVerse.reference);
     } else {
       console.error(`❌ onNavigateToVerse callback is missing!`);
