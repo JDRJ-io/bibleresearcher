@@ -108,38 +108,38 @@ export const useBibleStore = create<{
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
   isChronological: false,   // Verse order toggle (canonical vs chronological)
-  currentVerseKeys: [],     // Current verse keys array (canonical or chronological)
+  currentVerseKeys: [],   // Current verse keys array (canonical or chronological)
   setChronological: (chronological: boolean) => set({ isChronological: chronological }),
   setCurrentVerseKeys: (keys: string[]) => set({ currentVerseKeys: keys }),
 
   // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {
     const state = get();
-    
+
     // If no specific verses requested, this is a no-op (we load on-demand only)
     if (!verseIds || verseIds.length === 0) {
       console.log('📚 Cross-references will load on-demand as needed');
       return;
     }
-    
+
     // Check which verses we don't have yet
     const neededVerses = verseIds.filter(id => {
       const spaceFormat = id.replace('.', ' ');
       const dotFormat = id.replace(' ', '.');
       return !state.crossRefs[spaceFormat] && !state.crossRefs[dotFormat];
     });
-    
+
     if (neededVerses.length === 0) {
       console.log('✅ All requested cross-references already loaded');
       return;
     }
-    
+
     console.log(`📚 Loading cross-references for ${neededVerses.length} verses...`);
-    
+
     try {
       const { getCrossReferences } = await import('@/data/BibleDataAPI');
       const newCrossRefs: Record<string, string[]> = { ...state.crossRefs };
-      
+
       // Load cross-references for each needed verse individually
       for (const verseId of neededVerses) {
         try {
@@ -154,10 +154,10 @@ export const useBibleStore = create<{
           console.warn(`Failed to load cross-refs for ${verseId}:`, error);
         }
       }
-      
+
       console.log(`✅ Loaded cross-references for ${neededVerses.length} verses`);
       set({ crossRefs: newCrossRefs });
-      
+
     } catch (error) {
       console.error('❌ Failed to load cross-references:', error);
     }
@@ -166,13 +166,13 @@ export const useBibleStore = create<{
   toggleCrossRefs: () => set(state => {
     console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
     const newValue = !state.showCrossRefs;
-    
+
     // Load cross-references data when toggling on
     if (newValue && Object.keys(state.crossRefs).length === 0) {
       // Trigger data loading
       setTimeout(() => get().loadCrossRefsData(), 0);
     }
-    
+
     const newState = {
       showCrossRefs: newValue,
       columnState: {
@@ -189,25 +189,25 @@ export const useBibleStore = create<{
   toggleProphecies: () => set(state => {
     console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
     const newValue = !state.showProphecies;
-    
+
     // Load prophecy data when toggling on - using prophecy_rows.txt and prophecy_index.json
     if (newValue && Object.keys(state.prophecyData).length === 0) {
       console.log('🔮 Loading prophecy data from Supabase files...');
       import('@/data/BibleDataAPI').then(async ({ loadProphecyData }) => {
         try {
           const { verseRoles, prophecyIndex } = await loadProphecyData();
-          
+
           // Store both the verse roles and the prophecy index
           get().setProphecyData(verseRoles);
           get().setProphecyIndex(prophecyIndex);
-          
+
           console.log(`✅ Prophecy system loaded: ${Object.keys(verseRoles).length} verses with roles, ${Object.keys(prophecyIndex).length} prophecies`);
         } catch (error) {
           console.error('❌ Failed to load prophecy data:', error);
         }
       });
     }
-    
+
     const newState = {
       showProphecies: newValue,
       columnState: {
@@ -240,7 +240,7 @@ export const useBibleStore = create<{
   toggleDates: () => set(state => {
     console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
     const newValue = !state.showDates;
-    
+
     // Load dates data when toggling on
     if (newValue && !state.datesData) {
       console.log('📅 Loading dates data from Supabase...');
@@ -248,7 +248,7 @@ export const useBibleStore = create<{
         try {
           const datesText = await getDatesCanonical();
           const datesArray = datesText.split('\n').filter(line => line.trim());
-          
+
           get().setDatesData(datesArray);
           console.log('✅ Dates data loaded:', datesArray.length, 'verse dates');
         } catch (error) {
@@ -256,7 +256,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     const newState = {
       showDates: newValue,
       columnState: {
@@ -272,7 +272,7 @@ export const useBibleStore = create<{
 
   toggleLabel: (labelId: string) => set(state => {
     const newValue = !state.showLabels[labelId];
-    
+
     // Load label data when toggling on
     if (newValue && !state.labelsData[labelId]) {
       console.log(`🏷️ Loading ${labelId} label data from Supabase...`);
@@ -286,7 +286,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     return {
       showLabels: {
         ...state.showLabels,
@@ -298,7 +298,7 @@ export const useBibleStore = create<{
   toggleContext: () => set(state => {
     console.log('🔄 TOGGLE CONTEXT - Current:', state.showContext, '→ New:', !state.showContext);
     const newValue = !state.showContext;
-    
+
     // Load context groups data when toggling on
     if (newValue) {
       console.log('🌐 Loading context groups data from Supabase...');
@@ -311,7 +311,7 @@ export const useBibleStore = create<{
         }
       });
     }
-    
+
     return { showContext: newValue };
   }),
 
@@ -319,10 +319,10 @@ export const useBibleStore = create<{
   toggleChronological: () => set(state => {
     const newChronological = !state.isChronological;
     console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
-    
+
     // Update state first
     const newState = { isChronological: newChronological };
-    
+
     // Trigger verse reloading by dispatching a custom event
     // This allows the Bible component to react to the change
     setTimeout(() => {
@@ -332,7 +332,7 @@ export const useBibleStore = create<{
       window.dispatchEvent(event);
       console.log(`📅 Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
     }, 0);
-    
+
     return newState;
   }),
 

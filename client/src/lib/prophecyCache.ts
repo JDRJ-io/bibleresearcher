@@ -74,7 +74,7 @@ export function getProphecyForVerse(id: string) {
   
   if (!verseMeta || !rowMeta) {
     console.log('❌ No prophecy metadata available');
-    return [];
+    return { P: [], F: [], V: [] };
   }
   
   // Try multiple formats for the verse lookup
@@ -96,7 +96,7 @@ export function getProphecyForVerse(id: string) {
   
   if (!verse) {
     console.log(`❌ No prophecy data found for verse ${id} (tried: ${possibleKeys.join(', ')})`);
-    return [];
+    return { P: [], F: [], V: [] };
   }
   
   console.log(`✅ Found prophecy data for ${id} (key: ${foundKey}):`, verse);
@@ -109,5 +109,5 @@ export function getProphecyForVerse(id: string) {
   };
   
   console.log(`📊 Prophecy data for ${id}:`, result);
-  return [result];
+  return result;
 }
