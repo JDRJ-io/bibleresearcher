@@ -220,8 +220,8 @@ export function ColumnHeaders({
       isMain: false
     });
 
-    // Add notes column if store state enables it
-    if (showNotes) {
+    // Add notes column if both store state AND individual column visibility enable it
+    if (slotConfig[1]?.visible) {
       columns.push({
         slot: 1,
         type: 'notes',
