@@ -49,19 +49,39 @@ export default function BiblePage() {
   const handleNavigateToVerse = useCallback((reference: string) => {
     console.log(`🔍 BiblePage navigating to verse: ${reference}`);
     
-    // Find the target verse in allVerses using multiple reference formats
-    const normalizedRef = reference.replace(/\s+/g, ' ').trim();
-    const dotFormat = reference.replace(/\s/g, '.');
+    // Normalize reference for better matching
+    const normalizeReference = (ref: string) => {
+      return ref.replace(/\s+/g, '').toLowerCase();
+    };
     
-    const targetVerse = allVerses.find(v => 
-      v.reference === normalizedRef ||
-      v.reference === reference ||
-      `${v.book}.${v.chapter}:${v.verse}` === dotFormat ||
-      `${v.book} ${v.chapter}:${v.verse}` === normalizedRef
-    );
+    const normalizedRef = normalizeReference(reference);
+    
+    // Find the target verse with more robust matching
+    let targetVerse = allVerses.find(v => normalizeReference(v.reference) === normalizedRef);
+    
+    // If not found, try different formats
+    if (!targetVerse) {
+      targetVerse = allVerses.find(v => 
+        v.reference === reference ||
+        v.reference.replace(/\s+/g, ' ').trim() === reference.replace(/\s+/g, ' ').trim()
+      );
+    }
+    
+    // If still not found, try book/chapter/verse parsing
+    if (!targetVerse) {
+      const match = reference.match(/^(\w+)\.?(\d+):(\d+)$/);
+      if (match) {
+        const [, book, chapter, verse] = match;
+        targetVerse = allVerses.find(v => 
+          v.book === book && 
+          v.chapter === parseInt(chapter) && 
+          v.verse === parseInt(verse)
+        );
+      }
+    }
     
     if (targetVerse) {
-      console.log(`✅ Found target verse: ${targetVerse.reference}`);
+      console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id})`);
       setSelectedVerse(targetVerse);
       
       // Optional: Also scroll to the verse in the main table
@@ -76,7 +96,12 @@ export default function BiblePage() {
       }, 100);
     } else {
       console.warn(`❌ Could not find verse for reference: ${reference}`);
-      console.log('Available verses sample:', allVerses.slice(0, 5).map(v => v.reference));
+      console.log(`🔍 Normalized search: ${normalizedRef}`);
+      console.log('Available verses sample:', allVerses.slice(0, 5).map(v => ({ 
+        ref: v.reference, 
+        normalized: normalizeReference(v.reference),
+        id: v.id 
+      })));
     }
   }, [allVerses]);
 

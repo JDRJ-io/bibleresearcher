@@ -116,19 +116,29 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     console.log(`🔍 StrongsOverlay navigating ${direction} from ${verse.reference}`);
     console.log(`🔍 All verses length: ${allVerses.length}`);
     
-    // Try multiple ways to find the current verse
-    let currentIndex = allVerses.findIndex(v => v.reference === verse.reference);
+    // Create a more robust verse matching function
+    const normalizeReference = (ref: string) => {
+      return ref.replace(/\s+/g, '').toLowerCase();
+    };
     
+    // Try multiple ways to find the current verse
+    let currentIndex = -1;
+    const currentRef = normalizeReference(verse.reference);
+    
+    // First try exact match
+    currentIndex = allVerses.findIndex(v => normalizeReference(v.reference) === currentRef);
+    
+    // If not found, try with ID
     if (currentIndex === -1) {
-      // Try with verse ID
       currentIndex = allVerses.findIndex(v => v.id === verse.id);
     }
     
+    // If still not found, try book/chapter/verse matching
     if (currentIndex === -1) {
-      // Try with dot format
-      const dotFormat = verse.reference.replace(/\s/g, '.');
       currentIndex = allVerses.findIndex(v => 
-        v.reference.replace(/\s/g, '.') === dotFormat
+        v.book === verse.book && 
+        v.chapter === verse.chapter && 
+        v.verse === verse.verse
       );
     }
     
@@ -150,8 +160,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       
       setLoading(true);
       try {
-        // Navigate to the verse using the callback
+        // Directly call the navigation callback with the new verse
         if (onNavigateToVerse) {
+          console.log(`🔍 Calling onNavigateToVerse with: ${newVerse.reference}`);
           onNavigateToVerse(newVerse.reference);
         }
         
