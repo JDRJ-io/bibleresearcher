@@ -41,7 +41,6 @@ function ReferenceCell({ verse }: CellProps) {
 
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
-  const { main } = useTranslationMaps(); // Get the current main translation from the store
 
   // Get cross-references from the Bible store - try both formats
   const dotFormat = verse.reference.replace(/\s/g, '.');
@@ -69,13 +68,13 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             const displayRef = ref.replace(/\./g, ' ');
             const lookupRef = ref.replace(/\s/g, '.');
 
-            // Get verse text using the current main translation from the translation maps
+            // Get verse text using the same method as other columns - use mainTranslation parameter
             let refText = '';
-            if (getVerseText && main) {
-              // Try the getVerseText function which should use the cached translation data
-              refText = getVerseText(displayRef, main) || 
-                        getVerseText(lookupRef, main) || 
-                        getVerseText(ref, main) || '';
+            if (getVerseText && mainTranslation) {
+              // Try multiple formats to ensure we get the text from BibleDataAPI cache
+              refText = getVerseText(displayRef, mainTranslation) || 
+                        getVerseText(lookupRef, mainTranslation) || 
+                        getVerseText(ref, mainTranslation) || '';
             }
 
             return (
@@ -117,8 +116,28 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 }) {
   const { prophecyData, prophecyIndex } = useBibleStore();
 
-  // Get prophecy roles for this verse from the parsed prophecy_rows.txt data
-  const verseRoles = prophecyData[verse.reference] || { P: [], F: [], V: [] };
+  // Try multiple formats for verse lookup - match the format used in VirtualRow for cross-refs
+  const possibleKeys = [
+    verse.reference,
+    verse.reference.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
+    verse.reference.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
+  ];
+
+  let verseRoles = null;
+  for (const key of possibleKeys) {
+    if (prophecyData[key]) {
+      verseRoles = prophecyData[key];
+      break;
+    }
+  }
+
+  if (!verseRoles) {
+    return (
+      <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
+        <div className="text-gray-400 text-center">—</div>
+      </div>
+    );
+  }
 
   // Get prophecy IDs that touch this verse in the specific role (P, F, or V)
   const prophecyIds = verseRoles[type] || [];
@@ -144,26 +163,31 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
             return (
               <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
                 {/* Smaller summary text */}
-                <div className="text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight">
+                <div className="text-[9px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight">
                   {prophecyId}. {prophecyDetails.summary}
                 </div>
 
                 {/* Show ALL verses for this prophecy in this column */}
                 <div className="space-y-1">
-                  {versesToShow.map((verseRef, i) => (
-                    <button
-                      key={i}
-                      onClick={() => onVerseClick && onVerseClick(verseRef)}
-                      className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
-                    >
-                      <div className="text-blue-600 dark:text-blue-400 font-medium text-[10px]">
-                        {verseRef}
-                      </div>
-                      <div className="text-gray-600 dark:text-gray-400 text-[9px] mt-0.5 leading-tight">
-                        {getVerseText(verseRef, mainTranslation)?.substring(0, 60)}...
-                      </div>
-                    </button>
-                  ))}
+                  {versesToShow.map((verseRef, i) => {
+                    // Get the full verse text using the same method as other columns
+                    const fullVerseText = getVerseText(verseRef, mainTranslation) || '';
+                    
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => onVerseClick && onVerseClick(verseRef)}
+                        className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
+                      >
+                        <div className="text-blue-600 dark:text-blue-400 font-medium text-[10px] mb-1">
+                          {verseRef}
+                        </div>
+                        <div className="text-gray-600 dark:text-gray-400 text-[9px] leading-tight whitespace-normal break-words">
+                          {fullVerseText || 'Loading...'}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );
