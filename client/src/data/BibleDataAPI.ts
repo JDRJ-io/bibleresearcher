@@ -151,15 +151,6 @@ export async function loadProphecyIndex(): Promise<any> {
   });
 }
 
-// Get prophecy data for BibleDataAPI facade
-export async function getProphecyRows(): Promise<string> {
-  return await loadProphecyRows();
-}
-
-export async function getProphecyIndex(): Promise<any> {
-  return await loadProphecyIndex();
-}
-
 // Dates functionality - loads verse dating metadata
 export async function getDatesCanonical(): Promise<string> {
   return getOrFetch('dates-canonical', async () => {
@@ -244,8 +235,6 @@ export async function saveNotes(note: any, preserveAnchor?: (ref: string, index:
   }
   return result;
 }
-
-
 
 // READ - with offline fallback
 export async function getNotes(): Promise<any[]> {
@@ -341,36 +330,6 @@ export async function getProphecy(indexKey: string) {
 
 // -------- Prophecy data parsing from prophecy_rows.txt and prophecy_index.json ----------
 let prophecyWorker: Worker | null = null;
-
-// Get prophecy rows data (raw file)
-export async function getProphecyRows(): Promise<string> {
-  try {
-    const { data, error } = await supabase.storage
-      .from('bible-data')
-      .download('prophecy_rows.txt');
-
-    if (error) throw error;
-    return await data.text();
-  } catch (error) {
-    console.error('❌ Failed to load prophecy_rows.txt:', error);
-    throw error;
-  }
-}
-
-// Get prophecy index data (JSON file)
-export async function getProphecyIndex(): Promise<string> {
-  try {
-    const { data, error } = await supabase.storage
-      .from('bible-data')
-      .download('prophecy_index.json');
-
-    if (error) throw error;
-    return await data.text();
-  } catch (error) {
-    console.error('❌ Failed to load prophecy_index.json:', error);
-    throw error;
-  }
-}
 
 // Load prophecy data (if not already cached)
 export async function loadProphecyData(): Promise<{
@@ -535,8 +494,9 @@ export const BibleDataAPI = {
   getCrossReferences,
   loadCrossReferences,
   getProphecy,
-  getProphecyRows,
-  getProphecyIndexDetailed,
+  getProphecyRows: loadProphecyRows,
+  getProphecyIndex: loadProphecyIndex,
+  getProphecyIndexDetailed: loadProphecyIndex,
   loadProphecyRows,
   loadProphecyIndex,
   getStrongsOffsets,
