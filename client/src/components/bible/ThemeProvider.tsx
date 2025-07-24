@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useBodyClass } from '@/hooks/useBodyClass';
 
@@ -42,7 +43,29 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
 
-  // Use the new useBodyClass hook instead of direct DOM manipulation
+  // Apply theme to both body class and root CSS variables
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    
+    // Remove all theme classes from both root and body
+    initialState.themes.forEach(t => {
+      root.classList.remove(t.id);
+      body.classList.remove(t.id);
+      // Also remove the root CSS variable versions
+      root.classList.remove(t.id.replace('-mode', ''));
+    });
+    
+    // Add current theme class to both root and body
+    root.classList.add(theme);
+    body.classList.add(theme);
+    // Also add the root CSS variable version
+    root.classList.add(theme.replace('-mode', ''));
+    
+    console.log(`🎨 Theme applied: ${theme} to root and body`);
+  }, [theme]);
+
+  // Use the useBodyClass hook as backup
   useBodyClass(theme);
 
   const value = {
@@ -50,6 +73,7 @@ export function ThemeProvider({
     setTheme: (theme: Theme) => {
       localStorage.setItem(storageKey, theme);
       setTheme(theme);
+      console.log(`🎨 Theme changed to: ${theme}`);
     },
     themes: initialState.themes,
   };

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +14,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { useBibleStore } from "@/App";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useTheme } from '@/components/bible/ThemeProvider';
 import { SizeSelector } from "@/components/ui/SizeSelector";
 
 interface HorizontalMenuProps {
@@ -27,7 +26,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Store connections - same as before but with safe access
   const bibleStore = useBibleStore();
   const showCrossRefs = bibleStore?.showCrossRefs ?? false;
@@ -165,7 +164,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-3">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Study Features</h4>
-            
+
             {/* Cross References */}
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
@@ -358,7 +357,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
-            return (
+                        return (
               <div key={tab.id} className="relative">
                 <button
                   onClick={() => {
@@ -377,7 +376,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   <Icon className="w-3 h-3" />
                   <span className="hidden sm:inline">{tab.label}</span>
                 </button>
-                
+
                 {/* Individual Dropdown Slot - positioned under each tab */}
                 {activeTab === tab.id && (
                   <div className={`absolute top-full mt-2 w-72 sm:w-80 z-50 ${
@@ -400,7 +399,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
               </div>
             );
           })}
-          
+
           {/* Close Button integrated in tab bar */}
           <button
             onClick={onClose}

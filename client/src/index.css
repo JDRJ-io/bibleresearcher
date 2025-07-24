@@ -162,84 +162,116 @@ html {
 }
 
 /* Professional theme mode classes */
-.light-mode {
+.light-mode, :root.light {
   --bg-primary: hsl(220, 25%, 99%);
   --bg-secondary: hsl(220, 15%, 95%);
   --text-primary: hsl(220, 20%, 15%);
   --text-secondary: hsl(220, 15%, 45%);
   --border-color: hsl(220, 15%, 88%);
   --accent-color: hsl(210, 85%, 45%);
-  font-family: var(--font-family);
+  --header-bg: hsl(220, 15%, 97%);
+  --text-color: hsl(220, 20%, 15%);
+  --column-bg: hsl(220, 25%, 99%);
+  --highlight-bg: hsl(220, 35%, 95%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.dark-mode {
+.dark-mode, :root.dark {
   --bg-primary: hsl(220, 18%, 12%);
   --bg-secondary: hsl(220, 20%, 8%);
   --text-primary: hsl(220, 15%, 88%);
   --text-secondary: hsl(220, 10%, 65%);
   --border-color: hsl(220, 15%, 22%);
   --accent-color: hsl(210, 80%, 65%);
-  font-family: var(--font-family);
+  --header-bg: hsl(220, 20%, 8%);
+  --text-color: hsl(220, 15%, 88%);
+  --column-bg: hsl(220, 18%, 12%);
+  --highlight-bg: hsl(220, 20%, 16%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.sepia-mode {
+.sepia-mode, :root.sepia {
   --bg-primary: hsl(42, 28%, 96%);
   --bg-secondary: hsl(40, 30%, 92%);
   --text-primary: hsl(30, 35%, 18%);
   --text-secondary: hsl(35, 25%, 35%);
   --border-color: hsl(38, 25%, 78%);
   --accent-color: hsl(25, 75%, 50%);
-  font-family: var(--font-family);
+  --header-bg: hsl(40, 30%, 92%);
+  --text-color: hsl(30, 35%, 18%);
+  --column-bg: hsl(42, 28%, 96%);
+  --highlight-bg: hsl(40, 30%, 88%);
+  --font-family: 'Crimson Text', 'Times New Roman', serif;
 }
 
-.parchment-mode {
+.parchment-mode, :root.parchment {
   --bg-primary: hsl(38, 40%, 94%);
   --bg-secondary: hsl(35, 45%, 88%);
   --text-primary: hsl(25, 40%, 12%);
   --text-secondary: hsl(30, 30%, 30%);
   --border-color: hsl(32, 35%, 75%);
   --accent-color: hsl(20, 85%, 40%);
-  font-family: var(--font-family);
+  --header-bg: hsl(35, 45%, 88%);
+  --text-color: hsl(25, 40%, 12%);
+  --column-bg: hsl(38, 40%, 94%);
+  --highlight-bg: hsl(35, 40%, 85%);
+  --font-family: 'Crimson Text', 'Times New Roman', serif;
 }
 
-.forest-mode {
+.forest-mode, :root.forest {
   --bg-primary: hsl(155, 18%, 15%);
   --bg-secondary: hsl(150, 15%, 12%);
   --text-primary: hsl(120, 20%, 85%);
   --text-secondary: hsl(130, 15%, 65%);
   --border-color: hsl(150, 15%, 25%);
   --accent-color: hsl(140, 60%, 55%);
-  font-family: var(--font-family);
+  --header-bg: hsl(150, 15%, 12%);
+  --text-color: hsl(120, 20%, 85%);
+  --column-bg: hsl(155, 18%, 15%);
+  --highlight-bg: hsl(150, 18%, 18%);
+  --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.cyber-mode {
+.cyber-mode, :root.cyber {
   --bg-primary: hsl(205, 95%, 5%);
   --bg-secondary: hsl(200, 100%, 2%);
   --text-primary: hsl(180, 85%, 75%);
   --text-secondary: hsl(185, 70%, 60%);
   --border-color: hsl(190, 80%, 25%);
   --accent-color: hsl(315, 100%, 65%);
-  font-family: var(--font-family);
+  --header-bg: hsl(200, 100%, 2%);
+  --text-color: hsl(180, 85%, 75%);
+  --column-bg: hsl(205, 95%, 5%);
+  --highlight-bg: hsl(200, 90%, 8%);
+  --font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
-.rainbow-mode {
+.rainbow-mode, :root.rainbow {
   --bg-primary: hsl(245, 30%, 12%);
   --bg-secondary: hsl(240, 25%, 8%);
   --text-primary: hsl(50, 80%, 85%);
   --text-secondary: hsl(60, 60%, 70%);
   --border-color: hsl(260, 40%, 30%);
   --accent-color: hsl(280, 90%, 70%);
-  font-family: var(--font-family);
+  --header-bg: hsl(240, 25%, 8%);
+  --text-color: hsl(50, 80%, 85%);
+  --column-bg: hsl(245, 30%, 12%);
+  --highlight-bg: hsl(240, 35%, 15%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.aurora-mode {
+.aurora-mode, :root.aurora {
   --bg-primary: hsl(205, 28%, 13%);
   --bg-secondary: hsl(200, 25%, 10%);
   --text-primary: hsl(190, 35%, 88%);
   --text-secondary: hsl(195, 25%, 70%);
   --border-color: hsl(200, 25%, 25%);
   --accent-color: hsl(175, 70%, 60%);
-  font-family: var(--font-family);
+  --header-bg: hsl(200, 25%, 10%);
+  --text-color: hsl(190, 35%, 88%);
+  --column-bg: hsl(205, 28%, 13%);
+  --highlight-bg: hsl(200, 30%, 16%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Apply theme variables to elements */
@@ -249,6 +281,32 @@ body {
   font-size: var(--text-base);
   font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
   transition: all 0.3s ease;
+}
+
+/* Ensure smooth transitions for all theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Theme-specific font family applications */
+.sepia-mode,
+.parchment-mode {
+  --font-family: 'Crimson Text', 'Times New Roman', serif;
+}
+
+.forest-mode {
+  --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.cyber-mode {
+  --font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+.aurora-mode,
+.rainbow-mode,
+.light-mode,
+.dark-mode {
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Font smoothing for better readability */
