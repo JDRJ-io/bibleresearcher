@@ -2,50 +2,150 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme System - Multiple visual themes for different moods */
+/* Professional Theme System - Aesthetically pleasing color palettes */
+
+/* Classic Light - Clean and bright */
 :root.light {
-  --header-bg: hsl(210, 40%, 95%);
-  --text-color: hsl(210, 22%, 22%);
-  --accent-color: hsl(210, 40%, 40%);
-  --column-bg: hsl(210, 40%, 98%);
-  --border-color: hsl(210, 25%, 85%);
-  --highlight-bg: hsl(210, 40%, 96%);
+  --header-bg: hsl(0, 0%, 98%);
+  --text-color: hsl(0, 0%, 15%);
+  --accent-color: hsl(213, 94%, 68%);
+  --column-bg: hsl(0, 0%, 100%);
+  --border-color: hsl(0, 0%, 88%);
+  --highlight-bg: hsl(213, 100%, 96%);
+  --secondary-text: hsl(0, 0%, 45%);
+  --hover-bg: hsl(213, 100%, 94%);
 }
 
+/* Dark Mode - Sophisticated dark */
 :root.dark {
-  --header-bg: hsl(210, 22%, 15%);
-  --text-color: hsl(210, 40%, 90%);
-  --accent-color: hsl(210, 60%, 70%);
-  --column-bg: hsl(210, 22%, 18%);
-  --border-color: hsl(210, 25%, 25%);
-  --highlight-bg: hsl(210, 22%, 20%);
+  --header-bg: hsl(222, 47%, 11%);
+  --text-color: hsl(213, 31%, 91%);
+  --accent-color: hsl(213, 93%, 73%);
+  --column-bg: hsl(222, 47%, 14%);
+  --border-color: hsl(222, 47%, 22%);
+  --highlight-bg: hsl(222, 47%, 18%);
+  --secondary-text: hsl(213, 31%, 71%);
+  --hover-bg: hsl(222, 47%, 20%);
 }
 
+/* Vintage Sepia - Warm paper feel */
 :root.sepia {
-  --header-bg: hsl(35, 25%, 92%);
-  --text-color: hsl(35, 25%, 25%);
-  --accent-color: hsl(35, 40%, 45%);
-  --column-bg: hsl(35, 25%, 95%);
-  --border-color: hsl(35, 20%, 80%);
-  --highlight-bg: hsl(35, 25%, 88%);
+  --header-bg: hsl(38, 33%, 91%);
+  --text-color: hsl(38, 33%, 20%);
+  --accent-color: hsl(18, 77%, 52%);
+  --column-bg: hsl(38, 33%, 96%);
+  --border-color: hsl(38, 33%, 80%);
+  --highlight-bg: hsl(38, 33%, 88%);
+  --secondary-text: hsl(38, 33%, 40%);
+  --hover-bg: hsl(38, 33%, 85%);
 }
 
-:root.fireworks {
-  --header-bg: hsl(260, 30%, 15%);
-  --text-color: hsl(260, 20%, 90%);
-  --accent-color: hsl(300, 60%, 70%);
-  --column-bg: hsl(260, 30%, 18%);
-  --border-color: hsl(260, 25%, 25%);
-  --highlight-bg: hsl(260, 30%, 20%);
+/* Ocean Breeze - Calming blues */
+:root.ocean {
+  --header-bg: hsl(199, 100%, 96%);
+  --text-color: hsl(199, 43%, 20%);
+  --accent-color: hsl(199, 89%, 48%);
+  --column-bg: hsl(199, 100%, 98%);
+  --border-color: hsl(199, 43%, 80%);
+  --highlight-bg: hsl(199, 100%, 92%);
+  --secondary-text: hsl(199, 43%, 40%);
+  --hover-bg: hsl(199, 100%, 90%);
 }
 
-:root.aurora {
-  --header-bg: hsl(190, 40%, 15%);
-  --text-color: hsl(190, 30%, 90%);
-  --accent-color: hsl(180, 60%, 70%);
-  --column-bg: hsl(190, 40%, 18%);
-  --border-color: hsl(190, 25%, 25%);
-  --highlight-bg: hsl(190, 40%, 20%);
+/* Forest Sanctuary - Natural greens */
+:root.forest {
+  --header-bg: hsl(140, 40%, 94%);
+  --text-color: hsl(140, 40%, 18%);
+  --accent-color: hsl(140, 65%, 42%);
+  --column-bg: hsl(140, 40%, 97%);
+  --border-color: hsl(140, 40%, 82%);
+  --highlight-bg: hsl(140, 40%, 90%);
+  --secondary-text: hsl(140, 40%, 38%);
+  --hover-bg: hsl(140, 40%, 87%);
+}
+
+/* Golden Sunset - Warm sunset tones */
+:root.sunset {
+  --header-bg: hsl(25, 95%, 94%);
+  --text-color: hsl(25, 47%, 22%);
+  --accent-color: hsl(14, 100%, 57%);
+  --column-bg: hsl(25, 95%, 97%);
+  --border-color: hsl(25, 47%, 82%);
+  --highlight-bg: hsl(25, 95%, 88%);
+  --secondary-text: hsl(25, 47%, 42%);
+  --hover-bg: hsl(25, 95%, 85%);
+}
+
+/* Lavender Fields - Soft purples */
+:root.lavender {
+  --header-bg: hsl(273, 57%, 95%);
+  --text-color: hsl(273, 25%, 25%);
+  --accent-color: hsl(273, 57%, 55%);
+  --column-bg: hsl(273, 57%, 98%);
+  --border-color: hsl(273, 25%, 85%);
+  --highlight-bg: hsl(273, 57%, 90%);
+  --secondary-text: hsl(273, 25%, 45%);
+  --hover-bg: hsl(273, 57%, 87%);
+}
+
+/* Midnight Study - Deep blues with silver */
+:root.midnight {
+  --header-bg: hsl(220, 39%, 18%);
+  --text-color: hsl(220, 39%, 88%);
+  --accent-color: hsl(199, 100%, 70%);
+  --column-bg: hsl(220, 39%, 22%);
+  --border-color: hsl(220, 39%, 35%);
+  --highlight-bg: hsl(220, 39%, 26%);
+  --secondary-text: hsl(220, 39%, 68%);
+  --hover-bg: hsl(220, 39%, 30%);
+}
+
+/* Ancient Parchment - Aged paper feel */
+:root.parchment {
+  --header-bg: hsl(47, 66%, 88%);
+  --text-color: hsl(30, 67%, 25%);
+  --accent-color: hsl(30, 67%, 45%);
+  --column-bg: hsl(47, 66%, 93%);
+  --border-color: hsl(47, 66%, 78%);
+  --highlight-bg: hsl(47, 66%, 84%);
+  --secondary-text: hsl(30, 67%, 45%);
+  --hover-bg: hsl(47, 66%, 80%);
+}
+
+/* Emerald Wisdom - Rich greens with gold */
+:root.emerald {
+  --header-bg: hsl(152, 69%, 92%);
+  --text-color: hsl(152, 31%, 20%);
+  --accent-color: hsl(152, 69%, 38%);
+  --column-bg: hsl(152, 69%, 96%);
+  --border-color: hsl(152, 31%, 80%);
+  --highlight-bg: hsl(152, 69%, 87%);
+  --secondary-text: hsl(152, 31%, 40%);
+  --hover-bg: hsl(152, 69%, 84%);
+}
+
+/* Royal Purple - Regal elegance */
+:root.royal {
+  --header-bg: hsl(263, 85%, 94%);
+  --text-color: hsl(263, 31%, 22%);
+  --accent-color: hsl(263, 85%, 48%);
+  --column-bg: hsl(263, 85%, 97%);
+  --border-color: hsl(263, 31%, 82%);
+  --highlight-bg: hsl(263, 85%, 88%);
+  --secondary-text: hsl(263, 31%, 42%);
+  --hover-bg: hsl(263, 85%, 85%);
+}
+
+/* Copper Scroll - Warm metals */
+:root.copper {
+  --header-bg: hsl(21, 62%, 89%);
+  --text-color: hsl(21, 62%, 22%);
+  --accent-color: hsl(21, 62%, 42%);
+  --column-bg: hsl(21, 62%, 94%);
+  --border-color: hsl(21, 62%, 78%);
+  --highlight-bg: hsl(21, 62%, 84%);
+  --secondary-text: hsl(21, 62%, 42%);
+  --hover-bg: hsl(21, 62%, 80%);
 }
 
 /* UI Layout Spec CSS Foundation - Device-responsive sizing */
@@ -888,20 +988,76 @@ html {
   --ring: hsl(240, 4.9%, 83.9%);
 }
 
-/* Bible Theme Classes */
-body.light-mode {
-  --bg-color: hsl(0, 0%, 100%);
-  --text-color: hsl(0, 0%, 10%);
-  --header-bg: hsl(210, 40%, 98%);
-  --border-color: hsl(210, 16%, 93%);
-  --column-bg: hsl(210, 17%, 96%);
-  --link-color: hsl(199, 89%, 48%);
-  --hover-bg: hsla(199, 89%, 48%, 0.1);
-  --button-hover: hsl(199, 100%, 92%);
-  --accent-color: hsl(199, 89%, 48%);
-  --success-color: hsl(142, 71%, 45%);
-  --warning-color: hsl(38, 92%, 50%);
-  --error-color: hsl(0, 84%, 60%);
+/* Apply theme variables globally */
+* {
+  --bg-color: var(--column-bg);
+  --text-primary: var(--text-color);
+  --text-secondary: var(--secondary-text);
+  --border: var(--border-color);
+  --surface: var(--header-bg);
+  --accent: var(--accent-color);
+  --hover: var(--hover-bg);
+  --highlight: var(--highlight-bg);
+}
+
+/* Bible Theme Application */
+body {
+  background-color: var(--column-bg);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header styling */
+.divine-header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Table and content styling */
+.bible-table {
+  background-color: var(--column-bg);
+}
+
+.verse-row {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.verse-row:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Button and interactive elements */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Accent elements */
+.accent-color {
+  color: var(--accent-color);
+}
+
+.accent-bg {
+  background-color: var(--accent-color);
+}
+
+/* Cards and panels */
+.card, .panel {
+  background-color: var(--header-bg);
+  border: 1px solid var(--border-color);
+}
+
+/* Links */
+a {
+  color: var(--accent-color);
+}
+
+a:hover {
+  opacity: 0.8;
+} 60%);
 }
 
 body.dark-mode {

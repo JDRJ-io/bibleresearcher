@@ -1,21 +1,29 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Theme = 'light' | 'dark' | 'sepia' | 'fireworks' | 'aurora';
+type Theme = 'light' | 'dark' | 'sepia' | 'ocean' | 'forest' | 'sunset' | 'lavender' | 'midnight' | 'parchment' | 'emerald' | 'royal' | 'copper';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  themes: Array<{ id: Theme; name: string; }>;
+  themes: Array<{ id: Theme; name: string; description: string; }>;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const themes = [
-  { id: 'light' as Theme, name: 'Light' },
-  { id: 'dark' as Theme, name: 'Dark' },
-  { id: 'sepia' as Theme, name: 'Sepia' },
-  { id: 'fireworks' as Theme, name: 'Fireworks' },
-  { id: 'aurora' as Theme, name: 'Aurora' },
+  { id: 'light' as Theme, name: 'Classic Light', description: 'Clean and bright for day reading' },
+  { id: 'dark' as Theme, name: 'Dark Mode', description: 'Easy on the eyes for night reading' },
+  { id: 'sepia' as Theme, name: 'Vintage Sepia', description: 'Warm, paper-like feel' },
+  { id: 'ocean' as Theme, name: 'Ocean Breeze', description: 'Calming blues and teals' },
+  { id: 'forest' as Theme, name: 'Forest Sanctuary', description: 'Natural greens and earth tones' },
+  { id: 'sunset' as Theme, name: 'Golden Sunset', description: 'Warm oranges and deep purples' },
+  { id: 'lavender' as Theme, name: 'Lavender Fields', description: 'Soft purples and gentle grays' },
+  { id: 'midnight' as Theme, name: 'Midnight Study', description: 'Deep blues with silver accents' },
+  { id: 'parchment' as Theme, name: 'Ancient Parchment', description: 'Aged paper with rich browns' },
+  { id: 'emerald' as Theme, name: 'Emerald Wisdom', description: 'Rich greens with gold highlights' },
+  { id: 'royal' as Theme, name: 'Royal Purple', description: 'Regal purples with cream accents' },
+  { id: 'copper' as Theme, name: 'Copper Scroll', description: 'Warm coppers and deep burgundy' },
 ];
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
