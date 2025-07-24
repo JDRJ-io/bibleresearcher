@@ -252,6 +252,37 @@ html {
   background-size: 80px 80px, 120px 120px;
 }
 
+/* Parchment theme verse box overrides */
+.parchment-mode .cross-ref-item,
+.parchment-mode .bg-gray-50,
+.parchment-mode [class*="bg-gray-50"] {
+  background: linear-gradient(135deg, 
+    hsla(35, 50%, 88%, 0.95) 0%, 
+    hsla(32, 45%, 85%, 0.9) 100%) !important;
+  border: 1px solid hsla(28, 70%, 58%, 0.3) !important;
+  box-shadow: 
+    0 2px 8px hsla(25, 60%, 40%, 0.1),
+    inset 0 1px 0 hsla(42, 85%, 68%, 0.3) !important;
+}
+
+.parchment-mode .dark\:bg-gray-800,
+.parchment-mode [class*="dark:bg-gray-800"] {
+  background: linear-gradient(135deg, 
+    hsla(35, 50%, 88%, 0.95) 0%, 
+    hsla(32, 45%, 85%, 0.9) 100%) !important;
+  border: 1px solid hsla(28, 70%, 58%, 0.3) !important;
+  box-shadow: 
+    0 2px 8px hsla(25, 60%, 40%, 0.1),
+    inset 0 1px 0 hsla(42, 85%, 68%, 0.3) !important;
+}
+
+.parchment-mode .text-gray-700,
+.parchment-mode .dark\:text-gray-300,
+.parchment-mode .text-gray-400 {
+  color: hsl(25, 90%, 8%) !important;
+  text-shadow: 0 1px 2px hsla(28, 60%, 60%, 0.2);
+}
+
 .forest-mode, :root.forest {
   /* Ancient Grove - Deep forest wisdom with amber candlelight */
   --background: hsl(150, 85%, 2%);
@@ -294,6 +325,36 @@ html {
   background-size: 25px 25px, 40px 40px;
 }
 
+/* Forest theme verse box overrides */
+.forest-mode .cross-ref-item,
+.forest-mode .bg-gray-50,
+.forest-mode [class*="bg-gray-50"] {
+  background: linear-gradient(135deg, 
+    hsla(145, 75%, 4%, 0.9) 0%, 
+    hsla(140, 60%, 6%, 0.8) 100%) !important;
+  border: 1px solid hsla(135, 70%, 22%, 0.4) !important;
+  box-shadow: 
+    0 0 12px hsla(40, 90%, 70%, 0.1),
+    inset 0 1px 0 hsla(130, 80%, 40%, 0.2) !important;
+}
+
+.forest-mode .dark\:bg-gray-800,
+.forest-mode [class*="dark:bg-gray-800"] {
+  background: linear-gradient(135deg, 
+    hsla(145, 75%, 4%, 0.9) 0%, 
+    hsla(140, 60%, 6%, 0.8) 100%) !important;
+  border: 1px solid hsla(135, 70%, 22%, 0.4) !important;
+  box-shadow: 
+    0 0 12px hsla(40, 90%, 70%, 0.1),
+    inset 0 1px 0 hsla(130, 80%, 40%, 0.2) !important;
+}
+
+.forest-mode .text-gray-700,
+.forest-mode .dark\:text-gray-300 {
+  color: hsl(45, 85%, 88%) !important;
+  text-shadow: 0 0 6px hsla(40, 90%, 70%, 0.3);
+}
+
 .cyber-mode, :root.cyber {
   /* Digital Monastery - Futuristic precision with ethereal glows */
   --background: hsl(210, 100%, 1%);
@@ -332,6 +393,36 @@ html {
     linear-gradient(hsla(180, 100%, 50%, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, hsla(180, 100%, 50%, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
+}
+
+/* Cyber theme verse box overrides */
+.cyber-mode .cross-ref-item,
+.cyber-mode .bg-gray-50,
+.cyber-mode [class*="bg-gray-50"] {
+  background: linear-gradient(135deg, 
+    hsla(195, 85%, 4%, 0.9) 0%, 
+    hsla(185, 90%, 6%, 0.8) 100%) !important;
+  border: 1px solid hsla(185, 100%, 25%, 0.3) !important;
+  box-shadow: 
+    0 0 10px hsla(180, 100%, 50%, 0.1),
+    inset 0 1px 0 hsla(180, 100%, 50%, 0.1) !important;
+}
+
+.cyber-mode .dark\:bg-gray-800,
+.cyber-mode [class*="dark:bg-gray-800"] {
+  background: linear-gradient(135deg, 
+    hsla(195, 85%, 4%, 0.9) 0%, 
+    hsla(185, 90%, 6%, 0.8) 100%) !important;
+  border: 1px solid hsla(185, 100%, 25%, 0.3) !important;
+  box-shadow: 
+    0 0 10px hsla(180, 100%, 50%, 0.1),
+    inset 0 1px 0 hsla(180, 100%, 50%, 0.1) !important;
+}
+
+.cyber-mode .text-gray-700,
+.cyber-mode .dark\:text-gray-300 {
+  color: hsl(180, 85%, 85%) !important;
+  text-shadow: 0 0 5px hsla(180, 100%, 50%, 0.3);
 }
 
 .rainbow-mode, :root.rainbow {
@@ -373,6 +464,36 @@ html {
   background-image: 
     linear-gradient(45deg, transparent 40%, hsla(285, 100%, 80%, 0.02) 50%, transparent 60%);
   background-size: 60px 60px;
+}
+
+/* Rainbow theme verse box overrides */
+.rainbow-mode .cross-ref-item,
+.rainbow-mode .bg-gray-50,
+.rainbow-mode [class*="bg-gray-50"] {
+  background: linear-gradient(135deg, 
+    hsla(245, 85%, 3%, 0.9) 0%, 
+    hsla(260, 70%, 5%, 0.8) 100%) !important;
+  border: 1px solid hsla(285, 70%, 30%, 0.4) !important;
+  box-shadow: 
+    0 0 15px hsla(285, 100%, 70%, 0.15),
+    inset 0 1px 0 hsla(320, 90%, 65%, 0.2) !important;
+}
+
+.rainbow-mode .dark\:bg-gray-800,
+.rainbow-mode [class*="dark:bg-gray-800"] {
+  background: linear-gradient(135deg, 
+    hsla(245, 85%, 3%, 0.9) 0%, 
+    hsla(260, 70%, 5%, 0.8) 100%) !important;
+  border: 1px solid hsla(285, 70%, 30%, 0.4) !important;
+  box-shadow: 
+    0 0 15px hsla(285, 100%, 70%, 0.15),
+    inset 0 1px 0 hsla(320, 90%, 65%, 0.2) !important;
+}
+
+.rainbow-mode .text-gray-700,
+.rainbow-mode .dark\:text-gray-300 {
+  color: hsl(50, 95%, 88%) !important;
+  text-shadow: 0 0 8px hsla(285, 100%, 70%, 0.4);
 }
 
 .aurora-mode, :root.aurora {
