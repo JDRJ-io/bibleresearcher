@@ -88,8 +88,8 @@ export function ColumnHeaders({
   preferences, 
   isGuest = true 
 }: ColumnHeadersProps) {
-  // Mobile header height from ForceHeaderStyles.css: 120px mobile, 200px desktop
   const { main, alternates } = useTranslationMaps();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   // Make headers adaptive to screen size changes
   const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 768);
@@ -337,14 +337,13 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find(col => col.slot === 0);
   const otherColumns = allColumns.filter(col => col.slot !== 0);
 
-  // Use actual header heights from ForceHeaderStyles.css
-  const topHeaderHeight = adaptiveIsMobile ? '120px' : '200px';
+  const topHeaderHeight = adaptiveIsMobile ? '48px' : '64px';
 
   return (
     <div 
       className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
       style={{ 
-        top: topHeaderHeight,
+        top: `${topHeaderHeight || 60}px`,
         left: -scrollLeft,
         position: 'sticky',
         width: '100%'
