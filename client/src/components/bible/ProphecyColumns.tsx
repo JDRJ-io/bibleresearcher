@@ -123,6 +123,10 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
         console.log(`📊 Available prophecy data keys: ${Object.keys(prophecyData).length}`);
         console.log(`📊 Available prophecy index keys: ${Object.keys(prophecyIndex).length}`);
         
+        // Debug the actual data structure
+        console.log(`🔍 Sample prophecyData keys:`, Object.keys(prophecyData).slice(0, 5));
+        console.log(`🔍 Sample prophecyIndex keys:`, Object.keys(prophecyIndex).slice(0, 5));
+        
         // Try multiple formats for verse key matching
         const possibleKeys = [
           verseKey,
@@ -143,6 +147,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
         
         if (!verseRoles) {
           console.log(`❌ No prophecy data found for ${verseKey} (tried: ${possibleKeys.join(', ')})`);
+          console.log(`📋 Available prophecy data sample:`, Object.keys(prophecyData).slice(0, 10));
           setProphecies([]);
           setIsLoading(false);
           return;
@@ -151,14 +156,17 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
         console.log(`✅ Found prophecy data for ${verseKey} (key: ${foundKey}):`, verseRoles);
         
         // Get all unique prophecy IDs that reference this verse
-        const allIds = [...verseRoles.P, ...verseRoles.F, ...verseRoles.V];
+        const allIds = [...(verseRoles.P || []), ...(verseRoles.F || []), ...(verseRoles.V || [])];
         const uniqueIds = Array.from(new Set(allIds));
         
         if (uniqueIds.length === 0) {
+          console.log(`📭 No prophecy IDs found for ${verseKey}`);
           setProphecies([]);
           setIsLoading(false);
           return;
         }
+        
+        console.log(`🔢 Found prophecy IDs for ${verseKey}:`, uniqueIds);
         
         // Build prophecy blocks with role information
         const prophecyBlocks: Array<{ data: ProphecyData; role: 'P' | 'F' | 'V' }> = [];
@@ -167,13 +175,14 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
           const prophecyDetails = prophecyIndex[id];
           if (!prophecyDetails) {
             console.log(`⚠️ Missing prophecy details for ID ${id}`);
+            console.log(`📋 Available prophecy index sample:`, Object.keys(prophecyIndex).slice(0, 10));
             continue;
           }
           
           // Determine the primary role of this verse in this prophecy
           let role: 'P' | 'F' | 'V' = 'P';
-          if (verseRoles.F.includes(id)) role = 'F';
-          else if (verseRoles.V.includes(id)) role = 'V';
+          if (verseRoles.F && verseRoles.F.includes(id)) role = 'F';
+          else if (verseRoles.V && verseRoles.V.includes(id)) role = 'V';
           
           prophecyBlocks.push({
             data: {
@@ -203,6 +212,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
       loadProphecyDataForVerse();
     } else {
       console.log('⏳ Waiting for prophecy data to load...');
+      console.log(`📊 Current state - prophecyData: ${Object.keys(prophecyData).length}, prophecyIndex: ${Object.keys(prophecyIndex).length}`);
       setIsLoading(true);
     }
   }, [verseKey, prophecyData, prophecyIndex, mainTranslation]);

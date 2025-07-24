@@ -339,22 +339,19 @@ export async function loadProphecyData(): Promise<{
   try {
     console.log('🔮 Loading prophecy data from Supabase...');
 
-    // Load both files in parallel
+    // Load both files in parallel - using correct format expectations
     const [prophecyRowsData, prophecyIndexText] = await Promise.all([
-      getProphecyRows(), // Now returns JSON data
-      getProphecyIndex() // Now returns text data
+      loadProphecyRows(), // Returns JSON object
+      loadProphecyIndex() // Returns text string
     ]);
 
     console.log('📋 Raw prophecy files loaded, processing...');
 
-    // Parse prophecy_rows.json - now it's JSON format
+    // Parse prophecy_rows.json - it's already JSON format
     const verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
     
-    // If prophecyRowsData is already parsed JSON, use it directly
-    const rowsData = typeof prophecyRowsData === 'string' ? JSON.parse(prophecyRowsData) : prophecyRowsData;
-    
-    // Convert JSON structure to the expected format
-    Object.entries(rowsData).forEach(([verse, rolesData]: [string, any]) => {
+    // prophecyRowsData is already parsed JSON from loadProphecyRows()
+    Object.entries(prophecyRowsData).forEach(([verse, rolesData]: [string, any]) => {
       const roles = { P: [] as number[], F: [] as number[], V: [] as number[] };
       
       if (rolesData.P) roles.P = Array.isArray(rolesData.P) ? rolesData.P : [rolesData.P];
@@ -364,14 +361,14 @@ export async function loadProphecyData(): Promise<{
       verseRoles[verse] = roles;
     });
 
-    // Parse prophecy_index.txt - now it's text format, parse line by line
+    // Parse prophecy_index.txt - it's text format with one JSON object per line
     const prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }> = {};
     
     const indexLines = prophecyIndexText.split('\n').filter(line => line.trim());
     
     for (const line of indexLines) {
       try {
-        // Assuming each line is JSON for each prophecy entry
+        // Each line should be a complete JSON object
         const entry = JSON.parse(line);
         if (entry.id) {
           prophecyIndex[parseInt(entry.id)] = {

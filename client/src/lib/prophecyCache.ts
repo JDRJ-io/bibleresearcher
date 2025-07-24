@@ -20,31 +20,27 @@ export async function ensureProphecyLoaded() {
   
   try {
     console.log('🔮 Loading prophecy data via BibleDataAPI...');
-    // Use BibleDataAPI for consistent data access
-    const { getProphecyRows, getProphecyIndex } = await import('@/data/BibleDataAPI');
+    // Use loadProphecyData for consistent data access
+    const { loadProphecyData } = await import('@/data/BibleDataAPI');
     
-    const [verseResp, rowResp] = await Promise.all([
-      getProphecyRows(), // Now returns JSON
-      getProphecyIndex() // Now returns text
-    ]);
+    const { verseRoles, prophecyIndex } = await loadProphecyData();
     
-    console.log(`📋 Processing prophecy data from JSON and text files`);
+    console.log(`📋 Processing prophecy data from loadProphecyData`);
     
-    // Parse verseMeta from JSON format
+    // Convert verseRoles format to legacy cache format for compatibility
     const verseMeta: Record<string, { P: string; F: string; V: string }> = {};
-    const rowsData = typeof verseResp === 'string' ? JSON.parse(verseResp) : verseResp;
     
-    Object.entries(rowsData).forEach(([verse, data]: [string, any]) => {
+    Object.entries(verseRoles).forEach(([verse, roles]) => {
       verseMeta[verse] = {
-        P: data.P ? (Array.isArray(data.P) ? data.P.join(',') : data.P.toString()) : '',
-        F: data.F ? (Array.isArray(data.F) ? data.F.join(',') : data.F.toString()) : '',
-        V: data.V ? (Array.isArray(data.V) ? data.V.join(',') : data.V.toString()) : ''
+        P: roles.P.length > 0 ? roles.P.join(',') : '',
+        F: roles.F.length > 0 ? roles.F.join(',') : '',
+        V: roles.V.length > 0 ? roles.V.join(',') : ''
       };
     });
     
     // Store in master cache
     masterCache.set(PROPHECY_VERSE_META_KEY, verseMeta);
-    masterCache.set(PROPHECY_ROW_META_KEY, rowResp);
+    masterCache.set(PROPHECY_ROW_META_KEY, prophecyIndex);
     console.log(`✅ Prophecy data loaded successfully: ${Object.keys(verseMeta).length} verses with prophecy roles`);
   } catch (error) {
     console.error('❌ Failed to load prophecy data from authentic source:', error);
