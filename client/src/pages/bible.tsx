@@ -204,6 +204,7 @@ export default function BiblePage() {
           mainTranslation={mainTranslation}
           onExpandVerse={handleExpandVerse}
           getGlobalVerseText={getGlobalVerseText}
+          onOpenProphecyDetail={handleOpenProphecyDetail}
         />
       </main>
 
