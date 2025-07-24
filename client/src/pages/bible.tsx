@@ -45,6 +45,41 @@ export default function BiblePage() {
     setSelectedVerse(null);
   }, []);
 
+  // Navigation handler for Strong's overlay
+  const handleNavigateToVerse = useCallback((reference: string) => {
+    console.log(`🔍 BiblePage navigating to verse: ${reference}`);
+    
+    // Find the target verse in allVerses using multiple reference formats
+    const normalizedRef = reference.replace(/\s+/g, ' ').trim();
+    const dotFormat = reference.replace(/\s/g, '.');
+    
+    const targetVerse = allVerses.find(v => 
+      v.reference === normalizedRef ||
+      v.reference === reference ||
+      `${v.book}.${v.chapter}:${v.verse}` === dotFormat ||
+      `${v.book} ${v.chapter}:${v.verse}` === normalizedRef
+    );
+    
+    if (targetVerse) {
+      console.log(`✅ Found target verse: ${targetVerse.reference}`);
+      setSelectedVerse(targetVerse);
+      
+      // Optional: Also scroll to the verse in the main table
+      setTimeout(() => {
+        const verseElement = document.getElementById(`verse-${targetVerse.id}`);
+        if (verseElement) {
+          verseElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }, 100);
+    } else {
+      console.warn(`❌ Could not find verse for reference: ${reference}`);
+      console.log('Available verses sample:', allVerses.slice(0, 5).map(v => v.reference));
+    }
+  }, [allVerses]);
+
   // Prophecy drawer handlers
   const handleOpenProphecyDetail = useCallback((prophecyId: number) => {
     console.log(`🔮 Opening prophecy detail for ID: ${prophecyId}`);
@@ -147,7 +182,7 @@ export default function BiblePage() {
           verse={selectedVerse}
           isOpen={!!selectedVerse}
           onClose={handleCloseStrongsOverlay}
-          onNavigateToVerse={(verseId: string) => console.log('Navigate to:', verseId)}
+          onNavigateToVerse={handleNavigateToVerse}
         />
       )}
 

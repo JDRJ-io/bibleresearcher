@@ -84,7 +84,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       setShowSearch(false);
       setSearchQuery('');
     }
-  }, [verse?.reference]); // Use verse.reference to ensure proper updates
+  }, [verse?.id, verse?.reference]); // Use both id and reference to ensure proper updates
 
   const handleWordClick = async (word: StrongsWord) => {
     const isCurrentlySelected = selectedWord?.strongs === word.strongs;
@@ -108,16 +108,36 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   };
 
   const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
-    if (!verse || !allVerses.length) return;
+    if (!verse || !allVerses.length) {
+      console.log(`❌ Navigation blocked: verse=${!!verse}, allVerses.length=${allVerses.length}`);
+      return;
+    }
     
     console.log(`🔍 StrongsOverlay navigating ${direction} from ${verse.reference}`);
     console.log(`🔍 All verses length: ${allVerses.length}`);
     
-    const currentIndex = allVerses.findIndex(v => v.reference === verse.reference);
+    // Try multiple ways to find the current verse
+    let currentIndex = allVerses.findIndex(v => v.reference === verse.reference);
+    
+    if (currentIndex === -1) {
+      // Try with verse ID
+      currentIndex = allVerses.findIndex(v => v.id === verse.id);
+    }
+    
+    if (currentIndex === -1) {
+      // Try with dot format
+      const dotFormat = verse.reference.replace(/\s/g, '.');
+      currentIndex = allVerses.findIndex(v => 
+        v.reference.replace(/\s/g, '.') === dotFormat
+      );
+    }
+    
     console.log(`🔍 Current verse index: ${currentIndex}`);
     
     if (currentIndex === -1) {
       console.log(`❌ Current verse not found in allVerses array`);
+      console.log(`🔍 Looking for: ${verse.reference} (ID: ${verse.id})`);
+      console.log(`🔍 Sample verses:`, allVerses.slice(0, 3).map(v => ({ ref: v.reference, id: v.id })));
       return;
     }
     
@@ -130,21 +150,12 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       
       setLoading(true);
       try {
-        // First navigate to the verse in the main view
+        // Navigate to the verse using the callback
         if (onNavigateToVerse) {
           onNavigateToVerse(newVerse.reference);
         }
         
-        // Load Strong's data for the new verse
-        await loadStrongsData(newVerse);
-        
-        // Reset selected word state for new verse
-        setSelectedWord(null);
-        setSelectedOccurrences([]);
-        setShowSearch(false);
-        setSearchQuery('');
-        
-        console.log(`✅ Successfully navigated to ${newVerse.reference}`);
+        console.log(`✅ Successfully called navigation to ${newVerse.reference}`);
       } catch (error) {
         console.error('❌ Error navigating to adjacent verse:', error);
       } finally {
