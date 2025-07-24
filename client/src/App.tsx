@@ -246,15 +246,16 @@ export const useBibleStore = create<{
     console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
     const newValue = !state.showDates;
 
-    // Load dates data when toggling on - use correct file based on chronological state
-    if (newValue && (!state.datesData || state.datesData.length === 0)) {
+    // Load dates data when toggling on
+    if (newValue && !state.datesData) {
       console.log('📅 Loading dates data from Supabase...');
-      import('@/data/BibleDataAPI').then(async ({ loadDatesData }) => {
+      import('@/data/BibleDataAPI').then(async ({ getDatesCanonical }) => {
         try {
-          const datesArray = await loadDatesData(state.isChronological);
-          
+          const datesText = await getDatesCanonical();
+          const datesArray = datesText.split('\n').filter(line => line.trim());
+
           get().setDatesData(datesArray);
-          console.log(`✅ ${state.isChronological ? 'Chronological' : 'Canonical'} dates data loaded:`, datesArray.length, 'verse dates');
+          console.log('✅ Dates data loaded:', datesArray.length, 'verse dates');
         } catch (error) {
           console.error('❌ Failed to load dates data:', error);
         }
@@ -326,25 +327,6 @@ export const useBibleStore = create<{
 
     // Update state first
     const newState = { isChronological: newChronological };
-
-    // If dates are currently shown, clear old data and reload for new order
-    if (state.showDates) {
-      console.log('📅 Clearing old dates data and reloading for new chronological order...');
-      
-      // Clear existing dates data first to force reload
-      get().setDatesData([]);
-      
-      import('@/data/BibleDataAPI').then(async ({ loadDatesData }) => {
-        try {
-          const datesArray = await loadDatesData(newChronological);
-          
-          get().setDatesData(datesArray);
-          console.log(`✅ ${newChronological ? 'Chronological' : 'Canonical'} dates data reloaded:`, datesArray.length, 'verse dates');
-        } catch (error) {
-          console.error('❌ Failed to reload dates data:', error);
-        }
-      });
-    }
 
     // Trigger verse reloading by dispatching a custom event
     // This allows the Bible component to react to the change
