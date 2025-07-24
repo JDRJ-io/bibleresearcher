@@ -160,7 +160,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   ];
   
   // Remove duplicates
-  const uniqueProphecyIds = [...new Set(allProphecyIds)];
+  const uniqueProphecyIds = Array.from(new Set(allProphecyIds));
 
   return (
     <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
