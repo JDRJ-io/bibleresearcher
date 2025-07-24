@@ -1,7 +1,8 @@
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 import { ProphecyColumns } from './ProphecyColumns';
 import { useBibleStore } from '@/App';
-import { getLabel, LabelName } from '@/lib/labelsCache';
+import { getLabel, LabelName, ensureLabelCacheLoaded } from '@/lib/labelsCache';
+import { useEffect } from 'react';
 
 interface VerseRowProps {
   verse: BibleVerse;
@@ -36,7 +37,19 @@ export function VerseRow({
   getGlobalVerseText,
   allVerses,
 }: VerseRowProps) {
-  const { store, activeLabel } = useBibleStore();
+  const { store, activeLabel, translationState } = useBibleStore();
+  
+  // Use main translation from Bible store for consistency
+  const mainTranslation = translationState.main;
+  
+  // Ensure labels are loaded when activeLabel changes
+  useEffect(() => {
+    if (activeLabel && mainTranslation) {
+      ensureLabelCacheLoaded(mainTranslation).catch(error => {
+        console.error('Failed to load labels for main translation:', error);
+      });
+    }
+  }, [activeLabel, mainTranslation]);
 
   // Create preferences object for consistency
   const preferences = {
@@ -190,15 +203,19 @@ export function VerseRow({
         <div className="w-60 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {(() => {
-              // Get labels for the active label type using the main translation
-              const mainTranslation = selectedTranslations[0]?.id;
-              if (!mainTranslation) return null;
+              // Use main translation from Bible store for consistency
+              if (!mainTranslation) {
+                return <span className="text-muted-foreground italic">No main translation selected</span>;
+              }
               
               const labelValues = getLabel(mainTranslation, verse.reference, activeLabel as LabelName);
               
               if (labelValues.length > 0) {
                 return (
                   <div className="space-y-1">
+                    <div className="text-xs text-gray-500 mb-1">
+                      {activeLabel} ({mainTranslation})
+                    </div>
                     {labelValues.map((value, index) => (
                       <span
                         key={index}
@@ -210,7 +227,14 @@ export function VerseRow({
                   </div>
                 );
               } else {
-                return <span className="text-muted-foreground italic">No {activeLabel} labels</span>;
+                return (
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">
+                      {activeLabel} ({mainTranslation})
+                    </div>
+                    <span className="text-muted-foreground italic">No {activeLabel} labels</span>
+                  </div>
+                );
               }
             })()}
           </div>

@@ -21,8 +21,8 @@ const labelConfig = [
 ];
 
 export function LabelsLegend({ className = '' }: LabelsLegendProps) {
-  const { activeLabel, setActiveLabel, actives } = useBibleStore();
-  const mainTranslation = actives[0]; // Use first active translation
+  const { activeLabel, setActiveLabel, translationState } = useBibleStore();
+  const mainTranslation = translationState.main; // Use main translation from store
   
   // Preload labels when a label is selected
   useEffect(() => {
@@ -102,7 +102,12 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
         Note: Select one label type to highlight semantic elements across all verses. Only one label can be active at a time.
         {activeLabel && (
           <div className="mt-2 font-medium text-blue-600 dark:text-blue-400">
-            Currently showing: {labelConfig.find(l => l.key === activeLabel)?.label}
+            Currently showing: {labelConfig.find(l => l.key === activeLabel)?.label} ({mainTranslation})
+          </div>
+        )}
+        {!activeLabel && (
+          <div className="mt-2 text-gray-500">
+            Using translation: {mainTranslation}
           </div>
         )}
       </div>
