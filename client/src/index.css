@@ -34,32 +34,32 @@
 }
 
 :root.parchment {
-  --header-bg: hsl(35, 45%, 88%);
-  --text-color: hsl(25, 40%, 12%);
-  --accent-color: hsl(20, 85%, 40%);
-  --column-bg: hsl(38, 40%, 94%);
-  --border-color: hsl(32, 35%, 75%);
-  --highlight-bg: hsl(35, 40%, 85%);
+  --header-bg: hsl(30, 60%, 82%);
+  --text-color: hsl(20, 70%, 15%);
+  --accent-color: hsl(15, 90%, 55%);
+  --column-bg: hsl(35, 55%, 90%);
+  --border-color: hsl(25, 65%, 65%);
+  --highlight-bg: hsl(30, 50%, 80%);
   --font-family: 'Crimson Text', 'Times New Roman', serif;
 }
 
 :root.forest {
-  --header-bg: hsl(150, 15%, 12%);
-  --text-color: hsl(120, 20%, 85%);
-  --accent-color: hsl(140, 60%, 55%);
-  --column-bg: hsl(155, 18%, 15%);
-  --border-color: hsl(150, 15%, 25%);
-  --highlight-bg: hsl(150, 18%, 18%);
+  --header-bg: hsl(140, 30%, 8%);
+  --text-color: hsl(120, 50%, 90%);
+  --accent-color: hsl(130, 80%, 60%);
+  --column-bg: hsl(145, 35%, 12%);
+  --border-color: hsl(135, 40%, 35%);
+  --highlight-bg: hsl(140, 25%, 20%);
   --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.cyber {
-  --header-bg: hsl(200, 100%, 2%);
-  --text-color: hsl(180, 85%, 75%);
-  --accent-color: hsl(315, 100%, 65%);
-  --column-bg: hsl(205, 95%, 5%);
-  --border-color: hsl(190, 80%, 25%);
-  --highlight-bg: hsl(200, 90%, 8%);
+  --header-bg: hsl(195, 100%, 3%);
+  --text-color: hsl(180, 100%, 85%);
+  --accent-color: hsl(315, 100%, 70%);
+  --column-bg: hsl(200, 100%, 6%);
+  --border-color: hsl(185, 100%, 40%);
+  --highlight-bg: hsl(195, 90%, 12%);
   --font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
@@ -74,12 +74,12 @@
 }
 
 :root.aurora {
-  --header-bg: hsl(200, 25%, 10%);
-  --text-color: hsl(190, 35%, 88%);
-  --accent-color: hsl(175, 70%, 60%);
-  --column-bg: hsl(205, 28%, 13%);
-  --border-color: hsl(200, 25%, 25%);
-  --highlight-bg: hsl(200, 30%, 16%);
+  --header-bg: hsl(210, 40%, 8%);
+  --text-color: hsl(190, 60%, 92%);
+  --accent-color: hsl(175, 85%, 65%);
+  --column-bg: hsl(205, 45%, 11%);
+  --border-color: hsl(200, 50%, 30%);
+  --highlight-bg: hsl(200, 40%, 18%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -205,44 +205,44 @@ html {
 }
 
 .parchment-mode, :root.parchment {
-  --bg-primary: hsl(38, 40%, 94%);
-  --bg-secondary: hsl(35, 45%, 88%);
-  --text-primary: hsl(25, 40%, 12%);
-  --text-secondary: hsl(30, 30%, 30%);
-  --border-color: hsl(32, 35%, 75%);
-  --accent-color: hsl(20, 85%, 40%);
-  --header-bg: hsl(35, 45%, 88%);
-  --text-color: hsl(25, 40%, 12%);
-  --column-bg: hsl(38, 40%, 94%);
-  --highlight-bg: hsl(35, 40%, 85%);
+  --bg-primary: hsl(35, 55%, 90%);
+  --bg-secondary: hsl(30, 60%, 82%);
+  --text-primary: hsl(20, 70%, 15%);
+  --text-secondary: hsl(25, 50%, 35%);
+  --border-color: hsl(25, 65%, 65%);
+  --accent-color: hsl(15, 90%, 55%);
+  --header-bg: hsl(30, 60%, 82%);
+  --text-color: hsl(20, 70%, 15%);
+  --column-bg: hsl(35, 55%, 90%);
+  --highlight-bg: hsl(30, 50%, 80%);
   --font-family: 'Crimson Text', 'Times New Roman', serif;
 }
 
 .forest-mode, :root.forest {
-  --bg-primary: hsl(155, 18%, 15%);
-  --bg-secondary: hsl(150, 15%, 12%);
-  --text-primary: hsl(120, 20%, 85%);
-  --text-secondary: hsl(130, 15%, 65%);
-  --border-color: hsl(150, 15%, 25%);
-  --accent-color: hsl(140, 60%, 55%);
-  --header-bg: hsl(150, 15%, 12%);
-  --text-color: hsl(120, 20%, 85%);
-  --column-bg: hsl(155, 18%, 15%);
-  --highlight-bg: hsl(150, 18%, 18%);
+  --bg-primary: hsl(145, 35%, 12%);
+  --bg-secondary: hsl(140, 30%, 8%);
+  --text-primary: hsl(120, 50%, 90%);
+  --text-secondary: hsl(125, 40%, 70%);
+  --border-color: hsl(135, 40%, 35%);
+  --accent-color: hsl(130, 80%, 60%);
+  --header-bg: hsl(140, 30%, 8%);
+  --text-color: hsl(120, 50%, 90%);
+  --column-bg: hsl(145, 35%, 12%);
+  --highlight-bg: hsl(140, 25%, 20%);
   --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .cyber-mode, :root.cyber {
-  --bg-primary: hsl(205, 95%, 5%);
-  --bg-secondary: hsl(200, 100%, 2%);
-  --text-primary: hsl(180, 85%, 75%);
-  --text-secondary: hsl(185, 70%, 60%);
-  --border-color: hsl(190, 80%, 25%);
-  --accent-color: hsl(315, 100%, 65%);
-  --header-bg: hsl(200, 100%, 2%);
-  --text-color: hsl(180, 85%, 75%);
-  --column-bg: hsl(205, 95%, 5%);
-  --highlight-bg: hsl(200, 90%, 8%);
+  --bg-primary: hsl(200, 100%, 6%);
+  --bg-secondary: hsl(195, 100%, 3%);
+  --text-primary: hsl(180, 100%, 85%);
+  --text-secondary: hsl(185, 80%, 70%);
+  --border-color: hsl(185, 100%, 40%);
+  --accent-color: hsl(315, 100%, 70%);
+  --header-bg: hsl(195, 100%, 3%);
+  --text-color: hsl(180, 100%, 85%);
+  --column-bg: hsl(200, 100%, 6%);
+  --highlight-bg: hsl(195, 90%, 12%);
   --font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
@@ -261,16 +261,16 @@ html {
 }
 
 .aurora-mode, :root.aurora {
-  --bg-primary: hsl(205, 28%, 13%);
-  --bg-secondary: hsl(200, 25%, 10%);
-  --text-primary: hsl(190, 35%, 88%);
-  --text-secondary: hsl(195, 25%, 70%);
-  --border-color: hsl(200, 25%, 25%);
-  --accent-color: hsl(175, 70%, 60%);
-  --header-bg: hsl(200, 25%, 10%);
-  --text-color: hsl(190, 35%, 88%);
-  --column-bg: hsl(205, 28%, 13%);
-  --highlight-bg: hsl(200, 30%, 16%);
+  --bg-primary: hsl(205, 45%, 11%);
+  --bg-secondary: hsl(210, 40%, 8%);
+  --text-primary: hsl(190, 60%, 92%);
+  --text-secondary: hsl(195, 45%, 75%);
+  --border-color: hsl(200, 50%, 30%);
+  --accent-color: hsl(175, 85%, 65%);
+  --header-bg: hsl(210, 40%, 8%);
+  --text-color: hsl(190, 60%, 92%);
+  --column-bg: hsl(205, 45%, 11%);
+  --highlight-bg: hsl(200, 40%, 18%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -659,7 +659,7 @@ body {
     flex-shrink: 0;
   }
 
-  .virtual-bible-table {
+  .virtualbible-table {
     overflow-x:auto;
   }
 }
