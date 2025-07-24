@@ -34,14 +34,14 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
       screenSize = 'tablet';
     }
 
-    // Use exact same width calculations as VirtualRow getColumnWidth
+    // Use exact same width calculations as VirtualRow - prophecy columns use w-[200px]
     if (screenSize === 'mobile') {
       switch (column.slot) {
         case 0: return { width: '24px' };         // Reference - w-6 (24px)
         case 1: return { width: '80px' };        // Notes - w-20 (80px)
         case 2: return { width: '208px' };        // Main translation - w-52 (208px)
         case 7: return { width: '208px' };        // Cross References - w-52 (208px)
-        case 8: case 9: case 10: return { width: '64px' }; // Prophecy P/F/V - w-16 (64px)
+        case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
         default: return { width: '160px' };       // Alt translations - w-40 (160px)
       }
     } else if (screenSize === 'tablet') {
@@ -50,7 +50,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
         case 1: return { width: '192px' };        // Notes - w-48 (192px)
         case 2: return { width: '256px' };        // Main translation - w-64 (256px)
         case 7: return { width: '256px' };        // Cross References - w-64 (256px)
-        case 8: case 9: case 10: return { width: '64px' }; // Prophecy P/F/V - w-16 (64px)
+        case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
         default: return { width: '256px' };       // Alt translations - w-64 (256px)
       }
     } else { // desktop
@@ -59,7 +59,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
         case 1: return { width: '256px' };        // Notes - w-64 (256px)
         case 2: return { width: '320px' };        // Main translation - w-80 (320px)
         case 7: return { width: '320px' };        // Cross References - w-80 (320px)
-        case 8: case 9: case 10: return { width: '80px' }; // Prophecy P/F/V - w-20 (80px)
+        case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
         default: return { width: '320px' };       // Alt translations - w-80 (320px)
       }
     }
