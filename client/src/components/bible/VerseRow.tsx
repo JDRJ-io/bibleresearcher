@@ -55,7 +55,6 @@ export function VerseRow({
       chapter: verse.chapter, 
       verse: verse.verse 
     });
-    console.log(`🔍 Calling onExpandVerse with verse:`, verse);
     onExpandVerse(verse);
   };
 
