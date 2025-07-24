@@ -121,8 +121,16 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
         // Load Strong's data for the new verse
         await loadStrongsData(newVerse);
         
-        // Navigate to the verse
-        onNavigateToVerse?.(newVerse.reference);
+        // Navigate to the verse in the main view
+        if (onNavigateToVerse) {
+          onNavigateToVerse(newVerse.reference);
+        }
+        
+        // Reset selected word state for new verse
+        setSelectedWord(null);
+        setSelectedOccurrences([]);
+        setShowSearch(false);
+        setSearchQuery('');
       } catch (error) {
         console.error('Error navigating to adjacent verse:', error);
       } finally {
@@ -253,21 +261,27 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                               {index + 1}
                             </div>
 
-                            {/* Original Word */}
+                            {/* Original Word with enhanced display */}
                             <div className="text-center mb-3">
                               <div className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 leading-tight">
                                 {cell.original || '—'}
                               </div>
-                              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 italic font-medium">
+                              <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 italic font-medium mb-1">
                                 {cell.transliteration || 'No transliteration'}
                               </div>
+                              {/* Additional pronunciation if available */}
+                              {cell.pronunciation && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                                  [{cell.pronunciation}]
+                                </div>
+                              )}
                             </div>
 
-                            {/* Strong's Number with language indicator */}
+                            {/* Strong's Number with enhanced info */}
                             <div className="text-center mb-3">
                               <Badge 
                                 variant="outline" 
-                                className={`font-mono text-xs px-2 py-1 ${
+                                className={`font-mono text-xs px-2 py-1 mb-1 ${
                                   cell.strongsKey?.startsWith('H') 
                                     ? 'border-amber-300 text-amber-700 bg-amber-50 dark:border-amber-700 dark:text-amber-300 dark:bg-amber-900/20'
                                     : 'border-blue-300 text-blue-700 bg-blue-50 dark:border-blue-700 dark:text-blue-300 dark:bg-blue-900/20'
@@ -275,16 +289,40 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                               >
                                 {cell.strongsKey} {cell.strongsKey?.startsWith('H') ? '🕎' : '🏛️'}
                               </Badge>
+                              {/* Word frequency if available */}
+                              {cell.frequency && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  Occurs {cell.frequency}x
+                                </div>
+                              )}
                             </div>
 
-                            {/* Definition */}
+                            {/* Enhanced Definition */}
                             <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 text-center mb-3 leading-relaxed min-h-[2.5rem] flex items-center justify-center">
-                              <span className="line-clamp-2">
-                                {cell.gloss || 'No definition available'}
+                              <span className="line-clamp-3">
+                                {cell.gloss || cell.definition || 'No definition available'}
                               </span>
                             </div>
 
-                            {/* Morphology */}
+                            {/* Extended Definition Preview */}
+                            {cell.extendedDefinition && (
+                              <div className="text-xs text-gray-600 dark:text-gray-400 text-center mb-2 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="line-clamp-2">
+                                  {cell.extendedDefinition}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Part of Speech */}
+                            {cell.partOfSpeech && (
+                              <div className="text-center mb-2">
+                                <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                                  {cell.partOfSpeech}
+                                </Badge>
+                              </div>
+                            )}
+
+                            {/* Morphology with enhanced display */}
                             {cell.morphology && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 text-center border-t pt-2 mt-auto">
                                 <div className="font-semibold text-gray-600 dark:text-gray-300 mb-1">Grammar:</div>
@@ -294,9 +332,22 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                               </div>
                             )}
 
-                            {/* Additional metadata if available */}
+                            {/* Root word info if available */}
+                            {cell.rootWord && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 text-center border-t pt-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="text-gray-600 dark:text-gray-300 font-medium">Root:</div>
+                                <div className="truncate" title={cell.rootWord}>
+                                  {cell.rootWord}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Additional metadata with enhanced info */}
                             <div className="text-xs text-gray-400 dark:text-gray-500 text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              {cell.strongsKey?.startsWith('H') ? 'Hebrew' : 'Greek'} • Word {index + 1}
+                              <div>{cell.strongsKey?.startsWith('H') ? 'Hebrew' : 'Greek'} • Word {index + 1}</div>
+                              {cell.lemma && (
+                                <div className="mt-1">Lemma: {cell.lemma}</div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -321,8 +372,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                   <>
                     <Separator orientation="vertical" className="hidden lg:block" />
                     <Separator orientation="horizontal" className="lg:hidden" />
-                    <div className="w-full lg:w-96 flex flex-col max-h-[50vh] lg:max-h-full">
-                      <div className="p-4 border-b bg-gray-50 dark:bg-gray-800">
+                    <div className="w-full lg:w-96 flex flex-col max-h-[50vh] lg:max-h-full overflow-hidden">
+                      <div className="p-4 border-b bg-gray-50 dark:bg-gray-800 flex-shrink-0">
                         <div className="flex items-center gap-2 mb-3">
                           <Badge className="font-mono">{selectedWord.strongs}</Badge>
                           <span className="font-semibold text-lg">{selectedWord.original}</span>
@@ -333,7 +384,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                         <p className="text-sm leading-relaxed">{selectedWord.definition}</p>
                       </div>
 
-                      <div className="p-4 border-b">
+                      <div className="p-4 border-b flex-shrink-0">
                         <div className="flex items-center gap-2 mb-2">
                           <Search className="w-4 h-4 text-gray-500" />
                           <span className="text-sm font-medium">
@@ -348,44 +399,46 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                         />
                       </div>
 
-                      <ScrollArea className="flex-1 strongs-search-scroll">
-                        <div className="p-4 space-y-2">
-                          {filteredOccurrences.length > 0 ? (
-                            filteredOccurrences.map((occurrence, index) => (
-                              <button
-                                key={`${occurrence.reference}-${index}`}
-                                onClick={() => {
-                                  onNavigateToVerse?.(occurrence.reference);
-                                  onClose();
-                                }}
-                                className="w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
-                              >
-                                <div className="font-medium text-blue-600 hover:text-blue-800 mb-1">
-                                  {occurrence.reference}
-                                </div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                                  <span className="font-medium">{occurrence.original}</span> • 
-                                  <span className="italic mx-1">{occurrence.transliteration}</span> • 
-                                  <span>{occurrence.gloss}</span>
-                                </div>
-                                {occurrence.context && (
-                                  <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed break-words">
-                                    {occurrence.context}
+                      <div className="flex-1 overflow-hidden">
+                        <ScrollArea className="h-full">
+                          <div className="p-4 space-y-2">
+                            {filteredOccurrences.length > 0 ? (
+                              filteredOccurrences.map((occurrence, index) => (
+                                <button
+                                  key={`${occurrence.reference}-${index}`}
+                                  onClick={() => {
+                                    onNavigateToVerse?.(occurrence.reference);
+                                    onClose();
+                                  }}
+                                  className="w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
+                                >
+                                  <div className="font-medium text-blue-600 hover:text-blue-800 mb-1">
+                                    {occurrence.reference}
                                   </div>
-                                )}
-                              </button>
-                            ))
-                          ) : searchQuery ? (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                              No occurrences match "{searchQuery}"
-                            </p>
-                          ) : (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                              Loading occurrences...
-                            </p>
-                          )}
-                        </div>
-                      </ScrollArea>
+                                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                    <span className="font-medium">{occurrence.original}</span> • 
+                                    <span className="italic mx-1">{occurrence.transliteration}</span> • 
+                                    <span>{occurrence.gloss}</span>
+                                  </div>
+                                  {occurrence.context && (
+                                    <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed break-words">
+                                      {occurrence.context}
+                                    </div>
+                                  )}
+                                </button>
+                              ))
+                            ) : searchQuery ? (
+                              <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
+                                No occurrences match "{searchQuery}"
+                              </p>
+                            ) : (
+                              <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
+                                Loading occurrences...
+                              </p>
+                            )}
+                          </div>
+                        </ScrollArea>
+                      </div>
                     </div>
                   </>
                 )}
