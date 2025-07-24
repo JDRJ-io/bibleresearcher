@@ -376,16 +376,7 @@ export function VirtualRow({
     console.log('🔍 VirtualRow Debug - All cross refs keys:', Object.keys(crossRefs).slice(0, 10));
   }
 
-  const handleDoubleClick = () => {
-    console.log('🔍 VirtualRow handleDoubleClick triggered for verse:', verse.reference);
-    console.log('🔍 onExpandVerse handler available:', !!onExpandVerse);
-    if (onExpandVerse) {
-      console.log('🔍 Calling onExpandVerse with verse:', verse);
-      onExpandVerse(verse);
-    } else {
-      console.warn('⚠️ No onExpandVerse handler provided to VirtualRow');
-    }
-  };
+
 
   const renderSlot = (column: any) => {
     const { slot, config, widthRem } = column;
@@ -466,7 +457,6 @@ export function VirtualRow({
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
               {verseText || `[${config.translationCode} loading...]`}
-              {verse.reference === "Gen.1:1" && console.log('🔍 DEBUG Gen.1:1 verseText:', verseText, 'from getMainVerseText:', getMainVerseText(verse.reference))}
             </div>
           </div>
         );
@@ -530,7 +520,7 @@ export function VirtualRow({
     <div 
       className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ height: rowHeight }}
-      onDoubleClick={handleDoubleClick}
+      onDoubleClick={onDoubleClick}
     >
       {/* Simple layout - all columns in order */}
       {visibleColumns.map(renderSlot)}
