@@ -49,13 +49,17 @@ export default function BiblePage() {
   const handleNavigateToVerse = useCallback((reference: string) => {
     console.log(`🔍 BiblePage navigating to verse: ${reference}`);
     
-    // Find the target verse
-    const normalizeReference = (ref: string) => ref.replace(/\s+/g, '').toLowerCase();
+    // Normalize reference for better matching
+    const normalizeReference = (ref: string) => {
+      return ref.replace(/\s+/g, '').toLowerCase();
+    };
+    
     const normalizedRef = normalizeReference(reference);
     
+    // Find the target verse with more robust matching
     let targetVerse = allVerses.find(v => normalizeReference(v.reference) === normalizedRef);
     
-    // Try alternative matching strategies
+    // If not found, try different formats
     if (!targetVerse) {
       targetVerse = allVerses.find(v => 
         v.reference === reference ||
@@ -63,7 +67,7 @@ export default function BiblePage() {
       );
     }
     
-    // Try book/chapter/verse parsing
+    // If still not found, try book/chapter/verse parsing
     if (!targetVerse) {
       const match = reference.match(/^(\w+)\.?(\d+):(\d+)$/);
       if (match) {
@@ -77,21 +81,10 @@ export default function BiblePage() {
     }
     
     if (targetVerse) {
-      console.log(`✅ Found target verse for navigation: ${targetVerse.reference}`);
+      console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id})`);
+      setSelectedVerse(targetVerse);
       
-      // CRITICAL: Create a completely new verse object to force React to detect the change
-      // This ensures the Strong's overlay useEffect triggers and reloads all data
-      const newVerseObject = {
-        ...targetVerse,
-        // Force React to see this as a new object
-        _navigationId: `nav_${Date.now()}_${Math.random()}`,
-        _timestamp: Date.now()
-      };
-      
-      console.log(`🔄 Setting new verse object to trigger Strong's reload:`, newVerseObject.reference);
-      setSelectedVerse(newVerseObject);
-      
-      // Scroll to the verse in the main table
+      // Optional: Also scroll to the verse in the main table
       setTimeout(() => {
         const verseElement = document.getElementById(`verse-${targetVerse.id}`);
         if (verseElement) {
@@ -103,6 +96,7 @@ export default function BiblePage() {
       }, 100);
     } else {
       console.warn(`❌ Could not find verse for reference: ${reference}`);
+      console.log(`🔍 Normalized search: ${normalizedRef}`);
       console.log('Available verses sample:', allVerses.slice(0, 5).map(v => ({ 
         ref: v.reference, 
         normalized: normalizeReference(v.reference),
@@ -204,7 +198,6 @@ export default function BiblePage() {
           mainTranslation={mainTranslation}
           onExpandVerse={handleExpandVerse}
           getGlobalVerseText={getGlobalVerseText}
-          onOpenProphecyDetail={handleOpenProphecyDetail}
         />
       </main>
 

@@ -77,28 +77,14 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
 
   useEffect(() => {
     if (verse) {
-      console.log(`🔍 StrongsOverlay useEffect triggered - NEW VERSE: ${verse.reference}`);
-      console.log(`🔍 Verse object details:`, {
-        reference: verse.reference,
-        id: verse.id,
-        navigationId: verse._navigationId,
-        timestamp: verse._timestamp
-      });
-      
-      // Always reload Strong's data when verse changes - this is crucial for navigation
-      // Clear existing data first to ensure fresh load
-      setStrongsWords([]);
-      setInterlinearCells([]);
+      console.log(`🔍 StrongsOverlay received new verse prop: ${verse.reference}`);
+      loadStrongsData(verse);
       setSelectedWord(null);
       setSelectedOccurrences([]);
       setShowSearch(false);
       setSearchQuery('');
-      
-      // Load new data
-      console.log(`🔄 Loading Strong's data for: ${verse.reference}`);
-      loadStrongsData(verse);
     }
-  }, [verse?.reference, verse?._navigationId]); // Watch specific properties that change during navigation
+  }, [verse?.id, verse?.reference]); // Use both id and reference to ensure proper updates
 
   const handleWordClick = async (word: StrongsWord) => {
     const isCurrentlySelected = selectedWord?.strongs === word.strongs;
@@ -122,22 +108,39 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   };
 
   const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
-    console.log(`🚀 NAVIGATION START: ${direction} arrow clicked from ${verse?.reference}`);
-    console.log(`🔍 Current verse object:`, verse);
-    console.log(`🔍 AllVerses available: ${allVerses.length} verses`);
+    console.log(`🚀 NAVIGATION STARTED: direction=${direction}`);
+    console.log(`🚀 verse exists:`, !!verse);
+    console.log(`🚀 verse reference:`, verse?.reference);
+    console.log(`🚀 allVerses.length:`, allVerses.length);
+    console.log(`🚀 onNavigateToVerse exists:`, !!onNavigateToVerse);
+    console.log(`🚀 onNavigateToVerse type:`, typeof onNavigateToVerse);
     
     if (!verse || !allVerses.length) {
       console.log(`❌ Navigation blocked: verse=${!!verse}, allVerses.length=${allVerses.length}`);
       return;
     }
     
-    // SIMPLE AND DIRECT: Find current verse in the allVerses array
+    console.log(`🔍 StrongsOverlay navigating ${direction} from ${verse.reference}`);
+    console.log(`🔍 All verses length: ${allVerses.length}`);
+    
+    // Create a more robust verse matching function
+    const normalizeReference = (ref: string) => {
+      return ref.replace(/\s+/g, '').toLowerCase();
+    };
+    
+    // Try multiple ways to find the current verse
     let currentIndex = -1;
+    const currentRef = normalizeReference(verse.reference);
     
-    // Primary strategy: Find by reference (most reliable)
-    currentIndex = allVerses.findIndex(v => v.reference === verse.reference);
+    // First try exact match
+    currentIndex = allVerses.findIndex(v => normalizeReference(v.reference) === currentRef);
     
-    // Fallback: Find by book/chapter/verse
+    // If not found, try with ID
+    if (currentIndex === -1) {
+      currentIndex = allVerses.findIndex(v => v.id === verse.id);
+    }
+    
+    // If still not found, try book/chapter/verse matching
     if (currentIndex === -1) {
       currentIndex = allVerses.findIndex(v => 
         v.book === verse.book && 
@@ -146,42 +149,38 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
       );
     }
     
-    console.log(`🔍 Current verse "${verse.reference}" found at index: ${currentIndex} of ${allVerses.length} verses`);
+    console.log(`🔍 Current verse index: ${currentIndex}`);
     
     if (currentIndex === -1) {
-      console.error(`❌ Could not find current verse in allVerses array`);
-      console.log(`First few verses:`, allVerses.slice(0, 5).map(v => v.reference));
+      console.log(`❌ Current verse not found in allVerses array`);
+      console.log(`🔍 Looking for: ${verse.reference} (ID: ${verse.id})`);
+      console.log(`🔍 Sample verses:`, allVerses.slice(0, 3).map(v => ({ ref: v.reference, id: v.id })));
       return;
     }
     
-    // Calculate target index - UP = previous verse, DOWN = next verse
-    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    console.log(`🔍 Target index: ${newIndex}`);
     
-    // Check bounds
-    if (targetIndex < 0) {
-      console.log(`❌ Cannot go up from first verse (index 0)`);
-      return;
-    }
-    if (targetIndex >= allVerses.length) {
-      console.log(`❌ Cannot go down from last verse (index ${allVerses.length - 1})`);
-      return;
-    }
-    
-    const targetVerse = allVerses[targetIndex];
-    console.log(`🎯 ${direction.toUpperCase()} ARROW: ${verse.reference} → ${targetVerse.reference} (${currentIndex} → ${targetIndex})`);
-    
-    // Trigger navigation exactly like double-clicking a verse
-    if (onNavigateToVerse) {
-      console.log(`📞 CALLING PARENT: onNavigateToVerse("${targetVerse.reference}")`);
-      console.log(`📋 Target verse details:`, {
-        reference: targetVerse.reference,
-        book: targetVerse.book,
-        chapter: targetVerse.chapter,
-        verse: targetVerse.verse
-      });
-      onNavigateToVerse(targetVerse.reference);
+    if (newIndex >= 0 && newIndex < allVerses.length) {
+      const newVerse = allVerses[newIndex];
+      console.log(`🔍 Navigating to verse: ${newVerse.reference}`);
+      
+      setLoading(true);
+      try {
+        // Directly call the navigation callback with the new verse
+        if (onNavigateToVerse) {
+          console.log(`🔍 Calling onNavigateToVerse with: ${newVerse.reference}`);
+          onNavigateToVerse(newVerse.reference);
+        }
+        
+        console.log(`✅ Successfully called navigation to ${newVerse.reference}`);
+      } catch (error) {
+        console.error('❌ Error navigating to adjacent verse:', error);
+      } finally {
+        setLoading(false);
+      }
     } else {
-      console.error(`❌ onNavigateToVerse callback is missing!`);
+      console.log(`❌ Target index ${newIndex} is out of bounds (0-${allVerses.length - 1})`);
     }
   };
 
@@ -219,12 +218,15 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(`🔼 UP ARROW: From ${verse?.reference} going to PREVIOUS verse`);
+                      console.log(`🔼 UP ARROW CLICKED - Starting navigation from ${verse?.reference}`);
+                      console.log(`🔼 onNavigateToVerse callback exists:`, !!onNavigateToVerse);
+                      console.log(`🔼 allVerses.length:`, allVerses.length);
+                      console.log(`🔼 loading state:`, loading);
                       navigateToAdjacentVerse('up');
                     }}
                     disabled={loading}
                     className="w-8 h-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    title="Previous verse (up arrow)"
+                    title="Previous verse"
                   >
                     <ChevronUp className="w-4 h-4" />
                   </Button>
@@ -233,12 +235,15 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(`🔽 DOWN ARROW: From ${verse?.reference} going to NEXT verse`);
+                      console.log(`🔽 DOWN ARROW CLICKED - Starting navigation from ${verse?.reference}`);
+                      console.log(`🔽 onNavigateToVerse callback exists:`, !!onNavigateToVerse);
+                      console.log(`🔽 allVerses.length:`, allVerses.length);
+                      console.log(`🔽 loading state:`, loading);
                       navigateToAdjacentVerse('down');
                     }}
                     disabled={loading}
                     className="w-8 h-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    title="Next verse (down arrow)"
+                    title="Next verse"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </Button>
