@@ -205,59 +205,91 @@ html {
 }
 
 .parchment-mode, :root.parchment {
-  --bg-primary: hsl(35, 80%, 75%);
-  --bg-secondary: hsl(30, 90%, 65%);
-  --text-primary: hsl(20, 90%, 8%);
-  --text-secondary: hsl(25, 70%, 25%);
-  --border-color: hsl(25, 90%, 45%);
-  --accent-color: hsl(15, 100%, 40%);
-  --header-bg: hsl(30, 90%, 65%);
-  --text-color: hsl(20, 90%, 8%);
-  --column-bg: hsl(35, 80%, 75%);
-  --highlight-bg: hsl(30, 70%, 60%);
-  --font-family: 'Crimson Text', 'Times New Roman', serif;
+  --background: hsl(35, 80%, 85%);
+  --foreground: hsl(20, 90%, 8%);
+  --muted: hsl(30, 70%, 78%);
+  --muted-foreground: hsl(25, 60%, 25%);
+  --popover: hsl(35, 80%, 85%);
+  --popover-foreground: hsl(20, 90%, 8%);
+  --card: hsl(35, 80%, 85%);
+  --card-foreground: hsl(20, 90%, 8%);
+  --border: hsl(25, 80%, 50%);
+  --input: hsl(30, 70%, 70%);
+  --primary: hsl(15, 90%, 45%);
+  --primary-foreground: hsl(35, 80%, 90%);
+  --secondary: hsl(30, 70%, 75%);
+  --secondary-foreground: hsl(20, 80%, 15%);
+  --accent: hsl(25, 80%, 65%);
+  --accent-foreground: hsl(20, 90%, 8%);
+  --destructive: hsl(0, 85%, 45%);
+  --destructive-foreground: hsl(35, 80%, 95%);
+  --ring: hsl(15, 80%, 40%);
 }
 
 .forest-mode, :root.forest {
-  --bg-primary: hsl(145, 60%, 4%);
-  --bg-secondary: hsl(140, 70%, 2%);
-  --text-primary: hsl(120, 70%, 95%);
-  --text-secondary: hsl(125, 60%, 80%);
-  --border-color: hsl(135, 70%, 45%);
-  --accent-color: hsl(130, 90%, 70%);
-  --header-bg: hsl(140, 70%, 2%);
-  --text-color: hsl(120, 70%, 95%);
-  --column-bg: hsl(145, 60%, 4%);
-  --highlight-bg: hsl(140, 50%, 12%);
-  --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+  --background: hsl(145, 60%, 4%);
+  --foreground: hsl(120, 70%, 95%);
+  --muted: hsl(140, 50%, 8%);
+  --muted-foreground: hsl(125, 50%, 70%);
+  --popover: hsl(145, 60%, 4%);
+  --popover-foreground: hsl(120, 70%, 95%);
+  --card: hsl(145, 60%, 4%);
+  --card-foreground: hsl(120, 70%, 95%);
+  --border: hsl(135, 60%, 25%);
+  --input: hsl(140, 60%, 12%);
+  --primary: hsl(130, 90%, 60%);
+  --primary-foreground: hsl(145, 60%, 8%);
+  --secondary: hsl(140, 50%, 12%);
+  --secondary-foreground: hsl(120, 80%, 90%);
+  --accent: hsl(135, 70%, 20%);
+  --accent-foreground: hsl(120, 70%, 95%);
+  --destructive: hsl(0, 85%, 50%);
+  --destructive-foreground: hsl(120, 70%, 95%);
+  --ring: hsl(130, 80%, 50%);
 }
 
 .cyber-mode, :root.cyber {
-  --bg-primary: hsl(190, 100%, 2%);
-  --bg-secondary: hsl(185, 100%, 1%);
-  --text-primary: hsl(180, 100%, 90%);
-  --text-secondary: hsl(185, 90%, 75%);
-  --border-color: hsl(185, 100%, 50%);
-  --accent-color: hsl(315, 100%, 80%);
-  --header-bg: hsl(185, 100%, 1%);
-  --text-color: hsl(180, 100%, 90%);
-  --column-bg: hsl(190, 100%, 2%);
-  --highlight-bg: hsl(185, 100%, 8%);
-  --font-family: 'JetBrains Mono', 'Courier New', monospace;
+  --background: hsl(190, 100%, 2%);
+  --foreground: hsl(180, 100%, 90%);
+  --muted: hsl(185, 100%, 6%);
+  --muted-foreground: hsl(185, 70%, 60%);
+  --popover: hsl(190, 100%, 2%);
+  --popover-foreground: hsl(180, 100%, 90%);
+  --card: hsl(190, 100%, 2%);
+  --card-foreground: hsl(180, 100%, 90%);
+  --border: hsl(185, 100%, 20%);
+  --input: hsl(185, 100%, 15%);
+  --primary: hsl(315, 100%, 70%);
+  --primary-foreground: hsl(190, 100%, 5%);
+  --secondary: hsl(185, 100%, 8%);
+  --secondary-foreground: hsl(180, 90%, 85%);
+  --accent: hsl(185, 100%, 12%);
+  --accent-foreground: hsl(180, 100%, 90%);
+  --destructive: hsl(0, 85%, 50%);
+  --destructive-foreground: hsl(180, 100%, 95%);
+  --ring: hsl(185, 100%, 40%);
 }
 
 .rainbow-mode, :root.rainbow {
-  --bg-primary: hsl(235, 50%, 3%);
-  --bg-secondary: hsl(230, 60%, 1%);
-  --text-primary: hsl(45, 100%, 92%);
-  --text-secondary: hsl(55, 80%, 75%);
-  --border-color: hsl(270, 60%, 40%);
-  --accent-color: hsl(285, 100%, 80%);
-  --header-bg: hsl(230, 60%, 1%);
-  --text-color: hsl(45, 100%, 92%);
-  --column-bg: hsl(235, 50%, 3%);
-  --highlight-bg: hsl(240, 70%, 8%);
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --background: hsl(235, 50%, 3%);
+  --foreground: hsl(45, 100%, 92%);
+  --muted: hsl(240, 40%, 8%);
+  --muted-foreground: hsl(55, 60%, 65%);
+  --popover: hsl(235, 50%, 3%);
+  --popover-foreground: hsl(45, 100%, 92%);
+  --card: hsl(235, 50%, 3%);
+  --card-foreground: hsl(45, 100%, 92%);
+  --border: hsl(270, 50%, 25%);
+  --input: hsl(240, 50%, 12%);
+  --primary: hsl(285, 100%, 70%);
+  --primary-foreground: hsl(235, 50%, 8%);
+  --secondary: hsl(240, 70%, 8%);
+  --secondary-foreground: hsl(45, 90%, 85%);
+  --accent: hsl(270, 80%, 15%);
+  --accent-foreground: hsl(45, 100%, 92%);
+  --destructive: hsl(0, 85%, 55%);
+  --destructive-foreground: hsl(45, 100%, 95%);
+  --ring: hsl(285, 80%, 60%);
 }
 
 .aurora-mode, :root.aurora {
