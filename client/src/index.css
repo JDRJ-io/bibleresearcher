@@ -2,50 +2,85 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme System - Multiple visual themes for different moods */
+/* Theme System - Professional curated color schemes for Bible study */
 :root.light {
-  --header-bg: hsl(210, 40%, 95%);
-  --text-color: hsl(210, 22%, 22%);
-  --accent-color: hsl(210, 40%, 40%);
-  --column-bg: hsl(210, 40%, 98%);
-  --border-color: hsl(210, 25%, 85%);
-  --highlight-bg: hsl(210, 40%, 96%);
+  --header-bg: hsl(220, 15%, 97%);
+  --text-color: hsl(220, 20%, 15%);
+  --accent-color: hsl(210, 85%, 45%);
+  --column-bg: hsl(220, 25%, 99%);
+  --border-color: hsl(220, 15%, 88%);
+  --highlight-bg: hsl(220, 35%, 95%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.dark {
-  --header-bg: hsl(210, 22%, 15%);
-  --text-color: hsl(210, 40%, 90%);
-  --accent-color: hsl(210, 60%, 70%);
-  --column-bg: hsl(210, 22%, 18%);
-  --border-color: hsl(210, 25%, 25%);
-  --highlight-bg: hsl(210, 22%, 20%);
+  --header-bg: hsl(220, 20%, 8%);
+  --text-color: hsl(220, 15%, 88%);
+  --accent-color: hsl(210, 80%, 65%);
+  --column-bg: hsl(220, 18%, 12%);
+  --border-color: hsl(220, 15%, 22%);
+  --highlight-bg: hsl(220, 20%, 16%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.sepia {
-  --header-bg: hsl(35, 25%, 92%);
-  --text-color: hsl(35, 25%, 25%);
-  --accent-color: hsl(35, 40%, 45%);
-  --column-bg: hsl(35, 25%, 95%);
-  --border-color: hsl(35, 20%, 80%);
-  --highlight-bg: hsl(35, 25%, 88%);
+  --header-bg: hsl(40, 30%, 92%);
+  --text-color: hsl(30, 35%, 18%);
+  --accent-color: hsl(25, 75%, 50%);
+  --column-bg: hsl(42, 28%, 96%);
+  --border-color: hsl(38, 25%, 78%);
+  --highlight-bg: hsl(40, 30%, 88%);
+  --font-family: 'Crimson Text', 'Times New Roman', serif;
 }
 
-:root.fireworks {
-  --header-bg: hsl(260, 30%, 15%);
-  --text-color: hsl(260, 20%, 90%);
-  --accent-color: hsl(300, 60%, 70%);
-  --column-bg: hsl(260, 30%, 18%);
-  --border-color: hsl(260, 25%, 25%);
-  --highlight-bg: hsl(260, 30%, 20%);
+:root.parchment {
+  --header-bg: hsl(35, 45%, 88%);
+  --text-color: hsl(25, 40%, 12%);
+  --accent-color: hsl(20, 85%, 40%);
+  --column-bg: hsl(38, 40%, 94%);
+  --border-color: hsl(32, 35%, 75%);
+  --highlight-bg: hsl(35, 40%, 85%);
+  --font-family: 'Crimson Text', 'Times New Roman', serif;
+}
+
+:root.forest {
+  --header-bg: hsl(150, 15%, 12%);
+  --text-color: hsl(120, 20%, 85%);
+  --accent-color: hsl(140, 60%, 55%);
+  --column-bg: hsl(155, 18%, 15%);
+  --border-color: hsl(150, 15%, 25%);
+  --highlight-bg: hsl(150, 18%, 18%);
+  --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root.cyber {
+  --header-bg: hsl(200, 100%, 2%);
+  --text-color: hsl(180, 85%, 75%);
+  --accent-color: hsl(315, 100%, 65%);
+  --column-bg: hsl(205, 95%, 5%);
+  --border-color: hsl(190, 80%, 25%);
+  --highlight-bg: hsl(200, 90%, 8%);
+  --font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+:root.rainbow {
+  --header-bg: hsl(240, 25%, 8%);
+  --text-color: hsl(50, 80%, 85%);
+  --accent-color: hsl(280, 90%, 70%);
+  --column-bg: hsl(245, 30%, 12%);
+  --border-color: hsl(260, 40%, 30%);
+  --highlight-bg: hsl(240, 35%, 15%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.aurora {
-  --header-bg: hsl(190, 40%, 15%);
-  --text-color: hsl(190, 30%, 90%);
-  --accent-color: hsl(180, 60%, 70%);
-  --column-bg: hsl(190, 40%, 18%);
-  --border-color: hsl(190, 25%, 25%);
-  --highlight-bg: hsl(190, 40%, 20%);
+  --header-bg: hsl(200, 25%, 10%);
+  --text-color: hsl(190, 35%, 88%);
+  --accent-color: hsl(175, 70%, 60%);
+  --column-bg: hsl(205, 28%, 13%);
+  --border-color: hsl(200, 25%, 25%);
+  --highlight-bg: hsl(200, 30%, 16%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* UI Layout Spec CSS Foundation - Device-responsive sizing */
@@ -126,59 +161,85 @@ html {
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Theme variables */
+/* Professional theme mode classes */
 .light-mode {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --accent-color: #3b82f6;
+  --bg-primary: hsl(220, 25%, 99%);
+  --bg-secondary: hsl(220, 15%, 95%);
+  --text-primary: hsl(220, 20%, 15%);
+  --text-secondary: hsl(220, 15%, 45%);
+  --border-color: hsl(220, 15%, 88%);
+  --accent-color: hsl(210, 85%, 45%);
+  font-family: var(--font-family);
 }
 
 .dark-mode {
-  --bg-primary: #1f2937;
-  --bg-secondary: #374151;
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --border-color: #4b5563;
-  --accent-color: #60a5fa;
+  --bg-primary: hsl(220, 18%, 12%);
+  --bg-secondary: hsl(220, 20%, 8%);
+  --text-primary: hsl(220, 15%, 88%);
+  --text-secondary: hsl(220, 10%, 65%);
+  --border-color: hsl(220, 15%, 22%);
+  --accent-color: hsl(210, 80%, 65%);
+  font-family: var(--font-family);
 }
 
 .sepia-mode {
-  --bg-primary: #f7f1e8;
-  --bg-secondary: #f0e6d2;
-  --text-primary: #5d4037;
-  --text-secondary: #8d6e63;
-  --border-color: #d7c4a8;
-  --accent-color: #8b5a2b;
+  --bg-primary: hsl(42, 28%, 96%);
+  --bg-secondary: hsl(40, 30%, 92%);
+  --text-primary: hsl(30, 35%, 18%);
+  --text-secondary: hsl(35, 25%, 35%);
+  --border-color: hsl(38, 25%, 78%);
+  --accent-color: hsl(25, 75%, 50%);
+  font-family: var(--font-family);
+}
+
+.parchment-mode {
+  --bg-primary: hsl(38, 40%, 94%);
+  --bg-secondary: hsl(35, 45%, 88%);
+  --text-primary: hsl(25, 40%, 12%);
+  --text-secondary: hsl(30, 30%, 30%);
+  --border-color: hsl(32, 35%, 75%);
+  --accent-color: hsl(20, 85%, 40%);
+  font-family: var(--font-family);
+}
+
+.forest-mode {
+  --bg-primary: hsl(155, 18%, 15%);
+  --bg-secondary: hsl(150, 15%, 12%);
+  --text-primary: hsl(120, 20%, 85%);
+  --text-secondary: hsl(130, 15%, 65%);
+  --border-color: hsl(150, 15%, 25%);
+  --accent-color: hsl(140, 60%, 55%);
+  font-family: var(--font-family);
+}
+
+.cyber-mode {
+  --bg-primary: hsl(205, 95%, 5%);
+  --bg-secondary: hsl(200, 100%, 2%);
+  --text-primary: hsl(180, 85%, 75%);
+  --text-secondary: hsl(185, 70%, 60%);
+  --border-color: hsl(190, 80%, 25%);
+  --accent-color: hsl(315, 100%, 65%);
+  font-family: var(--font-family);
+}
+
+.rainbow-mode {
+  --bg-primary: hsl(245, 30%, 12%);
+  --bg-secondary: hsl(240, 25%, 8%);
+  --text-primary: hsl(50, 80%, 85%);
+  --text-secondary: hsl(60, 60%, 70%);
+  --border-color: hsl(260, 40%, 30%);
+  --accent-color: hsl(280, 90%, 70%);
+  font-family: var(--font-family);
 }
 
 .aurora-mode {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #e2e8f0;
-  --text-secondary: #cbd5e1;
-  --border-color: #475569;
-  --accent-color: #06b6d4;
-}
-
-.electric-mode {
-  --bg-primary: #000000;
-  --bg-secondary: #1a1a1a;
-  --text-primary: #00ff00;
-  --text-secondary: #00cc00;
-  --border-color: #003300;
-  --accent-color: #00ff00;
-}
-
-.fireworks-mode {
-  --bg-primary: #1a0b2e;
-  --bg-secondary: #16213e;
-  --text-primary: #ffd700;
-  --text-secondary: #ff6b6b;
-  --border-color: #4a5568;
-  --accent-color: #ff4081;
+  --bg-primary: hsl(205, 28%, 13%);
+  --bg-secondary: hsl(200, 25%, 10%);
+  --text-primary: hsl(190, 35%, 88%);
+  --text-secondary: hsl(195, 25%, 70%);
+  --border-color: hsl(200, 25%, 25%);
+  --accent-color: hsl(175, 70%, 60%);
+  font-family: var(--font-family);
 }
 
 /* Apply theme variables to elements */
@@ -186,6 +247,35 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-size: var(--text-base);
+  font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  transition: all 0.3s ease;
+}
+
+/* Font smoothing for better readability */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Specific font applications for themed content */
+.verse-text {
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+.sepia-mode .verse-text,
+.parchment-mode .verse-text {
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+.cyber-mode .verse-text {
+  letter-spacing: 0.02em;
+}
+
+.forest-mode .verse-text {
+  line-height: 1.65;
 }
 
 /* Apply font size scaling to verse content AND row height */
@@ -967,17 +1057,54 @@ body.fireworks-mode {
   --accent-color: hsl(25, 100%, 59%);
 }
 
-/* Theme Animations */
-body.fireworks-mode::before {
+/* Enhanced theme animations and special effects */
+body.rainbow-mode::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: twinkle 3s ease-in-out infinite;
+  background: linear-gradient(45deg, 
+    hsla(0, 100%, 50%, 0.03) 0%,
+    hsla(60, 100%, 50%, 0.03) 16.66%,
+    hsla(120, 100%, 50%, 0.03) 33.33%,
+    hsla(180, 100%, 50%, 0.03) 50%,
+    hsla(240, 100%, 50%, 0.03) 66.66%,
+    hsla(300, 100%, 50%, 0.03) 83.33%,
+    hsla(360, 100%, 50%, 0.03) 100%);
+  background-size: 400% 400%;
+  animation: rainbow-flow 20s ease infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.cyber-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 80%, hsla(315, 100%, 65%, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, hsla(180, 85%, 75%, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, hsla(200, 100%, 50%, 0.05) 0%, transparent 50%);
+  animation: cyber-pulse 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.forest-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at top, hsla(140, 60%, 55%, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse at bottom, hsla(120, 40%, 30%, 0.05) 0%, transparent 70%);
   pointer-events: none;
   z-index: -1;
 }
@@ -989,22 +1116,48 @@ body.aurora-mode::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
-              linear-gradient(-45deg, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
-  background-size: 200% 200%;
-  animation: aurora-flow 15s ease infinite;
+  background: linear-gradient(45deg, 
+    hsla(175, 70%, 60%, 0.08) 0%, 
+    transparent 30%,
+    hsla(200, 50%, 50%, 0.08) 60%,
+    transparent 100%);
+  background-size: 300% 300%;
+  animation: aurora-flow 18s ease infinite;
   pointer-events: none;
   z-index: -1;
 }
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.7; }
+body.parchment-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 25% 25%, hsla(35, 30%, 70%, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, hsla(25, 40%, 60%, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes rainbow-flow {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
+
+@keyframes cyber-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  33% { opacity: 0.6; transform: scale(1.05); }
+  66% { opacity: 0.4; transform: scale(0.95); }
 }
 
 @keyframes aurora-flow {
   0%, 100% { background-position: 0% 0%; }
-  50% { background-position: 100% 100%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
 }
 
 /* Divine and Sacred Styling for Header */

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useBodyClass } from '@/hooks/useBodyClass';
 
-type Theme = 'light-mode' | 'dark-mode' | 'sepia-mode' | 'aurora-mode' | 'electric-mode' | 'fireworks-mode';
+type Theme = 'light-mode' | 'dark-mode' | 'sepia-mode' | 'parchment-mode' | 'forest-mode' | 'aurora-mode' | 'cyber-mode' | 'rainbow-mode';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -22,9 +22,11 @@ const initialState: ThemeProviderState = {
     { id: 'light-mode', name: 'Light' },
     { id: 'dark-mode', name: 'Dark' },
     { id: 'sepia-mode', name: 'Sepia' },
+    { id: 'parchment-mode', name: 'Parchment' },
+    { id: 'forest-mode', name: 'Forest' },
     { id: 'aurora-mode', name: 'Aurora' },
-    { id: 'electric-mode', name: 'Electric' },
-    { id: 'fireworks-mode', name: 'Fireworks' },
+    { id: 'cyber-mode', name: 'Cyber' },
+    { id: 'rainbow-mode', name: 'Rainbow' },
   ],
 };
 
