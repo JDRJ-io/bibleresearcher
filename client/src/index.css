@@ -385,44 +385,44 @@ body {
   }
 
   /* ADAPTIVE MOBILE COLUMNS - Responsive to all device orientations */
-  
+
   /* Base mobile columns (portrait phones ~375px-414px) */
   .w-6 { width: 16px !important; }     /* Reference column - ULTRA-THIN for mobile */
   .w-52 { width: calc((100vw - 32px) * 0.49) !important; }   /* Main translation - 49% of available space */  
   .w-40 { width: calc((100vw - 32px) * 0.49) !important; }   /* Cross References - 49% of available space */
   .w-16 { width: 48px !important; }    /* Small prophecy P/F/V columns */
   .w-20 { width: 80px !important; }    /* WIDER prophecy P/F/V columns - Better visibility */
-  
+
   /* Column headers must match content widths */
   .column-headers-adaptive .w-6 { width: 16px !important; }  /* Reference header */
   .column-headers-adaptive .w-52 { width: calc((100vw - 32px) * 0.49) !important; }  /* Main translation header */
   .column-headers-adaptive .w-40 { width: calc((100vw - 32px) * 0.49) !important; }  /* Cross-refs header */
   .column-headers-adaptive .w-20 { width: 80px !important; }  /* WIDER Prophecy P/F/V headers */
-  
+
   /* Wider mobile screens (landscape phones ~667px-896px) */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .w-6 { width: 20px !important; }   /* Reference column - Thin for landscape */
     .w-52 { width: calc((100vw - 40px) * 0.47) !important; }   /* Main translation */  
     .w-40 { width: calc((100vw - 40px) * 0.47) !important; }   /* Cross References */
-    
+
     /* Column headers must match content widths */
     .column-headers-adaptive .w-6 { width: 20px !important; }
     .column-headers-adaptive .w-52 { width: calc((100vw - 40px) * 0.47) !important; }
     .column-headers-adaptive .w-40 { width: calc((100vw - 40px) * 0.47) !important; }
   }
-  
+
   /* Tablet portrait (768px-1024px) */
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     .w-6 { width: 24px !important; }   /* Reference column - Tablet proportions */
     .w-52 { width: calc((100vw - 48px) * 0.47) !important; }   /* Main translation */  
     .w-40 { width: calc((100vw - 48px) * 0.47) !important; }   /* Cross References */
-    
+
     /* Column headers must match content widths */
     .column-headers-adaptive .w-6 { width: 24px !important; }
     .column-headers-adaptive .w-52 { width: calc((100vw - 48px) * 0.47) !important; }
     .column-headers-adaptive .w-40 { width: calc((100vw - 48px) * 0.47) !important; }
   }
-  
+
   /* Mobile header optimizations */
   @media (max-width: 767px) {
     .divine-header {
@@ -432,7 +432,7 @@ body {
       z-index: 50 !important;
       margin-bottom: 0px !important;
     }
-    
+
     /* Force column headers to be EXACTLY under top header AND adaptive */
     .sticky[style*="top: 48px"], 
     .sticky.z-30,
@@ -450,9 +450,9 @@ body {
       width: 100% !important;
       display: flex !important;
     }
-    
+
     /* Remove Tailwind class overrides - headers now use inline styles */
-    
+
     /* Remove ALL gaps between headers and content */
     .divine-header + *,
     .divine-header ~ *,
@@ -461,7 +461,7 @@ body {
       margin-top: 0px !important;
       padding-top: 0px !important;
     }
-    
+
     /* Specifically target VirtualBibleTable container */
     [class*="VirtualBibleTable"],
     [class*="virtual-bible-table"] {
@@ -469,7 +469,7 @@ body {
       padding-top: 0px !important;
     }
   }
-  
+
   /* Ensure proper spacing and text wrapping */
   .cell-content {
     word-wrap: break-word;
@@ -478,7 +478,7 @@ body {
     padding: 0.25rem 0.5rem;
     line-height: 1.3;
   }
-  
+
   .cell-ref {
     font-size: 12px !important;        /* Even bigger text for mobile readability */
     font-weight: bold !important;      /* Make reference text bold */
@@ -493,7 +493,7 @@ body {
     overflow: hidden;
     color: var(--text-primary) !important; /* Ensure good contrast */
   }
-  
+
   /* Adaptive reference text for different screen sizes */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .cell-ref {
@@ -501,14 +501,14 @@ body {
       padding: 0.1875rem 0.09375rem !important;
     }
   }
-  
+
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     .cell-ref {
       font-size: 14px !important;      /* Tablet size */
       padding: 0.25rem 0.125rem !important;
     }
   }
-  
+
   /* Mobile cross-reference styling */
   .cross-ref-container {
     max-height: 120px;
@@ -516,14 +516,14 @@ body {
     font-size: 11px;
     scrollbar-width: thin;
   }
-  
+
   .cross-ref-item {
     margin-bottom: 0.25rem;
     padding: 0.125rem 0.25rem;
     border-radius: 2px;
     background: rgba(59, 130, 246, 0.05);
   }
-  
+
   .cross-ref-item:hover {
     background: rgba(59, 130, 246, 0.1);
   }
@@ -657,6 +657,8 @@ body {
   .col-cross {
     width: calc(280px * var(--font-size-multiplier, 1));
     flex-shrink: 0;
+```text
+
   }
 
   .virtual-bible-table {
@@ -1153,6 +1155,31 @@ body.cyber-mode::before {
   z-index: -1;
 }
 
+body.cyber-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 20%, hsla(315, 100%, 75%, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, hsla(180, 100%, 70%, 0.10) 0%, transparent 40%),
+    repeating-linear-gradient(90deg, 
+      transparent, 
+      transparent 98px, 
+      hsla(315, 100%, 65%, 0.05) 100px, 
+      hsla(315, 100%, 65%, 0.05) 102px),
+    repeating-linear-gradient(0deg, 
+      transparent, 
+      transparent 98px, 
+      hsla(180, 85%, 75%, 0.03) 100px, 
+      hsla(180, 85%, 75%, 0.03) 102px);
+  animation: cyber-pulse 6s ease infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
 body.forest-mode::after {
   content: '';
   position: fixed;
@@ -1213,9 +1240,49 @@ body.parchment-mode::before {
 }
 
 @keyframes aurora-flow {
-  0%, 100% { background-position: 0% 0%; }
-  33% { background-position: 100% 50%; }
-  66% { background-position: 50% 100%; }
+  0%, 100% { 
+    background-position: 0% 50%, 100% 0%, 0% 0%; 
+    filter: hue-rotate(0deg);
+  }
+  25% { 
+    background-position: 100% 0%, 0% 100%, 50% 25%; 
+    filter: hue-rotate(15deg);
+  }
+  50% { 
+    background-position: 100% 100%, 0% 0%, 100% 50%; 
+    filter: hue-rotate(30deg);
+  }
+  75% { 
+    background-position: 0% 100%, 100% 50%, 25% 75%; 
+    filter: hue-rotate(15deg);
+  }
+}
+
+@keyframes forest-flow {
+  0%, 100% { 
+    background-position: 0% 0%, 100% 100%, 50% 50%, 0% 50%; 
+  }
+  33% { 
+    background-position: 30% 20%, 70% 80%, 20% 70%, 100% 0%; 
+  }
+  66% { 
+    background-position: 70% 60%, 30% 40%, 80% 30%, 50% 100%; 
+  }
+}
+
+@keyframes parchment-flow {
+  0%, 100% { 
+    background-position: 0% 0%, 100% 100%, 50% 0%, 0% 50%; 
+  }
+  25% { 
+    background-position: 25% 30%, 75% 70%, 20% 40%, 100% 0%; 
+  }
+  50% { 
+    background-position: 60% 70%, 40% 30%, 80% 80%, 50% 100%; 
+  }
+  75% { 
+    background-position: 80% 40%, 20% 60%, 30% 20%, 0% 50%; 
+  }
 }
 
 /* Divine and Sacred Styling for Header */
@@ -1430,7 +1497,7 @@ body.overlay-open {
     justify-content: flex-start;
     width: calc(var(--colW) * 2.2); /* Slightly wider for better proportions */
   }
-  
+
   /* Responsive column scaling */
   .w-12 { width: calc(3rem * var(--font-size-multiplier, 1)); }
   .w-14 { width: calc(3.5rem * var(--font-size-multiplier, 1)); }
