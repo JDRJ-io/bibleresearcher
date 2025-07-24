@@ -21,22 +21,17 @@ export default function BiblePage() {
   useBodyClass('bible-page');
 
   // Handle URL parameters
-  const { currentReference, setCurrentReference } = useHashParams();
+  const { hashParams, updateHashParams } = useHashParams();
+  const currentReference = hashParams.reference || 'Gen.1:1';
 
   // Load Bible data with current reference
   const {
     verses,
     selectedTranslations,
     isLoading,
-    loadingStage,
-    loadingPercentage,
-    scrollToVerse,
-    handleNavigateToVerse,
-    handleHighlight,
-    getUserNoteForVerse,
-    getHighlightsForVerse,
     allVerses,
-    getGlobalVerseText
+    getGlobalVerseText,
+    mainTranslation
   } = useBibleData(currentReference);
 
   // Strong's overlay handler
@@ -80,17 +75,10 @@ export default function BiblePage() {
   // Debug logging
   console.log('BiblePage render state:', {
     isLoading,
-    versesLength: verses.length,
-    loadingStage,
-    loadingPercentage
+    versesLength: verses.length
   });
 
   if (shouldShowLoading) {
-    console.log('BiblePage SHOWING LOADING:', {
-      isLoading,
-      versesLength: verses.length,
-      shouldShowLoading
-    });
     return (
       <div className="min-h-screen bg-background">
         <TopHeader
@@ -106,8 +94,7 @@ export default function BiblePage() {
           <div className="text-center space-y-4">
             <LoadingWheel />
             <div className="text-muted-foreground">
-              <div>{loadingStage}</div>
-              <div className="text-xs mt-1">{loadingPercentage}%</div>
+              Loading Bible...
             </div>
           </div>
         </div>
@@ -137,15 +124,19 @@ export default function BiblePage() {
 
       <main className="flex-1 overflow-hidden">
         <VirtualBibleTable
+          verses={verses}
           selectedTranslations={selectedTranslations}
           preferences={{ 
             showNotes: true, 
-            selectedTranslations: selectedTranslations.map(t => t.id),
-            fontSize: 'medium'
+            selectedTranslations: selectedTranslations,
+            fontSize: 'medium',
+            theme: 'light',
+            showProphecy: store.showProphecy,
+            showContext: store.showContext,
+            layoutLocked: false
           }}
-          mainTranslation={selectedTranslations[0]?.id || 'KJV'}
+          mainTranslation={mainTranslation}
           onExpandVerse={handleExpandVerse}
-          onNavigateToVerse={handleNavigateToVerse}
           getGlobalVerseText={getGlobalVerseText}
         />
       </main>
@@ -156,20 +147,24 @@ export default function BiblePage() {
           verse={selectedVerse}
           isOpen={!!selectedVerse}
           onClose={handleCloseStrongsOverlay}
-          onNavigateToVerse={handleNavigateToVerse}
+          onNavigateToVerse={(verseId: string) => console.log('Navigate to:', verseId)}
         />
       )}
 
       {/* Prophecy Detail Drawer */}
       {selectedProphecyId && (
         <ProphecyDetailDrawer
-          prophecyId={selectedProphecyId}
+          prophecyIds={[selectedProphecyId]}
           onClose={handleCloseProphecyDetail}
         />
       )}
 
       {/* Search Modal */}
-      <SearchModal />
+      <SearchModal 
+        isOpen={false}
+        onClose={() => {}}
+        onNavigateToVerse={(verseId: string) => console.log('Navigate to:', verseId)}
+      />
     </div>
   );
 }
