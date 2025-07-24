@@ -10,6 +10,7 @@ import { LoadingWheel } from '@/components/LoadingWheel';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
+import { ThemeProvider } from '@/components/bible/ThemeProvider';
 import type { BibleVerse } from '@/types/bible';
 
 export default function BiblePage() {
@@ -153,25 +154,27 @@ export default function BiblePage() {
 
   if (shouldShowLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <TopHeader
-        searchQuery=""
-        onSearchChange={() => {}}
-        onBack={() => {}}
-        onForward={() => {}}
-        canGoBack={false}
-        canGoForward={false}
-        onMenuToggle={handleMenuToggle}
-      />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center space-y-4">
-            <LoadingWheel />
-            <div className="text-muted-foreground">
-              Loading Bible...
+      <ThemeProvider>
+        <div className="min-h-screen bg-background">
+          <TopHeader
+          searchQuery=""
+          onSearchChange={() => {}}
+          onBack={() => {}}
+          onForward={() => {}}
+          canGoBack={false}
+          canGoForward={false}
+          onMenuToggle={handleMenuToggle}
+        />
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-4">
+              <LoadingWheel />
+              <div className="text-muted-foreground">
+                Loading Bible...
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 
@@ -184,68 +187,70 @@ export default function BiblePage() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopHeader
-        searchQuery=""
-        onSearchChange={() => {}}
-        onBack={() => {}}
-        onForward={() => {}}
-        canGoBack={false}
-        canGoForward={false}
-        onMenuToggle={handleMenuToggle}
-      />
-
-      <main className="flex-1 overflow-hidden">
-        <VirtualBibleTable
-          verses={verses}
-          selectedTranslations={selectedTranslations.map(t => ({ id: t, name: t, abbreviation: t, selected: true }))}
-          preferences={{ 
-            showNotes: true, 
-            selectedTranslations: selectedTranslations,
-            fontSize: 'medium',
-            theme: 'light',
-            showProphecy: store.showProphecy,
-            showContext: store.showContext,
-            layoutLocked: false
-          }}
-          mainTranslation={mainTranslation}
-          onExpandVerse={handleExpandVerse}
-          getGlobalVerseText={getGlobalVerseText}
+    <ThemeProvider>
+      <div className="min-h-screen bg-background">
+        <TopHeader
+          searchQuery=""
+          onSearchChange={() => {}}
+          onBack={() => {}}
+          onForward={() => {}}
+          canGoBack={false}
+          canGoForward={false}
+          onMenuToggle={handleMenuToggle}
         />
-      </main>
 
-      {/* Strong's Overlay */}
-      {selectedVerse && (
-        <StrongsOverlay
-          verse={selectedVerse}
-          isOpen={!!selectedVerse}
-          onClose={handleCloseStrongsOverlay}
-          onNavigateToVerse={handleNavigateToVerse}
+        <main className="flex-1 overflow-hidden">
+          <VirtualBibleTable
+            verses={verses}
+            selectedTranslations={selectedTranslations.map(t => ({ id: t, name: t, abbreviation: t, selected: true }))}
+            preferences={{ 
+              showNotes: true, 
+              selectedTranslations: selectedTranslations,
+              fontSize: 'medium',
+              theme: 'light',
+              showProphecy: store.showProphecy,
+              showContext: store.showContext,
+              layoutLocked: false
+            }}
+            mainTranslation={mainTranslation}
+            onExpandVerse={handleExpandVerse}
+            getGlobalVerseText={getGlobalVerseText}
+          />
+        </main>
+
+        {/* Strong's Overlay */}
+        {selectedVerse && (
+          <StrongsOverlay
+            verse={selectedVerse}
+            isOpen={!!selectedVerse}
+            onClose={handleCloseStrongsOverlay}
+            onNavigateToVerse={handleNavigateToVerse}
+          />
+        )}
+
+        {/* Prophecy Detail Drawer */}
+        {selectedProphecyId && (
+          <ProphecyDetailDrawer
+            isOpen={!!selectedProphecyId}
+            prophecyIds={[selectedProphecyId]}
+            onClose={handleCloseProphecyDetail}
+            onNavigateToVerse={handleNavigateToVerse}
+          />
+        )}
+
+        {/* Search Modal */}
+        <SearchModal 
+          isOpen={false}
+          onClose={() => {}}
+          onNavigateToVerse={(verseIndex: number) => console.log('Navigate to:', verseIndex)}
         />
-      )}
 
-      {/* Prophecy Detail Drawer */}
-      {selectedProphecyId && (
-        <ProphecyDetailDrawer
-          isOpen={!!selectedProphecyId}
-          prophecyIds={[selectedProphecyId]}
-          onClose={handleCloseProphecyDetail}
-          onNavigateToVerse={handleNavigateToVerse}
+        {/* Hamburger Menu */}
+        <HamburgerMenu 
+          isOpen={isMenuOpen}
+          onClose={handleMenuClose}
         />
-      )}
-
-      {/* Search Modal */}
-      <SearchModal 
-        isOpen={false}
-        onClose={() => {}}
-        onNavigateToVerse={(verseIndex: number) => console.log('Navigate to:', verseIndex)}
-      />
-
-      {/* Hamburger Menu */}
-      <HamburgerMenu 
-        isOpen={isMenuOpen}
-        onClose={handleMenuClose}
-      />
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
