@@ -263,6 +263,18 @@ export function VirtualRow({
     console.log('🔥 Translation states:', { main, alternates, activeTranslations });
   }
 
+  // Handle double-click to open Strong's overlay
+  const handleDoubleClick = () => {
+    console.log(`🔍 VirtualRow handleDoubleClick called for ${verse.reference}`);
+    console.log(`🔍 onExpandVerse available:`, !!onExpandVerse);
+    if (onExpandVerse) {
+      console.log(`🔍 Calling onExpandVerse for ${verse.reference}`);
+      onExpandVerse(verse);
+    } else {
+      console.warn(`⚠️ onExpandVerse not available for ${verse.reference}`);
+    }
+  };
+
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, SlotConfig> = {};
 
