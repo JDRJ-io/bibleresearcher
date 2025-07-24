@@ -447,7 +447,8 @@ const VirtualBibleTable = ({
                   contextGroup: "standard" as const
                 };
 
-                console.log('🔍 VirtualBibleTable rendering VirtualRow, onExpandVerse available:', !!onExpandVerse);
+                console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
+                console.log(`🔍 VirtualBibleTable onExpandVerse type:`, typeof onExpandVerse);
                 return (
                   <VirtualRow 
                     key={id}
