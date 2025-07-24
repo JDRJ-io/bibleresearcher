@@ -477,4 +477,3 @@ const VirtualBibleTable = ({
 
 export default VirtualBibleTable;
 export { VirtualBibleTable };
-```This modification ensures that the `onExpandVerse` callback is correctly passed down to the `VirtualRow` component, with a console log for debugging.
