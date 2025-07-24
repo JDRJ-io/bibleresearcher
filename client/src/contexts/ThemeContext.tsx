@@ -32,26 +32,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Apply theme to document
     const root = document.documentElement;
-    const body = document.body;
     
-    // Remove all theme classes from both root and body
-    themes.forEach(t => {
-      root.classList.remove(t.id);
-      body.classList.remove(t.id);
-      // Also remove -mode versions for compatibility
-      root.classList.remove(t.id + '-mode');
-      body.classList.remove(t.id + '-mode');
-    });
+    // Remove all theme classes
+    themes.forEach(t => root.classList.remove(t.id));
     
-    // Add current theme class to both root and body
+    // Add current theme class
     root.classList.add(theme);
-    body.classList.add(theme);
     
     // Save to localStorage
     localStorage.setItem('anointed-theme', theme);
     
     console.log(`🎨 Theme switched to: ${theme}`);
-    console.log(`🎨 Applied theme classes to root and body: ${theme}`);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
