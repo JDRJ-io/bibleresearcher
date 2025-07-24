@@ -446,19 +446,9 @@ export function VirtualRow({
           });
         }
 
-        // Use the working getGlobalVerseText function that accesses cached data
-        let verseText = '';
-        if (getVerseText) {
-          verseText = getVerseText(verse.reference, config.translationCode);
-        }
-        if (!verseText && getMainVerseText) {
-          verseText = getMainVerseText(verse.reference);
-        }
-        
-        // Final fallback to any available verse text
-        if (!verseText && verse.text) {
-          verseText = verse.text;
-        }
+        // Simple fallback to hook functions - let debugging show the issue
+        let verseText = getVerseText(verse.reference, config.translationCode) || 
+                        getMainVerseText(verse.reference);
 
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
