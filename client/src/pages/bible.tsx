@@ -32,7 +32,7 @@ export default function BiblePage() {
     allVerses,
     getGlobalVerseText,
     mainTranslation
-  } = useBibleData(currentReference);
+  } = useBibleData();
 
   // Strong's overlay handler
   const handleExpandVerse = useCallback((verse: BibleVerse) => {
@@ -185,7 +185,7 @@ export default function BiblePage() {
       <main className="flex-1 overflow-hidden">
         <VirtualBibleTable
           verses={verses}
-          selectedTranslations={selectedTranslations}
+          selectedTranslations={selectedTranslations.map(t => ({ id: t, name: t, abbreviation: t, selected: true }))}
           preferences={{ 
             showNotes: true, 
             selectedTranslations: selectedTranslations,
@@ -214,8 +214,10 @@ export default function BiblePage() {
       {/* Prophecy Detail Drawer */}
       {selectedProphecyId && (
         <ProphecyDetailDrawer
+          isOpen={!!selectedProphecyId}
           prophecyIds={[selectedProphecyId]}
           onClose={handleCloseProphecyDetail}
+          onNavigateToVerse={handleNavigateToVerse}
         />
       )}
 
@@ -223,7 +225,7 @@ export default function BiblePage() {
       <SearchModal 
         isOpen={false}
         onClose={() => {}}
-        onNavigateToVerse={(verseId: string) => console.log('Navigate to:', verseId)}
+        onNavigateToVerse={(verseIndex: number) => console.log('Navigate to:', verseIndex)}
       />
     </div>
   );
