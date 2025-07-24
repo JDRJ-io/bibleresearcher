@@ -115,6 +115,19 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
   const { prophecyData, prophecyIndex } = useBibleStore();
+  const [collapsedProphecies, setCollapsedProphecies] = React.useState<Set<string>>(new Set());
+  
+  const toggleProphecyCollapse = (prophecyId: string) => {
+    setCollapsedProphecies(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(prophecyId)) {
+        newSet.delete(prophecyId);
+      } else {
+        newSet.add(prophecyId);
+      }
+      return newSet;
+    });
+  };
 
   // Try multiple formats for verse lookup - match the format used in VirtualRow for cross-refs
   const possibleKeys = [
@@ -170,35 +183,43 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
             // Skip if no verses to show in this column for this prophecy
             if (versesToShow.length === 0) return null;
 
+            const isCollapsed = collapsedProphecies.has(prophecyId);
+            
             return (
               <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
-                {/* Smaller summary text */}
-                <div className="text-[9px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight">
-                  {prophecyId}. {prophecyDetails.summary}
-                </div>
+                {/* Clickable summary text with collapse indicator */}
+                <button
+                  onClick={() => toggleProphecyCollapse(prophecyId)}
+                  className="w-full text-[9px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors flex items-center justify-center gap-1"
+                >
+                  <span className="text-[8px]">{isCollapsed ? '▶' : '▼'}</span>
+                  <span>{prophecyId}. {prophecyDetails.summary}</span>
+                </button>
 
-                {/* Show ALL verses for this prophecy in this column */}
-                <div className="space-y-1">
-                  {versesToShow.map((verseRef, i) => {
-                    // Get the full verse text using the same method as other columns
-                    const fullVerseText = getVerseText(verseRef, mainTranslation) || '';
-                    
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => onVerseClick && onVerseClick(verseRef)}
-                        className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
-                      >
-                        <div className="text-blue-600 dark:text-blue-400 font-medium text-[10px] mb-1">
-                          {verseRef}
-                        </div>
-                        <div className="text-gray-600 dark:text-gray-400 text-[9px] leading-tight whitespace-normal break-words">
-                          {fullVerseText || 'Loading...'}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                {/* Show ALL verses for this prophecy in this column - collapsible */}
+                {!isCollapsed && (
+                  <div className="space-y-1">
+                    {versesToShow.map((verseRef, i) => {
+                      // Get the full verse text using the same method as other columns
+                      const fullVerseText = getVerseText(verseRef, mainTranslation) || '';
+                      
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => onVerseClick && onVerseClick(verseRef)}
+                          className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
+                        >
+                          <div className="text-blue-600 dark:text-blue-400 font-medium text-[10px] mb-1">
+                            {verseRef}
+                          </div>
+                          <div className="text-gray-600 dark:text-gray-400 text-[9px] leading-tight whitespace-normal break-words">
+                            {fullVerseText || 'Loading...'}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
