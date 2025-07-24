@@ -1,6 +1,7 @@
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 import { ProphecyColumns } from './ProphecyColumns';
 import { useBibleStore } from '@/App';
+import { getLabel, LabelName } from '@/lib/labelsCache';
 
 interface VerseRowProps {
   verse: BibleVerse;
@@ -35,7 +36,7 @@ export function VerseRow({
   getGlobalVerseText,
   allVerses,
 }: VerseRowProps) {
-  const { store } = useBibleStore();
+  const { store, activeLabel } = useBibleStore();
 
   // Create preferences object for consistency
   const preferences = {
@@ -180,6 +181,38 @@ export function VerseRow({
               onVerseClick={onNavigateToVerse}
               mainTranslation={selectedTranslations[0]?.id}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Labels Column */}
+      {activeLabel && (
+        <div className="w-60 flex-shrink-0 border-r">
+          <div className="h-[120px] overflow-y-auto p-3 text-xs">
+            {(() => {
+              // Get labels for the active label type using the main translation
+              const mainTranslation = selectedTranslations[0]?.id;
+              if (!mainTranslation) return null;
+              
+              const labelValues = getLabel(mainTranslation, verse.reference, activeLabel as LabelName);
+              
+              if (labelValues.length > 0) {
+                return (
+                  <div className="space-y-1">
+                    {labelValues.map((value, index) => (
+                      <span
+                        key={index}
+                        className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full mr-1 mb-1"
+                      >
+                        {value}
+                      </span>
+                    ))}
+                  </div>
+                );
+              } else {
+                return <span className="text-muted-foreground italic">No {activeLabel} labels</span>;
+              }
+            })()}
           </div>
         </div>
       )}

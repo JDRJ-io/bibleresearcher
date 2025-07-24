@@ -82,6 +82,8 @@ export const useBibleStore = create<{
   currentVerseKeys: string[];
   setChronological: (chronological: boolean) => void;
   setCurrentVerseKeys: (keys: string[]) => void;
+  activeLabel: string | null;
+  setActiveLabel: (label: string | null) => void;
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -111,6 +113,8 @@ export const useBibleStore = create<{
   currentVerseKeys: [],   // Current verse keys array (canonical or chronological)
   setChronological: (chronological: boolean) => set({ isChronological: chronological }),
   setCurrentVerseKeys: (keys: string[]) => set({ currentVerseKeys: keys }),
+  activeLabel: null,
+  setActiveLabel: (label: string | null) => set({ activeLabel: label }),
 
   // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {

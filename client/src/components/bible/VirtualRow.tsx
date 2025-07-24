@@ -116,7 +116,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 }) {
   const { prophecyData, prophecyIndex } = useBibleStore();
   const [collapsedProphecies, setCollapsedProphecies] = React.useState<Set<string>>(new Set());
-  
+
   const toggleProphecyCollapse = (prophecyId: string) => {
     setCollapsedProphecies(prev => {
       const newSet = new Set(prev);
@@ -158,7 +158,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
     ...(verseRoles.F || []),
     ...(verseRoles.V || [])
   ];
-  
+
   // Remove duplicates
   const uniqueProphecyIds = Array.from(new Set(allProphecyIds));
 
@@ -184,7 +184,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
             if (versesToShow.length === 0) return null;
 
             const isCollapsed = collapsedProphecies.has(prophecyId);
-            
+
             return (
               <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
                 {/* Clickable summary text with collapse indicator */}
@@ -202,7 +202,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                     {versesToShow.map((verseRef, i) => {
                       // Get the full verse text using the same method as other columns
                       const fullVerseText = getVerseText(verseRef, mainTranslation) || '';
-                      
+
                       return (
                         <button
                           key={i}

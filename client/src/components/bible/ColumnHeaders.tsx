@@ -25,7 +25,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
   // MATCH EXACT VIRTUALROW WIDTHS - Use same logic as VirtualRow getColumnWidth function
   const getAdaptiveStyle = () => {
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
-    
+
     // Determine screen size using same logic as VirtualRow
     let screenSize = 'desktop';
     if (viewportWidth < 768) {
