@@ -6,111 +6,76 @@ import './ProphecyColumns.css';
 interface ProphecyData {
   id: number;
   summary: string;
-  prophecy: string[];
+  prophecy: string[];  // Prediction verses
   fulfillment: string[];
   verification: string[];
 }
 
-interface ProphecyRowData {
-  P: number[];
-  F: number[];
-  V: number[];
-}
-
 interface ProphecyBlockProps {
   prophecyData: ProphecyData;
-  isAnchor: boolean;
+  type: 'P' | 'F' | 'V';
   onVerseClick: (reference: string) => void;
+  getVerseText?: (ref: string) => string;
 }
 
-function ProphecyBlock({ prophecyData, isAnchor, onVerseClick, getVerseText }: ProphecyBlockProps & { getVerseText?: (ref: string) => string }) {
+function ProphecyBlock({ prophecyData, type, onVerseClick, getVerseText }: ProphecyBlockProps) {
+  const typeLabels = {
+    P: 'Prediction',
+    F: 'Fulfillment', 
+    V: 'Verification'
+  };
+  
+  const typeColors = {
+    P: 'text-blue-600 dark:text-blue-400',
+    F: 'text-orange-600 dark:text-orange-400',
+    V: 'text-purple-600 dark:text-purple-400'
+  };
+  
+  const verses = type === 'P' ? prophecyData.prophecy : 
+                type === 'F' ? prophecyData.fulfillment : 
+                              prophecyData.verification;
+  
+  if (verses.length === 0) return null;
+  
   return (
-    <div className={`prophecy-block mb-2 p-2 border border-gray-200 dark:border-gray-700 rounded text-xs ${isAnchor ? 'anchor bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600' : ''}`}>
-      <div className="prophecy-header font-medium text-blue-700 dark:text-blue-300 mb-2 border-b pb-1">
+    <div className="prophecy-block mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded text-xs">
+      <div className={`prophecy-header font-medium ${typeColors[type]} mb-2 border-b pb-1`}>
         {prophecyData.id}. {prophecyData.summary}
       </div>
       
       <div className="space-y-1">
-        {/* Prediction References */}
-        {prophecyData.prophecy.length > 0 && (
-          <div>
-            <div className="font-medium text-green-600 dark:text-green-400 mb-1">Prediction:</div>
-            {prophecyData.prophecy.map((ref, idx) => (
-              <div key={idx} className="mb-1">
-                <button
-                  onClick={() => onVerseClick(ref)}
-                  className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
-                >
-                  {ref.replace(/\./g, ' ')}
-                </button>
-                {getVerseText && (
-                  <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
-                    {getVerseText(ref)?.substring(0, 80)}...
-                  </div>
-                )}
+        {verses.map((ref, idx) => (
+          <div key={idx} className="mb-1">
+            <button
+              onClick={() => onVerseClick(ref)}
+              className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
+            >
+              {ref.replace(/\./g, ' ')}
+            </button>
+            {getVerseText && (
+              <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
+                {getVerseText(ref)?.substring(0, 80)}...
               </div>
-            ))}
+            )}
           </div>
-        )}
-
-        {/* Fulfillment References */}
-        {prophecyData.fulfillment.length > 0 && (
-          <div>
-            <div className="font-medium text-orange-600 dark:text-orange-400 mb-1">Fulfillment:</div>
-            {prophecyData.fulfillment.map((ref, idx) => (
-              <div key={idx} className="mb-1">
-                <button
-                  onClick={() => onVerseClick(ref)}
-                  className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
-                >
-                  {ref.replace(/\./g, ' ')}
-                </button>
-                {getVerseText && (
-                  <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
-                    {getVerseText(ref)?.substring(0, 80)}...
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Verification References */}
-        {prophecyData.verification.length > 0 && (
-          <div>
-            <div className="font-medium text-purple-600 dark:text-purple-400 mb-1">Verification:</div>
-            {prophecyData.verification.map((ref, idx) => (
-              <div key={idx} className="mb-1">
-                <button
-                  onClick={() => onVerseClick(ref)}
-                  className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
-                >
-                  {ref.replace(/\./g, ' ')}
-                </button>
-                {getVerseText && (
-                  <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight">
-                    {getVerseText(ref)?.substring(0, 80)}...
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
 
-function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: string; onVerseClick: (reference: string) => void; mainTranslation?: string }) {
+function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { 
+  verseKey: string; 
+  onVerseClick: (reference: string) => void; 
+  mainTranslation?: string 
+}) {
   const { prophecyData, prophecyIndex, translations } = useBibleStore();
-  const [prophecies, setProphecies] = useState<Array<{ data: ProphecyData; role: 'P' | 'F' | 'V' }>>([]);
+  const [prophecies, setProphecies] = useState<ProphecyData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Helper function to get verse text for the current main translation
+  // Helper function to get verse text
   const getVerseText = (reference: string): string => {
     if (!mainTranslation || !translations[mainTranslation]) return '';
-    
-    // Find the verse in the loaded translation data
     const translationData = translations[mainTranslation];
     const verse = translationData.find((v: any) => v.reference === reference);
     return verse?.text || '';
@@ -120,12 +85,6 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
     const loadProphecyDataForVerse = async () => {
       try {
         console.log(`🔮 Loading prophecy data for verse: ${verseKey}`);
-        console.log(`📊 Available prophecy data keys: ${Object.keys(prophecyData).length}`);
-        console.log(`📊 Available prophecy index keys: ${Object.keys(prophecyIndex).length}`);
-        
-        // Debug the actual data structure
-        console.log(`🔍 Sample prophecyData keys:`, Object.keys(prophecyData).slice(0, 5));
-        console.log(`🔍 Sample prophecyIndex keys:`, Object.keys(prophecyIndex).slice(0, 5));
         
         // Try multiple formats for verse key matching
         const possibleKeys = [
@@ -137,6 +96,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
         let verseRoles = null;
         let foundKey = null;
         
+        // Look up verse in prophecyData (this comes from prophecy_index.txt parsing)
         for (const key of possibleKeys) {
           if (prophecyData[key]) {
             verseRoles = prophecyData[key];
@@ -146,8 +106,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
         }
         
         if (!verseRoles) {
-          console.log(`❌ No prophecy data found for ${verseKey} (tried: ${possibleKeys.join(', ')})`);
-          console.log(`📋 Available prophecy data sample:`, Object.keys(prophecyData).slice(0, 10));
+          console.log(`❌ No prophecy data found for ${verseKey}`);
           setProphecies([]);
           setIsLoading(false);
           return;
@@ -160,39 +119,27 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
         const uniqueIds = Array.from(new Set(allIds));
         
         if (uniqueIds.length === 0) {
-          console.log(`📭 No prophecy IDs found for ${verseKey}`);
           setProphecies([]);
           setIsLoading(false);
           return;
         }
         
-        console.log(`🔢 Found prophecy IDs for ${verseKey}:`, uniqueIds);
-        
-        // Build prophecy blocks with role information
-        const prophecyBlocks: Array<{ data: ProphecyData; role: 'P' | 'F' | 'V' }> = [];
+        // Build prophecy data from prophecy_rows.json
+        const prophecyBlocks: ProphecyData[] = [];
         
         for (const id of uniqueIds) {
           const prophecyDetails = prophecyIndex[id];
           if (!prophecyDetails) {
             console.log(`⚠️ Missing prophecy details for ID ${id}`);
-            console.log(`📋 Available prophecy index sample:`, Object.keys(prophecyIndex).slice(0, 10));
             continue;
           }
           
-          // Determine the primary role of this verse in this prophecy
-          let role: 'P' | 'F' | 'V' = 'P';
-          if (verseRoles.F && verseRoles.F.includes(id)) role = 'F';
-          else if (verseRoles.V && verseRoles.V.includes(id)) role = 'V';
-          
           prophecyBlocks.push({
-            data: {
-              id,
-              summary: prophecyDetails.summary || prophecyDetails.title || `Prophecy ${id}`,
-              prophecy: prophecyDetails.prophecy || prophecyDetails.prediction || [],
-              fulfillment: prophecyDetails.fulfillment || [],
-              verification: prophecyDetails.verification || []
-            },
-            role
+            id: parseInt(id.toString()),
+            summary: prophecyDetails.summary || `Prophecy ${id}`,
+            prophecy: prophecyDetails.prophecy || [],
+            fulfillment: prophecyDetails.fulfillment || [],
+            verification: prophecyDetails.verification || []
           });
         }
         
@@ -212,7 +159,6 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
       loadProphecyDataForVerse();
     } else {
       console.log('⏳ Waiting for prophecy data to load...');
-      console.log(`📊 Current state - prophecyData: ${Object.keys(prophecyData).length}, prophecyIndex: ${Object.keys(prophecyIndex).length}`);
       setIsLoading(true);
     }
   }, [verseKey, prophecyData, prophecyIndex, mainTranslation]);
@@ -220,15 +166,18 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
   if (isLoading) {
     return (
       <div className="flex h-full">
-        {/* Loading skeletons for P, F, V columns */}
-        <div className="w-16 flex-shrink-0 flex items-center justify-center border-r">
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-8 rounded"></div>
+        {/* Separate P, F, V columns with loading */}
+        <div className="w-48 flex-shrink-0 border-r p-2">
+          <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
-        <div className="w-16 flex-shrink-0 flex items-center justify-center border-r">
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-8 rounded"></div>
+        <div className="w-48 flex-shrink-0 border-r p-2">
+          <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
-        <div className="w-16 flex-shrink-0 flex items-center justify-center">
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-8 rounded"></div>
+        <div className="w-48 flex-shrink-0 p-2">
+          <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
         </div>
       </div>
     );
@@ -238,23 +187,58 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: { verseKey: st
     return (
       <div className="flex h-full">
         {/* Empty P, F, V columns */}
-        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400 border-r">—</div>
-        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400 border-r">—</div>
-        <div className="w-16 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+        <div className="w-48 flex-shrink-0 border-r p-2">
+          <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
+          <div className="text-gray-400 text-center">—</div>
+        </div>
+        <div className="w-48 flex-shrink-0 border-r p-2">
+          <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
+          <div className="text-gray-400 text-center">—</div>
+        </div>
+        <div className="w-48 flex-shrink-0 p-2">
+          <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
+          <div className="text-gray-400 text-center">—</div>
+        </div>
       </div>
     );
   }
   
   return (
     <div className="flex h-full">
-      {/* Single Column Layout - All prophecy data together */}
-      <div className="w-full p-2 overflow-y-auto">
-        <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prophecies ({prophecies.length})</div>
-        {prophecies.map((prophecy, index) => (
+      {/* Separate P, F, V columns as you specified */}
+      <div className="w-48 flex-shrink-0 border-r p-2 overflow-y-auto">
+        <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
+        {prophecies.map((prophecy) => (
           <ProphecyBlock
-            key={`${prophecy.data.id}-${index}`}
-            prophecyData={prophecy.data}
-            isAnchor={true} // All blocks are anchored since they relate to this verse
+            key={`P-${prophecy.id}`}
+            prophecyData={prophecy}
+            type="P"
+            onVerseClick={onVerseClick}
+            getVerseText={getVerseText}
+          />
+        ))}
+      </div>
+      
+      <div className="w-48 flex-shrink-0 border-r p-2 overflow-y-auto">
+        <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
+        {prophecies.map((prophecy) => (
+          <ProphecyBlock
+            key={`F-${prophecy.id}`}
+            prophecyData={prophecy}
+            type="F"
+            onVerseClick={onVerseClick}
+            getVerseText={getVerseText}
+          />
+        ))}
+      </div>
+      
+      <div className="w-48 flex-shrink-0 p-2 overflow-y-auto">
+        <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
+        {prophecies.map((prophecy) => (
+          <ProphecyBlock
+            key={`V-${prophecy.id}`}
+            prophecyData={prophecy}
+            type="V"
             onVerseClick={onVerseClick}
             getVerseText={getVerseText}
           />
@@ -269,15 +253,23 @@ export function ProphecyColumns({ verseIDs, onVerseClick, mainTranslation }: {
   onVerseClick: (reference: string) => void; 
   mainTranslation?: string;
 }) {
-  // For the VerseRow integration, we only expect one verseID
   const verseKey = verseIDs[0];
   
   if (!verseKey) {
     return (
       <div className="flex h-full">
-        <div className="w-48 flex-shrink-0 flex items-center justify-center text-gray-400 border-r">—</div>
-        <div className="w-48 flex-shrink-0 flex items-center justify-center text-gray-400 border-r">—</div>
-        <div className="w-48 flex-shrink-0 flex items-center justify-center text-gray-400">—</div>
+        <div className="w-48 flex-shrink-0 border-r p-2">
+          <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
+          <div className="text-gray-400 text-center">—</div>
+        </div>
+        <div className="w-48 flex-shrink-0 border-r p-2">
+          <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
+          <div className="text-gray-400 text-center">—</div>
+        </div>
+        <div className="w-48 flex-shrink-0 p-2">
+          <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
+          <div className="text-gray-400 text-center">—</div>
+        </div>
       </div>
     );
   }
