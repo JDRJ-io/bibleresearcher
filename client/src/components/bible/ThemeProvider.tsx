@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useBodyClass } from '@/hooks/useBodyClass';
 
-type Theme = 'light-mode' | 'dark-mode' | 'sepia-mode' | 'aurora-mode' | 'electric-mode' | 'fireworks-mode';
+type Theme = 'light-mode' | 'dark-mode' | 'sepia-mode' | 'aurora-mode' | 'fireworks-mode' | 'rainbow-mode' | 'cyber-mode' | 'forest-mode' | 'ocean-mode';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -19,12 +19,15 @@ const initialState: ThemeProviderState = {
   theme: 'light-mode',
   setTheme: () => null,
   themes: [
-    { id: 'light-mode', name: 'Light' },
-    { id: 'dark-mode', name: 'Dark' },
-    { id: 'sepia-mode', name: 'Sepia' },
-    { id: 'aurora-mode', name: 'Aurora' },
-    { id: 'electric-mode', name: 'Electric' },
-    { id: 'fireworks-mode', name: 'Fireworks' },
+    { id: 'light-mode', name: 'Classic Light' },
+    { id: 'dark-mode', name: 'Midnight Study' },
+    { id: 'sepia-mode', name: 'Parchment Scholar' },
+    { id: 'aurora-mode', name: 'Northern Lights' },
+    { id: 'fireworks-mode', name: 'Celebration' },
+    { id: 'rainbow-mode', name: 'Dark Rainbow' },
+    { id: 'cyber-mode', name: 'Cyber Matrix' },
+    { id: 'forest-mode', name: 'Forest Study' },
+    { id: 'ocean-mode', name: 'Ocean Depths' },
   ],
 };
 

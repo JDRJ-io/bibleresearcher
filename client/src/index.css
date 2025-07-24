@@ -2,50 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme System - Multiple visual themes for different moods */
+/* Theme System - Professional curated themes for Bible study */
 :root.light {
-  --header-bg: hsl(210, 40%, 95%);
-  --text-color: hsl(210, 22%, 22%);
-  --accent-color: hsl(210, 40%, 40%);
-  --column-bg: hsl(210, 40%, 98%);
-  --border-color: hsl(210, 25%, 85%);
-  --highlight-bg: hsl(210, 40%, 96%);
+  /* Classic Light - Clean and professional */
+  --header-bg: hsl(210, 40%, 97%);
+  --text-color: hsl(210, 25%, 15%);
+  --accent-color: hsl(212, 78%, 50%);
+  --column-bg: hsl(210, 40%, 99%);
+  --border-color: hsl(210, 20%, 88%);
+  --highlight-bg: hsl(212, 50%, 96%);
+  --secondary-text: hsl(210, 15%, 45%);
+  --warning-color: hsl(38, 92%, 50%);
+  --success-color: hsl(142, 71%, 45%);
+  --error-color: hsl(0, 84%, 60%);
 }
 
 :root.dark {
-  --header-bg: hsl(210, 22%, 15%);
-  --text-color: hsl(210, 40%, 90%);
-  --accent-color: hsl(210, 60%, 70%);
-  --column-bg: hsl(210, 22%, 18%);
-  --border-color: hsl(210, 25%, 25%);
-  --highlight-bg: hsl(210, 22%, 20%);
+  /* Midnight Study - Easy on the eyes for long reading */
+  --header-bg: hsl(220, 25%, 12%);
+  --text-color: hsl(210, 25%, 88%);
+  --accent-color: hsl(210, 80%, 65%);
+  --column-bg: hsl(220, 20%, 15%);
+  --border-color: hsl(220, 15%, 25%);
+  --highlight-bg: hsl(220, 25%, 18%);
+  --secondary-text: hsl(210, 15%, 65%);
+  --warning-color: hsl(45, 100%, 60%);
+  --success-color: hsl(142, 60%, 55%);
+  --error-color: hsl(0, 70%, 65%);
 }
 
 :root.sepia {
-  --header-bg: hsl(35, 25%, 92%);
-  --text-color: hsl(35, 25%, 25%);
-  --accent-color: hsl(35, 40%, 45%);
-  --column-bg: hsl(35, 25%, 95%);
-  --border-color: hsl(35, 20%, 80%);
-  --highlight-bg: hsl(35, 25%, 88%);
+  /* Parchment Scholar - Warm reading experience */
+  --header-bg: hsl(40, 35%, 92%);
+  --text-color: hsl(30, 40%, 20%);
+  --accent-color: hsl(25, 65%, 45%);
+  --column-bg: hsl(40, 30%, 95%);
+  --border-color: hsl(35, 25%, 82%);
+  --highlight-bg: hsl(40, 40%, 88%);
+  --secondary-text: hsl(30, 25%, 40%);
+  --warning-color: hsl(35, 85%, 50%);
+  --success-color: hsl(85, 45%, 40%);
+  --error-color: hsl(15, 75%, 50%);
 }
 
 :root.fireworks {
-  --header-bg: hsl(260, 30%, 15%);
-  --text-color: hsl(260, 20%, 90%);
-  --accent-color: hsl(300, 60%, 70%);
-  --column-bg: hsl(260, 30%, 18%);
-  --border-color: hsl(260, 25%, 25%);
-  --highlight-bg: hsl(260, 30%, 20%);
+  /* Celebration - Vibrant and uplifting */
+  --header-bg: hsl(250, 35%, 15%);
+  --text-color: hsl(50, 100%, 95%);
+  --accent-color: hsl(315, 85%, 70%);
+  --column-bg: hsl(250, 30%, 18%);
+  --border-color: hsl(260, 40%, 30%);
+  --highlight-bg: hsl(250, 35%, 22%);
+  --secondary-text: hsl(50, 60%, 80%);
+  --warning-color: hsl(45, 100%, 65%);
+  --success-color: hsl(120, 60%, 60%);
+  --error-color: hsl(0, 80%, 70%);
 }
 
 :root.aurora {
-  --header-bg: hsl(190, 40%, 15%);
-  --text-color: hsl(190, 30%, 90%);
-  --accent-color: hsl(180, 60%, 70%);
-  --column-bg: hsl(190, 40%, 18%);
-  --border-color: hsl(190, 25%, 25%);
-  --highlight-bg: hsl(190, 40%, 20%);
+  /* Northern Lights - Calming blues and greens */
+  --header-bg: hsl(200, 45%, 12%);
+  --text-color: hsl(190, 40%, 90%);
+  --accent-color: hsl(170, 70%, 60%);
+  --column-bg: hsl(200, 40%, 15%);
+  --border-color: hsl(195, 35%, 25%);
+  --highlight-bg: hsl(200, 45%, 18%);
+  --secondary-text: hsl(190, 30%, 70%);
+  --warning-color: hsl(45, 90%, 60%);
+  --success-color: hsl(160, 65%, 55%);
+  --error-color: hsl(350, 70%, 65%);
+}
+
+:root.rainbow {
+  /* Dark Rainbow - Saturated colors on dark background */
+  --header-bg: hsl(270, 40%, 10%);
+  --text-color: hsl(60, 100%, 95%);
+  --accent-color: hsl(300, 100%, 70%);
+  --column-bg: hsl(270, 35%, 13%);
+  --border-color: hsl(280, 60%, 25%);
+  --highlight-bg: hsl(270, 40%, 16%);
+  --secondary-text: hsl(60, 80%, 85%);
+  --warning-color: hsl(30, 100%, 60%);
+  --success-color: hsl(120, 80%, 60%);
+  --error-color: hsl(0, 100%, 70%);
+}
+
+:root.cyber {
+  /* Cyber Matrix - High-tech aesthetic */
+  --header-bg: hsl(180, 100%, 5%);
+  --text-color: hsl(120, 100%, 85%);
+  --accent-color: hsl(180, 100%, 50%);
+  --column-bg: hsl(180, 80%, 8%);
+  --border-color: hsl(180, 60%, 20%);
+  --highlight-bg: hsl(180, 100%, 10%);
+  --secondary-text: hsl(120, 80%, 70%);
+  --warning-color: hsl(60, 100%, 50%);
+  --success-color: hsl(120, 100%, 60%);
+  --error-color: hsl(0, 100%, 60%);
+}
+
+:root.forest {
+  /* Forest Study - Natural greens for focus */
+  --header-bg: hsl(120, 25%, 15%);
+  --text-color: hsl(120, 20%, 90%);
+  --accent-color: hsl(140, 60%, 55%);
+  --column-bg: hsl(120, 20%, 18%);
+  --border-color: hsl(125, 25%, 28%);
+  --highlight-bg: hsl(120, 25%, 22%);
+  --secondary-text: hsl(120, 15%, 75%);
+  --warning-color: hsl(45, 85%, 55%);
+  --success-color: hsl(140, 70%, 60%);
+  --error-color: hsl(10, 75%, 60%);
+}
+
+:root.ocean {
+  /* Ocean Depths - Deep blues for contemplation */
+  --header-bg: hsl(220, 60%, 12%);
+  --text-color: hsl(200, 30%, 90%);
+  --accent-color: hsl(200, 80%, 60%);
+  --column-bg: hsl(220, 55%, 15%);
+  --border-color: hsl(215, 45%, 25%);
+  --highlight-bg: hsl(220, 60%, 18%);
+  --secondary-text: hsl(200, 25%, 75%);
+  --warning-color: hsl(40, 85%, 55%);
+  --success-color: hsl(160, 60%, 55%);
+  --error-color: hsl(350, 70%, 60%);
 }
 
 /* UI Layout Spec CSS Foundation - Device-responsive sizing */
@@ -128,57 +209,84 @@ html {
 
 /* Theme variables */
 .light-mode {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --accent-color: #3b82f6;
+  --bg-primary: hsl(210, 40%, 99%);
+  --bg-secondary: hsl(210, 40%, 97%);
+  --text-primary: hsl(210, 25%, 15%);
+  --text-secondary: hsl(210, 15%, 45%);
+  --border-color: hsl(210, 20%, 88%);
+  --accent-color: hsl(212, 78%, 50%);
 }
 
 .dark-mode {
-  --bg-primary: #1f2937;
-  --bg-secondary: #374151;
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --border-color: #4b5563;
-  --accent-color: #60a5fa;
+  --bg-primary: hsl(220, 20%, 15%);
+  --bg-secondary: hsl(220, 25%, 12%);
+  --text-primary: hsl(210, 25%, 88%);
+  --text-secondary: hsl(210, 15%, 65%);
+  --border-color: hsl(220, 15%, 25%);
+  --accent-color: hsl(210, 80%, 65%);
 }
 
 .sepia-mode {
-  --bg-primary: #f7f1e8;
-  --bg-secondary: #f0e6d2;
-  --text-primary: #5d4037;
-  --text-secondary: #8d6e63;
-  --border-color: #d7c4a8;
-  --accent-color: #8b5a2b;
+  --bg-primary: hsl(40, 30%, 95%);
+  --bg-secondary: hsl(40, 35%, 92%);
+  --text-primary: hsl(30, 40%, 20%);
+  --text-secondary: hsl(30, 25%, 40%);
+  --border-color: hsl(35, 25%, 82%);
+  --accent-color: hsl(25, 65%, 45%);
 }
 
 .aurora-mode {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #e2e8f0;
-  --text-secondary: #cbd5e1;
-  --border-color: #475569;
-  --accent-color: #06b6d4;
-}
-
-.electric-mode {
-  --bg-primary: #000000;
-  --bg-secondary: #1a1a1a;
-  --text-primary: #00ff00;
-  --text-secondary: #00cc00;
-  --border-color: #003300;
-  --accent-color: #00ff00;
+  --bg-primary: hsl(200, 40%, 15%);
+  --bg-secondary: hsl(200, 45%, 12%);
+  --text-primary: hsl(190, 40%, 90%);
+  --text-secondary: hsl(190, 30%, 70%);
+  --border-color: hsl(195, 35%, 25%);
+  --accent-color: hsl(170, 70%, 60%);
 }
 
 .fireworks-mode {
-  --bg-primary: #1a0b2e;
-  --bg-secondary: #16213e;
-  --text-primary: #ffd700;
-  --text-secondary: #ff6b6b;
-  --border-color: #4a5568;
-  --accent-color: #ff4081;
+  --bg-primary: hsl(250, 30%, 18%);
+  --bg-secondary: hsl(250, 35%, 15%);
+  --text-primary: hsl(50, 100%, 95%);
+  --text-secondary: hsl(50, 60%, 80%);
+  --border-color: hsl(260, 40%, 30%);
+  --accent-color: hsl(315, 85%, 70%);
+}
+
+.rainbow-mode {
+  --bg-primary: hsl(270, 35%, 13%);
+  --bg-secondary: hsl(270, 40%, 10%);
+  --text-primary: hsl(60, 100%, 95%);
+  --text-secondary: hsl(60, 80%, 85%);
+  --border-color: hsl(280, 60%, 25%);
+  --accent-color: hsl(300, 100%, 70%);
+}
+
+.cyber-mode {
+  --bg-primary: hsl(180, 80%, 8%);
+  --bg-secondary: hsl(180, 100%, 5%);
+  --text-primary: hsl(120, 100%, 85%);
+  --text-secondary: hsl(120, 80%, 70%);
+  --border-color: hsl(180, 60%, 20%);
+  --accent-color: hsl(180, 100%, 50%);
+}
+
+.forest-mode {
+  --bg-primary: hsl(120, 20%, 18%);
+  --bg-secondary: hsl(120, 25%, 15%);
+  --text-primary: hsl(120, 20%, 90%);
+  --text-secondary: hsl(120, 15%, 75%);
+  --border-color: hsl(125, 25%, 28%);
+  --accent-color: hsl(140, 60%, 55%);
+}
+
+.ocean-mode {
+  --bg-primary: hsl(220, 55%, 15%);
+  --bg-secondary: hsl(220, 60%, 12%);
+  --text-primary: hsl(200, 30%, 90%);
+  --text-secondary: hsl(200, 25%, 75%);
+  --border-color: hsl(215, 45%, 25%);
+  --accent-color: hsl(200, 80%, 60%);
 }
 
 /* Apply theme variables to elements */
@@ -975,9 +1083,10 @@ body.fireworks-mode::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: twinkle 3s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.08) 1px, transparent 1px),
+              radial-gradient(circle, rgba(255, 105, 180, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px, 80px 80px;
+  animation: twinkle 4s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
 }
@@ -989,22 +1098,88 @@ body.aurora-mode::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(45deg, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
-              linear-gradient(-45deg, rgba(138, 43, 226, 0.1) 0%, transparent 50%);
+  background: linear-gradient(45deg, rgba(0, 255, 180, 0.08) 0%, transparent 50%),
+              linear-gradient(-45deg, rgba(100, 200, 255, 0.06) 0%, transparent 50%);
   background-size: 200% 200%;
-  animation: aurora-flow 15s ease infinite;
+  animation: aurora-flow 20s ease infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.rainbow-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    rgba(255, 0, 150, 0.1) 0%,
+    rgba(0, 255, 255, 0.1) 25%,
+    rgba(255, 255, 0, 0.1) 50%,
+    rgba(150, 0, 255, 0.1) 75%,
+    rgba(255, 0, 150, 0.1) 100%);
+  background-size: 400% 400%;
+  animation: rainbow-flow 8s ease infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.cyber-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(90deg, transparent 0%, rgba(0, 255, 255, 0.03) 50%, transparent 100%),
+    linear-gradient(0deg, transparent 0%, rgba(0, 255, 100, 0.02) 50%, transparent 100%);
+  background-size: 200px 100%, 100% 200px;
+  animation: cyber-scan 6s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.forest-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse, rgba(34, 139, 34, 0.05) 0%, transparent 70%);
+  animation: forest-breathe 8s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 
 @keyframes aurora-flow {
   0%, 100% { background-position: 0% 0%; }
-  50% { background-position: 100% 100%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+}
+
+@keyframes rainbow-flow {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 0% 100%; }
+  75% { background-position: 100% 50%; }
+}
+
+@keyframes cyber-scan {
+  0% { background-position: -200px 0%, 0% -200px; }
+  100% { background-position: 200px 0%, 0% 200px; }
+}
+
+@keyframes forest-breathe {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
 }
 
 /* Divine and Sacred Styling for Header */
