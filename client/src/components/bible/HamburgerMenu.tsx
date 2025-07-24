@@ -46,24 +46,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
   const { theme, setTheme, themes } = useTheme();
 
-  const getThemePreviewColor = (themeId: string) => {
-    const colorMap: Record<string, string> = {
-      light: 'bg-gradient-to-br from-blue-400 to-blue-600',
-      dark: 'bg-gradient-to-br from-gray-700 to-gray-900',
-      sepia: 'bg-gradient-to-br from-amber-400 to-orange-600',
-      ocean: 'bg-gradient-to-br from-cyan-400 to-blue-600',
-      forest: 'bg-gradient-to-br from-green-400 to-emerald-600',
-      sunset: 'bg-gradient-to-br from-orange-400 to-red-500',
-      lavender: 'bg-gradient-to-br from-purple-300 to-purple-500',
-      midnight: 'bg-gradient-to-br from-indigo-600 to-blue-800',
-      parchment: 'bg-gradient-to-br from-yellow-300 to-amber-500',
-      emerald: 'bg-gradient-to-br from-emerald-400 to-green-600',
-      royal: 'bg-gradient-to-br from-purple-500 to-indigo-600',
-      copper: 'bg-gradient-to-br from-orange-600 to-red-700'
-    };
-    return colorMap[themeId] || 'bg-gradient-to-br from-gray-400 to-gray-600';
-  };
-
   // Local state for UI
   const [activeTab, setActiveTab] = useState("main-translation");
   const [bookmarkName, setBookmarkName] = useState("");
@@ -295,33 +277,21 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "color-theme":
         return (
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Visual Themes</h4>
-            <div className="grid grid-cols-1 gap-2 max-h-80 overflow-y-auto">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
+            <div className="space-y-1">
               {themes.map((themeOption) => (
                 <button
                   key={themeOption.id}
                   onClick={() => setTheme(themeOption.id)}
-                  className={`flex items-start space-x-3 w-full p-3 rounded-lg transition-all text-left group ${
+                  className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
                     theme === themeOption.id 
-                      ? "bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500 shadow-sm" 
-                      : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                      ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
+                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
-                  <div className={`w-4 h-4 rounded-full flex-shrink-0 mt-0.5 ${getThemePreviewColor(themeOption.id)}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {themeOption.name}
-                      </span>
-                      {theme === themeOption.id && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {themeOption.description}
-                    </p>
-                  </div>
+                  <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" />
+                  <span className="text-xs">{themeOption.name}</span>
                 </button>
               ))}
             </div>
