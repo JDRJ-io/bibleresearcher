@@ -57,18 +57,25 @@ export function classesForMask(mask: LabelMask): string {
 
 // Regex cache for compiled patterns
 const regexCache: Record<string, RegExp[]> = {};
+const MAX_REGEX_CACHE_SIZE = 1000;
 
 function compileRegexes(tCode: string, label: LabelName, phrases: string[]): RegExp[] {
   const key = `${tCode || 'default'}:${label}`;
   if (regexCache[key]) return regexCache[key];
   
+  // Simple cache size management
+  if (Object.keys(regexCache).length >= MAX_REGEX_CACHE_SIZE) {
+    const firstKey = Object.keys(regexCache)[0];
+    delete regexCache[firstKey];
+  }
+  
   regexCache[key] = phrases.map(phrase => {
     if (!phrase || phrase.length === 0) return null;
     try {
-      return new RegExp(
-        phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'), 
-        'gi'
-      );
+      // Escape special regex characters and handle word boundaries better
+      const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = escaped.replace(/\s+/g, '\\s+'); // More precise whitespace matching
+      return new RegExp(`\\b${pattern}\\b`, 'gi');
     } catch (e) {
       console.warn(`Failed to compile regex for phrase: ${phrase}`, e);
       return null;
@@ -177,7 +184,7 @@ function computeSegments(
 
 // Segment cache for memoization
 const segmentCache = new Map<string, TextSegment[]>();
-const MAX_CACHE_SIZE = 500;
+const MAX_CACHE_SIZE = 1000;
 
 export function getSegmentsCached(
   verse: string,
@@ -186,16 +193,23 @@ export function getSegmentsCached(
   verseKey?: string,
   translationCode?: string
 ): TextSegment[] {
-  const key = `${verseKey || 'unknown'}|${translationCode || ''}|${activeMask}|${verse.length}`;
+  // Create a more stable cache key that includes label data fingerprint
+  const labelFingerprint = Object.entries(labelData)
+    .filter(([label, phrases]) => activeMask & (labelToBit[label as LabelName] || 0))
+    .map(([label, phrases]) => `${label}:${phrases.sort().join('|')}`)
+    .sort()
+    .join(';');
+    
+  const key = `${verseKey || 'unknown'}|${translationCode || ''}|${activeMask}|${verse.length}|${labelFingerprint}`;
   
   let segments = segmentCache.get(key);
   if (!segments) {
     segments = computeSegments(verse, labelData, activeMask, translationCode);
     
-    // Simple LRU: clear cache if too large
+    // Simple LRU: clear oldest entries if cache too large
     if (segmentCache.size >= MAX_CACHE_SIZE) {
-      const firstKey = segmentCache.keys().next().value;
-      if (firstKey) segmentCache.delete(firstKey);
+      const keysToDelete = Array.from(segmentCache.keys()).slice(0, 100);
+      keysToDelete.forEach(k => segmentCache.delete(k));
     }
     
     segmentCache.set(key, segments);

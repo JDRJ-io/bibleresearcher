@@ -47,23 +47,26 @@
 /* ---------- Superscript markers (consistent ::after) ---------- */
 .sup-seed::after {
   content: '*';
-  font-size: 0.6em;
+  font-size: 0.75em;
   vertical-align: super;
-  margin-left: 1px;
+  margin-left: 2px;
+  color: #ef4444;
 }
 
 .sup-harvest::after {
   content: '=';
-  font-size: 0.6em;
+  font-size: 0.75em;
   vertical-align: super;
-  margin-left: 1px;
+  margin-left: 2px;
+  color: #10b981;
 }
 
 .sup-predict::after {
   content: '~';
-  font-size: 0.6em;
+  font-size: 0.75em;
   vertical-align: super;
-  margin-left: 1px;
+  margin-left: 2px;
+  color: #8b5cf6;
 }
 
 /* Keep wrappers inline without breaking line height */

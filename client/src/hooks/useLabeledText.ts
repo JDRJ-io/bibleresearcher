@@ -19,17 +19,20 @@ export function useLabeledText({
   translationCode 
 }: UseLabeledTextProps): TextSegment[] {
   // Create stable keys for memoization - only include active label data
+  const activeLabelsKey = useMemo(() => activeLabels.sort().join(','), [activeLabels]);
+  
   const labelDataKey = useMemo(() => {
     if (activeLabels.length === 0) return '';
-    return activeLabels.map(label => 
-      `${label}:${(labelData[label] || []).join('|')}`
-    ).join(';');
+    return activeLabels
+      .sort() // Ensure consistent ordering
+      .map(label => `${label}:${(labelData[label] || []).sort().join('|')}`)
+      .join(';');
   }, [labelData, activeLabels]);
 
   return useMemo(() => {
-    if (activeLabels.length === 0) {
+    if (activeLabels.length === 0 || !text) {
       return [{ start: 0, end: text.length, mask: 0, text }];
     }
     return processTextForLabels(text, labelData, activeLabels, verseKey, translationCode);
-  }, [text, labelDataKey, verseKey, translationCode]);
+  }, [text, labelDataKey, activeLabelsKey, verseKey, translationCode]);
 }
