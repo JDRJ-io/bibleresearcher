@@ -27,8 +27,13 @@ function TranslationCellContent({ text, verseID, activeLabels = [], getVerseLabe
       return [{ start: 0, end: text.length, mask: 0, text }];
     }
     
-    const labelData = getVerseLabels(verseID);
-    return processTextForLabels(text, labelData, activeLabels);
+    try {
+      const labelData = getVerseLabels(verseID);
+      return processTextForLabels(text, labelData, activeLabels);
+    } catch (error) {
+      console.warn(`Failed to process labels for ${verseID}:`, error);
+      return [{ start: 0, end: text.length, mask: 0, text }];
+    }
   }, [text, verseID, activeLabels, getVerseLabels]);
 
   // Debug logging
@@ -43,7 +48,7 @@ function TranslationCellContent({ text, verseID, activeLabels = [], getVerseLabe
   // Render segments using new bitmask approach
   return (
     <>
-      {segments.map((segment, index) => (
+      {segments.map((segment, index) => 
         segment.mask > 0 ? (
           <LabeledText
             key={index}
@@ -54,7 +59,7 @@ function TranslationCellContent({ text, verseID, activeLabels = [], getVerseLabe
         ) : (
           <span key={index}>{segment.text}</span>
         )
-      ))}
+      )}
     </>
   );
 }

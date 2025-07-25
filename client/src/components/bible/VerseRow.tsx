@@ -110,7 +110,7 @@ export function VerseRow({
           });
         }
         
-        // Process text with labels if we have both text and active labels
+        // Process text with labels using new optimized system
         const segments = useLabeledText({
           text: verseText || '',
           labelData,
@@ -127,7 +127,7 @@ export function VerseRow({
                       <LabeledText
                         key={index}
                         text={segment.text}
-                        labels={segment.labels}
+                        mask={segment.mask}
                         segmentKey={index}
                       />
                     ))

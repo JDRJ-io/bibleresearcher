@@ -71,12 +71,21 @@ function compileRegexes(tCode: string, label: LabelName, phrases: string[]): Reg
   const key = `${tCode}:${label}`;
   if (regexCache[key]) return regexCache[key];
   
-  regexCache[key] = phrases.map(phrase =>
-    new RegExp(
-      phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
-      'gi'
-    )
-  );
+  regexCache[key] = phrases
+    .filter(phrase => phrase && phrase.trim().length > 0)
+    .map(phrase => {
+      try {
+        return new RegExp(
+          phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
+          'gi'
+        );
+      } catch (error) {
+        console.warn(`Failed to compile regex for phrase "${phrase}":`, error);
+        return null;
+      }
+    })
+    .filter(regex => regex !== null) as RegExp[];
+  
   return regexCache[key];
 }
 
@@ -97,26 +106,35 @@ function computeSegments(
   // Collect interval events
   const events: { pos: number; bit: LabelMask; add: boolean }[] = [];
   
-  for (const [labelName, bit] of Object.entries(labelToBit)) {
-    if (!(activeMask & bit)) continue; // label not active
-    
-    const phrases = labelData[labelName as LabelName] || [];
-    if (phrases.length === 0) continue;
-    
-    for (const phrase of phrases) {
-      if (!phrase) continue;
+  try {
+    for (const [labelName, bit] of Object.entries(labelToBit)) {
+      if (!(activeMask & bit)) continue; // label not active
       
-      const regex = new RegExp(
-        phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
-        'gi'
-      );
+      const phrases = labelData[labelName as LabelName] || [];
+      if (phrases.length === 0) continue;
       
-      let match: RegExpExecArray | null;
-      while ((match = regex.exec(verse))) {
-        events.push({ pos: match.index, bit, add: true });
-        events.push({ pos: match.index + match[0].length, bit, add: false });
+      for (const phrase of phrases) {
+        if (!phrase || !phrase.trim()) continue;
+        
+        try {
+          const regex = new RegExp(
+            phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
+            'gi'
+          );
+          
+          let match: RegExpExecArray | null;
+          while ((match = regex.exec(verse))) {
+            events.push({ pos: match.index, bit, add: true });
+            events.push({ pos: match.index + match[0].length, bit, add: false });
+          }
+        } catch (error) {
+          console.warn(`Failed to process phrase "${phrase}" for label ${labelName}:`, error);
+        }
       }
     }
+  } catch (error) {
+    console.warn('Error in segment computation:', error);
+    return [{ start: 0, end: verse.length, mask: 0, text: verse }];
   }
   
   if (!events.length) {
