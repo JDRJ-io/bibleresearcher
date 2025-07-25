@@ -166,9 +166,13 @@ export async function getDatesChronological(): Promise<string> {
 
 // Labels system - semantic highlighting data
 export async function getLabelsData(translation: string = 'KJV'): Promise<any> {
-  return getOrFetch(`labels-${translation}`, async () => {
+  const cacheKey = `labels-${translation}`;
+  return getOrFetch(cacheKey, async () => {
+    console.log(`📚 BibleDataAPI: Loading labels for ${translation} from storage`);
     const text = await fetchFromStorage(`labels/${translation}/ALL.json`);
-    return JSON.parse(text);
+    const parsed = JSON.parse(text);
+    console.log(`✅ BibleDataAPI: Loaded ${Object.keys(parsed).length} verse labels for ${translation}`);
+    return parsed;
   });
 }
 

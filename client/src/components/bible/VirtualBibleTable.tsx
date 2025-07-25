@@ -24,6 +24,7 @@ import type {
   Highlight,
   AppPreferences,
 } from "@/types/bible";
+import { useViewportLabels } from "@/hooks/useViewportLabels";
 
 interface VirtualBibleTableProps {
   verses: BibleVerse[];
@@ -370,6 +371,18 @@ const VirtualBibleTable = ({
       w.scrollLeft = w.scrollWidth - w.clientWidth;
     }
   }, [visibleColumns]); // Trigger when visible columns change
+    const { store, translationState, activeLabels } = useBibleStore();
+
+  // Viewport-aware label loading
+//   const viewportVerses = virtualizer.getVirtualItems().map(virtualRow => 
+//     allVerses[virtualRow.index]
+//   ).filter(Boolean);
+
+  const { getVerseLabels, isLoading: labelsLoading } = useViewportLabels({
+    verses: slice.verseIDs,
+    activeLabels,
+    mainTranslation: translationState.main
+  });
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>

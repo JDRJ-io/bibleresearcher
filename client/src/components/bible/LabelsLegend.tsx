@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Toggle } from '@/components/ui/toggle';
 import { useBibleStore } from '@/App';
-import { LabelName, ensureLabelCacheLoaded } from '@/lib/labelsCache';
+import { LabelName, ensureLabelCacheLoaded, clearLabelCacheForTranslation } from '@/lib/labelsCache';
 
 interface LabelsLegendProps {
   className?: string;
@@ -25,6 +25,18 @@ const labelConfig = [
 export function LabelsLegend({ className = '' }: LabelsLegendProps) {
   const { activeLabels, setActiveLabels, translationState } = useBibleStore();
   const mainTranslation = translationState.main;
+  
+  // Track previous translation to detect changes
+  const [prevTranslation, setPrevTranslation] = React.useState<string | null>(null);
+  
+  // Handle translation changes by clearing old cache
+  useEffect(() => {
+    if (prevTranslation && prevTranslation !== mainTranslation) {
+      clearLabelCacheForTranslation(prevTranslation);
+      console.log(`🔄 Translation changed from ${prevTranslation} to ${mainTranslation}, clearing old label cache`);
+    }
+    setPrevTranslation(mainTranslation);
+  }, [mainTranslation, prevTranslation]);
   
   // Preload labels when any label is selected
   useEffect(() => {
