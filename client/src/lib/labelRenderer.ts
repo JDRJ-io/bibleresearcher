@@ -35,7 +35,7 @@ export const labelToBit: Record<LabelName, number> = {
 // Bit to class mapping for fast lookup
 const bitToClass: Record<number, string> = {
   [LabelBits.who]: 'fx-hand',
-  [LabelBits.what]: 'fx-shadow',
+  [LabelBits.what]: 'fx-shadow', 
   [LabelBits.when]: 'fx-under',
   [LabelBits.where]: 'fx-bracket',
   [LabelBits.command]: 'fx-bold',

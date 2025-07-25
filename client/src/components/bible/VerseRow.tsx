@@ -108,7 +108,7 @@ export function VerseRow({
           });
           
           return data;
-        }, [translation.id, verse.reference, activeLabels]);
+        }, [translation.id, verse.reference, activeLabels.join(',')]);
         
         // Process text with labels if we have both text and active labels
         const segments = useLabeledText({

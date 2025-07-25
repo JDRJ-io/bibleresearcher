@@ -271,7 +271,7 @@ html {
   --column-bg: hsl(45, 25%, 92%);
   --highlight-bg: hsl(40, 35%, 85%);
   --font-family: 'Crimson Text', 'Times New Roman', serif;
-  
+
   --background: hsl(45, 25%, 92%);
   --foreground: hsl(25, 50%, 18%);
   --muted: hsl(40, 20%, 85%);
@@ -291,13 +291,13 @@ html {
   --destructive: hsl(0, 75%, 55%);
   --destructive-foreground: hsl(38, 55%, 95%);
   --ring: hsl(18, 85%, 50%);
-  
+
   /* Classical serif typography for manuscript feel */
   font-family: 'Crimson Text', 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
   letter-spacing: 0.015em;
   font-weight: 400;
   line-height: 1.6;
-  
+
   /* Rich parchment with illuminated edges */
   background: 
     radial-gradient(ellipse at 80% 20%, hsla(42, 85%, 75%, 0.4) 0%, transparent 50%),
@@ -310,7 +310,7 @@ html {
       hsl(40, 52%, 93%) 50%, 
       hsl(36, 60%, 90%) 75%, 
       hsl(34, 56%, 88%) 100%);
-      
+
   /* Subtle parchment texture */
   background-image: 
     repeating-conic-gradient(from 0deg at 40% 60%, transparent 0deg, hsla(35, 40%, 70%, 0.02) 2deg, transparent 4deg),
@@ -370,12 +370,12 @@ html {
   --destructive: hsl(15, 90%, 60%);
   --destructive-foreground: hsl(45, 85%, 92%);
   --ring: hsl(40, 85%, 65%);
-  
+
   /* Natural, readable typography */
   font-family: 'Source Sans Pro', 'Lato', 'Helvetica Neue', sans-serif;
   letter-spacing: 0.02em;
   font-weight: 400;
-  
+
   /* Organic forest depth with dappled light */
   background: 
     radial-gradient(ellipse at 25% 75%, hsla(130, 80%, 8%, 0.7) 0%, transparent 60%),
@@ -383,7 +383,7 @@ html {
     radial-gradient(ellipse at 60% 80%, hsla(145, 90%, 6%, 0.8) 0%, transparent 70%),
     radial-gradient(ellipse at 15% 30%, hsla(35, 60%, 12%, 0.6) 0%, transparent 75%),
     linear-gradient(170deg, hsl(150, 85%, 1.8%) 0%, hsl(145, 80%, 2.2%) 30%, hsl(140, 85%, 1.5%) 100%);
-    
+
   /* Subtle organic texture */
   background-image: 
     radial-gradient(circle at 30% 70%, hsla(40, 80%, 50%, 0.015) 1px, transparent 1px),
@@ -442,18 +442,18 @@ html {
   --destructive: hsl(0, 100%, 65%);
   --destructive-foreground: hsl(180, 100%, 95%);
   --ring: hsl(180, 100%, 50%);
-  
+
   /* Enhanced typography for precision */
   font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
   letter-spacing: 0.05em;
-  
+
   /* Multi-layer background with depth */
   background: 
     radial-gradient(circle at 20% 80%, hsla(180, 100%, 5%, 0.4) 0%, transparent 40%),
     radial-gradient(circle at 80% 20%, hsla(320, 100%, 10%, 0.3) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, hsla(200, 100%, 3%, 0.6) 0%, transparent 60%),
     linear-gradient(135deg, hsl(210, 100%, 0.5%) 0%, hsl(205, 95%, 1%) 100%);
-    
+
   /* Subtle grid overlay for tech aesthetic */
   background-image: 
     linear-gradient(hsla(180, 100%, 50%, 0.03) 1px, transparent 1px),
@@ -512,12 +512,12 @@ html {
   --destructive: hsl(0, 95%, 68%);
   --destructive-foreground: hsl(50, 100%, 95%);
   --ring: hsl(285, 90%, 60%);
-  
+
   /* Elegant inter typography with golden warmth */
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: 0.025em;
   font-weight: 400;
-  
+
   /* Multi-dimensional aurora background */
   background: 
     radial-gradient(ellipse at 30% 70%, hsla(285, 100%, 15%, 0.6) 0%, transparent 70%),
@@ -525,7 +525,7 @@ html {
     radial-gradient(ellipse at 50% 10%, hsla(270, 80%, 8%, 0.7) 0%, transparent 60%),
     radial-gradient(ellipse at 20% 40%, hsla(240, 100%, 5%, 0.8) 0%, transparent 80%),
     linear-gradient(155deg, hsl(245, 95%, 0.8%) 0%, hsl(250, 90%, 1.2%) 40%, hsl(240, 95%, 1%) 100%);
-    
+
   /* Subtle shimmer effect */
   background-image: 
     linear-gradient(45deg, transparent 40%, hsla(285, 100%, 80%, 0.02) 50%, transparent 60%);
