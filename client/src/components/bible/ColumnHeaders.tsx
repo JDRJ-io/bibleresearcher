@@ -356,7 +356,7 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find(col => col.slot === 0);
   const otherColumns = allColumns.filter(col => col.slot !== 0);
 
-  const topHeaderHeight = adaptiveIsMobile ? '48px' : '64px';
+  const topHeaderHeight = adaptiveIsMobile ? '32px' : '48px';
 
   return (
     <div 
