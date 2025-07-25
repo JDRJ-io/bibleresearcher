@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
@@ -9,6 +10,7 @@ import { useColumnData } from '@/hooks/useColumnData';
 import { LabelName } from '@/lib/labelsCache';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { LabeledText } from './LabeledText';
+import { processTextForLabels, labelsToBitmask } from '@/lib/labelRenderer';
 
 // Separate component to handle label processing and avoid hooks violations
 interface TranslationCellContentProps {
@@ -19,40 +21,42 @@ interface TranslationCellContentProps {
 }
 
 function TranslationCellContent({ text, verseID, activeLabels = [], getVerseLabels }: TranslationCellContentProps) {
-  // Always call hooks at the top level
-  const labelData = getVerseLabels ? getVerseLabels(verseID) : {};
-  const segments = useLabeledText({
-    text,
-    labelData,
-    activeLabels
-  });
+  // Always call useMemo at the top level - no conditional hooks
+  const segments = useMemo(() => {
+    if (activeLabels.length === 0 || !getVerseLabels) {
+      return [{ start: 0, end: text.length, mask: 0, text }];
+    }
+    
+    const labelData = getVerseLabels(verseID);
+    return processTextForLabels(text, labelData, activeLabels);
+  }, [text, verseID, activeLabels, getVerseLabels]);
 
   // Debug logging
   if (activeLabels.length > 0 && text) {
-    console.log(`🏷️ TranslationCellContent processing labels for ${verseID}:`, {
+    console.log(`🏷️ TranslationCellContent (optimized) processing labels for ${verseID}:`, {
       activeLabels,
-      labelData,
-      segmentCount: segments.length
+      segmentCount: segments.length,
+      memoryOptimized: true
     });
   }
 
-  // Render based on whether we have active labels
-  if (activeLabels.length > 0 && getVerseLabels) {
-    return (
-      <>
-        {segments.map((segment, index) => (
+  // Render segments using new bitmask approach
+  return (
+    <>
+      {segments.map((segment, index) => (
+        segment.mask > 0 ? (
           <LabeledText
             key={index}
             text={segment.text}
-            labels={segment.labels}
+            mask={segment.mask}
             segmentKey={index}
           />
-        ))}
-      </>
-    );
-  }
-
-  return <>{text}</>;
+        ) : (
+          <span key={index}>{segment.text}</span>
+        )
+      ))}
+    </>
+  );
 }
 
 interface VirtualRowProps {

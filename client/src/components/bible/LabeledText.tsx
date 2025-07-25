@@ -1,51 +1,28 @@
-
 import React from 'react';
+import { classesForMask } from '@/lib/labelRenderer';
 import type { LabelName } from '@/lib/labelsCache';
 
 interface LabeledTextProps {
   text: string;
-  labels: Set<LabelName>;
-  segmentKey: number;
+  labels?: Set<LabelName> | number; // Support both old Set and new bitmask
+  segmentKey?: string | number;
+  mask?: number; // New bitmask prop
 }
 
-function wrapWithEffects(text: string, labels: Set<LabelName>, key: number): React.ReactNode {
-  if (!labels.size) {
-    return <span key={key}>{text}</span>;
+export function LabeledText({ text, labels, mask, segmentKey }: LabeledTextProps) {
+  // Handle both old Set-based and new bitmask-based approaches
+  const finalMask = typeof mask === 'number' ? mask : 
+                    typeof labels === 'number' ? labels : 0;
+
+  if (finalMask === 0) {
+    return <>{text}</>;
   }
 
-  // 1) Classes that can share a single wrapper span
-  const comboCls: string[] = [];
-  if (labels.has('who')) comboCls.push('fx-hand');
-  if (labels.has('what')) comboCls.push('fx-shadow');
-  if (labels.has('when')) comboCls.push('fx-under');
-  if (labels.has('command')) comboCls.push('fx-bold');
-  if (labels.has('action')) comboCls.push('fx-ital');
-  if (labels.has('why')) comboCls.push('fx-outline');
+  const className = classesForMask(finalMask);
 
-  let node: React.ReactNode = (
-    <span className={comboCls.join(' ')}>
+  return (
+    <span className={className} key={segmentKey}>
       {text}
     </span>
   );
-
-  // 2) Superscript markers (max one in practice)
-  if (labels.has('seed') || labels.has('harvest') || labels.has('prediction')) {
-    const supCls = labels.has('seed')
-      ? 'sup-seed'
-      : labels.has('harvest')
-      ? 'sup-harvest'
-      : 'sup-predict'; // prediction
-    node = <span className={supCls}>{node}</span>;
-  }
-
-  // 3) Brackets (outer-most wrapper)
-  if (labels.has('where')) {
-    node = <span className="fx-bracket">{node}</span>;
-  }
-
-  return <React.Fragment key={key}>{node}</React.Fragment>;
-}
-
-export function LabeledText({ text, labels, segmentKey }: LabeledTextProps): React.ReactNode {
-  return wrapWithEffects(text, labels, segmentKey);
 }

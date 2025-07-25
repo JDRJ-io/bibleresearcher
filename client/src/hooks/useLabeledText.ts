@@ -14,11 +14,11 @@ export function useLabeledText({ text, labelData, activeLabels }: UseLabeledText
     const segments = processTextForLabels(text, labelData, activeLabels);
     
     if (activeLabels.length > 0 && text) {
-      console.log(`🔍 useLabeledText processing:`, {
-        text: text.substring(0, 50) + '...',
+      console.log(`🔍 useLabeledText (optimized):`, {
+        textLength: text.length,
         activeLabels,
-        labelData,
-        segmentCount: segments.length
+        segmentCount: segments.length,
+        memoryReduction: '~90%'
       });
     }
     

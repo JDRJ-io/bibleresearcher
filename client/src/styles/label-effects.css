@@ -1,5 +1,7 @@
 
-/* ---------- Shareable visual classes ---------- */
+/* Optimized label effects - combinable utilities for bitmask approach */
+
+/* Core label effects - each class is standalone and combinable */
 .fx-hand {
   font-family: 'Homemade Apple', 'Bradley Hand', cursive;
 }
@@ -10,6 +12,17 @@
 
 .fx-under {
   text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+.fx-bracket::before {
+  content: '[';
+  color: inherit;
+}
+
+.fx-bracket::after {
+  content: ']';
+  color: inherit;
 }
 
 .fx-bold {
@@ -29,36 +42,42 @@
     0 -1px 0 currentColor;
 }
 
-/* ---------- Brackets: outer wrapper ---------- */
-.fx-bracket::before {
-  content: '[';
-}
-
-.fx-bracket::after {
-  content: ']';
-}
-
-/* ---------- Superscript markers ---------- */
+/* Superscript-style effects */
 .sup-seed::after {
   content: '*';
+  font-size: 0.75em;
+  vertical-align: super;
+  color: #059669; /* emerald-600 */
 }
 
 .sup-harvest::after {
   content: '=';
+  font-size: 0.75em;
+  vertical-align: super;
+  color: #0891b2; /* cyan-600 */
 }
 
 .sup-predict::after {
   content: '+';
-}
-
-.sup-seed::after,
-.sup-harvest::after,
-.sup-predict::after {
-  font-size: 0.6em;
+  font-size: 0.75em;
   vertical-align: super;
+  color: #db2777; /* pink-600 */
 }
 
-/* Keep wrappers inline without breaking line height */
+/* Dark mode support */
+.dark .sup-seed::after {
+  color: #10b981; /* emerald-500 */
+}
+
+.dark .sup-harvest::after {
+  color: #06b6d4; /* cyan-500 */
+}
+
+.dark .sup-predict::after {
+  color: #ec4899; /* pink-500 */
+}
+
+/* Performance optimizations */
 .fx-hand,
 .fx-shadow,
 .fx-under,
@@ -67,22 +86,22 @@
 .fx-outline,
 .sup-seed,
 .sup-harvest,
-.sup-predict,
-.fx-bracket {
-  display: inline-block;
-  line-height: inherit;
+.sup-predict {
+  /* Promote to compositor layer for smooth rendering */
+  will-change: transform;
+  /* Optimize for text rendering */
+  text-rendering: optimizeSpeed;
 }
 
-/* Dark mode adjustments */
-.dark .fx-shadow {
-  text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.15);
+/* Combination effects - when multiple classes are applied */
+.fx-hand.fx-shadow {
+  text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.3);
 }
 
-.dark .fx-outline {
-  -webkit-text-stroke: 1px currentColor;
-  text-shadow: 
-    1px 0 0 currentColor,
-    -1px 0 0 currentColor,
-    0 1px 0 currentColor,
-    0 -1px 0 currentColor;
+.fx-bold.fx-ital {
+  font-weight: 800; /* Even bolder when combined with italic */
+}
+
+.fx-under.fx-shadow {
+  text-decoration-skip-ink: none; /* Ensure underline shows through shadow */
 }
