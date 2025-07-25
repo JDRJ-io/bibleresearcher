@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
@@ -7,78 +6,19 @@ import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { useColumnData } from '@/hooks/useColumnData';
-import { LabelName } from '@/lib/labelsCache';
-import { useLabeledText } from '@/hooks/useLabeledText';
-import { LabeledText } from './LabeledText';
-import { processTextForLabels, labelsToBitmask } from '@/lib/labelRenderer';
-
-// Separate component to handle label processing and avoid hooks violations
-interface TranslationCellContentProps {
-  text: string;
-  verseID: string;
-  activeLabels?: LabelName[];
-  getVerseLabels?: (verseReference: string) => Record<LabelName, string[]>;
-}
-
-function TranslationCellContent({ text, verseID, activeLabels = [], getVerseLabels }: TranslationCellContentProps) {
-  // Always call useMemo at the top level - no conditional hooks
-  const segments = useMemo(() => {
-    if (activeLabels.length === 0 || !getVerseLabels) {
-      return [{ start: 0, end: text.length, mask: 0, text }];
-    }
-    
-    try {
-      const labelData = getVerseLabels(verseID);
-      return processTextForLabels(text, labelData, activeLabels);
-    } catch (error) {
-      console.warn(`Failed to process labels for ${verseID}:`, error);
-      return [{ start: 0, end: text.length, mask: 0, text }];
-    }
-  }, [text, verseID, activeLabels, getVerseLabels]);
-
-  // Debug logging
-  if (activeLabels.length > 0 && text) {
-    console.log(`🏷️ TranslationCellContent (optimized) processing labels for ${verseID}:`, {
-      activeLabels,
-      segmentCount: segments.length,
-      memoryOptimized: true
-    });
-  }
-
-  // Render segments using new bitmask approach
-  return (
-    <>
-      {segments.map((segment, index) => 
-        segment.mask > 0 ? (
-          <LabeledText
-            key={index}
-            text={segment.text}
-            mask={segment.mask}
-            segmentKey={index}
-          />
-        ) : (
-          <span key={index}>{segment.text}</span>
-        )
-      )}
-    </>
-  );
-}
 
 interface VirtualRowProps {
   verseID: string;
   verse: BibleVerse;
   rowHeight: number;
   columnData: any;
-  getVerseText: (verseID: string, translationCode: string) => string | undefined;
-  getMainVerseText: (verseID: string) => string | undefined;
+  getVerseText: (verseID: string, translationCode: string) => string;
+  getMainVerseText: (verseID: string) => string;
   activeTranslations: string[];
   mainTranslation: string;
-  onVerseClick?: (verseRef: string) => void;
+  onVerseClick: (ref: string) => void;
   onExpandVerse?: (verse: BibleVerse) => void;
-  // Label props
-  activeLabels?: LabelName[];
-  getVerseLabels?: (verseReference: string) => Record<LabelName, string[]>;
-  labelsLoading?: boolean;
+  onDoubleClick?: () => void;
 }
 
 // Cell Components
@@ -350,9 +290,7 @@ export function VirtualRow({
   mainTranslation,
   onVerseClick,
   onExpandVerse,
-  activeLabels = [],
-  getVerseLabels,
-  labelsLoading = false,
+  onDoubleClick
 }: VirtualRowProps) {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
@@ -562,18 +500,7 @@ export function VirtualRow({
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
-              {verseText ? (
-                <TranslationCellContent 
-                  text={verseText}
-                  verseID={verseID}
-                  activeLabels={activeLabels}
-                  getVerseLabels={getVerseLabels}
-                />
-              ) : (
-                <span className="text-gray-400 italic">
-                  [{verseID} - {config.translationCode} loading...]
-                </span>
-              )}
+              {verseText || `[${config.translationCode} loading...]`}
             </div>
           </div>
         );

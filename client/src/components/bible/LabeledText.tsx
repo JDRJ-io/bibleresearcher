@@ -1,22 +1,51 @@
+
 import React from 'react';
-import { classesForMask } from '@/lib/labelRenderer';
+import type { LabelName } from '@/lib/labelsCache';
 
 interface LabeledTextProps {
   text: string;
-  mask?: number; // Bitmask prop for new approach
-  segmentKey?: string | number;
+  labels: Set<LabelName>;
+  segmentKey: number;
 }
 
-export function LabeledText({ text, mask = 0, segmentKey }: LabeledTextProps) {
-  if (mask === 0) {
-    return <>{text}</>;
+function wrapWithEffects(text: string, labels: Set<LabelName>, key: number): React.ReactNode {
+  if (!labels.size) {
+    return <span key={key}>{text}</span>;
   }
 
-  const className = classesForMask(mask);
+  // 1) Classes that can share a single wrapper span
+  const comboCls: string[] = [];
+  if (labels.has('who')) comboCls.push('fx-hand');
+  if (labels.has('what')) comboCls.push('fx-shadow');
+  if (labels.has('when')) comboCls.push('fx-under');
+  if (labels.has('command')) comboCls.push('fx-bold');
+  if (labels.has('action')) comboCls.push('fx-ital');
+  if (labels.has('why')) comboCls.push('fx-outline');
 
-  return (
-    <span className={className} key={segmentKey}>
+  let node: React.ReactNode = (
+    <span className={comboCls.join(' ')}>
       {text}
     </span>
   );
+
+  // 2) Superscript markers (max one in practice)
+  if (labels.has('seed') || labels.has('harvest') || labels.has('prediction')) {
+    const supCls = labels.has('seed')
+      ? 'sup-seed'
+      : labels.has('harvest')
+      ? 'sup-harvest'
+      : 'sup-predict'; // prediction
+    node = <span className={supCls}>{node}</span>;
+  }
+
+  // 3) Brackets (outer-most wrapper)
+  if (labels.has('where')) {
+    node = <span className="fx-bracket">{node}</span>;
+  }
+
+  return <React.Fragment key={key}>{node}</React.Fragment>;
+}
+
+export function LabeledText({ text, labels, segmentKey }: LabeledTextProps): React.ReactNode {
+  return wrapWithEffects(text, labels, segmentKey);
 }
