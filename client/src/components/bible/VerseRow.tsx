@@ -3,6 +3,8 @@ import { ProphecyColumns } from './ProphecyColumns';
 import { useBibleStore } from '@/App';
 import { getLabel, LabelName, ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
 import { useEffect } from 'react';
+import { LabeledText } from './LabeledText';
+import { useLabeledText } from '@/hooks/useLabeledText';
 
 interface VerseRowProps {
   verse: BibleVerse;
@@ -90,19 +92,49 @@ export function VerseRow({
       </div>
 
       {/* Translation Text Columns - Dynamic based on selected translations */}
-      {selectedTranslations.map((translation) => (
-        <div key={translation.id} className="w-80 flex-shrink-0 border-r">
-          <div className="h-[120px] overflow-y-auto p-3 text-sm">
-            <div className="whitespace-pre-wrap break-words leading-relaxed">
-              {verse.text[translation.id] || (
-                <span className="text-muted-foreground italic">
-                  [{verse.reference} - {translation.abbreviation} loading...]
-                </span>
-              )}
+      {selectedTranslations.map((translation) => {
+        const verseText = verse.text[translation.id];
+        
+        // Get label data for this verse and translation
+        const labelData: Record<LabelName, string[]> = {};
+        activeLabels.forEach(labelName => {
+          labelData[labelName] = getLabel(translation.id, verse.reference, labelName);
+        });
+        
+        // Process text with labels if we have both text and active labels
+        const segments = useLabeledText({
+          text: verseText || '',
+          labelData,
+          activeLabels: activeLabels || []
+        });
+        
+        return (
+          <div key={translation.id} className="w-80 flex-shrink-0 border-r">
+            <div className="h-[120px] overflow-y-auto p-3 text-sm">
+              <div className="whitespace-pre-wrap break-words leading-relaxed">
+                {verseText ? (
+                  activeLabels.length > 0 ? (
+                    segments.map((segment, index) => (
+                      <LabeledText
+                        key={index}
+                        text={segment.text}
+                        labels={segment.labels}
+                        segmentKey={index}
+                      />
+                    ))
+                  ) : (
+                    verseText
+                  )
+                ) : (
+                  <span className="text-muted-foreground italic">
+                    [{verse.reference} - {translation.abbreviation} loading...]
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {/* Cross References Column - Fixed Width (matches translation columns) */}
       <div className="w-80 flex-shrink-0 border-r">

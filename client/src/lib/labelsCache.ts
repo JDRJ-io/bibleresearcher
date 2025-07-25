@@ -118,7 +118,7 @@ export function getLabel(translationCode: string, verseKey: string, labelName: L
     const verseLabels = translationLabels[key];
     if (verseLabels && verseLabels[labelName]) {
       const labels = verseLabels[labelName] || [];
-      if (labels.length > 0) {
+      if (labels.length > 0 && process.env.NODE_ENV === 'development') {
         console.log(`🏷️ Found ${labels.length} ${labelName} labels for ${key} in ${translationCode}:`, labels);
       }
       return labels;

@@ -5,6 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import label effects */
+@import './styles/label-effects.css';
+
 /* Theme System - Professional curated color schemes for Bible study */
 :root.light {
   --header-bg: hsl(0, 0%, 100%);
