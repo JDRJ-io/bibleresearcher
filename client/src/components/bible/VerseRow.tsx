@@ -1,3 +1,4 @@
+
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 import { ProphecyColumns } from './ProphecyColumns';
 import { useBibleStore } from '@/App';
