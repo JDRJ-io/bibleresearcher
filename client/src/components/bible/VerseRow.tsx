@@ -118,7 +118,7 @@ export function VerseRow({
                       <LabeledText
                         key={index}
                         text={segment.text}
-                        labels={segment.labels}
+                        mask={segment.mask}
                         segmentKey={index}
                       />
                     ))

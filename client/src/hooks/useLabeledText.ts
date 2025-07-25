@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { processTextForLabels, type LabelSegment } from '@/lib/labelRenderer';
+import { processTextForLabels, type TextSegment } from '@/lib/labelRenderer';
 import type { LabelName } from '@/lib/labelsCache';
 
 interface UseLabeledTextProps {
@@ -9,7 +9,7 @@ interface UseLabeledTextProps {
   activeLabels: LabelName[];
 }
 
-export function useLabeledText({ text, labelData, activeLabels }: UseLabeledTextProps): LabelSegment[] {
+export function useLabeledText({ text, labelData, activeLabels }: UseLabeledTextProps): TextSegment[] {
   return useMemo(() => {
     return processTextForLabels(text, labelData, activeLabels);
   }, [text, labelData, activeLabels]);
