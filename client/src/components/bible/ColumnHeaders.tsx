@@ -453,7 +453,7 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find((col) => col.slot === 0);
   const otherColumns = allColumns.filter((col) => col.slot !== 0);
 
-  const topHeaderHeight = adaptiveIsMobile ? 48 : 64;   // Mobile: 48px, Desktop: 64px
+  const topHeaderHeight = adaptiveIsMobile ? 48 : 0;   // Mobile: 48px to account for top header, Desktop: 0 (no offset needed)
 
   return (
     <div
