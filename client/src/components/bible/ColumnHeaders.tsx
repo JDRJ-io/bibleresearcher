@@ -481,24 +481,22 @@ export function ColumnHeaders({
             </div>
           </div>
         ) : (
-          // Left-anchored layout - simple layout without sticky positioning
-          <div className="flex min-w-max h-full">
-            <div
-              className="flex min-w-max h-full"
-              style={{
-                transform: `translateX(-${Math.round(scrollLeft)}px)`,
-                willChange: "transform",
-              }}
-            >
-              {allColumns.map((column) => (
-                <HeaderCell
-                  key={`slot-${column.slot}`}
-                  column={column}
-                  isMain={column.isMain}
-                  isMobile={adaptiveIsMobile}
-                />
-              ))}
-            </div>
+          // Left-anchored layout - let CSS handle positioning
+          <div
+            className="flex min-w-max h-full"
+            style={{
+              transform: `translateX(-${Math.round(scrollLeft)}px)`,
+              willChange: "transform",
+            }}
+          >
+            {allColumns.map((column) => (
+              <HeaderCell
+                key={`slot-${column.slot}`}
+                column={column}
+                isMain={column.isMain}
+                isMobile={adaptiveIsMobile}
+              />
+            ))}
           </div>
         )}
       </div>

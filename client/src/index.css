@@ -735,6 +735,13 @@ body {
       margin-bottom: 0px !important;
     }
 
+    /* Ensure column headers don't have conflicting positioning */
+    .column-headers-container {
+      position: sticky !important;
+      top: 48px !important;
+    }
+  }
+
     /* Force column headers to be EXACTLY under top header AND adaptive */
     .sticky[style*="top: 48px"], 
     .sticky.z-30,
