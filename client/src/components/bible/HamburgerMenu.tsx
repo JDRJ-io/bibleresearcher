@@ -282,7 +282,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
               {themes.map((themeOption) => (
                 <button
                   key={themeOption.id}
-                  onClick={() => setTheme(themeOption.id)}
+                  onClick={() => setTheme(themeOption.id as any)}
                   className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
                     theme === themeOption.id 
                       ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
