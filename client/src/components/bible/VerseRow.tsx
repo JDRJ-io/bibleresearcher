@@ -102,13 +102,32 @@ export function VerseRow({
             action: [], why: [], seed: [], harvest: [], prediction: []
           };
           
+          // Try multiple reference formats for better matching
+          const possibleRefs = [
+            verse.reference,                    // "Gen 1:1"
+            verse.reference.replace(/\s/g, '.'), // "Gen.1:1"
+            `${verse.book}.${verse.chapter}:${verse.verse}`, // Direct format
+          ];
+          
+          // Debug logging
+          console.log(`🔍 Looking for labels for verse: ${verse.reference}, translation: ${translation.id}`);
+          console.log(`🔍 Trying reference formats:`, possibleRefs);
+          
           // Only populate active labels to avoid unnecessary processing
           activeLabels.forEach(labelName => {
-            data[labelName] = getLabel(translation.id, verse.reference, labelName);
+            for (const ref of possibleRefs) {
+              const labelValues = getLabel(translation.id, ref, labelName);
+              if (labelValues.length > 0) {
+                data[labelName] = labelValues;
+                console.log(`✅ Found ${labelName} labels for ${ref}:`, labelValues);
+                break;
+              }
+            }
           });
           
+          console.log(`🏷️ Final label data for ${verse.reference}:`, data);
           return data;
-        }, [translation.id, verse.reference, ...activeLabels]);
+        }, [translation.id, verse.reference, verse.book, verse.chapter, verse.verse, ...activeLabels]);
         
         // Process text with labels if we have both text and active labels
         const segments = useLabeledText({

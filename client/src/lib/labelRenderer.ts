@@ -107,6 +107,8 @@ function computeSegments(
   activeMask: LabelMask,
   translationCode?: string
 ): TextSegment[] {
+  console.log(`🔧 computeSegments: verse="${verse.substring(0, 30)}...", activeMask=${activeMask}`);
+  
   // Collect all label match events
   const events: LabelEvent[] = [];
   
@@ -116,14 +118,18 @@ function computeSegments(
     const phrases = labelData[labelName as LabelName] || [];
     if (phrases.length === 0) continue;
     
-    const regexes = compileRegexes(translationCode || '', labelName as LabelName, phrases);
+    console.log(`🔧 Processing label "${labelName}" with phrases:`, phrases);
     
-    regexes.forEach(regex => {
+    const regexes = compileRegexes(translationCode || '', labelName as LabelName, phrases);
+    console.log(`🔧 Compiled ${regexes.length} regexes for "${labelName}"`);
+    
+    regexes.forEach((regex, regexIndex) => {
       let match: RegExpExecArray | null;
       // Reset regex lastIndex to ensure we find all matches
       regex.lastIndex = 0;
       
       while ((match = regex.exec(verse))) {
+        console.log(`🎯 Match found for "${labelName}" regex ${regexIndex}: "${match[0]}" at position ${match.index}`);
         events.push({ pos: match.index, bit, add: true });
         events.push({ pos: match.index + match[0].length, bit, add: false });
         
@@ -235,12 +241,23 @@ export function processTextForLabels(
   verseKey?: string,
   translationCode?: string
 ): TextSegment[] {
+  console.log(`🎨 processTextForLabels called for ${verseKey} (${translationCode})`);
+  console.log(`🎨 Text: "${text.substring(0, 50)}..."`);
+  console.log(`🎨 Active labels:`, activeLabels);
+  console.log(`🎨 Label data:`, labelData);
+  
   if (activeLabels.length === 0) {
+    console.log(`🎨 No active labels, returning plain text`);
     return [{ start: 0, end: text.length, mask: 0, text }];
   }
   
   const activeMask = labelArrayToBitmask(activeLabels);
-  return getSegmentsCached(text, labelData, activeMask, verseKey, translationCode);
+  console.log(`🎨 Active mask: ${activeMask} (binary: ${activeMask.toString(2)})`);
+  
+  const segments = getSegmentsCached(text, labelData, activeMask, verseKey, translationCode);
+  console.log(`🎨 Generated ${segments.length} segments:`, segments);
+  
+  return segments;
 }
 
 // Legacy interface for backward compatibility
