@@ -1,15 +1,16 @@
-/* Import optimized theme system first */
-@import './styles/themes-optimized.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Import label effects - must be at top */
 @import './styles/label-effects.css';
 
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components; 
+@tailwind utilities;
+
+/* Import base settings */
+@import './styles/themes-optimized.css';
 
 /* Theme System - Professional curated color schemes for Bible study */
 :root.light {

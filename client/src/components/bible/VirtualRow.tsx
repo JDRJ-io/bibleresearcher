@@ -10,6 +10,51 @@ import { LabelName } from '@/lib/labelsCache';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { LabeledText } from './LabeledText';
 
+// Separate component to handle label processing and avoid hooks violations
+interface TranslationCellContentProps {
+  text: string;
+  verseID: string;
+  activeLabels?: LabelName[];
+  getVerseLabels?: (verseReference: string) => Record<LabelName, string[]>;
+}
+
+function TranslationCellContent({ text, verseID, activeLabels = [], getVerseLabels }: TranslationCellContentProps) {
+  // Always call hooks at the top level
+  const labelData = getVerseLabels ? getVerseLabels(verseID) : {};
+  const segments = useLabeledText({
+    text,
+    labelData,
+    activeLabels
+  });
+
+  // Debug logging
+  if (activeLabels.length > 0 && text) {
+    console.log(`🏷️ TranslationCellContent processing labels for ${verseID}:`, {
+      activeLabels,
+      labelData,
+      segmentCount: segments.length
+    });
+  }
+
+  // Render based on whether we have active labels
+  if (activeLabels.length > 0 && getVerseLabels) {
+    return (
+      <>
+        {segments.map((segment, index) => (
+          <LabeledText
+            key={index}
+            text={segment.text}
+            labels={segment.labels}
+            segmentKey={index}
+          />
+        ))}
+      </>
+    );
+  }
+
+  return <>{text}</>;
+}
+
 interface VirtualRowProps {
   verseID: string;
   verse: BibleVerse;
@@ -509,37 +554,17 @@ export function VirtualRow({
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
               {verseText ? (
-                        activeLabels.length > 0 && getVerseLabels ? (() => {
-                          // Get label data for this verse
-                          const labelData = getVerseLabels(verseID);
-
-                          // Process text with labels
-                          const segments = useLabeledText({
-                            text: verseText,
-                            labelData,
-                            activeLabels
-                          });
-
-                          console.log(`🏷️ VirtualRow processing labels for ${verseID}:`, {
-                            activeLabels,
-                            labelData,
-                            segmentCount: segments.length
-                          });
-
-                          return segments.map((segment, index) => (
-                            <LabeledText
-                              key={index}
-                              text={segment.text}
-                              labels={segment.labels}
-                              segmentKey={index}
-                            />
-                          ));
-                        })() : verseText
-                      ) : (
-                        <span className="text-gray-400 italic">
-                          [{verseID} - {config.translationCode} loading...]
-                        </span>
-                      )}
+                <TranslationCellContent 
+                  text={verseText}
+                  verseID={verseID}
+                  activeLabels={activeLabels}
+                  getVerseLabels={getVerseLabels}
+                />
+              ) : (
+                <span className="text-gray-400 italic">
+                  [{verseID} - {config.translationCode} loading...]
+                </span>
+              )}
             </div>
           </div>
         );
