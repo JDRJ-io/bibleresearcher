@@ -1,0 +1,182 @@
+/**
+ * Memory-Optimized Theme System
+ * Professionally curated themes with minimal memory footprint
+ * Eliminates redundant CSS and focuses on performance
+ */
+
+/* Reset and base styles for all themes */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Optimized transitions - only essential properties */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Essential theme classes - managed by ThemeManager */
+.light {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+.sepia {
+  color-scheme: light;
+}
+
+.midnight {
+  color-scheme: dark;
+}
+
+.forest {
+  color-scheme: dark;
+}
+
+.cyber {
+  color-scheme: dark;
+}
+
+/* Optimized component styling using CSS variables */
+.theme-aware {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.theme-aware-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.theme-accent {
+  color: var(--accent-color);
+}
+
+.theme-highlight {
+  background-color: var(--highlight-bg);
+}
+
+/* Performance-optimized verse styling */
+.verse-text {
+  font-family: inherit;
+  line-height: 1.6;
+  font-size: calc(var(--text-base, 1rem) * var(--font-size-multiplier, 1));
+}
+
+/* Sepia theme specific adjustments */
+.sepia .verse-text {
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+}
+
+/* Cyber theme specific adjustments */
+.cyber .verse-text {
+  letter-spacing: 0.02em;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Forest theme specific adjustments */
+.forest .verse-text {
+  line-height: 1.65;
+}
+
+/* Memory-efficient cross-reference styling */
+.cross-ref-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.15s ease;
+}
+
+.cross-ref-item:hover {
+  background: var(--highlight-bg);
+}
+
+/* Optimized font loading for premium themes */
+@media (min-width: 768px) {
+  .sepia {
+    font-family: 'Crimson Text', 'Times New Roman', serif;
+  }
+  
+  .forest {
+    font-family: 'Source Sans Pro', 'Lato', sans-serif;
+  }
+  
+  .cyber {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+}
+
+/* Reduced motion support for accessibility and performance */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Memory-efficient responsive design */
+@media (max-width: 639px) {
+  body {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  body {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 1.125rem;
+  }
+}
+
+/* Performance indicators for development */
+@media (max-width: 768px) {
+  .performance-warning {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+}
+
+/* Essential utility classes */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.border-color { border-color: var(--border-color); }
+.accent-color { color: var(--accent-color); }
+
+/* Clean up any legacy theme classes */
+.light-mode,
+.dark-mode,
+.sepia-mode,
+.parchment-mode,
+.forest-mode,
+.aurora-mode,
+.cyber-mode,
+.rainbow-mode,
+.midnight-mode,
+.electric-mode {
+  /* Legacy theme classes - will be cleaned up by ThemeManager */
+  display: contents;
+}

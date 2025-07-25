@@ -1,83 +1,97 @@
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { useBodyClass } from '@/hooks/useBodyClass';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { themeManager, OptimizedTheme } from '@/utils/themeOptimizer';
 
-type Theme = 'light-mode' | 'dark-mode' | 'sepia-mode' | 'parchment-mode' | 'forest-mode' | 'aurora-mode' | 'cyber-mode' | 'rainbow-mode' | 'midnight-mode' | 'electric-mode';
+type ThemeId = 'light' | 'dark' | 'sepia' | 'midnight' | 'forest' | 'cyber';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
-  defaultTheme?: Theme;
+  defaultTheme?: ThemeId;
   storageKey?: string;
+  enablePerformanceMode?: boolean;
 };
 
 type ThemeProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  themes: Array<{ id: Theme; name: string }>;
+  theme: ThemeId;
+  setTheme: (theme: ThemeId) => void;
+  themes: OptimizedTheme[];
+  performanceMetrics: ReturnType<typeof themeManager.getPerformanceMetrics>;
+  enablePerformanceMode: boolean;
 };
 
-const initialState: ThemeProviderState = {
-  theme: 'light-mode',
-  setTheme: () => null,
-  themes: [
-    { id: 'light-mode', name: 'Light' },
-    { id: 'dark-mode', name: 'Dark' },
-    { id: 'sepia-mode', name: 'Sepia' },
-    { id: 'parchment-mode', name: 'Parchment' },
-    { id: 'forest-mode', name: 'Forest' },
-    { id: 'aurora-mode', name: 'Aurora' },
-    { id: 'cyber-mode', name: 'Cyber' },
-    { id: 'rainbow-mode', name: 'Rainbow' },
-    { id: 'midnight-mode', name: 'Midnight' },
-    { id: 'electric-mode', name: 'Electric' },
-  ],
-};
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'light-mode',
-  storageKey = 'bible-theme',
+  defaultTheme = 'light',
+  storageKey = 'bible-theme-optimized',
+  enablePerformanceMode = false,
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  const [theme, setThemeState] = useState<ThemeId>(() => {
+    const stored = localStorage.getItem(storageKey) as ThemeId;
+    return stored || defaultTheme;
+  });
+
+  const [performanceMetrics, setPerformanceMetrics] = useState(
+    themeManager.getPerformanceMetrics()
   );
 
-  // Apply theme to both body class and root CSS variables
+  // Initialize theme manager and preload essential themes
   useEffect(() => {
-    const root = document.documentElement;
-    const body = document.body;
+    themeManager.preloadEssentialThemes();
     
-    // Remove all theme classes from both root and body
-    initialState.themes.forEach(t => {
-      root.classList.remove(t.id);
-      body.classList.remove(t.id);
-      // Also remove the root CSS variable versions
-      root.classList.remove(t.id.replace('-mode', ''));
-    });
-    
-    // Add current theme class to both root and body
-    root.classList.add(theme);
-    body.classList.add(theme);
-    // Also add the root CSS variable version
-    root.classList.add(theme.replace('-mode', ''));
-    
-    console.log(`🎨 Theme applied: ${theme} to root and body`);
-  }, [theme]);
+    // Apply stored theme on mount
+    if (enablePerformanceMode) {
+      themeManager.applyMinimalTheme(theme);
+    } else {
+      themeManager.applyTheme(theme);
+    }
+  }, []);
 
-  // Use the useBodyClass hook as backup
-  useBodyClass(theme);
+  // Handle theme changes with memory optimization
+  const setTheme = useCallback((newTheme: ThemeId) => {
+    try {
+      // Performance-conscious theme switching
+      if (enablePerformanceMode) {
+        themeManager.applyMinimalTheme(newTheme);
+      } else {
+        themeManager.applyTheme(newTheme);
+      }
+      
+      // Update state and storage
+      setThemeState(newTheme);
+      localStorage.setItem(storageKey, newTheme);
+      
+      // Update performance metrics
+      setPerformanceMetrics(themeManager.getPerformanceMetrics());
+      
+      console.log(`🎨 Theme optimized: ${newTheme}`);
+    } catch (error) {
+      console.error('Failed to apply theme:', error);
+      // Fallback to light theme
+      themeManager.applyTheme('light');
+      setThemeState('light');
+    }
+  }, [enablePerformanceMode, storageKey]);
 
-  const value = {
+  // Memory cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup any scheduled operations
+      const metrics = themeManager.getPerformanceMetrics();
+      if (metrics.memoryEstimate > 50) { // > 50KB
+        console.log('🧹 Theme memory cleanup on unmount');
+      }
+    };
+  }, []);
+
+  const value: ThemeProviderState = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
-      console.log(`🎨 Theme changed to: ${theme}`);
-    },
-    themes: initialState.themes,
+    setTheme,
+    themes: themeManager.getThemes(),
+    performanceMetrics,
+    enablePerformanceMode,
   };
 
   return (
@@ -90,8 +104,13 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
 
-  if (context === undefined)
+  if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
+  }
 
   return context;
 };
+
+// Export theme utilities for component usage
+export { themeManager } from '@/utils/themeOptimizer';
+export type { OptimizedTheme, ThemeId };
