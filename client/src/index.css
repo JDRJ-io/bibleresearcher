@@ -508,7 +508,7 @@ html {
   --secondary: hsl(265, 70%, 15%);
   --secondary-foreground: hsl(50, 85%, 85%);
   --accent: hsl(320, 90%, 65%);
-  The CSS file has been modified to import the label-effects.css file to apply bitmap-based label styles.--accent-foreground: hsl(245, 88%, 10%);
+  --accent-foreground: hsl(245, 88%, 10%);
   --destructive: hsl(0, 95%, 68%);
   --destructive-foreground: hsl(50, 100%, 95%);
   --ring: hsl(285, 90%, 60%);
