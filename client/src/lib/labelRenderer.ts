@@ -59,15 +59,22 @@ export function classesForMask(mask: LabelMask): string {
 const regexCache: Record<string, RegExp[]> = {};
 
 function compileRegexes(tCode: string, label: LabelName, phrases: string[]): RegExp[] {
-  const key = `${tCode}:${label}`;
+  const key = `${tCode || 'default'}:${label}`;
   if (regexCache[key]) return regexCache[key];
   
-  regexCache[key] = phrases.map(phrase => 
-    new RegExp(
-      phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'), 
-      'gi'
-    )
-  );
+  regexCache[key] = phrases.map(phrase => {
+    if (!phrase || phrase.length === 0) return null;
+    try {
+      return new RegExp(
+        phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'), 
+        'gi'
+      );
+    } catch (e) {
+      console.warn(`Failed to compile regex for phrase: ${phrase}`, e);
+      return null;
+    }
+  }).filter(Boolean) as RegExp[];
+  
   return regexCache[key];
 }
 
@@ -90,7 +97,8 @@ interface LabelEvent {
 function computeSegments(
   verse: string,
   labelData: Record<LabelName, string[]>,
-  activeMask: LabelMask
+  activeMask: LabelMask,
+  translationCode?: string
 ): TextSegment[] {
   // Collect all label match events
   const events: LabelEvent[] = [];
@@ -101,7 +109,7 @@ function computeSegments(
     const phrases = labelData[labelName as LabelName] || [];
     if (phrases.length === 0) continue;
     
-    const regexes = compileRegexes('', labelName as LabelName, phrases);
+    const regexes = compileRegexes(translationCode || '', labelName as LabelName, phrases);
     
     regexes.forEach(regex => {
       let match: RegExpExecArray | null;
@@ -175,13 +183,14 @@ export function getSegmentsCached(
   verse: string,
   labelData: Record<LabelName, string[]>,
   activeMask: LabelMask,
-  verseKey?: string
+  verseKey?: string,
+  translationCode?: string
 ): TextSegment[] {
-  const key = `${verseKey || 'unknown'}|${activeMask}|${verse.length}`;
+  const key = `${verseKey || 'unknown'}|${translationCode || ''}|${activeMask}|${verse.length}`;
   
   let segments = segmentCache.get(key);
   if (!segments) {
-    segments = computeSegments(verse, labelData, activeMask);
+    segments = computeSegments(verse, labelData, activeMask, translationCode);
     
     // Simple LRU: clear cache if too large
     if (segmentCache.size >= MAX_CACHE_SIZE) {
@@ -208,14 +217,16 @@ export function labelArrayToBitmask(activeLabels: LabelName[]): LabelMask {
 export function processTextForLabels(
   text: string,
   labelData: Record<LabelName, string[]>,
-  activeLabels: LabelName[]
+  activeLabels: LabelName[],
+  verseKey?: string,
+  translationCode?: string
 ): TextSegment[] {
   if (activeLabels.length === 0) {
     return [{ start: 0, end: text.length, mask: 0, text }];
   }
   
   const activeMask = labelArrayToBitmask(activeLabels);
-  return getSegmentsCached(text, labelData, activeMask);
+  return getSegmentsCached(text, labelData, activeMask, verseKey, translationCode);
 }
 
 // Legacy interface for backward compatibility

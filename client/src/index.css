@@ -1,12 +1,12 @@
 /* Import optimized theme system first */
 @import './styles/themes-optimized.css';
 
+/* Import label effects first */
+@import './styles/label-effects.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import label effects */
-@import './styles/label-effects.css';
 
 /* Theme System - Professional curated color schemes for Bible study */
 :root.light {

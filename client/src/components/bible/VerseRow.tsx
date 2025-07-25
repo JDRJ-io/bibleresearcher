@@ -95,8 +95,21 @@ export function VerseRow({
       {selectedTranslations.map((translation) => {
         const verseText = verse.text[translation.id];
         
-        // Get label data for this verse and translation
-        const labelData: Record<LabelName, string[]> = {};
+        // Get label data for this verse and translation for all possible labels
+        const labelData: Record<LabelName, string[]> = {
+          who: [],
+          what: [],
+          when: [],
+          where: [],
+          command: [],
+          action: [],
+          why: [],
+          seed: [],
+          harvest: [],
+          prediction: []
+        };
+        
+        // Only populate active labels to avoid unnecessary processing
         activeLabels.forEach(labelName => {
           labelData[labelName] = getLabel(translation.id, verse.reference, labelName);
         });
@@ -105,7 +118,9 @@ export function VerseRow({
         const segments = useLabeledText({
           text: verseText || '',
           labelData,
-          activeLabels: activeLabels || []
+          activeLabels: activeLabels || [],
+          verseKey: verse.reference,
+          translationCode: translation.id
         });
         
         return (
