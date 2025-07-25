@@ -150,9 +150,8 @@ export function DatesColumn({ verseId, className = '' }: DatesColumnProps) {
 
   return (
     <div className={`flex flex-col justify-center h-full text-xs ${className}`}>
-      <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-        <Calendar className="w-3 h-3" />
-        <span className="font-mono">{dateInfo.date}</span>
+      <div className="text-blue-600 dark:text-blue-400">
+        <span className="font-mono block">{dateInfo.date}</span>
       </div>
       <div className="text-gray-500 dark:text-gray-400 text-[10px] mt-0.5">
         {dateInfo.era}

@@ -42,6 +42,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
         case 2: return { width: '208px' };        // Main translation - w-52 (208px)
         case 7: return { width: '208px' };        // Cross References - w-52 (208px)
         case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
+        case 11: return { width: '80px' };        // Dates - w-20 (80px)
         default: return { width: '160px' };       // Alt translations - w-40 (160px)
       }
     } else if (screenSize === 'tablet') {
@@ -51,6 +52,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
         case 2: return { width: '256px' };        // Main translation - w-64 (256px)
         case 7: return { width: '256px' };        // Cross References - w-64 (256px)
         case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
+        case 11: return { width: '96px' };        // Dates - w-24 (96px)
         default: return { width: '256px' };       // Alt translations - w-64 (256px)
       }
     } else { // desktop
@@ -60,6 +62,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
         case 2: return { width: '320px' };        // Main translation - w-80 (320px)
         case 7: return { width: '320px' };        // Cross References - w-80 (320px)
         case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
+        case 11: return { width: '120px' };       // Dates - w-30 (120px)
         default: return { width: '320px' };       // Alt translations - w-80 (320px)
       }
     }
@@ -297,6 +300,17 @@ export function ColumnHeaders({
       );
     }
 
+    // Add dates column if enabled
+    if (showDates) {
+      columns.push({
+        slot: 11,
+        type: 'context',
+        name: 'Dates',
+        visible: true,
+        isMain: false
+      });
+    }
+
     // On mobile, only show Reference, Main Translation, and Cross References
     if (adaptiveIsMobile) {
       return columns.filter(col => 
@@ -307,7 +321,7 @@ export function ColumnHeaders({
     }
 
     return columns;
-  }, [showCrossRefs, showProphecies, showNotes, main, alternates, adaptiveIsMobile]);
+  }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile]);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
@@ -342,7 +356,7 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find(col => col.slot === 0);
   const otherColumns = allColumns.filter(col => col.slot !== 0);
 
-  const topHeaderHeight = adaptiveIsMobile ? '48px' : '64px';
+  const topHeaderHeight = adaptiveIsMobile ? '56px' : '72px';
 
   return (
     <div 
@@ -351,7 +365,8 @@ export function ColumnHeaders({
         top: `${topHeaderHeight || 60}px`,
         left: -scrollLeft,
         position: 'sticky',
-        width: '100%'
+        width: '100%',
+        height: adaptiveIsMobile ? '48px' : '52px'
       }}
     >
       <div className="overflow-hidden w-full h-full flex">
