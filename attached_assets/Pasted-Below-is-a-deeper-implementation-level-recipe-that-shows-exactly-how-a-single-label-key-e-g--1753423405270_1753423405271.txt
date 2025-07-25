@@ -1,0 +1,209 @@
+Below is a deeper, implementation‑level recipe that shows **exactly** how a single label key (e.g., `"what"`) can be pulled from the JSON for *only* the verses in view **and** turned into a pixel‑perfect highlight overlay on the matching words inside each verse.
+
+---
+
+## 1  Recap of the Data Shape
+
+```ts
+type LabelName =
+  | 'who' | 'what' | 'when' | 'where' | 'command'
+  | 'action' | 'why' | 'seed' | 'harvest' | 'prediction';
+
+type LabelEntry  = Record<LabelName, string[]>;          // one verse
+type LabelMap    = Record<string /* Gen.1:1 */, LabelEntry>; // whole file
+```
+
+You already cache one `LabelMap` per translation (`labels/AMP/ALL.json`, etc.).
+So for a verse key and a label key you can always say:
+
+```ts
+const vals = labelCache[tCode]?.[verseKey]?.[labelKey] ?? [];
+```
+
+---
+
+## 2  From Label Values → Highlight Ranges
+
+### 2‑A Naïve substring search works in **most** cases
+
+Most label phrases are taken verbatim from the verse text (same case & punctuation), so a simple, case‑insensitive RegExp is fast and reliable:
+
+```ts
+function getRangesToHighlight(text: string, phrases: string[]): [start: number, end: number][] {
+  const ranges: [number, number][] = [];
+  phrases.forEach(phrase => {
+    if (!phrase) return;
+    const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');   // escape regex meta
+    const re  = new RegExp(esc, 'gi');
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text))) {
+      ranges.push([m.index, m.index + m[0].length]);
+    }
+  });
+  // merge overlaps so <mark> nesting is impossible
+  ranges.sort(([a], [b]) => a - b);
+  const merged: typeof ranges = [];
+  for (const [s,e] of ranges) {
+    const last = merged[merged.length-1];
+    if (last && s <= last[1]) last[1] = Math.max(last[1], e);
+    else merged.push([s,e]);
+  }
+  return merged;
+}
+```
+
+### 2‑B When the phrase differs slightly
+
+If punctuation, bracketed glosses, or stop‑words break direct matching you have two good fallbacks:
+
+1. **Loose regex**
+   Replace `\s+` in the escaped phrase with `\W+` to ignore extra non‑word characters:
+
+   ```ts
+   const esc = phrase
+        .replace(/[.*+?^${}()|[\]\\]/g,'\\$&')
+        .replace(/\s+/g,'\\W+');
+   ```
+2. **Levenshtein / fuzz** (rarely needed)
+   Run a lightweight fuzzy‑match (e.g., `fuzzysort.js`) against all n‑grams of the verse and accept the first span with a score ≥ threshold.
+
+Keep it simple first; you can layer in fuzzy matching later if you see misses during QA.
+
+---
+
+## 3  React component pipeline
+
+```tsx
+interface VerseRowProps {
+  verseKey: string;
+  verseText: string;
+}
+/** One virtualised row */
+const VerseRow: React.FC<VerseRowProps> = memo(({ verseKey, verseText }) => {
+  const { activeLabel, activeTranslation } = useContext(LabelCtx);
+
+  // Fast exit if overlay is off
+  if (!activeLabel) return <div>{verseText}</div>;
+
+  // runs only when verse row is (re)rendered
+  const labelVals   = useMemo(
+    () => getLabel(activeTranslation, verseKey, activeLabel),         // ← from cache
+    [activeTranslation, verseKey, activeLabel]
+  );
+  const ranges      = useMemo(
+    () => getRangesToHighlight(verseText, labelVals),                 // ← §2‑A/B
+    [verseText, labelVals.join('|')]
+  );
+
+  return (
+    <OverlayVerse
+      text={verseText}
+      ranges={ranges}
+      labelKey={activeLabel}
+    />
+  );
+});
+```
+
+### `<OverlayVerse>`—two render strategies
+
+| Strategy                     | How it works                                                                                                                                           | Pros                                                                       | Cons                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Inline markup** (simplest) | Split the verse into `[plain, <mark>, plain, …]` fragments and render spans with a class like `.hl‑what`.                                              | • No extra layout engine<br>• SEO friendly<br>• Assistive tech friendly    | • The span slightly shifts line‑height (CSS can fix with `display:inline-block` & `line-height:inherit`). |
+| **Canvas/SVG overlay**       | Render the verse normally, measure caret positions (`Range.getClientRects()` in `useLayoutEffect`), then absolutely‑position colored rectangles above. | • Zero DOM mutation of the verse text<br>• Can animate/morph shapes easily | • Harder (must wait for layout each time)<br>• Needs resize observers<br>• Works only in browsers.        |
+
+‣ **Start with inline markup**—it covers 95 % of use‑cases, keeps scrolling smooth, and you can always upgrade later.
+
+#### Inline highlight helper
+
+```tsx
+function OverlayVerse({ text, ranges, labelKey }: {
+  text: string;
+  ranges: [number, number][];
+  labelKey: LabelName;
+}) {
+  if (!ranges.length) return <span>{text}</span>;
+
+  const out: React.ReactNode[] = [];
+  let idx = 0;
+
+  ranges.forEach(([s,e], i) => {
+    // text before highlight
+    if (idx < s) out.push(text.slice(idx, s));
+    // highlighted part
+    out.push(
+      <span key={i} className={`hl ${labelKey}`}>{text.slice(s,e)}</span>
+    );
+    idx = e;
+  });
+  // trailing text
+  if (idx < text.length) out.push(text.slice(idx));
+
+  return <span>{out}</span>;
+}
+```
+
+CSS:
+
+```css
+.hl.what   { background:rgba(255,215,0,.35); }
+.hl.who    { background:rgba(135,206,250,.35); }
+/* … one rule per label */
+/* make inline block so background hugs text tightly */
+.hl { display:inline-block; line-height:inherit; border-radius:3px; padding:0 .1em; }
+```
+
+---
+
+## 4  Putting It All Together
+
+1. **User taps “WHAT” in the menu** → `setActiveLabel('what')`.
+2. **Hook fires**: every row currently in the viewport re‑evaluates; lazy‑loaded rows do nothing until they appear (no wasted work).
+3. For each row we:
+
+   * Grab `labelVals = ["the heaven", "the earth"]` (constant‑time from the cache).
+   * Compute match ranges in the verse text.
+   * Render the verse with `<span className="hl what">…</span>` wrapping each match.
+4. **Result:** Only the chosen label is highlighted, perfectly aligned to the characters the reader sees.
+
+---
+
+## 5  Edge‑case Checklist
+
+| Edge                                                     | Quick Fix                                                                                                                                                               |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Exact phrase appears twice**                           | Both matches are highlighted; merged‑range logic merges overlaps but not duplicates.                                                                                    |
+| **Label phrase is not in the verse** (typo, punctuation) | Nothing is highlighted; log misses in dev‑mode to tune fuzzy matching.                                                                                                  |
+| **Overlapping label phrases** (rare)                     | Merged ranges prevent nested marks; longer phrases win.                                                                                                                 |
+| **Performance on long chapters**                         | Each highlight calc is O(#phrases × phrase len + verse len). With virtualised rows you’re only doing this for \~20‑40 verses at once—well below 5 ms on desktop/mobile. |
+
+---
+
+### 🔑  The Only API Your “AI Agent” Needs
+
+```ts
+// given verseKey + verseText already in the row
+const ranges = getRangesToHighlight(
+  verseText,
+  getLabel(activeTranslation, verseKey, activeLabel) // [] if overlay off
+);
+```
+
+Everything else (caching, UI toggles, CSS) is standard React plumbing.
+
+Once this overlay logic is in place you can extend it to:
+
+* **multi‑label mode** (keep an array of active labels and layer different colors);
+* **hover tooltips** (show the label key or extra commentary on hover);
+* **animated Bible study flows** (e.g., fade in “action” after “who”).
+
+---
+
+## 6  Next Actions for You
+
+1. **Copy‑paste** the helper utilities and the `<OverlayVerse>` component into your codebase.
+2. Wire the menu toggle to `activeLabel` state (single‑select).
+3. Test with AMP Gen 1, Gen 2 etc.—confirm highlight coverage.
+4. Gradually harden the `getRangesToHighlight` logic with fuzzy matching only where you see misses in real verses.
+
+With this pattern your highlights are fast, precise, and completely driven by the JSON you painstakingly curated—no extra database calls, no brittle DOM queries, just predictable text→range mapping.
