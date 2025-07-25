@@ -1,0 +1,191 @@
+Below is a **drop‑in blueprint** for turning your label metadata into **stackable text effects** that can appear together on the same word or phrase. It extends the single‑label recipe I sent earlier, but keeps everything fast enough for virtual scrolling.
+
+---
+
+## 1  Visual spec (one effect per label)
+
+| Label          | CSS effect you will apply                                      |
+| -------------- | -------------------------------------------------------------- |
+| **who**        | `font-family:` a cursive / “hand‑written” web font             |
+| **what**       | `text-shadow:` subtle drop shadow                              |
+| **when**       | `text-decoration: underline`                                   |
+| **where**      | square brackets injected with `::before` / `::after`           |
+| **command**    | `font-weight: 700` (bold)                                      |
+| **action**     | `font-style: italic`                                           |
+| **why**        | outline using `‑webkit-text-stroke` **or** multi‑shadow “halo” |
+| **seed**       | superscript “\*” (star) marker                                 |
+| **harvest**    | superscript “=” marker                                         |
+| **prediction** | superscript “+” marker                                         |
+
+*Because brackets and superscript symbols require generated content, they need their own wrapper span. All the others can coexist as plain CSS classes.*
+
+---
+
+## 2  Data → effect pipeline
+
+### 2‑A Collect all active labels
+
+```ts
+const activeLabels = useLabelCtx();       // e.g. Set<LabelName>
+```
+
+### 2‑B Build a character‑level map of which labels touch which index
+
+```ts
+function labelSetsPerChar(
+  text: string,
+  verseKey: string,
+  translation: string,
+  active: Set<LabelName>
+): (Set<LabelName>|null)[] {
+
+  // one sparse array, mostly `null`
+  const map = Array(text.length).fill(null) as (Set<LabelName>|null)[];
+  active.forEach(label => {
+    const phrases = getLabel(translation, verseKey, label);   // from cache
+    phrases.forEach(ph => {
+      const esc = ph.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\W+');
+      const re  = new RegExp(esc,'gi');
+      let m:RegExpExecArray|null;
+      while ((m = re.exec(text))) {
+        for (let i=m.index; i < m.index+m[0].length; i++) {
+          if (!map[i]) map[i] = new Set();
+          map[i]!.add(label);
+        }
+      }
+    });
+  });
+  return map;
+}
+```
+
+### 2‑C Chunk contiguous runs that share the **same** label‑set
+
+```ts
+function segmentize(text:string, sets:(Set<LabelName>|null)[]) {
+  const out:{txt:string, lbl:Set<LabelName>}[] = [];
+  let start = 0;
+  for (let i=1;i<=text.length;i++){
+    if (i===text.length || !equalSets(sets[i], sets[start])) {
+      out.push({ txt:text.slice(start,i), lbl: sets[start] ?? new Set() });
+      start=i;
+    }
+  }
+  return out;
+}
+```
+
+---
+
+## 3  Rendering with nested wrappers
+
+```tsx
+const VerseRow:React.FC<{verseKey:string, verseText:string}> = ({verseKey, verseText}) => {
+  const { activeLabels, activeTranslation } = useContext(LabelCtx);
+
+  // nothing turned on → plain verse
+  if (!activeLabels.size) return <span>{verseText}</span>;
+
+  const perChar = useMemo(
+    () => labelSetsPerChar(verseText, verseKey, activeTranslation, activeLabels),
+    [verseText, verseKey, activeTranslation, activeLabels]
+  );
+  const segs = useMemo(() => segmentize(verseText, perChar), [perChar, verseText]);
+
+  return (
+    <>
+      {segs.map((seg,i) => wrapWithEffects(seg.txt, seg.lbl, i))}
+    </>
+  );
+};
+```
+
+### `wrapWithEffects` helper
+
+```tsx
+function wrapWithEffects(text:string, labels:Set<LabelName>, key:number){
+  if (!labels.size) return <span key={key}>{text}</span>;
+
+  // 1) classes that can share a single wrapper span
+  const comboCls:string[] = [];
+  if (labels.has('who'))      comboCls.push('fx-hand');
+  if (labels.has('what'))     comboCls.push('fx-shadow');
+  if (labels.has('when'))     comboCls.push('fx-under');
+  if (labels.has('command'))  comboCls.push('fx-bold');
+  if (labels.has('action'))   comboCls.push('fx-ital');
+  if (labels.has('why'))      comboCls.push('fx-outline');
+
+  let node:React.ReactNode = <span className={comboCls.join(' ')}>{text}</span>;
+
+  // 2) superscript markers (max one in practice)
+  if (labels.has('seed') || labels.has('harvest') || labels.has('prediction')){
+    const supCls =
+      labels.has('seed')       ? 'sup-seed' :
+      labels.has('harvest')    ? 'sup-harvest' :
+      /* prediction */           'sup-predict';
+    node = <span className={supCls}>{node}</span>;
+  }
+
+  // 3) brackets (outer‑most wrapper)
+  if (labels.has('where')){
+    node = <span className="fx-bracket">{node}</span>;
+  }
+
+  return <React.Fragment key={key}>{node}</React.Fragment>;
+}
+```
+
+---
+
+## 4  CSS blueprint
+
+```css
+/* ---------- shareable visual classes ---------- */
+.fx-hand     { font-family: 'Homemade Apple', 'Bradley Hand', cursive; }
+.fx-shadow   { text-shadow: 2px 2px 3px rgba(0,0,0,.25); }
+.fx-under    { text-decoration: underline; }
+.fx-bold     { font-weight: 700; }
+.fx-ital     { font-style: italic; }
+.fx-outline  { -webkit-text-stroke: 1px currentColor; text-shadow:
+               1px 0 0,currentColor,-1px 0 0,currentColor,0 1px 0,currentColor,0 -1px 0,currentColor; }
+
+/* ---------- brackets: outer wrapper ---------- */
+.fx-bracket::before { content:'['; }
+.fx-bracket::after  { content:']'; }
+
+/* ---------- superscript markers ---------- */
+.sup-seed::after     { content:'*';  }
+.sup-harvest::after  { content:'=';  }
+.sup-predict::after  { content:'+';  }
+.sup-seed::after,
+.sup-harvest::after,
+.sup-predict::after  { font-size:.6em; vertical-align:super; }
+
+/* keep wrappers inline without breaking line height */
+.fx-hand, .fx-shadow, .fx-under, .fx-bold, .fx-ital,
+.fx-outline, .sup-seed, .sup-harvest, .sup-predict, .fx-bracket {
+  display:inline-block; line-height:inherit;
+}
+```
+
+*If two superscript categories ever overlap (rare), whichever you check first wins.
+If you need both, wrap again inside another `<span>`—the model stays the same.*
+
+---
+
+## 5  Performance notes
+
+| Potential bottleneck           | Mitigation                                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Character‑level map per verse  | Verse text length is < 300 chars; loop is O(*n × labels*) and runs only for rows in view.           |
+| Bracket/sup nesting            | Each extra wrapper is just an inline span—browser cost is negligible.                               |
+| Text‑stroke on low‑end devices | Outline rule only adds a few shadows; test on mobile, or fall back to solid under‑border if needed. |
+
+---
+
+## 6  How to tell your AI‑coding agent
+
+> *“Enhance the verse renderer so multiple label categories can stack.
+> Compute a per‑character label map, chunk identical runs, then wrap each run with nested `<span>` elements according to §3. Apply the CSS in §4. Brackets (`where`) are the outer wrapper; superscript (`seed`, `harvest`, `prediction`) wrap inside that; all other effects share one inner span. Effects must combine correctly when several labels touch the same text.”*
+
+With that brief—plus the code skeleton above—your agent has a crystal‑clear contract for both **logic** and **visuals**, and you’ll get fully‑composable overlays that look exactly the way you specified.
