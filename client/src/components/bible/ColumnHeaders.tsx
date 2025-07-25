@@ -453,17 +453,16 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find((col) => col.slot === 0);
   const otherColumns = allColumns.filter((col) => col.slot !== 0);
 
-  const topHeaderHeight = adaptiveIsMobile ? 20 : 0; // Mobile: 48px to account for top header, Desktop: 0 (no offset needed)
+  // Let CSS handle the top positioning via mobile-headers.css
 
   return (
     <div
-      className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
+      className={`column-headers column-headers-container sticky z-40 bg-background border-b shadow-sm`}
       style={{
-        top: `${topHeaderHeight}px`,
         left: -scrollLeft,
         position: "sticky",
         width: "100%",
-        height: adaptiveIsMobile ? "10px" : "30px",
+        height: adaptiveIsMobile ? "40px" : "40px",
       }}
     >
       <div className="overflow-hidden w-full h-full flex">
