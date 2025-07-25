@@ -1,4 +1,3 @@
-
 /* ---------- Shareable visual classes ---------- */
 .fx-hand {
   font-family: 'Homemade Apple', 'Bradley Hand', cursive;
@@ -85,4 +84,75 @@
     -1px 0 0 currentColor,
     0 1px 0 currentColor,
     0 -1px 0 currentColor;
+}
+
+/* Label Effects - Legacy classes */
+.label-who { @apply font-bold; }
+.label-what { @apply outline outline-1 shadow-sm; }
+.label-where::before { content: '{'; }
+.label-where::after { content: '}'; }
+.label-when { @apply underline; }
+.label-why { font-family: cursive; }
+.label-action { @apply italic; }
+.label-seed::before { content: '*'; @apply text-xs align-super; }
+.label-harvest::before { content: '='; @apply text-xs align-super; }
+.label-prediction::before { content: '~'; @apply text-xs align-super; }
+
+/* Bitmap-based label effects */
+.fx-hand { 
+  font-weight: bold; 
+  cursor: pointer;
+}
+
+.fx-shadow { 
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  outline: 1px solid rgba(0, 0, 0, 0.2);
+  outline-offset: 1px;
+}
+
+.fx-under { 
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+}
+
+.fx-bracket::before { content: '['; }
+.fx-bracket::after { content: ']'; }
+
+.fx-bold { 
+  font-weight: bold;
+  text-shadow: 0.5px 0 0 currentColor;
+}
+
+.fx-ital { 
+  font-style: italic;
+}
+
+.fx-outline { 
+  text-shadow: 
+    -1px -1px 0 currentColor,
+    1px -1px 0 currentColor,
+    -1px 1px 0 currentColor,
+    1px 1px 0 currentColor;
+  font-weight: bold;
+}
+
+.sup-seed::before { 
+  content: '*'; 
+  font-size: 0.75em;
+  vertical-align: super;
+  margin-right: 1px;
+}
+
+.sup-harvest::before { 
+  content: '='; 
+  font-size: 0.75em;
+  vertical-align: super;
+  margin-right: 1px;
+}
+
+.sup-predict::before { 
+  content: '~'; 
+  font-size: 0.75em;
+  vertical-align: super;
+  margin-right: 1px;
 }

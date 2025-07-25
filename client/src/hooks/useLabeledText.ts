@@ -18,7 +18,18 @@ export function useLabeledText({
   verseKey, 
   translationCode 
 }: UseLabeledTextProps): TextSegment[] {
+  // Create stable keys for memoization
+  const activeLabelsKey = useMemo(() => activeLabels.join(','), [activeLabels]);
+  const labelDataKey = useMemo(() => {
+    return activeLabels.map(label => 
+      `${label}:${(labelData[label] || []).join('|')}`
+    ).join(';');
+  }, [labelData, activeLabels]);
+
   return useMemo(() => {
+    if (activeLabels.length === 0) {
+      return [{ start: 0, end: text.length, mask: 0, text }];
+    }
     return processTextForLabels(text, labelData, activeLabels, verseKey, translationCode);
-  }, [text, labelData, activeLabels, verseKey, translationCode]);
+  }, [text, labelDataKey, activeLabelsKey, verseKey, translationCode]);
 }

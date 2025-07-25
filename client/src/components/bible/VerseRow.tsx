@@ -2,7 +2,7 @@ import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible
 import { ProphecyColumns } from './ProphecyColumns';
 import { useBibleStore } from '@/App';
 import { getLabel, LabelName, ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { LabeledText } from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 
@@ -95,24 +95,20 @@ export function VerseRow({
       {selectedTranslations.map((translation) => {
         const verseText = verse.text[translation.id];
         
-        // Get label data for this verse and translation for all possible labels
-        const labelData: Record<LabelName, string[]> = {
-          who: [],
-          what: [],
-          when: [],
-          where: [],
-          command: [],
-          action: [],
-          why: [],
-          seed: [],
-          harvest: [],
-          prediction: []
-        };
-        
-        // Only populate active labels to avoid unnecessary processing
-        activeLabels.forEach(labelName => {
-          labelData[labelName] = getLabel(translation.id, verse.reference, labelName);
-        });
+        // Memoize label data creation to prevent unnecessary re-renders
+        const labelData = useMemo(() => {
+          const data: Record<LabelName, string[]> = {
+            who: [], what: [], when: [], where: [], command: [],
+            action: [], why: [], seed: [], harvest: [], prediction: []
+          };
+          
+          // Only populate active labels to avoid unnecessary processing
+          activeLabels.forEach(labelName => {
+            data[labelName] = getLabel(translation.id, verse.reference, labelName);
+          });
+          
+          return data;
+        }, [translation.id, verse.reference, activeLabels]);
         
         // Process text with labels if we have both text and active labels
         const segments = useLabeledText({
