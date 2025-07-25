@@ -11,6 +11,17 @@ interface UseLabeledTextProps {
 
 export function useLabeledText({ text, labelData, activeLabels }: UseLabeledTextProps): LabelSegment[] {
   return useMemo(() => {
-    return processTextForLabels(text, labelData, activeLabels);
+    const segments = processTextForLabels(text, labelData, activeLabels);
+    
+    if (activeLabels.length > 0 && text) {
+      console.log(`🔍 useLabeledText processing:`, {
+        text: text.substring(0, 50) + '...',
+        activeLabels,
+        labelData,
+        segmentCount: segments.length
+      });
+    }
+    
+    return segments;
   }, [text, labelData, activeLabels]);
 }

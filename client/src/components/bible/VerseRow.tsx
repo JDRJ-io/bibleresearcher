@@ -101,6 +101,15 @@ export function VerseRow({
           labelData[labelName] = getLabel(translation.id, verse.reference, labelName);
         });
         
+        // Debug logging for label processing
+        if (activeLabels.length > 0 && verseText) {
+          console.log(`🏷️ VerseRow processing labels for ${verse.reference}:`, {
+            activeLabels,
+            labelData,
+            textLength: verseText.length
+          });
+        }
+        
         // Process text with labels if we have both text and active labels
         const segments = useLabeledText({
           text: verseText || '',
