@@ -2,24 +2,24 @@
 @import './styles/label-effects.css';
 ```
 
-```css
+```
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 ```
 
-```css
+```
 /* Import Tailwind CSS */
 @tailwind base;
 @tailwind components; 
 @tailwind utilities;
 ```
 
-```css
+```
 /* Import base settings after Tailwind */
 @import './styles/themes-optimized.css';
 ```
 
-```css
+```
 /* Theme System - Professional curated color schemes for Bible study */
 :root.light {
   /* Light theme variables */
@@ -46,7 +46,7 @@
 }
 ```
 
-```css
+```
 :root.dark {
   /* Dark theme variables */
   --background: 222.2 84% 4.9%;
@@ -71,13 +71,13 @@
 }
 ```
 
-```css
+```
 * {
   border-color: hsl(var(--border));
 }
 ```
 
-```css
+```
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
@@ -85,7 +85,7 @@ body {
 }
 ```
 
-```css
+```
 /* Optimized scrollbars */
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -93,32 +93,32 @@ body {
 }
 ```
 
-```css
+```
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 ```
 
-```css
+```
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 ```
 
-```css
+```
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: hsl(var(--muted-foreground));
   border-radius: 3px;
 }
 ```
 
-```css
+```
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: hsl(var(--foreground));
 }
 ```
 
-```css
+```
 /* Performance optimizations for large tables */
 .bible-verse-row {
   contain: layout style;
@@ -126,13 +126,13 @@ body {
 }
 ```
 
-```css
+```
 .cell-content {
   contain: layout;
 }
 ```
 
-```css
+```
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .cell-ref {
@@ -144,4 +144,3 @@ body {
     font-size: 10px;
   }
 }
-```

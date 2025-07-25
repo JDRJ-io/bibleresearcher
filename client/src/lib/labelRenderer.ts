@@ -1,4 +1,3 @@
-
 // Bitmask-based label renderer for 90% memory reduction
 import type { LabelName } from './labelsCache';
 
@@ -70,139 +69,107 @@ const regexCache: Record<string, RegExp[]> = {};
 function compileRegexes(tCode: string, label: LabelName, phrases: string[]): RegExp[] {
   const key = `${tCode}:${label}`;
   if (regexCache[key]) return regexCache[key];
-  
-  regexCache[key] = phrases
-    .filter(phrase => phrase && phrase.trim().length > 0)
-    .map(phrase => {
-      try {
-        return new RegExp(
-          phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
-          'gi'
-        );
-      } catch (error) {
-        console.warn(`Failed to compile regex for phrase "${phrase}":`, error);
-        return null;
-      }
-    })
-    .filter(regex => regex !== null) as RegExp[];
-  
+
+  regexCache[key] = phrases.map(phrase =>
+    new RegExp(
+      phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
+      'gi'
+    )
+  );
   return regexCache[key];
 }
 
-// Segment with start/end positions and bitmask
-export interface LabelSegment {
+// Segment interface for text processing
+export interface TextSegment {
   start: number;
   end: number;
   mask: LabelMask;
   text: string;
 }
 
-// Sweep-line algorithm for interval merging - O(matches log m)
-function computeSegments(
-  verse: string,
-  labelData: Record<LabelName, string[]>,
-  activeMask: LabelMask
-): LabelSegment[] {
-  // Collect interval events
-  const events: { pos: number; bit: LabelMask; add: boolean }[] = [];
-  
-  try {
-    for (const [labelName, bit] of Object.entries(labelToBit)) {
-      if (!(activeMask & bit)) continue; // label not active
-      
-      const phrases = labelData[labelName as LabelName] || [];
-      if (phrases.length === 0) continue;
-      
-      for (const phrase of phrases) {
-        if (!phrase || !phrase.trim()) continue;
-        
-        try {
-          const regex = new RegExp(
-            phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
-            'gi'
-          );
-          
-          let match: RegExpExecArray | null;
-          while ((match = regex.exec(verse))) {
-            events.push({ pos: match.index, bit, add: true });
-            events.push({ pos: match.index + match[0].length, bit, add: false });
-          }
-        } catch (error) {
-          console.warn(`Failed to process phrase "${phrase}" for label ${labelName}:`, error);
-        }
-      }
-    }
-  } catch (error) {
-    console.warn('Error in segment computation:', error);
-    return [{ start: 0, end: verse.length, mask: 0, text: verse }];
-  }
-  
-  if (!events.length) {
-    return [{ start: 0, end: verse.length, mask: 0, text: verse }];
-  }
-  
-  // Sort events: position first, then add before remove
-  events.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
-  
-  // Sweep line algorithm
-  const segments: LabelSegment[] = [];
-  let currentMask: LabelMask = 0;
-  let lastPos = 0;
-  
-  for (const { pos, bit, add } of events) {
-    if (pos > lastPos) {
-      segments.push({
-        start: lastPos,
-        end: pos,
-        mask: currentMask,
-        text: verse.slice(lastPos, pos)
-      });
-    }
-    currentMask = add ? (currentMask | bit) : (currentMask & ~bit);
-    lastPos = pos;
-  }
-  
-  if (lastPos < verse.length) {
-    segments.push({
-      start: lastPos,
-      end: verse.length,
-      mask: currentMask,
-      text: verse.slice(lastPos)
-    });
-  }
-  
-  return segments;
-}
-
-// Memoization cache for segments
-const segmentCache = new Map<string, LabelSegment[]>();
-const CACHE_SIZE_LIMIT = 500; // LRU limit
-
-function evictOldCacheEntries() {
-  if (segmentCache.size > CACHE_SIZE_LIMIT) {
-    const keysToDelete = Array.from(segmentCache.keys()).slice(0, 100);
-    keysToDelete.forEach(key => segmentCache.delete(key));
-  }
-}
-
+// Main function to process text with labels
 export function processTextForLabels(
   text: string,
   labelData: Record<LabelName, string[]>,
   activeLabels: LabelName[]
-): LabelSegment[] {
-  if (activeLabels.length === 0) {
+): TextSegment[] {
+  if (!text || activeLabels.length === 0) {
     return [{ start: 0, end: text.length, mask: 0, text }];
   }
-  
-  const activeMask = labelsToBitmask(activeLabels);
-  const cacheKey = `${text.length}|${JSON.stringify(labelData)}|${activeMask}`;
-  
-  let segments = segmentCache.get(cacheKey);
-  if (!segments) {
-    segments = computeSegments(text, labelData, activeMask);
-    segmentCache.set(cacheKey, segments);
-    evictOldCacheEntries();
+
+  // Collect all intervals where labels apply
+  const events: { pos: number; bit: LabelMask; add: boolean }[] = [];
+
+  for (const label of activeLabels) {
+    const phrases = labelData[label] || [];
+    if (phrases.length === 0) continue;
+
+    const bit = labelToBit[label];
+    if (!bit) continue;
+
+    const regexes = compileRegexes('default', label, phrases);
+
+    for (const regex of regexes) {
+      let match;
+      regex.lastIndex = 0; // Reset regex state
+
+      while ((match = regex.exec(text)) !== null) {
+        events.push({ pos: match.index, bit, add: true });
+        events.push({ pos: match.index + match[0].length, bit, add: false });
+
+        // Prevent infinite loop on zero-length matches
+        if (match[0].length === 0) {
+          regex.lastIndex = match.index + 1;
+        }
+      }
+    }
   }
-  
+
+  // Sort events by position
+  events.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
+
+  // Sweep line algorithm to create segments
+  const segments: TextSegment[] = [];
+  let currentMask = 0;
+  let lastPos = 0;
+
+  for (const event of events) {
+    // Create segment for text before this event
+    if (event.pos > lastPos) {
+      const segmentText = text.slice(lastPos, event.pos);
+      segments.push({
+        start: lastPos,
+        end: event.pos,
+        mask: currentMask,
+        text: segmentText
+      });
+    }
+
+    // Update current mask
+    if (event.add) {
+      currentMask |= event.bit;
+    } else {
+      currentMask &= ~event.bit;
+    }
+
+    lastPos = event.pos;
+  }
+
+  // Add final segment
+  if (lastPos < text.length) {
+    const segmentText = text.slice(lastPos);
+    segments.push({
+      start: lastPos,
+      end: text.length,
+      mask: currentMask,
+      text: segmentText
+    });
+  }
+
+  // If no segments were created, return the whole text as one segment
+  if (segments.length === 0) {
+    return [{ start: 0, end: text.length, mask: 0, text }];
+  }
+
   return segments;
 }
