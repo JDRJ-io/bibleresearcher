@@ -13,9 +13,9 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
   const [isLoading, setIsLoading] = useState(false);
   const [labelsData, setLabelsData] = useState<Record<string, Record<LabelName, string[]>>>({});
 
-  // Extract verse keys from verses
+  // Extract verse keys from verses - handle both BibleVerse objects and strings
   const verseKeys = useMemo(() => 
-    verses.map(verse => verse.reference), 
+    verses.map(verse => typeof verse === 'string' ? verse : verse.reference), 
     [verses]
   );
 

@@ -6,19 +6,25 @@ import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { useColumnData } from '@/hooks/useColumnData';
+import { LabelName } from '@/lib/labelsCache';
+import { useLabeledText } from '@/hooks/useLabeledText';
+import { LabeledText } from './LabeledText';
 
 interface VirtualRowProps {
   verseID: string;
   verse: BibleVerse;
   rowHeight: number;
   columnData: any;
-  getVerseText: (verseID: string, translationCode: string) => string;
-  getMainVerseText: (verseID: string) => string;
+  getVerseText: (verseID: string, translationCode: string) => string | undefined;
+  getMainVerseText: (verseID: string) => string | undefined;
   activeTranslations: string[];
   mainTranslation: string;
-  onVerseClick: (ref: string) => void;
+  onVerseClick?: (verseRef: string) => void;
   onExpandVerse?: (verse: BibleVerse) => void;
-  onDoubleClick?: () => void;
+  // Label props
+  activeLabels?: LabelName[];
+  getVerseLabels?: (verseReference: string) => Record<LabelName, string[]>;
+  labelsLoading?: boolean;
 }
 
 // Cell Components
@@ -290,7 +296,9 @@ export function VirtualRow({
   mainTranslation,
   onVerseClick,
   onExpandVerse,
-  onDoubleClick
+  activeLabels = [],
+  getVerseLabels,
+  labelsLoading = false,
 }: VirtualRowProps) {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
@@ -500,7 +508,38 @@ export function VirtualRow({
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
             <div className="px-2 py-1 text-sm cell-content">
-              {verseText || `[${config.translationCode} loading...]`}
+              {verseText ? (
+                        activeLabels.length > 0 && getVerseLabels ? (() => {
+                          // Get label data for this verse
+                          const labelData = getVerseLabels(verseID);
+
+                          // Process text with labels
+                          const segments = useLabeledText({
+                            text: verseText,
+                            labelData,
+                            activeLabels
+                          });
+
+                          console.log(`🏷️ VirtualRow processing labels for ${verseID}:`, {
+                            activeLabels,
+                            labelData,
+                            segmentCount: segments.length
+                          });
+
+                          return segments.map((segment, index) => (
+                            <LabeledText
+                              key={index}
+                              text={segment.text}
+                              labels={segment.labels}
+                              segmentKey={index}
+                            />
+                          ));
+                        })() : verseText
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          [{verseID} - {config.translationCode} loading...]
+                        </span>
+                      )}
             </div>
           </div>
         );

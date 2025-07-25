@@ -373,13 +373,32 @@ const VirtualBibleTable = ({
   }, [visibleColumns]); // Trigger when visible columns change
     const { store, translationState, activeLabels } = useBibleStore();
 
-  // Viewport-aware label loading
-//   const viewportVerses = virtualizer.getVirtualItems().map(virtualRow => 
-//     allVerses[virtualRow.index]
-//   ).filter(Boolean);
+  // Build viewport verses array for label loading
+  const viewportVerses = slice.verseIDs.map(id => {
+    const parts = id.split('.');
+    const book = parts[0];
+    const chapterVerse = parts[1].split(':');
+    const chapter = parseInt(chapterVerse[0]);
+    const verse = parseInt(chapterVerse[1]);
+    
+    return {
+      id: `${book.toLowerCase()}-${chapter}-${verse}`,
+      reference: id,
+      book,
+      chapter,
+      verse,
+      text: {},
+      crossReferences: [],
+      strongsWords: [],
+      labels: [],
+      contextGroup: "standard" as const,
+      index: 0
+    } as BibleVerse;
+  });
 
+  // Viewport-aware label loading
   const { getVerseLabels, isLoading: labelsLoading } = useViewportLabels({
-    verses: slice.verseIDs,
+    verses: viewportVerses,
     activeLabels,
     mainTranslation: translationState.main
   });
@@ -475,6 +494,10 @@ const VirtualBibleTable = ({
                     mainTranslation={translationMainTranslation}
                     onVerseClick={columnData.onVerseClick}
                     onExpandVerse={onExpandVerse}
+                    // Label data
+                    activeLabels={activeLabels}
+                    getVerseLabels={getVerseLabels}
+                    labelsLoading={labelsLoading}
                   />
                 );
             })}
