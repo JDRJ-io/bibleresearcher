@@ -5,12 +5,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Import Tailwind CSS */
+@import './styles/themes-optimized.css';
+
 @tailwind base;
 @tailwind components; 
 @tailwind utilities;
-
-/* Import base settings after Tailwind */
-@import './styles/themes-optimized.css';
 
 /* Theme System - Professional curated color schemes for Bible study */
 :root.light {
