@@ -37,19 +37,19 @@ export function VerseRow({
   getGlobalVerseText,
   allVerses,
 }: VerseRowProps) {
-  const { store, activeLabel, translationState } = useBibleStore();
+  const { store, activeLabels, translationState } = useBibleStore();
   
   // Use main translation from Bible store for consistency
   const mainTranslation = translationState.main;
   
-  // Ensure labels are loaded when activeLabel changes
+  // Ensure labels are loaded when activeLabels changes
   useEffect(() => {
-    if (activeLabel && mainTranslation) {
+    if (activeLabels.length > 0 && mainTranslation) {
       ensureLabelCacheLoaded(mainTranslation).catch(error => {
         console.error('Failed to load labels for main translation:', error);
       });
     }
-  }, [activeLabel, mainTranslation]);
+  }, [activeLabels, mainTranslation]);
 
   // Create preferences object for consistency
   const preferences = {
@@ -199,7 +199,7 @@ export function VerseRow({
       )}
 
       {/* Labels Column */}
-      {activeLabel && (
+      {activeLabels.length > 0 && (
         <div className="w-60 flex-shrink-0 border-r">
           <div className="h-[120px] overflow-y-auto p-3 text-xs">
             {(() => {
@@ -208,34 +208,42 @@ export function VerseRow({
                 return <span className="text-muted-foreground italic">No main translation selected</span>;
               }
               
-              const labelValues = getLabel(mainTranslation, verse.reference, activeLabel as LabelName);
-              
-              if (labelValues.length > 0) {
-                return (
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 mb-1">
-                      {activeLabel} ({mainTranslation})
-                    </div>
-                    {labelValues.map((value, index) => (
-                      <span
-                        key={index}
-                        className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full mr-1 mb-1"
-                      >
-                        {value}
-                      </span>
-                    ))}
+              return (
+                <div className="space-y-2">
+                  <div className="text-xs text-gray-500 mb-2">
+                    Labels ({mainTranslation})
                   </div>
-                );
-              } else {
-                return (
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">
-                      {activeLabel} ({mainTranslation})
-                    </div>
-                    <span className="text-muted-foreground italic">No {activeLabel} labels</span>
-                  </div>
-                );
-              }
+                  {activeLabels.map((labelName) => {
+                    const labelValues = getLabel(mainTranslation, verse.reference, labelName);
+                    
+                    if (labelValues.length > 0) {
+                      return (
+                        <div key={labelName} className="mb-2">
+                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                            {labelName}:
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {labelValues.map((value, index) => (
+                              <span
+                                key={index}
+                                className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full"
+                              >
+                                {value}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                  {activeLabels.every(labelName => 
+                    getLabel(mainTranslation, verse.reference, labelName).length === 0
+                  ) && (
+                    <span className="text-muted-foreground italic">No labels found for this verse</span>
+                  )}
+                </div>
+              );
             })()}
           </div>
         </div>

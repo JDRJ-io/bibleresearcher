@@ -1,5 +1,7 @@
+
 import React, { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Toggle } from '@/components/ui/toggle';
 import { useBibleStore } from '@/App';
 import { LabelName, ensureLabelCacheLoaded } from '@/lib/labelsCache';
 
@@ -21,29 +23,35 @@ const labelConfig = [
 ];
 
 export function LabelsLegend({ className = '' }: LabelsLegendProps) {
-  const { activeLabel, setActiveLabel, translationState } = useBibleStore();
-  const mainTranslation = translationState.main; // Use main translation from store
+  const { activeLabels, setActiveLabels, translationState } = useBibleStore();
+  const mainTranslation = translationState.main;
   
-  // Preload labels when a label is selected
+  // Preload labels when any label is selected
   useEffect(() => {
-    if (activeLabel && mainTranslation) {
+    if (activeLabels.length > 0 && mainTranslation) {
       ensureLabelCacheLoaded(mainTranslation).catch(error => {
-        console.error('Failed to load labels:', error);
+        console.error('Failed to load labels for main translation:', error);
       });
     }
-  }, [activeLabel, mainTranslation]);
+  }, [activeLabels, mainTranslation]);
   
   const toggleLabel = (labelKey: LabelName) => {
-    // Single-select: clicking same label turns it off, clicking different label switches
-    if (activeLabel === labelKey) {
-      setActiveLabel(null);
+    const currentLabels = activeLabels || [];
+    if (currentLabels.includes(labelKey)) {
+      // Remove the label
+      setActiveLabels(currentLabels.filter(label => label !== labelKey));
     } else {
-      setActiveLabel(labelKey);
+      // Add the label
+      setActiveLabels([...currentLabels, labelKey]);
     }
   };
 
   const isLabelActive = (labelKey: LabelName) => {
-    return activeLabel === labelKey;
+    return activeLabels?.includes(labelKey) || false;
+  };
+
+  const clearAllLabels = () => {
+    setActiveLabels([]);
   };
 
   return (
@@ -52,62 +60,65 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
         Semantic Labels
       </div>
       
-      <div className="grid grid-cols-1 gap-3">
+      {/* Compact Toggle Grid - 2 columns for easy clicking */}
+      <div className="grid grid-cols-2 gap-2">
         {labelConfig.map((label) => (
-          <div
+          <Toggle
             key={label.key}
-            className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            pressed={isLabelActive(label.key)}
+            onPressedChange={() => toggleLabel(label.key)}
+            variant="outline"
+            size="sm"
+            className="h-auto p-2 flex flex-col items-start justify-start text-left"
           >
-            <input
-              type="radio"
-              name="semantic-label"
-              id={`label-${label.key}`}
-              checked={isLabelActive(label.key)}
-              onChange={() => toggleLabel(label.key)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className={`text-xs ${label.color}`}>
-                  {label.label}
-                </Badge>
-                <span 
-                  className={`text-sm font-mono ${label.style}`}
-                  style={{ fontSize: '0.8rem' }}
-                >
-                  sample
-                </span>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {label.description}
-              </div>
+            <div className="flex items-center gap-1 w-full">
+              <Badge variant="outline" className={`text-xs ${label.color}`}>
+                {label.label}
+              </Badge>
             </div>
-          </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-tight">
+              {label.description}
+            </div>
+          </Toggle>
         ))}
       </div>
       
-      {/* Clear Selection Button */}
-      {activeLabel && (
-        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveLabel(null)}
-            className="w-full text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            Clear Labels
-          </button>
-        </div>
-      )}
+      {/* Quick Actions */}
+      <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+        <button
+          onClick={clearAllLabels}
+          disabled={activeLabels.length === 0}
+          className="flex-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 py-1 px-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Clear All
+        </button>
+        <button
+          onClick={() => setActiveLabels(labelConfig.map(l => l.key))}
+          className="flex-1 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 py-1 px-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+        >
+          Select All
+        </button>
+      </div>
 
-      <div className="text-xs text-gray-500 dark:text-gray-400 italic mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        Note: Select one label type to highlight semantic elements across all verses. Only one label can be active at a time.
-        {activeLabel && (
-          <div className="mt-2 font-medium text-blue-600 dark:text-blue-400">
-            Currently showing: {labelConfig.find(l => l.key === activeLabel)?.label} ({mainTranslation})
+      {/* Status Display */}
+      <div className="text-xs text-gray-500 dark:text-gray-400 italic p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        {activeLabels.length > 0 ? (
+          <div>
+            <div className="font-medium text-blue-600 dark:text-blue-400">
+              Active: {activeLabels.map(label => 
+                labelConfig.find(l => l.key === label)?.label
+              ).join(', ')} ({mainTranslation})
+            </div>
+            <div className="mt-1">
+              {activeLabels.length} of {labelConfig.length} labels selected
+            </div>
           </div>
-        )}
-        {!activeLabel && (
-          <div className="mt-2 text-gray-500">
-            Using translation: {mainTranslation}
+        ) : (
+          <div>
+            <div>No labels selected</div>
+            <div className="mt-1">
+              Using translation: {mainTranslation}
+            </div>
           </div>
         )}
       </div>

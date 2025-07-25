@@ -39,6 +39,8 @@ interface SizeState {
   setSizeMult: (mult: number) => void;
 }
 
+type LabelName = string;
+
 export const useBibleStore = create<{
   translations: Record<string, any>;
   actives: string[];
@@ -64,8 +66,8 @@ export const useBibleStore = create<{
   showLabels: Record<string, boolean>;
   isSearchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
-  activeLabels: string[];
-  setActiveLabels: (labels: string[]) => void;
+  activeLabels: LabelName[];
+  setActiveLabels: (labels: LabelName[]) => void;
   loadCrossRefsData: (verseIds?: string[]) => Promise<void>;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
@@ -82,8 +84,6 @@ export const useBibleStore = create<{
   currentVerseKeys: string[];
   setChronological: (chronological: boolean) => void;
   setCurrentVerseKeys: (keys: string[]) => void;
-  activeLabel: string | null;
-  setActiveLabel: (label: string | null) => void;
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -113,8 +113,6 @@ export const useBibleStore = create<{
   currentVerseKeys: [],   // Current verse keys array (canonical or chronological)
   setChronological: (chronological: boolean) => set({ isChronological: chronological }),
   setCurrentVerseKeys: (keys: string[]) => set({ currentVerseKeys: keys }),
-  activeLabel: null,
-  setActiveLabel: (label: string | null) => set({ activeLabel: label }),
 
   // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {
@@ -477,7 +475,7 @@ function App() {
     const isMobile = window.innerWidth < 768;
     const hasLowMemory = 'memory' in performance && 
       (performance as any).memory?.jsHeapSizeLimit < 1024 * 1024 * 1024; // < 1GB
-    
+
     return isMobile || hasLowMemory;
   };
 
