@@ -15,22 +15,31 @@ export function ensureLabelCacheLoaded(
   tCode: string,
   activeLabels: LabelName[]
 ): Promise<void> {
+  console.log(`🔄 WORKER: ensureLabelCacheLoaded called for ${tCode} with labels:`, activeLabels);
+  console.log(`🔄 WORKER: Current cache status for ${tCode}:`, !!cache[tCode]);
   
   // Check if we already have all needed labels cached
   if (cache[tCode] && activeLabels.every(l => someVerseHasLabel(cache[tCode]!, l))) {
+    console.log(`✅ WORKER: Cache already loaded for ${tCode}, skipping`);
     return Promise.resolve();
   }
 
   // De-duplicate concurrent requests
   const key = `${tCode}|${activeLabels.sort().join()}`;
-  if (pending.has(key)) return pending.get(key)!;
+  if (pending.has(key)) {
+    console.log(`🔄 WORKER: Request already pending for ${key}`);
+    return pending.get(key)!;
+  }
 
+  console.log(`🔄 WORKER: Starting worker to load ${tCode} labels...`);
   const p = new Promise<void>((resolve) => {
     const handle = (e: MessageEvent) => {
+      console.log(`📨 WORKER: Received message from worker:`, e.data);
       if (e.data.tCode !== tCode) return;
       
       // Merge worker results into cache
       cache[tCode] = { ...cache[tCode], ...e.data.filtered };
+      console.log(`✅ WORKER: Cache updated for ${tCode}, verse count:`, Object.keys(e.data.filtered || {}).length);
       
       worker.removeEventListener('message', handle);
       pending.delete(key);
@@ -38,6 +47,7 @@ export function ensureLabelCacheLoaded(
     };
     
     worker.addEventListener('message', handle);
+    console.log(`📤 WORKER: Posting message to worker:`, { tCode, active: activeLabels });
     worker.postMessage({ tCode, active: activeLabels });
   });
 

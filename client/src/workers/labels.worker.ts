@@ -5,6 +5,7 @@ import { LabelBits } from '../lib/labelBits';
 const fileCache: Record<string, Record<string, any>> = {};  // {KJV:{Gen.1:1:{…}}}
 
 self.onmessage = async (e: MessageEvent) => {
+  console.log(`📨 Worker: Received message:`, e.data);
   const { tCode, active } = e.data as { tCode: string; active: (keyof typeof LabelBits)[] };
 
   if (!fileCache[tCode]) {
@@ -12,7 +13,7 @@ self.onmessage = async (e: MessageEvent) => {
       // 1) FETCH – Use Supabase public URL structure for labels
       const supabaseUrl = 'https://efvztudkmafxfcyglvcl.supabase.co/storage/v1/object/public/anointed';
       const url = `${supabaseUrl}/labels/${tCode}/all.json`;
-      console.log(`Worker: Fetching labels from ${url}`);
+      console.log(`📤 Worker: Fetching labels from ${url}`);
       const res = await fetch(url, { cache: 'force-cache' });
       
       if (!res.ok) {
@@ -27,7 +28,7 @@ self.onmessage = async (e: MessageEvent) => {
 
       // 2) PARSE (blocking inside Worker, safe for UI)
       fileCache[tCode] = JSON.parse(raw);
-      console.log(`Worker: Loaded ${Object.keys(fileCache[tCode]).length} verse labels for ${tCode}`);
+      console.log(`✅ Worker: Loaded ${Object.keys(fileCache[tCode]).length} verse labels for ${tCode}`);
     } catch (error) {
       console.error(`Worker: Error loading labels for ${tCode}:`, error);
       fileCache[tCode] = {};
@@ -50,7 +51,7 @@ self.onmessage = async (e: MessageEvent) => {
     if (Object.keys(slim).length) filtered[vKey] = slim;
   }
 
-  console.log(`Worker: Filtered ${Object.keys(filtered).length} verses with active labels for ${tCode}`);
+  console.log(`✅ Worker: Filtered ${Object.keys(filtered).length} verses with active labels for ${tCode}`);
 
   // 4) POST back to main thread
   postMessage({ tCode, filtered });
