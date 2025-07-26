@@ -15,33 +15,31 @@ export function useLabeledText(
     }
 
     type Ev = { pos: number; bit: number; add: boolean };
-    const events: Ev[] = [];
+    const evs: Ev[] = [];
 
     activeLabels.forEach(lbl => {
       const bit = LabelBits[lbl];
-      const phrases = labelData?.[lbl] || [];
-      phrases.forEach(ph => {
-        if (!ph) return;
+      (labelData?.[lbl] || []).forEach(ph => {
         const re = new RegExp(
           ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
           'gi'
         );
         let m: RegExpExecArray | null;
         while ((m = re.exec(text))) {
-          events.push({ pos: m.index, add: true,  bit });
-          events.push({ pos: m.index + m[0].length, add: false, bit });
+          evs.push({ pos: m.index, add: true,  bit });
+          evs.push({ pos: m.index + m[0].length, add: false, bit });
         }
       });
     });
 
-    if (!events.length) return [{ start: 0, end: text.length, mask: 0 }];
+    if (!evs.length) return [{ start: 0, end: text.length, mask: 0 }];
 
-    events.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
+    evs.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
 
     const segs: Segment[] = [];
     let mask = 0, last = 0;
 
-    for (const { pos, bit, add } of events) {
+    for (const { pos, bit, add } of evs) {
       if (pos > last) segs.push({ start: last, end: pos, mask });
       mask = add ? (mask | bit) : (mask & ~bit);
       last = pos;

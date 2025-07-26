@@ -2,7 +2,7 @@ import React from 'react';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { classesForMask } from '@/lib/labelRenderer';
 
-interface LabeledTextProps {
+interface Props {
   text: string;
   labelData: Record<string, string[]>;
   activeLabels: string[];
@@ -15,12 +15,12 @@ export function LabeledText({
   labelData,
   activeLabels,
   verseKey,
-}: LabeledTextProps) {
+}: Props) {
   const segs = useLabeledText(text, labelData, activeLabels as any);
 
   return (
     <>
-      {segs.map((s) => {
+      {segs.map(s => {
         const cls = classesForMask(s.mask);
         const key = `${verseKey}-${s.start}-${s.mask}`;
         return cls ? (
