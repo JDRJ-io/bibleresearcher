@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Labels File</title>
+</head>
+<body>
+    <h1>Testing Labels File Access</h1>
+    <button onclick="testLabelsFile()">Test KJV Labels File</button>
+    <div id="result"></div>
+
+    <script>
+        async function testLabelsFile() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const url = 'https://efvztudkmafxfcyglvcl.supabase.co/storage/v1/object/public/anointed/labels/KJV/all.json';
+                console.log('Fetching:', url);
+                
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers]);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const text = await response.text();
+                console.log('Response text length:', text.length);
+                console.log('First 200 chars:', text.substring(0, 200));
+                
+                const data = JSON.parse(text);
+                console.log('Parsed JSON keys:', Object.keys(data).length);
+                console.log('First few keys:', Object.keys(data).slice(0, 5));
+                
+                resultDiv.innerHTML = `
+                    <h3>Success!</h3>
+                    <p>File size: ${text.length} characters</p>
+                    <p>Verses with labels: ${Object.keys(data).length}</p>
+                    <p>First few verses: ${Object.keys(data).slice(0, 5).join(', ')}</p>
+                    <h4>Sample verse data (Gen.1:1):</h4>
+                    <pre>${JSON.stringify(data['Gen.1:1'] || data['Gen.1.1'] || 'Not found', null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <h3>Error!</h3>
+                    <p style="color: red;">${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

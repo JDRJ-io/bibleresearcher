@@ -79,8 +79,8 @@ const VirtualBibleTable = ({
   // Labels system integration
   const { activeLabels } = useBibleStore();
   
-  // Debug activeLabels from store
-  console.log('🔍 VirtualBibleTable activeLabels from store:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+  // Debug activeLabels from store - URGENT DEBUG
+  console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels from store:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
   
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
