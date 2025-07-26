@@ -619,11 +619,56 @@ body.aurora-mode .col-cross {
 
 /* Apply theme variables to elements */
 body {
-  background-color: var(--bg-primary);
   color: var(--text-primary);
   font-size: var(--text-base);
   font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
   transition: all 0.3s ease;
+}
+
+/* Only apply background-color for non-animated themes */
+body:not(.rainbow-mode):not(.aurora-mode):not(.cyberpunk-mode):not(.meadow-mode):not(.scroll-mode) {
+  background-color: var(--bg-primary);
+}
+
+/* Remove bg-background class effects for animated themes */
+body.rainbow-mode .bg-background,
+body.aurora-mode .bg-background,
+body.cyberpunk-mode .bg-background,
+body.meadow-mode .bg-background,
+body.scroll-mode .bg-background {
+  background: transparent !important;
+}
+
+/* Remove other potential white background classes for animated themes */
+body.rainbow-mode .min-h-screen,
+body.aurora-mode .min-h-screen,
+body.cyberpunk-mode .min-h-screen,
+body.meadow-mode .min-h-screen,
+body.scroll-mode .min-h-screen {
+  background: transparent !important;
+}
+
+/* Remove any remaining white/background classes for animated themes */
+body.rainbow-mode .bg-white,
+body.aurora-mode .bg-white,
+body.cyberpunk-mode .bg-white,
+body.meadow-mode .bg-white,
+body.scroll-mode .bg-white,
+body.rainbow-mode .bg-gray-50,
+body.aurora-mode .bg-gray-50,
+body.cyberpunk-mode .bg-gray-50,
+body.meadow-mode .bg-gray-50,
+body.scroll-mode .bg-gray-50 {
+  background: transparent !important;
+}
+
+/* Ensure main content areas are transparent for animated themes */
+body.rainbow-mode main,
+body.aurora-mode main,
+body.cyberpunk-mode main,
+body.meadow-mode main,
+body.scroll-mode main {
+  background: transparent !important;
 }
 
 /* Ensure smooth transitions for all theme changes */
