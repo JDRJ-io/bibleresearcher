@@ -271,9 +271,6 @@ const VirtualBibleTable = ({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // Mobile detection for dual-column layout
-  const isMobile = useIsMobile();
-
   // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
   // Only center on wide desktop screens when content fits
   const shouldCenter = !isMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
@@ -383,9 +380,6 @@ const VirtualBibleTable = ({
     activeLabels,
     mainTranslation: translationState.main
   });
-
-  // Mobile detection
-  const isMobile = useIsMobile();
 
   // Determine header height based on mobile status
   const topHeaderHeight = isMobile ? 48 : 64;
