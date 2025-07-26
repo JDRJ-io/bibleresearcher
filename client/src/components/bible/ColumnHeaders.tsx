@@ -360,11 +360,9 @@ export function ColumnHeaders({
 
   return (
     <div 
-      className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
+      className={`column-headers-container sticky z-40 bg-background border-b shadow-sm`}
       style={{ 
-        top: `${topHeaderHeight || 60}px`,
-        left: -scrollLeft,
-        position: 'sticky',
+        left: -scrollLeft,  // keep horizontal sync only
         width: '100%',
         height: adaptiveIsMobile ? '48px' : '52px'
       }}

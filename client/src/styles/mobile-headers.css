@@ -9,12 +9,11 @@
 
 /* Mobile-specific header positioning */
 @media (max-width: 640px) {
-  /* Ensure column headers are positioned correctly below top header */
+  /* Leave the header sticky, but flush to the top of the scroll area */
   .column-headers-container {
     position: sticky !important;
-    top: var(--top-header-height-mobile) !important;
-    z-index: 40 !important; /* Below top header (z-50) but above content */
-    height: var(--column-header-height) !important;
+    top: 0 !important;               /* key change */
+    z-index: 40 !important;
     background: white !important;
     border-bottom: 1px solid #e5e7eb !important;
   }
@@ -25,10 +24,10 @@
     border-bottom-color: #374151 !important;
   }
 
-  /* Fix main content positioning to account for sticky headers */
+  /* The scroll area no longer needs a margin-top */
   .bible-content-container {
-    margin-top: calc(var(--top-header-height-mobile) + var(--column-header-height)) !important;
-    height: calc(100vh - var(--top-header-height-mobile) - var(--column-header-height)) !important;
+    margin-top: 0 !important;
+    height: 100vh !important;        /* or whatever you need */
     overflow-y: auto !important;
   }
 
@@ -115,12 +114,11 @@
     position: sticky !important;
     top: var(--top-header-height-desktop) !important;
     z-index: 40 !important;
-    height: var(--column-header-height) !important;
   }
 
   .bible-content-container {
-    margin-top: calc(var(--top-header-height-desktop) + var(--column-header-height)) !important;
-    height: calc(100vh - var(--top-header-height-desktop) - var(--column-header-height)) !important;
+    margin-top: var(--top-header-height-desktop) !important;
+    height: calc(100vh - var(--top-header-height-desktop)) !important;
   }
 }
 

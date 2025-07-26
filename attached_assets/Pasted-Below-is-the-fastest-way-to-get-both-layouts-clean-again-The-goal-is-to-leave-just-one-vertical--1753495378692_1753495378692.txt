@@ -1,0 +1,129 @@
+Below is the fastest way to get both layouts clean again.
+The goal is to **leave just one vertical offset** in the entire stack:
+
+* **Desktop**  → top nav = 72 px (or whatever you like); verse table starts **immediately underneath**.
+* **Mobile**  → verse table starts immediately under the top nav ( so `top: 0` for the column header **inside** the table ), no extra gap above or below.
+
+---
+
+## 1 .  Delete the “mobile extra‑spacing” rules
+
+Open **`styles/mobile‑headers.css`** (or wherever you copied the long block you showed earlier) and remove the two rules that shove the content down:
+
+```diff
+/* Mobile-specific header positioning */
+@media (max-width: 640px) {
+-  .column-headers-container {
+-    /* … lots of lines … */
+-    top: var(--top-header-height-mobile) !important;      /* ❌ */
+-    height: var(--column-header-height) !important;       /* keeps the bar tall */
+-  }
+-
+-  /* Fix main content positioning to account for sticky headers */
+-  .bible-content-container {
+-    margin-top: calc(var(--top-header-height-mobile) + var(--column-header-height)) !important;  /* ❌ */
+-    height: calc(100vh - var(--top-header-height-mobile) - var(--column-header-height)) !important;
+-  }
++  /* Leave the header sticky, but flush to the top of the scroll area */
++  .column-headers-container {
++    position: sticky !important;
++    top: 0 !important;               /* <<  key change  */
++    z-index: 40 !important;
++  }
++
++  /* The scroll area no longer needs a margin‑top */
++  .bible-content-container {
++    margin-top: 0 !important;
++    height: 100vh !important;        /* or whatever you need */
++  }
+}
+```
+
+*(You can keep the dark‑mode overrides, widths, etc. The only critical bits to nuke are the `top:` based on the variable and the `margin‑top`.)*
+
+---
+
+## 2 .  Remove the desk‑top gap below the header
+
+On desktop you now have a gap **under** the column header because the wrapper div in **`VirtualBibleTable`** still adds a spacer:
+
+```tsx
+<div style={{ height: slice.start * ROW_HEIGHT }} />   // top spacer
+```
+
+That spacer is correct, **but** the wrapper also has
+`style={{ marginTop: '-1px', height: 'calc(100vh - 85px)' }}`
+
+The negative margin was used as a border‑overlap hack.
+Raise it back to `0` (or delete it) so you don’t see a sliver of white any more:
+
+```diff
+<style
+-  marginTop="-1px"
++  marginTop="0"
+```
+
+If the small 1‑pixel overlap really is needed to erase a border, switch to this:
+
+```css
+.column-headers-container { border-bottom-width: 0; }
+.bible-table-wrapper      { border-top:        1px solid var(--tw-border-opacity); }
+```
+
+---
+
+## 3 .  Make sure **ColumnHeaders** itself doesn’t add an inline offset
+
+In **`ColumnHeaders.tsx`** the wrapper should **not** set its own `top:`:
+
+```tsx
+return (
+  <div
+    className="column-headers-container sticky z-40 bg-background border-b shadow-sm"
+    style={{ left: scrollLeft }}               // ⬅️ keep horizontal sync only
+  >
+```
+
+Search the file for `|| 40` or any leftover `top:` in `style={{…}}` and delete them.
+
+---
+
+## 4 .  Keep just one variable for desktop height (optional)
+
+If you’d like to keep using the CSS variables, leave only the desktop one:
+
+```css
+:root {
+  --top-header-height-desktop: 72px;
+}
+@media (min-width: 641px) {
+  .column-headers-container { top: var(--top-header-height-desktop); }
+  .bible-content-container  { margin-top: var(--top-header-height-desktop); }
+}
+```
+
+Mobile uses `top: 0`; desktop uses the variable.
+No more double counts.
+
+---
+
+### Quick sanity check
+
+* **Mobile emulator 375 × 667:**
+
+  * Column header bar should touch the browser chrome (or be directly under your fixed nav if you still use one).
+  * First verse row should stick right under the header — no blank white bar.
+
+* **Desktop 1280 × 800:**
+
+  * Top nav (fixed) → 72 px.
+  * Column header bar sits flush under it, no extra blank bar below.
+  * Scroll a bit: header stays pinned, rows slide underneath.
+
+If either layout still shows a gap, open DevTools → *Computed* → `top` on the `.column‑headers‑container`.
+It should read:
+
+* **mobile:** `top: 0px` (no inline style)
+* **desktop:** `top: 72px` (coming from `index.css` rule)
+
+Once that’s true, the spacing issues are gone for good.
