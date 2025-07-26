@@ -12,7 +12,7 @@
   /* Ensure column headers are positioned correctly below top header */
   .column-headers-container {
     position: sticky !important;
-    top: 48px !important; /* Sit directly below the 48px top header */
+    top: 0 !important; /* Remove duplicate offset - virtual list already handles spacing */
     z-index: 40 !important; /* Below top header (z-50) but above content */
     height: var(--column-header-height) !important;
     background: white !important;
@@ -89,7 +89,7 @@
     .column-header-cell[data-column="reference"] {
       width: 32px !important;
     }
-
+    
     .column-header-cell[data-column="main"],
     .column-header-cell[data-column="cross-refs"] {
       width: calc((100vw - 80px) * 0.46) !important;
@@ -101,7 +101,7 @@
     .column-header-cell[data-column="reference"] {
       width: 40px !important;
     }
-
+    
     .column-header-cell[data-column="main"],
     .column-header-cell[data-column="cross-refs"] {
       width: calc((100vw - 100px) * 0.45) !important;
@@ -130,7 +130,7 @@
     .column-headers-container {
       /* Use fixed positioning on iOS to avoid viewport unit issues */
       position: fixed !important;
-      top: 48px !important; /* Sit directly below the 48px top header */
+      top: var(--top-header-height-mobile) !important;
       left: 0 !important;
       right: 0 !important;
     }
