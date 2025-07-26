@@ -295,8 +295,8 @@ export async function getStrongsOffsets() {
     strongsIndexOffsets = JSON.parse(iTxt);
 
     console.log('✅ Strong\'s offsets loaded:', {
-      verseOffsets: strongsVerseOffsets ? Object.keys(strongsVerseOffsets).length : 0,
-      indexOffsets: strongsIndexOffsets ? Object.keys(strongsIndexOffsets).length : 0
+      verseOffsets: Object.keys(strongsVerseOffsets).length,
+      indexOffsets: Object.keys(strongsIndexOffsets).length
     });
 
     return { strongsVerseOffsets, strongsIndexOffsets };
@@ -304,8 +304,8 @@ export async function getStrongsOffsets() {
     console.error('❌ Failed to load Strong\'s offsets:', error);
     // Return mock data for testing - this ensures the overlay can at least open
     const mockOffsets = {
-      strongsVerseOffsets: { "Gen.1:1": [0, 100] as [number, number] },
-      strongsIndexOffsets: { "H7225": [0, 50] as [number, number], "H1254": [50, 100] as [number, number] }
+      strongsVerseOffsets: { "Gen.1:1": [0, 100] },
+      strongsIndexOffsets: { "H7225": [0, 50], "H1254": [50, 100] }
     };
     strongsVerseOffsets = mockOffsets.strongsVerseOffsets;
     strongsIndexOffsets = mockOffsets.strongsIndexOffsets;
@@ -403,27 +403,12 @@ export async function loadProphecyData(): Promise<{
     console.log(`✅ Prophecy data loaded: ${Object.keys(verseRoles).length} verses, ${Object.keys(prophecyIndex).length} prophecies`);
 
     return { verseRoles, prophecyIndex };
+
   } catch (error) {
     console.error('❌ Failed to load prophecy data:', error);
-    return { 
-      verseRoles: {}, 
-      prophecyIndex: {} 
-    };
+    return { verseRoles: {}, prophecyIndex: {} };
   }
 }
-
-// Individual prophecy file loaders (for useBibleData compatibility)
-export async function getProphecyIndex() {
-  const data = await loadProphecyData();
-  return new Map(Object.entries(data.verseRoles));
-}
-
-export async function getProphecyRows() {
-  const data = await loadProphecyData();
-  return data.prophecyIndex;
-}
-
-// Note: loadProphecyRows and loadProphecyIndex are already defined above at lines 141-152
 
 // Cross-reference slice loader
 export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {

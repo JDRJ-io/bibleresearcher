@@ -94,12 +94,12 @@ const VirtualBibleTable = ({
 
   // Create getVerseText wrapper for VirtualRow (any translation) - use getBibleVerseText to avoid conflict
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
-    return getBibleVerseText(verseID, translationCode) || "";
+    return getBibleVerseText(verseID, translationCode);
   }, [getBibleVerseText]);
 
   // Create getMainVerseText wrapper for VirtualRow (main translation)
   const getMainVerseTextForRow = useCallback((verseID: string) => {
-    return getBibleVerseText(verseID, mainTranslation) || "";
+    return getBibleVerseText(verseID, mainTranslation);
   }, [getBibleVerseText, mainTranslation]);
 
   // 3-B. Preserve scroll position during slice swaps
@@ -373,31 +373,14 @@ const VirtualBibleTable = ({
   }, [visibleColumns]); // Trigger when visible columns change
     const { store, translationState, activeLabels } = useBibleStore();
 
-  // Viewport-aware label loading - convert verse IDs to verse objects for the hook
-  const viewportVerses = slice.verseIDs.map(verseId => {
-    const parts = verseId.split('.');
-    const book = parts[0];
-    const chapterVerse = parts[1].split(':');
-    const chapter = parseInt(chapterVerse[0]);
-    const verse = parseInt(chapterVerse[1]);
-    return {
-      id: verseId,
-      index: 0, // Will be set properly below
-      book,
-      chapter,
-      verse,
-      reference: verseId,
-      text: {},
-      crossReferences: [],
-      strongsWords: [],
-      labels: [],
-      contextGroup: "standard" as const
-    };
-  });
+  // Viewport-aware label loading
+//   const viewportVerses = virtualizer.getVirtualItems().map(virtualRow => 
+//     allVerses[virtualRow.index]
+//   ).filter(Boolean);
 
   const { getVerseLabels, isLoading: labelsLoading } = useViewportLabels({
-    verses: viewportVerses,
-    activeLabels: activeLabels.filter(label => typeof label === 'string') as any,
+    verses: slice.verseIDs,
+    activeLabels,
     mainTranslation: translationState.main
   });
 
@@ -412,15 +395,13 @@ const VirtualBibleTable = ({
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
+        topHeaderHeight={72}
       />
 
       <div 
         ref={(node) => {
-          // Use a callback ref approach to handle readonly refs
-          if (node) {
-            (wrapperRef as any).current = node;
-            (containerRef as any).current = node; // Connect containerRef for anchor slice system
-          }
+          if (wrapperRef.current !== node) wrapperRef.current = node;
+          if (containerRef.current !== node) containerRef.current = node; // Connect containerRef for anchor slice system
         }}
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
