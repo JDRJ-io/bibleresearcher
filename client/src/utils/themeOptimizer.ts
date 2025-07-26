@@ -257,15 +257,25 @@ export class ThemeManager {
     const root = document.documentElement;
     const body = document.body;
     
-    // Remove theme classes efficiently
+    // Remove all possible theme classes efficiently
     this.themes.forEach(theme => {
       root.classList.remove(theme.id, `${theme.id}-mode`);
       body.classList.remove(theme.id, `${theme.id}-mode`);
+    });
+    
+    // Also remove legacy theme classes
+    const legacyThemes = ['light-mode', 'dark-mode', 'sepia-mode', 'parchment-mode', 
+                         'forest-mode', 'aurora-mode', 'cyber-mode', 'rainbow-mode', 
+                         'midnight-mode', 'electric-mode'];
+    legacyThemes.forEach(className => {
+      root.classList.remove(className);
+      body.classList.remove(className);
     });
   }
 
   private applyThemeVariables(theme: OptimizedTheme): void {
     const root = document.documentElement;
+    const body = document.body;
     
     // Batch CSS variable updates
     requestAnimationFrame(() => {
@@ -274,9 +284,10 @@ export class ThemeManager {
         this.cssVariableCache.set(property, value);
       });
       
-      // Add theme class for CSS selectors
+      // Add theme class for CSS selectors (both variants for compatibility)
       root.classList.add(theme.id);
-      document.body.classList.add(theme.id);
+      body.classList.add(theme.id);
+      body.classList.add(`${theme.id}-mode`);
     });
   }
 
