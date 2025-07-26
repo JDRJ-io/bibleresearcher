@@ -364,7 +364,7 @@ export function ColumnHeaders({
       style={{ 
         left: -scrollLeft,  // keep horizontal sync only
         width: '100%',
-        height: adaptiveIsMobile ? '48px' : '52px'
+        height: adaptiveIsMobile ? '20px' : '30px'
       }}
     >
       <div className="overflow-hidden w-full h-full flex">
