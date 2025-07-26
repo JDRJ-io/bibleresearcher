@@ -10,15 +10,15 @@ self.onmessage = async (e: MessageEvent) => {
 
   if (!fileCache[tCode]) {
     try {
-      // 1) FETCH – Use Supabase public URL structure for labels
-      const supabaseUrl = 'https://efvztudkmafxfcyglvcl.supabase.co/storage/v1/object/public/anointed';
-      const url = `${supabaseUrl}/labels/${tCode}/all.json`;
+      // 1) FETCH – Use correct Supabase URL and file path structure for labels
+      const supabaseUrl = 'https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed';
+      const url = `${supabaseUrl}/labels/${tCode}/ALL.json`;
       console.log(`📤 Worker: Fetching labels from ${url}`);
       const res = await fetch(url, { cache: 'force-cache' });
       
       if (!res.ok) {
         // If file doesn't exist, return empty data
-        console.warn(`Labels file not found for ${tCode}, returning empty data`);
+        console.warn(`⚠️ Worker: Labels file not found for ${tCode} at ${url} (Status: ${res.status}), returning empty data`);
         fileCache[tCode] = {};
         postMessage({ tCode, filtered: {} });
         return;

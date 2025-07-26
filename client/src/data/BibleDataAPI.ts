@@ -17,7 +17,7 @@ const paths = {
   verseKeysChronological: 'metadata/verseKeys-chronological.json',
   datesCanonical: 'metadata/dates-canonical.txt',
   datesChronological: 'metadata/dates-chronological.txt',
-  labels:       (translationCode: string) => `labels/${translationCode}/all.json`,
+  labels:       (translationCode: string) => `labels/${translationCode}/ALL.json`,
 };
 
 export async function fetchFromStorage(path: string): Promise<string> {
