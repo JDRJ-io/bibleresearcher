@@ -269,8 +269,8 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
   // Get labels for this verse if available
   const verseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
   
-  // Use LabeledText if we have active labels and label data
-  const shouldUseLabeledText = activeLabels && activeLabels.length > 0 && Object.keys(verseLabels).length > 0;
+  // Use LabeledText if we have active labels (don't require verseLabels yet, let component handle empty data)
+  const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
   
   console.log(`🏷️ MainTranslationCell for ${verse.reference}:`, {
     shouldUseLabeledText,

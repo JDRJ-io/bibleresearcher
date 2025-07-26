@@ -79,8 +79,10 @@ const VirtualBibleTable = ({
   // Labels system integration
   const { activeLabels } = useBibleStore();
   
-  // Debug activeLabels from store - URGENT DEBUG
-  console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels from store:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+  // Debug activeLabels from store - FORCE RENDER CHECK
+  useEffect(() => {
+    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels changed:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+  }, [activeLabels]);
   
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
@@ -101,11 +103,14 @@ const VirtualBibleTable = ({
     });
   }, [slice.verseIDs, rowData]);
   
-  console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
-    versesCount: sliceVerses.length,
-    activeLabels: activeLabels,
-    mainTranslation: translationMainTranslation || mainTranslation
-  });
+  // Force hook re-evaluation when activeLabels changes
+  useEffect(() => {
+    console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
+      versesCount: sliceVerses.length,
+      activeLabels: activeLabels,
+      mainTranslation: translationMainTranslation || mainTranslation
+    });
+  }, [activeLabels, sliceVerses.length, translationMainTranslation, mainTranslation]);
   
   const { getVerseLabels } = useViewportLabels({
     verses: sliceVerses, 
