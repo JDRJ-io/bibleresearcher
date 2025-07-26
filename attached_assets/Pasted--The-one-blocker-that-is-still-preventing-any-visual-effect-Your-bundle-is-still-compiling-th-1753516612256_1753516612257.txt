@@ -1,0 +1,88 @@
+### The one blocker that is still preventing any visual effect
+
+*Your bundle is still compiling the **old three‑prop stub** (`text + mask + segmentKey`) instead of the new five‑prop version.*
+
+* The stub lives at `client/src/components/bible/LabeledText.tsx` and is exactly the code you see in file .
+* **`VirtualRow.tsx`** (file ) imports **`./LabeledText`** and passes `text`, `labelData`, `activeLabels`, `verseKey`, `translationCode`.
+* At run time React therefore mounts the stub, which just echoes `text` and ignores everything else → no classes, no highlights.
+
+Everything upstream (store updates, Worker fetch, cache merge, hook calls) is proven to fire because you can see the console logs inside **VirtualBibleTable**  and **App** .
+The data dies in the final component.
+
+---
+
+## 60‑second repair
+
+1. **Delete** the stub file shown in .
+
+   ```bash
+   rm client/src/components/bible/LabeledText.tsx
+   ```
+2. **Add** the new implementation below **in exactly the same path**
+   (`client/src/components/bible/LabeledText.tsx`).
+   This guarantees the import in `VirtualRow` resolves to the correct code.
+
+```tsx
+import React from 'react';
+import { useLabeledText } from '@/hooks/useLabeledText';
+import { classesForMask } from '@/lib/labelRenderer';
+
+interface Props {
+  text: string;
+  labelData: Record<string, string[]>;
+  activeLabels: string[];
+  verseKey: string;
+  translationCode: string;
+}
+
+export function LabeledText({
+  text,
+  labelData,
+  activeLabels,
+  verseKey,
+}: Props) {
+  const segs = useLabeledText(text, labelData, activeLabels as any);
+
+  return (
+    <>
+      {segs.map((s) => {
+        const cls = classesForMask(s.mask);
+        const key = `${verseKey}-${s.start}-${s.mask}`;
+        return cls ? (
+          <span key={key} className={cls}>
+            {text.slice(s.start, s.end)}
+          </span>
+        ) : (
+          text.slice(s.start, s.end)
+        );
+      })}
+    </>
+  );
+}
+export default LabeledText;        // <- keep default so the import path stays identical
+```
+
+3. **Ensure** the helper modules referenced by this file exist:
+
+   * `client/src/hooks/useLabeledText.ts`  – the sweep‑line hook
+   * `client/src/lib/labelRenderer.ts`      – bitmask → CSS mapper
+
+   (Your diff already shows both were added.)
+
+4. **Confirm** that `label-effects.css` is imported in a global stylesheet or in `App.tsx`, otherwise you’ll have `<span class="fx-hand">` with no visual difference.
+
+5. `npm run dev` (or *Run* on Replit) → toggle **Who** or **What** → cursive or shadow highlight appears immediately.
+
+---
+
+## Sanity checks after the fix
+
+| Check               | Expected                                                                  |
+| ------------------- | ------------------------------------------------------------------------- |
+| DevTools → Elements | `<span class="fx-hand">God</span>` inside Gen 1:1 when **Who** is active. |
+| Network tab         | Only one request to `labels/KJV/ALL.json` per session.                    |
+| Memory              | Heap steady ≤ 5 MB after scrolling a few chapters.                        |
+
+No other code needs to change—the Worker, cache, hooks, and store are already correct.
+
+Once the stub is gone, everything you’ve built will finally render.

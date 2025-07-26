@@ -1,4 +1,3 @@
-// client/src/components/bible/LabeledText.tsx
 import React from 'react';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { classesForMask } from '@/lib/labelRenderer';
@@ -35,3 +34,4 @@ export function LabeledText({
     </>
   );
 }
+export default LabeledText;        // <- keep default so the import path stays identical
