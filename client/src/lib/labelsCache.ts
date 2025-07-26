@@ -35,11 +35,22 @@ export function ensureLabelCacheLoaded(
   const p = new Promise<void>((resolve) => {
     const handle = (e: MessageEvent) => {
       console.log(`📨 WORKER: Received message from worker:`, e.data);
+      
+      // Skip non-label messages  
+      if (e.data.type === 'FETCH_LABELS') {
+        console.log(`📨 WORKER: Ignoring FETCH_LABELS request from worker`);
+        return;
+      }
+      
       if (e.data.tCode !== tCode) return;
       
       // Merge worker results into cache
       cache[tCode] = { ...cache[tCode], ...e.data.filtered };
       console.log(`✅ WORKER: Cache updated for ${tCode}, verse count:`, Object.keys(e.data.filtered || {}).length);
+      
+      // Debug: Show example data
+      const examples = Object.entries(e.data.filtered || {}).slice(0, 3);
+      console.log(`🏷️ WORKER: Example label data:`, examples);
       
       worker.removeEventListener('message', handle);
       pending.delete(key);

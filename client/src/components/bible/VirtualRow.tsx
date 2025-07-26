@@ -273,15 +273,31 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
   // Use LabeledText if we have active labels (don't require verseLabels yet, let component handle empty data)
   const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
   
-  console.log(`🏷️ MainTranslationCell for ${verse.reference}:`, {
-    shouldUseLabeledText,
-    activeLabels: activeLabels?.length || 0,
-    verseLabels: Object.keys(verseLabels).length,
-    hasText: !!verseText,
-    getVerseLabelsFunction: !!getVerseLabels,
-    actualVerseLabels: verseLabels,
-    storeActiveLabels: store?.activeLabels
-  });
+  // Enhanced debug for Gen.1:1
+  if (verse.reference === "Gen.1:1" || verse.reference === "Gen 1:1") {
+    console.log(`🏷️ MainTranslationCell DEBUG for ${verse.reference}:`, {
+      shouldUseLabeledText,
+      activeLabels: activeLabels,
+      activeLabelsLength: activeLabels?.length || 0,
+      verseLabels: verseLabels,
+      verseLabelsKeys: Object.keys(verseLabels),
+      hasText: !!verseText,
+      getVerseLabelsFunction: !!getVerseLabels,
+      storeActiveLabels: store?.activeLabels,
+      verseText: verseText.substring(0, 50) + '...'
+    });
+    
+    // Try different reference formats
+    const altRef1 = verse.reference.replace('.', ' ');
+    const altRef2 = verse.reference.replace(' ', '.');
+    console.log('🏷️ Trying alternate references:', {
+      original: verse.reference,
+      alt1: altRef1,
+      alt1Labels: getVerseLabels ? getVerseLabels(altRef1) : null,
+      alt2: altRef2,
+      alt2Labels: getVerseLabels ? getVerseLabels(altRef2) : null
+    });
+  }
 
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>

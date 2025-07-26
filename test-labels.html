@@ -1,55 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Labels File</title>
+    <title>Test Labels System</title>
 </head>
 <body>
-    <h1>Testing Labels File Access</h1>
-    <button onclick="testLabelsFile()">Test KJV Labels File</button>
-    <div id="result"></div>
-
-    <script>
-        async function testLabelsFile() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = 'Testing...';
-            
-            try {
-                const url = 'https://efvztudkmafxfcyglvcl.supabase.co/storage/v1/object/public/anointed/labels/KJV/all.json';
-                console.log('Fetching:', url);
+    <h1>Testing Labels System</h1>
+    <div id="output"></div>
+    <div id="verse-sample" style="margin-top: 20px; padding: 20px; border: 1px solid #ccc;">
+        <h2>Genesis 1:1 Sample</h2>
+        <p id="gen11">In the beginning God created the heaven and the earth.</p>
+    </div>
+    
+    <script type="module">
+        const output = document.getElementById('output');
+        
+        // Test 1: Load label data directly
+        output.innerHTML += '<h3>Test 1: Loading label data from Supabase...</h3>';
+        
+        fetch('https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/labels/KJV/ALL.json')
+            .then(res => res.json())
+            .then(data => {
+                output.innerHTML += `<p>✅ Loaded ${Object.keys(data).length} verses with labels</p>`;
                 
-                const response = await fetch(url);
-                console.log('Response status:', response.status);
-                console.log('Response headers:', [...response.headers]);
+                // Show Gen.1:1 labels
+                const gen11Labels = data['Gen.1:1'];
+                output.innerHTML += '<h4>Genesis 1:1 labels:</h4>';
+                output.innerHTML += '<pre>' + JSON.stringify(gen11Labels, null, 2) + '</pre>';
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // Apply "what" labels to the sample verse
+                if (gen11Labels && gen11Labels.what) {
+                    const verseEl = document.getElementById('gen11');
+                    let html = verseEl.textContent;
+                    
+                    // Apply styling to each "what" phrase
+                    gen11Labels.what.forEach(phrase => {
+                        const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+                        html = html.replace(regex, `<span style="text-shadow: 0 0 3px green; border: 1px solid green; padding: 0 2px; border-radius: 2px;">${phrase}</span>`);
+                    });
+                    
+                    verseEl.innerHTML = html;
+                    output.innerHTML += '<p>✅ Applied "what" styling to sample verse above</p>';
                 }
                 
-                const text = await response.text();
-                console.log('Response text length:', text.length);
-                console.log('First 200 chars:', text.substring(0, 200));
+                // Test 2: Create and test worker
+                output.innerHTML += '<h3>Test 2: Testing Web Worker...</h3>';
                 
-                const data = JSON.parse(text);
-                console.log('Parsed JSON keys:', Object.keys(data).length);
-                console.log('First few keys:', Object.keys(data).slice(0, 5));
-                
-                resultDiv.innerHTML = `
-                    <h3>Success!</h3>
-                    <p>File size: ${text.length} characters</p>
-                    <p>Verses with labels: ${Object.keys(data).length}</p>
-                    <p>First few verses: ${Object.keys(data).slice(0, 5).join(', ')}</p>
-                    <h4>Sample verse data (Gen.1:1):</h4>
-                    <pre>${JSON.stringify(data['Gen.1:1'] || data['Gen.1.1'] || 'Not found', null, 2)}</pre>
+                const workerCode = `
+                self.onmessage = async (e) => {
+                    const { tCode, active } = e.data;
+                    
+                    try {
+                        const url = 'https://ecaqvxbbscwcxbjpfrdm.supabase.co/storage/v1/object/public/anointed/labels/' + tCode + '/ALL.json';
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        
+                        // Filter for active labels
+                        const filtered = {};
+                        for (const [verse, labels] of Object.entries(data)) {
+                            const slim = {};
+                            for (const activeLabel of active) {
+                                if (labels[activeLabel]?.length) {
+                                    slim[activeLabel] = labels[activeLabel];
+                                }
+                            }
+                            if (Object.keys(slim).length) {
+                                filtered[verse] = slim;
+                            }
+                        }
+                        
+                        self.postMessage({ tCode, filtered });
+                    } catch (error) {
+                        self.postMessage({ tCode, filtered: {}, error: error.message });
+                    }
+                };
                 `;
                 
-            } catch (error) {
-                console.error('Error:', error);
-                resultDiv.innerHTML = `
-                    <h3>Error!</h3>
-                    <p style="color: red;">${error.message}</p>
-                `;
-            }
-        }
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const worker = new Worker(URL.createObjectURL(blob));
+                
+                worker.onmessage = (e) => {
+                    if (e.data.error) {
+                        output.innerHTML += `<p>❌ Worker error: ${e.data.error}</p>`;
+                    } else {
+                        output.innerHTML += `<p>✅ Worker filtered ${Object.keys(e.data.filtered).length} verses with "what" labels</p>`;
+                        
+                        // Show first 3 examples
+                        const examples = Object.entries(e.data.filtered).slice(0, 3);
+                        output.innerHTML += '<h4>First 3 filtered verses:</h4>';
+                        examples.forEach(([verse, labels]) => {
+                            output.innerHTML += `<p><strong>${verse}:</strong> ${JSON.stringify(labels)}</p>`;
+                        });
+                    }
+                    worker.terminate();
+                };
+                
+                worker.postMessage({ tCode: 'KJV', active: ['what'] });
+            })
+            .catch(err => {
+                output.innerHTML += `<p>❌ Error: ${err.message}</p>`;
+            });
     </script>
 </body>
 </html>

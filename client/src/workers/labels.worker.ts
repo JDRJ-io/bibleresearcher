@@ -43,15 +43,24 @@ self.onmessage = async (e: MessageEvent) => {
   const wanted = new Set(active);
   const filtered: Record<string, Record<string, string[]>> = {};
   
+  console.log(`🔍 Worker: Filtering for active labels:`, active, 'from', Object.keys(src).length, 'verses');
+  
   for (const [vKey, entry] of Object.entries(src)) {
     const slim: Record<string, string[]> = {};
     wanted.forEach(lbl => {
-      if (entry[lbl]?.length) slim[lbl] = entry[lbl];
+      if (entry[lbl]?.length) {
+        slim[lbl] = entry[lbl];
+      }
     });
-    if (Object.keys(slim).length) filtered[vKey] = slim;
+    if (Object.keys(slim).length) {
+      filtered[vKey] = slim;
+    }
   }
 
+  // Show example of filtered data
+  const examples = Object.entries(filtered).slice(0, 3);
   console.log(`✅ Worker: Filtered ${Object.keys(filtered).length} verses with active labels for ${tCode}`);
+  console.log(`🏷️ Worker: Example filtered data:`, examples);
 
   // 4) POST back to main thread
   postMessage({ tCode, filtered });

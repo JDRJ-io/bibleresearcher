@@ -18,6 +18,17 @@ export function useLabeledText(
 ): Segment[] {
 
   return useMemo(() => {
+    // Debug logging for Gen.1:1
+    if (text && text.includes("In the beginning")) {
+      console.log('🎯 useLabeledText DEBUG:', {
+        text: text.substring(0, 50) + '...',
+        labelData,
+        activeLabels,
+        hasLabelData: !!labelData && Object.keys(labelData).length > 0,
+        activeLabelsLength: activeLabels.length
+      });
+    }
+    
     if (!text || activeLabels.length === 0) {
       return [{ start: 0, end: text.length, mask: 0 }];
     }
@@ -29,6 +40,12 @@ export function useLabeledText(
     activeLabels.forEach(lbl => {
       const bit = LabelBits[lbl];
       const phrases = labelData?.[lbl] || [];
+      
+      // Debug what phrases we're looking for
+      if (text && text.includes("In the beginning") && phrases.length > 0) {
+        console.log(`🎯 Looking for ${lbl} phrases:`, phrases);
+      }
+      
       phrases.forEach(ph => {
         if (!ph) return;
         const re = new RegExp(
