@@ -12,7 +12,7 @@
   /* Ensure column headers are positioned correctly below top header */
   .column-headers-container {
     position: sticky !important;
-    top: var(--top-header-height-mobile) !important;
+    top: 0 !important; /* Remove duplicate offset - virtual list already handles spacing */
     z-index: 40 !important; /* Below top header (z-50) but above content */
     height: var(--column-header-height) !important;
     background: white !important;

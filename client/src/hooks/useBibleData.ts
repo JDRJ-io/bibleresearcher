@@ -585,7 +585,7 @@ const loadProphecyDataOnDemand = async () => {
   try {
     console.log("Loading prophecy data on-demand from Supabase...");
 
-    // Load both prophecy files
+    // Load both prophecy files using BibleDataAPI
     const { getProphecyIndex, getProphecyRows } = await import('@/data/BibleDataAPI');
     const [index, rows] = await Promise.all([
       getProphecyIndex(),

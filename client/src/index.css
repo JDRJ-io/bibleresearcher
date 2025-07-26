@@ -825,7 +825,7 @@ body {
     /* Ensure column headers don't have conflicting positioning */
     .column-headers-container {
       position: sticky !important;
-      top: 48px !important;
+      top: 0 !important; /* Remove duplicate offset - virtual list handles spacing */
     }
   }
 
