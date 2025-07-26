@@ -437,12 +437,6 @@ export async function loadProphecyIndex() {
   });
 }
 
-  } catch (error) {
-    console.error('❌ Failed to load prophecy data:', error);
-    return { verseRoles: {}, prophecyIndex: {} };
-  }
-}
-
 // Cross-reference slice loader
 export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
   const fullText = await loadCrossReferences(cfSet);
