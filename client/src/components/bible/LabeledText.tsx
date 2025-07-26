@@ -35,4 +35,5 @@ export function LabeledText({
     </>
   );
 }
-export default LabeledText;        // <- keep default so the import path stays identical
+
+export default LabeledText;
