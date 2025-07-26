@@ -1,7 +1,5 @@
-// client/src/lib/labelRenderer.ts
-import { LabelBits, LabelMask } from './labelBits';
+import { LabelBits, LabelMask } from '@/lib/labelBits';
 
-/** Translate a 10-bit mask → space-separated CSS class list */
 export function classesForMask(mask: LabelMask): string {
   if (!mask) return '';
   const cls: string[] = [];
