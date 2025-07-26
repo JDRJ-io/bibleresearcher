@@ -384,6 +384,14 @@ const VirtualBibleTable = ({
     mainTranslation: translationState.main
   });
 
+  // Mobile detection
+  const isMobile = useIsMobile();
+
+  // Determine header height based on mobile status
+  const topHeaderHeight = isMobile ? 48 : 64;
+  // Remove duplicate offset - CSS already positions column headers correctly
+  const virtualListPadding = isMobile ? 0 : topHeaderHeight;
+
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
       <ColumnHeaders 
