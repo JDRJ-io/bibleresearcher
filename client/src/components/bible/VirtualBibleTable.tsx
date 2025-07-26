@@ -406,7 +406,7 @@ const VirtualBibleTable = ({
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
           touchAction: "pan-y", 
-          marginTop: isMobile ? '56px' : '52px', // Add space for column headers
+          marginTop: '64px', // Consistent space for column headers on both mobile and desktop
           height: "calc(100vh - 85px)",
           overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
           overflowY: 'auto'
