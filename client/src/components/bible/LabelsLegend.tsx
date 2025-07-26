@@ -24,8 +24,10 @@ const labelConfig = [
 ];
 
 export function LabelsLegend({ className = '' }: LabelsLegendProps) {
-  const { activeLabels, setActiveLabels, translationState } = useBibleStore();
-  const mainTranslation = translationState.main;
+  const store = useBibleStore();
+  const activeLabels = store.activeLabels || [];
+  const setActiveLabels = store.setActiveLabels;
+  const mainTranslation = store.translationState?.main;
   
   // Track previous translation to detect changes
   const [prevTranslation, setPrevTranslation] = React.useState<string | null>(null);
@@ -98,21 +100,27 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
         Semantic Labels
       </div>
       
-      {/* Debug button to test store */}
+      {/* FORCE LABELS TO WORK */}
       <button
         onClick={() => {
-          console.log('🔴 MANUAL TEST - Current store state:', useBibleStore.getState());
-          console.log('🔴 MANUAL TEST - activeLabels from hook:', activeLabels);
-          // Force update with test label
-          setActiveLabels(['what']);
+          console.log('🔥 FORCING LABEL TEST');
+          const newLabels = ['what'] as LabelName[];
+          setActiveLabels(newLabels);
+          
+          // Force UI refresh
           setTimeout(() => {
-            console.log('🔴 MANUAL TEST - After setActiveLabels(["what"]):', useBibleStore.getState().activeLabels);
+            const storeState = useBibleStore.getState();
+            console.log('🔥 AFTER FORCE - Store activeLabels:', storeState.activeLabels);
+            
+            // Trigger a re-render of VirtualBibleTable
+            window.dispatchEvent(new CustomEvent('labelsChanged', { detail: { activeLabels: newLabels }}));
           }, 100);
         }}
-        className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+        className="bg-green-500 text-white px-4 py-2 rounded font-bold hover:bg-green-600"
       >
-        DEBUG: Force Set "What" Label
+        ACTIVATE "WHAT" LABEL NOW
       </button>
+
       
       {/* Compact Toggle Grid - 2 columns for easy clicking */}
       <div className="grid grid-cols-2 gap-2">
