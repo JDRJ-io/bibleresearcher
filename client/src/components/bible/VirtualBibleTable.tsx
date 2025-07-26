@@ -79,6 +79,9 @@ const VirtualBibleTable = ({
   // Labels system integration
   const { activeLabels } = useBibleStore();
   
+  // Debug activeLabels from store
+  console.log('🔍 VirtualBibleTable activeLabels from store:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+  
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
     return slice.verseIDs.map(verseID => {
@@ -98,9 +101,15 @@ const VirtualBibleTable = ({
     });
   }, [slice.verseIDs, rowData]);
   
+  console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
+    versesCount: sliceVerses.length,
+    activeLabels: activeLabels,
+    mainTranslation: translationMainTranslation || mainTranslation
+  });
+  
   const { getVerseLabels } = useViewportLabels({
     verses: sliceVerses, 
-    activeLabels, 
+    activeLabels: activeLabels || [], 
     mainTranslation: translationMainTranslation || mainTranslation
   });
   const totalHeight = verseKeys.length * ROW_HEIGHT;
