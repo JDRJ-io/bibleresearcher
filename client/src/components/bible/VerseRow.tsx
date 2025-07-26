@@ -44,7 +44,16 @@ export function VerseRow({
   // Use main translation from Bible store for consistency
   const mainTranslation = translationState.main;
   
-  // Labels are now loaded at the viewport level, not per verse
+  // Ensure labels cache is loaded when labels are active
+  useEffect(() => {
+    if (activeLabels && activeLabels.length > 0 && mainTranslation) {
+      selectedTranslations.forEach(translation => {
+        ensureLabelCacheLoaded(translation.id).catch(error => {
+          console.error(`Failed to load labels for ${translation.id}:`, error);
+        });
+      });
+    }
+  }, [activeLabels, mainTranslation, selectedTranslations]);
 
   // Create preferences object for consistency
   const preferences = {
@@ -95,8 +104,10 @@ export function VerseRow({
       {selectedTranslations.map((translation) => {
         const verseText = verse.text[translation.id];
         
-        // Get label data for this verse using viewport labels hook
+        // Get label data for this verse using the cached labels
         const labelData = useMemo(() => {
+          if (!activeLabels || activeLabels.length === 0) return {};
+          
           const data: Partial<Record<LabelName, string[]>> = {};
           
           // Only populate active labels to avoid unnecessary processing
@@ -252,7 +263,7 @@ export function VerseRow({
                   {(activeLabels as LabelName[]).map((labelName) => {
                     const labelValues = getLabel(mainTranslation, verse.reference, labelName);
                     
-                    if (labelValues.length > 0) {
+                    if (labelValues && labelValues.length > 0) {
                       return (
                         <div key={labelName} className="mb-2">
                           <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">

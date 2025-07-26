@@ -51,10 +51,19 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
     const currentLabels = activeLabels || [];
     if (currentLabels.includes(labelKey)) {
       // Remove the label
+      console.log(`🏷️ Removing label: ${labelKey}`);
       setActiveLabels(currentLabels.filter(label => label !== labelKey));
     } else {
       // Add the label
+      console.log(`🏷️ Adding label: ${labelKey}`);
       setActiveLabels([...currentLabels, labelKey]);
+      
+      // Ensure cache is loaded when adding a label
+      if (mainTranslation) {
+        ensureLabelCacheLoaded(mainTranslation).catch(error => {
+          console.error('Failed to load labels for main translation:', error);
+        });
+      }
     }
   };
 
