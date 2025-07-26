@@ -1,7 +1,8 @@
+
 /**
  * Memory-Optimized Theme System
- * Professionally curated themes with minimal memory footprint
- * Eliminates redundant CSS and focuses on performance
+ * Curated themes with minimal memory footprint and enhanced visual depth
+ * Removes: midnight, cyber, cyberpunk, forest (old), parchment themes
  */
 
 /* Reset and base styles for all themes */
@@ -18,7 +19,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* Optimized transitions - only essential properties */
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -35,16 +35,24 @@ body {
   color-scheme: light;
 }
 
-.midnight {
+.electric {
   color-scheme: dark;
 }
 
-.forest {
+.rainbow {
   color-scheme: dark;
 }
 
-.cyber {
+.aurora {
   color-scheme: dark;
+}
+
+.meadow {
+  color-scheme: light;
+}
+
+.scroll {
+  color-scheme: light;
 }
 
 /* Optimized component styling using CSS variables */
@@ -75,20 +83,22 @@ body {
 }
 
 /* Sepia theme specific adjustments */
-.sepia .verse-text {
+.sepia .verse-text,
+.scroll .verse-text {
   line-height: 1.7;
   letter-spacing: 0.01em;
 }
 
-/* Cyber theme specific adjustments */
-.cyber .verse-text {
+/* Electric theme specific adjustments */
+.electric .verse-text {
   letter-spacing: 0.02em;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  text-shadow: 0 0 1px rgba(255, 216, 0, 0.3);
 }
 
-/* Forest theme specific adjustments */
-.forest .verse-text {
+/* Meadow theme specific adjustments */
+.meadow .verse-text {
   line-height: 1.65;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.5);
 }
 
 /* Memory-efficient cross-reference styling */
@@ -105,18 +115,15 @@ body {
   background: var(--highlight-bg);
 }
 
-/* Optimized font loading for premium themes */
+/* Optimized font loading for enhanced themes */
 @media (min-width: 768px) {
-  .sepia {
+  .sepia,
+  .scroll {
     font-family: 'Crimson Text', 'Times New Roman', serif;
   }
   
-  .forest {
+  .meadow {
     font-family: 'Source Sans Pro', 'Lato', sans-serif;
-  }
-  
-  .cyber {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
   }
 }
 
@@ -148,16 +155,6 @@ body {
   }
 }
 
-/* Performance indicators for development */
-@media (max-width: 768px) {
-  .performance-warning {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    opacity: 0.7;
-  }
-}
-
 /* Essential utility classes */
 .text-primary { color: var(--text-primary); }
 .text-secondary { color: var(--text-secondary); }
@@ -166,17 +163,34 @@ body {
 .border-color { border-color: var(--border-color); }
 .accent-color { color: var(--accent-color); }
 
-/* Clean up any legacy theme classes */
-.light-mode,
-.dark-mode,
-.sepia-mode,
-.parchment-mode,
-.forest-mode,
-.aurora-mode,
-.cyber-mode,
-.rainbow-mode,
-.midnight-mode,
-.electric-mode {
-  /* Legacy theme classes - will be cleaned up by ThemeManager */
-  display: contents;
+/* Aurora theme enhanced effects */
+.aurora .verse-text {
+  text-shadow: 0 0 2px rgba(0, 255, 226, 0.3);
+}
+
+/* Rainbow theme enhanced effects */
+.rainbow .verse-text {
+  background: linear-gradient(90deg, #FADADD, #FFF3B0, #D4E4D1, #D0E8F2, #E8D5F0);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow-text 15s linear infinite;
+}
+
+@keyframes rainbow-text {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 25% 0%; }
+  50% { background-position: 50% 50%; }
+  75% { background-position: 75% 100%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Motion-safe fallbacks */
+@media (prefers-reduced-motion: reduce) {
+  .rainbow .verse-text {
+    animation: none !important;
+    background: none !important;
+    color: hsl(50, 95%, 88%) !important;
+  }
 }

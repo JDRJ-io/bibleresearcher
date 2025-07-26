@@ -57,13 +57,6 @@ export function VerseRow({
     e.preventDefault();
     e.stopPropagation();
     console.log(`🔍 VerseRow double-click for ${verse.reference} - opening Strong's overlay`);
-    console.log(`🔍 Full verse object:`, { 
-      id: verse.id, 
-      reference: verse.reference, 
-      book: verse.book, 
-      chapter: verse.chapter, 
-      verse: verse.verse 
-    });
     onExpandVerse(verse);
   };
 
