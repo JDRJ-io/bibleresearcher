@@ -33,7 +33,7 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
 
     // Determine screen size using same logic as VirtualRow
     let screenSize = "desktop";
-    if (viewportWidth < 768) {
+    if (viewportWidth < 640) {
       screenSize = "mobile";
     } else if (viewportWidth < 1024) {
       screenSize = "tablet";
@@ -133,7 +133,7 @@ export function ColumnHeaders({
   isGuest = true,
 }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
   // Make headers adaptive to screen size changes
   const [screenWidth, setScreenWidth] = useState(
@@ -151,7 +151,7 @@ export function ColumnHeaders({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const adaptiveIsMobile = screenWidth < 768;
+  const adaptiveIsMobile = screenWidth < 640;
 
   // Get store states for column visibility
   const {
@@ -453,16 +453,15 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find((col) => col.slot === 0);
   const otherColumns = allColumns.filter((col) => col.slot !== 0);
 
-  // Let CSS handle the top positioning via mobile-headers.css
+  // Let CSS handle positioning via mobile-headers.css - no inline styles that override
 
   return (
     <div
       className={`column-headers column-headers-container sticky z-40 bg-background border-b shadow-sm`}
       style={{
         left: -scrollLeft,
-        position: "sticky",
         width: "100%",
-        height: adaptiveIsMobile ? "40px" : "40px",
+        height: "40px", // Consistent height, let CSS handle positioning
       }}
     >
       <div className="overflow-hidden w-full h-full flex">
