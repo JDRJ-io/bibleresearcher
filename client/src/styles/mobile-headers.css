@@ -10,6 +10,7 @@
 /* Mobile-specific header positioning */
 @media (max-width: 640px) {
   /* Ensure column headers are positioned correctly below top header */
+  .column-headers,
   .column-headers-container {
     position: sticky !important;
     top: var(--top-header-height-mobile) !important;
@@ -17,6 +18,8 @@
     height: var(--column-header-height) !important;
     background: white !important;
     border-bottom: 1px solid #e5e7eb !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 
   /* Dark mode support */

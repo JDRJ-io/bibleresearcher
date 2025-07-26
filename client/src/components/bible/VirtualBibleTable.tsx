@@ -385,7 +385,7 @@ const VirtualBibleTable = ({
   });
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
+    <div className={`virtual-bible-table ${className}`}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
@@ -395,7 +395,6 @@ const VirtualBibleTable = ({
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
-        topHeaderHeight={72}
       />
 
       <div 
@@ -406,9 +405,8 @@ const VirtualBibleTable = ({
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
           touchAction: "pan-y", 
-          marginTop: '-1px',
-          height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
+          height: "calc(100vh - 84px)", // Adjusted to match CSS header heights
+          overflowX: 'auto',
           overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
