@@ -323,7 +323,10 @@ export const useBibleStore = create<{
     translations: { ...state.translations, [id]: data }
   })),
   getAllActive: () => get().actives,
-  setActiveLabels: (labels: string[]) => set({ activeLabels: labels }),
+  setActiveLabels: (labels: LabelName[]) => {
+    console.log('🔍🔍🔍 STORE DEBUG - setActiveLabels called with:', labels, 'type:', typeof labels, 'length:', labels?.length);
+    set({ activeLabels: labels });
+  },
 
   // UI Layout Spec Column State - Notes between Ref and Main Translation
   columnState: {

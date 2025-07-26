@@ -276,7 +276,9 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
     shouldUseLabeledText,
     activeLabels: activeLabels?.length || 0,
     verseLabels: Object.keys(verseLabels).length,
-    hasText: !!verseText
+    hasText: !!verseText,
+    getVerseLabelsFunction: !!getVerseLabels,
+    actualVerseLabels: verseLabels
   });
 
   return (

@@ -22,7 +22,13 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
 
   // Load labels when translation or active labels change
   useEffect(() => {
-    console.log('🔄 WORKER: useViewportLabels effect triggered', { activeLabels, mainTranslation, verseCount: verses.length });
+    console.log('🔄 WORKER: useViewportLabels effect triggered', { 
+      activeLabels, 
+      activeLabelsLength: activeLabels.length,
+      mainTranslation, 
+      verseCount: verses.length,
+      verseKeysFirst3: verseKeys.slice(0, 3)
+    });
     
     if (activeLabels.length === 0 || !mainTranslation) {
       console.log('🔄 WORKER: No active labels, clearing data');
