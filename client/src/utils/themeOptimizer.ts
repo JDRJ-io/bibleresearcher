@@ -60,7 +60,7 @@ export class ThemeManager {
       id: 'sepia',
       name: 'Sepia',
       priority: 'enhanced',
-      memoryFootprint: 'low',
+      memoryFootprint: 'medium',
       fontFamily: 'Crimson Text, Times New Roman, serif',
       variables: {
         '--bg-primary': 'hsl(45, 15%, 96%)',
@@ -73,19 +73,51 @@ export class ThemeManager {
       }
     },
     {
-      id: 'electric',
-      name: 'Electric',
+      id: 'midnight',
+      name: 'Midnight',
       priority: 'enhanced',
       memoryFootprint: 'medium',
       fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
       variables: {
-        '--bg-primary': '#0A0F2C',
-        '--bg-secondary': '#112D5C',
-        '--text-primary': '#FFFBE6',
-        '--text-secondary': '#E6E1C5',
-        '--border-color': '#2A3F5F',
-        '--accent-color': '#FFD800',
-        '--highlight-bg': 'rgba(255,216,0,0.15)'
+        '--bg-primary': 'hsl(220, 25%, 12%)',
+        '--bg-secondary': 'hsl(220, 30%, 8%)',
+        '--text-primary': 'hsl(213, 31%, 91%)',
+        '--text-secondary': 'hsl(215, 20%, 65%)',
+        '--border-color': 'hsl(215, 28%, 17%)',
+        '--accent-color': 'hsl(45, 100%, 70%)',
+        '--highlight-bg': 'hsl(220, 20%, 20%)'
+      }
+    },
+    {
+      id: 'forest',
+      name: 'Forest',
+      priority: 'premium',
+      memoryFootprint: 'high',
+      fontFamily: 'Source Sans Pro, Lato, sans-serif',
+      variables: {
+        '--bg-primary': 'hsl(150, 85%, 2%)',
+        '--bg-secondary': 'hsl(145, 75%, 4%)',
+        '--text-primary': 'hsl(45, 85%, 88%)',
+        '--text-secondary': 'hsl(48, 65%, 72%)',
+        '--border-color': 'hsl(135, 70%, 22%)',
+        '--accent-color': 'hsl(40, 90%, 70%)',
+        '--highlight-bg': 'hsl(140, 20%, 18%)'
+      }
+    },
+    {
+      id: 'cyber',
+      name: 'Cyber',
+      priority: 'premium',
+      memoryFootprint: 'high',
+      fontFamily: 'JetBrains Mono, Courier New, monospace',
+      variables: {
+        '--bg-primary': 'hsl(210, 100%, 1%)',
+        '--bg-secondary': 'hsl(205, 95%, 2%)',
+        '--text-primary': 'hsl(180, 100%, 85%)',
+        '--text-secondary': 'hsl(185, 70%, 60%)',
+        '--border-color': 'hsl(185, 30%, 25%)',
+        '--accent-color': 'hsl(315, 70%, 70%)',
+        '--highlight-bg': 'hsl(185, 40%, 18%)'
       }
     },
     {
@@ -118,6 +150,22 @@ export class ThemeManager {
         '--border-color': 'hsl(200, 50%, 30%)',
         '--accent-color': 'hsl(175, 85%, 65%)',
         '--highlight-bg': 'hsl(200, 40%, 18%)'
+      }
+    },
+    {
+      id: 'cyberpunk',
+      name: 'Cyberpunk',
+      priority: 'premium',
+      memoryFootprint: 'high',
+      fontFamily: 'JetBrains Mono, SF Mono, Monaco, Cascadia Code, monospace',
+      variables: {
+        '--bg-primary': '#0d0b24',
+        '--bg-secondary': '#1d183f',
+        '--text-primary': '#e5e5f7',
+        '--text-secondary': '#c9c9e0',
+        '--border-color': '#3a3475',
+        '--accent-color': '#00ffe2',
+        '--highlight-bg': 'rgba(25,19,71,0.65)'
       }
     },
     {
@@ -209,25 +257,15 @@ export class ThemeManager {
     const root = document.documentElement;
     const body = document.body;
     
-    // Remove all possible theme classes efficiently
+    // Remove theme classes efficiently
     this.themes.forEach(theme => {
       root.classList.remove(theme.id, `${theme.id}-mode`);
       body.classList.remove(theme.id, `${theme.id}-mode`);
-    });
-    
-    // Also remove legacy theme classes
-    const legacyThemes = ['light-mode', 'dark-mode', 'sepia-mode', 'parchment-mode', 
-                         'forest-mode', 'aurora-mode', 'cyber-mode', 'rainbow-mode', 
-                         'midnight-mode', 'electric-mode'];
-    legacyThemes.forEach(className => {
-      root.classList.remove(className);
-      body.classList.remove(className);
     });
   }
 
   private applyThemeVariables(theme: OptimizedTheme): void {
     const root = document.documentElement;
-    const body = document.body;
     
     // Batch CSS variable updates
     requestAnimationFrame(() => {
@@ -236,10 +274,9 @@ export class ThemeManager {
         this.cssVariableCache.set(property, value);
       });
       
-      // Add theme class for CSS selectors (both variants for compatibility)
+      // Add theme class for CSS selectors
       root.classList.add(theme.id);
-      body.classList.add(theme.id);
-      body.classList.add(`${theme.id}-mode`);
+      document.body.classList.add(theme.id);
     });
   }
 
