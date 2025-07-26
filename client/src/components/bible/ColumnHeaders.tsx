@@ -453,17 +453,23 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find((col) => col.slot === 0);
   const otherColumns = allColumns.filter((col) => col.slot !== 0);
 
-  // Let CSS handle positioning via mobile-headers.css - no inline styles that override
-
+  // Ensure headers align with table content using transform for horizontal scroll
   return (
     <div
       className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
       style={{
-        left: -scrollLeft,
+        top: adaptiveIsMobile ? "48px" : "64px",
+        height: "36px",
         width: "100%",
       }}
     >
-      <div className="column-headers-container overflow-hidden w-full h-full flex">
+      <div 
+        className="overflow-hidden w-full h-full flex"
+        style={{
+          transform: shouldCenter ? "none" : `translateX(-${Math.round(scrollLeft)}px)`,
+          willChange: shouldCenter ? "auto" : "transform",
+        }}
+      >
         {shouldCenter ? (
           // Centered layout for few columns
           <div className="flex justify-center w-full h-full">
@@ -479,14 +485,8 @@ export function ColumnHeaders({
             </div>
           </div>
         ) : (
-          // Left-anchored layout - let CSS handle positioning
-          <div
-            className="flex min-w-max h-full"
-            style={{
-              transform: `translateX(-${Math.round(scrollLeft)}px)`,
-              willChange: "transform",
-            }}
-          >
+          // Left-anchored layout - headers follow table scroll
+          <div className="flex min-w-max h-full">
             {allColumns.map((column) => (
               <HeaderCell
                 key={`slot-${column.slot}`}
