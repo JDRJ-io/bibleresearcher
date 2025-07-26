@@ -1,100 +1,70 @@
-/* ---------- Bitmap-based label effects ---------- */
+/* Label Effects CSS - Semantic highlighting visual styles */
+
+/* who → bold text */
 .fx-hand {
-  font-family: 'Homemade Apple', 'Bradley Hand', cursive;
-  font-weight: bold; 
-  cursor: pointer;
+  font-weight: 700;
 }
 
+/* what → outline */  
 .fx-shadow {
-  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.25);
-  outline: 1px solid rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+  outline: 1px solid currentColor;
   outline-offset: 1px;
 }
 
+/* when → underline */
 .fx-under {
   text-decoration: underline;
-  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
 }
 
+/* where → curly braces */
+.fx-bracket::before {
+  content: '{';
+  opacity: 0.6;
+}
+.fx-bracket::after {
+  content: '}';
+  opacity: 0.6;
+}
+
+/* command → bold */
 .fx-bold {
   font-weight: 700;
-  text-shadow: 0.5px 0 0 currentColor;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
+/* action → italic */
 .fx-ital {
   font-style: italic;
 }
 
+/* why → outline */
 .fx-outline {
-  -webkit-text-stroke: 1px currentColor;
-  text-shadow: 
-    1px 0 0 currentColor,
-    -1px 0 0 currentColor,
-    0 1px 0 currentColor,
-    0 -1px 0 currentColor;
-  font-weight: bold;
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
 }
 
-/* ---------- Brackets: outer wrapper ---------- */
-.fx-bracket::before {
-  content: '[';
-}
-
-.fx-bracket::after {
-  content: ']';
-}
-
-/* ---------- Superscript markers (consistent ::after) ---------- */
-.sup-seed::after {
+/* seed → superscript * */
+.sup-seed::before {
   content: '*';
-  font-size: 0.75em;
   vertical-align: super;
-  margin-left: 2px;
-  color: #ef4444;
+  font-size: 0.7em;
+  margin-right: 2px;
 }
 
-.sup-harvest::after {
+/* harvest → superscript = */
+.sup-harvest::before {
   content: '=';
-  font-size: 0.75em;
   vertical-align: super;
-  margin-left: 2px;
-  color: #10b981;
+  font-size: 0.7em;
+  margin-right: 2px;
 }
 
-.sup-predict::after {
+/* prediction → superscript ~ */
+.sup-predict::before {
   content: '~';
-  font-size: 0.75em;
   vertical-align: super;
-  margin-left: 2px;
-  color: #8b5cf6;
-}
-
-/* Keep wrappers inline without breaking line height */
-.fx-hand,
-.fx-shadow,
-.fx-under,
-.fx-bold,
-.fx-ital,
-.fx-outline,
-.sup-seed,
-.sup-harvest,
-.sup-predict,
-.fx-bracket {
-  display: inline;
-  line-height: inherit;
-}
-
-/* Dark mode adjustments */
-.dark .fx-shadow {
-  text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.15);
-  outline: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .fx-outline {
-  -webkit-text-stroke: 1px currentColor;
-  text-shadow: 
-    1px 0 0 currentColor,
-    -1px 0 0 currentColor,
-    0 1px 0 currentColor,
-    0 -1px 0 currentColor;
+  font-size: 0.7em;
+  margin-right: 2px;
 }

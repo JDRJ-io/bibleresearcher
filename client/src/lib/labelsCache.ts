@@ -1,4 +1,4 @@
-import { BibleDataAPI } from '@/data/BibleDataAPI';
+import { getLabelsData } from '@/data/BibleDataAPI';
 
 export type LabelName = 'who' | 'what' | 'when' | 'where' | 'command' | 'action' | 'why' | 'seed' | 'harvest' | 'prediction';
 export type LabelEntry = Record<LabelName, string[]>;
@@ -27,7 +27,7 @@ export async function ensureLabelCacheLoaded(translationCode: string): Promise<v
 
   try {
     // Use BibleDataAPI instead of direct Supabase calls
-    const parsedLabels = await BibleDataAPI.getLabelsData(translationCode) as LabelMap;
+    const parsedLabels = await getLabelsData(translationCode) as LabelMap;
     labelCache[translationCode] = parsedLabels;
   } catch (error) {
     console.error(`Error loading labels for ${translationCode}:`, error);

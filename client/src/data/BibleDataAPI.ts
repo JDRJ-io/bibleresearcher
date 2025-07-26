@@ -176,31 +176,10 @@ export async function getLabelsData(translation: string = 'KJV'): Promise<any> {
       console.log(`✅ BibleDataAPI: Loaded ${Object.keys(parsed).length} verse labels for ${translation}`);
       return parsed;
     } catch (error) {
-      console.warn(`⚠️ BibleDataAPI: Labels file not found for ${translation} at ${paths.labels(translation)}. Creating test data for development.`);
-      
-      // Create test data for development so we can see the system working
-      const testLabels = {
-        "Gen.1:1": {
-          "who": ["God"],
-          "what": ["the heaven", "the earth"],
-          "when": ["In the beginning"],
-          "action": ["created"]
-        },
-        "Gen.1:2": {
-          "what": ["the earth"],
-          "when": ["was"],
-          "where": ["without form", "void"]
-        },
-        "Gen.1:3": {
-          "who": ["God"],
-          "what": ["Light"],
-          "command": ["Let there be light"],
-          "action": ["said"]
-        }
-      };
-      
-      console.log(`📝 BibleDataAPI: Using test labels data with ${Object.keys(testLabels).length} verses`);
-      return testLabels;
+      console.warn(`⚠️ BibleDataAPI: Labels file not found for ${translation} at ${paths.labels(translation)}. This is expected if label files haven't been uploaded yet.`);
+      console.warn(`Error details:`, error);
+      // Return empty object instead of throwing to prevent UI crashes
+      return {};
     }
   });
 }
