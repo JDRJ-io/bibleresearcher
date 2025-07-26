@@ -103,12 +103,10 @@ interface LabelEvent {
 // Compute segments using sweep-line algorithm
 function computeSegments(
   verse: string,
-  labelData: Record<LabelName, string[]>,
+  labelData: Partial<Record<LabelName, string[]>>,
   activeMask: LabelMask,
   translationCode?: string
 ): TextSegment[] {
-  console.log(`🔧 computeSegments: verse="${verse.substring(0, 30)}...", activeMask=${activeMask}`);
-  
   // Collect all label match events
   const events: LabelEvent[] = [];
   
@@ -118,18 +116,14 @@ function computeSegments(
     const phrases = labelData[labelName as LabelName] || [];
     if (phrases.length === 0) continue;
     
-    console.log(`🔧 Processing label "${labelName}" with phrases:`, phrases);
-    
     const regexes = compileRegexes(translationCode || '', labelName as LabelName, phrases);
-    console.log(`🔧 Compiled ${regexes.length} regexes for "${labelName}"`);
     
-    regexes.forEach((regex, regexIndex) => {
+    regexes.forEach((regex) => {
       let match: RegExpExecArray | null;
       // Reset regex lastIndex to ensure we find all matches
       regex.lastIndex = 0;
       
       while ((match = regex.exec(verse))) {
-        console.log(`🎯 Match found for "${labelName}" regex ${regexIndex}: "${match[0]}" at position ${match.index}`);
         events.push({ pos: match.index, bit, add: true });
         events.push({ pos: match.index + match[0].length, bit, add: false });
         
@@ -194,7 +188,7 @@ const MAX_CACHE_SIZE = 1000;
 
 export function getSegmentsCached(
   verse: string,
-  labelData: Record<LabelName, string[]>,
+  labelData: Partial<Record<LabelName, string[]>>,
   activeMask: LabelMask,
   verseKey?: string,
   translationCode?: string
@@ -236,26 +230,17 @@ export function labelArrayToBitmask(activeLabels: LabelName[]): LabelMask {
 // Main processing function - updated interface
 export function processTextForLabels(
   text: string,
-  labelData: Record<LabelName, string[]>,
+  labelData: Partial<Record<LabelName, string[]>>,
   activeLabels: LabelName[],
   verseKey?: string,
   translationCode?: string
 ): TextSegment[] {
-  console.log(`🎨 processTextForLabels called for ${verseKey} (${translationCode})`);
-  console.log(`🎨 Text: "${text.substring(0, 50)}..."`);
-  console.log(`🎨 Active labels:`, activeLabels);
-  console.log(`🎨 Label data:`, labelData);
-  
   if (activeLabels.length === 0) {
-    console.log(`🎨 No active labels, returning plain text`);
     return [{ start: 0, end: text.length, mask: 0, text }];
   }
   
   const activeMask = labelArrayToBitmask(activeLabels);
-  console.log(`🎨 Active mask: ${activeMask} (binary: ${activeMask.toString(2)})`);
-  
   const segments = getSegmentsCached(text, labelData, activeMask, verseKey, translationCode);
-  console.log(`🎨 Generated ${segments.length} segments:`, segments);
   
   return segments;
 }
@@ -269,7 +254,7 @@ export interface LabelSegment {
 // Legacy function for backward compatibility
 export function processTextForLabelsLegacy(
   text: string,
-  labelData: Record<LabelName, string[]>,
+  labelData: Partial<Record<LabelName, string[]>>,
   activeLabels: LabelName[]
 ): LabelSegment[] {
   const segments = processTextForLabels(text, labelData, activeLabels);

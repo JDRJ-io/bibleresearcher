@@ -95,39 +95,20 @@ export function VerseRow({
       {selectedTranslations.map((translation) => {
         const verseText = verse.text[translation.id];
         
-        // Memoize label data creation to prevent unnecessary re-renders
+        // Get label data for this verse using viewport labels hook
         const labelData = useMemo(() => {
-          const data: Record<LabelName, string[]> = {
-            who: [], what: [], when: [], where: [], command: [],
-            action: [], why: [], seed: [], harvest: [], prediction: []
-          };
-          
-          // Try multiple reference formats for better matching
-          const possibleRefs = [
-            verse.reference,                    // "Gen 1:1"
-            verse.reference.replace(/\s/g, '.'), // "Gen.1:1"
-            `${verse.book}.${verse.chapter}:${verse.verse}`, // Direct format
-          ];
-          
-          // Debug logging
-          console.log(`🔍 Looking for labels for verse: ${verse.reference}, translation: ${translation.id}`);
-          console.log(`🔍 Trying reference formats:`, possibleRefs);
+          const data: Partial<Record<LabelName, string[]>> = {};
           
           // Only populate active labels to avoid unnecessary processing
-          activeLabels.forEach(labelName => {
-            for (const ref of possibleRefs) {
-              const labelValues = getLabel(translation.id, ref, labelName);
-              if (labelValues.length > 0) {
-                data[labelName] = labelValues;
-                console.log(`✅ Found ${labelName} labels for ${ref}:`, labelValues);
-                break;
-              }
+          activeLabels.forEach((labelName: LabelName) => {
+            const labelValues = getLabel(translation.id, verse.reference, labelName);
+            if (labelValues.length > 0) {
+              data[labelName] = labelValues;
             }
           });
           
-          console.log(`🏷️ Final label data for ${verse.reference}:`, data);
           return data;
-        }, [translation.id, verse.reference, verse.book, verse.chapter, verse.verse, ...activeLabels]);
+        }, [translation.id, verse.reference, activeLabels]);
         
         // Process text with labels if we have both text and active labels
         const segments = useLabeledText({
@@ -187,7 +168,7 @@ export function VerseRow({
             const crossRefs = store.crossRefs[dotFormat] || [];
 
             if (crossRefs.length > 0) {
-              return crossRefs.map((ref, index) => {
+              return crossRefs.map((ref: string, index: number) => {
                 // Get verse text from the main translation (first selected translation)
                 const mainTranslation = selectedTranslations[0];
                 let refText = '';
@@ -268,7 +249,7 @@ export function VerseRow({
                   <div className="text-xs text-gray-500 mb-2">
                     Labels ({mainTranslation})
                   </div>
-                  {activeLabels.map((labelName) => {
+                  {activeLabels.map((labelName: LabelName) => {
                     const labelValues = getLabel(mainTranslation, verse.reference, labelName);
                     
                     if (labelValues.length > 0) {
@@ -292,7 +273,7 @@ export function VerseRow({
                     }
                     return null;
                   })}
-                  {activeLabels.every(labelName => 
+                  {activeLabels.every((labelName: LabelName) => 
                     getLabel(mainTranslation, verse.reference, labelName).length === 0
                   ) && (
                     <span className="text-muted-foreground italic">No labels found for this verse</span>

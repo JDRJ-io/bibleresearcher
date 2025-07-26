@@ -67,7 +67,7 @@ const VirtualBibleTable = ({
   // Integrate translation maps system for verse text loading
   const translationMaps = useTranslationMaps();
   const { activeTranslations, mainTranslation: translationMainTranslation } = translationMaps;
-
+  
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
@@ -75,6 +75,34 @@ const VirtualBibleTable = ({
 
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
+  
+  // Labels system integration
+  const { activeLabels } = useBibleStore();
+  
+  // Convert slice to verse objects for useViewportLabels
+  const sliceVerses = useMemo(() => {
+    return slice.verseIDs.map(verseID => {
+      const verseData = rowData?.[verseID];
+      return verseData || {
+        id: verseID,
+        reference: verseID.replace(/-/g, ' '),
+        book: '',
+        chapter: 0,
+        verse: 0,
+        text: {},
+        crossReferences: [],
+        strongsWords: [],
+        labels: [],
+        contextGroup: 'standard' as const
+      };
+    });
+  }, [slice.verseIDs, rowData]);
+  
+  const { getVerseLabels } = useViewportLabels({
+    verses: sliceVerses, 
+    activeLabels, 
+    mainTranslation: translationMainTranslation || mainTranslation
+  });
   const totalHeight = verseKeys.length * ROW_HEIGHT;
 
   // B-1: Load slice data for cross-references and prophecy
@@ -371,18 +399,6 @@ const VirtualBibleTable = ({
       w.scrollLeft = w.scrollWidth - w.clientWidth;
     }
   }, [visibleColumns]); // Trigger when visible columns change
-    const { store, translationState, activeLabels } = useBibleStore();
-
-  // Viewport-aware label loading
-//   const viewportVerses = virtualizer.getVirtualItems().map(virtualRow => 
-//     allVerses[virtualRow.index]
-//   ).filter(Boolean);
-
-  const { getVerseLabels, isLoading: labelsLoading } = useViewportLabels({
-    verses: slice.verseIDs,
-    activeLabels,
-    mainTranslation: translationState.main
-  });
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>

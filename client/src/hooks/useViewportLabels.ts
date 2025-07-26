@@ -11,7 +11,7 @@ interface UseViewportLabelsProps {
 
 export function useViewportLabels({ verses, activeLabels, mainTranslation }: UseViewportLabelsProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [labelsData, setLabelsData] = useState<Record<string, Record<LabelName, string[]>>>({});
+  const [labelsData, setLabelsData] = useState<Record<string, Partial<Record<LabelName, string[]>>>>({});
 
   // Extract verse keys from verses
   const verseKeys = useMemo(() => 
@@ -36,7 +36,10 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
         const viewportLabels = getLabelsForVerses(mainTranslation, verseKeys, activeLabels);
         setLabelsData(viewportLabels);
         
-        console.log(`🎯 Loaded labels for ${Object.keys(viewportLabels).length} verses in viewport with ${activeLabels.length} active label types`);
+        // Optional: Log only if there are actual labels loaded
+        if (Object.keys(viewportLabels).length > 0) {
+          console.log(`Labels loaded for ${Object.keys(viewportLabels).length} verses`);
+        }
       } catch (error) {
         console.error('Failed to load viewport labels:', error);
         setLabelsData({});
@@ -49,7 +52,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
   }, [verseKeys, activeLabels, mainTranslation]);
 
   // Function to get labels for a specific verse
-  const getVerseLabels = (verseReference: string): Record<LabelName, string[]> => {
+  const getVerseLabels = (verseReference: string): Partial<Record<LabelName, string[]>> => {
     return labelsData[verseReference] || {};
   };
 

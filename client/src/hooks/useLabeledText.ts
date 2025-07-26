@@ -5,7 +5,7 @@ import type { LabelName } from '@/lib/labelsCache';
 
 interface UseLabeledTextProps {
   text: string;
-  labelData: Record<LabelName, string[]>;
+  labelData: Partial<Record<LabelName, string[]>>;
   activeLabels: LabelName[];
   verseKey?: string;
   translationCode?: string;
