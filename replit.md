@@ -241,6 +241,16 @@ Beyond drag a11y, the app will need general accessibility review. Currently, one
 # Recent Major Changes (for reference)
 (This section highlights recent refactor milestones for context and verification of completeness.)
 
+## Header Layout Clean-up (July 26, 2025):
+Successfully eliminated all spacing gaps and positioning issues between headers and content:
+- **Mobile Gap Elimination**: Removed unnecessary gap above column headers on mobile by setting `top: 0` for column headers within scroll area
+- **Desktop Spacing Fix**: Removed negative margin hack and eliminated gap below column headers on desktop
+- **Unified CSS Architecture**: Implemented clean media query system where mobile uses `top: 0` and desktop uses `top: var(--top-header-height-desktop)`
+- **Consistent Content Positioning**: Verses now start immediately under column headers on both platforms without overlap
+- **Dates Column Display**: Fixed dates column header visibility and removed reference marker icons, showing only clean date text
+- **Header Height Optimization**: Standardized header bar height increase from 40px to 48px mobile, 52px desktop for better visual hierarchy
+- **CSS Class Standardization**: Updated ColumnHeaders to use `column-headers-container` class for proper media query targeting
+
 ## Chronological Toggle Implementation (July 23, 2025):
 Successfully completed chronological verse ordering functionality:
 - **Root Cause Fixed**: Resolved issue where verse loading system bypassed chronological toggle state from store
