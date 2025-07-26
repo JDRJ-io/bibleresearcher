@@ -271,9 +271,11 @@ const VirtualBibleTable = ({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
+  // Mobile detection for dual-column layout
+  const isMobile = useIsMobile();
+
   // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
   // Only center on wide desktop screens when content fits
-  const { isMobile } = useIsMobile();
   const shouldCenter = !isMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
 
   useEffect(() => {
@@ -308,7 +310,7 @@ const VirtualBibleTable = ({
           wrapperRef.current!.style.overflowX = "hidden";
           isScrolling = true;
         }
-      }      }
+      }
     };
 
     const onTouchEnd = () => {
@@ -381,11 +383,6 @@ const VirtualBibleTable = ({
     activeLabels,
     mainTranslation: translationState.main
   });
-
-  // Determine header height based on mobile status
-  const topHeaderHeight = isMobile ? 48 : 64;
-  // Remove duplicate offset - CSS already positions column headers correctly
-  const virtualListPadding = isMobile ? 0 : topHeaderHeight;
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
