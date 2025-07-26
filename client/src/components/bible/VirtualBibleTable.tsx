@@ -82,6 +82,17 @@ const VirtualBibleTable = ({
   // Immediate debug log to see current state
   console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
   
+  // DIRECT TEST: Force test Dan.7:3 with known labels
+  React.useEffect(() => {
+    if (activeLabels?.includes('what' as any)) {
+      console.log('🧪 DIRECT TEST: Testing Dan.7:3 with what label active');
+      const testLabels = { what: ['four huge beasts'], where: ['out of the water'], action: ['came up'] };
+      const testText = 'Then four huge beasts came up out of the water, each different from the others.';
+      console.log('🧪 Test text:', testText);
+      console.log('🧪 Test labels:', testLabels);
+    }
+  }, [activeLabels]);
+  
   // Debug activeLabels from store - FORCE RENDER CHECK
   useEffect(() => {
     console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels changed:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
