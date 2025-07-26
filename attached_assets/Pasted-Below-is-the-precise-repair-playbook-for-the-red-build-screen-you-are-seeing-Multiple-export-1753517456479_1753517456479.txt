@@ -1,0 +1,88 @@
+Below is the **precise repair playbook** for the red build screen you are seeing (“ `Multiple exports with the same name 'useLabeledText'` ”).
+Fixing this takes two quick edits and one delete; after that the site will compile and the highlights will finally appear.
+
+---
+
+## 1 Why the compiler is angry
+
+* **`client/src/hooks/useLabeledText.ts`** now contains **two complete copies** of the hook code—your AI agent appended the new version **below** the first one instead of replacing it. That gives the file \*\*two `interface Segment {…}` declarations and two `export function useLabeledText()` declarations → Vite/ESBuild throws the “multiple exports” error. See the duplicate starting at line 55 in the screenshot.
+* The old, three‑prop **stub** `LabeledText.tsx` (mask + segmentKey) is still present at `client/src/components/bible/LabeledText.tsx` . This will shadow the new component unless removed.
+
+---
+
+## 2 One‑minute patch
+
+### 2 .1  Trim `useLabeledText.ts` to a **single** export
+
+Open **`client/src/hooks/useLabeledText.ts`** and:
+
+1. **Delete** everything *from the second*
+
+   ```ts
+   import { useMemo } from 'react';
+   import { LabelBits } from '@/lib/labelBits';
+   ```
+
+   down to the end of the file.
+2. Keep only the **first** definition (lines 1‑54 in your screenshot).
+
+The file should end with:
+
+```ts
+    if (last < text.length) segs.push({ start: last, end: text.length, mask });
+    return segs;
+  }, [text, JSON.stringify(labelData), activeLabels.join()]);
+}
+```
+
+and nothing after it.
+
+### 2 .2  Remove the obsolete stub component
+
+Delete **`client/src/components/bible/LabeledText.tsx`** (the file that still exports the three‑prop version).
+The new five‑prop version you added is also named `LabeledText.tsx`, but lives in the *same* folder; leaving both gives a path collision.
+
+```bash
+rm client/src/components/bible/LabeledText.tsx   # the stub shown in turn0file2
+```
+
+*(If your IDE shows only one version after deleting, you are good.)*
+
+---
+
+## 3 Clean build cache & restart
+
+Replit’s Vite server sometimes keeps stale modules:
+
+```bash
+# Stop the dev server in the Replit UI
+npm run dev         # or hit the Run button again
+```
+
+Watch the console: the “multiple exports” error should be gone and the app should load.
+
+---
+
+## 4 Smoke‑test checklist
+
+1. **Toggle “Who”** in the Labels panel.
+   *DevTools → Elements* should now show spans like
+
+   ```html
+   <span class="fx-hand">God</span>
+   ```
+2. **Toggle “What”** → same span now has `class="fx-hand fx-shadow"`.
+3. **Network tab** shows only one fetch for `labels/KJV/ALL.json`.
+4. **Memory** snapshot after scrolling a few chapters stays under \~5 MB.
+
+If the spans appear but you see no visual change, confirm `label-effects.css` is imported once (e.g. in `App.tsx` or your global CSS bundle).
+
+---
+
+## 5 Recap for the agent
+
+> *Delete the old three‑prop LabeledText.tsx stub, keep the new five‑prop one.
+> Remove the duplicate second definition inside useLabeledText.ts so only one `export function useLabeledText` remains.
+> Restart the dev server to clear Vite’s cache.*
+
+Once these two files are cleaned up the build passes and the semantic label highlights render exactly as designed.
