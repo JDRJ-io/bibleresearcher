@@ -458,10 +458,6 @@ export function ColumnHeaders({
   return (
     <div
       className={`column-headers-container sticky z-40 bg-background border-b shadow-sm`}
-      style={{
-        left: -scrollLeft,
-        width: "100%",
-      }}
     >
       <div className="overflow-hidden w-full h-full flex">
         {shouldCenter ? (
