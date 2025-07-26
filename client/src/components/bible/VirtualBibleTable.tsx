@@ -273,6 +273,7 @@ const VirtualBibleTable = ({
 
   // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
   // Only center on wide desktop screens when content fits
+  const { isMobile } = useIsMobile();
   const shouldCenter = !isMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
 
   useEffect(() => {
@@ -307,7 +308,7 @@ const VirtualBibleTable = ({
           wrapperRef.current!.style.overflowX = "hidden";
           isScrolling = true;
         }
-      }
+      }      }
     };
 
     const onTouchEnd = () => {
