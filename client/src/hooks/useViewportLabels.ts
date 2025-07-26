@@ -1,6 +1,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
-import { ensureLabelCacheLoaded, getLabelsForVerses, LabelName } from '@/lib/labelsCache';
+import { ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
+import type { LabelName } from '@/lib/labelBits';
 import type { BibleVerse } from '@/types/bible';
 
 interface UseViewportLabelsProps {
@@ -29,8 +30,8 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     const loadLabels = async () => {
       setIsLoading(true);
       try {
-        // Ensure the label cache is loaded for this translation
-        await ensureLabelCacheLoaded(mainTranslation);
+        // Pass activeLabels to cache loader for worker filtering
+        await ensureLabelCacheLoaded(mainTranslation, activeLabels);
         
         // Get labels only for the verses in viewport and only for active label types
         const viewportLabels = getLabelsForVerses(mainTranslation, verseKeys, activeLabels);
@@ -49,7 +50,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     };
 
     loadLabels();
-  }, [verseKeys, activeLabels, mainTranslation]);
+  }, [activeLabels.join(), mainTranslation, verseKeys.join('|')]); // Use .join() for array deps
 
   // Function to get labels for a specific verse
   const getVerseLabels = (verseReference: string): Partial<Record<LabelName, string[]>> => {

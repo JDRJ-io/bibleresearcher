@@ -3,7 +3,8 @@ import React, { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Toggle } from '@/components/ui/toggle';
 import { useBibleStore } from '@/App';
-import { LabelName, ensureLabelCacheLoaded, clearLabelCacheForTranslation } from '@/lib/labelsCache';
+import { ensureLabelCacheLoaded, clearLabelCacheForTranslation } from '@/lib/labelsCache';
+import type { LabelName } from '@/lib/labelBits';
 
 interface LabelsLegendProps {
   className?: string;
@@ -41,7 +42,7 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
   // Preload labels when any label is selected
   useEffect(() => {
     if (activeLabels.length > 0 && mainTranslation) {
-      ensureLabelCacheLoaded(mainTranslation).catch(error => {
+      ensureLabelCacheLoaded(mainTranslation, activeLabels as LabelName[]).catch(error => {
         console.error('Failed to load labels for main translation:', error);
       });
     }
@@ -60,7 +61,7 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
       
       // Ensure cache is loaded when adding a label
       if (mainTranslation) {
-        ensureLabelCacheLoaded(mainTranslation).catch(error => {
+        ensureLabelCacheLoaded(mainTranslation, [...currentLabels, labelKey] as LabelName[]).catch(error => {
           console.error('Failed to load labels for main translation:', error);
         });
       }

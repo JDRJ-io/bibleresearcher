@@ -39,7 +39,7 @@ interface SizeState {
   setSizeMult: (mult: number) => void;
 }
 
-type LabelName = string;
+type LabelName = import('@/lib/labelBits').LabelName;
 
 export const useBibleStore = create<{
   translations: Record<string, any>;

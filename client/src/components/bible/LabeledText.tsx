@@ -1,5 +1,6 @@
 import React from 'react';
-import { classesForMask, type LabelMask } from '@/lib/labelRenderer';
+import { classesForMask } from '@/lib/labelRenderer';
+import type { LabelMask } from '@/lib/labelBits';
 
 interface LabeledTextProps {
   text: string;

@@ -1,7 +1,6 @@
 
 import { useMemo } from 'react';
-import { processTextForLabels, type TextSegment } from '@/lib/labelRenderer';
-import type { LabelName } from '@/lib/labelsCache';
+import { processTextForLabels, type TextSegment, type LabelName } from '@/lib/labelRenderer';
 
 interface UseLabeledTextProps {
   text: string;

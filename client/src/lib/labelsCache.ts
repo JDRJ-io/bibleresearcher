@@ -1,96 +1,94 @@
-import { getLabelsData } from '@/data/BibleDataAPI';
+import { LabelBits } from './labelBits';
 
-export type LabelName = 'who' | 'what' | 'when' | 'where' | 'command' | 'action' | 'why' | 'seed' | 'harvest' | 'prediction';
-export type LabelEntry = Record<LabelName, string[]>;
-export type LabelMap = Record<string, LabelEntry>; // verseKey -> labels
+export type LabelName = keyof typeof LabelBits;
+type SlimEntry = Record<LabelName, string[]>;
+type SlimMap = Record<string /*verse*/, Partial<SlimEntry>>;
 
-// In-memory cache for labels by translation
-const labelCache: Record<string, LabelMap> = {};
+// Web Worker for off-main-thread processing
+const worker = new Worker(new URL('../workers/labels.worker.ts', import.meta.url), { type: 'module' });
 
-// Track which translations are currently loading to prevent duplicate requests
-const loadingTranslations = new Set<string>();
+// Main thread cache - contains only filtered data for active labels
+const cache: Record<string /*tCode*/, SlimMap | undefined> = {};
+let pending = new Map<string, Promise<void>>(); // de-dupes concurrent calls
 
-export async function ensureLabelCacheLoaded(translationCode: string): Promise<void> {
-  if (labelCache[translationCode]) {
-    return; // Already loaded
+export function ensureLabelCacheLoaded(
+  tCode: string,
+  activeLabels: LabelName[]
+): Promise<void> {
+  
+  // Check if we already have all needed labels cached
+  if (cache[tCode] && activeLabels.every(l => someVerseHasLabel(cache[tCode]!, l))) {
+    return Promise.resolve();
   }
 
-  if (loadingTranslations.has(translationCode)) {
-    // Wait for the existing load to complete
-    while (loadingTranslations.has(translationCode)) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    return;
-  }
+  // De-duplicate concurrent requests
+  const key = `${tCode}|${activeLabels.sort().join()}`;
+  if (pending.has(key)) return pending.get(key)!;
 
-  loadingTranslations.add(translationCode);
+  const p = new Promise<void>((resolve) => {
+    const handle = (e: MessageEvent) => {
+      if (e.data.tCode !== tCode) return;
+      
+      // Merge worker results into cache
+      cache[tCode] = { ...cache[tCode], ...e.data.filtered };
+      
+      worker.removeEventListener('message', handle);
+      pending.delete(key);
+      resolve();
+    };
+    
+    worker.addEventListener('message', handle);
+    worker.postMessage({ tCode, active: activeLabels });
+  });
 
-  try {
-    // Use BibleDataAPI instead of direct Supabase calls
-    const parsedLabels = await getLabelsData(translationCode) as LabelMap;
-    labelCache[translationCode] = parsedLabels;
-  } catch (error) {
-    console.error(`Error loading labels for ${translationCode}:`, error);
-    // Set empty cache to prevent repeated failed requests
-    labelCache[translationCode] = {};
-    throw error;
-  } finally {
-    loadingTranslations.delete(translationCode);
-  }
+  pending.set(key, p);
+  return p;
 }
 
-// Optimized function to get labels only for specific verses and label types
 export function getLabelsForVerses(
-  translationCode: string, 
-  verseKeys: string[], 
-  activeLabels: LabelName[]
-): Record<string, Partial<Record<LabelName, string[]>>> {
-  const translationLabels = labelCache[translationCode];
-  if (!translationLabels || activeLabels.length === 0) {
-    return {};
-  }
-
-  const result: Record<string, Partial<Record<LabelName, string[]>>> = {};
-
-  for (const verseKey of verseKeys) {
+  tCode: string,
+  verseKeys: string[],
+  active: LabelName[]
+): SlimMap {
+  const map = cache[tCode] || {};
+  const result: SlimMap = {};
+  
+  verseKeys.forEach(v => {
     // Try multiple verse key formats for better matching
     const possibleKeys = [
-      verseKey,
-      verseKey.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
-      verseKey.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
+      v,
+      v.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
+      v.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
     ];
 
     for (const key of possibleKeys) {
-      const verseLabels = translationLabels[key];
-      if (verseLabels) {
-        const filteredLabels: Partial<Record<LabelName, string[]>> = {};
-
-        // Only extract the active label types
-        for (const labelName of activeLabels) {
-          if (verseLabels[labelName] && verseLabels[labelName].length > 0) {
-            filteredLabels[labelName] = verseLabels[labelName];
-          }
-        }
-
-        if (Object.keys(filteredLabels).length > 0) {
-          result[verseKey] = filteredLabels;
-        }
-        break; // Found match, no need to try other key formats
+      const entry = map[key];
+      if (!entry) continue;
+      
+      const filtered: Partial<SlimEntry> = {};
+      active.forEach(lbl => { 
+        if (entry[lbl]) filtered[lbl] = entry[lbl]; 
+      });
+      
+      if (Object.keys(filtered).length) {
+        result[v] = filtered;
+        break; // Found match, stop trying other formats
       }
     }
-  }
-
+  });
+  
   return result;
 }
 
-// Legacy function for backward compatibility
-export function getLabel(translationCode: string, verseKey: string, labelName: LabelName): string[] {
-  const translationLabels = labelCache[translationCode];
-  if (!translationLabels) {
-    return [];
-  }
+function someVerseHasLabel(map: SlimMap, lbl: LabelName): boolean {
+  return Object.values(map).some(ent => ent[lbl]);
+}
 
-  // Try multiple verse key formats for better matching
+// Legacy function for backward compatibility - simplified for new system
+export function getLabel(translationCode: string, verseKey: string, labelName: LabelName): string[] {
+  const map = cache[translationCode];
+  if (!map) return [];
+  
   const possibleKeys = [
     verseKey,
     verseKey.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
@@ -98,27 +96,16 @@ export function getLabel(translationCode: string, verseKey: string, labelName: L
   ];
 
   for (const key of possibleKeys) {
-    const verseLabels = translationLabels[key];
-    if (verseLabels && verseLabels[labelName]) {
-      return verseLabels[labelName];
+    const entry = map[key];
+    if (entry && entry[labelName]) {
+      return entry[labelName];
     }
   }
 
   return [];
 }
 
-export function isLabelCacheReady(translationCode: string): boolean {
-  return !!labelCache[translationCode];
-}
-
-export function clearLabelCache(): void {
-  Object.keys(labelCache).forEach(key => delete labelCache[key]);
-}
-
-// Clear cache when translation changes to force reload
 export function clearLabelCacheForTranslation(translationCode: string): void {
-  if (labelCache[translationCode]) {
-    delete labelCache[translationCode];
-    console.log(`🗑️ Cleared label cache for ${translationCode}`);
-  }
+  delete cache[translationCode];
+  console.log(`🗑️ Cleared label cache for ${translationCode}`);
 }

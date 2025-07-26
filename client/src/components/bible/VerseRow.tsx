@@ -1,7 +1,8 @@
 import type { BibleVerse, Translation, UserNote, Highlight } from '@/types/bible';
 import { ProphecyColumns } from './ProphecyColumns';
 import { useBibleStore } from '@/App';
-import { getLabel, LabelName, ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
+import { getLabel } from '@/lib/labelsCache';
+import type { LabelName } from '@/lib/labelBits';
 import { useEffect, useMemo } from 'react';
 import { LabeledText } from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
@@ -44,16 +45,8 @@ export function VerseRow({
   // Use main translation from Bible store for consistency
   const mainTranslation = translationState.main;
   
-  // Ensure labels cache is loaded when labels are active
-  useEffect(() => {
-    if (activeLabels && activeLabels.length > 0 && mainTranslation) {
-      selectedTranslations.forEach(translation => {
-        ensureLabelCacheLoaded(translation.id).catch(error => {
-          console.error(`Failed to load labels for ${translation.id}:`, error);
-        });
-      });
-    }
-  }, [activeLabels, mainTranslation, selectedTranslations]);
+  // Note: Labels are loaded via VirtualBibleTable's useViewportLabels hook
+  // No individual verse-level loading needed here
 
   // Create preferences object for consistency
   const preferences = {
