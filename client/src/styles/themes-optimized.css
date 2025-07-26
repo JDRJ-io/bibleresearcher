@@ -122,17 +122,8 @@ body {
 .border-color { border-color: var(--border-color); }
 .accent-color { color: var(--accent-color); }
 
-/* Clean up any legacy theme classes */
+/* Clean theme classes - only light and dark supported */
 .light-mode,
-.dark-mode,
-.sepia-mode,
-.parchment-mode,
-.forest-mode,
-.aurora-mode,
-.cyber-mode,
-.rainbow-mode,
-.midnight-mode,
-.electric-mode {
-  /* Legacy theme classes - will be cleaned up by ThemeManager */
+.dark-mode {
   display: contents;
 }

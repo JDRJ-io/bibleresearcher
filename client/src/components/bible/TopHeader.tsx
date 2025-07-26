@@ -8,7 +8,7 @@ import { UserProfile } from '@/components/auth/UserProfile';
 import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
-import './ForceHeaderStyles.css';
+
 
 interface TopHeaderProps {
   searchQuery: string;
@@ -36,13 +36,7 @@ export function TopHeader({
   const { width } = useWindowSize();
   const isMobile = width < 640;
 
-  console.log('TopHeader auth state:', { user: !!user, loading, userDetails: user ? 'logged in' : 'logged out' });
-  console.log('🎨 HEADER HEIGHT DEBUG:', { isMobile, width, expectedHeight: isMobile ? '120px' : '200px' });
-  console.log('🎨 CSS CLASSES CHECK:', { 
-    headerClasses: 'divine-header sacred-glow', 
-    logoClasses: 'divine-logo-container heavenly-float',
-    cssImported: true 
-  });
+
 
   return (
     <header 

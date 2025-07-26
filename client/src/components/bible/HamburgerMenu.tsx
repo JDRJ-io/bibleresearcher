@@ -115,7 +115,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
     { id: "what", name: "What", description: "Outlined text for objects/things" },
     { id: "when", name: "When", description: "Underlined text for time references" },
     { id: "where", name: "Where", description: "Curly braces around locations" },
-    { id: "command", name: "Command", description: "Drop shadow for divine commands" },
+    { id: "command", name: "Command", description: "Drop shadow for commands" },
     { id: "action", name: "Action", description: "Italic text for actions/verbs" },
     { id: "why", name: "Why", description: "Cursive font for reasons/purposes" },
     { id: "seed", name: "Seed", description: "Superscript * for spiritual seeds" },

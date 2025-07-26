@@ -136,365 +136,11 @@ html {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.sepia-mode, :root.sepia {
-  --bg-primary: hsl(45, 15%, 96%);
-  --bg-secondary: hsl(42, 25%, 90%);
-  --text-primary: hsl(20, 50%, 15%);
-  --text-secondary: hsl(25, 35%, 35%);
-  --border-color: hsl(30, 20%, 85%);
-  --accent-color: hsl(25, 75%, 45%);
-  --header-bg: hsl(42, 25%, 90%);
-  --text-color: hsl(20, 50%, 15%);
-  --column-bg: hsl(45, 15%, 96%);
-  --highlight-bg: hsl(40, 30%, 88%);
-  --font-family: 'Crimson Text', 'Times New Roman', serif;
-}
 
-.midnight-mode, :root.midnight {
-  --bg-primary: hsl(220, 25%, 12%);
-  --bg-secondary: hsl(220, 30%, 8%);
-  --text-primary: hsl(213, 31%, 91%);
-  --text-secondary: hsl(215, 20%, 65%);
-  --border-color: hsl(215, 28%, 17%);
-  --accent-color: hsl(45, 100%, 70%);
-  --header-bg: hsl(220, 30%, 8%);
-  --text-color: hsl(213, 31%, 91%);
-  --column-bg: hsl(220, 25%, 12%);
-  --highlight-bg: hsl(220, 20%, 20%);
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
 
-.electric-mode, :root.electric {
-  --bg-primary: hsl(250, 25%, 18%);
-  --bg-secondary: hsl(250, 30%, 15%);
-  --text-primary: hsl(47, 96%, 89%);
-  --text-secondary: hsl(60, 30%, 96%);
-  --border-color: hsl(250, 20%, 25%);
-  --accent-color: hsl(45, 100%, 60%);
-  --header-bg: hsl(250, 30%, 15%);
-  --text-color: hsl(47, 96%, 89%);
-  --column-bg: hsl(250, 25%, 18%);
-  --highlight-bg: hsl(250, 15%, 25%);
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
 
-.parchment-mode, :root.parchment {
-  /* Illuminated Manuscript - Rich vellum with golden illumination */
-  --bg-primary: hsl(45, 25%, 92%);
-  --bg-secondary: hsl(42, 30%, 88%);
-  --text-primary: hsl(25, 50%, 18%);
-  --text-secondary: hsl(30, 35%, 35%);
-  --border-color: hsl(35, 25%, 75%);
-  --accent-color: hsl(25, 85%, 50%);
-  --header-bg: hsl(42, 30%, 88%);
-  --text-color: hsl(25, 50%, 18%);
-  --column-bg: hsl(45, 25%, 92%);
-  --highlight-bg: hsl(40, 35%, 85%);
-  --font-family: 'Crimson Text', 'Times New Roman', serif;
 
-  --background: hsl(45, 25%, 92%);
-  --foreground: hsl(25, 50%, 18%);
-  --muted: hsl(40, 20%, 85%);
-  --muted-foreground: hsl(30, 35%, 35%);
-  --popover: hsl(45, 30%, 90%);
-  --popover-foreground: hsl(25, 45%, 20%);
-  --card: hsl(42, 28%, 90%);
-  --card-foreground: hsl(25, 50%, 18%);
-  --border: hsl(35, 25%, 75%);
-  --input: hsl(40, 20%, 85%);
-  --primary: hsl(25, 85%, 50%);
-  --primary-foreground: hsl(45, 30%, 95%);
-  --secondary: hsl(40, 25%, 80%);
-  --secondary-foreground: hsl(25, 45%, 20%);
-  --accent: hsl(30, 70%, 60%);
-  --accent-foreground: hsl(25, 50%, 18%);
-  --destructive: hsl(0, 75%, 55%);
-  --destructive-foreground: hsl(38, 55%, 95%);
-  --ring: hsl(18, 85%, 50%);
 
-  /* Classical serif typography for manuscript feel */
-  font-family: 'Crimson Text', 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  letter-spacing: 0.015em;
-  font-weight: 400;
-  line-height: 1.6;
-
-  /* Rich parchment with illuminated edges */
-  background: 
-    radial-gradient(ellipse at 80% 20%, hsla(42, 85%, 75%, 0.4) 0%, transparent 50%),
-    radial-gradient(ellipse at 20% 80%, hsla(28, 70%, 65%, 0.3) 0%, transparent 55%),
-    radial-gradient(ellipse at 60% 60%, hsla(35, 60%, 80%, 0.5) 0%, transparent 60%),
-    radial-gradient(ellipse at 40% 10%, hsla(45, 50%, 85%, 0.6) 0%, transparent 65%),
-    linear-gradient(125deg, 
-      hsl(38, 55%, 92%) 0%, 
-      hsl(35, 58%, 89%) 25%, 
-      hsl(40, 52%, 93%) 50%, 
-      hsl(36, 60%, 90%) 75%, 
-      hsl(34, 56%, 88%) 100%);
-
-  /* Subtle parchment texture */
-  background-image: 
-    repeating-conic-gradient(from 0deg at 40% 60%, transparent 0deg, hsla(35, 40%, 70%, 0.02) 2deg, transparent 4deg),
-    linear-gradient(90deg, transparent 90%, hsla(28, 50%, 60%, 0.03) 95%, transparent 100%);
-  background-size: 80px 80px, 120px 120px;
-}
-
-/* Parchment theme verse box overrides */
-.parchment-mode .cross-ref-item,
-.parchment-mode .bg-gray-50,
-.parchment-mode [class*="bg-gray-50"] {
-  background: linear-gradient(135deg, 
-    hsla(35, 50%, 88%, 0.95) 0%, 
-    hsla(32, 45%, 85%, 0.9) 100%) !important;
-  border: 1px solid hsla(28, 70%, 58%, 0.3) !important;
-  box-shadow: 
-    0 2px 8px hsla(25, 60%, 40%, 0.1),
-    inset 0 1px 0 hsla(42, 85%, 68%, 0.3) !important;
-}
-
-.parchment-mode .dark\:bg-gray-800,
-.parchment-mode [class*="dark:bg-gray-800"] {
-  background: linear-gradient(135deg, 
-    hsla(35, 50%, 88%, 0.95) 0%, 
-    hsla(32, 45%, 85%, 0.9) 100%) !important;
-  border: 1px solid hsla(28, 70%, 58%, 0.3) !important;
-  box-shadow: 
-    0 2px 8px hsla(25, 60%, 40%, 0.1),
-    inset 0 1px 0 hsla(42, 85%, 68%, 0.3) !important;
-}
-
-.parchment-mode .text-gray-700,
-.parchment-mode .dark\:text-gray-300,
-.parchment-mode .text-gray-400 {
-  color: hsl(25, 90%, 8%) !important;
-  text-shadow: 0 1px 2px hsla(28, 60%, 60%, 0.2);
-}
-
-.forest-mode, :root.forest {
-  /* Ancient Grove - Deep forest wisdom with amber candlelight */
-  --background: hsl(150, 85%, 2%);
-  --foreground: hsl(45, 85%, 88%);
-  --muted: hsl(145, 75%, 4%);
-  --muted-foreground: hsl(48, 65%, 72%);
-  --popover: hsl(148, 80%, 3%);
-  --popover-foreground: hsl(45, 80%, 85%);
-  --card: hsl(147, 78%, 2.5%);
-  --card-foreground: hsl(47, 82%, 86%);
-  --border: hsl(135, 70%, 22%);
-  --input: hsl(142, 70%, 8%);
-  --primary: hsl(40, 90%, 70%);
-  --primary-foreground: hsl(150, 80%, 8%);
-  --secondary: hsl(140, 60%, 18%);
-  --secondary-foreground: hsl(45, 75%, 82%);
-  --accent: hsl(130, 80%, 40%);
-  --accent-foreground: hsl(45, 85%, 90%);
-  --destructive: hsl(15, 90%, 60%);
-  --destructive-foreground: hsl(45, 85%, 92%);
-  --ring: hsl(40, 85%, 65%);
-
-  /* Natural, readable typography */
-  font-family: 'Source Sans Pro', 'Lato', 'Helvetica Neue', sans-serif;
-  letter-spacing: 0.02em;
-  font-weight: 400;
-
-  /* Organic forest depth with dappled light */
-  background: 
-    radial-gradient(ellipse at 25% 75%, hsla(130, 80%, 8%, 0.7) 0%, transparent 60%),
-    radial-gradient(ellipse at 75% 25%, hsla(40, 70%, 15%, 0.5) 0%, transparent 65%),
-    radial-gradient(ellipse at 60% 80%, hsla(145, 90%, 6%, 0.8) 0%, transparent 70%),
-    radial-gradient(ellipse at 15% 30%, hsla(35, 60%, 12%, 0.6) 0%, transparent 75%),
-    linear-gradient(170deg, hsl(150, 85%, 1.8%) 0%, hsl(145, 80%, 2.2%) 30%, hsl(140, 85%, 1.5%) 100%);
-
-  /* Subtle organic texture */
-  background-image: 
-    radial-gradient(circle at 30% 70%, hsla(40, 80%, 50%, 0.015) 1px, transparent 1px),
-    radial-gradient(circle at 70% 30%, hsla(130, 70%, 40%, 0.02) 1px, transparent 1px);
-  background-size: 25px 25px, 40px 40px;
-}
-
-/* Forest theme verse box overrides */
-.forest-mode .cross-ref-item,
-.forest-mode .bg-gray-50,
-.forest-mode [class*="bg-gray-50"] {
-  background: linear-gradient(135deg, 
-    hsla(145, 75%, 4%, 0.9) 0%, 
-    hsla(140, 60%, 6%, 0.8) 100%) !important;
-  border: 1px solid hsla(135, 70%, 22%, 0.4) !important;
-  box-shadow: 
-    0 0 12px hsla(40, 90%, 70%, 0.1),
-    inset 0 1px 0 hsla(130, 80%, 40%, 0.2) !important;
-}
-
-.forest-mode .dark\:bg-gray-800,
-.forest-mode [class*="dark:bg-gray-800"] {
-  background: linear-gradient(135deg, 
-    hsla(145, 75%, 4%, 0.9) 0%, 
-    hsla(140, 60%, 6%, 0.8) 100%) !important;
-  border: 1px solid hsla(135, 70%, 22%, 0.4) !important;
-  box-shadow: 
-    0 0 12px hsla(40, 90%, 70%, 0.1),
-    inset 0 1px 0 hsla(130, 80%, 40%, 0.2) !important;
-}
-
-.forest-mode .text-gray-700,
-.forest-mode .dark\:text-gray-300 {
-  color: hsl(45, 85%, 88%) !important;
-  text-shadow: 0 0 6px hsla(40, 90%, 70%, 0.3);
-}
-
-.cyber-mode, :root.cyber {
-  /* Digital Monastery - Futuristic precision with ethereal glows */
-  --background: hsl(210, 100%, 1%);
-  --foreground: hsl(180, 100%, 85%);
-  --muted: hsl(205, 95%, 2%);
-  --muted-foreground: hsl(185, 70%, 60%);
-  --popover: hsl(210, 95%, 2%);
-  --popover-foreground: hsl(180, 95%, 85%);
-  --card: hsl(208, 92%, 1.5%);
-  --card-foreground: hsl(182, 88%, 82%);
-  --border: hsl(185, 100%, 25%);
-  --input: hsl(195, 85%, 6%);
-  --primary: hsl(180, 100%, 60%);
-  --primary-foreground: hsl(210, 95%, 5%);
-  --secondary: hsl(200, 90%, 8%);
-  --secondary-foreground: hsl(180, 85%, 80%);
-  --accent: hsl(320, 100%, 70%);
-  --accent-foreground: hsl(210, 90%, 8%);
-  --destructive: hsl(0, 100%, 65%);
-  --destructive-foreground: hsl(180, 100%, 95%);
-  --ring: hsl(180, 100%, 50%);
-
-  /* Enhanced typography for precision */
-  font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
-  letter-spacing: 0.05em;
-
-  /* Multi-layer background with depth */
-  background: 
-    radial-gradient(circle at 20% 80%, hsla(180, 100%, 5%, 0.4) 0%, transparent 40%),
-    radial-gradient(circle at 80% 20%, hsla(320, 100%, 10%, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, hsla(200, 100%, 3%, 0.6) 0%, transparent 60%),
-    linear-gradient(135deg, hsl(210, 100%, 0.5%) 0%, hsl(205, 95%, 1%) 100%);
-
-  /* Subtle grid overlay for tech aesthetic */
-  background-image: 
-    linear-gradient(hsla(180, 100%, 50%, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(180, 100%, 50%, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* Cyber theme verse box overrides */
-.cyber-mode .cross-ref-item,
-.cyber-mode .bg-gray-50,
-.cyber-mode [class*="bg-gray-50"] {
-  background: linear-gradient(135deg, 
-    hsla(195, 85%, 4%, 0.9) 0%, 
-    hsla(185, 90%, 6%, 0.8) 100%) !important;
-  border: 1px solid hsla(185, 100%, 25%, 0.3) !important;
-  box-shadow: 
-    0 0 10px hsla(180, 100%, 50%, 0.1),
-    inset 0 1px 0 hsla(180, 100%, 50%, 0.1) !important;
-}
-
-.cyber-mode .dark\:bg-gray-800,
-.cyber-mode [class*="dark:bg-gray-800"] {
-  background: linear-gradient(135deg, 
-    hsla(195, 85%, 4%, 0.9) 0%, 
-    hsla(185, 90%, 6%, 0.8) 100%) !important;
-  border: 1px solid hsla(185, 100%, 25%, 0.3) !important;
-  box-shadow: 
-    0 0 10px hsla(180, 100%, 50%, 0.1),
-    inset 0 1px 0 hsla(180, 100%, 50%, 0.1) !important;
-}
-
-.cyber-mode .text-gray-700,
-.cyber-mode .dark\:text-gray-300 {
-  color: hsl(180, 85%, 85%) !important;
-  text-shadow: 0 0 5px hsla(180, 100%, 50%, 0.3);
-}
-
-.rainbow-mode, :root.rainbow {
-  /* Aurora Scriptura - Divine light cascading through cosmic darkness */
-  --background: hsl(245, 95%, 1%);
-  --foreground: hsl(50, 100%, 92%);
-  --muted: hsl(240, 85%, 3%);
-  --muted-foreground: hsl(55, 80%, 75%);
-  --popover: hsl(245, 90%, 2%);
-  --popover-foreground: hsl(50, 95%, 90%);
-  --card: hsl(242, 88%, 1.5%);
-  --card-foreground: hsl(52, 92%, 89%);
-  --border: hsl(285, 70%, 30%);
-  --input: hsl(250, 80%, 6%);
-  --primary: hsl(285, 100%, 75%);
-  --primary-foreground: hsl(245, 90%, 8%);
-  --secondary: hsl(265, 70%, 15%);
-  --secondary-foreground: hsl(50, 85%, 85%);
-  --accent: hsl(320, 90%, 65%);
-  --accent-foreground: hsl(245, 88%, 10%);
-  --destructive: hsl(0, 95%, 68%);
-  --destructive-foreground: hsl(50, 100%, 95%);
-  --ring: hsl(285, 90%, 60%);
-
-  /* Elegant inter typography with golden warmth */
-  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-  letter-spacing: 0.025em;
-  font-weight: 400;
-
-  /* Multi-dimensional aurora background */
-  background: 
-    radial-gradient(ellipse at 30% 70%, hsla(285, 100%, 15%, 0.6) 0%, transparent 70%),
-    radial-gradient(ellipse at 70% 30%, hsla(320, 90%, 12%, 0.5) 0%, transparent 65%),
-    radial-gradient(ellipse at 50% 10%, hsla(270, 80%, 8%, 0.7) 0%, transparent 60%),
-    radial-gradient(ellipse at 20% 40%, hsla(240, 100%, 5%, 0.8) 0%, transparent 80%),
-    linear-gradient(155deg, hsl(245, 95%, 0.8%) 0%, hsl(250, 90%, 1.2%) 40%, hsl(240, 95%, 1%) 100%);
-
-  /* Subtle shimmer effect */
-  background-image: 
-    linear-gradient(45deg, transparent 40%, hsla(285, 100%, 80%, 0.02) 50%, transparent 60%);
-  background-size: 60px 60px;
-}
-
-/* Rainbow theme verse box overrides */
-.rainbow-mode .cross-ref-item,
-.rainbow-mode .bg-gray-50,
-.rainbow-mode [class*="bg-gray-50"] {
-  background: linear-gradient(135deg, 
-    hsla(245, 85%, 3%, 0.9) 0%, 
-    hsla(260, 70%, 5%, 0.8) 100%) !important;
-  border: 1px solid hsla(285, 70%, 30%, 0.4) !important;
-  box-shadow: 
-    0 0 15px hsla(285, 100%, 70%, 0.15),
-    inset 0 1px 0 hsla(320, 90%, 65%, 0.2) !important;
-}
-
-.rainbow-mode .dark\:bg-gray-800,
-.rainbow-mode [class*="dark:bg-gray-800"] {
-  background: linear-gradient(135deg, 
-    hsla(245, 85%, 3%, 0.9) 0%, 
-    hsla(260, 70%, 5%, 0.8) 100%) !important;
-  border: 1px solid hsla(285, 70%, 30%, 0.4) !important;
-  box-shadow: 
-    0 0 15px hsla(285, 100%, 70%, 0.15),
-    inset 0 1px 0 hsla(320, 90%, 65%, 0.2) !important;
-}
-
-.rainbow-mode .text-gray-700,
-.rainbow-mode .dark\:text-gray-300 {
-  color: hsl(50, 95%, 88%) !important;
-  text-shadow: 0 0 8px hsla(285, 100%, 70%, 0.4);
-}
-
-.aurora-mode, :root.aurora {
-  --bg-primary: hsl(205, 45%, 11%);
-  --bg-secondary: hsl(210, 40%, 8%);
-  --text-primary: hsl(190, 60%, 92%);
-  --text-secondary: hsl(195, 45%, 75%);
-  --border-color: hsl(200, 50%, 30%);
-  --accent-color: hsl(175, 85%, 65%);
-  --header-bg: hsl(210, 40%, 8%);
-  --text-color: hsl(190, 60%, 92%);
-  --column-bg: hsl(205, 45%, 11%);
-  --highlight-bg: hsl(200, 40%, 18%);
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
 
 /* Apply theme variables to elements */
 body {
@@ -511,21 +157,6 @@ body {
 }
 
 /* Theme-specific font family applications */
-.sepia-mode,
-.parchment-mode {
-  --font-family: 'Crimson Text', 'Times New Roman', serif;
-}
-
-.forest-mode {
-  --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.cyber-mode {
-  --font-family: 'JetBrains Mono', 'Courier New', monospace;
-}
-
-.aurora-mode,
-.rainbow-mode,
 .light-mode,
 .dark-mode {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -544,19 +175,9 @@ body {
   line-height: 1.6;
 }
 
-.sepia-mode .verse-text,
-.parchment-mode .verse-text {
-  line-height: 1.7;
-  letter-spacing: 0.01em;
-}
+/* Verse text styling for remaining themes only */
 
-.cyber-mode .verse-text {
-  letter-spacing: 0.02em;
-}
 
-.forest-mode .verse-text {
-  line-height: 1.65;
-}
 
 /* Apply font size scaling to verse content AND row height */
 .verse-text {
@@ -647,7 +268,7 @@ body {
 
   /* Mobile header optimizations */
   @media (max-width: 767px) {
-    .divine-header {
+    .top-header {
       height: 48px !important;
       min-height: 48px !important;
       max-height: 48px !important;
@@ -676,10 +297,10 @@ body {
     /* Remove Tailwind class overrides - headers now use inline styles */
 
     /* Remove ALL gaps between headers and content */
-    .divine-header + *,
-    .divine-header ~ *,
-    .divine-header + * > *,
-    .divine-header ~ * > * {
+    .top-header + *,
+    .top-header ~ *,
+    .top-header + * > *,
+    .top-header ~ * > * {
       margin-top: 0px !important;
       padding-top: 0px !important;
     }
@@ -751,65 +372,7 @@ body {
   }
 }
 
-/* Divine animations and mystical effects */
-@keyframes divine-glow {
-  0%, 100% { 
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3), 0 0 90px rgba(236, 72, 153, 0.2);
-    filter: brightness(1.1);
-  }
-  33% { 
-    box-shadow: 0 0 35px rgba(59, 130, 246, 0.6), 0 0 70px rgba(236, 72, 153, 0.4), 0 0 105px rgba(251, 191, 36, 0.3);
-    filter: brightness(1.2);
-  }
-  66% { 
-    box-shadow: 0 0 40px rgba(236, 72, 153, 0.5), 0 0 80px rgba(251, 191, 36, 0.3), 0 0 120px rgba(139, 92, 246, 0.2);
-    filter: brightness(1.15);
-  }
-}
 
-@keyframes sacred-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes heavenly-float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(1deg); }
-}
-
-@keyframes divine-pulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-
-.divine-header {
-  position: relative;
-  overflow: hidden;
-  min-height: 80px !important;
-}
-
-.divine-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  animation: sacred-shimmer 3s infinite;
-}
-
-.sacred-glow {
-  animation: divine-glow 4s ease-in-out infinite;
-}
-
-.heavenly-float {
-  animation: heavenly-float 3s ease-in-out infinite;
-}
-
-.divine-pulse {
-  animation: divine-pulse 2s ease-in-out infinite;
-}
 
 /* Enhanced scroll behavior for mobile */
 .bible-table-wrapper {
@@ -950,38 +513,7 @@ body {
   overflow-wrap: break-word;
 }
 
-/* Refined divine styling for bible page header */
-.sacred-title {
-  color: white !important;
-  text-shadow: 0 0 10px #FFD700, 0 0 20px #8A2BE2 !important;
-}
 
-.divine-logo-container {
-  animation: spin 8s linear infinite, heavenly-float 4s ease-in-out infinite !important;
-}
-
-.divine-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-  animation: sacred-shimmer 6s infinite;
-}
-
-.sacred-glow {
-  animation: divine-glow 6s ease-in-out infinite !important;
-}
-
-.heavenly-float {
-  animation: heavenly-float 4s ease-in-out infinite !important;
-}
-
-.divine-pulse {
-  animation: divine-pulse 3s ease-in-out infinite !important;
-}
 
 /* Glass morphism effects for hamburger menu */
 .glass-menu {
@@ -1020,10 +552,7 @@ body.menu-open {
   overflow: hidden;
 }
 
-/* Divine header should always stay above everything */
-.divine-header {
-  z-index: 60 !important;
-}
+
 
 /* Adjust menu z-index to be below header but above content */
 .glass-menu {
@@ -1289,194 +818,18 @@ body.dark-mode {
   --error-color: hsl(0, 84%, 60%);
 }
 
-body.sepia-mode {
-  --bg-color: hsl(45, 56%, 94%);
-  --text-color: hsl(28, 29%, 18%);
-  --header-bg: hsl(45, 29%, 91%);
-  --border-color: hsl(45, 29%, 81%);
-  --column-bg: hsl(45, 26%, 88%);
-  --link-color: hsl(20, 79%, 52%);
-  --hover-bg: hsla(20, 79%, 52%, 0.1);
-  --button-hover: hsl(54, 77%, 75%);
-  --accent-color: hsl(20, 79%, 52%);
-}
 
-body.aurora-mode {
-  --bg-color: hsl(240, 63%, 7%);
-  --text-color: hsl(190, 100%, 94%);
-  --header-bg: hsl(240, 37%, 13%);
-  --border-color: hsl(240, 43%, 35%);
-  --column-bg: hsla(240, 78%, 32%, 0.5);
-  --link-color: hsl(159, 100%, 67%);
-  --hover-bg: hsla(159, 100%, 67%, 0.2);
-  --button-hover: hsl(240, 37%, 22%);
-  --accent-color: hsl(159, 100%, 67%);
-}
 
-body.electric-mode {
-  --bg-color: hsl(240, 63%, 15%);
-  --text-color: hsl(218, 27%, 94%);
-  --header-bg: hsl(240, 53%, 20%);
-  --border-color: hsl(231, 48%, 48%);
-  --column-bg: hsl(237, 71%, 29%);
-  --link-color: hsl(56, 94%, 59%);
-  --hover-bg: hsla(56, 94%, 59%, 0.2);
-  --button-hover: hsl(231, 48%, 48%);
-  --accent-color: hsl(56, 94%, 59%);
-}
 
-body.fireworks-mode {
-  --bg-color: hsl(0, 0%, 10%);
-  --text-color: hsl(0, 0%, 100%);
-  --header-bg: hsl(0, 0%, 18%);
-  --border-color: hsl(0, 0%, 27%);
-  --column-bg: hsla(0, 0%, 23%, 0.8);
-  --link-color: hsl(25, 100%, 59%);
-  --hover-bg: hsla(25, 100%, 59%, 0.2);
-  --button-hover: hsl(55, 100%, 50%);
-  --accent-color: hsl(25, 100%, 59%);
-}
 
-/* Enhanced theme animations and special effects */
-body.rainbow-mode::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, 
-    hsla(0, 100%, 50%, 0.03) 0%,
-    hsla(60, 100%, 50%, 0.03) 16.66%,
-    hsla(120, 100%, 50%, 0.03) 33.33%,
-    hsla(180, 100%, 50%, 0.03) 50%,
-    hsla(240, 100%, 50%, 0.03) 66.66%,
-    hsla(300, 100%, 50%, 0.03) 83.33%,
-    hsla(360, 100%, 50%, 0.03) 100%);
-  background-size: 400% 400%;
-  animation: rainbow-flow 20s ease infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-body.cyber-mode::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 20% 80%, hsla(315, 100%, 65%, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, hsla(180, 85%, 75%, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, hsla(200, 100%, 50%, 0.05) 0%, transparent 50%);
-  animation: cyber-pulse 8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-body.forest-mode::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(ellipse at top, hsla(140, 60%, 55%, 0.05) 0%, transparent 70%),
-    radial-gradient(ellipse at bottom, hsla(120, 40%, 30%, 0.05) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-body.aurora-mode::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, 
-    hsla(175, 70%, 60%, 0.08) 0%, 
-    transparent 30%,
-    hsla(200, 50%, 50%, 0.08) 60%,
-    transparent 100%);
-  background-size: 300% 300%;
-  animation: aurora-flow 18s ease infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-body.parchment-mode::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(circle at 25% 25%, hsla(35, 30%, 70%, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, hsla(25, 40%, 60%, 0.03) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-@keyframes rainbow-flow {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 100% 0%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-}
-
-@keyframes cyber-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  33% { opacity: 0.6; transform: scale(1.05); }
-  66% { opacity: 0.4; transform: scale(0.95); }
-}
-
-@keyframes aurora-flow {
-  0%, 100% { background-position: 0% 0%; }
-  33% { background-position: 100% 50%; }
-  66% { background-position: 50% 100%; }
-}
-
-/* Divine and Sacred Styling for Header */
-.divine-header {
-  background: linear-gradient(135deg, #FFD700, #FF6B35, #8A2BE2, #4169E1);
-  position: relative;
-}
-
-.sacred-glow {
-  box-shadow: 
-    0 6px 20px rgba(255, 215, 0, 0.4),
-    0 12px 35px rgba(138, 43, 226, 0.3),
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    0 0 40px rgba(255, 215, 0, 0.15);
-  position: relative;
-}
-
-.sacred-glow::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Logo is now completely static and peaceful */
-
-/* Mobile-first responsive header design */
-.divine-header {
+/* Header responsive design */
+.top-header {
   height: 48px !important;
   min-height: 48px !important;
 }
 
 @media (min-width: 768px) {
-  .divine-header {
+  .top-header {
     height: 60px !important;
     min-height: 60px !important;
   }
@@ -1494,22 +847,7 @@ body.parchment-mode::before {
   justify-content: center;
 }
 
-.sacred-title {
-  background: linear-gradient(45deg, #FFD700, #FFFFFF, #FFF8DC, #FFFFFF, #FFD700);
-  background-size: 300% 300%;
-  animation: sacred-shimmer 6s ease-in-out infinite;
-  -webkit-background-clip: text;
-  background-clip: text;
-  position: relative;
-  z-index: 2;
-}
 
-@keyframes sacred-shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 50% 0%; }
-  50% { background-position: 100% 50%; }
-  75% { background-position: 50% 100%; }
-}
 
 @keyframes verseExpand {
   from {
