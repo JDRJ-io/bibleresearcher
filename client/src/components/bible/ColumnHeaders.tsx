@@ -362,7 +362,7 @@ export function ColumnHeaders({
     <div 
       className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
       style={{ 
-        top: `${topHeaderHeight || 60}px`,
+        top: '48px',
         left: -scrollLeft,
         position: 'sticky',
         width: '100%',
