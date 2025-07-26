@@ -31,22 +31,6 @@ body {
   color-scheme: dark;
 }
 
-.sepia {
-  color-scheme: light;
-}
-
-.midnight {
-  color-scheme: dark;
-}
-
-.forest {
-  color-scheme: dark;
-}
-
-.cyber {
-  color-scheme: dark;
-}
-
 /* Optimized component styling using CSS variables */
 .theme-aware {
   background-color: var(--bg-primary);
@@ -74,22 +58,7 @@ body {
   font-size: calc(var(--text-base, 1rem) * var(--font-size-multiplier, 1));
 }
 
-/* Sepia theme specific adjustments */
-.sepia .verse-text {
-  line-height: 1.7;
-  letter-spacing: 0.01em;
-}
-
-/* Cyber theme specific adjustments */
-.cyber .verse-text {
-  letter-spacing: 0.02em;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-}
-
-/* Forest theme specific adjustments */
-.forest .verse-text {
-  line-height: 1.65;
-}
+/* No theme-specific adjustments needed for light/dark */
 
 /* Memory-efficient cross-reference styling */
 .cross-ref-item {
@@ -105,20 +74,7 @@ body {
   background: var(--highlight-bg);
 }
 
-/* Optimized font loading for premium themes */
-@media (min-width: 768px) {
-  .sepia {
-    font-family: 'Crimson Text', 'Times New Roman', serif;
-  }
-  
-  .forest {
-    font-family: 'Source Sans Pro', 'Lato', sans-serif;
-  }
-  
-  .cyber {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-  }
-}
+/* No custom fonts needed for light/dark themes */
 
 /* Reduced motion support for accessibility and performance */
 @media (prefers-reduced-motion: reduce) {

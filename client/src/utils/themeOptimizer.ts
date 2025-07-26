@@ -22,7 +22,7 @@ export class ThemeManager {
     memoryUsage: 0
   };
 
-  // Optimized theme definitions with memory efficiency in mind
+  // Simplified theme definitions - only light and dark
   private themes: OptimizedTheme[] = [
     {
       id: 'light',
@@ -54,70 +54,6 @@ export class ThemeManager {
         '--border-color': 'hsl(217, 33%, 17%)',
         '--accent-color': 'hsl(217, 91%, 65%)',
         '--highlight-bg': 'hsl(215, 27%, 32%)'
-      }
-    },
-    {
-      id: 'sepia',
-      name: 'Sepia',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Crimson Text, Times New Roman, serif',
-      variables: {
-        '--bg-primary': 'hsl(45, 15%, 96%)',
-        '--bg-secondary': 'hsl(42, 25%, 90%)',
-        '--text-primary': 'hsl(20, 50%, 15%)',
-        '--text-secondary': 'hsl(25, 35%, 35%)',
-        '--border-color': 'hsl(30, 20%, 85%)',
-        '--accent-color': 'hsl(25, 75%, 45%)',
-        '--highlight-bg': 'hsl(40, 30%, 88%)'
-      }
-    },
-    {
-      id: 'midnight',
-      name: 'Midnight',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(220, 25%, 12%)',
-        '--bg-secondary': 'hsl(220, 30%, 8%)',
-        '--text-primary': 'hsl(213, 31%, 91%)',
-        '--text-secondary': 'hsl(215, 20%, 65%)',
-        '--border-color': 'hsl(215, 28%, 17%)',
-        '--accent-color': 'hsl(45, 100%, 70%)',
-        '--highlight-bg': 'hsl(220, 20%, 20%)'
-      }
-    },
-    {
-      id: 'forest',
-      name: 'Forest',
-      priority: 'premium',
-      memoryFootprint: 'high',
-      fontFamily: 'Source Sans Pro, Lato, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(150, 85%, 2%)',
-        '--bg-secondary': 'hsl(145, 75%, 4%)',
-        '--text-primary': 'hsl(45, 85%, 88%)',
-        '--text-secondary': 'hsl(48, 65%, 72%)',
-        '--border-color': 'hsl(135, 70%, 22%)',
-        '--accent-color': 'hsl(40, 90%, 70%)',
-        '--highlight-bg': 'hsl(140, 20%, 18%)'
-      }
-    },
-    {
-      id: 'cyber',
-      name: 'Cyber',
-      priority: 'premium',
-      memoryFootprint: 'high',
-      fontFamily: 'JetBrains Mono, Courier New, monospace',
-      variables: {
-        '--bg-primary': 'hsl(210, 100%, 1%)',
-        '--bg-secondary': 'hsl(205, 95%, 2%)',
-        '--text-primary': 'hsl(180, 100%, 85%)',
-        '--text-secondary': 'hsl(185, 70%, 60%)',
-        '--border-color': 'hsl(185, 30%, 25%)',
-        '--accent-color': 'hsl(315, 70%, 70%)',
-        '--highlight-bg': 'hsl(185, 40%, 18%)'
       }
     }
   ];
