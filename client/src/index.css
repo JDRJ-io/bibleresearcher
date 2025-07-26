@@ -834,11 +834,9 @@ body {
   .sticky.z-30,
   .column-headers,
   .column-headers-adaptive,
-  .column-headers-container,
-  [class*="ColumnHeaders"],
-  [class*="column-headers"] {
+  [class*="ColumnHeaders"] {
     height: 36px !important;
-    top: 64px !important; /* Desktop header height */
+    top: 48px !important;
     z-index: 30 !important;
     margin-top: 0px !important;
     margin-bottom: 0px !important;
@@ -849,18 +847,7 @@ body {
     display: flex !important;
   }
 
-  /* Mobile specific positioning override */
-  @media (max-width: 640px) {
-    .sticky[style*="top: 48px"],
-    .sticky.z-30,
-    .column-headers,
-    .column-headers-adaptive,
-    .column-headers-container,
-    [class*="ColumnHeaders"],
-    [class*="column-headers"] {
-      top: 48px !important; /* Mobile header height */
-    }
-  }
+  /* Remove Tailwind class overrides - headers now use inline styles */
 
   /* Remove ALL gaps between headers and content */
   .divine-header+*,
@@ -876,24 +863,6 @@ body {
   [class*="virtual-bible-table"] {
     margin-top: 0px !important;
     padding-top: 0px !important;
-  }
-
-  /* Override any potential parent container positioning interference */
-  .bible-table-wrapper,
-  [data-testid="bible-table"] {
-    position: relative !important;
-  }
-
-  /* Force immediate positioning fix */
-  .column-headers-container[style*="left"] {
-    top: 48px !important;
-    position: sticky !important;
-  }
-
-  @media (min-width: 641px) {
-    .column-headers-container[style*="left"] {
-      top: 64px !important;
-    }
   }
 }
 
