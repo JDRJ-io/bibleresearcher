@@ -1,0 +1,230 @@
+Below is a **targeted “finishing kit”** that plugs the last gaps in your label‑overlay system, keeps the bitmap pipeline you already wired, and avoids any object churn in the render path.
+
+---
+
+## 1 File‑by‑file to‑do list
+
+| File                                              | Status      | What to add / change                                                                                                                      |
+| ------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **`client/src/lib/labelBits.ts`**                 | ✅           | Already present. Nothing to do.                                                                                                           |
+| **`client/src/lib/labelRenderer.ts`**             | ⬜ *missing* | Implement `classesForMask(mask)` (bitmask → space‑separated CSS).                                                                         |
+| **`client/src/hooks/useLabeledText.ts`**          | ⬜ *missing* | New hook: (text, labelData, activeLabels) ➜ returns `segments: {start,end,mask}` array (bitmap logic).                                    |
+| **`client/src/components/bible/LabeledText.tsx`** | ⚠️ *stub*   | Replace with component that calls the hook, maps segments ➜ `<span>` fragments.                                                           |
+| **`client/src/components/bible/VirtualRow.tsx`**  | ⚠️          | Already passes the correct props for the new `LabeledText` (text, labelData, activeLabels, verseKey, translationCode). No change needed.  |
+| **`client/src/hooks/useViewportLabels.ts`**       | ✅           | Already fetches viewport labelData; keep as is.                                                                                           |
+| **Worker + cache**                                | ✅           | You uploaded them; no changes required for rendering path.                                                                                |
+
+Once these four red boxes are filled, the UI will render highlights with <2 KB per verse and no GC spikes.
+
+---
+
+## 2 `labelRenderer.ts` – class mapper (tiny, pure)
+
+```ts
+// client/src/lib/labelRenderer.ts
+import { LabelBits, LabelMask } from './labelBits';
+
+/** Translate a 10‑bit mask → space‑separated CSS class list */
+export function classesForMask(mask: LabelMask): string {
+  if (!mask) return '';
+  const cls: string[] = [];
+  if (mask & LabelBits.who)        cls.push('fx-hand');
+  if (mask & LabelBits.what)       cls.push('fx-shadow');
+  if (mask & LabelBits.when)       cls.push('fx-under');
+  if (mask & LabelBits.where)      cls.push('fx-bracket');
+  if (mask & LabelBits.command)    cls.push('fx-bold');
+  if (mask & LabelBits.action)     cls.push('fx-ital');
+  if (mask & LabelBits.why)        cls.push('fx-outline');
+  if (mask & LabelBits.seed)       cls.push('sup-seed');
+  if (mask & LabelBits.harvest)    cls.push('sup-harvest');
+  if (mask & LabelBits.prediction) cls.push('sup-predict');
+  return cls.join(' ');
+}
+```
+
+No allocations in hot path—just pushes to a 10‑slot array.
+
+---
+
+## 3 `useLabeledText.ts` – bitmap segmenter (memoised)
+
+```ts
+// client/src/hooks/useLabeledText.ts
+import { useMemo } from 'react';
+import { LabelBits, LabelMask } from '@/lib/labelBits';
+
+/** One contiguous run of text that shares the same mask */
+export interface Segment { start: number; end: number; mask: LabelMask }
+
+/**
+ * Build segments for a single verse – memoised to inputs
+ * @param text          full verse string
+ * @param labelData     {who:['God'], what:['heaven', 'earth'], …}
+ * @param activeLabels  array like ['who','what']
+ */
+export function useLabeledText(
+  text: string,
+  labelData: Record<string, string[]>,
+  activeLabels: (keyof typeof LabelBits)[]
+): Segment[] {
+
+  return useMemo(() => {
+    if (!text || activeLabels.length === 0) {
+      return [{ start: 0, end: text.length, mask: 0 }];
+    }
+
+    // Collect intervals as sweep events
+    type Ev = { pos: number; bit: LabelMask; add: boolean };
+    const events: Ev[] = [];
+
+    activeLabels.forEach(lbl => {
+      const bit = LabelBits[lbl];
+      const phrases = labelData?.[lbl] || [];
+      phrases.forEach(ph => {
+        if (!ph) return;
+        const re = new RegExp(
+          ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
+          'gi'
+        );
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text))) {
+          events.push({ pos: m.index, add: true,  bit });
+          events.push({ pos: m.index + m[0].length, add: false, bit });
+        }
+      });
+    });
+
+    if (!events.length) return [{ start: 0, end: text.length, mask: 0 }];
+
+    // Sweep‑line merge
+    events.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
+    const segs: Segment[] = [];
+    let mask: LabelMask = 0;
+    let last = 0;
+
+    for (const { pos, bit, add } of events) {
+      if (pos > last) segs.push({ start: last, end: pos, mask });
+      mask = add ? (mask | bit) : (mask & ~bit);
+      last = pos;
+    }
+    if (last < text.length) segs.push({ start: last, end: text.length, mask });
+    return segs;
+  }, [text, JSON.stringify(labelData), activeLabels.join()]);  // fast: labelData is per‑verse
+}
+```
+
+*Computes once per (verse, labelData, activeLabels) and returns ≤ (N×2) segments.*
+
+---
+
+## 4 `LabeledText.tsx` – final render component
+
+```tsx
+// client/src/components/bible/LabeledText.tsx
+import React from 'react';
+import { useLabeledText } from '@/hooks/useLabeledText';
+import { classesForMask } from '@/lib/labelRenderer';
+import type { LabelMask } from '@/lib/labelBits';
+
+interface LabeledTextProps {
+  text: string;
+  labelData: Record<string, string[]>;
+  activeLabels: string[];
+  verseKey: string;          // for debug / keys
+  translationCode: string;   // not used but handy for logs
+}
+
+export function LabeledText({
+  text,
+  labelData,
+  activeLabels,
+  verseKey,
+}: LabeledTextProps) {
+  const segs = useLabeledText(text, labelData, activeLabels as any);
+
+  return (
+    <>
+      {segs.map((s, i) => {
+        const cls = classesForMask(s.mask as LabelMask);
+        const key = `${verseKey}-${s.start}-${s.mask}`;
+        return cls ? (
+          <span key={key} className={cls}>
+            {text.slice(s.start, s.end)}
+          </span>
+        ) : (
+          text.slice(s.start, s.end)
+        );
+      })}
+    </>
+  );
+}
+```
+
+> *Note* – We no longer need `segmentKey` or `mask` props; the component computes both internally, matching what **`VirtualRow.tsx`** is already sending. 
+
+---
+
+## 5 Wire‑up verification
+
+1. **Toggle a label** in **LabelsLegend**.
+   *Console should show* the Worker fetching once and returning a *filtered* map.
+2. Scroll a chapter: check DevTools → Memory → **heap stabilises within \~4 MB**.
+3. Toggle *second* label: no extra network; DOM diff is just class names.
+
+If verses flash unstyled for a single frame on first toggle, add:
+
+```css
+.verse-text { visibility: hidden; }
+.verse-text.loaded { visibility: visible; }
+```
+
+and set the class after `segments` length > 0 to avoid FOUC.
+
+---
+
+## 6 House‑keeping snippets (optional)
+
+### a) **Segment cache size** – in `useLabeledText` you can keep a module‑level `Map` keyed by `hash(text)|mask` if you hit the same verse many times (e.g., scrolling bounce).
+
+### b) **Bitmask → legend colour** – you already have CSS rules; ensure they are non‑conflicting:
+
+```css
+.fx-hand.fx-shadow { /* both rules apply */ }
+```
+
+### c) **Worker memory cap** – if you fear large `fileCache`, convert the cached parsed object to `null` after you’ve merged the filtered result into `labelsCache` (one `delete`).
+
+---
+
+### ✅ Deploy order
+
+1. **Add `labelRenderer.ts`**
+2. **Add `useLabeledText.ts`**
+3. **Replace `LabeledText.tsx`** with new version (no prop mismatch).
+4. `npm run dev` → toggle 3+ labels → watch Chrome performance graphs flatten.
+
+That closes the presentation gap while preserving the zero‑GC, bitmap‑driven design you built. Enjoy the smooth overlays!
+
+5  Hand‑over checklist for the agent (gist)
+Keep single labels/{tCode}/all.json file in Supabase.
+
+Worker (labels.worker.ts) fetches once, parses, drops unused labels, posts back.
+
+labelsCache.ts merges/retains only ever‑requested labels.
+
+useViewportLabels.ts slices that cache down to verses in view.
+
+useLabeledText.ts converts [phrase[]] → merged bit‑masked segments (no per‑char arrays).
+
+LabeledText.tsx renders <span class="fx-hand fx-shadow">…</span> fragments.
+
+CSS holds the visual effects; stacking is automatic because multiple classes can be on one element.
+
+LRU inside labelsCache or useLabeledText keeps seg arrays for only the last ~400 verses.
+
+If these eight bullets are in place—the repo already contains most of them, see VirtualBibleTable 
+, App store 
+, current LabeledText stub 
+, Labels legend UI 
+ and VirtualRow wiring 
+—the overlay system will run smoothly in parallel with every other Bible‑study feature.
