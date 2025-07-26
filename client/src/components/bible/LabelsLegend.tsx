@@ -52,11 +52,11 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
     const currentLabels = activeLabels || [];
     if (currentLabels.includes(labelKey)) {
       // Remove the label
-      console.log(`🏷️ Removing label: ${labelKey}`);
+      console.log(`🏷️ WORKER: Removing label: ${labelKey}, remaining:`, currentLabels.filter(label => label !== labelKey));
       setActiveLabels(currentLabels.filter(label => label !== labelKey));
     } else {
       // Add the label
-      console.log(`🏷️ Adding label: ${labelKey}`);
+      console.log(`🏷️ WORKER: Adding label: ${labelKey}, will be:`, [...currentLabels, labelKey]);
       setActiveLabels([...currentLabels, labelKey]);
       
       // Ensure cache is loaded when adding a label

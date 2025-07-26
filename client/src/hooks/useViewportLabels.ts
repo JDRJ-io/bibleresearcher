@@ -29,20 +29,20 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
 
     const loadLabels = async () => {
       setIsLoading(true);
+      console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
       try {
         // Pass activeLabels to cache loader for worker filtering
+        console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded...`);
         await ensureLabelCacheLoaded(mainTranslation, activeLabels);
+        console.log(`✅ WORKER: Cache loaded, getting labels for ${verseKeys.length} verses`);
         
         // Get labels only for the verses in viewport and only for active label types
         const viewportLabels = getLabelsForVerses(mainTranslation, verseKeys, activeLabels);
         setLabelsData(viewportLabels);
         
-        // Optional: Log only if there are actual labels loaded
-        if (Object.keys(viewportLabels).length > 0) {
-          console.log(`Labels loaded for ${Object.keys(viewportLabels).length} verses`);
-        }
+        console.log(`🏷️ WORKER: Final viewport labels:`, Object.keys(viewportLabels).length, 'verses with labels:', viewportLabels);
       } catch (error) {
-        console.error('Failed to load viewport labels:', error);
+        console.error('❌ WORKER: Failed to load viewport labels:', error);
         setLabelsData({});
       } finally {
         setIsLoading(false);

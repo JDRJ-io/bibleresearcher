@@ -6,6 +6,8 @@ import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { useColumnData } from '@/hooks/useColumnData';
+import { LabeledText } from './LabeledText';
+import { useLabeledText } from '@/hooks/useLabeledText';
 
 interface VirtualRowProps {
   verseID: string;
@@ -19,6 +21,7 @@ interface VirtualRowProps {
   onVerseClick: (ref: string) => void;
   onExpandVerse?: (verse: BibleVerse) => void;
   onDoubleClick?: () => void;
+  getVerseLabels?: (verseReference: string) => Record<string, string[]>;
 }
 
 // Cell Components
@@ -27,6 +30,7 @@ interface CellProps {
   getVerseText: (verseID: string, translationCode: string) => string | undefined;
   mainTranslation: string;
   onVerseClick?: (verseRef: string) => void;
+  getVerseLabels?: (verseReference: string) => Record<string, string[]>;
 }
 
 function ReferenceCell({ verse }: CellProps) {
@@ -248,7 +252,8 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellP
   );
 }
 
-function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps) {
+function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLabels }: CellProps) {
+  const { activeLabels } = useBibleStore();
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
   if (verse.reference === "Gen.1:1") {
@@ -261,10 +266,37 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation }: CellProps
     });
   }
 
+  // Get labels for this verse if available
+  const verseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
+  
+  // Use LabeledText if we have active labels and label data
+  const shouldUseLabeledText = activeLabels && activeLabels.length > 0 && Object.keys(verseLabels).length > 0;
+  
+  console.log(`🏷️ MainTranslationCell for ${verse.reference}:`, {
+    shouldUseLabeledText,
+    activeLabels: activeLabels?.length || 0,
+    verseLabels: Object.keys(verseLabels).length,
+    hasText: !!verseText
+  });
+
   return (
     <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
       <div className="leading-relaxed verse-text">
-        {verseText || "Loading..."}
+        {verseText ? (
+          shouldUseLabeledText ? (
+            <LabeledText 
+              text={verseText}
+              labelData={verseLabels}
+              activeLabels={activeLabels || []}
+              verseKey={verse.reference}
+              translationCode={mainTranslation}
+            />
+          ) : (
+            verseText
+          )
+        ) : (
+          "Loading..."
+        )}
       </div>
     </div>
   );
@@ -290,7 +322,8 @@ export function VirtualRow({
   mainTranslation,
   onVerseClick,
   onExpandVerse,
-  onDoubleClick
+  onDoubleClick,
+  getVerseLabels
 }: VirtualRowProps) {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
@@ -482,6 +515,18 @@ export function VirtualRow({
         );
 
       case 'main-translation':
+        // Use MainTranslationCell with labels support for main translation
+        return (
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
+            <MainTranslationCell 
+              verse={verse} 
+              getVerseText={getVerseText} 
+              mainTranslation={config.translationCode}
+              getVerseLabels={getVerseLabels}
+            />
+          </div>
+        );
+
       case 'alt-translation':
         // Debug translation lookup for first verse
         if (verse.reference === "Gen 1:1") {
@@ -493,7 +538,7 @@ export function VirtualRow({
           });
         }
 
-        // Simple fallback to hook functions - let debugging show the issue
+        // Simple fallback to hook functions for alternate translations (no labels)
         let verseText = getVerseText(verse.reference, config.translationCode) || 
                         getMainVerseText(verse.reference);
 
