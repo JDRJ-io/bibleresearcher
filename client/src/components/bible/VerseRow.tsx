@@ -100,10 +100,10 @@ export function VerseRow({
           const data: Partial<Record<LabelName, string[]>> = {};
           
           // Only populate active labels to avoid unnecessary processing
-          activeLabels.forEach((labelName: LabelName) => {
-            const labelValues = getLabel(translation.id, verse.reference, labelName);
+          activeLabels.forEach((labelName) => {
+            const labelValues = getLabel(translation.id, verse.reference, labelName as LabelName);
             if (labelValues.length > 0) {
-              data[labelName] = labelValues;
+              data[labelName as LabelName] = labelValues;
             }
           });
           
@@ -114,7 +114,7 @@ export function VerseRow({
         const segments = useLabeledText({
           text: verseText || '',
           labelData,
-          activeLabels: activeLabels || [],
+          activeLabels: (activeLabels || []) as LabelName[],
           verseKey: verse.reference,
           translationCode: translation.id
         });
@@ -249,7 +249,7 @@ export function VerseRow({
                   <div className="text-xs text-gray-500 mb-2">
                     Labels ({mainTranslation})
                   </div>
-                  {activeLabels.map((labelName: LabelName) => {
+                  {(activeLabels as LabelName[]).map((labelName) => {
                     const labelValues = getLabel(mainTranslation, verse.reference, labelName);
                     
                     if (labelValues.length > 0) {
@@ -273,7 +273,7 @@ export function VerseRow({
                     }
                     return null;
                   })}
-                  {activeLabels.every((labelName: LabelName) => 
+                  {(activeLabels as LabelName[]).every((labelName) => 
                     getLabel(mainTranslation, verse.reference, labelName).length === 0
                   ) && (
                     <span className="text-muted-foreground italic">No labels found for this verse</span>

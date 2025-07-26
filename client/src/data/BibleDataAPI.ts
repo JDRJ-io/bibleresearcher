@@ -17,6 +17,7 @@ const paths = {
   verseKeysChronological: 'metadata/verseKeys-chronological.json',
   datesCanonical: 'metadata/dates-canonical.txt',
   datesChronological: 'metadata/dates-chronological.txt',
+  labels:       (translationCode: string) => `labels/${translationCode}/all.json`,
 };
 
 export async function fetchFromStorage(path: string): Promise<string> {
@@ -169,7 +170,7 @@ export async function getLabelsData(translation: string = 'KJV'): Promise<any> {
   const cacheKey = `labels-${translation}`;
   return getOrFetch(cacheKey, async () => {
     console.log(`📚 BibleDataAPI: Loading labels for ${translation} from storage`);
-    const text = await fetchFromStorage(`labels/${translation}/ALL.json`);
+    const text = await fetchFromStorage(paths.labels(translation));
     const parsed = JSON.parse(text);
     console.log(`✅ BibleDataAPI: Loaded ${Object.keys(parsed).length} verse labels for ${translation}`);
     return parsed;
