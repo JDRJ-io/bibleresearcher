@@ -253,7 +253,8 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellP
 }
 
 function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLabels }: CellProps) {
-  const { activeLabels } = useBibleStore();
+  const store = useBibleStore();
+  const activeLabels = store?.activeLabels || [];
   const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
 
   if (verse.reference === "Gen.1:1") {
@@ -278,7 +279,8 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
     verseLabels: Object.keys(verseLabels).length,
     hasText: !!verseText,
     getVerseLabelsFunction: !!getVerseLabels,
-    actualVerseLabels: verseLabels
+    actualVerseLabels: verseLabels,
+    storeActiveLabels: store?.activeLabels
   });
 
   return (

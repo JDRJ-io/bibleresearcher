@@ -25,6 +25,7 @@ import type {
   AppPreferences,
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
+import type { LabelName } from '@/lib/labelBits';
 
 interface VirtualBibleTableProps {
   verses: BibleVerse[];
@@ -87,6 +88,16 @@ const VirtualBibleTable = ({
     storeActiveLabels: store?.activeLabels,
     directActiveLabels: useBibleStore.getState().activeLabels 
   });
+  
+  // Force test to ensure store updates are working
+  useEffect(() => {
+    const unsubscribe = useBibleStore.subscribe(
+      (state) => {
+        console.log('🔥🔥🔥 STORE SUBSCRIPTION - activeLabels changed to:', state.activeLabels);
+      }
+    );
+    return unsubscribe;
+  }, []);
   
   // DIRECT TEST: Force test Dan.7:3 with known labels
   useEffect(() => {

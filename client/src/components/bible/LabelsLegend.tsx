@@ -50,18 +50,34 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
   
   const toggleLabel = (labelKey: LabelName) => {
     const currentLabels = activeLabels || [];
+    console.log(`🏷️ TOGGLE START - Current activeLabels:`, currentLabels, 'labelKey:', labelKey);
+    
     if (currentLabels.includes(labelKey)) {
       // Remove the label
-      console.log(`🏷️ WORKER: Removing label: ${labelKey}, remaining:`, currentLabels.filter(label => label !== labelKey));
-      setActiveLabels(currentLabels.filter(label => label !== labelKey));
+      const newLabels = currentLabels.filter(label => label !== labelKey);
+      console.log(`🏷️ WORKER: Removing label: ${labelKey}, remaining:`, newLabels);
+      setActiveLabels(newLabels);
+      
+      // Force verify store update
+      setTimeout(() => {
+        const storeState = useBibleStore.getState();
+        console.log(`🏷️ VERIFY REMOVE - Store activeLabels after remove:`, storeState.activeLabels);
+      }, 100);
     } else {
       // Add the label
-      console.log(`🏷️ WORKER: Adding label: ${labelKey}, will be:`, [...currentLabels, labelKey]);
-      setActiveLabels([...currentLabels, labelKey]);
+      const newLabels = [...currentLabels, labelKey];
+      console.log(`🏷️ WORKER: Adding label: ${labelKey}, will be:`, newLabels);
+      setActiveLabels(newLabels);
+      
+      // Force verify store update
+      setTimeout(() => {
+        const storeState = useBibleStore.getState();
+        console.log(`🏷️ VERIFY ADD - Store activeLabels after add:`, storeState.activeLabels);
+      }, 100);
       
       // Ensure cache is loaded when adding a label
       if (mainTranslation) {
-        ensureLabelCacheLoaded(mainTranslation, [...currentLabels, labelKey] as LabelName[]).catch(error => {
+        ensureLabelCacheLoaded(mainTranslation, newLabels as LabelName[]).catch(error => {
           console.error('Failed to load labels for main translation:', error);
         });
       }
@@ -81,6 +97,22 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
       <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
         Semantic Labels
       </div>
+      
+      {/* Debug button to test store */}
+      <button
+        onClick={() => {
+          console.log('🔴 MANUAL TEST - Current store state:', useBibleStore.getState());
+          console.log('🔴 MANUAL TEST - activeLabels from hook:', activeLabels);
+          // Force update with test label
+          setActiveLabels(['what']);
+          setTimeout(() => {
+            console.log('🔴 MANUAL TEST - After setActiveLabels(["what"]):', useBibleStore.getState().activeLabels);
+          }, 100);
+        }}
+        className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+      >
+        DEBUG: Force Set "What" Label
+      </button>
       
       {/* Compact Toggle Grid - 2 columns for easy clicking */}
       <div className="grid grid-cols-2 gap-2">
