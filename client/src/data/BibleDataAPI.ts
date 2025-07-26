@@ -423,19 +423,7 @@ export async function getProphecyRows() {
   return data.prophecyIndex;
 }
 
-// Additional prophecy file loaders
-export async function loadProphecyRows() {
-  return getOrFetch('prophecy-rows', async () => {
-    const textData = await fetchFromStorage(paths.prophecyRows);
-    return JSON.parse(textData);
-  });
-}
-
-export async function loadProphecyIndex() {
-  return getOrFetch('prophecy-index', async () => {
-    return await fetchFromStorage(paths.prophecyIdx);
-  });
-}
+// Note: loadProphecyRows and loadProphecyIndex are already defined above at lines 141-152
 
 // Cross-reference slice loader
 export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
