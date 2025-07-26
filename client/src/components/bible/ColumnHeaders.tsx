@@ -457,14 +457,13 @@ export function ColumnHeaders({
 
   return (
     <div
-      className={`column-headers column-headers-container sticky z-40 bg-background border-b shadow-sm`}
+      className={`column-headers sticky z-40 bg-background border-b shadow-sm`}
       style={{
         left: -scrollLeft,
         width: "100%",
-        height: "40px", // Consistent height, let CSS handle positioning
       }}
     >
-      <div className="overflow-hidden w-full h-full flex">
+      <div className="column-headers-container overflow-hidden w-full h-full flex">
         {shouldCenter ? (
           // Centered layout for few columns
           <div className="flex justify-center w-full h-full">
