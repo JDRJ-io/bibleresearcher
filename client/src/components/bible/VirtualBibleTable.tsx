@@ -385,7 +385,7 @@ const VirtualBibleTable = ({
   });
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ margin: 0, padding: 0 }}>
+    <div className={`virtual-bible-table ${className}`}>
       <ColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
@@ -405,12 +405,9 @@ const VirtualBibleTable = ({
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
           touchAction: "pan-y", 
-          height: "calc(100vh - 84px)",
+          height: "calc(100vh - 84px)", // Adjusted to match CSS header heights
           overflowX: 'auto',
-          overflowY: 'auto',
-          margin: 0,
-          padding: 0,
-          position: 'relative'
+          overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
