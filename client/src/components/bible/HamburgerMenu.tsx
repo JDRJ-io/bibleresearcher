@@ -40,6 +40,10 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
   const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
+  
+  // DEBUG: Add activeLabels check
+  const activeLabels = bibleStore?.activeLabels ?? [];
+  console.log('🍔 HamburgerMenu activeLabels:', activeLabels);
 
   const { theme, setTheme, themes } = useTheme();
 

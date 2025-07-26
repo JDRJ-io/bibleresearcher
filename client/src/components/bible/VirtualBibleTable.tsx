@@ -76,11 +76,17 @@ const VirtualBibleTable = ({
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
   
-  // Labels system integration
-  const { activeLabels } = useBibleStore();
+  // Labels system integration - get entire store for debugging
+  const store = useBibleStore();
+  const activeLabels = store.activeLabels;
   
   // Immediate debug log to see current state
   console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+  console.log('🔍🔍🔍 IMMEDIATE - Full store check:', { 
+    hasStore: !!store,
+    storeActiveLabels: store?.activeLabels,
+    directActiveLabels: useBibleStore.getState().activeLabels 
+  });
   
   // DIRECT TEST: Force test Dan.7:3 with known labels
   useEffect(() => {
