@@ -169,11 +169,18 @@ export async function getDatesChronological(): Promise<string> {
 export async function getLabelsData(translation: string = 'KJV'): Promise<any> {
   const cacheKey = `labels-${translation}`;
   return getOrFetch(cacheKey, async () => {
-    console.log(`📚 BibleDataAPI: Loading labels for ${translation} from storage`);
-    const text = await fetchFromStorage(paths.labels(translation));
-    const parsed = JSON.parse(text);
-    console.log(`✅ BibleDataAPI: Loaded ${Object.keys(parsed).length} verse labels for ${translation}`);
-    return parsed;
+    console.log(`📚 BibleDataAPI: Loading labels for ${translation} from storage path: ${paths.labels(translation)}`);
+    try {
+      const text = await fetchFromStorage(paths.labels(translation));
+      const parsed = JSON.parse(text);
+      console.log(`✅ BibleDataAPI: Loaded ${Object.keys(parsed).length} verse labels for ${translation}`);
+      return parsed;
+    } catch (error) {
+      console.warn(`⚠️ BibleDataAPI: Labels file not found for ${translation} at ${paths.labels(translation)}. This is expected if label files haven't been uploaded yet.`);
+      console.warn(`Error details:`, error);
+      // Return empty object instead of throwing to prevent UI crashes
+      return {};
+    }
   });
 }
 

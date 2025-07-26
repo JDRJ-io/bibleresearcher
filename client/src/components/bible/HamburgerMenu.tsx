@@ -33,13 +33,11 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const showProphecies = bibleStore?.showProphecies ?? false;
   const showNotes = bibleStore?.showNotes ?? false;
   const showDates = bibleStore?.showDates ?? false;
-  const showLabels = bibleStore?.showLabels ?? {};
   const isChronological = bibleStore?.isChronological ?? false;
   const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
   const toggleProphecies = bibleStore?.toggleProphecies ?? (() => {});
   const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
-  const toggleLabel = bibleStore?.toggleLabel ?? (() => {});
   const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
 
@@ -110,18 +108,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
     });
   };
 
-  const labels = [
-    { id: "who", name: "Who", description: "Bold text for people/beings" },
-    { id: "what", name: "What", description: "Outlined text for objects/things" },
-    { id: "when", name: "When", description: "Underlined text for time references" },
-    { id: "where", name: "Where", description: "Curly braces around locations" },
-    { id: "command", name: "Command", description: "Drop shadow for commands" },
-    { id: "action", name: "Action", description: "Italic text for actions/verbs" },
-    { id: "why", name: "Why", description: "Cursive font for reasons/purposes" },
-    { id: "seed", name: "Seed", description: "Superscript * for spiritual seeds" },
-    { id: "harvest", name: "Harvest", description: "Superscript = for results/fruits" },
-    { id: "prediction", name: "Prediction", description: "Superscript ~ for prophecies" },
-  ];
+
 
   if (!isOpen) return null;
 

@@ -63,7 +63,6 @@ export const useBibleStore = create<{
   showProphecies: boolean;
   showNotes: boolean;
   showDates: boolean;
-  showLabels: Record<string, boolean>;
   isSearchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
   activeLabels: LabelName[];
@@ -73,7 +72,7 @@ export const useBibleStore = create<{
   toggleProphecies: () => void;
   toggleNotes: () => void;
   toggleDates: () => void;
-  toggleLabel: (labelId: string) => void;
+
   toggleContext: () => void;
   toggleChronological: () => void;
   showContext: boolean;
@@ -106,7 +105,6 @@ export const useBibleStore = create<{
   showNotes: false,     // Notes column toggle
   showDates: false,     // Dates column toggle
   showContext: false,   // Context boundaries toggle
-  showLabels: {},           // Labels state object for semantic highlighting  
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
   isChronological: false,   // Verse order toggle (canonical vs chronological)
@@ -277,30 +275,7 @@ export const useBibleStore = create<{
     return newState;
   }),
 
-  toggleLabel: (labelId: string) => set(state => {
-    const newValue = !state.showLabels[labelId];
 
-    // Load label data when toggling on
-    if (newValue && !state.labelsData[labelId]) {
-      console.log(`🏷️ Loading ${labelId} label data from Supabase...`);
-      import('@/data/BibleDataAPI').then(async ({ getLabelsData }) => {
-        try {
-          const labels = await getLabelsData('KJV');
-          get().setLabelsData({ ...get().labelsData, [labelId]: labels });
-          console.log(`✅ Labels data loaded for ${labelId}:`, Object.keys(labels).length, 'verses');
-        } catch (error) {
-          console.error(`❌ Failed to load ${labelId} labels:`, error);
-        }
-      });
-    }
-
-    return {
-      showLabels: {
-        ...state.showLabels,
-        [labelId]: newValue
-      }
-    };
-  }),
 
   toggleContext: () => set(state => {
     console.log('🔄 TOGGLE CONTEXT - Current:', state.showContext, '→ New:', !state.showContext);
