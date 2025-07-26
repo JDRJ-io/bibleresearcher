@@ -453,14 +453,14 @@ export function ColumnHeaders({
   const referenceColumn = allColumns.find((col) => col.slot === 0);
   const otherColumns = allColumns.filter((col) => col.slot !== 0);
 
-  // Let CSS handle positioning via mobile-headers.css - no inline styles that override
+  // Let CSS handle all positioning - no inline styles that override
 
   return (
     <div
-      className={`column-headers-container sticky z-40 bg-background border-b shadow-sm`}
+      className={`column-headers-container`}
       style={{
-        left: -scrollLeft,
-        width: "100%",
+        transform: `translateX(-${Math.round(scrollLeft)}px)`,
+        willChange: "transform",
       }}
     >
       <div className="overflow-hidden w-full h-full flex">
