@@ -1,15 +1,4 @@
 Project Architecture & Status (Post-Refactor July 2025)
-
-## Recent Changes (July 26, 2025)
-✓ Enhanced theme system with advanced animated effects
-✓ Added Rainbow Aurora theme with prismatic background animation and text gradient effects
-✓ Added Aurora Borealis theme with moving light curtains and star field sparkle
-✓ Added three new premium themes:
-  - Cyberpunk: Neon grid scan-lines with futuristic glow effects
-  - Forest Meadow: Sun-dappled canopy with floating pollen animation
-  - Ancient Scroll: Candlelight flicker on parchment texture
-✓ Implemented accessibility support with reduced-motion fallbacks
-✓ Updated theme optimizer with new premium theme definitions
 # Overview
 This is a comprehensive Bible study progressive web app built with React and TypeScript, using Supabase for all backend services (database, authentication, and file storage). The application delivers an Excel-like interface for reading and studying the Bible with multi-translation support, cross-references, Strong’s concordance, prophecy tracking, and community features. The architecture has been significantly refactored to eliminate the previous Express.js/Node backend and rely exclusively on Supabase and client-side logic. All data – from Bible text to user notes – now flows through a unified front-end data layer, ensuring a single source of truth and simplifying maintenance. Key characteristics of the current system include:
 ## React 18 Frontend: 
