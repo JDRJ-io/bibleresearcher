@@ -83,7 +83,7 @@ const VirtualBibleTable = ({
   console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
   
   // DIRECT TEST: Force test Dan.7:3 with known labels
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeLabels?.includes('what' as any)) {
       console.log('🧪 DIRECT TEST: Testing Dan.7:3 with what label active');
       const testLabels = { what: ['four huge beasts'], where: ['out of the water'], action: ['came up'] };
