@@ -337,17 +337,16 @@ const VirtualBibleTable = ({
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // MOBILE-FIRST LAYOUT LOGIC: Always left-align on mobile, center only on wide desktop
-  // Calculate approximate total width needed for all columns
-  const estimatedTotalWidth = useMemo(() => {
+  // Calculate actual total width based on visible columns - simplified approach
+  const actualTotalWidth = useMemo(() => {
     let width = 0;
-    width += 80; // Reference column ~80px
+    width += 80; // Reference column ~80px  
     width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 320; // Cross refs ~320px (matches translations)
+    if (showCrossRefs) width += 320; // Cross refs ~320px
     if (showProphecies) width += 180; // P+F+V ~60px each
     width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
     return width;
-  }, [showCrossRefs, showProphecies, activeTranslations, mainTranslation]);
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
@@ -355,9 +354,9 @@ const VirtualBibleTable = ({
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
 
-  // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
-  // Only center on wide desktop screens when content fits
-  const shouldCenter = !isMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
+  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
+  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
+  const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   useEffect(() => {
     if (!wrapperRef.current) return;
@@ -484,8 +483,11 @@ const VirtualBibleTable = ({
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className="flex w-full" style={{ overflowX: 'auto' }}>
-          <div style={{ minWidth: 'max-content' }}>
+        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
+          <div style={{ 
+            minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
+            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
+          }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -541,7 +543,7 @@ const VirtualBibleTable = ({
                     getVerseText={getVerseTextForRow}
                     getMainVerseText={getMainVerseTextForRow}
                     activeTranslations={activeTranslations}
-
+                    mainTranslation={mainTranslation}
                     onVerseClick={columnData.onVerseClick}
                     onExpandVerse={onExpandVerse}
                   />
