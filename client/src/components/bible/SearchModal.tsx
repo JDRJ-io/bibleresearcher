@@ -25,8 +25,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const [searchType, setSearchType] = useState<'all' | 'exact' | 'reference'>('all');
   
   const bibleStore = useBibleStore();
-  const verses = bibleStore?.verses || [];
-  const { main: activeTranslation } = useTranslationMaps();
+  const verses = bibleStore?.currentVerseKeys || [];
+  const { mainTranslation: activeTranslation } = useTranslationMaps();
   
   // Create search engine instance
   const searchEngine = useMemo(() => {
@@ -137,7 +137,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
               autoFocus
             />
             <Button onClick={performSearch} disabled={isSearching}>
-              {isSearching ? <LoadingWheel size={16} /> : <Search className="w-4 h-4" />}
+              {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
             </Button>
             <Button variant="outline" onClick={getRandomVerse}>
               <Book className="w-4 h-4" />
@@ -214,7 +214,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
           <div className="flex-1 overflow-hidden">
             {isSearching && (
               <div className="flex items-center justify-center py-8">
-                <LoadingWheel size={32} />
+                <LoadingWheel />
                 <span className="ml-2">Searching...</span>
               </div>
             )}
