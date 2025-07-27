@@ -344,7 +344,19 @@ const VirtualBibleTable = ({
     width += 320; // Main translation ~320px
     if (showCrossRefs) width += 320; // Cross refs ~320px
     if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    const altTranslationCount = activeTranslations.filter(t => t !== mainTranslation).length;
+    width += (altTranslationCount * 320); // Alt translations ~320px each
+    
+    console.log('🔧 VirtualBibleTable width calculation:', {
+      baseWidth: 400, // ref + main
+      crossRefs: showCrossRefs ? 320 : 0,
+      prophecies: showProphecies ? 180 : 0,
+      altTranslations: `${altTranslationCount} × 320 = ${altTranslationCount * 320}`,
+      totalWidth: width,
+      viewportWidth: typeof window !== 'undefined' ? window.innerWidth : 'unknown',
+      needsScroll: width > (typeof window !== 'undefined' ? window.innerWidth : 1024)
+    });
+    
     return width;
   }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
 
@@ -357,76 +369,28 @@ const VirtualBibleTable = ({
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
+  
+  console.log('🔧 Centering decision:', {
+    actualTotalWidth,
+    viewportWidth,
+    shouldCenter,
+    needsHorizontalScroll,
+    isMobile
+  });
 
+  // Simplified scroll handling - let CSS handle overflow behavior
   useEffect(() => {
-    if (!wrapperRef.current) return;
-
-    let startX = 0, startY = 0;
-    let isScrolling = false;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      isScrolling = false;
-      setScrollDirection(null);
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isScrolling) {
-        const dx = Math.abs(e.touches[0].clientX - startX);
-        const dy = Math.abs(e.touches[0].clientY - startY);
-
-        // Determine scroll direction based on initial movement
-        if (dx > dy && dx > 15) {
-          // Horizontal scrolling detected
-          setScrollDirection('horizontal');
-          wrapperRef.current!.style.touchAction = "pan-x";
-          wrapperRef.current!.style.overflowY = "hidden";
-          isScrolling = true;
-        } else if (dy > dx && dy > 15) {
-          // Vertical scrolling detected
-          setScrollDirection('vertical');
-          wrapperRef.current!.style.touchAction = "pan-y";
-          wrapperRef.current!.style.overflowX = "hidden";
-          isScrolling = true;
-        }
-      }
-    };
-
-    const onTouchEnd = () => {
-      // Reset to allow both directions after touch ends
-      if (wrapperRef.current) {
-        wrapperRef.current.style.touchAction = "pan-y";
-        wrapperRef.current.style.overflowX = "auto";
-        wrapperRef.current.style.overflowY = "auto";
-      }
-      setScrollDirection(null);
-      isScrolling = false;
-    };
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
 
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       setScrollLeft(target.scrollLeft);
     };
 
-    const wrapper = wrapperRef.current;
-    const container = containerRef.current;
-    wrapper.addEventListener("touchstart", onTouchStart);
-    wrapper.addEventListener("touchmove", onTouchMove);
-    wrapper.addEventListener("touchend", onTouchEnd);
-    if (container) {
-      container.addEventListener("scroll", onScroll);
-    }
-
+    wrapper.addEventListener("scroll", onScroll);
     return () => {
-      if (wrapper) {
-        wrapper.removeEventListener("touchstart", onTouchStart);
-        wrapper.removeEventListener("touchmove", onTouchMove);
-        wrapper.removeEventListener("touchend", onTouchEnd);
-      }
-      if (container) {
-        container.removeEventListener("scroll", onScroll);
-      }
+      wrapper?.removeEventListener("scroll", onScroll);
     };
   }, []);
 
@@ -473,20 +437,22 @@ const VirtualBibleTable = ({
         }}
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
-          touchAction: "pan-y", 
           marginTop: '0', // Remove the desktop gap below the header
-          height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
-          overflowY: 'auto'
+          height: "calc(100vh - 85px)"
+          // Let CSS handle overflow - remove conflicting JS overflow styles
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
+        <div className="flex w-full" style={{ 
+          // Always left-align content and let wrapper handle centering with margin-inline: auto
+          justifyContent: shouldCenter ? 'center' : 'flex-start',
+          overflow: 'visible'
+        }}>
           <div style={{ 
-            minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
-            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
+            minWidth: `${actualTotalWidth}px`, // Always use calculated width
+            width: `${actualTotalWidth}px` // Force explicit width to trigger scrollbar
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
