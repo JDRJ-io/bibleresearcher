@@ -2,6 +2,7 @@
 import React from 'react';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { classesForMask } from '@/lib/labelRenderer';
+import { LabelName } from '@/lib/labelBits';
 
 interface Props {
   text: string;
@@ -17,25 +18,43 @@ export default function LabeledText({
   activeLabels,
   verseKey,
 }: Props) {
-  const segs = useLabeledText(text, labelData, activeLabels as any);
+  // Convert string[] to LabelName[] for type safety
+  const typedActiveLabels = activeLabels as LabelName[];
+  
+  // Use the labeled text hook to get segments with masks
+  const segs = useLabeledText(text, labelData, typedActiveLabels);
 
-  // Labels should now work with normalization fixes applied
+  console.log(`🏷️ LabeledText rendering for ${verseKey}:`, {
+    text: text.slice(0, 50) + '...',
+    labelData,
+    activeLabels,
+    segments: segs.length
+  });
 
   return (
     <>
-      {segs.map((s) => {
+      {segs.map((s, index) => {
         const cls = classesForMask(s.mask);
-        const key = `${verseKey}-${s.start}-${s.mask}`;
-        return cls ? (
-          <span key={key} className={cls}>
-            {text.slice(s.start, s.end)}
-          </span>
-        ) : (
-          text.slice(s.start, s.end)
-        );
+        const content = text.slice(s.start, s.end);
+        const key = `${verseKey}-${index}-${s.start}-${s.end}`;
+        
+        if (cls) {
+          console.log(`🎨 Applying CSS classes "${cls}" to "${content}"`);
+          return (
+            <span key={key} className={cls}>
+              {content}
+            </span>
+          );
+        } else {
+          return (
+            <React.Fragment key={key}>
+              {content}
+            </React.Fragment>
+          );
+        }
       })}
     </>
   );
 }
-/* <-- add this line */
+
 export { LabeledText };

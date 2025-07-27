@@ -269,10 +269,10 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
 
   // Get labels for this verse if available
   const verseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
-  
+
   // Use LabeledText if we have active labels (don't require verseLabels yet, let component handle empty data)
   const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
-  
+
   // Enhanced debug for Gen.1:1
   if (verse.reference === "Gen.1:1" || verse.reference === "Gen 1:1") {
     console.log(`🏷️ MainTranslationCell DEBUG for ${verse.reference}:`, {
@@ -286,7 +286,7 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
       storeActiveLabels: store?.activeLabels,
       verseText: verseText.substring(0, 50) + '...'
     });
-    
+
     // Try different reference formats
     const altRef1 = verse.reference.replace('.', ' ');
     const altRef2 = verse.reference.replace(' ', '.');
@@ -534,18 +534,38 @@ export function VirtualRow({
           </div>
         );
 
-      case 'main-translation':
-        // Use MainTranslationCell with labels support for main translation
+      case 'main-translation': {
+        const mainText = verse.text || '';
+        const { getVerseLabels } = useViewportLabels();
+        const verseLabels = getVerseLabels(verse.reference);
+        const { activeLabels } = useBibleStore();
+
+        console.log(`🏷️ VirtualRow main-translation for ${verse.reference}:`, {
+          verseLabels,
+          activeLabels,
+          hasLabels: Object.keys(verseLabels).length > 0
+        });
+
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
-            <MainTranslationCell 
-              verse={verse} 
-              getVerseText={getVerseText} 
-              mainTranslation={config.translationCode}
-              getVerseLabels={getVerseLabels}
-            />
+          <div 
+            className="verse-text"
+            onClick={onVerseClick ? () => onVerseClick(verse) : undefined}
+            style={{ cursor: onVerseClick ? 'pointer' : 'default' }}
+          >
+            {activeLabels && activeLabels.length > 0 ? (
+              <LabeledText
+                text={mainText}
+                labelData={verseLabels}
+                activeLabels={activeLabels}
+                verseKey={verse.reference}
+                translationCode={store.translationState?.main || 'KJV'}
+              />
+            ) : (
+              mainText
+            )}
           </div>
         );
+      }
 
       case 'alt-translation':
         // Debug translation lookup for first verse
