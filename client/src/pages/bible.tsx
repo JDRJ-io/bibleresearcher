@@ -229,7 +229,7 @@ export default function BiblePage() {
           onMenuToggle={handleMenuToggle}
         />
 
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden relative">
           <VirtualBibleTable
             verses={verses}
             selectedTranslations={selectedTranslations.map(t => ({ id: t, name: t, abbreviation: t, selected: true }))}
@@ -281,8 +281,10 @@ export default function BiblePage() {
           onClose={handleMenuClose}
         />
 
-        {/* Subtle Footer */}
-        <Footer />
+        {/* Subtle Footer - positioned to overlap bottom of virtual table */}
+        <div className="fixed bottom-0 left-0 right-0 z-10">
+          <Footer />
+        </div>
       </div>
     </ThemeProvider>
   );

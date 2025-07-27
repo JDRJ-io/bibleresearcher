@@ -344,7 +344,19 @@ const VirtualBibleTable = ({
     width += 320; // Main translation ~320px
     if (showCrossRefs) width += 320; // Cross refs ~320px
     if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    const altTranslationCount = activeTranslations.filter(t => t !== mainTranslation).length;
+    width += (altTranslationCount * 320); // Alt translations ~320px each
+    
+    console.log('🔧 VirtualBibleTable width calculation:', {
+      baseWidth: 400, // ref + main
+      crossRefs: showCrossRefs ? 320 : 0,
+      prophecies: showProphecies ? 180 : 0,
+      altTranslations: `${altTranslationCount} × 320 = ${altTranslationCount * 320}`,
+      totalWidth: width,
+      viewportWidth: typeof window !== 'undefined' ? window.innerWidth : 'unknown',
+      needsScroll: width > (typeof window !== 'undefined' ? window.innerWidth : 1024)
+    });
+    
     return width;
   }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
 
@@ -476,17 +488,20 @@ const VirtualBibleTable = ({
           touchAction: "pan-y", 
           marginTop: '0', // Remove the desktop gap below the header
           height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
+          overflowX: 'auto', // ALWAYS allow horizontal scrolling when content exceeds viewport
           overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
+        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ 
+          // Let the parent wrapper handle overflow, not this div
+          overflow: 'visible'
+        }}>
           <div style={{ 
-            minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
-            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
+            minWidth: `${actualTotalWidth}px`, // Always use calculated width
+            width: `${actualTotalWidth}px` // Force explicit width to trigger scrollbar
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
