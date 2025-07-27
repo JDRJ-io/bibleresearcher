@@ -67,7 +67,7 @@ const VirtualBibleTable = ({
 
   // Integrate translation maps system for verse text loading
   const translationMaps = useTranslationMaps();
-  const { activeTranslations, mainTranslation: translationMainTranslation } = translationMaps;
+  const { activeTranslations, mainTranslation: translationMainTranslation, getVerseText: getTranslationVerseText } = translationMaps;
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,15 +167,17 @@ const VirtualBibleTable = ({
   // Get store state for column toggles
   const { showCrossRefs, showProphecies } = useBibleStore();
 
-  // Create getVerseText wrapper for VirtualRow (any translation) - use getBibleVerseText to avoid conflict
+  // Create getVerseText wrapper for VirtualRow (any translation) - USE TRANSLATION MAPS SYSTEM
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
-    return getBibleVerseText(verseID, translationCode);
-  }, [getBibleVerseText]);
+    // Use the translation maps system that properly loads from Supabase
+    return getTranslationVerseText(verseID, translationCode) || getBibleVerseText(verseID, translationCode);
+  }, [getTranslationVerseText, getBibleVerseText]);
 
-  // Create getMainVerseText wrapper for VirtualRow (main translation)
+  // Create getMainVerseText wrapper for VirtualRow (main translation) - USE PROPER MAIN TRANSLATION
   const getMainVerseTextForRow = useCallback((verseID: string) => {
-    return getBibleVerseText(verseID, mainTranslation);
-  }, [getBibleVerseText, mainTranslation]);
+    const effectiveMainTranslation = translationMainTranslation || mainTranslation;
+    return getTranslationVerseText(verseID, effectiveMainTranslation) || getBibleVerseText(verseID, effectiveMainTranslation);
+  }, [getTranslationVerseText, getBibleVerseText, translationMainTranslation, mainTranslation]);
 
   // 3-B. Preserve scroll position during slice swaps
   useEffect(() => {
