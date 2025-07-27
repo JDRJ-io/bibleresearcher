@@ -26,13 +26,41 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const [searchAllTranslations, setSearchAllTranslations] = useState(false);
   
   const bibleStore = useBibleStore();
-  const verses = bibleStore?.currentVerseKeys || [];
-  const { mainTranslation: activeTranslation } = useTranslationMaps();
+  const verseKeys = bibleStore?.currentVerseKeys || [];
+  const { mainTranslation: activeTranslation, getVerseText } = useTranslationMaps();
+  
+  // Create verse objects with text content for search engine
+  const versesWithText = useMemo(() => {
+    if (!verseKeys.length || !getVerseText) return [];
+    
+    return verseKeys.map((key, index) => {
+      const [bookChapter, verseNum] = key.split(':');
+      const [book, chapter] = bookChapter.split('.');
+      
+      // Get text for all available translations
+      const textObj: Record<string, string> = {};
+      const translations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
+      
+      translations.forEach(translationCode => {
+        const text = getVerseText(key, translationCode);
+        if (text) {
+          textObj[translationCode] = text;
+        }
+      });
+      
+      return {
+        id: key,
+        reference: key.replace('.', ' '), // Convert Gen.1:1 to Gen 1:1
+        text: textObj,
+        index
+      };
+    });
+  }, [verseKeys, getVerseText]);
   
   // Create search engine instance
   const searchEngine = useMemo(() => {
-    return new BibleSearchEngine(verses);
-  }, [verses]);
+    return new BibleSearchEngine(versesWithText);
+  }, [versesWithText]);
 
   // Clear search when modal closes
   useEffect(() => {
@@ -45,6 +73,10 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
 
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
+    if (!versesWithText.length) {
+      console.warn('No verse data available for search');
+      return;
+    }
     
     setIsSearching(true);
     setHasSearched(true);
@@ -53,7 +85,11 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       // Small delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      console.log(`🔍 Searching "${searchQuery}" across ${versesWithText.length} verses with translation: ${activeTranslation}`);
+      
       const results = searchEngine.search(searchQuery, activeTranslation, maxResults, searchAllTranslations);
+      
+      console.log(`🔍 Search found ${results.length} results`);
       
       // Filter by search type if specified
       const filteredResults = searchType === 'all' ? results : 
@@ -84,9 +120,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   };
 
   const getRandomVerse = () => {
-    if (verses.length === 0) return;
+    if (verseKeys.length === 0) return;
     
-    const randomIndex = Math.floor(Math.random() * verses.length);
+    const randomIndex = Math.floor(Math.random() * verseKeys.length);
     onNavigateToVerse(randomIndex);
     onClose();
   };
