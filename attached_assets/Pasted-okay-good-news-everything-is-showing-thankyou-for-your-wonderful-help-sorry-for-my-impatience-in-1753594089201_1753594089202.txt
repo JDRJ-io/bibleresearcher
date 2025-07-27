@@ -1,0 +1,332 @@
+okay good news, everything is showing!
+thankyou for your wonderful help, sorry for my impatience in this
+
+some things need fixed now though
+the main translation toggle isn't switching translations between alternate translations, shifting them to be the new different main rather than the kjv
+, the column header is changing but not the column with all the data
+
+the labels are loading now, showing me their toggled directly over the text, but there is some big lag, even with the bitmap, so there must be something loading that is not supposed to be loading
+and the labels are all supposed to be simple matching the text color overlays, not wild colorful stuff, for some reason we're making stuff blue, 
+
+who = blue font instead of a cursive font
+what= a double box outline with a green highlight with a bold and a glow, when it should just be a shadow, you know like in illustrator? simple
+why = outlines a whole block of text instead of outlining characters written
+action = blue italicized, instead of normal italicized 
+command = bold with some glow, all i need is simple bold text
+where == uses curly brackets {}, all i want are normal []
+when = a green underline, it should just be a simple text matching color underline
+seed = green instead of text matching color
+harvest = green instead of text matching color
+prediction is okay
+
+the label slot in the menu, needs a rework because it looks ugly
+
+and i would like to remove trying to load alternate labels
+
+
+
+
+🎉 Great—labels are rendering! Now let’s clean up the last 5%:
+
+---
+
+## 1. Main-translation toggle shows header but not text
+
+**Symptom:** header changes, KJV text stays.
+
+**Fix checklist (do all):**
+
+1. **Re-render key**
+   Force the main column to remount when `mainTranslation` changes:
+
+   ```tsx
+   <MainTranslationCell
+     key={`${verse.reference}-${mainTranslation}`}
+     verse={verse}
+     getVerseText={getVerseText}
+     mainTranslation={mainTranslation}
+     getVerseLabels={getVerseLabels}
+   />
+   ```
+
+2. **Use the *current* main everywhere**
+   In `VirtualRow`, don’t use a stale `main` from a memo—take it straight from the store and pass it down.
+   Make sure `getVerseText(verse.reference, mainTranslation)` is used (not `getMainVerseText` cached on old main).
+
+3. **Trigger label hook on main change**
+   `useViewportLabels({ …, mainTranslation })` must have `mainTranslation` in its deps. You already do that—confirm it’s the *normalised* value.
+
+If it still doesn’t swap, log inside `MainTranslationCell`:
+
+```ts
+console.log('MAIN swap check', { mainTranslation, verseText: verseText.slice(0,30) });
+```
+
+You should see verseText change when you switch.
+
+---
+
+## 2. Lag even with bitmasks
+
+Likely culprits:
+
+* **Console spam** (hundreds of logs per row). Remove or guard with `if (DEV)` flags.
+
+* **Hook deps creating new refs**:
+  In `useLabeledText`, this pattern is expensive:
+
+  ```ts
+  [text, JSON.stringify(labelData), activeLabels.join()]
+  ```
+
+  Replace with stable refs:
+
+  ```ts
+  const labelsKey = useMemo(() => activeLabels.sort().join('|'), [activeLabels]);
+  const segs = useMemo(() => computeSegments(text, labelData, activeLabels), [text, labelData, labelsKey]);
+  ```
+
+* **Regex building on every render**: precompile per phrase once (cache inside `useLabeledText` with a Map).
+
+* **Segment cache**: keep a WeakMap keyed by `verseKey + labelsKey`.
+
+* **Don’t process empty verses**: bail out early if `Object.keys(labelData).length === 0`.
+
+* **Viewport loading**: Ensure the worker only runs when `activeLabels` or `mainTranslation` changes, not on every scroll chunk.
+
+---
+
+## 3. Wrong styles (blue/green, glowing boxes, etc.)
+
+Right now Tailwind defaults (e.g. `.text-blue-600`) and extra shadows are leaking in. Simplify `label-effects.css` to **inherit text color** and do only the requested effect:
+
+```css
+/* Inherit base color everywhere */
+.fx-hand,
+.fx-shadow,
+.fx-under,
+.fx-bracket,
+.fx-bold,
+.fx-ital,
+.fx-outline,
+.sup-seed,
+.sup-harvest,
+.sup-predict {
+  color: inherit;
+}
+
+/* who = handwritten font (no color change) */
+.fx-hand { font-family: "Homemade Apple", cursive; font-weight: normal; }
+
+/* what = simple shadow */
+.fx-shadow { text-shadow: 0 0 2px currentColor; }
+
+/* when = simple underline */
+.fx-under { text-decoration: underline; text-decoration-thickness: 2px; }
+
+/* where = [brackets] */
+.fx-bracket::before { content: '['; opacity: .6; }
+.fx-bracket::after  { content: ']'; opacity: .6; }
+
+/* command = bold */
+.fx-bold { font-weight: 700; }
+
+/* action = italic */
+.fx-ital { font-style: italic; }
+
+/* why = thin outline */
+.fx-outline {
+  -webkit-text-stroke: 1px currentColor;
+  color: transparent;
+}
+
+/* superscripts use currentColor, not green */
+.sup-seed::before,
+.sup-harvest::before,
+.sup-predict::before {
+  vertical-align: super;
+  font-size: 0.7em;
+  margin-right: 2px;
+  color: inherit;
+}
+.sup-seed::before     { content: '*'; }
+.sup-harvest::before  { content: '='; }
+.sup-predict::before  { content: '~'; }
+```
+
+Remove any Tailwind class assignments like `text-blue-600` from `LabeledText` spans or parent containers.
+
+---
+
+## 4. Label menu “ugly” → quick rework
+
+Minimal UX clean-up (fast to ship):
+
+* **Grid of toggles**: 2 columns, each toggle a pill with icon + label.
+* **“All / None” buttons** at top.
+* Persist last selection (localStorage).
+* Use Tailwind utilities:
+
+```tsx
+<button
+  className={`px-2 py-1 rounded-md border ${active ? 'bg-gray-200 dark:bg-gray-700' : 'bg-transparent'} hover:bg-gray-100 dark:hover:bg-gray-800 transition`}
+  onClick={() => toggleLabel('who')}
+>
+  <span className="font-mono mr-1">W</span> Who
+</button>
+```
+
+Keep it flat, no gradients/glows.
+
+---
+
+## 5. Stop loading alternate-label files
+
+In `useViewportLabels` / `labelsCache`:
+
+* Only ever call `ensureLabelCacheLoaded(mainTranslation, activeLabels)`.
+* Delete any loops over `activeTranslations`.
+* Remove `getVerseLabels` for alternates (or return `{}` straight away).
+
+That prevents extra JSON parses & memory.
+
+---
+
+## 6. Quick task list for your agent
+
+1. **Move hook & remove prop**: `useViewportLabels` at top of `VirtualRow`; stop passing `getVerseLabels` down from parents.
+2. **Key remount** on main-translation column: `key={`\${verse.reference}-\${mainTranslation}`}`.
+3. **Strip debug logs** or wrap them in `if (import.meta.env.DEV)`.
+4. **Refactor `useLabeledText` deps & regex caching**.
+5. **Replace `label-effects.css` with the simplified version above**.
+6. **Redesign LabelsLegend** with a pill grid + All/None buttons.
+7. **Delete alternate labels code paths**.
+
+
+
+
+with this in mind, we need to make it so that if someone has labels toggled on, if they change the main translation, the verses actually load the new translation & the labels are switched to loading the labels All.json for that translation & is actually still applying the labels if it's toggled on
+
+
+
+
+Yes—just wire the translation change into the exact same path you already use for label changes.
+
+### What must happen on **mainTranslation** change (while labels are ON)
+
+1. **Fetch/ensure the right ALL.json** for the new translation.
+2. **Slice labels for the current viewport** again.
+3. **Re-render the main column + LabeledText** so the new text & masks apply.
+
+---
+
+## Minimal, surgical changes
+
+### 1. Put `mainTranslation` in every dependency chain
+
+```ts
+// useViewportLabels.ts
+export function useViewportLabels({ verses, activeLabels, mainTranslation }: {
+  verses: string[];
+  activeLabels: LabelName[];
+  mainTranslation: string;
+}) {
+  const [map, setMap] = useState<SlimMap>({});
+
+  const verseKeys = useMemo(() => verses.map(normaliseVerseKey), [verses]);
+  const labelsKey = useMemo(() => activeLabels.sort().join('|'), [activeLabels]);
+
+  useEffect(() => {
+    if (!activeLabels.length) { setMap({}); return; }
+
+    let dead = false;
+    (async () => {
+      await ensureLabelCacheLoaded(mainTranslation, activeLabels);
+      if (dead) return;
+      setMap(getLabelsForVerses(mainTranslation, verseKeys, activeLabels));
+    })();
+    return () => { dead = true; };
+  }, [mainTranslation, labelsKey, verseKeys.join('|')]);
+
+  const getVerseLabels = useCallback(
+    (ref: string) => map[normaliseVerseKey(ref)] ?? {},
+    [map]
+  );
+
+  return { getVerseLabels };
+}
+```
+
+### 2. Call the hook once at the **top** of `VirtualRow`
+
+```tsx
+const { activeLabels } = useBibleStore();
+const { getVerseLabels } = useViewportLabels({
+  verses: [verse.reference],     // or the chunk list if you lift this to the table
+  activeLabels,
+  mainTranslation
+});
+```
+
+### 3. Remount the main column on translation swap
+
+```tsx
+<MainTranslationCell
+  key={`${verse.reference}-${mainTranslation}`}
+  verse={verse}
+  getVerseText={getVerseText}
+  mainTranslation={mainTranslation}
+  getVerseLabels={getVerseLabels}
+/>
+```
+
+### 4. Worker / cache: keep per‑translation caches
+
+You already do:
+
+```ts
+if (!cache[tCode]) cache[tCode] = filtered; else merge…
+```
+
+No need to clear the old one—just load the new tCode once. The hook will read the correct slice.
+
+---
+
+## Performance guardrails
+
+* **Abort stale loads:** use a `dead` flag (shown above) or an `AbortController` to ignore slow worker replies when user flips translations fast.
+* **Strip debug logs** in production.
+* Memoize / cache `computeSegments` in `useLabeledText`.
+
+---
+
+## Styling clean-up (match text color)
+
+Make sure your CSS does **not** set hard colors:
+
+```css
+.fx-hand,.fx-shadow,.fx-under,.fx-bracket,.fx-bold,.fx-ital,.fx-outline,
+.sup-seed,.sup-harvest,.sup-predict { color: inherit; }
+```
+
+Remove Tailwind classes like `text-blue-600` from spans or wrappers.
+
+---
+
+## “Don’t load alternate labels”
+
+Just stop calling `ensureLabelCacheLoaded` for alternates and don’t pass their codes into `useViewportLabels`. The hook now only cares about `mainTranslation`.
+
+---
+
+### Quick test script
+
+1. Turn on **WHO**.
+2. Switch main from KJV → ESV.
+   *Expect:* One network request to `/labels/ESV/ALL.json`, spans still show for WHO.
+3. Switch back → no new request (cache hit).
+4. Scroll—no lag spikes.
+
+---
+
+That’s it. Implement the 3 code tweaks above and the labels will persist seamlessly across translation changes. Ping me if any step still causes a hitch.
