@@ -39,7 +39,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
       setIsLoading(true);
       console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
       try {
-        // Pass activeLabels to cache loader for worker filtering
+        // Pass activeLabels to cache loader for worker filtering  
         console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded...`);
         await ensureLabelCacheLoaded(mainTranslation, activeLabels);
         console.log(`✅ WORKER: Cache loaded, getting labels for ${verseKeys.length} verses`);

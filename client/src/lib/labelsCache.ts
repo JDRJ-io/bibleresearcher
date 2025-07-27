@@ -85,51 +85,38 @@ export function ensureLabelCacheLoaded(
 }
 
 export function getLabelsForVerses(
-  tCode: string,
+  tCodeIn: string,
   verseKeys: string[],
   active: LabelName[]
 ): SlimMap {
-  const normTCode = normaliseTCode(tCode);
-  const map = cache[normTCode] || {};
+  const tCode = normaliseTCode(tCodeIn);
+  const map = cache[tCode] || {};
 
-  console.log(`🔍 GLFV input:`, {
-    tCode: normTCode,
+  console.debug('GLFV input', {
+    tCode,
     verseKeys: verseKeys.slice(0, 3),
     active
   });
-  console.log(`🔍 GLFV cache slice:`, Object.keys(map).slice(0, 3));
+  console.debug('GLFV cache slice', Object.keys(map).slice(0, 3));
 
-  console.log(`🔍 CACHE FILTER DEBUG:`, {
-    tCode: normTCode,
-    cacheSize: Object.keys(map).length,
-    verseKeysCount: verseKeys.length,
-    verseKeysFirst3: verseKeys.slice(0, 3),
-    active,
-    cacheHasData: Object.keys(map).length > 0
-  });
-
-  return verseKeys.reduce((out, vk) => {
+  const out: SlimMap = {};
+  verseKeys.forEach(vk => {
     const key = normaliseVerseKey(vk);
     const entry = map[key];
-    
-    console.log(`🔍 CACHE: Checking ${key} (from ${vk}):`, { verseData: entry, hasData: !!entry });
-    
-    if (!entry) return out;
+    if (!entry) return;
 
     const slim: Partial<SlimEntry> = {};
     active.forEach(lbl => {
-      const normLbl = normaliseLabel(lbl);
-      if (entry[normLbl as LabelName]) {
-        slim[normLbl as LabelName] = entry[normLbl as LabelName];
-        console.log(`🔍 CACHE: Found ${normLbl} for ${key}:`, entry[normLbl as LabelName]);
+      const l = normaliseLabel(lbl);
+      if (entry[l as LabelName]) {
+        slim[l as LabelName] = entry[l as LabelName];
       }
     });
-
     if (Object.keys(slim).length) {
       out[key] = slim;
     }
-    return out;
-  }, {} as SlimMap);
+  });
+  return out;
 }
 
 function someVerseHasLabel(map: SlimMap, lbl: LabelName): boolean {
@@ -144,7 +131,7 @@ export function getLabel(translationCode: string, verseKey: string, labelName: L
 
   const normKey = normaliseVerseKey(verseKey);
   const normLabel = normaliseLabel(labelName);
-  
+
   const entry = map[normKey];
   if (entry && entry[normLabel as LabelName]) {
     return entry[normLabel as LabelName] || [];
