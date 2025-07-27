@@ -535,49 +535,34 @@ export function VirtualRow({
 
 
   const renderSlot = (column: any) => {
-    const { slot, config, widthRem } = column;
+    const { slot, config } = column;
     const isMain = config.translationCode === mainTranslation;
 
-    // Calculate responsive width based on slot type and screen size
-    const getColumnWidth = (slotNumber: number) => {
-      if (screenSize === 'mobile') {
-        switch (slotNumber) {
-          case 0: return "w-6";         // Reference - THIN (16px)
-          case 1: return "w-20";        // Notes - when visible (80px)
-          case 2: return "w-52";        // Main translation - (200px) 
-          case 7: return "w-52";        // Cross References - SAME as main (200px)
-          case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V - minimal (64px)
-          default: return "w-40";       // Alt translations - if any (160px)
-        }
-      } else if (screenSize === 'tablet') {
-        switch (slotNumber) {
-          case 0: return "w-20";        // Reference
-          case 1: return "w-48";        // Notes
-          case 2: return "w-64";        // Main translation
-          case 7: return "w-64";        // Cross References
-          case 8: case 9: case 10: return "w-16"; // Prophecy P/F/V
-          default: return "w-64";       // Alt translations
-        }
-      } else { // desktop
-        switch (slotNumber) {
-          case 0: return "w-20";        // Reference
-          case 1: return "w-64";        // Notes
-          case 2: return "w-80";        // Main translation
-          case 7: return "w-80";        // Cross References
-          case 8: case 9: case 10: return "w-20"; // Prophecy P/F/V
-          default: return "w-80";       // Alt translations
-        }
+    // Get exact pixel width from columnState to match headers exactly
+    const getColumnPixelWidth = (slotNumber: number) => {
+      const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
+      if (!columnInfo) {
+        console.warn(`No column info found for slot ${slotNumber}`);
+        return '160px'; // fallback
       }
+      
+      // Convert rem to pixels (same as headers - 1rem = 16px)
+      const pixelWidth = columnInfo.widthRem * 16;
+      return `${pixelWidth}px`;
     };
 
-    const width = getColumnWidth(slot);
+    // Use inline styles for exact width matching instead of Tailwind classes
+    const columnStyle = {
+      width: getColumnPixelWidth(slot),
+      flexShrink: 0
+    };
 
     const bgClass = "";
 
     switch (config.type) {
       case 'reference':
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref">
               <span>{verse.reference}</span>
             </div>
@@ -586,7 +571,7 @@ export function VirtualRow({
 
       case 'notes':
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-2 py-1 text-sm text-gray-500 cell-content">
               [Notes placeholder]
             </div>
@@ -595,7 +580,7 @@ export function VirtualRow({
 
       case 'main-translation':
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -622,7 +607,7 @@ export function VirtualRow({
                         getMainVerseText(verse.reference);
 
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700 ${bgClass}`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-2 py-1 text-sm cell-content">
               {verseText || `[${config.translationCode} loading...]`}
             </div>
@@ -632,7 +617,7 @@ export function VirtualRow({
       case 'cross-refs':
         console.log('🔍 VirtualRow rendering cross-refs cell, onVerseClick:', !!onVerseClick);
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <CrossReferencesCell 
               verse={verse} 
               getVerseText={getVerseText} 
@@ -644,7 +629,7 @@ export function VirtualRow({
 
       case 'context':
         return (
-          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} />
           </div>
         );
@@ -652,9 +637,8 @@ export function VirtualRow({
       case 'prophecy-p':
       case 'prophecy-f':
       case 'prophecy-v':
-        const prophecyWidth = 'w-[200px]'; // Much wider prophecy columns
         return (
-          <div key={slot} className={`${prophecyWidth} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}

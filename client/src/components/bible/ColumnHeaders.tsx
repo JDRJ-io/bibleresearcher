@@ -40,9 +40,10 @@ interface HeaderCellProps {
   isMain?: boolean;
   isMobile?: boolean;
   isDraggable?: boolean;
+  columnState: any;
 }
 
-function SortableHeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) {
+function SortableHeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
   const {
     attributes,
     listeners,
@@ -74,56 +75,29 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCel
         isMain={isMain} 
         isMobile={isMobile} 
         isDraggable={isDraggable}
+        columnState={columnState}
       />
     </div>
   );
 }
 
-function HeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) {
-  // EXACT MATCH VirtualRow Tailwind Classes - Convert to pixel equivalents
-  const getAdaptiveStyle = () => {
-    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
-
-    // Determine screen size using same logic as VirtualRow
-    let screenSize = 'desktop';
-    if (viewportWidth < 768) {
-      screenSize = 'mobile';
-    } else if (viewportWidth < 1024) {
-      screenSize = 'tablet';
+function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
+  // Import the utility at the top of the file
+  const getSlotWidth = (columnState: any, slot: number): string => {
+    const columnInfo = columnState.columns.find((col: any) => col.slot === slot);
+    if (!columnInfo) {
+      console.warn(`No column info found for slot ${slot}`);
+      return '160px'; // fallback
     }
-
-    // Convert Tailwind classes to exact pixel values to match VirtualRow
-    if (screenSize === 'mobile') {
-      switch (column.slot) {
-        case 0: return { width: '24px' };         // w-6 = 24px
-        case 1: return { width: '80px' };        // w-20 = 80px
-        case 2: return { width: '208px' };        // w-52 = 208px
-        case 7: return { width: '208px' };        // w-52 = 208px
-        case 8: case 9: case 10: return { width: '64px' }; // w-16 = 64px (NOT 200px)
-        case 11: return { width: '80px' };        // w-20 = 80px
-        default: return { width: '160px' };       // w-40 = 160px
-      }
-    } else if (screenSize === 'tablet') {
-      switch (column.slot) {
-        case 0: return { width: '80px' };        // w-20 = 80px
-        case 1: return { width: '192px' };        // w-48 = 192px
-        case 2: return { width: '256px' };        // w-64 = 256px
-        case 7: return { width: '256px' };        // w-64 = 256px
-        case 8: case 9: case 10: return { width: '64px' }; // w-16 = 64px
-        case 11: return { width: '96px' };        // w-24 = 96px
-        default: return { width: '256px' };       // w-64 = 256px
-      }
-    } else { // desktop
-      switch (column.slot) {
-        case 0: return { width: '80px' };        // w-20 = 80px
-        case 1: return { width: '256px' };        // w-64 = 256px
-        case 2: return { width: '320px' };        // w-80 = 320px
-        case 7: return { width: '320px' };        // w-80 = 320px
-        case 8: case 9: case 10: return { width: '80px' }; // w-20 = 80px
-        case 11: return { width: '120px' };       // w-30 = 120px
-        default: return { width: '320px' };       // w-80 = 320px
-      }
-    }
+    
+    // Convert rem to pixels (assuming 1rem = 16px)
+    const pixelWidth = columnInfo.widthRem * 16;
+    return `${pixelWidth}px`;
+  };
+  
+  // Get width from columnState - this is the single source of truth
+  const getColumnWidth = () => {
+    return { width: getSlotWidth(columnState, column.slot) };
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
@@ -139,7 +113,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) 
   return (
     <div 
       className={`flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
-      style={getAdaptiveStyle()}
+      style={getColumnWidth()}
     >
       {isDraggable && (
         <div className="absolute top-0 right-0 text-blue-500 text-xs">⋮⋮</div>
@@ -464,6 +438,7 @@ export function ColumnHeaders({
                       isMain={column.isMain}
                       isMobile={adaptiveIsMobile}
                       isDraggable={unlockMode}
+                      columnState={columnState}
                     />
                   ))}
                 </div>
@@ -485,6 +460,7 @@ export function ColumnHeaders({
                       isMain={column.isMain}
                       isMobile={adaptiveIsMobile}
                       isDraggable={unlockMode}
+                      columnState={columnState}
                     />
                   ))}
                 </div>
