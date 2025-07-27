@@ -316,11 +316,11 @@ function MainTranslationCell({
     }
   }
 
-  // Handle empty verse text
+  // Handle empty verse text - just return empty instead of loading message
   if (!verseText) {
     return (
-      <div className="verse-text p-2 text-sm leading-relaxed text-gray-500">
-        Loading verse text...
+      <div className="verse-text p-2 text-sm leading-relaxed text-gray-400">
+        —
       </div>
     );
   }
