@@ -360,23 +360,33 @@ export const useBibleStore = create<{
     reorder: (fromSlot: number, toSlot: number) => set(state => {
       console.log(`🔄 Column reorder: slot ${fromSlot} → slot ${toSlot}`);
       
-      // Get only visible columns and sort by current display order
+      // Find the columns being moved by slot number
+      const fromColumn = state.columnState.columns.find(col => col.slot === fromSlot);
+      const toColumn = state.columnState.columns.find(col => col.slot === toSlot);
+      
+      if (!fromColumn || !toColumn) {
+        console.warn(`Column not found: fromSlot=${fromSlot} (found: ${!!fromColumn}), toSlot=${toSlot} (found: ${!!toColumn})`);
+        console.log('Available columns:', state.columnState.columns.map(c => `slot ${c.slot} (visible: ${c.visible})`));
+        return state;
+      }
+      
+      // Get only visible columns sorted by current display order
       const visibleColumns = state.columnState.columns
         .filter(col => col.visible)
         .sort((a, b) => a.displayOrder - b.displayOrder);
       
-      const fromIndex = visibleColumns.findIndex(col => col.slot === fromSlot);
-      const toIndex = visibleColumns.findIndex(col => col.slot === toSlot);
+      const fromDisplayIndex = visibleColumns.findIndex(col => col.slot === fromSlot);
+      const toDisplayIndex = visibleColumns.findIndex(col => col.slot === toSlot);
       
-      if (fromIndex === -1 || toIndex === -1) {
-        console.warn(`Column not found: fromSlot=${fromSlot}, toSlot=${toSlot}`);
+      if (fromDisplayIndex === -1 || toDisplayIndex === -1) {
+        console.warn(`Display position not found: fromIndex=${fromDisplayIndex}, toIndex=${toDisplayIndex}`);
         return state;
       }
       
       // Reorder the visible columns array by display order
       const reorderedVisible = [...visibleColumns];
-      const [movedColumn] = reorderedVisible.splice(fromIndex, 1);
-      reorderedVisible.splice(toIndex, 0, movedColumn);
+      const [movedColumn] = reorderedVisible.splice(fromDisplayIndex, 1);
+      reorderedVisible.splice(toDisplayIndex, 0, movedColumn);
       
       // Update only the displayOrder property, keep slot numbers unchanged
       const newColumns = [...state.columnState.columns];
