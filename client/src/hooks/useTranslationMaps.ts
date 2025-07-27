@@ -29,35 +29,45 @@ export interface UseTranslationMapsReturn {
 
 export function useTranslationMaps(): UseTranslationMapsReturn {
   // activeTranslations array: index 0 = main translation, others are alternates
-  const [activeTranslations, setActiveTranslations] = useState<string[]>(['KJV']);
+  const [activeTranslations, setActiveTranslations] = useState<string[]>(['NRSV']);
   const [isLoading, setIsLoading] = useState(false);
   
-  const mainTranslation = activeTranslations[0] || 'KJV';
+  const mainTranslation = activeTranslations[0] || 'NRSV';
   const alternates = activeTranslations.slice(1);
 
-  // FORCE LOAD KJV on initialization - critical fix
+  // FORCE LOAD main translation on initialization - critical fix
   useEffect(() => {
-    const forceLoadKJV = async () => {
-      console.log('🔄 INITIALIZING KJV translation load');
+    const forceLoadMainTranslation = async () => {
+      console.log(`🔄 INITIALIZING ${mainTranslation} translation load`);
       setIsLoading(true);
       
       try {
-        if (!masterCache.has('translation-KJV')) {
+        if (!masterCache.has(`translation-${mainTranslation}`)) {
           const { loadTranslation } = await import('@/data/BibleDataAPI');
-          const translationMap = await loadTranslation('KJV');
-          console.log(`✅ KJV FORCE LOADED: ${translationMap.size} verses`);
+          const translationMap = await loadTranslation(mainTranslation);
+          console.log(`✅ ${mainTranslation} FORCE LOADED: ${translationMap.size} verses`);
         } else {
-          console.log('✅ KJV already in cache');
+          console.log(`✅ ${mainTranslation} already in cache`);
         }
         setIsLoading(false);
       } catch (error) {
-        console.error('❌ CRITICAL: Failed to load KJV:', error);
+        console.error(`❌ CRITICAL: Failed to load ${mainTranslation}:`, error);
+        // Fallback to KJV if main translation fails
+        try {
+          console.log('🔄 Falling back to KJV...');
+          const { loadTranslation } = await import('@/data/BibleDataAPI');
+          const kjvMap = await loadTranslation('KJV');
+          setActiveTranslations(['KJV']);
+          console.log(`✅ KJV FALLBACK LOADED: ${kjvMap.size} verses`);
+        } catch (fallbackError) {
+          console.error('❌ CRITICAL: KJV fallback failed:', fallbackError);
+        }
         setIsLoading(false);
       }
     };
     
-    forceLoadKJV();
-  }, []); // Only run once on mount
+    forceLoadMainTranslation();
+  }, [mainTranslation]); // Re-run when main translation changes
 
   // All translation parsing is now handled by BibleDataAPI facade
 
