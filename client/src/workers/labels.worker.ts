@@ -27,7 +27,24 @@ self.onmessage = async (e: MessageEvent) => {
       const raw = await res.text();
 
       // 2) PARSE (blocking inside Worker, safe for UI)
-      fileCache[tCode] = JSON.parse(raw);
+      const rawJson = JSON.parse(raw);
+      
+      // Normalize all verse keys to ensure consistent format
+      function normaliseVerseKey(v: string): string {
+        // 1) collapse multiple spaces
+        const clean = v.trim().replace(/\s+/g, ' ');
+        // 2) turn the *first* space (between book & chapter) into a dot
+        return clean.replace(' ', '.');
+        // "Gen 1:1"  -> "Gen.1:1"
+        // "John  3:16" -> "John.3:16"
+      }
+      
+      const src: any = {};
+      for (const [vk, entry] of Object.entries(rawJson)) {
+        src[normaliseVerseKey(vk)] = entry;
+      }
+      fileCache[tCode] = src;
+      
       console.log(`✅ Worker: Loaded ${Object.keys(fileCache[tCode]).length} verse labels for ${tCode}`);
     } catch (error) {
       console.error(`Worker: Error loading labels for ${tCode}:`, error);

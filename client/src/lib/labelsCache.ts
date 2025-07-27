@@ -12,8 +12,13 @@ const cache: Record<string /*tCode*/, SlimMap | undefined> = {};
 let pending = new Map<string, Promise<void>>(); // de-dupes concurrent calls
 
 // Normalization functions to handle format mismatches
-function normaliseVerseKey(k: string): string { 
-  return k.replace(/\s+/g, '.').replace(/ /g, '.'); 
+function normaliseVerseKey(v: string): string {
+  // 1) collapse multiple spaces
+  const clean = v.trim().replace(/\s+/g, ' ');
+  // 2) turn the *first* space (between book & chapter) into a dot
+  return clean.replace(' ', '.');
+  // "Gen 1:1"  -> "Gen.1:1"
+  // "John  3:16" -> "John.3:16"
 }
 function normaliseLabel(lbl: string): string { 
   return lbl.toLowerCase(); 
