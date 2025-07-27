@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useMemo } from 'react';
 import { ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
 import type { LabelName } from '@/lib/labelBits';
@@ -29,7 +28,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
       verseCount: verses.length,
       verseKeysFirst3: verseKeys.slice(0, 3)
     });
-    
+
     if (activeLabels.length === 0 || !mainTranslation) {
       console.log('🔄 WORKER: No active labels, clearing data');
       setLabelsData({});
@@ -44,11 +43,11 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
         console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded...`);
         await ensureLabelCacheLoaded(mainTranslation, activeLabels);
         console.log(`✅ WORKER: Cache loaded, getting labels for ${verseKeys.length} verses`);
-        
+
         // Get labels only for the verses in viewport and only for active label types
         const viewportLabels = getLabelsForVerses(mainTranslation, verseKeys, activeLabels);
         setLabelsData(viewportLabels);
-        
+
         console.log(`🏷️ WORKER: Final viewport labels:`, Object.keys(viewportLabels).length, 'verses with labels:', viewportLabels);
       } catch (error) {
         console.error('❌ WORKER: Failed to load viewport labels:', error);
