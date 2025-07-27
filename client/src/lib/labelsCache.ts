@@ -17,7 +17,7 @@ export function ensureLabelCacheLoaded(
 ): Promise<void> {
   console.log(`🔄 WORKER: ensureLabelCacheLoaded called for ${tCode} with labels:`, activeLabels);
   console.log(`🔄 WORKER: Current cache status for ${tCode}:`, !!cache[tCode]);
-  
+
   // Check if we already have all needed labels cached
   if (cache[tCode] && activeLabels.every(l => someVerseHasLabel(cache[tCode]!, l))) {
     console.log(`✅ WORKER: Cache already loaded for ${tCode}, skipping`);
@@ -35,28 +35,28 @@ export function ensureLabelCacheLoaded(
   const p = new Promise<void>((resolve) => {
     const handle = (e: MessageEvent) => {
       console.log(`📨 WORKER: Received message from worker:`, e.data);
-      
+
       // Skip non-label messages  
       if (e.data.type === 'FETCH_LABELS') {
         console.log(`📨 WORKER: Ignoring FETCH_LABELS request from worker`);
         return;
       }
-      
+
       if (e.data.tCode !== tCode) return;
-      
+
       // Merge worker results into cache
       cache[tCode] = { ...cache[tCode], ...e.data.filtered };
       console.log(`✅ WORKER: Cache updated for ${tCode}, verse count:`, Object.keys(e.data.filtered || {}).length);
-      
+
       // Debug: Show example data
       const examples = Object.entries(e.data.filtered || {}).slice(0, 3);
       console.log(`🏷️ WORKER: Example label data:`, examples);
-      
+
       worker.removeEventListener('message', handle);
       pending.delete(key);
       resolve();
     };
-    
+
     worker.addEventListener('message', handle);
     console.log(`📤 WORKER: Posting message to worker:`, { tCode, active: activeLabels });
     worker.postMessage({ tCode, active: activeLabels });
@@ -72,8 +72,18 @@ export function getLabelsForVerses(
   active: LabelName[]
 ): SlimMap {
   const map = cache[tCode] || {};
+
+  console.log(`🔍 CACHE FILTER DEBUG:`, {
+    tCode,
+    cacheSize: Object.keys(map).length,
+    verseKeysCount: verseKeys.length,
+    verseKeysFirst3: verseKeys.slice(0, 3),
+    active,
+    cacheHasData: Object.keys(map).length > 0
+  });
+
   const result: SlimMap = {};
-  
+
   verseKeys.forEach(v => {
     // Try multiple verse key formats for better matching
     const possibleKeys = [
@@ -84,20 +94,26 @@ export function getLabelsForVerses(
 
     for (const key of possibleKeys) {
       const entry = map[key];
+      console.log(`🔍 CACHE: Checking ${key}:`, { verseData: entry, hasData: !!entry });
+
       if (!entry) continue;
-      
+
       const filtered: Partial<SlimEntry> = {};
-      active.forEach(lbl => { 
-        if (entry[lbl]) filtered[lbl] = entry[lbl]; 
+      active.forEach(lbl => {
+        if (entry[lbl]) {
+          filtered[lbl] = entry[lbl];
+          console.log(`🔍 CACHE: Found ${lbl} for ${key}:`, entry[lbl]);
+        }
       });
-      
+
       if (Object.keys(filtered).length) {
         result[v] = filtered;
         break; // Found match, stop trying other formats
       }
     }
   });
-  
+
+  console.log(`🔍 CACHE FILTER RESULT:`, result);
   return result;
 }
 
@@ -109,7 +125,7 @@ function someVerseHasLabel(map: SlimMap, lbl: LabelName): boolean {
 export function getLabel(translationCode: string, verseKey: string, labelName: LabelName): string[] {
   const map = cache[translationCode];
   if (!map) return [];
-  
+
   const possibleKeys = [
     verseKey,
     verseKey.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
