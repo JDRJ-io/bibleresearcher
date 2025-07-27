@@ -73,6 +73,33 @@ const VirtualBibleTable = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
   const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  
+  // FORCE RESET: Ensure virtual table starts at the beginning for guests
+  useEffect(() => {
+    const isGuest = true; // For now, always guest mode
+    if (isGuest && containerRef.current) {
+      console.log('🔄 Guest mode: Resetting virtual table to start position');
+      containerRef.current.scrollTop = 0;
+    }
+  }, []);
+
+  // CRITICAL FIX: Force load main translation immediately for guests
+  useEffect(() => {
+    const forceLoadMainTranslation = async () => {
+      const effectiveMainTranslation = translationMainTranslation || mainTranslation;
+      console.log(`🔄 VirtualBibleTable: Force loading ${effectiveMainTranslation} translation`);
+      
+      try {
+        const { loadTranslation } = await import('@/data/BibleDataAPI');
+        const translationMap = await loadTranslation(effectiveMainTranslation);
+        console.log(`✅ VirtualBibleTable: ${effectiveMainTranslation} loaded with ${translationMap.size} verses`);
+      } catch (error) {
+        console.error(`❌ VirtualBibleTable: Failed to load ${effectiveMainTranslation}:`, error);
+      }
+    };
+    
+    forceLoadMainTranslation();
+  }, [translationMainTranslation, mainTranslation]);
 
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
@@ -488,8 +515,6 @@ const VirtualBibleTable = ({
             flexShrink: 0
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
-            {/* DEBUG: Add visual indicator for debugging */}
-            <div style={{height: '2px', backgroundColor: 'red', width: '100%'}} />
             {slice.verseIDs.map((id, i) => {
                 console.log(`🎯 RENDERING VirtualRow ${i}/${slice.verseIDs.length}: ${id}`);
                 // Convert simple rowData to BibleVerse structure

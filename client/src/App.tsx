@@ -541,15 +541,14 @@ function App() {
     if (isGuest) {
       console.log('🔄 Guest mode: Clearing persisted column state and resetting to defaults');
       
-      // Clear any stored column state
+      // Clear any stored column state and scroll positions
       localStorage.removeItem('bible-column-state');
       localStorage.removeItem('translation-state');
+      localStorage.removeItem('bible-scroll-position');
+      localStorage.removeItem('anchor-index');
+      localStorage.removeItem('verse-position');
       
-      // Reset store to defaults
-      const store = useBibleStore.getState();
-      if (store.columnState?.resetToDefaults) {
-        store.columnState.resetToDefaults();
-      }
+      // No need to reset store - just clearing localStorage is sufficient for guest mode
     }
   }, []);
 
