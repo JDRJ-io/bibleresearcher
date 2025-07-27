@@ -21,8 +21,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [maxResults, setMaxResults] = useState(50);
-  const [searchType, setSearchType] = useState<'all' | 'exact' | 'reference'>('all');
+  const [displayedResults, setDisplayedResults] = useState(50);
+  const [allResults, setAllResults] = useState<SearchResult[]>([]);
   const [searchAllTranslations, setSearchAllTranslations] = useState(false);
   
   const bibleStore = useBibleStore();
@@ -33,7 +33,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const versesWithText = useMemo(() => {
     if (!verseKeys.length || !getVerseText) return [];
     
-    return verseKeys.slice(0, 1000).map((key, index) => {
+    return verseKeys.map((key, index) => {
       // Get text for all available translations using your working system
       const textObj: Record<string, string> = {};
       const translations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
@@ -84,19 +84,15 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       
       console.log(`🔍 Searching "${searchQuery}" across ${versesWithText.length} verses with translation: ${activeTranslation}`);
       
-      const results = searchEngine.search(searchQuery, activeTranslation, maxResults, searchAllTranslations);
+      const results = searchEngine.search(searchQuery, activeTranslation, 10000, searchAllTranslations);
       
       console.log(`🔍 Search found ${results.length} results`);
       
-      // Filter by search type if specified
-      const filteredResults = searchType === 'all' ? results : 
-        results.filter(r => {
-          if (searchType === 'exact') return r.type === 'text' && r.confidence > 0.5;
-          if (searchType === 'reference') return r.type === 'reference';
-          return true;
-        });
+      // Filter to text-only results
+      const textResults = results.filter(r => r.type === 'text');
       
-      setSearchResults(filteredResults);
+      setAllResults(textResults);
+      setSearchResults(textResults.slice(0, displayedResults));
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
@@ -182,38 +178,18 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
           {/* Advanced Options */}
           {showAdvanced && (
             <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Search Type</label>
-                  <select
-                    value={searchType}
-                    onChange={(e) => setSearchType(e.target.value as any)}
-                    className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"
-                  >
-                    <option value="all">All Results</option>
-                    <option value="reference">References Only</option>
-                    <option value="exact">Text Matches Only</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Max Results</label>
-                  <select
-                    value={maxResults}
-                    onChange={(e) => setMaxResults(Number(e.target.value))}
-                    className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"
-                  >
-                    <option value={25}>25 results</option>
-                    <option value={50}>50 results</option>
-                    <option value={100}>100 results</option>
-                    <option value={500}>500 results</option>
-                  </select>
-                </div>
-                
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Primary Translation</label>
                   <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
                     {activeTranslation}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Results</label>
+                  <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
+                    Showing {searchResults.length} of {allResults.length} text matches
                   </div>
                 </div>
               </div>
@@ -247,25 +223,16 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
           {!hasSearched && (
             <div className="text-sm text-gray-600 dark:text-gray-400">
               <p className="font-medium mb-2">Search Examples:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div>
-                  <strong>Verse References:</strong>
-                  <ul className="ml-4 space-y-1">
-                    <li>• "John 3:16" or "Jn 3:16"</li>
-                    <li>• "Gen 1:1-3" (verse range)</li>
-                    <li>• "Psalm 23" (whole chapter)</li>
-                    <li>• "Romans" (whole book)</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>Text Search:</strong>
-                  <ul className="ml-4 space-y-1">
-                    <li>• "love your enemies"</li>
-                    <li>• "faith hope love"</li>
-                    <li>• "in the beginning"</li>
-                    <li>• "fear not"</li>
-                  </ul>
-                </div>
+              <div>
+                <strong>Text Search Examples:</strong>
+                <ul className="ml-4 space-y-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <li>• "love your enemies"</li>
+                  <li>• "faith hope love"</li>
+                  <li>• "in the beginning"</li>
+                  <li>• "fear not"</li>
+                  <li>• "blessed are"</li>
+                  <li>• "I am the way"</li>
+                </ul>
               </div>
             </div>
           )}
@@ -300,7 +267,22 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                   )}
                 </div>
                 
-                <div className="max-h-[400px] overflow-y-auto space-y-2">
+                <div 
+                  className="max-h-[400px] overflow-y-auto space-y-2"
+                  onScroll={(e) => {
+                    const element = e.target as HTMLDivElement;
+                    const { scrollTop, scrollHeight, clientHeight } = element;
+                    
+                    // Load more results when near bottom
+                    if (scrollHeight - scrollTop <= clientHeight * 1.5) {
+                      const nextBatch = displayedResults + 50;
+                      if (nextBatch <= allResults.length) {
+                        setDisplayedResults(nextBatch);
+                        setSearchResults(allResults.slice(0, nextBatch));
+                      }
+                    }
+                  }}
+                >
                   {searchResults.map((result, index) => (
                     <div
                       key={`${result.verseId}-${index}`}
@@ -318,14 +300,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                             </Badge>
                           )}
                           {showAdvanced && (
-                            <>
-                              <Badge className={`text-xs ${getSearchTypeColor(result.type)}`}>
-                                {result.type}
-                              </Badge>
-                              <span className={`text-xs ${getConfidenceColor(result.confidence)}`}>
-                                {Math.round(result.confidence * 100)}%
-                              </span>
-                            </>
+                            <span className={`text-xs ${getConfidenceColor(result.confidence)}`}>
+                              {Math.round(result.confidence * 100)}%
+                            </span>
                           )}
                         </div>
                       </div>
