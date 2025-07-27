@@ -18,6 +18,11 @@ export default function LabeledText({
   activeLabels,
   verseKey,
 }: Props) {
+  // Safety check for empty text
+  if (!text) {
+    return <span>Loading...</span>;
+  }
+
   // Convert string[] to LabelName[] for type safety
   const typedActiveLabels = activeLabels as LabelName[];
   

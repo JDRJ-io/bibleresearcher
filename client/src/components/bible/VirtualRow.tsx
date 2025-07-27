@@ -268,7 +268,11 @@ function MainTranslationCell({
   const store = useBibleStore();
   const activeLabels = store.activeLabels || [];
 
-  const verseText = getVerseText(verse.reference, mainTranslation);
+  // Get verse text with proper fallbacks
+  const verseText = getVerseText(verse.reference, mainTranslation) || 
+                    verse.text?.[mainTranslation] || 
+                    verse.text?.text || 
+                    '';
 
   // Get labels for this verse if available
   const verseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
@@ -284,7 +288,8 @@ function MainTranslationCell({
       shouldUseLabeledText,
       hasGetVerseLabels: !!getVerseLabels,
       storeActiveLabels: store?.activeLabels,
-      verseText: verseText.substring(0, 50) + '...'
+      verseText: verseText ? verseText.substring(0, 50) + '...' : 'NO TEXT',
+      verseTextLength: verseText?.length || 0
     });
 
     // Try different reference formats
@@ -300,6 +305,15 @@ function MainTranslationCell({
         labelsAlt2: getVerseLabels(altRef2)
       });
     }
+  }
+
+  // Handle empty verse text
+  if (!verseText) {
+    return (
+      <div className="verse-text p-2 text-sm leading-relaxed text-gray-500">
+        Loading verse text...
+      </div>
+    );
   }
 
   return (
