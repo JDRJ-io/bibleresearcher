@@ -577,8 +577,7 @@ body.menu-open {
 .bible-table-wrapper{
   min-width:fit-content;
   margin-inline:auto;          /* centre until wider than viewport */
-  overflow-x: auto;            /* horizontal scroll when content exceeds viewport */
-  overflow-y: auto;            /* vertical scroll for verses */
+  overflow:auto;               /* always show both axes */
 }
 
 /* ②  mobile dual‑column tweaks */
