@@ -376,6 +376,26 @@ export function ColumnHeaders({
       });
     }
 
+    // Sort columns by displayOrder from store if available
+    if (columnState?.columns) {
+      const slotToDisplayOrder = new Map();
+      columnState.columns.forEach(col => {
+        if (col.visible) {
+          slotToDisplayOrder.set(col.slot, col.displayOrder);
+        }
+      });
+
+      // Add displayOrder to each column and sort
+      columns.forEach((col: any) => {
+        col.displayOrder = slotToDisplayOrder.get(col.slot) ?? col.slot;
+      });
+
+      columns.sort((a: any, b: any) => a.displayOrder - b.displayOrder);
+    } else {
+      // Fallback to slot-based sorting
+      columns.sort((a, b) => a.slot - b.slot);
+    }
+
     // On mobile, only show Reference, Main Translation, and Cross References
     if (adaptiveIsMobile) {
       return columns.filter(col => 
@@ -386,7 +406,7 @@ export function ColumnHeaders({
     }
 
     return columns;
-  }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile]);
+  }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile, columnState]);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 

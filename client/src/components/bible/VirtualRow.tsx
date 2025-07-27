@@ -463,15 +463,34 @@ export function VirtualRow({
 
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
-  const visibleColumns = Object.entries(slotConfig)
+  let visibleColumns = Object.entries(slotConfig)
     .map(([slotStr, config]) => ({
       slot: parseInt(slotStr),
       config,
       widthRem: getDefaultWidth(parseInt(slotStr)),
       visible: config?.visible !== false // Show if config exists and not explicitly hidden
     }))
-    .filter(col => col.config && col.visible) // Only render valid, visible slots
-    .sort((a, b) => a.slot - b.slot);
+    .filter(col => col.config && col.visible); // Only render valid, visible slots
+
+  // Sort by displayOrder from store if available
+  if (columnState?.columns) {
+    const slotToDisplayOrder = new Map();
+    columnState.columns.forEach(col => {
+      if (col.visible) {
+        slotToDisplayOrder.set(col.slot, col.displayOrder);
+      }
+    });
+
+    // Add displayOrder to each column and sort
+    visibleColumns.forEach((col: any) => {
+      col.displayOrder = slotToDisplayOrder.get(col.slot) ?? col.slot;
+    });
+
+    visibleColumns.sort((a: any, b: any) => (a.displayOrder ?? a.slot) - (b.displayOrder ?? b.slot));
+  } else {
+    // Fallback to slot-based sorting
+    visibleColumns.sort((a, b) => a.slot - b.slot);
+  }
 
   // Helper function to get default widths per UI Layout Spec
   function getDefaultWidth(slot: number): number {

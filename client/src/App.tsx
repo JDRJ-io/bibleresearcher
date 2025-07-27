@@ -25,6 +25,7 @@ interface ColumnInfo {
   slot: number;
   visible: boolean;
   widthRem: number;
+  displayOrder: number;
 }
 
 interface ColumnState {
@@ -335,18 +336,18 @@ export const useBibleStore = create<{
   // UI Layout Spec Column State - Notes between Ref and Main Translation
   columnState: {
     columns: [
-      { slot: 0, visible: true, widthRem: 5 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 16 },   // Notes (between Ref and Main)
-      { slot: 2, visible: true, widthRem: 20 },    // Main translation (always visible)
-      { slot: 3, visible: false, widthRem: 18 },   // Alt translation 1
-      { slot: 4, visible: false, widthRem: 18 },   // Alt translation 2
-      { slot: 5, visible: false, widthRem: 18 },   // Alt translation 3
-      { slot: 6, visible: false, widthRem: 18 },   // Alt translation 4
-      { slot: 7, visible: true, widthRem: 15 },    // Cross References (default ON)
-      { slot: 8, visible: false, widthRem: 5 },    // Prophecy P (default OFF)
-      { slot: 9, visible: false, widthRem: 5 },    // Prophecy F (default OFF)
-      { slot: 10, visible: false, widthRem: 5 },   // Prophecy V (default OFF)
-      { slot: 11, visible: false, widthRem: 8 },   // Context/Dates (default OFF)
+      { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
+      { slot: 1, visible: false, widthRem: 16, displayOrder: 1 },   // Notes (between Ref and Main)
+      { slot: 2, visible: true, widthRem: 20, displayOrder: 2 },    // Main translation (always visible)
+      { slot: 3, visible: false, widthRem: 18, displayOrder: 3 },   // Alt translation 1
+      { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2
+      { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3
+      { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4
+      { slot: 7, visible: true, widthRem: 15, displayOrder: 7 },    // Cross References (default ON)
+      { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (default OFF)
+      { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (default OFF)
+      { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (default OFF)
+      { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Context/Dates (default OFF)
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {
@@ -359,33 +360,41 @@ export const useBibleStore = create<{
     reorder: (fromSlot: number, toSlot: number) => set(state => {
       console.log(`🔄 Column reorder: slot ${fromSlot} → slot ${toSlot}`);
       
-      // Find the current order of visible columns
+      // Get only visible columns and sort by current display order
       const visibleColumns = state.columnState.columns
         .filter(col => col.visible)
-        .sort((a, b) => a.slot - b.slot);
+        .sort((a, b) => a.displayOrder - b.displayOrder);
       
       const fromIndex = visibleColumns.findIndex(col => col.slot === fromSlot);
       const toIndex = visibleColumns.findIndex(col => col.slot === toSlot);
       
-      if (fromIndex === -1 || toIndex === -1) return state;
+      if (fromIndex === -1 || toIndex === -1) {
+        console.warn(`Column not found: fromSlot=${fromSlot}, toSlot=${toSlot}`);
+        return state;
+      }
       
-      // Reorder the visible columns array
+      // Reorder the visible columns array by display order
       const reorderedVisible = [...visibleColumns];
       const [movedColumn] = reorderedVisible.splice(fromIndex, 1);
       reorderedVisible.splice(toIndex, 0, movedColumn);
       
-      // Reassign slot numbers based on new order
+      // Update only the displayOrder property, keep slot numbers unchanged
       const newColumns = [...state.columnState.columns];
-      reorderedVisible.forEach((col, index) => {
+      reorderedVisible.forEach((col, newIndex) => {
         const colIndex = newColumns.findIndex(c => c.slot === col.slot);
         if (colIndex !== -1) {
-          // Assign new slot based on position
-          const baseSlot = index === 0 ? 0 : visibleColumns[index === 0 ? 0 : index - 1].slot + 1;
-          newColumns[colIndex] = { ...newColumns[colIndex], slot: baseSlot };
+          newColumns[colIndex] = { 
+            ...newColumns[colIndex], 
+            displayOrder: newIndex 
+          };
         }
       });
       
-      console.log(`✅ Column reorder complete`, newColumns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+      console.log(`✅ Column reorder complete`, 
+        newColumns.filter(c => c.visible)
+          .sort((a, b) => a.displayOrder - b.displayOrder)
+          .map(c => `slot ${c.slot} (order ${c.displayOrder})`));
+      
       return { columnState: { ...state.columnState, columns: newColumns } };
     }),
     resize: (slot: number, deltaRem: number) => set(state => ({
