@@ -9,6 +9,8 @@ import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
+// Start preloading KJV immediately when app loads
+import '@/lib/preloader';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {

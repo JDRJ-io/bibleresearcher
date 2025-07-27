@@ -41,7 +41,7 @@ export async function uploadToStorage(path: string, fileContent: string | Blob):
 
 function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
-    return Promise.resolve(masterCache.get(key));
+    return Promise.resolve(masterCache.get(key) as T);
   }
 
   return fetchFn().then(result => {
@@ -51,29 +51,37 @@ function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
 }
 
 export async function loadTranslation(id: string) {
-  return getOrFetch(`translation-${id}`, async () => {
-    const textData = await fetchFromStorage(paths.translation(id));
-    const textMap = new Map<string, string>();
+  // Check cache first for immediate return
+  const cacheKey = `translation-${id}`;
+  if (masterCache.has(cacheKey)) {
+    const cached = masterCache.get(cacheKey);
+    console.log(`⚡ INSTANT: ${id} from cache (${cached.size} verses)`);
+    return cached;
+  }
 
-    // Parse the translation text format: "Gen.1:1 #In the beginning..."
-    const lines = textData.split('\n').filter(line => line.trim());
+  console.log(`📥 LOADING: ${id} translation...`);
+  const textData = await fetchFromStorage(paths.translation(id));
+  const textMap = new Map<string, string>();
 
-    for (const line of lines) {
-      const cleanLine = line.trim().replace(/\r/g, '');
-      const match = cleanLine.match(/^([^#]+)\s*#(.+)$/);
-      if (match) {
-        const [, reference, text] = match;
-        const cleanRef = reference.trim();
-        const cleanText = text.trim();
+  // Optimized parsing - use regex compilation
+  const parseRegex = /^([^#]+)\s*#(.+)$/;
+  const lines = textData.split('\n');
 
-        // Store only the canonical format from your source files (Gen.1:1)
-        textMap.set(cleanRef, cleanText);
-      }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    
+    const match = line.match(parseRegex);
+    if (match) {
+      const [, reference, text] = match;
+      textMap.set(reference.trim(), text.trim());
     }
+  }
 
-    console.log(`✓ Found translation ${id} in cache with ${textMap.size} verses (Bible has 31,102 verses)`);
-    return textMap;
-  });
+  // Cache immediately for future instant access
+  masterCache.set(cacheKey, textMap);
+  console.log(`⚡ CACHED: ${id} with ${textMap.size} verses`);
+  return textMap;
 }
 
 export async function loadTranslationAsText(id: string) {
