@@ -929,17 +929,7 @@ body.overlay-open {
   }
 }
 
-/* Label Effects */
-.label-who { @apply font-bold; }
-.label-what { @apply outline outline-1 shadow-sm; }
-.label-where::before { content: '{'; }
-.label-where::after { content: '}'; }
-.label-when { @apply underline; }
-.label-why { font-family: cursive; }
-.label-action { @apply italic; }
-.label-seed::before { content: '*'; @apply text-xs align-super; }
-.label-harvest::before { content: '='; @apply text-xs align-super; }
-.label-prediction::before { content: '~'; @apply text-xs align-super; }
+/* Old label effects removed - using label-effects.css instead */
 
 /* Bible Table Cell Styling */
 .bible-cell {
@@ -1016,23 +1006,9 @@ body.overlay-open {
   }
 }
 
-/* Semantic Labels Styling */
-.fx-hand { font-weight: bold; color: hsl(220, 70%, 50%); }
-.fx-shadow { text-shadow: 0 0 3px hsl(120, 60%, 40%); border: 1px solid hsl(120, 60%, 40%); border-radius: 2px; padding: 0 2px; }
-.fx-under { text-decoration: underline; text-decoration-color: hsl(60, 80%, 50%); }
-.fx-bracket::before { content: '{'; }
-.fx-bracket::after { content: '}'; }
-.fx-bold { font-weight: bold; color: hsl(0, 70%, 50%); }
-.fx-ital { font-style: italic; color: hsl(280, 60%, 50%); }
-.fx-outline { outline: 1px solid hsl(180, 60%, 50%); outline-offset: 1px; }
-.sup-seed::before { content: '*'; font-size: 0.7em; vertical-align: super; color: hsl(40, 80%, 50%); }
-.sup-harvest::before { content: '='; font-size: 0.7em; vertical-align: super; color: hsl(80, 70%, 40%); }  
-.sup-predict::before { content: '~'; font-size: 0.7em; vertical-align: super; color: hsl(300, 70%, 50%); }
+/* Conflicting styles removed - using label-effects.css instead */
 
-/* Multiple label combinations - stacking effects */
-.fx-hand.fx-shadow { font-weight: bold; text-shadow: 0 0 3px hsl(120, 60%, 40%); border: 1px solid hsl(120, 60%, 40%); }
-.fx-under.fx-bold { text-decoration: underline; font-weight: bold; }
-.fx-ital.fx-outline { font-style: italic; outline: 1px solid hsl(180, 60%, 50%); }
+/* Old multiple label combinations removed */
 
 /* Prevent FOUC during label loading */
 .verse-text { visibility: visible; }
