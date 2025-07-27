@@ -3,6 +3,26 @@ import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
 import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
+import { 
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  horizontalListSortingStrategy
+} from '@dnd-kit/sortable';
+import {
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -19,9 +39,47 @@ interface HeaderCellProps {
   column: any;
   isMain?: boolean;
   isMobile?: boolean;
+  isDraggable?: boolean;
 }
 
-function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
+function SortableHeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: `column-${column.slot}`,
+    disabled: !isDraggable
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...(isDraggable ? listeners : {})}
+      className={isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}
+    >
+      <HeaderCell 
+        column={column} 
+        isMain={isMain} 
+        isMobile={isMobile} 
+        isDraggable={isDraggable}
+      />
+    </div>
+  );
+}
+
+function HeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) {
   // MATCH EXACT VIRTUALROW WIDTHS - Use same logic as VirtualRow getColumnWidth function
   const getAdaptiveStyle = () => {
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
@@ -75,11 +133,17 @@ function HeaderCell({ column, isMain, isMobile }: HeaderCellProps) {
     ? "font-bold text-sm" // Bigger, bolder text for reference header
     : "font-bold text-xs";
 
+  // Add visual indicator for draggable mode
+  const draggableClass = isDraggable ? "border-2 border-dashed border-blue-400 bg-blue-50 dark:bg-blue-950" : "";
+
   return (
     <div 
-      className={`flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass}`}
+      className={`flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
       style={getAdaptiveStyle()}
     >
+      {isDraggable && (
+        <div className="absolute top-0 right-0 text-blue-500 text-xs">⋮⋮</div>
+      )}
       {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : column.name}
     </div>
   );
@@ -115,14 +179,15 @@ export function ColumnHeaders({
 
   const adaptiveIsMobile = screenWidth < 768;
 
-  // Get store states for column visibility
+  // Get store states for column visibility and unlock mode
   const { 
     showCrossRefs: storeShowCrossRefs, 
     showProphecies, 
     showNotes: storeShowNotes, 
     showDates, 
     columnState,
-    isInitialized 
+    isInitialized,
+    unlockMode
   } = useBibleStore();
 
   // Use prop if provided, otherwise fall back to store state
@@ -358,52 +423,89 @@ export function ColumnHeaders({
 
   const topHeaderHeight = '64px'; // Same height for both mobile and desktop
 
+  // Setup drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id) return;
+    
+    // Extract slot numbers from drag IDs
+    const activeSlot = parseInt((active.id as string).replace('column-', ''));
+    const overSlot = parseInt((over.id as string).replace('column-', ''));
+    
+    console.log(`🔄 Reordering columns: slot ${activeSlot} → slot ${overSlot}`);
+    
+    // Call the store's reorder function
+    columnState.reorder(activeSlot, overSlot);
+  };
+
+  // Create sortable column IDs for DndContext
+  const sortableItems = allColumns.map(col => `column-${col.slot}`);
+
   return (
-    <div 
-      className={`column-headers-container sticky z-40 bg-background border-b shadow-sm`}
-      style={{ 
-        left: -scrollLeft,  // keep horizontal sync only
-        width: '100%',
-        height: adaptiveIsMobile ? '20px' : '30px'
-      }}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
     >
-      <div className="overflow-hidden w-full h-full flex">
-        {shouldCenter ? (
-          // Centered layout for few columns
-          <div className="flex justify-center w-full h-full">
-            <div className="flex min-w-max h-full">
-              {allColumns.map((column) => (
-                <HeaderCell
-                  key={`slot-${column.slot}`}
-                  column={column}
-                  isMain={column.isMain}
-                  isMobile={adaptiveIsMobile}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          // Left-anchored layout - simple layout without sticky positioning
-          <div className="flex min-w-max h-full">
-            <div 
-              className="flex min-w-max h-full"
-              style={{ 
-                transform: `translateX(-${Math.round(scrollLeft)}px)`,
-                willChange: 'transform'
-              }}
-            >
-              {allColumns.map((column) => (
-                <HeaderCell
-                  key={`slot-${column.slot}`}
-                  column={column}
-                  isMain={column.isMain}
-                  isMobile={adaptiveIsMobile}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+      <div 
+        className={`column-headers-container sticky z-40 bg-background border-b shadow-sm ${unlockMode ? 'ring-2 ring-blue-400' : ''}`}
+        style={{ 
+          left: -scrollLeft,  // keep horizontal sync only
+          width: '100%',
+          height: adaptiveIsMobile ? '20px' : '30px'
+        }}
+      >
+        <div className="overflow-hidden w-full h-full flex">
+          <SortableContext items={sortableItems} strategy={horizontalListSortingStrategy}>
+            {shouldCenter ? (
+              // Centered layout for few columns
+              <div className="flex justify-center w-full h-full">
+                <div className="flex min-w-max h-full">
+                  {allColumns.map((column) => (
+                    <SortableHeaderCell
+                      key={`slot-${column.slot}`}
+                      column={column}
+                      isMain={column.isMain}
+                      isMobile={adaptiveIsMobile}
+                      isDraggable={unlockMode}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              // Left-anchored layout - simple layout without sticky positioning
+              <div className="flex min-w-max h-full">
+                <div 
+                  className="flex min-w-max h-full"
+                  style={{ 
+                    transform: `translateX(-${Math.round(scrollLeft)}px)`,
+                    willChange: 'transform'
+                  }}
+                >
+                  {allColumns.map((column) => (
+                    <SortableHeaderCell
+                      key={`slot-${column.slot}`}
+                      column={column}
+                      isMain={column.isMain}
+                      isMobile={adaptiveIsMobile}
+                      isDraggable={unlockMode}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </SortableContext>
+        </div>
       </div>
-    </div>
+    </DndContext>
   );
 }

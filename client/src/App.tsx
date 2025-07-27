@@ -83,6 +83,8 @@ export const useBibleStore = create<{
   currentVerseKeys: string[];
   setChronological: (chronological: boolean) => void;
   setCurrentVerseKeys: (keys: string[]) => void;
+  unlockMode: boolean;
+  toggleUnlockMode: () => void;
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -111,6 +113,8 @@ export const useBibleStore = create<{
   currentVerseKeys: [],   // Current verse keys array (canonical or chronological)
   setChronological: (chronological: boolean) => set({ isChronological: chronological }),
   setCurrentVerseKeys: (keys: string[]) => set({ currentVerseKeys: keys }),
+  unlockMode: false,      // Layout editing mode toggle
+  toggleUnlockMode: () => set(state => ({ unlockMode: !state.unlockMode })),
 
   // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {
@@ -352,15 +356,37 @@ export const useBibleStore = create<{
         )
       }
     })),
-    reorder: (from: number, to: number) => set(state => {
-      const columns = [...state.columnState.columns];
-      const fromCol = columns.find(col => col.slot === from);
-      const toCol = columns.find(col => col.slot === to);
-      if (fromCol && toCol) {
-        fromCol.slot = to;
-        toCol.slot = from;
-      }
-      return { columnState: { ...state.columnState, columns } };
+    reorder: (fromSlot: number, toSlot: number) => set(state => {
+      console.log(`🔄 Column reorder: slot ${fromSlot} → slot ${toSlot}`);
+      
+      // Find the current order of visible columns
+      const visibleColumns = state.columnState.columns
+        .filter(col => col.visible)
+        .sort((a, b) => a.slot - b.slot);
+      
+      const fromIndex = visibleColumns.findIndex(col => col.slot === fromSlot);
+      const toIndex = visibleColumns.findIndex(col => col.slot === toSlot);
+      
+      if (fromIndex === -1 || toIndex === -1) return state;
+      
+      // Reorder the visible columns array
+      const reorderedVisible = [...visibleColumns];
+      const [movedColumn] = reorderedVisible.splice(fromIndex, 1);
+      reorderedVisible.splice(toIndex, 0, movedColumn);
+      
+      // Reassign slot numbers based on new order
+      const newColumns = [...state.columnState.columns];
+      reorderedVisible.forEach((col, index) => {
+        const colIndex = newColumns.findIndex(c => c.slot === col.slot);
+        if (colIndex !== -1) {
+          // Assign new slot based on position
+          const baseSlot = index === 0 ? 0 : visibleColumns[index === 0 ? 0 : index - 1].slot + 1;
+          newColumns[colIndex] = { ...newColumns[colIndex], slot: baseSlot };
+        }
+      });
+      
+      console.log(`✅ Column reorder complete`, newColumns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+      return { columnState: { ...state.columnState, columns: newColumns } };
     }),
     resize: (slot: number, deltaRem: number) => set(state => ({
       columnState: {

@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus } from "lucide-react";
+import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move } from "lucide-react";
 import { LabelsLegend } from './LabelsLegend';
 import { MainTranslationSelector } from './MainTranslationSelector';
 import { AlternateTranslationSelector } from './AlternateTranslationSelector';
@@ -34,11 +34,13 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const showNotes = bibleStore?.showNotes ?? false;
   const showDates = bibleStore?.showDates ?? false;
   const isChronological = bibleStore?.isChronological ?? false;
+  const unlockMode = bibleStore?.unlockMode ?? false;
   const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
   const toggleProphecies = bibleStore?.toggleProphecies ?? (() => {});
   const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
   const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
+  const toggleUnlockMode = bibleStore?.toggleUnlockMode ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
   
   // DEBUG: Add activeLabels check
@@ -259,6 +261,30 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                 <SizeSelector className="w-full" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   Adjusts font size, column width, and row height globally
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Checkbox 
+                    id="unlock-mode" 
+                    className="w-4 h-4"
+                    checked={unlockMode}
+                    onCheckedChange={(checked) => {
+                      console.log('🔓 Unlock mode toggle clicked! New state:', checked);
+                      toggleUnlockMode();
+                    }}
+                  />
+                  <Label htmlFor="unlock-mode" className="text-sm font-medium flex items-center gap-2">
+                    {unlockMode ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                    Column Layout Mode
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {unlockMode 
+                    ? "Drag column headers to reorder them. Click to disable." 
+                    : "Enable to drag and reorder column headers."
+                  }
                 </p>
               </div>
             </div>
