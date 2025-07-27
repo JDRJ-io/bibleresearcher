@@ -33,11 +33,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const versesWithText = useMemo(() => {
     if (!verseKeys.length || !getVerseText) return [];
     
-    return verseKeys.map((key, index) => {
-      const [bookChapter, verseNum] = key.split(':');
-      const [book, chapter] = bookChapter.split('.');
-      
-      // Get text for all available translations
+    return verseKeys.slice(0, 1000).map((key, index) => {
+      // Get text for all available translations using your working system
       const textObj: Record<string, string> = {};
       const translations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
       
@@ -55,7 +52,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
         index
       };
     });
-  }, [verseKeys, getVerseText]);
+  }, [verseKeys, getVerseText, activeTranslation]);
   
   // Create search engine instance
   const searchEngine = useMemo(() => {
@@ -74,7 +71,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
     if (!versesWithText.length) {
-      console.warn('No verse data available for search');
+      console.warn('Search: No verse data available yet. Loaded verses:', versesWithText.length);
       return;
     }
     
