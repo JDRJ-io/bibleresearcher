@@ -2,6 +2,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+// Helper function to map alternate translation index to slot number
+function getSlotForAlternateIndex(index: number): number {
+  if (index < 4) {
+    // Primary alternate translations: slots 3-6
+    return 3 + index;
+  } else if (index < 12) {
+    // Extended alternate translations: slots 12-19 (8 additional slots)
+    return 12 + (index - 4);
+  }
+  return -1; // Invalid index
+}
+
 interface TranslationState {
   main: string;
   alternates: string[];
@@ -34,10 +46,30 @@ export const useTranslationMaps = create<TranslationState>()(
         const alts = current.alternates.filter((t) => t !== id);
         if (alts.length === current.alternates.length) {
           // wasn't there, add it
-          set({ alternates: [...current.alternates, id] });
+          const newAlternates = [...current.alternates, id];
+          set({ alternates: newAlternates });
+          
+          // Also make the corresponding slot visible in the main store
+          const slot = getSlotForAlternateIndex(newAlternates.length - 1);
+          if (slot !== -1) {
+            // Use window event to notify main store to avoid circular dependency
+            window.dispatchEvent(new CustomEvent('translation-slot-visibility', {
+              detail: { slot, visible: true }
+            }));
+          }
         } else {
           // was there, remove it
+          const removedIndex = current.alternates.findIndex(t => t === id);
           set({ alternates: alts });
+          
+          // Also hide the corresponding slot in the main store
+          const slot = getSlotForAlternateIndex(removedIndex);
+          if (slot !== -1) {
+            // Use window event to notify main store to avoid circular dependency
+            window.dispatchEvent(new CustomEvent('translation-slot-visibility', {
+              detail: { slot, visible: false }
+            }));
+          }
         }
       },
       resetMobileDefaults: (mainId: string) => {

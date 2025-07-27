@@ -142,6 +142,23 @@ export default function BiblePage() {
     setIsSearchModalOpen(false);
   }, []);
 
+  // Listen for translation slot visibility events
+  useEffect(() => {
+    const { columnState } = useBibleStore.getState();
+    
+    const handleSlotVisibility = (event: CustomEvent) => {
+      const { slot, visible } = event.detail;
+      console.log(`📡 Received slot visibility event: slot ${slot} → ${visible}`);
+      columnState.setVisible(slot, visible);
+    };
+
+    window.addEventListener('translation-slot-visibility', handleSlotVisibility as EventListener);
+    
+    return () => {
+      window.removeEventListener('translation-slot-visibility', handleSlotVisibility as EventListener);
+    };
+  }, []);
+
   // Add chronological order listener
   useEffect(() => {
     const handleChronologicalChange = (event: CustomEvent) => {
