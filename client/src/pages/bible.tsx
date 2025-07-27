@@ -18,6 +18,7 @@ export default function BiblePage() {
   const [selectedVerse, setSelectedVerse] = useState<BibleVerse | null>(null);
   const [selectedProphecyId, setSelectedProphecyId] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
 
   // Initialize body class
@@ -130,6 +131,17 @@ export default function BiblePage() {
     setIsMenuOpen(false);
   }, []);
 
+  // Search modal handlers
+  const handleSearchTrigger = useCallback(() => {
+    console.log('🔍 Opening search modal from TopHeader');
+    setIsSearchModalOpen(true);
+  }, []);
+
+  const handleSearchClose = useCallback(() => {
+    console.log('🔍 Closing search modal');
+    setIsSearchModalOpen(false);
+  }, []);
+
   // Add chronological order listener
   useEffect(() => {
     const handleChronologicalChange = (event: CustomEvent) => {
@@ -158,7 +170,7 @@ export default function BiblePage() {
         <div className="min-h-screen bg-background">
           <TopHeader
           searchQuery=""
-          onSearchChange={() => {}}
+          onSearchChange={handleSearchTrigger}
           onBack={() => {}}
           onForward={() => {}}
           canGoBack={false}
@@ -191,7 +203,7 @@ export default function BiblePage() {
       <div className="min-h-screen bg-background">
         <TopHeader
           searchQuery=""
-          onSearchChange={() => {}}
+          onSearchChange={handleSearchTrigger}
           onBack={() => {}}
           onForward={() => {}}
           canGoBack={false}
@@ -240,9 +252,9 @@ export default function BiblePage() {
 
         {/* Search Modal */}
         <SearchModal 
-          isOpen={false}
-          onClose={() => {}}
-          onNavigateToVerse={(verseIndex: number) => console.log('Navigate to:', verseIndex)}
+          isOpen={isSearchModalOpen}
+          onClose={handleSearchClose}
+          onNavigateToVerse={handleNavigateToVerse}
         />
 
         {/* Hamburger Menu */}

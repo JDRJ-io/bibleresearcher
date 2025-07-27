@@ -12,7 +12,7 @@ import { useWindowSize } from 'react-use';
 
 interface TopHeaderProps {
   searchQuery: string;
-  onSearchChange: (query: string) => void;
+  onSearchChange: () => void; // Changed to just trigger search modal
   onBack: () => void;
   onForward: () => void;
   canGoBack: boolean;
@@ -32,7 +32,7 @@ export function TopHeader({
   const { theme, setTheme, themes } = useTheme();
   const { user, loading } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+
   const { width } = useWindowSize();
   const isMobile = width < 640;
 
@@ -77,37 +77,15 @@ export function TopHeader({
 
           {/* Center: Search */}
           <div className="flex-1 mx-2 max-w-[180px]">
-            {!searchOpen ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-8 h-8 p-0"
-                onClick={() => setSearchOpen(true)}
-              >
-                <Search className="w-4 h-4" />
-              </Button>
-            ) : (
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  className="pl-8 pr-8 h-8 text-xs"
-                  onBlur={() => setSearchOpen(false)}
-                  autoFocus
-                />
-                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchOpen(false)}
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 w-5 h-5 p-0"
-                >
-                  <X className="w-2 h-2" />
-                </Button>
-              </div>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-8 h-8 p-0"
+              onClick={onSearchChange}
+              title="Open Search Modal"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
           </div>
 
           {/* Right: Auth + Menu */}
@@ -176,13 +154,17 @@ export function TopHeader({
 
           {/* Center: Search */}
           <div className="flex-1 max-w-2xl mx-6">
-            <div className="relative">
+            <div 
+              className="relative cursor-pointer" 
+              onClick={onSearchChange}
+              title="Open Advanced Search"
+            >
               <Input
                 type="text"
                 placeholder="Search verses..."
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-10 pr-4 h-10"
+                value=""
+                readOnly
+                className="pl-10 pr-4 h-10 cursor-pointer"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             </div>
@@ -194,24 +176,27 @@ export function TopHeader({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onSearchChange("Genesis 1:1")}
+                onClick={onSearchChange}
                 className="px-3 py-2 h-9 text-sm"
+                title="Search Genesis 1:1"
               >
                 Genesis 1:1
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onSearchChange("Psalm 23")}
+                onClick={onSearchChange}
                 className="px-3 py-2 h-9 text-sm"
+                title="Search Psalm 23"
               >
                 Psalm 23
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onSearchChange("John 3:16")}
+                onClick={onSearchChange}
                 className="px-3 py-2 h-9 text-sm"
+                title="Search John 3:16"
               >
                 John 3:16
               </Button>

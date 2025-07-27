@@ -12,7 +12,7 @@ import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigateToVerse: (verseIndex: number) => void;
+  onNavigateToVerse: (verseReference: string) => void;
 }
 
 export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalProps) {
@@ -112,7 +112,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   };
 
   const handleResultClick = (result: SearchResult) => {
-    onNavigateToVerse(result.index);
+    onNavigateToVerse(result.verseId);
     onClose();
   };
 
@@ -120,7 +120,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
     if (verseKeys.length === 0) return;
     
     const randomIndex = Math.floor(Math.random() * verseKeys.length);
-    onNavigateToVerse(randomIndex);
+    const randomVerseKey = verseKeys[randomIndex];
+    onNavigateToVerse(randomVerseKey);
     onClose();
   };
 
