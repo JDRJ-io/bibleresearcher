@@ -1,67 +1,71 @@
+
 /* Label Effects CSS - Semantic highlighting visual styles */
 
-/* who → bold text */
+/* who → normal cursive font (not blue) */
 .fx-hand {
-  font-weight: 700;
+  font-family: cursive;
 }
 
-/* what → outline */  
+/* what → simple drop shadow (not double box outline) */  
 .fx-shadow {
-  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
-  outline: 1px solid currentColor;
-  outline-offset: 1px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-/* when → underline */
+/* when → text-matching underline (not green) */
 .fx-under {
   text-decoration: underline;
   text-decoration-thickness: 2px;
+  text-decoration-color: currentColor;
 }
 
-/* where → curly braces */
+/* where → square brackets (not curly braces) */
 .fx-bracket::before {
-  content: '{';
+  content: '[';
   opacity: 0.6;
 }
 .fx-bracket::after {
-  content: '}';
+  content: ']';
   opacity: 0.6;
 }
 
-/* command → bold */
+/* command → simple bold (no glow) */
 .fx-bold {
   font-weight: 700;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-/* action → italic */
+/* action → normal italic (not blue) */
 .fx-ital {
   font-style: italic;
 }
 
-/* why → outline */
+/* why → outline individual characters (not blocks) */
 .fx-outline {
-  outline: 1px solid currentColor;
-  outline-offset: 2px;
+  text-shadow: 
+    -1px -1px 0 currentColor,
+    1px -1px 0 currentColor,
+    -1px 1px 0 currentColor,
+    1px 1px 0 currentColor;
 }
 
-/* seed → superscript * */
+/* seed → text-matching color superscript * */
 .sup-seed::before {
   content: '*';
   vertical-align: super;
   font-size: 0.7em;
   margin-right: 2px;
+  color: currentColor;
 }
 
-/* harvest → superscript = */
+/* harvest → text-matching color superscript = */
 .sup-harvest::before {
   content: '=';
   vertical-align: super;
   font-size: 0.7em;
   margin-right: 2px;
+  color: currentColor;
 }
 
-/* prediction → superscript ~ */
+/* prediction → superscript ~ (keeping as is) */
 .sup-predict::before {
   content: '~';
   vertical-align: super;

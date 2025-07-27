@@ -12,15 +12,15 @@ interface LabelsLegendProps {
 
 const labelConfig = [
   { key: 'who' as LabelName, label: 'Who', description: 'Cursive font for people/beings', effectClass: 'fx-hand', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
-  { key: 'what' as LabelName, label: 'What', description: 'Drop shadow for objects/things', effectClass: 'fx-shadow', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
-  { key: 'when' as LabelName, label: 'When', description: 'Underlined time references', effectClass: 'fx-under', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
+  { key: 'what' as LabelName, label: 'What', description: 'Simple drop shadow for objects/things', effectClass: 'fx-shadow', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
+  { key: 'when' as LabelName, label: 'When', description: 'Text-colored underline for time references', effectClass: 'fx-under', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
   { key: 'where' as LabelName, label: 'Where', description: 'Square brackets around locations', effectClass: 'fx-bracket', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
-  { key: 'command' as LabelName, label: 'Command', description: 'Bold text for imperatives', effectClass: 'fx-bold', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-  { key: 'action' as LabelName, label: 'Action', description: 'Italic text for verbs/activities', effectClass: 'fx-ital', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
-  { key: 'why' as LabelName, label: 'Why', description: 'Outlined text for reasons/purposes', effectClass: 'fx-outline', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' },
-  { key: 'seed' as LabelName, label: 'Seed', description: 'Asterisk (*) for beginning/source', effectClass: 'sup-seed', color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200' },
-  { key: 'harvest' as LabelName, label: 'Harvest', description: 'Equals (=) for results/outcomes', effectClass: 'sup-harvest', color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200' },
-  { key: 'prediction' as LabelName, label: 'Prediction', description: 'Plus (+) for prophecies/foretelling', effectClass: 'sup-predict', color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' }
+  { key: 'command' as LabelName, label: 'Command', description: 'Simple bold text for imperatives', effectClass: 'fx-bold', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+  { key: 'action' as LabelName, label: 'Action', description: 'Normal italic text for verbs/activities', effectClass: 'fx-ital', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+  { key: 'why' as LabelName, label: 'Why', description: 'Character-outlined text for reasons/purposes', effectClass: 'fx-outline', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' },
+  { key: 'seed' as LabelName, label: 'Seed', description: 'Text-colored asterisk (*) for beginning/source', effectClass: 'sup-seed', color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200' },
+  { key: 'harvest' as LabelName, label: 'Harvest', description: 'Text-colored equals (=) for results/outcomes', effectClass: 'sup-harvest', color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200' },
+  { key: 'prediction' as LabelName, label: 'Prediction', description: 'Tilde (~) for prophecies/foretelling', effectClass: 'sup-predict', color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' }
 ];
 
 export function LabelsLegend({ className = '' }: LabelsLegendProps) {
