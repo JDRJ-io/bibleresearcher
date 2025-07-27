@@ -187,13 +187,13 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
             // Skip if no verses to show in this column for this prophecy
             if (versesToShow.length === 0) return null;
 
-            const isCollapsed = collapsedProphecies.has(prophecyId);
+            const isCollapsed = collapsedProphecies.has(String(prophecyId));
 
             return (
               <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
                 {/* Clickable summary text with collapse indicator */}
                 <button
-                  onClick={() => toggleProphecyCollapse(prophecyId)}
+                  onClick={() => toggleProphecyCollapse(String(prophecyId))}
                   className="w-full text-[9px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors flex items-center justify-center gap-1"
                 >
                   <span className="text-[8px]">{isCollapsed ? '▶' : '▼'}</span>
@@ -268,12 +268,14 @@ function MainTranslationCell({
   const activeLabels = store.activeLabels || [];
 
   // FIX #4: Debug translation lookup with normalization  
-  console.log('CELL CHECK', {
-    verse: verse.reference,
-    mainTranslation,
-    normalizedCode: mainTranslation?.toUpperCase(),
-    textResult: getVerseText(verse.reference, mainTranslation)?.slice(0,40)
-  });
+  if (verse.reference === "Gen.4:1") {
+    console.log('CELL CHECK', {
+      verse: verse.reference,
+      mainTranslation,
+      normalizedCode: mainTranslation?.toUpperCase(),
+      textResult: getVerseText(verse.reference, mainTranslation)?.slice(0,40)
+    });
+  }
 
   // Get verse text with proper fallbacks
   const verseText = getVerseText(verse.reference, mainTranslation) || 
@@ -362,10 +364,12 @@ export function VirtualRow({
   onExpandVerse,
   onDoubleClick
 }: VirtualRowProps) {
-  // FIX #1: Use store as SINGLE source of truth for mainTranslation
+  // FIX #1: Use translation store as SINGLE source of truth for mainTranslation
   const store = useBibleStore();
-  const mainTranslation = store.translationState?.main || "KJV";
-  const { alternates } = useTranslationMaps();
+  const { main: mainTranslation, alternates } = useTranslationMaps();
+  
+  // Debug translation store state
+  console.log('🔍 VirtualRow translation state:', { mainTranslation, alternates });
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
