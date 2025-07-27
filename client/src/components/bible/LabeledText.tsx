@@ -35,3 +35,5 @@ export default function LabeledText({
     </>
   );
 }
+/* <-- add this line */
+export { LabeledText };
