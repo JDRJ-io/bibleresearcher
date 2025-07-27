@@ -7,6 +7,7 @@ export interface SearchResult {
   highlightedText: string;
   type: 'verse' | 'reference' | 'text';
   confidence: number;
+  translationCode?: string;
 }
 
 // Comprehensive Bible book abbreviations mapping
@@ -241,7 +242,7 @@ export class BibleSearchEngine {
     });
   }
   
-  search(query: string, translationCode: string = 'KJV', maxResults: number = 100): SearchResult[] {
+  search(query: string, translationCode: string = 'KJV', maxResults: number = 100, searchAllTranslations: boolean = false): SearchResult[] {
     const results: SearchResult[] = [];
     const normalizedQuery = query.toLowerCase().trim();
     
@@ -256,8 +257,13 @@ export class BibleSearchEngine {
     
     // If not a high-confidence reference match, search text content
     if (!parsedRef || parsedRef.confidence < 0.9) {
-      const textResults = this.searchByText(normalizedQuery, translationCode, maxResults - results.length);
-      results.push(...textResults);
+      if (searchAllTranslations) {
+        const multiResults = this.searchByTextAllTranslations(normalizedQuery, maxResults - results.length);
+        results.push(...multiResults);
+      } else {
+        const textResults = this.searchByText(normalizedQuery, translationCode, maxResults - results.length);
+        results.push(...textResults);
+      }
     }
     
     // Sort by confidence, then by verse order
@@ -374,11 +380,80 @@ export class BibleSearchEngine {
           index,
           highlightedText,
           type: 'text',
-          confidence: Math.min(score / 10, 0.6) // Text search max confidence is 0.6
+          confidence: Math.min(score / 10, 0.6), // Text search max confidence is 0.6
+          translationCode
         });
       }
     });
     
     return results.slice(0, maxResults);
+  }
+
+  private searchByTextAllTranslations(query: string, maxResults: number): SearchResult[] {
+    const results: SearchResult[] = [];
+    const words = query.split(/\s+/).filter(w => w.length > 0);
+    const translationCodes = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
+    
+    this.verses.forEach((verseData, index) => {
+      const translationResults: Array<{translation: string, text: string, score: number, highlightedText: string}> = [];
+      
+      // Search each available translation for this verse
+      translationCodes.forEach(tCode => {
+        const text = verseData.text?.[tCode] || '';
+        if (!text) return;
+        
+        const lowerText = text.toLowerCase();
+        let score = 0;
+        let highlightedText = text;
+        
+        // Exact phrase match gets highest score
+        if (lowerText.includes(query)) {
+          score += 10;
+          const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+          highlightedText = text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+        } else {
+          // Individual word matches
+          words.forEach(word => {
+            if (lowerText.includes(word)) {
+              score += 1;
+              const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+              highlightedText = highlightedText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+            }
+          });
+        }
+        
+        if (score > 0) {
+          translationResults.push({
+            translation: tCode,
+            text,
+            score,
+            highlightedText
+          });
+        }
+      });
+      
+      // Add results for each translation that matched
+      translationResults.forEach(result => {
+        results.push({
+          verseId: verseData.id,
+          reference: verseData.reference,
+          text: result.text,
+          index,
+          highlightedText: result.highlightedText,
+          type: 'text',
+          confidence: Math.min(result.score / 10, 0.6),
+          translationCode: result.translation
+        });
+      });
+    });
+    
+    return results
+      .sort((a, b) => {
+        // Sort by confidence first, then by verse order, then group same verses together
+        if (a.confidence !== b.confidence) return b.confidence - a.confidence;
+        if (a.index !== b.index) return a.index - b.index;
+        return a.translationCode!.localeCompare(b.translationCode!);
+      })
+      .slice(0, maxResults);
   }
 }

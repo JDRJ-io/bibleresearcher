@@ -23,6 +23,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [maxResults, setMaxResults] = useState(50);
   const [searchType, setSearchType] = useState<'all' | 'exact' | 'reference'>('all');
+  const [searchAllTranslations, setSearchAllTranslations] = useState(false);
   
   const bibleStore = useBibleStore();
   const verses = bibleStore?.currentVerseKeys || [];
@@ -52,7 +53,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       // Small delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      const results = searchEngine.search(searchQuery, activeTranslation, maxResults);
+      const results = searchEngine.search(searchQuery, activeTranslation, maxResults, searchAllTranslations);
       
       // Filter by search type if specified
       const filteredResults = searchType === 'all' ? results : 
@@ -146,40 +147,65 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
 
           {/* Advanced Options */}
           {showAdvanced && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Search Type</label>
-                <select
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value as any)}
-                  className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"
-                >
-                  <option value="all">All Results</option>
-                  <option value="reference">References Only</option>
-                  <option value="exact">Text Matches Only</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium mb-2 block">Max Results</label>
-                <select
-                  value={maxResults}
-                  onChange={(e) => setMaxResults(Number(e.target.value))}
-                  className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"
-                >
-                  <option value={25}>25 results</option>
-                  <option value={50}>50 results</option>
-                  <option value={100}>100 results</option>
-                  <option value={500}>500 results</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium mb-2 block">Translation</label>
-                <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
-                  {activeTranslation}
+            <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Search Type</label>
+                  <select
+                    value={searchType}
+                    onChange={(e) => setSearchType(e.target.value as any)}
+                    className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"
+                  >
+                    <option value="all">All Results</option>
+                    <option value="reference">References Only</option>
+                    <option value="exact">Text Matches Only</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Max Results</label>
+                  <select
+                    value={maxResults}
+                    onChange={(e) => setMaxResults(Number(e.target.value))}
+                    className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"
+                  >
+                    <option value={25}>25 results</option>
+                    <option value={50}>50 results</option>
+                    <option value={100}>100 results</option>
+                    <option value={500}>500 results</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Primary Translation</label>
+                  <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
+                    {activeTranslation}
+                  </div>
                 </div>
               </div>
+              
+              {/* Multi-Translation Search Toggle */}
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                <input
+                  type="checkbox"
+                  id="searchAllTranslations"
+                  checked={searchAllTranslations}
+                  onChange={(e) => setSearchAllTranslations(e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="searchAllTranslations" className="text-sm font-medium">
+                  Search across all translations
+                </label>
+                <div className="text-xs text-gray-500 ml-2">
+                  (Find verses where specific translations use unique phrasing)
+                </div>
+              </div>
+              
+              {searchAllTranslations && (
+                <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+                  <strong>Inter-translation search enabled:</strong> Results will show the same verse from different translations when they match your search terms differently. Perfect for finding unique translation-specific phrases.
+                </div>
+              )}
             </div>
           )}
 
@@ -252,6 +278,11 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                           <span className="font-medium text-blue-600 dark:text-blue-400">
                             {result.reference}
                           </span>
+                          {result.translationCode && searchAllTranslations && (
+                            <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                              {result.translationCode}
+                            </Badge>
+                          )}
                           {showAdvanced && (
                             <>
                               <Badge className={`text-xs ${getSearchTypeColor(result.type)}`}>
