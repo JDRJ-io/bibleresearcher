@@ -557,6 +557,7 @@ export function VirtualRow({
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <MainTranslationCell 
+              key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
               getVerseText={getVerseText} 
               mainTranslation={mainTranslation}
