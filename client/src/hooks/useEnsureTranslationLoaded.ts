@@ -1,16 +1,26 @@
-// 2-A Helper (one place only)
-import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+// Translation loading helper that ensures translations are loaded before switching
 import { masterCache } from '@/lib/supabaseClient';
+import { loadTranslation } from '@/data/BibleDataAPI';
 
 export const useEnsureTranslationLoaded = () => {
-  const { toggleTranslation } = useTranslationMaps();
-  
   return async (id: string) => {
-    // Check master cache using the correct key format
     const translationKey = `translation-${id}`;
+    
     if (!masterCache.has(translationKey)) {
       console.log(`🔄 Loading translation ${id} on demand...`);
-      await toggleTranslation(id, false); // Load as alternate, not main
+      try {
+        // Load the translation using BibleDataAPI which handles caching
+        const translationMap = await loadTranslation(id);
+        console.log(`✅ Translation ${id} loaded with ${translationMap.size} verses`);
+        
+        // Show toast for loading failures
+        if (translationMap.size === 0) {
+          console.error(`🚨 FAILED TO LOAD: ${id} - translation file may be missing`);
+        }
+      } catch (error) {
+        console.error(`❌ Failed to load translation ${id}:`, error);
+        throw error;
+      }
     } else {
       console.log(`✅ Translation ${id} already cached, skipping duplicate load`);
     }

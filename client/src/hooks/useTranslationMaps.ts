@@ -208,7 +208,6 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     return mainTranslationMap?.get(verseID) || 
            mainTranslationMap?.get(verseID.replace(' ', '.')) ||
            mainTranslationMap?.get(verseID.replace('.', ' '));
-    return mainTranslationMap?.get(verseID);
   }, [mainTranslation]);
 
   /**

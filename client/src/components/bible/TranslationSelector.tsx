@@ -18,19 +18,35 @@ export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {
   const ensureTranslationLoaded = useEnsureTranslationLoaded();
 
   const handleMainChange = async (value: string) => {
-    // 2-B Trigger point: handleMainChange → await ensureTranslationLoaded(mainId); (before setMain)
-    await ensureTranslationLoaded(value);
-    setMain(value);
-    onUpdate?.();
+    console.log(`🔄 Switching main translation from ${main} to ${value}`);
+    try {
+      // Load the translation first
+      await ensureTranslationLoaded(value);
+      
+      // Update the main translation in store
+      setMain(value);
+      
+      // Trigger any label cache updates for new translation
+      onUpdate?.();
+      
+      console.log(`✅ Successfully switched main translation to ${value}`);
+    } catch (error) {
+      console.error(`❌ Failed to switch to translation ${value}:`, error);
+    }
   };
 
   const handleAlternateToggle = async (translationId: string, checked: boolean) => {
-    // 2-B Trigger point: handleAlternateToggle(id, checked) → if checked then ensureTranslationLoaded(id)
-    if (checked) {
-      await ensureTranslationLoaded(translationId);
+    console.log(`🔄 Toggling alternate translation ${translationId}: ${checked}`);
+    try {
+      if (checked) {
+        await ensureTranslationLoaded(translationId);
+      }
+      toggleAlternate(translationId);
+      onUpdate?.();
+      console.log(`✅ Successfully toggled ${translationId}: ${checked}`);
+    } catch (error) {
+      console.error(`❌ Failed to toggle translation ${translationId}:`, error);
     }
-    toggleAlternate(translationId);
-    onUpdate?.();
   };
 
   return (

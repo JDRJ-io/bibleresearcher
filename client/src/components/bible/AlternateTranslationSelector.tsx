@@ -15,11 +15,17 @@ export function AlternateTranslationSelector({ onUpdate }: AlternateTranslationS
   const ensureTranslationLoaded = useEnsureTranslationLoaded();
 
   const handleAlternateToggle = async (translationId: string, checked: boolean) => {
-    if (checked) {
-      await ensureTranslationLoaded(translationId);
+    console.log(`🔄 Toggling alternate translation ${translationId}: ${checked}`);
+    try {
+      if (checked) {
+        await ensureTranslationLoaded(translationId);
+      }
+      toggleAlternate(translationId);
+      onUpdate?.();
+      console.log(`✅ Successfully toggled alternate ${translationId}: ${checked}`);
+    } catch (error) {
+      console.error(`❌ Failed to toggle alternate ${translationId}:`, error);
     }
-    toggleAlternate(translationId);
-    onUpdate?.();
   };
 
   // Filter out the main translation from available options

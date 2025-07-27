@@ -42,12 +42,12 @@ class LRUCache {
       let oldestKey = '';
       let oldestTime = Infinity;
       
-      for (const [k, entry] of this.cache) {
+      this.cache.forEach((entry, k) => {
         if (entry.timestamp < oldestTime) {
           oldestTime = entry.timestamp;
           oldestKey = k;
         }
-      }
+      });
       
       if (oldestKey) {
         this.cache.delete(oldestKey);

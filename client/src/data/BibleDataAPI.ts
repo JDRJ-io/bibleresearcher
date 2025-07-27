@@ -303,8 +303,8 @@ export async function getStrongsOffsets() {
     strongsIndexOffsets = JSON.parse(iTxt);
 
     console.log('✅ Strong\'s offsets loaded:', {
-      verseOffsets: Object.keys(strongsVerseOffsets).length,
-      indexOffsets: Object.keys(strongsIndexOffsets).length
+      verseOffsets: Object.keys(strongsVerseOffsets || {}).length,
+      indexOffsets: Object.keys(strongsIndexOffsets || {}).length
     });
 
     return { strongsVerseOffsets, strongsIndexOffsets };
@@ -312,8 +312,8 @@ export async function getStrongsOffsets() {
     console.error('❌ Failed to load Strong\'s offsets:', error);
     // Return mock data for testing - this ensures the overlay can at least open
     const mockOffsets = {
-      strongsVerseOffsets: { "Gen.1:1": [0, 100] },
-      strongsIndexOffsets: { "H7225": [0, 50], "H1254": [50, 100] }
+      strongsVerseOffsets: { "Gen.1:1": [0, 100] } as Record<string, [number, number]>,
+      strongsIndexOffsets: { "H7225": [0, 50], "H1254": [50, 100] } as Record<string, [number, number]>
     };
     strongsVerseOffsets = mockOffsets.strongsVerseOffsets;
     strongsIndexOffsets = mockOffsets.strongsIndexOffsets;
