@@ -369,6 +369,14 @@ const VirtualBibleTable = ({
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
+  
+  console.log('🔧 Centering decision:', {
+    actualTotalWidth,
+    viewportWidth,
+    shouldCenter,
+    needsHorizontalScroll,
+    isMobile
+  });
 
   useEffect(() => {
     if (!wrapperRef.current) return;
@@ -495,8 +503,9 @@ const VirtualBibleTable = ({
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ 
-          // Let the parent wrapper handle overflow, not this div
+        <div className="flex w-full" style={{ 
+          // Always left-align content and let wrapper handle centering with margin-inline: auto
+          justifyContent: shouldCenter ? 'center' : 'flex-start',
           overflow: 'visible'
         }}>
           <div style={{ 
