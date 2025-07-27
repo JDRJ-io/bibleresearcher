@@ -39,9 +39,10 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
       setIsLoading(true);
       console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
       try {
-        // Pass activeLabels to cache loader for worker filtering  
-        console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded...`);
-        await ensureLabelCacheLoaded(mainTranslation, activeLabels);
+        // Normalize active labels before passing to worker
+        const normActive = activeLabels.map(lbl => lbl.toLowerCase() as LabelName);
+        console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded with normalized labels:`, normActive);
+        await ensureLabelCacheLoaded(mainTranslation, normActive);
         console.log(`✅ WORKER: Cache loaded, getting labels for ${verseKeys.length} verses`);
 
         // Get labels only for the verses in viewport and only for active label types

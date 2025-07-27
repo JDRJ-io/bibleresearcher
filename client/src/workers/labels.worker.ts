@@ -39,11 +39,16 @@ self.onmessage = async (e: MessageEvent) => {
   
   const src = fileCache[tCode];
 
+  // Normalize label names to match data keys
+  function normaliseLabel(lbl: string): string { 
+    return lbl.toLowerCase(); 
+  }
+
   // 3) FILTER to active labels only -> dramatically smaller object
-  const wanted = new Set(active);
+  const wanted = new Set(active.map(normaliseLabel));
   const filtered: Record<string, Record<string, string[]>> = {};
   
-  console.log(`🔍 Worker: Filtering for active labels:`, active, 'from', Object.keys(src).length, 'verses');
+  console.log(`🔍 Worker: Filtering for active labels:`, active, 'normalized to:', Array.from(wanted), 'from', Object.keys(src).length, 'verses');
   
   for (const [vKey, entry] of Object.entries(src)) {
     const slim: Record<string, string[]> = {};
