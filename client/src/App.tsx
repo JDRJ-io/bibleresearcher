@@ -9,7 +9,6 @@ import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
-import { useEffect } from 'react';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
@@ -344,11 +343,11 @@ export const useBibleStore = create<{
       { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2 (T₂)
       { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3 (T₃)
       { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4 (T₄)
-      { slot: 7, visible: false, widthRem: 15, displayOrder: 7 },   // Cross References (default off)
-      { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (default off)
-      { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (default off)
-      { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (default off)
-      { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Dates (default off)
+      { slot: 7, visible: true, widthRem: 15, displayOrder: 7 },    // Cross References (current working position)
+      { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (current working position)
+      { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (current working position)
+      { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (current working position)
+      { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Dates (current working position)
       { slot: 12, visible: false, widthRem: 18, displayOrder: 12 }, // Alt translation 5 (T₅)
       { slot: 13, visible: false, widthRem: 18, displayOrder: 13 }, // Alt translation 6 (T₆)
       { slot: 14, visible: false, widthRem: 18, displayOrder: 14 }, // Alt translation 7 (T₇)
@@ -423,40 +422,7 @@ export const useBibleStore = create<{
           col.slot === slot ? { ...col, widthRem: Math.max(3, col.widthRem + deltaRem) } : col
         )
       }
-    })),
-    resetToDefaults: () => set(() => {
-      console.log('🔄 Resetting column layout to defaults');
-      return {
-        columnState: {
-          columns: [
-            { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
-            { slot: 1, visible: false, widthRem: 16, displayOrder: 1 },   // Notes 
-            { slot: 2, visible: true, widthRem: 20, displayOrder: 2 },    // Main translation (always visible)
-            { slot: 3, visible: false, widthRem: 18, displayOrder: 3 },   // Alt translation 1 (T₁)
-            { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2 (T₂)
-            { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3 (T₃)
-            { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4 (T₄)
-            { slot: 7, visible: false, widthRem: 15, displayOrder: 7 },   // Cross References (default off)
-            { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (default off)
-            { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (default off)
-            { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (default off)
-            { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Dates (default off)
-            { slot: 12, visible: false, widthRem: 18, displayOrder: 12 }, // Alt translation 5 (T₅)
-            { slot: 13, visible: false, widthRem: 18, displayOrder: 13 }, // Alt translation 6 (T₆)
-            { slot: 14, visible: false, widthRem: 18, displayOrder: 14 }, // Alt translation 7 (T₇)
-            { slot: 15, visible: false, widthRem: 18, displayOrder: 15 }, // Alt translation 8 (T₈)
-            { slot: 16, visible: false, widthRem: 18, displayOrder: 16 }, // Alt translation 9 (T₉)
-            { slot: 17, visible: false, widthRem: 18, displayOrder: 17 }, // Alt translation 10 (T₁₀)
-            { slot: 18, visible: false, widthRem: 18, displayOrder: 18 }, // Alt translation 11 (T₁₁)
-            { slot: 19, visible: false, widthRem: 18, displayOrder: 19 }, // Alt translation 12 (T₁₂)
-          ],
-          setVisible: get().columnState.setVisible,
-          reorder: get().columnState.reorder,
-          resize: get().columnState.resize,
-          resetToDefaults: () => {} // Placeholder
-        }
-      };
-    })
+    }))
   },
 
   // Size State (UI Layout Spec presets: S=0.85, M=1.0, L=1.35, XL=1.70)
@@ -534,24 +500,6 @@ function Router() {
 }
 
 function App() {
-  // Clear any persisted state for guest users on app startup
-  useEffect(() => {
-    // For guests, always start with clean state - clear any persisted settings
-    const isGuest = true; // For now, always guest mode since auth is not implemented
-    if (isGuest) {
-      console.log('🔄 Guest mode: Clearing persisted column state and resetting to defaults');
-      
-      // Clear any stored column state and scroll positions
-      localStorage.removeItem('bible-column-state');
-      localStorage.removeItem('translation-state');
-      localStorage.removeItem('bible-scroll-position');
-      localStorage.removeItem('anchor-index');
-      localStorage.removeItem('verse-position');
-      
-      // No need to reset store - just clearing localStorage is sufficient for guest mode
-    }
-  }, []);
-
   // Detect if performance mode should be enabled
   const enablePerformanceMode = () => {
     // Enable performance mode on mobile devices or low-memory devices

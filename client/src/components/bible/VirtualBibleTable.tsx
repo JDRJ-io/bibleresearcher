@@ -73,33 +73,6 @@ const VirtualBibleTable = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const verseKeys = getVerseKeys(); // loaded once
   const { anchorIndex, slice } = useAnchorSlice(containerRef);
-  
-  // FORCE RESET: Ensure virtual table starts at the beginning for guests
-  useEffect(() => {
-    const isGuest = true; // For now, always guest mode
-    if (isGuest && containerRef.current) {
-      console.log('🔄 Guest mode: Resetting virtual table to start position');
-      containerRef.current.scrollTop = 0;
-    }
-  }, []);
-
-  // CRITICAL FIX: Force load main translation immediately for guests
-  useEffect(() => {
-    const forceLoadMainTranslation = async () => {
-      const effectiveMainTranslation = translationMainTranslation || mainTranslation;
-      console.log(`🔄 VirtualBibleTable: Force loading ${effectiveMainTranslation} translation`);
-      
-      try {
-        const { loadTranslation } = await import('@/data/BibleDataAPI');
-        const translationMap = await loadTranslation(effectiveMainTranslation);
-        console.log(`✅ VirtualBibleTable: ${effectiveMainTranslation} loaded with ${translationMap.size} verses`);
-      } catch (error) {
-        console.error(`❌ VirtualBibleTable: Failed to load ${effectiveMainTranslation}:`, error);
-      }
-    };
-    
-    forceLoadMainTranslation();
-  }, [translationMainTranslation, mainTranslation]);
 
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
@@ -499,13 +472,11 @@ const VirtualBibleTable = ({
         <div 
           className="w-full h-full overflow-y-auto"
           style={{ 
-            // Center when few columns, left-align when many columns (this is critical!)
+            // Center when few columns, left-align when many columns
             display: 'flex',
             justifyContent: shouldCenter ? 'center' : 'flex-start',
             alignItems: 'flex-start',
-            marginInlineStart: shouldCenter ? 'auto' : '0',
-            marginInlineEnd: shouldCenter ? 'auto' : '0',
-            minWidth: `${actualTotalWidth}px`,
+            minWidth: shouldCenter ? 'auto' : `${actualTotalWidth}px`,
             paddingBottom: needsHorizontalScroll ? '8px' : '0'
           }}
         >
@@ -516,7 +487,6 @@ const VirtualBibleTable = ({
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
-                console.log(`🎯 RENDERING VirtualRow ${i}/${slice.verseIDs.length}: ${id}`);
                 // Convert simple rowData to BibleVerse structure
                 const verseData = rowData?.[id];
                 const parts = id.split('.');

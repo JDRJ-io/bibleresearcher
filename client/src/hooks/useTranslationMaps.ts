@@ -29,10 +29,10 @@ export interface UseTranslationMapsReturn {
 
 export function useTranslationMaps(): UseTranslationMapsReturn {
   // activeTranslations array: index 0 = main translation, others are alternates
-  const [activeTranslations, setActiveTranslations] = useState<string[]>(['KJV']);
+  const [activeTranslations, setActiveTranslations] = useState<string[]>(['NRSV']);
   const [isLoading, setIsLoading] = useState(false);
   
-  const mainTranslation = activeTranslations[0] || 'KJV';
+  const mainTranslation = activeTranslations[0] || 'NRSV';
   const alternates = activeTranslations.slice(1);
 
   // FORCE LOAD main translation on initialization - critical fix

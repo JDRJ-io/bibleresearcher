@@ -1,5 +1,5 @@
 
-import { useRef, useState, useLayoutEffect, useEffect } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
 import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
@@ -33,17 +33,6 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
   const anchorIndexRef = useRef(0);
   const [anchorIndex, setAnchorIndex] = useState(0);
   const [slice, setSlice] = useState(() => loadChunk(0));
-  
-  // GUEST MODE FIX: Force reset to beginning
-  useEffect(() => {
-    const isGuest = true; // Always guest mode for now
-    if (isGuest) {
-      console.log('🔄 Guest mode: Forcing anchor slice to start at index 0');
-      anchorIndexRef.current = 0;
-      setAnchorIndex(0);
-      setSlice(loadChunk(0));
-    }
-  }, []);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
