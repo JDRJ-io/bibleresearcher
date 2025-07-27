@@ -40,14 +40,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       
       translations.forEach(translationCode => {
         const text = getVerseText(key, translationCode);
-        if (text) {
-          textObj[translationCode] = text;
+        if (text && text.trim()) {
+          textObj[translationCode] = text.trim();
         }
       });
       
       return {
         id: key,
-        reference: key.replace('.', ' '), // Convert Gen.1:1 to Gen 1:1
+        reference: key, // Keep original format Gen.1:1 for proper search engine compatibility
         text: textObj,
         index
       };
@@ -83,13 +83,16 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       await new Promise(resolve => setTimeout(resolve, 100));
       
       console.log(`🔍 Searching "${searchQuery}" across ${versesWithText.length} verses with translation: ${activeTranslation}`);
+      console.log(`🔍 Sample verse data:`, versesWithText.slice(0, 3));
       
       const results = searchEngine.search(searchQuery, activeTranslation, 10000, searchAllTranslations);
       
       console.log(`🔍 Search found ${results.length} results`);
+      console.log(`🔍 Sample results:`, results.slice(0, 3));
       
       // Filter to text-only results
       const textResults = results.filter(r => r.type === 'text');
+      console.log(`🔍 Text-only results: ${textResults.length}`);
       
       setAllResults(textResults);
       setSearchResults(textResults.slice(0, displayedResults));
@@ -170,7 +173,11 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
             <Button onClick={performSearch} disabled={isSearching}>
               {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
             </Button>
-            <Button variant="outline" onClick={getRandomVerse}>
+            <Button 
+              variant="outline" 
+              onClick={getRandomVerse}
+              title="Random Verse"
+            >
               <Book className="w-4 h-4" />
             </Button>
           </div>
