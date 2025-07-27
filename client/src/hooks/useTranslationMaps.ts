@@ -153,30 +153,12 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    */
   const getVerseText = useCallback((verseID: string, translationCode: string): string | undefined => {
     const translationMap = masterCache.get(`translation-${translationCode}`);
+    if (!translationMap) return undefined;
     
-    // Debug logging for first few lookups - comprehensive format checking
-    if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
-      console.log('🔍 getVerseText DETAILED DEBUG:', {
-        verseID,
-        translationCode,
-        cacheKey: `translation-${translationCode}`,
-        hasMap: !!translationMap,
-        mapSize: translationMap?.size,
-        cacheKeys: "checking cache keys...",
-        mapHasVerse: translationMap?.has(verseID),
-        mapHasVerseAlt1: translationMap?.has(verseID.replace(' ', '.')), // "Gen 1:1" -> "Gen.1:1"
-        mapHasVerseAlt2: translationMap?.has(verseID.replace('.', ' ')), // "Gen.1:1" -> "Gen 1:1"
-        sampleKeys: translationMap ? Array.from(translationMap.keys()).slice(0, 10) : [],
-        lookupResult1: translationMap?.get(verseID),
-        lookupResult2: translationMap?.get(verseID.replace(' ', '.')),
-        lookupResult3: translationMap?.get(verseID.replace('.', ' '))
-      });
-    }
+    // Convert any format to canonical "Gen.1:1" format used in your source files
+    const canonicalRef = verseID.includes(' ') ? verseID.replace(' ', '.') : verseID;
     
-    // Try both formats: "Gen 1:1" and "Gen.1:1"
-    return translationMap?.get(verseID) || 
-           translationMap?.get(verseID.replace(' ', '.')) ||
-           translationMap?.get(verseID.replace('.', ' '));
+    return translationMap.get(canonicalRef);
   }, []);
 
   /**
@@ -185,29 +167,12 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    */
   const getMainVerseText = useCallback((verseID: string): string | undefined => {
     const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
+    if (!mainTranslationMap) return undefined;
     
-    // Debug logging for main translation lookups - comprehensive  
-    if (verseID === "Gen 1:1" || verseID === "Gen.1:1") {
-      console.log('🔍 getMainVerseText DETAILED DEBUG:', {
-        verseID,
-        mainTranslation,
-        cacheKey: `translation-${mainTranslation}`,
-        hasMap: !!mainTranslationMap,
-        mapSize: mainTranslationMap?.size,
-        mapHasVerse: mainTranslationMap?.has(verseID),
-        mapHasVerseAlt1: mainTranslationMap?.has(verseID.replace(' ', '.')), 
-        mapHasVerseAlt2: mainTranslationMap?.has(verseID.replace('.', ' ')),
-        sampleKeys: mainTranslationMap ? Array.from(mainTranslationMap.keys()).slice(0, 10) : [],
-        lookupResult1: mainTranslationMap?.get(verseID),
-        lookupResult2: mainTranslationMap?.get(verseID.replace(' ', '.')),
-        lookupResult3: mainTranslationMap?.get(verseID.replace('.', ' '))
-      });
-    }
+    // Convert any format to canonical "Gen.1:1" format used in your source files
+    const canonicalRef = verseID.includes(' ') ? verseID.replace(' ', '.') : verseID;
     
-    // Try both formats: "Gen 1:1" and "Gen.1:1"
-    return mainTranslationMap?.get(verseID) || 
-           mainTranslationMap?.get(verseID.replace(' ', '.')) ||
-           mainTranslationMap?.get(verseID.replace('.', ' '));
+    return mainTranslationMap.get(canonicalRef);
   }, [mainTranslation]);
 
   /**

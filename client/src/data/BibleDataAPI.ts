@@ -66,9 +66,8 @@ export async function loadTranslation(id: string) {
         const cleanRef = reference.trim();
         const cleanText = text.trim();
 
-        // Store multiple key formats for compatibility
-        textMap.set(cleanRef, cleanText); // "Gen.1:1"
-        textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
+        // Store only the canonical format from your source files (Gen.1:1)
+        textMap.set(cleanRef, cleanText);
       }
     }
 
