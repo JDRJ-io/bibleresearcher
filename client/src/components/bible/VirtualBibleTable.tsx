@@ -538,7 +538,6 @@ const VirtualBibleTable = ({
                     mainTranslation={translationMainTranslation}
                     onVerseClick={columnData.onVerseClick}
                     onExpandVerse={onExpandVerse}
-                    getVerseLabels={getVerseLabels}
                   />
                 );
             })}

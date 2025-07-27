@@ -22,7 +22,6 @@ interface VirtualRowProps {
   onVerseClick: (ref: string) => void;
   onExpandVerse?: (verse: BibleVerse) => void;
   onDoubleClick?: () => void;
-  getVerseLabels?: (verseReference: string) => Record<string, string[]>;
 }
 
 // Cell Components
@@ -354,8 +353,7 @@ export function VirtualRow({
   mainTranslation,
   onVerseClick,
   onExpandVerse,
-  onDoubleClick,
-  getVerseLabels
+  onDoubleClick
 }: VirtualRowProps) {
   const { main, alternates } = useTranslationMaps();
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
@@ -364,6 +362,15 @@ export function VirtualRow({
   useColumnData();
   const isMobile = useIsMobile();
   const screenSize = useScreenSize();
+
+  // Get viewport labels hook at top level - BEFORE any conditionals
+  const store = useBibleStore();
+  const activeLabels = store.activeLabels || [];
+  const { getVerseLabels } = useViewportLabels({
+    verses: [verse], 
+    activeLabels: activeLabels, 
+    mainTranslation: mainTranslation
+  });
 
   // DEBUG: Check if VirtualRow is being called
   if (verse.reference === "Gen 1:1") {
