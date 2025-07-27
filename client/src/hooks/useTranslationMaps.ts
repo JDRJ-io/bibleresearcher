@@ -162,7 +162,7 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         cacheKey: `translation-${translationCode}`,
         hasMap: !!translationMap,
         mapSize: translationMap?.size,
-        cacheKeys: Array.from(masterCache.keys()),
+        cacheKeys: "checking cache keys...",
         mapHasVerse: translationMap?.has(verseID),
         mapHasVerseAlt1: translationMap?.has(verseID.replace(' ', '.')), // "Gen 1:1" -> "Gen.1:1"
         mapHasVerseAlt2: translationMap?.has(verseID.replace('.', ' ')), // "Gen.1:1" -> "Gen 1:1"

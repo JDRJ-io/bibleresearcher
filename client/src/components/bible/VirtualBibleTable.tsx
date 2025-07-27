@@ -120,7 +120,11 @@ const VirtualBibleTable = ({
   const sliceVerses = useMemo(() => {
     return slice.verseIDs.map(verseID => {
       const verseData = rowData?.[verseID];
-      return verseData || {
+      if (verseData) {
+        return verseData;
+      }
+      // Create properly typed fallback verse
+      return {
         id: verseID,
         reference: verseID.replace(/-/g, ' '),
         book: '',
@@ -131,7 +135,7 @@ const VirtualBibleTable = ({
         strongsWords: [],
         labels: [],
         contextGroup: 'standard' as const
-      };
+      } as BibleVerse;
     });
   }, [slice.verseIDs, rowData]);
   
@@ -168,15 +172,15 @@ const VirtualBibleTable = ({
   const { showCrossRefs, showProphecies } = useBibleStore();
 
   // Create getVerseText wrapper for VirtualRow (any translation) - USE TRANSLATION MAPS SYSTEM
-  const getVerseTextForRow = useCallback((verseID: string, translationCode: string) => {
+  const getVerseTextForRow = useCallback((verseID: string, translationCode: string): string => {
     // Use the translation maps system that properly loads from Supabase
-    return getTranslationVerseText(verseID, translationCode) || getBibleVerseText(verseID, translationCode);
+    return getTranslationVerseText(verseID, translationCode) || getBibleVerseText(verseID, translationCode) || "";
   }, [getTranslationVerseText, getBibleVerseText]);
 
   // Create getMainVerseText wrapper for VirtualRow (main translation) - USE PROPER MAIN TRANSLATION
-  const getMainVerseTextForRow = useCallback((verseID: string) => {
+  const getMainVerseTextForRow = useCallback((verseID: string): string => {
     const effectiveMainTranslation = translationMainTranslation || mainTranslation;
-    return getTranslationVerseText(verseID, effectiveMainTranslation) || getBibleVerseText(verseID, effectiveMainTranslation);
+    return getTranslationVerseText(verseID, effectiveMainTranslation) || getBibleVerseText(verseID, effectiveMainTranslation) || "";
   }, [getTranslationVerseText, getBibleVerseText, translationMainTranslation, mainTranslation]);
 
   // 3-B. Preserve scroll position during slice swaps
@@ -460,13 +464,13 @@ const VirtualBibleTable = ({
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
-        topHeaderHeight={72}
+
       />
 
       <div 
         ref={(node) => {
-          if (wrapperRef.current !== node) wrapperRef.current = node;
-          if (containerRef.current !== node) containerRef.current = node; // Connect containerRef for anchor slice system
+          (wrapperRef as any).current = node;
+          (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
