@@ -378,75 +378,19 @@ const VirtualBibleTable = ({
     isMobile
   });
 
+  // Simplified scroll handling - let CSS handle overflow behavior
   useEffect(() => {
-    if (!wrapperRef.current) return;
-
-    let startX = 0, startY = 0;
-    let isScrolling = false;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      isScrolling = false;
-      setScrollDirection(null);
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isScrolling) {
-        const dx = Math.abs(e.touches[0].clientX - startX);
-        const dy = Math.abs(e.touches[0].clientY - startY);
-
-        // Determine scroll direction based on initial movement
-        if (dx > dy && dx > 15) {
-          // Horizontal scrolling detected
-          setScrollDirection('horizontal');
-          wrapperRef.current!.style.touchAction = "pan-x";
-          wrapperRef.current!.style.overflowY = "hidden";
-          isScrolling = true;
-        } else if (dy > dx && dy > 15) {
-          // Vertical scrolling detected
-          setScrollDirection('vertical');
-          wrapperRef.current!.style.touchAction = "pan-y";
-          wrapperRef.current!.style.overflowX = "hidden";
-          isScrolling = true;
-        }
-      }
-    };
-
-    const onTouchEnd = () => {
-      // Reset to allow both directions after touch ends
-      if (wrapperRef.current) {
-        wrapperRef.current.style.touchAction = "pan-y";
-        wrapperRef.current.style.overflowX = "auto";
-        wrapperRef.current.style.overflowY = "auto";
-      }
-      setScrollDirection(null);
-      isScrolling = false;
-    };
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
 
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       setScrollLeft(target.scrollLeft);
     };
 
-    const wrapper = wrapperRef.current;
-    const container = containerRef.current;
-    wrapper.addEventListener("touchstart", onTouchStart);
-    wrapper.addEventListener("touchmove", onTouchMove);
-    wrapper.addEventListener("touchend", onTouchEnd);
-    if (container) {
-      container.addEventListener("scroll", onScroll);
-    }
-
+    wrapper.addEventListener("scroll", onScroll);
     return () => {
-      if (wrapper) {
-        wrapper.removeEventListener("touchstart", onTouchStart);
-        wrapper.removeEventListener("touchmove", onTouchMove);
-        wrapper.removeEventListener("touchend", onTouchEnd);
-      }
-      if (container) {
-        container.removeEventListener("scroll", onScroll);
-      }
+      wrapper?.removeEventListener("scroll", onScroll);
     };
   }, []);
 
@@ -493,11 +437,9 @@ const VirtualBibleTable = ({
         }}
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
-          touchAction: "pan-y", 
           marginTop: '0', // Remove the desktop gap below the header
-          height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling when content exceeds viewport
-          overflowY: 'auto'
+          height: "calc(100vh - 85px)"
+          // Let CSS handle overflow - remove conflicting JS overflow styles
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
