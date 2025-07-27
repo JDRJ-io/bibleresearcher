@@ -80,7 +80,7 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCel
 }
 
 function HeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) {
-  // MATCH EXACT VIRTUALROW WIDTHS - Use same logic as VirtualRow getColumnWidth function
+  // EXACT MATCH VirtualRow Tailwind Classes - Convert to pixel equivalents
   const getAdaptiveStyle = () => {
     const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
 
@@ -92,36 +92,36 @@ function HeaderCell({ column, isMain, isMobile, isDraggable }: HeaderCellProps) 
       screenSize = 'tablet';
     }
 
-    // Use exact same width calculations as VirtualRow - prophecy columns use w-[200px]
+    // Convert Tailwind classes to exact pixel values to match VirtualRow
     if (screenSize === 'mobile') {
       switch (column.slot) {
-        case 0: return { width: '24px' };         // Reference - w-6 (24px)
-        case 1: return { width: '80px' };        // Notes - w-20 (80px)
-        case 2: return { width: '208px' };        // Main translation - w-52 (208px)
-        case 7: return { width: '208px' };        // Cross References - w-52 (208px)
-        case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
-        case 11: return { width: '80px' };        // Dates - w-20 (80px)
-        default: return { width: '160px' };       // Alt translations - w-40 (160px)
+        case 0: return { width: '24px' };         // w-6 = 24px
+        case 1: return { width: '80px' };        // w-20 = 80px
+        case 2: return { width: '208px' };        // w-52 = 208px
+        case 7: return { width: '208px' };        // w-52 = 208px
+        case 8: case 9: case 10: return { width: '64px' }; // w-16 = 64px (NOT 200px)
+        case 11: return { width: '80px' };        // w-20 = 80px
+        default: return { width: '160px' };       // w-40 = 160px
       }
     } else if (screenSize === 'tablet') {
       switch (column.slot) {
-        case 0: return { width: '80px' };        // Reference - w-20 (80px)
-        case 1: return { width: '192px' };        // Notes - w-48 (192px)
-        case 2: return { width: '256px' };        // Main translation - w-64 (256px)
-        case 7: return { width: '256px' };        // Cross References - w-64 (256px)
-        case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
-        case 11: return { width: '96px' };        // Dates - w-24 (96px)
-        default: return { width: '256px' };       // Alt translations - w-64 (256px)
+        case 0: return { width: '80px' };        // w-20 = 80px
+        case 1: return { width: '192px' };        // w-48 = 192px
+        case 2: return { width: '256px' };        // w-64 = 256px
+        case 7: return { width: '256px' };        // w-64 = 256px
+        case 8: case 9: case 10: return { width: '64px' }; // w-16 = 64px
+        case 11: return { width: '96px' };        // w-24 = 96px
+        default: return { width: '256px' };       // w-64 = 256px
       }
     } else { // desktop
       switch (column.slot) {
-        case 0: return { width: '80px' };        // Reference - w-20 (80px)
-        case 1: return { width: '256px' };        // Notes - w-64 (256px)
-        case 2: return { width: '320px' };        // Main translation - w-80 (320px)
-        case 7: return { width: '320px' };        // Cross References - w-80 (320px)
-        case 8: case 9: case 10: return { width: '200px' }; // Prophecy P/F/V - w-[200px]
-        case 11: return { width: '120px' };       // Dates - w-30 (120px)
-        default: return { width: '320px' };       // Alt translations - w-80 (320px)
+        case 0: return { width: '80px' };        // w-20 = 80px
+        case 1: return { width: '256px' };        // w-64 = 256px
+        case 2: return { width: '320px' };        // w-80 = 320px
+        case 7: return { width: '320px' };        // w-80 = 320px
+        case 8: case 9: case 10: return { width: '80px' }; // w-20 = 80px
+        case 11: return { width: '120px' };       // w-30 = 120px
+        default: return { width: '320px' };       // w-80 = 320px
       }
     }
   };
@@ -248,29 +248,31 @@ export function ColumnHeaders({
         break;
     }
     });
-  } else {
-    // Fallback when columnState is not available
-    console.log('⚠️ ColumnHeaders: columnState not available, using fallback');
-    if (showCrossRefs) slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: true };
-    if (showProphecies) {
-      slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: true };
-      slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: true };
-      slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: true };
-    }
   }
 
-  // Dynamically add alternate translation columns to slots 3-6 (shifted due to Notes at slot 1)
-  alternates.forEach((translationCode, index) => {
-    const slot = 3 + index; // Start at slot 3 for alternates (shifted from 2)
-    if (slot <= 6) { // Max 4 alternate translations (slots 3-6)
-      slotConfig[slot] = { 
-        type: 'alt-translation', 
-        header: translationCode, 
-        translationCode, 
-        visible: true  // Show all active alternate translations
-      };
-    }
-  });
+  // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
+  // HIDDEN ON MOBILE for clean dual-column layout
+  if (!adaptiveIsMobile) {
+    alternates.forEach((translationCode, index) => {
+      let slot;
+      if (index < 4) {
+        // Primary alternate translations: slots 3-6
+        slot = 3 + index;
+      } else {
+        // Extended alternate translations: slots 12-19 (8 additional slots)
+        slot = 12 + (index - 4);
+      }
+      
+      if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
+        slotConfig[slot] = { 
+          type: 'alt-translation', 
+          header: translationCode, 
+          translationCode, 
+          visible: true  // Show all active alternate translations
+        };
+      }
+    });
+  }
 
   // Debug logging
   console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
@@ -313,68 +315,33 @@ export function ColumnHeaders({
       isMain: true
     });
 
-    // Add alternate translations (slots 3-6)
-    alternates.forEach((translationCode, index) => {
-      const slot = 3 + index;
-      if (slot <= 6) {
+    // Add alternate translations from slotConfig (supports both slots 3-6 and 12-19)
+    Object.entries(slotConfig).forEach(([slotStr, config]) => {
+      const slot = parseInt(slotStr);
+      if (config?.type === 'alt-translation' && config?.visible) {
         columns.push({
           slot,
           type: 'alt-translation',
-          name: translationCode,
+          name: config.header,
           visible: true,
           isMain: false
         });
       }
     });
 
-    // Add cross references if enabled
-    if (showCrossRefs) {
-      columns.push({
-        slot: 7,
-        type: 'cross-refs',
-        name: 'Cross Refs',
-        visible: true,
-        isMain: false
-      });
-    }
-
-    // Add prophecy columns if enabled
-    if (showProphecies) {
-      columns.push(
-        {
-          slot: 8,
-          type: 'prophecy-p',
-          name: 'P',
+    // Add all other feature columns from slotConfig
+    Object.entries(slotConfig).forEach(([slotStr, config]) => {
+      const slot = parseInt(slotStr);
+      if (config?.visible && slot > 2 && config?.type !== 'alt-translation') {
+        columns.push({
+          slot,
+          type: config.type,
+          name: config.header,
           visible: true,
           isMain: false
-        },
-        {
-          slot: 9,
-          type: 'prophecy-f',
-          name: 'F',
-          visible: true,
-          isMain: false
-        },
-        {
-          slot: 10,
-          type: 'prophecy-v',
-          name: 'V',
-          visible: true,
-          isMain: false
-        }
-      );
-    }
-
-    // Add dates column if enabled
-    if (showDates) {
-      columns.push({
-        slot: 11,
-        type: 'context',
-        name: 'Dates',
-        visible: true,
-        isMain: false
-      });
-    }
+        });
+      }
+    });
 
     // Sort columns by displayOrder from store if available
     if (columnState?.columns) {
