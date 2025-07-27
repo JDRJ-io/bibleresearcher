@@ -40,14 +40,14 @@
 /* why → thin outline around individual characters (like double-struck) */
 .fx-outline {
   text-shadow: 
-    -0.5px -0.5px 0 currentColor,
-    0.5px -0.5px 0 currentColor,
-    -0.5px 0.5px 0 currentColor,
-    0.5px 0.5px 0 currentColor,
-    -0.5px 0 0 currentColor,
-    0.5px 0 0 currentColor,
-    0 -0.5px 0 currentColor,
-    0 0.5px 0 currentColor;
+    -0.1px -0.1px 0 currentColor,
+    0.1px -0.1px 0 currentColor,
+    -0.1px 0.1px 0 currentColor,
+    0.1px 0.1px 0 currentColor,
+    -0.1px 0 0 currentColor,
+    0.1px 0 0 currentColor,
+    0 -0.1px 0 currentColor,
+    0 0.1px 0 currentColor;
 }
 
 /* seed → text-matching color superscript * */

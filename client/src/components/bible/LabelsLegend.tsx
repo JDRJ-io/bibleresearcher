@@ -74,53 +74,44 @@ export function LabelsLegend({ className = '' }: LabelsLegendProps) {
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <div className={`space-y-3 ${className}`}>
+      <div className="text-xs font-medium text-gray-600 dark:text-gray-400 px-1">
         Semantic Labels ({mainTranslation})
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {labelConfig.map((label) => (
-          <div key={label.key} className="flex items-start space-x-3">
+          <div key={label.key} className="flex items-center space-x-2 px-1">
             <Checkbox
               id={`label-${label.key}`}
               checked={isLabelActive(label.key)}
               onCheckedChange={(checked) => handleLabelToggle(label.key, checked as boolean)}
-              className="mt-0.5"
+              className="h-3 w-3"
             />
-            <div className="flex-1 min-w-0">
-              <Label 
-                htmlFor={`label-${label.key}`}
-                className="text-sm font-medium cursor-pointer flex items-center gap-2"
-              >
-                <span className={label.effectClass}>
-                  {label.label}
-                </span>
-              </Label>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <Label 
+              htmlFor={`label-${label.key}`}
+              className="text-xs cursor-pointer flex items-center gap-1.5 leading-tight"
+            >
+              <span className={label.effectClass}>
+                {label.label}
+              </span>
+              <span className="text-gray-400 dark:text-gray-500 text-[10px]">
                 {label.description}
-              </div>
-            </div>
+              </span>
+            </Label>
           </div>
         ))}
       </div>
 
       {/* Quick Actions */}
       {activeLabels.length > 0 && (
-        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setActiveLabels([])}
-            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors px-1"
           >
-            Clear all labels
+            Clear all ({activeLabels.length})
           </button>
-        </div>
-      )}
-
-      {/* Status Display */}
-      {activeLabels.length > 0 && (
-        <div className="text-xs text-gray-500 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-          {activeLabels.length} of {labelConfig.length} labels active
         </div>
       )}
     </div>
