@@ -614,9 +614,13 @@ body.menu-open {
 /* ①  base rule – works on every viewport width */
 .bible-table-wrapper{
   min-width:fit-content;
-  margin-inline:auto;          /* centre until wider than viewport */
   overflow-x: auto;            /* horizontal scroll when content exceeds viewport */
   overflow-y: auto;            /* vertical scroll for verses */
+}
+
+/* Column centering handled by React inline styles for better control */
+.bible-table-wrapper .w-full.h-full.overflow-y-auto {
+  flex-direction: column !important;
 }
 
 /* ②  mobile dual‑column tweaks */

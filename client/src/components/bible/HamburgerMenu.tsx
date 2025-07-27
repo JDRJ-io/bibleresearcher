@@ -46,6 +46,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   // DEBUG: Add activeLabels check
   const activeLabels = bibleStore?.activeLabels ?? [];
   console.log('🍔 HamburgerMenu activeLabels:', activeLabels);
+  const resetToDefaults = bibleStore?.columnState?.resetToDefaults ?? (() => {});
 
   const { theme, setTheme, themes } = useTheme();
 
@@ -285,6 +286,24 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                     ? "Drag column headers to reorder them. Click to disable." 
                     : "Enable to drag and reorder column headers."
                   }
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    console.log('🔄 Reset to defaults clicked');
+                    resetToDefaults();
+                  }}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Move className="w-4 h-4" />
+                  Reset Column Layout
+                </Button>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  Restore default column arrangement and sizing
                 </p>
               </div>
             </div>

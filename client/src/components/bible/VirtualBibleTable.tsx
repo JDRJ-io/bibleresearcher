@@ -472,11 +472,13 @@ const VirtualBibleTable = ({
         <div 
           className="w-full h-full overflow-y-auto"
           style={{ 
-            // Center when few columns, left-align when many columns
+            // Center when few columns, left-align when many columns (this is critical!)
             display: 'flex',
             justifyContent: shouldCenter ? 'center' : 'flex-start',
             alignItems: 'flex-start',
-            minWidth: shouldCenter ? 'auto' : `${actualTotalWidth}px`,
+            marginInlineStart: shouldCenter ? 'auto' : '0',
+            marginInlineEnd: shouldCenter ? 'auto' : '0',
+            minWidth: `${actualTotalWidth}px`,
             paddingBottom: needsHorizontalScroll ? '8px' : '0'
           }}
         >
