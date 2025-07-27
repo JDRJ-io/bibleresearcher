@@ -333,21 +333,29 @@ export const useBibleStore = create<{
     set({ activeLabels: labels });
   },
 
-  // UI Layout Spec Column State - Notes between Ref and Main Translation
+  // Complete 20-Column Layout Spec - All slots pre-assigned (keeping current working assignments)
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 16, displayOrder: 1 },   // Notes (between Ref and Main)
+      { slot: 1, visible: false, widthRem: 16, displayOrder: 1 },   // Notes 
       { slot: 2, visible: true, widthRem: 20, displayOrder: 2 },    // Main translation (always visible)
-      { slot: 3, visible: false, widthRem: 18, displayOrder: 3 },   // Alt translation 1
-      { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2
-      { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3
-      { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4
-      { slot: 7, visible: true, widthRem: 15, displayOrder: 7 },    // Cross References (default ON)
-      { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (default OFF)
-      { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (default OFF)
-      { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (default OFF)
-      { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Context/Dates (default OFF)
+      { slot: 3, visible: false, widthRem: 18, displayOrder: 3 },   // Alt translation 1 (T₁)
+      { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2 (T₂)
+      { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3 (T₃)
+      { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4 (T₄)
+      { slot: 7, visible: true, widthRem: 15, displayOrder: 7 },    // Cross References (current working position)
+      { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (current working position)
+      { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (current working position)
+      { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (current working position)
+      { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Dates (current working position)
+      { slot: 12, visible: false, widthRem: 18, displayOrder: 12 }, // Alt translation 5 (T₅)
+      { slot: 13, visible: false, widthRem: 18, displayOrder: 13 }, // Alt translation 6 (T₆)
+      { slot: 14, visible: false, widthRem: 18, displayOrder: 14 }, // Alt translation 7 (T₇)
+      { slot: 15, visible: false, widthRem: 18, displayOrder: 15 }, // Alt translation 8 (T₈)
+      { slot: 16, visible: false, widthRem: 18, displayOrder: 16 }, // Alt translation 9 (T₉)
+      { slot: 17, visible: false, widthRem: 18, displayOrder: 17 }, // Alt translation 10 (T₁₀)
+      { slot: 18, visible: false, widthRem: 18, displayOrder: 18 }, // Alt translation 11 (T₁₁)
+      { slot: 19, visible: false, widthRem: 18, displayOrder: 19 }, // Alt translation 12 (T₁₂)
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {
