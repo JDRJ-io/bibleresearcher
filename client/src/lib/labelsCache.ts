@@ -11,27 +11,39 @@ const worker = new Worker(new URL('../workers/labels.worker.ts', import.meta.url
 const cache: Record<string /*tCode*/, SlimMap | undefined> = {};
 let pending = new Map<string, Promise<void>>(); // de-dupes concurrent calls
 
+// Normalization functions to handle format mismatches
+function normaliseVerseKey(k: string): string { 
+  return k.replace(/\s+/g, '.').replace(/ /g, '.'); 
+}
+function normaliseLabel(lbl: string): string { 
+  return lbl.toLowerCase(); 
+}
+function normaliseTCode(tc: string): string { 
+  return tc.toUpperCase(); 
+}
+
 export function ensureLabelCacheLoaded(
   tCode: string,
   activeLabels: LabelName[]
 ): Promise<void> {
-  console.log(`🔄 WORKER: ensureLabelCacheLoaded called for ${tCode} with labels:`, activeLabels);
-  console.log(`🔄 WORKER: Current cache status for ${tCode}:`, !!cache[tCode]);
+  const normTCode = normaliseTCode(tCode);
+  console.log(`🔄 WORKER: ensureLabelCacheLoaded called for ${tCode} (norm: ${normTCode}) with labels:`, activeLabels);
+  console.log(`🔄 WORKER: Current cache status for ${normTCode}:`, !!cache[normTCode]);
 
   // Check if we already have all needed labels cached
-  if (cache[tCode] && activeLabels.every(l => someVerseHasLabel(cache[tCode]!, l))) {
-    console.log(`✅ WORKER: Cache already loaded for ${tCode}, skipping`);
+  if (cache[normTCode] && activeLabels.every(l => someVerseHasLabel(cache[normTCode]!, l))) {
+    console.log(`✅ WORKER: Cache already loaded for ${normTCode}, skipping`);
     return Promise.resolve();
   }
 
   // De-duplicate concurrent requests
-  const key = `${tCode}|${activeLabels.sort().join()}`;
+  const key = `${normTCode}|${activeLabels.sort().join()}`;
   if (pending.has(key)) {
     console.log(`🔄 WORKER: Request already pending for ${key}`);
     return pending.get(key)!;
   }
 
-  console.log(`🔄 WORKER: Starting worker to load ${tCode} labels...`);
+  console.log(`🔄 WORKER: Starting worker to load ${normTCode} labels...`);
   const p = new Promise<void>((resolve) => {
     const handle = (e: MessageEvent) => {
       console.log(`📨 WORKER: Received message from worker:`, e.data);
@@ -42,14 +54,20 @@ export function ensureLabelCacheLoaded(
         return;
       }
 
-      if (e.data.tCode !== tCode) return;
+      const receivedTCode = normaliseTCode(e.data.tCode);
+      if (receivedTCode !== normTCode) return;
 
-      // Merge worker results into cache
-      cache[tCode] = { ...cache[tCode], ...e.data.filtered };
-      console.log(`✅ WORKER: Cache updated for ${tCode}, verse count:`, Object.keys(e.data.filtered || {}).length);
+      // Normalize and merge worker results into cache
+      const filtered: SlimMap = {};
+      Object.entries(e.data.filtered || {}).forEach(([k, v]) => {
+        filtered[normaliseVerseKey(k)] = v as Partial<SlimEntry>;
+      });
+
+      cache[normTCode] = { ...(cache[normTCode] || {}), ...filtered };
+      console.log(`✅ WORKER: Cache updated for ${normTCode}, verse count:`, Object.keys(filtered).length);
 
       // Debug: Show example data
-      const examples = Object.entries(e.data.filtered || {}).slice(0, 3);
+      const examples = Object.entries(filtered).slice(0, 3);
       console.log(`🏷️ WORKER: Example label data:`, examples);
 
       worker.removeEventListener('message', handle);
@@ -58,8 +76,8 @@ export function ensureLabelCacheLoaded(
     };
 
     worker.addEventListener('message', handle);
-    console.log(`📤 WORKER: Posting message to worker:`, { tCode, active: activeLabels });
-    worker.postMessage({ tCode, active: activeLabels });
+    console.log(`📤 WORKER: Posting message to worker:`, { tCode: normTCode, active: activeLabels });
+    worker.postMessage({ tCode: normTCode, active: activeLabels });
   });
 
   pending.set(key, p);
@@ -71,10 +89,18 @@ export function getLabelsForVerses(
   verseKeys: string[],
   active: LabelName[]
 ): SlimMap {
-  const map = cache[tCode] || {};
+  const normTCode = normaliseTCode(tCode);
+  const map = cache[normTCode] || {};
+
+  console.log(`🔍 GLFV input:`, {
+    tCode: normTCode,
+    verseKeys: verseKeys.slice(0, 3),
+    active
+  });
+  console.log(`🔍 GLFV cache slice:`, Object.keys(map).slice(0, 3));
 
   console.log(`🔍 CACHE FILTER DEBUG:`, {
-    tCode,
+    tCode: normTCode,
     cacheSize: Object.keys(map).length,
     verseKeysCount: verseKeys.length,
     verseKeysFirst3: verseKeys.slice(0, 3),
@@ -82,39 +108,28 @@ export function getLabelsForVerses(
     cacheHasData: Object.keys(map).length > 0
   });
 
-  const result: SlimMap = {};
+  return verseKeys.reduce((out, vk) => {
+    const key = normaliseVerseKey(vk);
+    const entry = map[key];
+    
+    console.log(`🔍 CACHE: Checking ${key} (from ${vk}):`, { verseData: entry, hasData: !!entry });
+    
+    if (!entry) return out;
 
-  verseKeys.forEach(v => {
-    // Try multiple verse key formats for better matching
-    const possibleKeys = [
-      v,
-      v.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
-      v.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
-    ];
-
-    for (const key of possibleKeys) {
-      const entry = map[key];
-      console.log(`🔍 CACHE: Checking ${key}:`, { verseData: entry, hasData: !!entry });
-
-      if (!entry) continue;
-
-      const filtered: Partial<SlimEntry> = {};
-      active.forEach(lbl => {
-        if (entry[lbl]) {
-          filtered[lbl] = entry[lbl];
-          console.log(`🔍 CACHE: Found ${lbl} for ${key}:`, entry[lbl]);
-        }
-      });
-
-      if (Object.keys(filtered).length) {
-        result[v] = filtered;
-        break; // Found match, stop trying other formats
+    const slim: Partial<SlimEntry> = {};
+    active.forEach(lbl => {
+      const normLbl = normaliseLabel(lbl);
+      if (entry[normLbl as LabelName]) {
+        slim[normLbl as LabelName] = entry[normLbl as LabelName];
+        console.log(`🔍 CACHE: Found ${normLbl} for ${key}:`, entry[normLbl as LabelName]);
       }
-    }
-  });
+    });
 
-  console.log(`🔍 CACHE FILTER RESULT:`, result);
-  return result;
+    if (Object.keys(slim).length) {
+      out[key] = slim;
+    }
+    return out;
+  }, {} as SlimMap);
 }
 
 function someVerseHasLabel(map: SlimMap, lbl: LabelName): boolean {
@@ -123,26 +138,23 @@ function someVerseHasLabel(map: SlimMap, lbl: LabelName): boolean {
 
 // Legacy function for backward compatibility - simplified for new system
 export function getLabel(translationCode: string, verseKey: string, labelName: LabelName): string[] {
-  const map = cache[translationCode];
+  const normTCode = normaliseTCode(translationCode);
+  const map = cache[normTCode];
   if (!map) return [];
 
-  const possibleKeys = [
-    verseKey,
-    verseKey.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
-    verseKey.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
-  ];
-
-  for (const key of possibleKeys) {
-    const entry = map[key];
-    if (entry && entry[labelName]) {
-      return entry[labelName];
-    }
+  const normKey = normaliseVerseKey(verseKey);
+  const normLabel = normaliseLabel(labelName);
+  
+  const entry = map[normKey];
+  if (entry && entry[normLabel as LabelName]) {
+    return entry[normLabel as LabelName] || [];
   }
 
   return [];
 }
 
 export function clearLabelCacheForTranslation(translationCode: string): void {
-  delete cache[translationCode];
-  console.log(`🗑️ Cleared label cache for ${translationCode}`);
+  const normTCode = normaliseTCode(translationCode);
+  delete cache[normTCode];
+  console.log(`🗑️ Cleared label cache for ${normTCode}`);
 }

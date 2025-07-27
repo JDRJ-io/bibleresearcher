@@ -19,13 +19,7 @@ export default function LabeledText({
 }: Props) {
   const segs = useLabeledText(text, labelData, activeLabels as any);
 
-  // Debug logging to identify which layer is broken
-  console.debug(`🏷️ LabeledText Debug [${verseKey}]:`, { 
-    labelData, 
-    segs, 
-    activeLabels,
-    hasNonZeroMask: segs.some(s => s.mask > 0)
-  });
+  // Labels should now work with normalization fixes applied
 
   return (
     <>
