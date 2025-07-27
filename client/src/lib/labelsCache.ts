@@ -27,56 +27,66 @@ function normaliseTCode(tc: string): string {
   return tc.toUpperCase(); 
 }
 
-export async function ensureLabelCacheLoaded(
-  translationCode: string,
+export function ensureLabelCacheLoaded(
+  tCode: string,
   activeLabels: LabelName[]
 ): Promise<void> {
-  // If no active labels, don't load anything
-  if (!activeLabels || activeLabels.length === 0) {
-    return;
+  const normTCode = normaliseTCode(tCode);
+  console.log(`🔄 WORKER: ensureLabelCacheLoaded called for ${tCode} (norm: ${normTCode}) with labels:`, activeLabels);
+  console.log(`🔄 WORKER: Current cache status for ${normTCode}:`, !!cache[normTCode]);
+
+  // Check if we already have all needed labels cached
+  if (cache[normTCode] && activeLabels.every(l => someVerseHasLabel(cache[normTCode]!, l))) {
+    console.log(`✅ WORKER: Cache already loaded for ${normTCode}, skipping`);
+    return Promise.resolve();
   }
 
-  // Don't load if already cached
-  if (labelsCache[translationCode]) {
-    return;
+  // De-duplicate concurrent requests
+  const key = `${normTCode}|${activeLabels.sort().join()}`;
+  if (pending.has(key)) {
+    console.log(`🔄 WORKER: Request already pending for ${key}`);
+    return pending.get(key)!;
   }
 
-  console.log(`🔍 ensureLabelCacheLoaded: Loading labels for ${translationCode}`);
+  console.log(`🔄 WORKER: Starting worker to load ${normTCode} labels...`);
+  const p = new Promise<void>((resolve) => {
+    const handle = (e: MessageEvent) => {
+      console.log(`📨 WORKER: Received message from worker:`, e.data);
 
-  try {
-    // Request labels loading in worker
-    worker.postMessage({
-      type: 'LOAD_LABELS',
-      translationCode,
-      activeLabels
-    });
+      // Skip non-label messages  
+      if (e.data.type === 'FETCH_LABELS') {
+        console.log(`📨 WORKER: Ignoring FETCH_LABELS request from worker`);
+        return;
+      }
 
-    // Wait for completion via promise
-    return new Promise((resolve, reject) => {
-      const handleMessage = (event: MessageEvent) => {
-        const { type, translationCode: tCode, success, error } = event.data;
+      const receivedTCode = normaliseTCode(e.data.tCode);
+      if (receivedTCode !== normTCode) return;
 
-        if (type === 'LABELS_LOADED' && tCode === translationCode) {
-          worker.removeEventListener('message', handleMessage);
-          if (success) {
-            resolve();
-          } else {
-            reject(new Error(error));
-          }
-        }
-      };
+      // Normalize and merge worker results into cache
+      const filtered: SlimMap = {};
+      Object.entries(e.data.filtered || {}).forEach(([k, v]) => {
+        filtered[normaliseVerseKey(k)] = v as Partial<SlimEntry>;
+      });
 
-      worker.addEventListener('message', handleMessage);
+      cache[normTCode] = { ...(cache[normTCode] || {}), ...filtered };
+      console.log(`✅ WORKER: Cache updated for ${normTCode}, verse count:`, Object.keys(filtered).length);
 
-      // Timeout after 10 seconds
-      setTimeout(() => {
-        worker.removeEventListener('message', handleMessage);
-        reject(new Error(`Timeout loading labels for ${translationCode}`));
-      }, 10000);
-    });
-  } catch (error) {
-    throw error;
-  }
+      // Debug: Show example data
+      const examples = Object.entries(filtered).slice(0, 3);
+      console.log(`🏷️ WORKER: Example label data:`, examples);
+
+      worker.removeEventListener('message', handle);
+      pending.delete(key);
+      resolve();
+    };
+
+    worker.addEventListener('message', handle);
+    console.log(`📤 WORKER: Posting message to worker:`, { tCode: normTCode, active: activeLabels });
+    worker.postMessage({ tCode: normTCode, active: activeLabels });
+  });
+
+  pending.set(key, p);
+  return p;
 }
 
 export function getLabelsForVerses(

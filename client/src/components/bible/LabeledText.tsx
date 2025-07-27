@@ -29,6 +29,13 @@ export default function LabeledText({
   // Use the labeled text hook to get segments with masks
   const segs = useLabeledText(text, labelData, typedActiveLabels);
 
+  console.log(`🏷️ LabeledText rendering for ${verseKey}:`, {
+    text: text.slice(0, 50) + '...',
+    labelData,
+    activeLabels,
+    segments: segs.length
+  });
+
   return (
     <>
       {segs.map((s, index) => {
@@ -37,6 +44,7 @@ export default function LabeledText({
         const key = `${verseKey}-${index}-${s.start}-${s.end}`;
         
         if (cls) {
+          console.log(`🎨 Applying CSS classes "${cls}" to "${content}"`);
           return (
             <span key={key} className={cls}>
               {content}

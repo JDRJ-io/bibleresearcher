@@ -1,64 +1,70 @@
+/* Label Effects CSS - Semantic highlighting visual styles */
 
-/* Inherit base color everywhere */
-.fx-hand,
-.fx-shadow,
-.fx-under,
-.fx-bracket,
-.fx-bold,
-.fx-ital,
-.fx-outline,
-.sup-seed,
-.sup-harvest,
-.sup-predict {
-  color: inherit;
+/* who → bold text */
+.fx-hand {
+  font-weight: 700;
 }
 
-/* who = handwritten font (no color change) */
-.fx-hand { 
-  font-family: "Homemade Apple", cursive; 
-  font-weight: normal; 
+/* what → outline */  
+.fx-shadow {
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+  outline: 1px solid currentColor;
+  outline-offset: 1px;
 }
 
-/* what = simple shadow */
-.fx-shadow { 
-  text-shadow: 0 0 2px currentColor; 
+/* when → underline */
+.fx-under {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
-/* when = simple underline */
-.fx-under { 
-  text-decoration: underline; 
-  text-decoration-thickness: 2px; 
+/* where → curly braces */
+.fx-bracket::before {
+  content: '{';
+  opacity: 0.6;
+}
+.fx-bracket::after {
+  content: '}';
+  opacity: 0.6;
 }
 
-/* where = [brackets] */
-.fx-bracket::before { content: '['; opacity: .6; }
-.fx-bracket::after  { content: ']'; opacity: .6; }
-
-/* command = bold */
-.fx-bold { 
-  font-weight: 700; 
+/* command → bold */
+.fx-bold {
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
 }
 
-/* action = italic */
-.fx-ital { 
-  font-style: italic; 
+/* action → italic */
+.fx-ital {
+  font-style: italic;
 }
 
-/* why = thin outline */
+/* why → outline */
 .fx-outline {
-  -webkit-text-stroke: 1px currentColor;
-  color: transparent;
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
 }
 
-/* superscripts use currentColor, not green */
-.sup-seed::before,
-.sup-harvest::before,
-.sup-predict::before {
+/* seed → superscript * */
+.sup-seed::before {
+  content: '*';
   vertical-align: super;
   font-size: 0.7em;
   margin-right: 2px;
-  color: inherit;
 }
-.sup-seed::before     { content: '*'; }
-.sup-harvest::before  { content: '='; }
-.sup-predict::before  { content: '~'; }
+
+/* harvest → superscript = */
+.sup-harvest::before {
+  content: '=';
+  vertical-align: super;
+  font-size: 0.7em;
+  margin-right: 2px;
+}
+
+/* prediction → superscript ~ */
+.sup-predict::before {
+  content: '~';
+  vertical-align: super;
+  font-size: 0.7em;
+  margin-right: 2px;
+}

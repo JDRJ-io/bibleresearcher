@@ -9,18 +9,8 @@ export function useLabeledText(
   activeLabels: (keyof typeof LabelBits)[]
 ): Segment[] {
 
-  // Create stable key for activeLabels
-  const labelsKey = useMemo(() => activeLabels.sort().join('|'), [activeLabels]);
-  
-  // Create stable key for labelData
-  const labelDataKey = useMemo(() => {
-    if (!labelData || Object.keys(labelData).length === 0) return '';
-    return Object.keys(labelData).sort().map(k => `${k}:${labelData[k].join(',')}`).join('|');
-  }, [labelData]);
-
   return useMemo(() => {
-    // Early return for empty cases
-    if (!text || activeLabels.length === 0 || Object.keys(labelData).length === 0) {
+    if (!text || activeLabels.length === 0) {
       return [{ start: 0, end: text.length, mask: 0 }];
     }
 
@@ -29,10 +19,7 @@ export function useLabeledText(
 
     activeLabels.forEach(lbl => {
       const bit = LabelBits[lbl];
-      const phrases = labelData?.[lbl];
-      if (!phrases || phrases.length === 0) return;
-      
-      phrases.forEach(ph => {
+      (labelData?.[lbl] || []).forEach(ph => {
         const re = new RegExp(
           ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
           'gi'
@@ -59,5 +46,5 @@ export function useLabeledText(
     }
     if (last < text.length) segs.push({ start: last, end: text.length, mask });
     return segs;
-  }, [text, labelDataKey, labelsKey]);
+  }, [text, JSON.stringify(labelData), activeLabels.join()]);
 }
