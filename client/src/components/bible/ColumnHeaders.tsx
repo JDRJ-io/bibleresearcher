@@ -372,6 +372,15 @@ export function ColumnHeaders({
   // Only center when content genuinely fits without compression
   const shouldCenter = !adaptiveIsMobile && actualTotalWidth <= viewportWidth * 0.95;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
+  
+  console.log('📋 ColumnHeaders centering decision:', {
+    actualTotalWidth,
+    viewportWidth,
+    shouldCenter,
+    needsHorizontalScroll,
+    adaptiveIsMobile,
+    visibleColumnCount: visibleColumns.length
+  });
 
   const allColumns = visibleColumns.map(col => ({
     id: col.name.toLowerCase().replace(' ', '-'),
@@ -424,54 +433,43 @@ export function ColumnHeaders({
       <div 
         className={`column-headers-container sticky z-40 bg-background border-b shadow-sm ${unlockMode ? 'ring-2 ring-blue-400' : ''}`}
         style={{ 
-          left: -scrollLeft,  // keep horizontal sync only
           width: '100%',
-          height: adaptiveIsMobile ? '20px' : '30px'
+          height: adaptiveIsMobile ? '20px' : '30px',
+          overflowX: 'hidden', // Headers don't need their own scrolling
+          position: 'relative'
         }}
       >
-        <div className="w-full h-full" style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
+        <div 
+          className="w-full h-full"
+          style={{ 
+            display: 'flex',
+            justifyContent: shouldCenter ? 'center' : 'flex-start',
+            alignItems: 'center',
+            minWidth: shouldCenter ? 'auto' : `${actualTotalWidth}px`
+          }}
+        >
           <SortableContext items={sortableItems} strategy={horizontalListSortingStrategy}>
-            {shouldCenter ? (
-              // Centered layout for few columns - FIXED WIDTHS
-              <div className="flex justify-center w-full h-full">
-                <div className="flex" style={{ minWidth: `${actualTotalWidth}px` }}>
-                  {allColumns.map((column) => (
-                    <SortableHeaderCell
-                      key={`slot-${column.slot}`}
-                      column={column}
-                      isMain={column.isMain}
-                      isMobile={adaptiveIsMobile}
-                      isDraggable={unlockMode}
-                      columnState={columnState}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              // Left-anchored layout with FIXED WIDTHS and horizontal scroll
-              <div className="flex h-full" style={{ minWidth: `${actualTotalWidth}px`, width: `${actualTotalWidth}px` }}>
-                <div 
-                  className="flex h-full"
-                  style={{ 
-                    minWidth: `${actualTotalWidth}px`,
-                    width: `${actualTotalWidth}px`,
-                    transform: `translateX(-${Math.round(scrollLeft)}px)`,
-                    willChange: 'transform'
-                  }}
-                >
-                  {allColumns.map((column) => (
-                    <SortableHeaderCell
-                      key={`slot-${column.slot}`}
-                      column={column}
-                      isMain={column.isMain}
-                      isMobile={adaptiveIsMobile}
-                      isDraggable={unlockMode}
-                      columnState={columnState}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            <div 
+              className="flex h-full"
+              style={{ 
+                minWidth: `${actualTotalWidth}px`,
+                width: `${actualTotalWidth}px`,
+                transform: shouldCenter ? 'none' : `translateX(-${Math.round(scrollLeft)}px)`,
+                willChange: shouldCenter ? 'auto' : 'transform',
+                flexShrink: 0
+              }}
+            >
+              {allColumns.map((column) => (
+                <SortableHeaderCell
+                  key={`slot-${column.slot}`}
+                  column={column}
+                  isMain={column.isMain}
+                  isMobile={adaptiveIsMobile}
+                  isDraggable={unlockMode}
+                  columnState={columnState}
+                />
+              ))}
+            </div>
           </SortableContext>
         </div>
       </div>

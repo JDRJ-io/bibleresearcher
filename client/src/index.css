@@ -513,6 +513,44 @@ body {
   overflow-wrap: break-word;
 }
 
+/* Column centering and horizontal scrolling styles */
+.bible-table-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Horizontal scrollbar styling */
+.bible-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.bible-table-wrapper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.bible-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.bible-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode scrollbar */
+.dark .bible-table-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .bible-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark .bible-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 
 
 /* Glass morphism effects for hamburger menu */

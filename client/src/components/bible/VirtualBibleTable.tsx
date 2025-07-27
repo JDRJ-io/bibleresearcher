@@ -366,8 +366,8 @@ const VirtualBibleTable = ({
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
 
-  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
-  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
+  // PROPER CENTERING: Center when content fits, horizontal scroll when it doesn't
+  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.95;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
   
   console.log('🔧 Centering decision:', {
@@ -375,28 +375,33 @@ const VirtualBibleTable = ({
     viewportWidth,
     shouldCenter,
     needsHorizontalScroll,
-    isMobile
+    isMobile,
+    visibleColumnCount: visibleColumns.length
   });
 
-  // Simplified scroll handling - let CSS handle overflow behavior
+  // Enhanced scroll handling with header synchronization
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
-      setScrollLeft(target.scrollLeft);
+      const newScrollLeft = target.scrollLeft;
+      setScrollLeft(newScrollLeft);
+      
+      // Prevent reference column from scrolling out of view
+      if (newScrollLeft < 0) {
+        target.scrollLeft = 0;
+      }
     };
 
-    wrapper.addEventListener("scroll", onScroll);
+    wrapper.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       wrapper?.removeEventListener("scroll", onScroll);
     };
   }, []);
 
-  // CSS handles centering automatically with margin-inline: auto
-
-  // Define --colW CSS variable for mobile dual-column layout
+  // Define CSS variables for responsive layout
   useEffect(() => {
     const BASE_COL_W = 640; // Base column width to match CSS
     const sizeMultiplier = preferences.fontSize === 'small' ? 0.9 : preferences.fontSize === 'large' ? 1.1 : 1;
@@ -404,17 +409,23 @@ const VirtualBibleTable = ({
       "--colW",
       `${BASE_COL_W * sizeMultiplier}px`
     );
-  }, [preferences.fontSize]);
+    document.documentElement.style.setProperty(
+      "--total-width",
+      `${actualTotalWidth}px`
+    );
+  }, [preferences.fontSize, actualTotalWidth]);
 
-  // Horizontal scrollbar guard: prevent scrollLeft overflow after column changes
+  // Horizontal scrollbar management
   useEffect(() => {
-    const w = wrapperRef.current;
-    if (!w) return;
-    const tooWide = w.scrollWidth > w.clientWidth;
-    if (tooWide && w.scrollLeft > w.scrollWidth - w.clientWidth) {
-      w.scrollLeft = w.scrollWidth - w.clientWidth;
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    
+    // Ensure scroll position stays within bounds when columns change
+    const maxScrollLeft = Math.max(0, wrapper.scrollWidth - wrapper.clientWidth);
+    if (wrapper.scrollLeft > maxScrollLeft) {
+      wrapper.scrollLeft = maxScrollLeft;
     }
-  }, [visibleColumns]); // Trigger when visible columns change
+  }, [visibleColumns, actualTotalWidth]);
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
@@ -437,22 +448,42 @@ const VirtualBibleTable = ({
         }}
         className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
-          marginTop: '0', // Remove the desktop gap below the header
-          height: "calc(100vh - 85px)"
-          // Let CSS handle overflow - remove conflicting JS overflow styles
+          marginTop: '0',
+          height: "calc(100vh - 85px)",
+          overflowX: needsHorizontalScroll ? 'auto' : 'hidden',
+          overflowY: 'hidden', // Prevent vertical scrolling on wrapper
+          position: 'relative'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className="flex w-full" style={{ 
-          // Always left-align content and let wrapper handle centering with margin-inline: auto
-          justifyContent: shouldCenter ? 'center' : 'flex-start',
-          overflow: 'visible'
-        }}>
+        {/* Show horizontal scrollbar when needed */}
+        {needsHorizontalScroll && (
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-2 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-10"
+            style={{ 
+              background: 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%)',
+              height: '8px'
+            }}
+          />
+        )}
+        
+        <div 
+          className="w-full h-full overflow-y-auto"
+          style={{ 
+            // Center when few columns, left-align when many columns
+            display: 'flex',
+            justifyContent: shouldCenter ? 'center' : 'flex-start',
+            alignItems: 'flex-start',
+            minWidth: shouldCenter ? 'auto' : `${actualTotalWidth}px`,
+            paddingBottom: needsHorizontalScroll ? '8px' : '0'
+          }}
+        >
           <div style={{ 
-            minWidth: `${actualTotalWidth}px`, // Always use calculated width
-            width: `${actualTotalWidth}px` // Force explicit width to trigger scrollbar
+            minWidth: `${actualTotalWidth}px`,
+            width: `${actualTotalWidth}px`,
+            flexShrink: 0
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
