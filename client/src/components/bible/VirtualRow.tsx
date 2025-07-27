@@ -267,6 +267,14 @@ function MainTranslationCell({
   const store = useBibleStore();
   const activeLabels = store.activeLabels || [];
 
+  // FIX #4: Debug translation lookup with normalization  
+  console.log('CELL CHECK', {
+    verse: verse.reference,
+    mainTranslation,
+    normalizedCode: mainTranslation?.toUpperCase(),
+    textResult: getVerseText(verse.reference, mainTranslation)?.slice(0,40)
+  });
+
   // Get verse text with proper fallbacks
   const verseText = getVerseText(verse.reference, mainTranslation) || 
                     verse.text?.[mainTranslation] || 
@@ -350,21 +358,22 @@ export function VirtualRow({
   getVerseText,
   getMainVerseText,
   activeTranslations,
-  mainTranslation,
   onVerseClick,
   onExpandVerse,
   onDoubleClick
 }: VirtualRowProps) {
-  const { main, alternates } = useTranslationMaps();
-  const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = useBibleStore();
+  // FIX #1: Use store as SINGLE source of truth for mainTranslation
+  const store = useBibleStore();
+  const mainTranslation = store.translationState?.main || "KJV";
+  const { alternates } = useTranslationMaps();
+  const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
   useColumnData();
   const isMobile = useIsMobile();
   const screenSize = useScreenSize();
 
-  // Get viewport labels hook at top level - BEFORE any conditionals
-  const store = useBibleStore();
+  // Get viewport labels hook at top level - BEFORE any conditionals  
   const activeLabels = store.activeLabels || [];
   const { getVerseLabels } = useViewportLabels({
     verses: [verse], 
@@ -376,7 +385,7 @@ export function VirtualRow({
   if (verse.reference === "Gen 1:1") {
     console.log('🔥 VirtualRow RENDERING for Gen 1:1');
     console.log('🔥 Store states:', { showCrossRefs, showProphecies, showNotes, showDates });
-    console.log('🔥 Translation states:', { main, alternates, activeTranslations });
+    console.log('🔥 Translation states:', { mainTranslation, alternates, activeTranslations });
   }
 
   // Handle double-click to open Strong's overlay
@@ -398,7 +407,7 @@ export function VirtualRow({
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
 
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
-  slotConfig[2] = { type: 'main-translation', header: main, translationCode: main, visible: true };
+  slotConfig[2] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
@@ -478,7 +487,7 @@ export function VirtualRow({
 
   // Debug logging for first verse
   if (verse.reference === "Gen 1:1") {
-    console.log('🔍 VirtualRow Debug - Translation state:', { main, alternates });
+    console.log('🔍 VirtualRow Debug - Translation state:', { mainTranslation, alternates });
     console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
     console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
@@ -496,7 +505,7 @@ export function VirtualRow({
 
   const renderSlot = (column: any) => {
     const { slot, config, widthRem } = column;
-    const isMain = config.translationCode === main;
+    const isMain = config.translationCode === mainTranslation;
 
     // Calculate responsive width based on slot type and screen size
     const getColumnWidth = (slotNumber: number) => {
@@ -557,6 +566,7 @@ export function VirtualRow({
         return (
           <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
             <MainTranslationCell 
+              key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
               getVerseText={getVerseText} 
               mainTranslation={mainTranslation}
