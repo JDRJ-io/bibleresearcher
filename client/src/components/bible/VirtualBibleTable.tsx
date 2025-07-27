@@ -488,7 +488,10 @@ const VirtualBibleTable = ({
             flexShrink: 0
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
+            {/* DEBUG: Add visual indicator for debugging */}
+            <div style={{height: '2px', backgroundColor: 'red', width: '100%'}} />
             {slice.verseIDs.map((id, i) => {
+                console.log(`🎯 RENDERING VirtualRow ${i}/${slice.verseIDs.length}: ${id}`);
                 // Convert simple rowData to BibleVerse structure
                 const verseData = rowData?.[id];
                 const parts = id.split('.');
