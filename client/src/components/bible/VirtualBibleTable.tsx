@@ -484,8 +484,8 @@ const VirtualBibleTable = ({
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"}>
-          <div className={shouldCenter ? "min-w-max" : "min-w-max"} style={{ minWidth: shouldCenter ? 'auto' : `${estimatedTotalWidth}px` }}>
+        <div className="flex w-full" style={{ overflowX: 'auto' }}>
+          <div style={{ minWidth: 'max-content' }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure

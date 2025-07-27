@@ -351,23 +351,27 @@ export function ColumnHeaders({
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
-  // Calculate if we should center based on total column width vs viewport
-  const estimatedTotalWidth = useMemo(() => {
-    let width = 0;
-    width += 80; // Reference column ~80px
-    width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 320; // Cross refs ~320px (matches translations)
-    if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (alternates.length * 320); // Alt translations ~320px each
-    return width;
-  }, [showCrossRefs, showProphecies, alternates]);
+  // Calculate actual total width from columnState for accurate measurement
+  const actualTotalWidth = useMemo(() => {
+    if (!columnState?.columns) return 0;
+    
+    return visibleColumns.reduce((total, col) => {
+      const columnInfo = columnState.columns.find(c => c.slot === col.slot);
+      if (columnInfo) {
+        // Convert rem to pixels (1rem = 16px)
+        return total + (columnInfo.widthRem * 16);
+      }
+      return total + 160; // fallback width
+    }, 0);
+  }, [visibleColumns, columnState]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // FORCE LEFT-ALIGN for mobile and narrow screens (< 1000px)
-  // Only center on wide desktop screens when content fits
-  const shouldCenter = !adaptiveIsMobile && viewportWidth >= 1000 && estimatedTotalWidth <= viewportWidth * 0.95;
+  // FIXED COLUMN WIDTHS: Never compress columns, always use horizontal scroll
+  // Only center when content genuinely fits without compression
+  const shouldCenter = !adaptiveIsMobile && actualTotalWidth <= viewportWidth * 0.95;
+  const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   const allColumns = visibleColumns.map(col => ({
     id: col.name.toLowerCase().replace(' ', '-'),
@@ -425,12 +429,12 @@ export function ColumnHeaders({
           height: adaptiveIsMobile ? '20px' : '30px'
         }}
       >
-        <div className="overflow-hidden w-full h-full flex">
+        <div className="w-full h-full" style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
           <SortableContext items={sortableItems} strategy={horizontalListSortingStrategy}>
             {shouldCenter ? (
-              // Centered layout for few columns
+              // Centered layout for few columns - FIXED WIDTHS
               <div className="flex justify-center w-full h-full">
-                <div className="flex min-w-max h-full">
+                <div className="flex" style={{ minWidth: `${actualTotalWidth}px` }}>
                   {allColumns.map((column) => (
                     <SortableHeaderCell
                       key={`slot-${column.slot}`}
@@ -444,11 +448,13 @@ export function ColumnHeaders({
                 </div>
               </div>
             ) : (
-              // Left-anchored layout - simple layout without sticky positioning
-              <div className="flex min-w-max h-full">
+              // Left-anchored layout with FIXED WIDTHS and horizontal scroll
+              <div className="flex h-full" style={{ minWidth: `${actualTotalWidth}px`, width: `${actualTotalWidth}px` }}>
                 <div 
-                  className="flex min-w-max h-full"
+                  className="flex h-full"
                   style={{ 
+                    minWidth: `${actualTotalWidth}px`,
+                    width: `${actualTotalWidth}px`,
                     transform: `translateX(-${Math.round(scrollLeft)}px)`,
                     willChange: 'transform'
                   }}

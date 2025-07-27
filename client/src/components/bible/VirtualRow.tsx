@@ -654,28 +654,37 @@ export function VirtualRow({
     }
   };
 
-  // Calculate layout logic matching ColumnHeaders
-  const estimatedTotalWidth = useMemo(() => {
-    let width = 0;
-    width += 80; // Reference column ~80px
-    width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 240; // Cross refs ~240px
-    if (showProphecies) width += 600; // P+F+V ~200px each
-    width += (alternates.length * 320); // Alt translations ~320px each
-    return width;
-  }, [showCrossRefs, showProphecies, alternates]);
+  // Calculate actual total width from columnState - SAME as ColumnHeaders
+  const actualTotalWidth = useMemo(() => {
+    if (!columnState?.columns) return 0;
+    
+    return visibleColumns.reduce((total, col) => {
+      const columnInfo = columnState.columns.find(c => c.slot === col.slot);
+      if (columnInfo) {
+        // Convert rem to pixels (1rem = 16px)
+        return total + (columnInfo.widthRem * 16);
+      }
+      return total + 160; // fallback width
+    }, 0);
+  }, [visibleColumns, columnState]);
 
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  const shouldCenter = estimatedTotalWidth <= viewportWidth * 0.95;
+  const shouldCenter = actualTotalWidth <= viewportWidth * 0.95;
+  const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Clean layout without complex splitting
+  // FIXED COLUMN WIDTHS - No compression, maintain exact pixel widths
   return (
     <div 
-      className="flex w-full border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
-      style={{ height: rowHeight }}
+      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
+      style={{ 
+        height: rowHeight,
+        width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
+        minWidth: `${actualTotalWidth}px`,
+        display: 'flex'
+      }}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Simple layout - all columns in order */}
+      {/* Fixed-width layout - all columns maintain exact widths */}
       {visibleColumns.map(renderSlot)}
     </div>
   );
