@@ -15,9 +15,21 @@ export function MainTranslationSelector({ onUpdate }: MainTranslationSelectorPro
   const ensureTranslationLoaded = useEnsureTranslationLoaded();
 
   const handleMainChange = async (value: string) => {
-    await ensureTranslationLoaded(value);
-    setMain(value);
-    onUpdate?.();
+    console.log(`🔄 MainTranslationSelector: Switching main translation from ${main} to ${value}`);
+    try {
+      // 1. Load the new translation data from Supabase
+      await ensureTranslationLoaded(value);
+      
+      // 2. Update the translation store
+      setMain(value);
+      
+      // 3. Trigger re-render and label cache updates
+      onUpdate?.();
+      
+      console.log(`✅ MainTranslationSelector: Successfully switched to ${value}`);
+    } catch (error) {
+      console.error(`❌ MainTranslationSelector: Failed to switch to ${value}:`, error);
+    }
   };
 
   return (
