@@ -327,7 +327,7 @@ function MainTranslationCell({
 
   return (
     <div 
-      className="verse-text p-2 text-sm leading-relaxed"
+      className="verse-text p-2 text-sm leading-relaxed max-h-24 overflow-y-auto"
       onClick={() => {/* handle verse click if needed */}}
     >
       {shouldUseLabeledText ? (
