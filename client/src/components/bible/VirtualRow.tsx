@@ -6,8 +6,9 @@ import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { useColumnData } from '@/hooks/useColumnData';
-import { LabeledText } from './LabeledText';
+import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
+import { useViewportLabels } from '@/hooks/useViewportLabels';
 
 interface VirtualRowProps {
   verseID: string;
@@ -252,20 +253,22 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellP
   );
 }
 
-function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLabels }: CellProps) {
+// MainTranslationCell component with labels support
+function MainTranslationCell({ 
+  verse, 
+  getVerseText, 
+  mainTranslation,
+  getVerseLabels 
+}: {
+  verse: BibleVerse;
+  getVerseText: (reference: string, translation: string) => string;
+  mainTranslation: string;
+  getVerseLabels?: (verseReference: string) => any;
+}) {
   const store = useBibleStore();
-  const activeLabels = store?.activeLabels || [];
-  const verseText = getVerseText(verse.reference, mainTranslation) ?? verse.text?.[mainTranslation] ?? "";
+  const activeLabels = store.activeLabels || [];
 
-  if (verse.reference === "Gen.1:1") {
-    console.log('🔍 MainTranslationCell DEBUG:', {
-      verseReference: verse.reference,
-      mainTranslation,
-      verseText,
-      getVerseTextResult: getVerseText(verse.reference, mainTranslation),
-      verseTextFallback: verse.text?.[mainTranslation]
-    });
-  }
+  const verseText = getVerseText(verse.reference, mainTranslation);
 
   // Get labels for this verse if available
   const verseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
@@ -276,13 +279,10 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
   // Enhanced debug for Gen.1:1
   if (verse.reference === "Gen.1:1" || verse.reference === "Gen 1:1") {
     console.log(`🏷️ MainTranslationCell DEBUG for ${verse.reference}:`, {
+      verseLabels,
+      activeLabels,
       shouldUseLabeledText,
-      activeLabels: activeLabels,
-      activeLabelsLength: activeLabels?.length || 0,
-      verseLabels: verseLabels,
-      verseLabelsKeys: Object.keys(verseLabels),
-      hasText: !!verseText,
-      getVerseLabelsFunction: !!getVerseLabels,
+      hasGetVerseLabels: !!getVerseLabels,
       storeActiveLabels: store?.activeLabels,
       verseText: verseText.substring(0, 50) + '...'
     });
@@ -290,39 +290,37 @@ function MainTranslationCell({ verse, getVerseText, mainTranslation, getVerseLab
     // Try different reference formats
     const altRef1 = verse.reference.replace('.', ' ');
     const altRef2 = verse.reference.replace(' ', '.');
-    console.log('🏷️ Trying alternate references:', {
-      original: verse.reference,
-      alt1: altRef1,
-      alt1Labels: getVerseLabels ? getVerseLabels(altRef1) : null,
-      alt2: altRef2,
-      alt2Labels: getVerseLabels ? getVerseLabels(altRef2) : null
-    });
+
+    if (getVerseLabels) {
+      console.log(`🏷️ MainTranslationCell trying alt refs:`, {
+        original: verse.reference,
+        alt1: altRef1,
+        alt2: altRef2,
+        labelsAlt1: getVerseLabels(altRef1),
+        labelsAlt2: getVerseLabels(altRef2)
+      });
+    }
   }
 
   return (
-    <div className="flex-1 px-2 py-1 text-sm overflow-y-auto" style={{ maxHeight: '120px' }}>
-      <div className="leading-relaxed verse-text">
-        {verseText ? (
-          shouldUseLabeledText ? (
-            <LabeledText 
-              text={verseText}
-              labelData={verseLabels}
-              activeLabels={activeLabels || []}
-              verseKey={verse.reference}
-              translationCode={mainTranslation}
-            />
-          ) : (
-            verseText
-          )
-        ) : (
-          "Loading..."
-        )}
-      </div>
+    <div 
+      className="verse-text p-2 text-sm leading-relaxed"
+      onClick={() => {/* handle verse click if needed */}}
+    >
+      {shouldUseLabeledText ? (
+        <LabeledText
+          text={verseText}
+          labelData={verseLabels}
+          activeLabels={activeLabels}
+          verseKey={verse.reference}
+          translationCode={mainTranslation}
+        />
+      ) : (
+        verseText
+      )}
     </div>
   );
 }
-
-
 
 interface SlotConfig {
   type: string;
@@ -534,38 +532,17 @@ export function VirtualRow({
           </div>
         );
 
-      case 'main-translation': {
-        const mainText = verse.text || '';
-        const { getVerseLabels } = useViewportLabels();
-        const verseLabels = getVerseLabels(verse.reference);
-        const { activeLabels } = useBibleStore();
-
-        console.log(`🏷️ VirtualRow main-translation for ${verse.reference}:`, {
-          verseLabels,
-          activeLabels,
-          hasLabels: Object.keys(verseLabels).length > 0
-        });
-
+      case 'main-translation':
         return (
-          <div 
-            className="verse-text"
-            onClick={onVerseClick ? () => onVerseClick(verse) : undefined}
-            style={{ cursor: onVerseClick ? 'pointer' : 'default' }}
-          >
-            {activeLabels && activeLabels.length > 0 ? (
-              <LabeledText
-                text={mainText}
-                labelData={verseLabels}
-                activeLabels={activeLabels}
-                verseKey={verse.reference}
-                translationCode={store.translationState?.main || 'KJV'}
-              />
-            ) : (
-              mainText
-            )}
+          <div key={slot} className={`${width} flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+            <MainTranslationCell 
+              verse={verse} 
+              getVerseText={getVerseText} 
+              mainTranslation={mainTranslation}
+              getVerseLabels={getVerseLabels}
+            />
           </div>
         );
-      }
 
       case 'alt-translation':
         // Debug translation lookup for first verse
