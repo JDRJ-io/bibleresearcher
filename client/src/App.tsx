@@ -326,9 +326,6 @@ export const useBibleStore = create<{
     const newChronological = !state.isChronological;
     console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
 
-    // Update state first
-    const newState = { isChronological: newChronological };
-
     // If dates are currently visible, reload them in the new order
     if (state.showDates) {
       console.log(`📅 Reloading dates data for ${newChronological ? 'chronological' : 'canonical'} order...`);
@@ -343,25 +340,7 @@ export const useBibleStore = create<{
       });
     }
 
-    // Trigger verse reloading by dispatching a custom event
-    // This allows the Bible component to react to the change
-    console.log('📅 STEP 1A: About to dispatch chronologicalOrderChanged event');
-    const event = new CustomEvent('chronologicalOrderChanged', { 
-      detail: { isChronological: newChronological } 
-    });
-    window.dispatchEvent(event);
-    console.log(`📅 STEP 1B: Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
-    
-    // Also dispatch a simpler event to test
-    setTimeout(() => {
-      const reloadEvent = new CustomEvent('reloadBibleData', { 
-        detail: { isChronological: newChronological } 
-      });
-      window.dispatchEvent(reloadEvent);
-      console.log(`📅 STEP 1C: Dispatched reloadBibleData event as backup`);
-    }, 100);
-
-    return newState;
+    return { isChronological: newChronological };
   }),
 
   setActives: (ids: string[]) => set({ actives: ids }),
