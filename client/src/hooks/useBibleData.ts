@@ -731,14 +731,11 @@ export function useBibleData() {
     try {
       const kjvText = await loadKJVData();
 
-      // Parse your KJV file format: "Gen.1:1 #In the beginning..."
-      const dotRef = verseRef.replace(" ", ".").replace(":", ":");
-
-      // Search for verse text using your specific format
+      // STRAIGHT-LINE: Assume verseRef is already in dot format from BibleDataAPI
+      // No conversion needed - direct pattern matching
       const patterns = [
-        `${dotRef}\\s*#([^\\n]+)`, // Gen.1:1 #text
-        `${verseRef}\\s*#([^\\n]+)`, // Gen 1:1 #text
-        `${dotRef.replace(":", "\\.")}\\s*#([^\\n]+)`, // Gen.1.1 #text
+        `${verseRef}\\s*#([^\\n]+)`, // Direct dot format: Gen.1:1 #text
+        `${verseRef.replace(":", "\\.")}\\s*#([^\\n]+)`, // Alt format: Gen.1.1 #text
       ];
 
       for (const pattern of patterns) {
@@ -1083,13 +1080,14 @@ export function useBibleData() {
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, " ").trim();
 
-    // Find target verse in complete Bible index
+    // STRAIGHT-LINE: Find target verse using dot format directly
+    // Convert input reference to dot format once, then match directly
+    const dotFormatRef = normalizedRef.replace(/\s/g, ".");
     const targetVerse = verses.find(
       (v) =>
+        v.reference === dotFormatRef ||
         v.reference === normalizedRef ||
-        v.reference.replace(/\s+/g, " ") === normalizedRef ||
-        `${v.book}.${v.chapter}:${v.verse}` === reference.replace(/\s/g, ".") ||
-        `${v.book} ${v.chapter}:${v.verse}` === normalizedRef,
+        `${v.book}.${v.chapter}:${v.verse}` === dotFormatRef
     );
 
     if (targetVerse) {

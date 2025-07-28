@@ -14,6 +14,8 @@ import { create } from 'zustand';
 import '@/lib/preloader';
 // Initialize format conversion analyzer
 import '@/lib/formatConversionAnalyzer';
+// Verify straight-line pipeline implementation
+import '@/lib/straightLinePipelineVerification';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
@@ -150,11 +152,10 @@ export const useBibleStore = create<{
       return;
     }
 
-    // Check which verses we don't have yet
+    // STRAIGHT-LINE: Check using dot format only (no conversions)
+    // Assume verseIds are already in dot format from the system
     const neededVerses = verseIds.filter(id => {
-      const spaceFormat = id.replace('.', ' ');
-      const dotFormat = id.replace(' ', '.');
-      return !state.crossRefs[spaceFormat] && !state.crossRefs[dotFormat];
+      return !state.crossRefs[id];
     });
 
     if (neededVerses.length === 0) {
@@ -173,10 +174,8 @@ export const useBibleStore = create<{
         try {
           const refs = await getCrossReferences(verseId);
           if (refs && refs.length > 0) {
-            const spaceFormat = verseId.replace('.', ' ');
-            const dotFormat = verseId.replace(' ', '.');
-            newCrossRefs[spaceFormat] = refs;
-            newCrossRefs[dotFormat] = refs;
+            // STRAIGHT-LINE: Store with dot format key only
+            newCrossRefs[verseId] = refs;
           }
         } catch (error) {
           console.warn(`Failed to load cross-refs for ${verseId}:`, error);

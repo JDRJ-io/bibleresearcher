@@ -231,25 +231,10 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // Try the reference as-is first, then try various formats
-      const searchFormats = [
-        ref,                                    // Original format
-        ref.replace(/\s/g, '.'),               // Spaces to dots
-        ref.replace(/\./g, ' '),               // Dots to spaces  
-        ref.replace(/:/g, '.'),                // Colon to dot
-        ref.replace(/\./g, ' ').replace(/:/g, ' '), // All to spaces
-      ];
-
-      let verseIndex = -1;
-      let foundFormat = '';
-
-      for (const format of searchFormats) {
-        verseIndex = verseKeys.findIndex(key => key === format.trim());
-        if (verseIndex >= 0) {
-          foundFormat = format;
-          break;
-        }
-      }
+      // STRAIGHT-LINE: Convert to dot format once, then direct lookup
+      const dotFormatRef = ref.replace(/\s/g, '.');
+      const verseIndex = verseKeys.findIndex(key => key === dotFormatRef);
+      const foundFormat = dotFormatRef;
 
       if (verseIndex >= 0) {
         if (containerRef.current) {
