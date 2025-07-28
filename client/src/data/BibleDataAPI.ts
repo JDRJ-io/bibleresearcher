@@ -486,7 +486,6 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
 
     if (!targetLine) {
-      console.log(`No cross-references found for ${verseId}`);
       return [];
     }
 
@@ -494,17 +493,21 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
 
-    // FIXED: Proper parsing that handles numbered books like 1Cor, 2Tim, 3John
+    // FIXED: Proper parsing that handles numbered books and prevents number concatenation
     const allReferences: string[] = [];
 
-    // Split by $ first to get reference groups
-    const referenceGroups = referencesData.split('$');
-
-    referenceGroups.forEach(group => {
-      if (!group.trim()) return;
-
+    // Split by $ first to get reference groups, but preserve the $ separator
+    // This prevents "1Thess.1:9$" from being merged with following numbers
+    const parts = referencesData.split(/(\$)/);
+    
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      
+      // Skip empty parts and separators
+      if (!part || part === '$') continue;
+      
       // Split by # to get sequential references within a group
-      const sequentialRefs = group.split('#');
+      const sequentialRefs = part.split('#');
 
       sequentialRefs.forEach(ref => {
         const cleanRef = ref.trim();
@@ -512,14 +515,11 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
           // Validate this looks like a proper verse reference before adding
           if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
             allReferences.push(cleanRef);
-          } else {
-            console.warn(`Skipping invalid cross-reference format: "${cleanRef}" from verse ${verseId}`);
           }
         }
       });
-    });
+    }
 
-    console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
     return allReferences;
 
   } catch (error) {
