@@ -4,8 +4,8 @@ import { useBibleStore } from '@/App';
 import { getLabel } from '@/lib/labelsCache';
 import type { LabelName } from '@/lib/labelBits';
 import { useEffect, useMemo } from 'react';
-import { LabeledText } from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
+import { classesForMask } from '@/lib/labelRenderer';
 
 interface VerseRowProps {
   verse: BibleVerse;
@@ -115,13 +115,11 @@ export function VerseRow({
         }, [translation.id, verse.reference, activeLabels]);
         
         // Process text with labels if we have both text and active labels
-        const segments = useLabeledText({
-          text: verseText || '',
+        const segments = useLabeledText(
+          verseText || '',
           labelData,
-          activeLabels: (activeLabels || []) as LabelName[],
-          verseKey: verse.reference,
-          translationCode: translation.id
-        });
+          (activeLabels || []) as LabelName[]
+        );
         
         return (
           <div key={translation.id} className="w-80 flex-shrink-0 border-r">
@@ -129,14 +127,17 @@ export function VerseRow({
               <div className="whitespace-pre-wrap break-words leading-relaxed">
                 {verseText ? (
                   activeLabels.length > 0 ? (
-                    segments.map((segment, index) => (
-                      <LabeledText
-                        key={index}
-                        text={segment.text}
-                        mask={segment.mask}
-                        segmentKey={index}
-                      />
-                    ))
+                    segments.map((segment, index) => {
+                      const content = verseText.slice(segment.start, segment.end);
+                      const cls = classesForMask(segment.mask);
+                      return cls ? (
+                        <span key={index} className={cls}>
+                          {content}
+                        </span>
+                      ) : (
+                        <span key={index}>{content}</span>
+                      );
+                    })
                   ) : (
                     verseText
                   )
@@ -153,20 +154,7 @@ export function VerseRow({
 
       {/* Cross References Column - Fixed Width (matches translation columns) */}
       <div className="w-80 flex-shrink-0 border-r">
-        <div className="h-[120px] overflow-y-auto p-3 text-xs">
-          {/* Cross-reference badge */}
-          <div className="flex items-center gap-2 mb-2">
-            {(() => {
-              const dotFormat = verse.reference.replace(/\s/g, '.');
-              const refs = store.crossRefs[dotFormat];
-              return refs?.length > 0 && (
-                <span className="text-sky-500 text-xs cursor-pointer" aria-label={`${refs.length} cross references`}>
-                  📖 {refs.length}
-                </span>
-              );
-            })()}
-          </div>
-
+        <div className="h-[120px] overflow-y-auto p-3 text-sm leading-relaxed">
           {(() => {
             const dotFormat = verse.reference.replace(/\s/g, '.');
             const crossRefs = store.crossRefs[dotFormat] || [];
@@ -183,7 +171,6 @@ export function VerseRow({
                   const lookupRef = ref; // Keep original dot format as backup
 
                   // First try to find the cross-referenced verse in the current verses array
-                  // This ensures we use the same translation data that's already loaded
                   const crossRefVerse = allVerses.find(v => 
                     v.reference === displayRef || 
                     v.reference === lookupRef ||
@@ -199,22 +186,17 @@ export function VerseRow({
                   }
                 }
 
-                const displayText = refText && refText.length > 150 ? 
-                  refText.substring(0, 150) + '...' : refText;
-
                 return (
-                  <div key={index} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
-                    <button 
+                  <div key={index} className="mb-3">
+                    <span 
                       onClick={() => onNavigateToVerse(ref)}
-                      className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block mb-1"
+                      className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer mr-1"
                     >
                       {ref.replace(/\./g, ' ')}
-                    </button>
-                    {displayText && (
-                      <div className="text-muted-foreground break-words text-xs leading-relaxed">
-                        {displayText}
-                      </div>
-                    )}
+                    </span>
+                    <span className="text-foreground">
+                      {refText || 'Loading...'}
+                    </span>
                   </div>
                 );
               });
