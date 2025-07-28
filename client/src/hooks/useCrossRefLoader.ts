@@ -11,11 +11,10 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
     const loadCrossRefs = async () => {
       if (verseKeys.length === 0) return;
 
-      // CENTER-ANCHORED: Only load cross-refs for verses we don't already have
+      // CENTER-ANCHORED: Only load cross-refs for verses we don't already have (dot format only)
       const neededVerses = verseKeys.filter(verseId => {
         const dotFormat = verseId.replace(/\s/g, '.');
-        const spaceFormat = verseId.replace(/\./g, ' ');
-        return !crossRefsStore[dotFormat] && !crossRefsStore[spaceFormat] && !loadingRef.current.has(dotFormat);
+        return !crossRefsStore[dotFormat] && !loadingRef.current.has(dotFormat);
       });
 
       if (neededVerses.length === 0) return;
@@ -42,7 +41,7 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
 
         const results = await Promise.all(batchPromises);
 
-        // Store in single format to reduce memory usage (dot format only)
+        // Store in single format only (dot format) to reduce memory usage
         const updatedCrossRefs: Record<string, string[]> = { ...crossRefsStore };
         results.forEach(({ verseId, refs }) => {
           const dotFormat = verseId.replace(/\s/g, '.');

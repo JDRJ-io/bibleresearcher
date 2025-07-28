@@ -460,51 +460,61 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
 
 
 // Cross-reference data parsing with proper BibleDataAPI facade
+// Optimized cross-reference loader with smart caching
 export async function getCrossReferences(verseId: string): Promise<string[]> {
   try {
-    // Load complete cross-reference data from cf1
-    const crossRefData = await loadCrossReferences('cf1');
-    const lines = crossRefData.split('\n').filter(line => line.trim());
+    // Normalize to dot format (our standard)
+    const normalizedId = verseId.replace(/\s/g, '.');
+    
+    // Try to get from cache first
+    const cacheKey = `crossref-${normalizedId}`;
+    if (masterCache.has(cacheKey)) {
+      return masterCache.get(cacheKey) as string[];
+    }
 
-    // Find the line for this verse (convert "Gen 1:1" to "Gen.1:1" format)
-    const searchKey = verseId.replace(/\s/g, '.');
-    const targetLine = lines.find(line => line.startsWith(searchKey + '$$'));
+    // Load the cross-reference data once and parse the needed line
+    const crossRefData = await getOrFetch('crossref-cf1-full', async () => {
+      console.log('📖 Loading full cf1 cross-reference data (one-time load)...');
+      const data = await fetchFromStorage(paths.crossRef('cf1'));
+      console.log(`✅ Cross-reference data loaded: ${data.length} bytes`);
+      return data;
+    });
+
+    // Find the specific line for this verse
+    const lines = crossRefData.split('\n');
+    const targetLine = lines.find(line => line.startsWith(normalizedId + '$$'));
 
     if (!targetLine) {
-      console.log(`No cross-references found for ${verseId}`);
+      console.log(`No cross-references found for ${normalizedId}`);
+      masterCache.set(cacheKey, []);
       return [];
     }
 
     // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-    const [baseVerse, referencesData] = targetLine.split('$$');
-    if (!referencesData) return [];
+    const [, referencesData] = targetLine.split('$$');
+    if (!referencesData) {
+      masterCache.set(cacheKey, []);
+      return [];
+    }
 
-    // FIXED: Proper parsing that handles numbered books like 1Cor, 2Tim, 3John
     const allReferences: string[] = [];
-
-    // Split by $ first to get reference groups
     const referenceGroups = referencesData.split('$');
 
     referenceGroups.forEach(group => {
       if (!group.trim()) return;
-
-      // Split by # to get sequential references within a group
       const sequentialRefs = group.split('#');
 
       sequentialRefs.forEach(ref => {
         const cleanRef = ref.trim();
-        if (cleanRef) {
-          // Validate this looks like a proper verse reference before adding
-          if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
-            allReferences.push(cleanRef);
-          } else {
-            console.warn(`Skipping invalid cross-reference format: "${cleanRef}" from verse ${verseId}`);
-          }
+        if (cleanRef && cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+          allReferences.push(cleanRef);
         }
       });
     });
 
-    console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
+    // Cache the result
+    masterCache.set(cacheKey, allReferences);
+    console.log(`✅ Loaded ${allReferences.length} cross-references for ${normalizedId}`);
     return allReferences;
 
   } catch (error) {
@@ -512,6 +522,8 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     return [];
   }
 }
+
+
 
 // Enhanced prophecy loading with detailed index
 export async function getProphecyIndexDetailed(): Promise<Record<string, any>> {
