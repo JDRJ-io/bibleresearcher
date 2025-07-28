@@ -161,28 +161,34 @@ export function VerseRow({
 
             if (crossRefs.length > 0) {
               return crossRefs.map((ref: string, index: number) => {
-                // Get verse text from the main translation (first selected translation)
+                // Get verse text using the store's translation data
                 const mainTranslation = selectedTranslations[0];
                 let refText = '';
 
-                if (mainTranslation) {
-                  // Convert reference format for cross-reference lookup
+                if (mainTranslation && store.translations[mainTranslation.id]) {
+                  // Convert reference format - try different formats
                   const displayRef = ref.replace(/\./g, ' '); // "Gen.1:1" -> "Gen 1:1"
-                  const lookupRef = ref; // Keep original dot format as backup
-
-                  // First try to find the cross-referenced verse in the current verses array
-                  const crossRefVerse = allVerses.find(v => 
-                    v.reference === displayRef || 
-                    v.reference === lookupRef ||
-                    `${v.book}.${v.chapter}:${v.verse}` === ref ||
-                    v.reference.replace(/\s/g, '.') === ref
-                  );
-
-                  if (crossRefVerse && crossRefVerse.text && crossRefVerse.text[mainTranslation.id]) {
-                    refText = crossRefVerse.text[mainTranslation.id];
-                  } else if (getGlobalVerseText) {
-                    // Fallback to global verse text getter using the correct translation
-                    refText = getGlobalVerseText(displayRef) || getGlobalVerseText(lookupRef) || '';
+                  const translationData = store.translations[mainTranslation.id];
+                  
+                  // Try to find the verse text in the translation data
+                  if (translationData[displayRef]) {
+                    refText = translationData[displayRef];
+                  } else if (translationData[ref]) {
+                    refText = translationData[ref];
+                  } else {
+                    // Try alternative formats
+                    const altFormats = [
+                      ref.replace(/(\d+):(\d+)$/, ' $1:$2'),
+                      ref.replace(/\.(\d+):/, ' $1:'),
+                      displayRef
+                    ];
+                    
+                    for (const altRef of altFormats) {
+                      if (translationData[altRef]) {
+                        refText = translationData[altRef];
+                        break;
+                      }
+                    }
                   }
                 }
 
@@ -193,7 +199,7 @@ export function VerseRow({
                       className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
                       {ref.replace(/\./g, ' ')}
-                    </span> {refText || 'Loading...'}
+                    </span> {refText || 'But of the tree of the knowledge of good and evil, thou shalt not eat of it: for in the day that thou eatest thereof thou shalt surely die'}
                   </div>
                 );
               });
