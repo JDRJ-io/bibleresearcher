@@ -490,73 +490,40 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Smoother scrolling behavior for mobile */
+/* Prevent diagonal scrolling on mobile */
 @media (max-width: 768px) {
-  .horizontal-scroll-wrapper {
-    scroll-behavior: auto; /* Immediate response */
+  .bible-table-wrapper[data-scroll-direction="horizontal"] {
+    overflow-y: hidden;
   }
 
-  .bible-table-wrapper {
-    scroll-behavior: auto; /* Immediate response */
+  .bible-table-wrapper[data-scroll-direction="vertical"] {
+    overflow-x: hidden;
   }
 }
 
-/* DIRECTIONAL SCROLLING FOR MOBILE - One direction at a time */
+/* Mobile-optimized column widths and touch behavior */
 @media (max-width: 640px) {
-  .horizontal-scroll-wrapper {
-    touch-action: pan-x; /* Only allow horizontal panning */
-    -webkit-overflow-scrolling: touch;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain; /* Prevent scroll chaining */
-  }
-
   .bible-table-wrapper {
-    touch-action: pan-y; /* Only allow vertical panning */
-    overflow-y: auto;
-    overflow-x: visible;
-    min-width: max-content;
-    overscroll-behavior-y: contain; /* Prevent scroll chaining */
+    touch-action: pan-y;
   }
 
-  /* Enhanced horizontal scrollbar for mobile */
-  .horizontal-scroll-wrapper::-webkit-scrollbar {
-    height: 6px; /* Slightly thinner for less intrusion */
-    display: block !important;
+  .col-ref {
+    width: calc(48px * var(--font-size-multiplier, 1));
+    flex-shrink: 0;
   }
 
-  .horizontal-scroll-wrapper::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05); /* More subtle track */
-    border-radius: 3px;
+  .col-main {
+    width: calc(300px * var(--font-size-multiplier, 1));
+    flex-shrink: 0;
   }
 
-  .horizontal-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2); /* More subtle thumb */
-    border-radius: 3px;
-    min-width: 30px; /* Smaller minimum width */
+  .col-cross {
+    width: calc(280px * var(--font-size-multiplier, 1));
+    flex-shrink: 0;
   }
 
-  .horizontal-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4); /* Gentle hover effect */
-  }
-
-  /* Add momentum scrolling support */
-  .horizontal-scroll-wrapper {
-    scroll-snap-type: none; /* Don't snap, allow free scrolling */
-    scroll-padding: 0;
-  }
-
-  /* Dark mode horizontal scrollbar */
-  .dark .horizontal-scroll-wrapper::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .dark .horizontal-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  .dark .horizontal-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+  .virtualbible-table {
+    overflow-x:auto;
   }
 }
 
