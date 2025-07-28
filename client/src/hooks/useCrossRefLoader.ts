@@ -26,12 +26,15 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
       });
 
       try {
-        // Batch load cross-references without initial log
+        console.log(`🔄 Loading cross-references for ${neededVerses.length} center-anchored verses`);
+        
+        // Batch load cross-references
         const batchPromises = neededVerses.map(async verseId => {
           try {
             const refs = await getCrossReferences(verseId);
             return { verseId, refs: refs || [] };
           } catch (error) {
+            console.warn(`Failed to load cross-refs for ${verseId}:`, error);
             return { verseId, refs: [] };
           }
         });
@@ -47,6 +50,7 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         });
 
         setCrossRefs(updatedCrossRefs);
+        console.log(`✅ Loaded cross-references for ${results.length} verses around center anchor`);
 
       } catch (error) {
         console.error('Failed to batch load cross-references:', error);

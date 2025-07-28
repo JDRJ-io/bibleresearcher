@@ -104,12 +104,6 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
-- **July 28, 2025: Fixed Canonical/Chronological Toggle & Cross-Reference Performance**
-  - **Fixed verse order toggle**: Made VirtualBibleTable use reactive `currentVerseKeys` from store instead of static function
-  - **Fixed virtualization**: Added useLayoutEffect to reload slice when verse keys change
-  - **Optimized cross-reference loading**: Removed excessive logging during batch loading for faster UI updates
-  - **Fixed parsing bug**: Corrected cross-reference parser to handle numbered books (1Cor, 2Tim, 3John) followed by numbers
-  - **Parsing fix details**: Changed from simple split('$') to regex split(/(\$)/) to preserve separators and prevent number concatenation
 - **July 28, 2025: STRAIGHT-LINE PIPELINE OPTIMIZATION COMPLETED ✅**
   - **MISSION ACCOMPLISHED**: Successfully eliminated ALL critical format conversions from core data loading pipeline
   - **Final verification**: 7 critical conversions eliminated, remaining conversions are appropriate (search engine, UI formatting)
