@@ -334,6 +334,39 @@ export const useBibleStore = create<{
     const newChronological = !state.isChronological;
     console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
 
+    // IMMEDIATE VERSE RELOADING: Trigger verse key reloading directly instead of relying on polling
+    console.log(`🔑 IMMEDIATE: Triggering verse reload for ${newChronological ? 'chronological' : 'canonical'} order...`);
+    
+    // Use setTimeout to allow state to update first, then trigger reload
+    setTimeout(async () => {
+      try {
+        const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+        const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+
+        console.log(`🔑 Loading ${newChronological ? 'chronological' : 'canonical'} verse keys...`);
+        const verseKeys = await loadVerseKeys(newChronological);
+        
+        // Update store with new verse keys
+        get().setCurrentVerseKeys(verseKeys);
+
+        // Create new verse objects in the new order
+        const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
+        console.log(`🔄 Created ${reorderedVerses.length} verses in ${newChronological ? 'chronological' : 'canonical'} order`);
+
+        // Trigger useBibleData hook to detect the change via custom event
+        window.dispatchEvent(new CustomEvent('verse-order-changed', { 
+          detail: { 
+            newOrder: newChronological ? 'chronological' : 'canonical',
+            verses: reorderedVerses 
+          }
+        }));
+
+        console.log(`✅ IMMEDIATE: Successfully triggered verse reload for ${newChronological ? 'chronological' : 'canonical'} order`);
+      } catch (error) {
+        console.error('❌ IMMEDIATE: Failed to reload verses:', error);
+      }
+    }, 100);
+
     // If dates are currently visible, reload them in the new order
     if (state.showDates) {
       console.log(`📅 Reloading dates data for ${newChronological ? 'chronological' : 'canonical'} order...`);

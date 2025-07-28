@@ -1039,10 +1039,33 @@ export function useBibleData() {
       }
     };
 
-    // Check for order changes every 1000ms (reduced frequency)
+    // IMMEDIATE ORDER CHANGE HANDLER: Listen for custom events from toggleChronological
+    const handleVerseOrderChanged = (event: CustomEvent) => {
+      console.log('🚀 IMMEDIATE: Received verse-order-changed event:', event.detail);
+      
+      if (event.detail.verses && !isReloading) {
+        isReloading = true;
+        console.log(`🔄 IMMEDIATE: Applying ${event.detail.verses.length} verses in ${event.detail.newOrder} order`);
+        
+        setVerses(event.detail.verses);
+        setVerseOrder(event.detail.newOrder);
+        setCenterVerseIndex(0); // Reset to start of new order
+        
+        console.log(`✅ IMMEDIATE: Successfully applied ${event.detail.newOrder} order`);
+        isReloading = false;
+      }
+    };
+
+    // Listen for immediate order changes
+    window.addEventListener('verse-order-changed', handleVerseOrderChanged as EventListener);
+
+    // Fallback: Check for order changes every 1000ms (reduced frequency)
     const interval = setInterval(reloadVersesForOrderChange, 1000);
     
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('verse-order-changed', handleVerseOrderChanged as EventListener);
+    };
   }, [verses.length, verseOrder]); // Dependencies: verses loaded and current order
 
   // DISABLED: Apply cross-references when crossRefSet changes - preventing infinite loading
