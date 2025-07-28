@@ -193,10 +193,7 @@ export function VerseRow({
                       className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
                       {ref.replace(/\./g, ' ')}
-                    </span>{' '}
-                    <span className="text-foreground">
-                      {refText || 'Loading...'}
-                    </span>
+                    </span> <span className="text-foreground">{refText || 'Loading...'}</span>
                   </div>
                 );
               });
