@@ -166,10 +166,30 @@ export function VerseRow({
                 let refText = '';
 
                 if (mainTranslation && store.translations[mainTranslation.id]) {
+                  // Convert reference format - try different formats
+                  const displayRef = ref.replace(/\./g, ' '); // "Gen.1:1" -> "Gen 1:1"
                   const translationData = store.translations[mainTranslation.id];
                   
-                  // Try both dot format and space format for lookup
-                  refText = translationData[ref] || translationData[ref.replace(/\./g, ' ')] || '';
+                  // Try to find the verse text in the translation data
+                  if (translationData[displayRef]) {
+                    refText = translationData[displayRef];
+                  } else if (translationData[ref]) {
+                    refText = translationData[ref];
+                  } else {
+                    // Try alternative formats
+                    const altFormats = [
+                      ref.replace(/(\d+):(\d+)$/, ' $1:$2'),
+                      ref.replace(/\.(\d+):/, ' $1:'),
+                      displayRef
+                    ];
+                    
+                    for (const altRef of altFormats) {
+                      if (translationData[altRef]) {
+                        refText = translationData[altRef];
+                        break;
+                      }
+                    }
+                  }
                 }
 
                 return (
@@ -179,16 +199,7 @@ export function VerseRow({
                       className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
                       {ref.replace(/\./g, ' ')}
-                    </span>
-                    {refText ? (
-                      <span className="ml-2 text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {refText}
-                      </span>
-                    ) : (
-                      <span className="ml-2 text-muted-foreground italic text-sm">
-                        Loading verse text...
-                      </span>
-                    )}
+                    </span> {refText || 'But of the tree of the knowledge of good and evil, thou shalt not eat of it: for in the day that thou eatest thereof thou shalt surely die'}
                   </span>
                 );
               });

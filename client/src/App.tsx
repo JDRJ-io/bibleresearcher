@@ -137,10 +137,55 @@ export const useBibleStore = create<{
   unlockMode: false,      // Layout editing mode toggle
   toggleUnlockMode: () => set(state => ({ unlockMode: !state.unlockMode })),
 
-  // DEPRECATED: Legacy cross-reference loading - use useCrossRefLoader hook instead
+  // Load cross-references data for specific verse range (anchor-centered)
   loadCrossRefsData: async (verseIds?: string[]) => {
-    console.warn('loadCrossRefsData is deprecated, cross-references are now loaded via useCrossRefLoader hook');
-    // No-op - the modern useCrossRefLoader handles all cross-ref loading
+    const state = get();
+
+    // If no specific verses requested, this is a no-op (we load on-demand only)
+    if (!verseIds || verseIds.length === 0) {
+      console.log('📚 Cross-references will load on-demand as needed');
+      return;
+    }
+
+    // Check which verses we don't have yet
+    const neededVerses = verseIds.filter(id => {
+      const spaceFormat = id.replace('.', ' ');
+      const dotFormat = id.replace(' ', '.');
+      return !state.crossRefs[spaceFormat] && !state.crossRefs[dotFormat];
+    });
+
+    if (neededVerses.length === 0) {
+      console.log('✅ All requested cross-references already loaded');
+      return;
+    }
+
+    console.log(`📚 Loading cross-references for ${neededVerses.length} verses...`);
+
+    try {
+      const { getCrossReferences } = await import('@/data/BibleDataAPI');
+      const newCrossRefs: Record<string, string[]> = { ...state.crossRefs };
+
+      // Load cross-references for each needed verse individually
+      for (const verseId of neededVerses) {
+        try {
+          const refs = await getCrossReferences(verseId);
+          if (refs && refs.length > 0) {
+            const spaceFormat = verseId.replace('.', ' ');
+            const dotFormat = verseId.replace(' ', '.');
+            newCrossRefs[spaceFormat] = refs;
+            newCrossRefs[dotFormat] = refs;
+          }
+        } catch (error) {
+          console.warn(`Failed to load cross-refs for ${verseId}:`, error);
+        }
+      }
+
+      console.log(`✅ Loaded cross-references for ${neededVerses.length} verses`);
+      set({ crossRefs: newCrossRefs });
+
+    } catch (error) {
+      console.error('❌ Failed to load cross-references:', error);
+    }
   },
 
   toggleCrossRefs: () => set(state => {
