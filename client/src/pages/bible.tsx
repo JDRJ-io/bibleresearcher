@@ -67,11 +67,11 @@ export default function BiblePage() {
     // Find the target verse with more robust matching
     let targetVerse = allVerses.find(v => normalizeReference(v.reference) === normalizedRef);
     
-    // If not found, try different formats
+    // If not found, try direct format match (assuming v.reference is in dot format)
     if (!targetVerse) {
       targetVerse = allVerses.find(v => 
         v.reference === reference ||
-        v.reference.replace(/\s+/g, ' ').trim() === reference.replace(/\s+/g, ' ').trim()
+        v.reference === reference.replace(/\s+/g, '.')
       );
     }
     
