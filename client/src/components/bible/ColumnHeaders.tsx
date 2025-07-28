@@ -429,7 +429,7 @@ export function ColumnHeaders({
         style={{ 
           left: -scrollLeft,  // keep horizontal sync only
           width: '100%',
-          height: adaptiveIsMobile ? '20px' : '14px'
+          height: 'var(--column-header-height)'
         }}
       >
         <div className="w-full h-full" style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>

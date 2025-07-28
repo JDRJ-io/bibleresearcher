@@ -45,7 +45,12 @@ export function TopHeader({
         height: isMobile ? '48px' : '64px',
         minHeight: isMobile ? '48px' : '64px',
         maxHeight: isMobile ? '48px' : '64px',
-        padding: isMobile ? '0 8px' : '0 16px'
+        padding: isMobile ? '0 8px' : '0 16px',
+        pointerEvents: 'auto' // Ensure events are contained
+      }}
+      onWheel={(e) => {
+        // Prevent wheel events from bubbling and affecting column headers
+        e.stopPropagation();
       }}
     >
       {/* Mobile Layout */}
