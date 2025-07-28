@@ -66,7 +66,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   return (
     <div className="px-2 py-1 text-sm cell-content">
       {crossRefs.length > 0 ? (
-        <div className="space-y-1">
+        <div className="space-y-0">
           {crossRefs.map((ref, i) => {
             // Convert cross-ref to space format for display and lookup
             const displayRef = ref.replace(/\./g, ' ');
@@ -82,7 +82,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             }
 
             return (
-              <div key={i} className="cross-ref-item block w-full">
+              <div key={i} className="cross-ref-item block w-full mb-1">
                 <button
                   type="button"
                   className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
@@ -91,14 +91,14 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                 >
                   {displayRef}
                 </button>
-                <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-normal break-words mt-1">
+                <div className="text-gray-700 dark:text-gray-300 text-sm leading-tight whitespace-normal break-words">
                   {refText || '—'}
                 </div>
               </div>
             );
           })}
           {crossRefs.length > 3 && (
-            <div className="text-center text-sm text-gray-400 mt-1">
+            <div className="text-center text-sm text-gray-400">
               {crossRefs.length} references
             </div>
           )}
