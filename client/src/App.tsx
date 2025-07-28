@@ -350,7 +350,7 @@ export const useBibleStore = create<{
         detail: { isChronological: newChronological } 
       });
       window.dispatchEvent(event);
-      console.log(`📅 Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
+      console.log(`📅 STEP 1: Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
     }, 0);
 
     return newState;

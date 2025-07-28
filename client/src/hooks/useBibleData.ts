@@ -1038,7 +1038,7 @@ export function useBibleData() {
   useEffect(() => {
     const handleReloadBibleData = async (event: CustomEvent) => {
       const { isChronological } = event.detail;
-      console.log(`📅 useBibleData received reloadBibleData event: isChronological=${isChronological}`);
+      console.log(`📅 STEP 4: useBibleData received reloadBibleData event: isChronological=${isChronological}`);
       
       try {
         setIsLoading(true);

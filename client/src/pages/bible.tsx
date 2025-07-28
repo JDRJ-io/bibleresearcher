@@ -165,7 +165,7 @@ export default function BiblePage() {
   // Add chronological order listener - triggers verse reloading
   useEffect(() => {
     const handleChronologicalChange = (event: CustomEvent) => {
-      console.log('📅 BiblePage received chronological order change:', event.detail);
+      console.log('📅 STEP 2: BiblePage received chronological order change:', event.detail);
       const { isChronological } = event.detail;
       
       // Trigger verse reloading through custom event for useBibleData hook
@@ -173,6 +173,7 @@ export default function BiblePage() {
         detail: { isChronological } 
       });
       window.dispatchEvent(reloadEvent);
+      console.log('📅 STEP 3: BiblePage dispatched reloadBibleData event with isChronological:', isChronological);
     };
 
     window.addEventListener('chronologicalOrderChanged', handleChronologicalChange as EventListener);
