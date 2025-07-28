@@ -493,16 +493,25 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
 
-    // Expert fix: Split FIRST, then validate - never strip delimiters before splitting
-    const REF_RE = /^(?:[1-3]?\s?[A-Za-z]+)\.\d+:\d+$/;
-    
-    // Handle both $ and # delimiters properly
-    const allReferences: string[] = referencesData
-      .split('$')                    // Split by $ first
-      .flatMap(group => group.split('#'))  // Then split by #
-      .map(t => t.trim())           // Trim whitespace
-      .filter(Boolean)              // Remove empty strings
-      .filter(r => REF_RE.test(r)); // Validate format
+    // FIXED: Proper parsing that handles numbered books and $ delimiters correctly
+    const allReferences: string[] = [];
+
+    // Split by $ to get reference groups, filtering out empty strings
+    const referenceGroups = referencesData.split('$').filter(group => group.trim());
+
+    referenceGroups.forEach(group => {
+      // Split by # to get sequential references within a group
+      const sequentialRefs = group.split('#').filter(ref => ref.trim());
+
+      sequentialRefs.forEach(ref => {
+        const cleanRef = ref.trim();
+        // Validate this looks like a proper verse reference
+        // Regex matches: optional 1-3, then letters, dot, digits, colon, digits
+        if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+          allReferences.push(cleanRef);
+        }
+      });
+    });
 
     return allReferences;
 
