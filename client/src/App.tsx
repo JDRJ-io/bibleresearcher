@@ -375,6 +375,7 @@ export const useBibleStore = create<{
       } catch (error) {
         console.error('❌ IMMEDIATE: Failed to reload verses:', error);
         console.error('❌ Error details:', error.stack);
+        console.error('❌ Error object:', error);
       }
     })();
 
