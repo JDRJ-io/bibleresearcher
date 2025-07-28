@@ -345,10 +345,10 @@ export const useBibleStore = create<{
       { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2 (T₂)
       { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3 (T₃)
       { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4 (T₄)
-      { slot: 7, visible: true, widthRem: 15, displayOrder: 7 },    // Cross References (current working position)
-      { slot: 8, visible: false, widthRem: 5, displayOrder: 8 },    // Prophecy P (current working position)
-      { slot: 9, visible: false, widthRem: 5, displayOrder: 9 },    // Prophecy F (current working position)
-      { slot: 10, visible: false, widthRem: 5, displayOrder: 10 },  // Prophecy V (current working position)
+      { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
+      { slot: 8, visible: false, widthRem: 18, displayOrder: 8 },   // Prophecy P - SAME WIDTH AS ALTERNATE TRANSLATIONS  
+      { slot: 9, visible: false, widthRem: 18, displayOrder: 9 },   // Prophecy F - SAME WIDTH AS ALTERNATE TRANSLATIONS
+      { slot: 10, visible: false, widthRem: 18, displayOrder: 10 }, // Prophecy V - SAME WIDTH AS ALTERNATE TRANSLATIONS
       { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Dates (current working position)
       { slot: 12, visible: false, widthRem: 18, displayOrder: 12 }, // Alt translation 5 (T₅)
       { slot: 13, visible: false, widthRem: 18, displayOrder: 13 }, // Alt translation 6 (T₆)
