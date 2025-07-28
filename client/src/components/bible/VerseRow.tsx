@@ -187,14 +187,15 @@ export function VerseRow({
                 }
 
                 return (
-                  <div key={index} className="mb-3">
+                  <p key={index} className="mb-3 leading-relaxed">
                     <span 
                       onClick={() => onNavigateToVerse(ref)}
                       className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
                       {ref.replace(/\./g, ' ')}
-                    </span> <span className="text-foreground">{refText || 'Loading...'}</span>
-                  </div>
+                    </span>{' '}
+                    {refText || 'Loading...'}
+                  </p>
                 );
               });
             } else {
