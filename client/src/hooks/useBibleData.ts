@@ -1007,7 +1007,10 @@ export function useBibleData() {
   // Watch chronological state changes and reload verses accordingly
   useEffect(() => {
     const reloadVersesForOrderChange = async () => {
-      if (verses.length === 0) return; // Skip if verses not loaded yet
+      if (verses.length === 0) {
+        console.log('🔍 ORDER WATCHER: No verses loaded yet, skipping check');
+        return; // Skip if verses not loaded yet
+      }
       
       const { useBibleStore } = await import('@/App');
       const store = useBibleStore.getState();
@@ -1015,8 +1018,16 @@ export function useBibleData() {
       
       console.log(`🔍 ORDER CHECK: Store isChronological=${store.isChronological}, currentOrder=${currentOrder}, verseOrder=${verseOrder}`);
       
-      // Only reload if the order actually changed
-      if (currentOrder !== verseOrder) {
+      // Force reload if verseOrder doesn't match the actual verse content
+      // Check if first verse matches expected order
+      const firstVerseRef = verses[0]?.reference;
+      const expectedFirstVerse = currentOrder === "chronological" ? "John.1:1" : "Gen.1:1";
+      const orderMismatch = firstVerseRef !== expectedFirstVerse;
+      
+      console.log(`🔍 CONTENT CHECK: First verse is ${firstVerseRef}, expected ${expectedFirstVerse}, mismatch=${orderMismatch}`);
+      
+      // Reload if order changed OR if content doesn't match expected order
+      if (currentOrder !== verseOrder || orderMismatch) {
         console.log(`🔄 ORDER CHANGE DETECTED: ${verseOrder} → ${currentOrder}, reloading verses...`);
         
         try {
