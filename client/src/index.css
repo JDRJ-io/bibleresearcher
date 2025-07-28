@@ -767,7 +767,6 @@ html {
 }
 
 .cross-ref-item {
-  border: 1px solid rgba(229, 231, 235, 0.6);
   background: rgba(249, 250, 251, 0.5);
   margin-bottom: 8px;
   position: relative;
@@ -782,7 +781,6 @@ html {
 }
 
 .dark .cross-ref-item {
-  border-color: rgba(75, 85, 99, 0.6);
   background: rgba(31, 41, 55, 0.5);
 }
 
