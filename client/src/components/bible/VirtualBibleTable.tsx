@@ -308,10 +308,12 @@ const VirtualBibleTable = ({
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
-  // Enhanced directional scrolling - only one axis at a time
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  // Simple horizontal scrolling wrapper
+  const horizontalScrollRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
+
+  // Mobile detection for dual-column layout
+  const isMobile = useIsMobile();
 
   // Calculate visible columns for layout logic
   const visibleColumns = useMemo(() => {
@@ -339,84 +341,9 @@ const VirtualBibleTable = ({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // Mobile detection for dual-column layout
-  const isMobile = useIsMobile();
-
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
-
-  useEffect(() => {
-    if (!wrapperRef.current) return;
-
-    let startX = 0, startY = 0;
-    let isScrolling = false;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      isScrolling = false;
-      setScrollDirection(null);
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isScrolling) {
-        const dx = Math.abs(e.touches[0].clientX - startX);
-        const dy = Math.abs(e.touches[0].clientY - startY);
-
-        // Determine scroll direction based on initial movement
-        if (dx > dy && dx > 15) {
-          // Horizontal scrolling detected
-          setScrollDirection('horizontal');
-          wrapperRef.current!.style.touchAction = "pan-x";
-          wrapperRef.current!.style.overflowY = "hidden";
-          isScrolling = true;
-        } else if (dy > dx && dy > 15) {
-          // Vertical scrolling detected
-          setScrollDirection('vertical');
-          wrapperRef.current!.style.touchAction = "pan-y";
-          wrapperRef.current!.style.overflowX = "hidden";
-          isScrolling = true;
-        }
-      }
-    };
-
-    const onTouchEnd = () => {
-      // Reset to allow both directions after touch ends
-      if (wrapperRef.current) {
-        wrapperRef.current.style.touchAction = "pan-y";
-        wrapperRef.current.style.overflowX = "auto";
-        wrapperRef.current.style.overflowY = "auto";
-      }
-      setScrollDirection(null);
-      isScrolling = false;
-    };
-
-    const onScroll = (e: Event) => {
-      const target = e.target as HTMLDivElement;
-      setScrollLeft(target.scrollLeft);
-    };
-
-    const wrapper = wrapperRef.current;
-    const container = containerRef.current;
-    wrapper.addEventListener("touchstart", onTouchStart);
-    wrapper.addEventListener("touchmove", onTouchMove);
-    wrapper.addEventListener("touchend", onTouchEnd);
-    if (container) {
-      container.addEventListener("scroll", onScroll);
-    }
-
-    return () => {
-      if (wrapper) {
-        wrapper.removeEventListener("touchstart", onTouchStart);
-        wrapper.removeEventListener("touchmove", onTouchMove);
-        wrapper.removeEventListener("touchend", onTouchEnd);
-      }
-      if (container) {
-        container.removeEventListener("scroll", onScroll);
-      }
-    };
-  }, []);
 
   // CSS handles centering automatically with margin-inline: auto
 
@@ -430,16 +357,6 @@ const VirtualBibleTable = ({
     );
   }, [preferences.fontSize]);
 
-  // Horizontal scrollbar guard: prevent scrollLeft overflow after column changes
-  useEffect(() => {
-    const w = wrapperRef.current;
-    if (!w) return;
-    const tooWide = w.scrollWidth > w.clientWidth;
-    if (tooWide && w.scrollLeft > w.scrollWidth - w.clientWidth) {
-      w.scrollLeft = w.scrollWidth - w.clientWidth;
-    }
-  }, [visibleColumns]); // Trigger when visible columns change
-
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
       <ColumnHeaders 
@@ -451,96 +368,98 @@ const VirtualBibleTable = ({
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
-
       />
 
+      {/* Horizontal scroll wrapper */}
       <div 
-        ref={(node) => {
-          (wrapperRef as any).current = node;
-          (containerRef as any).current = node; // Connect containerRef for anchor slice system
-        }}
-        className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
+        ref={horizontalScrollRef}
+        className="horizontal-scroll-wrapper"
         style={{ 
-          touchAction: "pan-y", 
-          marginTop: '0', // Remove the desktop gap below the header
+          overflowX: 'auto',
+          overflowY: 'hidden',
           height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
-          overflowY: 'auto'
+          marginTop: '0'
         }}
-        data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
-        data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
-          <div style={{ 
+        {/* Vertical scroll container inside horizontal wrapper */}
+        <div 
+          ref={containerRef}
+          className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
+          style={{ 
+            overflowY: 'auto',
+            overflowX: 'visible',
+            height: "100%",
             minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
-            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
-          }}>
-            <div style={{height: slice.start * ROW_HEIGHT}} />
-            {slice.verseIDs.map((id, i) => {
-                // Convert simple rowData to BibleVerse structure
-                const verseData = rowData?.[id];
-                const parts = id.split('.');
-                const book = parts[0];
-                const chapterVerse = parts[1].split(':');
-                const chapter = parseInt(chapterVerse[0]);
-                const verse = parseInt(chapterVerse[1]);
+            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`,
+            margin: shouldCenter ? '0 auto' : '0'
+          }}
+          data-testid="bible-table"
+        >
+          <div style={{height: slice.start * ROW_HEIGHT}} />
+          {slice.verseIDs.map((id, i) => {
+            // Convert simple rowData to BibleVerse structure
+            const verseData = rowData?.[id];
+            const parts = id.split('.');
+            const book = parts[0];
+            const chapterVerse = parts[1].split(':');
+            const chapter = parseInt(chapterVerse[0]);
+            const verse = parseInt(chapterVerse[1]);
 
-                // Build text object for all active translations
-                const textObj: Record<string, string> = {};
+            // Build text object for all active translations
+            const textObj: Record<string, string> = {};
 
-                // Add main translation text using the translation loader system
-                const mainText = getBibleVerseText(id, mainTranslation);
-                if (mainText) {
-                  textObj[mainTranslation] = mainText;
+            // Add main translation text using the translation loader system
+            const mainText = getBibleVerseText(id, mainTranslation);
+            if (mainText) {
+              textObj[mainTranslation] = mainText;
+            }
+
+            // Add alternate translation text from the translation maps
+            activeTranslations.forEach(translationCode => {
+              if (translationCode !== mainTranslation) {
+                const altText = getBibleVerseText(id, translationCode);
+                if (altText) {
+                  textObj[translationCode] = altText;
                 }
+              }
+            });
 
-                // Add alternate translation text from the translation maps
-                activeTranslations.forEach(translationCode => {
-                  if (translationCode !== mainTranslation) {
-                    const altText = getBibleVerseText(id, translationCode);
-                    if (altText) {
-                      textObj[translationCode] = altText;
-                    }
-                  }
-                });
+            const bibleVerse: BibleVerse = {
+              id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
+              index: slice.start + i,
+              book,
+              chapter,
+              verse,
+              reference: id,
+              text: textObj,
+              crossReferences: [],
+              strongsWords: [],
+              labels: [],
+              contextGroup: "standard" as const
+            };
 
-                const bibleVerse: BibleVerse = {
-                  id: `${book.toLowerCase()}-${chapter}-${verse}-${slice.start + i}`,
-                  index: slice.start + i,
-                  book,
-                  chapter,
-                  verse,
-                  reference: id,
-                  text: textObj,
-                  crossReferences: [],
-                  strongsWords: [],
-                  labels: [],
-                  contextGroup: "standard" as const
-                };
-
-                // Only log for first verse to avoid spam
-                if (id === "Gen.1:1") {
-                  console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
-                }
-                return (
-                  <VirtualRow 
-                    key={id}
-                    verseID={id}
-                    verse={bibleVerse}
-                    rowHeight={ROW_HEIGHT}
-                    columnData={columnData}
-                    getVerseText={getVerseTextForRow}
-                    getMainVerseText={getMainVerseTextForRow}
-                    activeTranslations={activeTranslations}
-                    mainTranslation={mainTranslation}
-                    onVerseClick={columnData.onVerseClick}
-                    onExpandVerse={onExpandVerse}
-                  />
-                );
-            })}
-            <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-          </div>
+            // Only log for first verse to avoid spam
+            if (id === "Gen.1:1") {
+              console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
+            }
+            return (
+              <VirtualRow 
+                key={id}
+                verseID={id}
+                verse={bibleVerse}
+                rowHeight={ROW_HEIGHT}
+                columnData={columnData}
+                getVerseText={getVerseTextForRow}
+                getMainVerseText={getMainVerseTextForRow}
+                activeTranslations={activeTranslations}
+                mainTranslation={mainTranslation}
+                onVerseClick={columnData.onVerseClick}
+                onExpandVerse={onExpandVerse}
+              />
+            );
+          })}
+          <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
         </div>
       </div>
     </div>
