@@ -126,7 +126,7 @@ const VirtualBibleTable = ({
       // Create properly typed fallback verse
       return {
         id: verseID,
-        reference: verseID.replace(/-/g, ' '),
+        reference: verseID, // STRAIGHT-LINE: Keep original format
         book: '',
         chapter: 0,
         verse: 0,

@@ -101,8 +101,8 @@ const createFullBibleIndexWithoutText = (verseKeys: string[]): BibleVerse[] => {
     let book, chapter, verse;
 
     if (key.includes(".")) {
-      // Format: "Gen.1.1" or "Gen.1:1"
-      const parts = key.replace(":", ".").split(".");
+      // STRAIGHT-LINE: Assume canonical keys are already in dot format
+      const parts = key.split(".");
       book = parts[0];
       chapter = parseInt(parts[1]) || 1;
       verse = parseInt(parts[2]) || 1;
@@ -731,11 +731,9 @@ export function useBibleData() {
     try {
       const kjvText = await loadKJVData();
 
-      // STRAIGHT-LINE: Assume verseRef is already in dot format from BibleDataAPI
-      // No conversion needed - direct pattern matching
+      // STRAIGHT-LINE: Direct pattern matching with dot format
       const patterns = [
         `${verseRef}\\s*#([^\\n]+)`, // Direct dot format: Gen.1:1 #text
-        `${verseRef.replace(":", "\\.")}\\s*#([^\\n]+)`, // Alt format: Gen.1.1 #text
       ];
 
       for (const pattern of patterns) {
@@ -1077,11 +1075,9 @@ export function useBibleData() {
   const navigateToVerse = async (reference: string) => {
     console.log("🚀 SMART NAVIGATION to:", reference);
 
-    // Parse different reference formats to find the verse
-    const normalizedRef = reference.replace(/\s+/g, " ").trim();
-
-    // STRAIGHT-LINE: Assume verses already in dot format, single conversion for input
-    const dotFormatRef = normalizedRef.replace(/\s/g, ".");
+    // STRAIGHT-LINE: Minimal normalization, single conversion for user input
+    const normalizedRef = reference.trim();
+    const dotFormatRef = normalizedRef.includes(' ') ? normalizedRef.replace(/\s/g, ".") : normalizedRef;
     const targetVerse = verses.find(v => v.reference === dotFormatRef);
 
     if (targetVerse) {

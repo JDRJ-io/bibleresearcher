@@ -229,17 +229,13 @@ export class BibleSearchEngine {
   
   private buildVerseMap() {
     this.verses.forEach((verse, index) => {
+      // STRAIGHT-LINE: Assume verses are in dot format, store directly
       this.verseMap.set(verse.reference, index);
       
-      // Also map alternative formats
+      // ONLY for search flexibility: also allow space format input
       const ref = verse.reference;
       if (ref.includes('.')) {
-        this.verseMap.set(ref.replace('.', ' '), index);
-      }
-      if (ref.includes(' ')) {
-        // STRAIGHT-LINE: Store in both formats for search flexibility
-        this.verseMap.set(ref, index);
-        this.verseMap.set(ref.replace(/\s/g, '.'), index);
+        this.verseMap.set(ref.replace(/\./g, ' '), index);
       }
     });
   }

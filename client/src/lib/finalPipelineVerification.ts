@@ -14,6 +14,10 @@ export function runFinalPipelineVerification() {
   console.log('5. ✅ BibleDataAPI.ts:404-406 - Prophecy data storage (ELIMINATED)');
   console.log('6. ✅ labels.worker.ts:36-39 - Labels normalization (ELIMINATED)');
   console.log('7. ✅ labelsCache.ts:18-21 - Labels cache normalization (ELIMINATED)');
+  console.log('8. ✅ VirtualBibleTable.tsx:129 - Hyphen-to-space conversion (ELIMINATED)');
+  console.log('9. ✅ useBibleData.ts:105 - Colon-to-dot conversion (ELIMINATED)');
+  console.log('10. ✅ useBibleData.ts:738 - Regex colon conversion (ELIMINATED)');
+  console.log('11. ✅ bibleSearchEngine.ts:237,242 - Bidirectional conversions (OPTIMIZED)');
   
   console.log('\n📋 REMAINING CONVERSIONS (Non-Critical/Appropriate):');
   
