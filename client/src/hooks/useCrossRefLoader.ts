@@ -26,22 +26,19 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
       });
 
       try {
-        console.log(`🔄 Loading cross-references for ${neededVerses.length} center-anchored verses`);
-        
-        // Batch load cross-references
+        // Batch load cross-references without logging
         const batchPromises = neededVerses.map(async verseId => {
           try {
             const refs = await getCrossReferences(verseId);
             return { verseId, refs: refs || [] };
           } catch (error) {
-            console.warn(`Failed to load cross-refs for ${verseId}:`, error);
             return { verseId, refs: [] };
           }
         });
 
         const results = await Promise.all(batchPromises);
 
-        // OPTIMIZATION: Store with original dot format keys
+        // Update UI immediately - logging can happen later
         const updatedCrossRefs: Record<string, string[]> = { ...crossRefsStore };
         results.forEach(({ verseId, refs }) => {
           updatedCrossRefs[verseId] = refs;
@@ -50,7 +47,6 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         });
 
         setCrossRefs(updatedCrossRefs);
-        console.log(`✅ Loaded cross-references for ${results.length} verses around center anchor`);
 
       } catch (error) {
         console.error('Failed to batch load cross-references:', error);
