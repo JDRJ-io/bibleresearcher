@@ -557,7 +557,7 @@ export function VirtualRow({
     switch (config.type) {
       case 'reference':
         return (
-          <div key={slot} className="bible-column bible-column-reference border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref">
               <span>{verse.reference}</span>
             </div>
@@ -575,7 +575,7 @@ export function VirtualRow({
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column bible-column-main-translation border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -611,7 +611,7 @@ export function VirtualRow({
 
       case 'cross-refs':
         return (
-          <div key={slot} className="bible-column bible-column-cross-refs border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <CrossReferencesCell 
               verse={verse} 
               getVerseText={getVerseText} 
