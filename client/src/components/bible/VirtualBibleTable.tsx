@@ -370,13 +370,15 @@ const VirtualBibleTable = ({
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.95;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
   
-  console.log('🔧 Centering decision:', {
+  console.log('🎯 VirtualBibleTable FREE CENTERING:', {
     actualTotalWidth,
     viewportWidth,
     shouldCenter,
     needsHorizontalScroll,
     isMobile,
-    visibleColumnCount: visibleColumns.length
+    visibleColumnCount: visibleColumns.length,
+    threshold: `${actualTotalWidth} <= ${viewportWidth * 0.95} = ${actualTotalWidth <= viewportWidth * 0.95}`,
+    action: shouldCenter ? 'CENTERING ENABLED' : 'LEFT-ALIGNED WITH SCROLL'
   });
 
   // Enhanced scroll handling with header synchronization
@@ -483,7 +485,10 @@ const VirtualBibleTable = ({
           <div style={{ 
             minWidth: `${actualTotalWidth}px`,
             width: `${actualTotalWidth}px`,
-            flexShrink: 0
+            flexShrink: 0,
+            // FREE MOVEMENT: Sync with headers, no constraints on centering
+            transform: shouldCenter ? 'none' : `translateX(-${Math.round(scrollLeft)}px)`,
+            willChange: shouldCenter ? 'auto' : 'transform'
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
