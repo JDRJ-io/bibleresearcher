@@ -193,14 +193,14 @@ export function VerseRow({
                 }
 
                 return (
-                  <div key={index} className="mb-3">
+                  <span key={index} className="block mb-3">
                     <span 
                       onClick={() => onNavigateToVerse(ref)}
                       className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
                       {ref.replace(/\./g, ' ')}
                     </span> {refText || 'But of the tree of the knowledge of good and evil, thou shalt not eat of it: for in the day that thou eatest thereof thou shalt surely die'}
-                  </div>
+                  </span>
                 );
               });
             } else {
