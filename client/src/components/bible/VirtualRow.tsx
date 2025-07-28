@@ -85,26 +85,26 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               <div key={i} className="cross-ref-item block w-full">
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
                   {displayRef}
                 </button>
-                <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words mt-1">
+                <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-normal break-words mt-1">
                   {refText || '—'}
                 </div>
               </div>
             );
           })}
           {crossRefs.length > 3 && (
-            <div className="text-center text-xs text-gray-400 mt-1">
+            <div className="text-center text-sm text-gray-400 mt-1">
               {crossRefs.length} references
             </div>
           )}
         </div>
       ) : (
-        <span className="text-gray-400 italic text-xs">—</span>
+        <span className="text-gray-400 italic text-sm">—</span>
       )}
     </div>
   );
@@ -147,7 +147,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   if (!verseRoles) {
     return (
       <div className="px-2 py-1 text-sm cell-content">
-        <div className="text-gray-400 text-center">—</div>
+        <div className="text-gray-400 text-center text-sm">—</div>
       </div>
     );
   }
@@ -190,9 +190,9 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                 {/* Clickable summary text with collapse indicator */}
                 <button
                   onClick={() => toggleProphecyCollapse(String(prophecyId))}
-                  className="w-full text-[9px] font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors flex items-center justify-center gap-1"
+                  className="w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors flex items-center justify-center gap-1"
                 >
-                  <span className="text-[8px]">{isCollapsed ? '▶' : '▼'}</span>
+                  <span className="text-xs">{isCollapsed ? '▶' : '▼'}</span>
                   <span>{prophecyId}. {prophecyDetails.summary}</span>
                 </button>
 
@@ -209,10 +209,10 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                           onClick={() => onVerseClick && onVerseClick(verseRef)}
                           className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
                         >
-                          <div className="text-blue-600 dark:text-blue-400 font-medium text-[10px] mb-1">
+                          <div className="text-blue-600 dark:text-blue-400 font-medium text-sm mb-1">
                             {verseRef}
                           </div>
-                          <div className="text-gray-600 dark:text-gray-400 text-[9px] leading-tight whitespace-normal break-words">
+                          <div className="text-gray-600 dark:text-gray-400 text-sm leading-tight whitespace-normal break-words">
                             {fullVerseText || 'Loading...'}
                           </div>
                         </button>
@@ -225,7 +225,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
           })}
         </div>
       ) : (
-        <div className="text-gray-400 text-center">—</div>
+        <div className="text-gray-400 text-center text-sm">—</div>
       )}
     </div>
   );
