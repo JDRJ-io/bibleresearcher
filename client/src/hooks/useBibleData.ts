@@ -23,11 +23,11 @@ const loadKJVTextMap = async (): Promise<void> => {
   try {
     console.log("⚡ INSTANT: Loading KJV text map...");
     const { loadTranslation } = await import('@/data/BibleDataAPI');
-    
+
     // Start loading but don't block - let it load in background
     const kjvPromise = loadTranslation('KJV');
     globalKjvTextMap = await kjvPromise;
-    
+
     console.log(`⚡ KJV READY: ${globalKjvTextMap.size} entries`);
   } catch (error) {
     console.error("Failed to load KJV:", error);
@@ -998,7 +998,7 @@ export function useBibleData() {
         const { useBibleStore } = await import('@/App');
         const store = useBibleStore.getState();
         const isChronological = store.isChronological || false;
-        
+
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
@@ -1036,37 +1036,37 @@ export function useBibleData() {
     const handleReloadBibleData = async (event: CustomEvent) => {
       const { isChronological } = event.detail;
       console.log(`📅 STEP 4: useBibleData received reloadBibleData event: isChronological=${isChronological}`);
-      
+
       try {
         setIsLoading(true);
         setLoadingProgress({ stage: "verse-keys", percentage: 10 });
-        
+
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
-        
+
         const verseKeys = await loadVerseKeys(isChronological);
-        
+
         const orderType = isChronological ? "chronological" : "canonical";
         console.log(`🔑 Reloaded ${verseKeys.length} verse keys in ${orderType} order`);
-        
+
         setLoadingProgress({ stage: "structure", percentage: 50 });
-        
+
         // Update store with new verse keys
         const { useBibleStore } = await import('@/App');
         const store = useBibleStore.getState();
         store.setCurrentVerseKeys(verseKeys);
-        
+
         // Recreate verses with new order
         const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
         console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${orderType} timeline`);
-        
+
         setLoadingProgress({ stage: "complete", percentage: 100 });
-        
+
         setVerses(reorderedVerses);
         setVerseOrder(isChronological ? "chronological" : "canonical");
         setCenterVerseIndex(0); // Reset to start of new order
         setIsLoading(false);
-        
+
         console.log(`✅ Successfully switched to ${orderType} order via event`);
       } catch (error) {
         console.error('❌ Failed to reload Bible data:', error);
@@ -1083,31 +1083,31 @@ export function useBibleData() {
   // Function to reload verses when chronological state changes
   const reloadVersesInNewOrder = async (isChronological: boolean) => {
     console.log(`🔄 Reloading verses in ${isChronological ? 'chronological' : 'canonical'} order...`);
-    
+
     try {
       setIsLoading(true);
-      
+
       const { loadVerseKeys } = await import('@/data/BibleDataAPI');
       const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
-      
+
       const verseKeys = await loadVerseKeys(isChronological);
-      
+
       const orderType = isChronological ? "chronological" : "canonical";
       console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order`);
-      
+
       // Update store's currentVerseKeys
       const { useBibleStore } = await import('@/App');
       const store = useBibleStore.getState();
       store.setCurrentVerseKeys(verseKeys);
-      
+
       // Recreate verses with new order
       const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
       console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${orderType} timeline`);
-      
+
       setVerses(reorderedVerses);
       setCenterVerseIndex(0); // Reset to start of new order
       setIsLoading(false);
-      
+
       console.log(`✅ Successfully switched to ${orderType} order`);
     } catch (error) {
       console.error('❌ Failed to reload verses in new order:', error);
