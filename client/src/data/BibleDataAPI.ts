@@ -18,6 +18,7 @@ const paths = {
   datesCanonical: 'metadata/dates-canonical.txt',
   datesChronological: 'metadata/dates-chronological.txt',
   labels:       (translationCode: string) => `labels/${translationCode}/ALL.json`,
+  contextGroups: 'metadata/context_groups.json', // Context boundaries for verses
 };
 
 export async function fetchFromStorage(path: string): Promise<string> {
