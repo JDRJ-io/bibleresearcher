@@ -378,7 +378,9 @@ const VirtualBibleTable = ({
           overflowX: 'auto',
           overflowY: 'hidden',
           height: "calc(100vh - 85px)",
-          marginTop: '0'
+          marginTop: '0',
+          WebkitOverflowScrolling: 'touch', // Smooth iOS scrolling
+          scrollbarWidth: 'thin' // Thin scrollbar on Firefox
         }}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
       >
@@ -392,7 +394,9 @@ const VirtualBibleTable = ({
             height: "100%",
             minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
             width: shouldCenter ? 'auto' : `${actualTotalWidth}px`,
-            margin: shouldCenter ? '0 auto' : '0'
+            margin: shouldCenter ? '0 auto' : '0',
+            WebkitOverflowScrolling: 'touch', // Smooth iOS scrolling
+            scrollbarWidth: 'thin' // Thin scrollbar on Firefox
           }}
           data-testid="bible-table"
         >

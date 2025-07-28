@@ -490,52 +490,60 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Prevent diagonal scrolling on mobile */
+/* Smoother scrolling behavior for mobile */
 @media (max-width: 768px) {
-  .bible-table-wrapper[data-scroll-direction="horizontal"] {
-    overflow-y: hidden;
-  }
-
-  .bible-table-wrapper[data-scroll-direction="vertical"] {
-    overflow-x: hidden;
-  }
-}
-
-/* PERFECT HORIZONTAL SCROLLING FOR MOBILE */
-@media (max-width: 640px) {
   .horizontal-scroll-wrapper {
-    touch-action: pan-x;
-    -webkit-overflow-scrolling: touch;
-    overflow-x: auto;
-    overflow-y: hidden;
+    scroll-behavior: auto; /* Immediate response */
   }
 
   .bible-table-wrapper {
-    touch-action: pan-y;
+    scroll-behavior: auto; /* Immediate response */
+  }
+}
+
+/* FLUID HORIZONTAL SCROLLING FOR MOBILE */
+@media (max-width: 640px) {
+  .horizontal-scroll-wrapper {
+    touch-action: manipulation; /* Allow touch but prevent double-tap zoom */
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: auto; /* Allow natural scroll bounce */
+  }
+
+  .bible-table-wrapper {
+    touch-action: manipulation; /* Allow touch but prevent double-tap zoom */
     overflow-y: auto;
     overflow-x: visible;
     min-width: max-content;
+    overscroll-behavior-y: auto; /* Allow natural scroll bounce */
   }
 
-  /* Force visible horizontal scrollbar for mobile */
+  /* Enhanced horizontal scrollbar for mobile */
   .horizontal-scroll-wrapper::-webkit-scrollbar {
-    height: 8px;
+    height: 6px; /* Slightly thinner for less intrusion */
     display: block !important;
   }
 
   .horizontal-scroll-wrapper::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.05); /* More subtle track */
+    border-radius: 3px;
   }
 
   .horizontal-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
-    min-width: 40px;
+    background: rgba(0, 0, 0, 0.2); /* More subtle thumb */
+    border-radius: 3px;
+    min-width: 30px; /* Smaller minimum width */
   }
 
   .horizontal-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4); /* Gentle hover effect */
+  }
+
+  /* Add momentum scrolling support */
+  .horizontal-scroll-wrapper {
+    scroll-snap-type: none; /* Don't snap, allow free scrolling */
+    scroll-padding: 0;
   }
 
   /* Dark mode horizontal scrollbar */
