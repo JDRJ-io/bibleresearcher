@@ -1301,19 +1301,11 @@ export function useBibleData() {
     const getVerseText = (dotReference: string): string => {
       if (!globalKjvTextMap) return "";
 
-      // Try multiple formats to find the text
-      const formats = [
-        dotReference, // Gen.1:1
-        dotReference.replace(/\./g, " "), // Gen 1:1
-        dotReference.replace(/\./g, " ").replace(":", "."), // Gen 1.1
-      ];
-
-      for (const format of formats) {
-        const text = globalKjvTextMap.get(format);
-        if (text) {
-          // Truncate long verses for cross-reference display
-          return text.length > 100 ? text.substring(0, 100) + "..." : text;
-        }
+      // OPTIMIZATION: Direct lookup with dot format - no conversion needed
+      const text = globalKjvTextMap.get(dotReference);
+      if (text) {
+        // Truncate long verses for cross-reference display
+        return text.length > 100 ? text.substring(0, 100) + "..." : text;
       }
 
       return "";
@@ -1385,18 +1377,8 @@ export function useBibleData() {
         // Update all verses (both display and full set) with the new translation
         const updateVersesWithTranslation = (verses: BibleVerse[]) => {
           return verses.map((verse) => {
-            // Try multiple reference formats to find the text
-            const formats = [
-              verse.reference, // "Gen 1:1"
-              `${verse.book}.${verse.chapter}:${verse.verse}`, // "Gen.1:1"
-              `${verse.book} ${verse.chapter}:${verse.verse}`, // "Gen 1:1"
-            ];
-
-            let text = null;
-            for (const format of formats) {
-              text = translationData.get(format);
-              if (text) break;
-            }
+            // OPTIMIZATION: Direct lookup with verse.reference (now dot format)
+            const text = translationData.get(verse.reference);
 
             if (text) {
               return {
@@ -1442,20 +1424,11 @@ export function useBibleData() {
 
     console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
 
-    // Try multiple reference formats to find the text
-    const formats = [
-      reference, // Exact as provided
-      reference.replace(/\s/g, "."), // "Gen 1:1" -> "Gen.1:1"
-      reference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
-      reference.replace(/\./g, " ").replace(":", "."), // "Gen.1:1" -> "Gen 1.1"
-    ];
-
-    for (const format of formats) {
-      const text = translationMap.get(format);
-      if (text) {
-        // Truncate long verses for display in cross-references
-        return text.length > 100 ? text.substring(0, 100) + "..." : text;
-      }
+    // OPTIMIZATION: Direct lookup with dot format reference  
+    const text = translationMap.get(reference);
+    if (text) {
+      // Truncate long verses for display in cross-references
+      return text.length > 100 ? text.substring(0, 100) + "..." : text;
     }
 
     return "";
@@ -1474,28 +1447,17 @@ export function useBibleData() {
 
     console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
 
-    // Try multiple reference formats to find the text
-    const formats = [
-      verseReference, // "Gen 1:1"
-      verseReference.replace(/\s/g, "."), // "Gen 1:1" -> "Gen.1:1"
-      verseReference.replace(/\./g, " "), // "Gen.1:1" -> "Gen 1:1"
-      `${verseReference.split(" ")[0]}.${verseReference.split(" ")[1]}`, // "Gen 1:1" -> "Gen.1:1"
-    ];
-
-    for (const format of formats) {
-      const text = translationMap.get(format);
-      if (text) {
-        return text;
-      }
+    // OPTIMIZATION: Direct lookup with dot format reference
+    const text = translationMap.get(verseReference);
+    if (text) {
+      return text;
     }
 
-    // If not found, try with global KJV map as fallback
+    // If not found, try with global KJV map as fallback  
     if (translationCode === 'KJV' && globalKjvTextMap) {
-      for (const format of formats) {
-        const text = globalKjvTextMap.get(format);
-        if (text) {
-          return text;
-        }
+      const kjvText = globalKjvTextMap.get(verseReference);
+      if (kjvText) {
+        return kjvText;
       }
     }
 

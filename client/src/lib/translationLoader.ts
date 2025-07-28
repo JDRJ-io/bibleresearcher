@@ -37,19 +37,7 @@ export function getVerseText(
   translationMap: Map<string, string>, 
   reference: string
 ): string {
-  // Try different reference formats
-  const formats = [
-    reference,
-    reference.replace('.', ' '),
-    reference.replace(/\s/g, '.'),
-    reference.replace(/\./g, ' ')
-  ];
-  
-  for (const format of formats) {
-    if (translationMap.has(format)) {
-      return translationMap.get(format)!;
-    }
-  }
-  
-  return `[${reference} - Loading...]`;
+  // OPTIMIZATION: Direct lookup with dot format - no conversion needed
+  const text = translationMap.get(reference);
+  return text || `[${reference} - Loading...]`;
 }
