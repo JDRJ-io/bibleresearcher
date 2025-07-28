@@ -342,8 +342,10 @@ const VirtualBibleTable = ({
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
 
-  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
-  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
+  // Detect orientation and determine centering logic
+  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
+  const fitsHorizontally = actualTotalWidth <= viewportWidth;
+  const shouldCenter = !isPortrait && fitsHorizontally;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   useEffect(() => {
@@ -431,14 +433,15 @@ const VirtualBibleTable = ({
   }, [preferences.fontSize]);
 
   // Horizontal scrollbar guard: prevent scrollLeft overflow after column changes
+  // Clamp scroll when switching modes (portrait/landscape or fit/overflow)
   useEffect(() => {
     const w = wrapperRef.current;
     if (!w) return;
-    const tooWide = w.scrollWidth > w.clientWidth;
-    if (tooWide && w.scrollLeft > w.scrollWidth - w.clientWidth) {
-      w.scrollLeft = w.scrollWidth - w.clientWidth;
+    const max = w.scrollWidth - w.clientWidth;
+    if (w.scrollLeft > max) {
+      w.scrollLeft = max;
     }
-  }, [visibleColumns]); // Trigger when visible columns change
+  }, [shouldCenter, actualTotalWidth, visibleColumns]); // Trigger when centering mode or width changes
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
@@ -459,23 +462,18 @@ const VirtualBibleTable = ({
           (wrapperRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
+        className={`flex overflow-x-auto ${shouldCenter ? 'justify-center' : 'justify-start'} ${isMobile ? 'dual-col' : ''}`}
         style={{ 
           touchAction: "pan-y", 
           marginTop: '0', // Remove the desktop gap below the header
           height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
           overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
-          <div style={{ 
-            minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
-            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
-          }}>
+        <div className="min-w-max">
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -540,7 +538,6 @@ const VirtualBibleTable = ({
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-          </div>
         </div>
       </div>
     </div>

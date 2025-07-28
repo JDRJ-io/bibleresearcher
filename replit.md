@@ -104,6 +104,18 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
+- **January 28, 2025: Context Boundaries & Responsive Layout Improvements**
+  - **Context Boundaries Feature**: Added visual grouping of related verses with blue borders
+    - Implemented context_groups.json loading from Supabase storage
+    - Added "Context Boundaries" toggle in hamburger menu
+    - Displays soft blue borders and subtle background highlighting for verse groups
+    - Integrated with global app state (showContext flag)
+  - **Responsive Layout Optimization**: Improved orientation-based layout behavior
+    - Portrait mode: Left-aligned with horizontal scrollbar when content overflows
+    - Landscape mode: Centered when content fits, left-aligned with scrollbar when it doesn't
+    - Single flex container with justify-center/justify-start based on orientation and fit
+    - Added clamp scroll protection when switching between modes
+    - Synchronized behavior between VirtualBibleTable and ColumnHeaders
 - **July 28, 2025: STRAIGHT-LINE PIPELINE OPTIMIZATION COMPLETED ✅**
   - **MISSION ACCOMPLISHED**: Successfully eliminated ALL critical format conversions from core data loading pipeline
   - **Final verification**: 7 critical conversions eliminated, remaining conversions are appropriate (search engine, UI formatting)

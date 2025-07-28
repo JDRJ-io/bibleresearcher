@@ -1,0 +1,89 @@
+Do this:
+
+---
+
+## 1. Detect orientation + “does it fit?”
+
+Add a tiny util (or inline) in **VirtualBibleTable.tsx**:
+
+```ts
+const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+const fitsHorizontally = estimatedTotalWidth <= viewportWidth; // you already calc both
+const shouldCenter = !isPortrait && fitsHorizontally;
+```
+
+(Replace your current `shouldCenter` line with the one above.)
+
+Do the same (or pass the boolean down) in **ColumnHeaders.tsx** so headers mirror the body.
+
+---
+
+## 2. One scroll wrapper, flex‑based centering
+
+Keep **one** horizontal scroll container (the same `wrapperRef` div). Give it flex + overflow:
+
+```tsx
+<div
+  ref={(node) => { wrapperRef.current = node; containerRef.current = node; }}
+  className={`flex overflow-x-auto ${shouldCenter ? 'justify-center' : 'justify-start'} ${isMobile ? 'dual-col' : ''}`}
+  style={{ touchAction: 'pan-y', height: 'calc(100vh - 85px)' }}
+  onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
+>
+  <div className="min-w-max">
+    {/* spacer top, rows, spacer bottom */}
+  </div>
+</div>
+```
+
+* **Portrait:** `shouldCenter === false` → `justify-start`, bar shows if needed.
+* **Landscape & fits:** `justify-center`, no bar (no overflow).
+* **Landscape & overflow:** `fitsHorizontally === false` → left-hug. Browser shows the bar.
+
+No second wrapper. No duplicate logic.
+
+---
+
+## 3. Header sync
+
+In **ColumnHeaders.tsx**, you already branch on `shouldCenter`. Just reuse the new boolean:
+
+```ts
+const shouldCenter = !adaptiveIsMobile && !isPortrait && estimatedTotalWidth <= viewportWidth;
+```
+
+Then keep the two existing code paths (centered vs translated). The only change is how you compute `shouldCenter`.
+
+---
+
+## 4. Clamp scroll when switching modes
+
+When it flips from centered → left (because user enabled more columns), make sure scrollLeft isn’t beyond max:
+
+```ts
+useEffect(() => {
+  const w = wrapperRef.current;
+  if (!w) return;
+  const max = w.scrollWidth - w.clientWidth;
+  if (w.scrollLeft > max) w.scrollLeft = max;
+}, [shouldCenter, estimatedTotalWidth]);
+```
+
+Portrait ↔ landscape or fit ↔ overflow changes won’t leave you scrolled into blank space.
+
+---
+
+## 5. Optional: Tailwind-only shortcut
+
+If you don’t want JS orientation checks, you can still do:
+
+```html
+<div class="flex overflow-x-auto portrait:justify-start landscape:justify-center">
+  …
+</div>
+```
+
+…but you still need the **fitsHorizontally** check in JS to switch to `justify-start` when it overflows, so the mixed approach above is cleaner.
+
+---
+
+That’s it. Portrait = left + scrollbar. Landscape = centered *if* it fits, otherwise left. All with one container, zero stacking.

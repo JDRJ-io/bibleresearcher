@@ -371,9 +371,10 @@ export function ColumnHeaders({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // FIXED COLUMN WIDTHS: Never compress columns, always use horizontal scroll
-  // Only center when content genuinely fits without compression
-  const shouldCenter = !adaptiveIsMobile && actualTotalWidth <= viewportWidth * 0.95;
+  // Detect orientation and determine centering logic (same as VirtualBibleTable)
+  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
+  const fitsHorizontally = actualTotalWidth <= viewportWidth;
+  const shouldCenter = !adaptiveIsMobile && !isPortrait && fitsHorizontally;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   const allColumns = visibleColumns.map(col => ({
