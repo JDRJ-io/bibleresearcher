@@ -10,7 +10,6 @@ import {
 } from "@/lib/translationLoader";
 import { loadTranslationAsText } from "@/data/BibleDataAPI";
 import {
-  loadVerseKeys,
   loadTranslationSecure,
 } from "@/lib/supabaseClient";
 
