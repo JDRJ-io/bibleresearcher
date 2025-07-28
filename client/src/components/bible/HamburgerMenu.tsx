@@ -234,11 +234,13 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                 value={isChronological ? "chronological" : "canonical"} 
                 onValueChange={(value) => {
                   console.log('📅 RADIO CLICK: Chronological radio button clicked, selected value:', value, 'current state:', isChronological);
+                  console.log('📅 RADIO CLICK: toggleChronological function exists:', typeof toggleChronological);
                   const shouldBeChronological = value === "chronological";
                   // Only toggle if the value actually changed
                   if (shouldBeChronological !== isChronological) {
                     console.log('📅 RADIO CLICK: State needs to change, calling toggleChronological()');
                     toggleChronological();
+                    console.log('📅 RADIO CLICK: toggleChronological() completed');
                   } else {
                     console.log('📅 RADIO CLICK: State is already correct, no action needed');
                   }
@@ -247,11 +249,23 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="canonical" id="canonical" className="w-3 h-3" />
-                  <Label htmlFor="canonical" className="text-xs">Canonical Order</Label>
+                  <Label 
+                    htmlFor="canonical" 
+                    className="text-xs cursor-pointer"
+                    onClick={() => console.log('📅 CANONICAL LABEL CLICKED')}
+                  >
+                    Canonical Order
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="chronological" id="chronological" className="w-3 h-3" />
-                  <Label htmlFor="chronological" className="text-xs">Chronological Order</Label>
+                  <Label 
+                    htmlFor="chronological" 
+                    className="text-xs cursor-pointer"
+                    onClick={() => console.log('📅 CHRONOLOGICAL LABEL CLICKED')}
+                  >
+                    Chronological Order
+                  </Label>
                 </div>
               </RadioGroup>
             </div>
