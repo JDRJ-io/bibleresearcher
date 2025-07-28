@@ -13,6 +13,9 @@ initializeInstrumentation();
 // STEP 1b: Start automatic system documentation
 systemDocumenter.start();
 
+// STEP 1c: Add reference loading analyzer
+import { referenceAnalyzer } from "@/lib/referenceAnalyzer";
+
 // STEP 2: Global fetch-guard for dev mode - prevents stray /api/references calls  
 if (import.meta.env.DEV) {
   // Note: fetch is already instrumented by instrumentedAPI.ts
