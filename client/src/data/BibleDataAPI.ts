@@ -398,11 +398,9 @@ export async function loadProphecyData(): Promise<{
         }
       }
       
-      // Store with multiple key formats for better lookup
+      // STRAIGHT-LINE: Store with dot format only (source format from prophecy files)
       const baseVerse = verse.trim();
       verseRoles[baseVerse] = roles;
-      verseRoles[baseVerse.replace(/\./g, ' ')] = roles;  // "Gen.1:28" -> "Gen 1:28"
-      verseRoles[baseVerse.replace(/\s/g, '.')] = roles;  // "Gen 1:28" -> "Gen.1:28"
     }
 
     // Parse prophecy_rows.json (prophecy definitions)
@@ -466,9 +464,8 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const crossRefData = await loadCrossReferences('cf1');
     const lines = crossRefData.split('\n').filter(line => line.trim());
 
-    // Find the line for this verse (convert "Gen 1:1" to "Gen.1:1" format)
-    const searchKey = verseId.replace(/\s/g, '.');
-    const targetLine = lines.find(line => line.startsWith(searchKey + '$$'));
+    // STRAIGHT-LINE: Assume verseId is already in dot format from system
+    const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
 
     if (!targetLine) {
       console.log(`No cross-references found for ${verseId}`);

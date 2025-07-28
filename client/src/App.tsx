@@ -16,6 +16,8 @@ import '@/lib/preloader';
 import '@/lib/formatConversionAnalyzer';
 // Verify straight-line pipeline implementation
 import '@/lib/straightLinePipelineVerification';
+// Generate final completion report
+import '@/lib/pipelineCompletionReport';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {

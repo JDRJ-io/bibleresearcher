@@ -29,14 +29,10 @@ self.onmessage = async (e: MessageEvent) => {
       // 2) PARSE (blocking inside Worker, safe for UI)
       const rawJson = JSON.parse(raw);
       
-      // Normalize all verse keys to ensure consistent format
+      // STRAIGHT-LINE: Labels files already in dot format, minimal normalization
       function normaliseVerseKey(v: string): string {
-        // 1) collapse multiple spaces
-        const clean = v.trim().replace(/\s+/g, ' ');
-        // 2) turn the *first* space (between book & chapter) into a dot
-        return clean.replace(' ', '.');
-        // "Gen 1:1"  -> "Gen.1:1"
-        // "John  3:16" -> "John.3:16"
+        // Only trim whitespace, assume dot format from source
+        return v.trim();
       }
       
       const src: any = {};
