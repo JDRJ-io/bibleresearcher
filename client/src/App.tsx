@@ -39,7 +39,13 @@ interface ColumnState {
 
 interface SizeState {
   sizeMult: number;
+  textSizeMult: number;
+  externalSizeMult: number;
+  unifiedSizing: boolean;
   setSizeMult: (mult: number) => void;
+  setTextSizeMult: (mult: number) => void;
+  setExternalSizeMult: (mult: number) => void;
+  toggleUnifiedSizing: () => void;
 }
 
 type LabelName = import('@/lib/labelBits').LabelName;
@@ -439,15 +445,65 @@ export const useBibleStore = create<{
     }))
   },
 
-  // Size State (Updated presets: S=1.0, M=1.2, L=1.5, XL=1.8)
+  // Advanced Size State - Unified or Split Control (0.5-2.0 range)
   sizeState: {
-    sizeMult: 1.2, // Default to Medium
+    sizeMult: 1.2, // Unified size multiplier
+    textSizeMult: 1.2, // Text-only size multiplier
+    externalSizeMult: 1.2, // External elements (columns, headers, rows) size multiplier
+    unifiedSizing: true, // Whether to use unified or split control
     setSizeMult: (mult: number) => {
-      set({ sizeState: { sizeMult: mult, setSizeMult: get().sizeState.setSizeMult } });
-      // Apply CSS variable to root for global scaling
+      const currentState = get().sizeState;
+      const newState = { 
+        ...currentState, 
+        sizeMult: mult,
+        // When unified, apply to both text and external
+        textSizeMult: currentState.unifiedSizing ? mult : currentState.textSizeMult,
+        externalSizeMult: currentState.unifiedSizing ? mult : currentState.externalSizeMult
+      };
+      
+      set({ sizeState: newState });
+      
+      // Apply CSS variables for comprehensive scaling
       document.documentElement.style.setProperty('--content-size-mult', mult.toString());
-      // Persist to localStorage
+      document.documentElement.style.setProperty('--text-size-mult', newState.textSizeMult.toString());
+      document.documentElement.style.setProperty('--external-size-mult', newState.externalSizeMult.toString());
+      document.documentElement.style.setProperty('--row-height-mult', newState.externalSizeMult.toString());
+      
+      // Persist unified setting
       localStorage.setItem('bibleSizeMult', mult.toString());
+      localStorage.setItem('bibleUnifiedSizing', currentState.unifiedSizing.toString());
+    },
+    setTextSizeMult: (mult: number) => {
+      const currentState = get().sizeState;
+      const newState = { ...currentState, textSizeMult: mult };
+      set({ sizeState: newState });
+      
+      document.documentElement.style.setProperty('--text-size-mult', mult.toString());
+      localStorage.setItem('bibleTextSizeMult', mult.toString());
+    },
+    setExternalSizeMult: (mult: number) => {
+      const currentState = get().sizeState;
+      const newState = { ...currentState, externalSizeMult: mult };
+      set({ sizeState: newState });
+      
+      document.documentElement.style.setProperty('--external-size-mult', mult.toString());
+      document.documentElement.style.setProperty('--row-height-mult', mult.toString());
+      localStorage.setItem('bibleExternalSizeMult', mult.toString());
+    },
+    toggleUnifiedSizing: () => {
+      const currentState = get().sizeState;
+      const newUnified = !currentState.unifiedSizing;
+      
+      // If switching to unified, sync both values to current sizeMult
+      const newState = {
+        ...currentState,
+        unifiedSizing: newUnified,
+        textSizeMult: newUnified ? currentState.sizeMult : currentState.textSizeMult,
+        externalSizeMult: newUnified ? currentState.sizeMult : currentState.externalSizeMult
+      };
+      
+      set({ sizeState: newState });
+      localStorage.setItem('bibleUnifiedSizing', newUnified.toString());
     }
   },
 

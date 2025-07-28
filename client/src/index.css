@@ -52,29 +52,70 @@
 }
 
 :root { 
-  --sizeMult: 1; /* Default size multiplier - can be set by user preference */
-  --content-size-mult: 1.2; /* Content size multiplier for adaptive text scaling */
+  --sizeMult: 1; /* Legacy size multiplier */
+  --content-size-mult: 1.2; /* Unified content size multiplier */
+  --text-size-mult: 1.2; /* Text-only size multiplier */
+  --external-size-mult: 1.2; /* External elements size multiplier */
+  --row-height-mult: 1.2; /* Row height multiplier */
   --font-size-multiplier: 1.0;
   --base-font-size: 14px;
-  --text-sm: calc(var(--base-font-size) * 0.875 * var(--content-size-mult));
-  --text-base: calc(var(--base-font-size) * var(--content-size-mult));
-  --text-lg: calc(var(--base-font-size) * 1.125 * var(--content-size-mult));
+  --text-sm: calc(var(--base-font-size) * 0.875 * var(--text-size-mult));
+  --text-base: calc(var(--base-font-size) * var(--text-size-mult));
+  --text-lg: calc(var(--base-font-size) * 1.125 * var(--text-size-mult));
+  --row-height-base: 36px; /* Reduced base row height for tighter spacing */
+  --row-height: calc(var(--row-height-base) * var(--row-height-mult));
 }
 
 /* Apply responsive sizing to HTML root and column widths */
 html { 
-  font-size: calc(var(--baseRem) * var(--sizeMult)); 
+  font-size: calc(var(--baseRem) * var(--external-size-mult)); 
 }
 
 .w-col { 
-  width: calc(var(--baseColW) * var(--sizeMult)); 
+  width: calc(var(--baseColW) * var(--external-size-mult)); 
 }
 
 /* Adaptive text sizing for all text columns */
 .cell-content,
 .cell-content .text-sm {
   font-size: var(--text-sm);
-  line-height: calc(1.4 * var(--content-size-mult));
+  line-height: calc(1.25 * var(--text-size-mult));
+}
+
+/* Row height scaling based on external size multiplier */
+.bible-verse-row {
+  height: var(--row-height);
+  min-height: var(--row-height);
+}
+
+/* Slider styling for advanced size controls */
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.slider-thumb-blue::-webkit-slider-thumb {
+  background: #2563eb;
+}
+
+.slider-thumb-green::-webkit-slider-thumb {
+  background: #16a34a;
+}
+
+.slider-thumb::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Cell scrollbar styling - only show when content overflows */

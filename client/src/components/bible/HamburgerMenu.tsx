@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { useBibleStore } from "@/App";
 import { useTheme } from '@/components/bible/ThemeProvider';
-import { SizeSelector } from "@/components/ui/SizeSelector";
+import { AdvancedSizeController } from "@/components/ui/AdvancedSizeController";
 
 interface HorizontalMenuProps {
   isOpen: boolean;
@@ -258,9 +258,9 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
             <div className="space-y-2">
               <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
                 <Label className="text-sm font-medium mb-2 block">Content Size</Label>
-                <SizeSelector className="w-full" />
+                <AdvancedSizeController className="w-full" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Adjusts font size, column width, and row height globally
+                  Unified control (0.5-2.0x) or separate text and layout sizing
                 </p>
               </div>
               
