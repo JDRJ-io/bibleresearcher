@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CrossReferenceSwitcher } from "./CrossReferenceSwitcher";
 import { useBibleStore } from "@/App";
 import { useTheme } from '@/components/bible/ThemeProvider';
-import { AdvancedSizeController } from "@/components/ui/AdvancedSizeController";
+import { ManualSizeController } from "@/components/ui/ManualSizeController";
 
 interface HorizontalMenuProps {
   isOpen: boolean;
@@ -258,9 +258,9 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
             <div className="space-y-2">
               <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
                 <Label className="text-sm font-medium mb-2 block">Content Size</Label>
-                <AdvancedSizeController className="w-full" />
+                <ManualSizeController className="w-full" />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Unified control (0.5-2.0x) or separate text and layout sizing
+                  Manual controls: text, row height, column width (auto: header/menu)
                 </p>
               </div>
               
@@ -368,7 +368,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   };
 
   return (
-    <div className="fixed top-20 right-2 sm:right-4 z-40">
+    <div className="hamburger-menu fixed top-20 right-2 sm:right-4 z-40">
       {/* Sleek Tab Bar */}
       <div className="flex">
         <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">

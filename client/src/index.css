@@ -52,12 +52,14 @@
 }
 
 :root { 
-  --sizeMult: 1; /* Legacy size multiplier */
-  --content-size-mult: 1.2; /* Unified content size multiplier */
-  --text-size-mult: 1.2; /* Text-only size multiplier */
-  --external-size-mult: 1.2; /* External elements size multiplier */
-  --row-height-mult: 1.2; /* Row height multiplier */
-  --column-width-mult: 1.2; /* Column width multiplier */
+  /* Manual controls - user adjustable */
+  --text-size-mult: 1.0; /* Text size in Bible content */
+  --row-height-mult: 1.0; /* Row spacing in Bible table */
+  --column-width-mult: 1.0; /* Universal column width expansion */
+  
+  /* Automatic adaptive sizing - screen resolution based */
+  --adaptive-header-scale: 1.0; /* Top header auto-sizing */
+  --adaptive-menu-scale: 1.0; /* Menu and UI chrome auto-sizing */
   --font-size-multiplier: 1.0;
   --base-font-size: 14px;
   --text-sm: calc(var(--base-font-size) * 0.875 * var(--text-size-mult));
@@ -71,25 +73,34 @@
   --header-height-mobile: 48px;
 }
 
-/* Apply responsive sizing only to content areas, not UI chrome */
+/* Apply manual sizing only to Bible content, not UI chrome */
 .bible-content-area { 
-  font-size: calc(var(--baseRem) * var(--external-size-mult)); 
+  font-size: calc(var(--baseRem) * var(--text-size-mult)); 
 }
 
-/* Top header should NOT scale with content sizing */
+/* Top header uses automatic adaptive scaling, not manual controls */
 .top-header {
-  font-size: var(--base-font-size) !important; /* Fixed font size, no scaling */
-  height: var(--header-height-desktop) !important;
+  font-size: calc(var(--base-font-size) * var(--adaptive-header-scale)) !important;
+  height: calc(var(--header-height-desktop) * var(--adaptive-header-scale)) !important;
 }
 
 .top-header * {
-  font-size: inherit !important; /* Prevent child elements from scaling */
+  font-size: inherit !important; /* Prevent child elements from manual scaling */
 }
 
 @media (max-width: 640px) {
   .top-header {
-    height: var(--header-height-mobile) !important;
+    height: calc(var(--header-height-mobile) * var(--adaptive-header-scale)) !important;
   }
+}
+
+/* Menu uses automatic adaptive scaling, isolated from manual controls */
+.hamburger-menu {
+  font-size: calc(var(--base-font-size) * var(--adaptive-menu-scale)) !important;
+}
+
+.hamburger-menu * {
+  font-size: inherit !important; /* Prevent menu from manual scaling */
 }
 
 /* Column width scaling - separate from overall UI scaling */

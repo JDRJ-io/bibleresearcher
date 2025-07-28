@@ -11,6 +11,7 @@ import { LoadingWheel } from '@/components/LoadingWheel';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
+import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
 import type { BibleVerse } from '@/types/bible';
 
@@ -22,8 +23,9 @@ export default function BiblePage() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
 
-  // Initialize body class
+  // Initialize body class and adaptive scaling
   useBodyClass('bible-page');
+  useAdaptiveScaling();
 
   // Handle URL parameters
   const { hashParams, updateHashParams } = useHashParams();
