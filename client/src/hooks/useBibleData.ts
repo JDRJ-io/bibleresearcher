@@ -972,18 +972,24 @@ export function useBibleData() {
         const verseKeys = await loadVerseKeys(isChronological);
         const orderType = isChronological ? "chronological" : "canonical";
         console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order as master index`);
+        console.log(`🔑 FIRST 5 VERSES: [${verseKeys.slice(0, 5).join(', ')}]`);
 
         setLoadingProgress({ stage: "structure", percentage: 50 });
 
         // Create verse objects from the master key index
         const verseObjects = createVerseObjectsFromKeys(verseKeys);
         console.log(`🏗️ Created ${verseObjects.length} verse structure from keys`);
+        console.log(`🏗️ FIRST 5 REFERENCES: [${verseObjects.slice(0, 5).map(v => v.reference).join(', ')}]`);
 
         setLoadingProgress({ stage: "complete", percentage: 100 });
 
-        // Set the verses using the verse keys foundation
+        // Update store with the loaded verse keys
+        store.setCurrentVerseKeys(verseKeys);
+
+        // Set the verses and order state using the verse keys foundation
         setVerses(verseObjects);
-        console.log("📦 Bible structure loaded from verse keys foundation - text loading will be on-demand");
+        setVerseOrder(orderType); // CRITICAL: Set the initial verse order state
+        console.log(`📦 Bible structure loaded from verse keys foundation in ${orderType} order - text loading will be on-demand`);
 
         setIsLoading(false);
       } catch (err) {
