@@ -194,8 +194,10 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
+      console.log('📊 VirtualBibleTable onVerseClick called with:', ref, 'onNavigateToVerse available:', !!onNavigateToVerse);
       // Call the navigation function to update history
       if (onNavigateToVerse) {
+        console.log('📊 VirtualBibleTable calling onNavigateToVerse with:', ref);
         onNavigateToVerse(ref);
       } else {
         // Fallback to local scrolling if no navigation function provided

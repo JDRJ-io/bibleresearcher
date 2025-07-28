@@ -1096,7 +1096,7 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log("🚀 SMART NAVIGATION to:", reference);
+    console.log("🚀 SMART NAVIGATION to:", reference, "Current verses:", verses.length);
 
     // STRAIGHT-LINE: Minimal normalization, single conversion for user input
     const normalizedRef = reference.trim();
