@@ -85,40 +85,7 @@ const VirtualBibleTable = ({
   const store = useBibleStore();
   const activeLabels = store.activeLabels;
   
-  // Immediate debug log to see current state
-  console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
-  console.log('🔍🔍🔍 IMMEDIATE - Full store check:', { 
-    hasStore: !!store,
-    storeActiveLabels: store?.activeLabels,
-    directActiveLabels: useBibleStore.getState().activeLabels 
-  });
-  
-  // Force test to ensure store updates are working
-  useEffect(() => {
-    const unsubscribe = useBibleStore.subscribe(
-      (state) => {
-        console.log('🔥🔥🔥 STORE SUBSCRIPTION - activeLabels changed to:', state.activeLabels);
-      }
-    );
-    return unsubscribe;
-  }, []);
-  
-  // DIRECT TEST: Force test Dan.7:3 with known labels
-  useEffect(() => {
-    if (activeLabels?.includes('what' as any)) {
-      console.log('🧪 DIRECT TEST: Testing Dan.7:3 with what label active');
-      const testLabels = { what: ['four huge beasts'], where: ['out of the water'], action: ['came up'] };
-      const testText = 'Then four huge beasts came up out of the water, each different from the others.';
-      console.log('🧪 Test text:', testText);
-      console.log('🧪 Test labels:', testLabels);
-    }
-  }, [activeLabels]);
-  
-  // Debug activeLabels from store - FORCE RENDER CHECK
-  useEffect(() => {
-    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels changed:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
-    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels array:', JSON.stringify(activeLabels));
-  }, [activeLabels]);
+  // No excessive debug logging
   
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
@@ -143,15 +110,7 @@ const VirtualBibleTable = ({
     });
   }, [slice.verseIDs, rowData]);
   
-  // Force hook re-evaluation when activeLabels changes  
-  useEffect(() => {
-    console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
-      versesCount: sliceVerses.length,
-      activeLabels: activeLabels,
-      activeLabelsJSON: JSON.stringify(activeLabels),
-      mainTranslation: translationMainTranslation || mainTranslation
-    });
-  }, [activeLabels, sliceVerses.length, translationMainTranslation, mainTranslation]);
+  // No excessive debug logging
   
   const { getVerseLabels } = useViewportLabels({
     verses: sliceVerses, 
@@ -191,7 +150,7 @@ const VirtualBibleTable = ({
   useEffect(() => {
     if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
       onCenterVerseChange(anchorIndex);
-      console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+      // Viewport center changed
     }
   }, [anchorIndex, centerVerseIndex, onCenterVerseChange]);
 

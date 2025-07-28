@@ -26,7 +26,10 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
       });
 
       try {
-        console.log(`🔄 Loading cross-references for ${neededVerses.length} center-anchored verses`);
+        // Only log if we're loading a significant number of verses
+        if (neededVerses.length > 10) {
+          console.log(`🔄 Loading cross-references for ${neededVerses.length} center-anchored verses`);
+        }
         
         // Batch load cross-references
         const batchPromises = neededVerses.map(async verseId => {
@@ -34,7 +37,10 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
             const refs = await getCrossReferences(verseId);
             return { verseId, refs: refs || [] };
           } catch (error) {
-            console.warn(`Failed to load cross-refs for ${verseId}:`, error);
+            // Only log errors in development
+            if (import.meta.env.DEV) {
+              console.warn(`Failed to load cross-refs for ${verseId}:`, error);
+            }
             return { verseId, refs: [] };
           }
         });
@@ -50,7 +56,11 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         });
 
         setCrossRefs(updatedCrossRefs);
-        console.log(`✅ Loaded cross-references for ${results.length} verses around center anchor`);
+        
+        // Only log completion for significant loads
+        if (results.length > 10) {
+          console.log(`✅ Loaded cross-references for ${results.length} verses around center anchor`);
+        }
 
       } catch (error) {
         console.error('Failed to batch load cross-references:', error);

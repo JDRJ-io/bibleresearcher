@@ -12,16 +12,12 @@ import { SystemLogger } from "@/components/debug/SystemLogger";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
 import '@/lib/preloader';
-// Initialize format conversion analyzer
-import '@/lib/formatConversionAnalyzer';
-// Verify straight-line pipeline implementation
-import '@/lib/straightLinePipelineVerification';
-// Generate final completion report
-import '@/lib/pipelineCompletionReport';
-// Run final comprehensive verification
-import '@/lib/finalPipelineVerification';
-// Ultimate verification - mission complete confirmation
-import '@/lib/ultimateVerification';
+// DISABLED: Performance verification logging
+// import '@/lib/formatConversionAnalyzer';
+// import '@/lib/straightLinePipelineVerification';
+// import '@/lib/pipelineCompletionReport';
+// import '@/lib/finalPipelineVerification';
+// import '@/lib/ultimateVerification';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
