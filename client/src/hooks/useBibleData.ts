@@ -1034,6 +1034,8 @@ export function useBibleData() {
 
   // Event listener for chronological order changes
   useEffect(() => {
+    console.log('📅 INSTALLING EVENT LISTENERS: Setting up chronological and reload listeners');
+    
     const handleChronologicalOrderChanged = async (event: CustomEvent) => {
       const { isChronological } = event.detail;
       console.log(`📅 STEP 2: useBibleData received chronologicalOrderChanged event: isChronological=${isChronological}`);
@@ -1075,9 +1077,21 @@ export function useBibleData() {
       }
     };
 
+    const handleReloadBibleData = async (event: CustomEvent) => {
+      const { isChronological } = event.detail;
+      console.log(`📅 STEP 2B: useBibleData received reloadBibleData event: isChronological=${isChronological}`);
+      await reloadVersesInNewOrder(isChronological);
+    };
+
     window.addEventListener('chronologicalOrderChanged', handleChronologicalOrderChanged as EventListener);
+    window.addEventListener('reloadBibleData', handleReloadBibleData as EventListener);
+    
+    console.log('📅 EVENT LISTENERS INSTALLED: chronologicalOrderChanged and reloadBibleData');
+    
     return () => {
       window.removeEventListener('chronologicalOrderChanged', handleChronologicalOrderChanged as EventListener);
+      window.removeEventListener('reloadBibleData', handleReloadBibleData as EventListener);
+      console.log('📅 EVENT LISTENERS REMOVED');
     };
   }, []);
 

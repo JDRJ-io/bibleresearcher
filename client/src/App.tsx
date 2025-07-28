@@ -345,13 +345,21 @@ export const useBibleStore = create<{
 
     // Trigger verse reloading by dispatching a custom event
     // This allows the Bible component to react to the change
+    console.log('📅 STEP 1A: About to dispatch chronologicalOrderChanged event');
+    const event = new CustomEvent('chronologicalOrderChanged', { 
+      detail: { isChronological: newChronological } 
+    });
+    window.dispatchEvent(event);
+    console.log(`📅 STEP 1B: Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
+    
+    // Also dispatch a simpler event to test
     setTimeout(() => {
-      const event = new CustomEvent('chronologicalOrderChanged', { 
+      const reloadEvent = new CustomEvent('reloadBibleData', { 
         detail: { isChronological: newChronological } 
       });
-      window.dispatchEvent(event);
-      console.log(`📅 STEP 1: Dispatched chronologicalOrderChanged event with isChronological: ${newChronological}`);
-    }, 0);
+      window.dispatchEvent(reloadEvent);
+      console.log(`📅 STEP 1C: Dispatched reloadBibleData event as backup`);
+    }, 100);
 
     return newState;
   }),
