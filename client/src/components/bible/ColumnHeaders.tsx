@@ -377,7 +377,7 @@ export function ColumnHeaders({
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   const allColumns = visibleColumns.map(col => ({
-    id: col.name.toLowerCase().replace(' ', '-'),
+    id: col.name.toLowerCase().replace(/\s+/g, '-'),
     name: col.name,
     type: col.type,
     position: col.slot,

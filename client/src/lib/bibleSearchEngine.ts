@@ -237,7 +237,9 @@ export class BibleSearchEngine {
         this.verseMap.set(ref.replace('.', ' '), index);
       }
       if (ref.includes(' ')) {
-        this.verseMap.set(ref.replace(' ', '.'), index);
+        // STRAIGHT-LINE: Store in both formats for search flexibility
+        this.verseMap.set(ref, index);
+        this.verseMap.set(ref.replace(/\s/g, '.'), index);
       }
     });
   }

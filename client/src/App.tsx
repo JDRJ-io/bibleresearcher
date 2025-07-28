@@ -18,6 +18,8 @@ import '@/lib/formatConversionAnalyzer';
 import '@/lib/straightLinePipelineVerification';
 // Generate final completion report
 import '@/lib/pipelineCompletionReport';
+// Run final comprehensive verification
+import '@/lib/finalPipelineVerification';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {

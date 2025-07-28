@@ -231,10 +231,9 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // STRAIGHT-LINE: Convert to dot format once, then direct lookup
-      const dotFormatRef = ref.replace(/\s/g, '.');
-      const verseIndex = verseKeys.findIndex(key => key === dotFormatRef);
-      const foundFormat = dotFormatRef;
+      // STRAIGHT-LINE: Assume ref is already in dot format from system
+      const verseIndex = verseKeys.findIndex(key => key === ref);
+      const foundFormat = ref;
 
       if (verseIndex >= 0) {
         if (containerRef.current) {

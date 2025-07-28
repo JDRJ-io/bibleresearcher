@@ -1080,15 +1080,9 @@ export function useBibleData() {
     // Parse different reference formats to find the verse
     const normalizedRef = reference.replace(/\s+/g, " ").trim();
 
-    // STRAIGHT-LINE: Find target verse using dot format directly
-    // Convert input reference to dot format once, then match directly
+    // STRAIGHT-LINE: Assume verses already in dot format, single conversion for input
     const dotFormatRef = normalizedRef.replace(/\s/g, ".");
-    const targetVerse = verses.find(
-      (v) =>
-        v.reference === dotFormatRef ||
-        v.reference === normalizedRef ||
-        `${v.book}.${v.chapter}:${v.verse}` === dotFormatRef
-    );
+    const targetVerse = verses.find(v => v.reference === dotFormatRef);
 
     if (targetVerse) {
       const targetIndex = verses.findIndex((v) => v.id === targetVerse.id);
