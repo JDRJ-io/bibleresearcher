@@ -368,23 +368,8 @@ body {
       margin-bottom: 0px !important;
     }
 
-    /* Force column headers to be EXACTLY under top header AND adaptive */
-    .sticky[style*="top: 48px"], 
-    .sticky.z-30,
-    .column-headers,
-    .column-headers-adaptive,
-    [class*="ColumnHeaders"] {
-      height: 36px !important;
-      top: 48px !important;
-      z-index: 30 !important;
-      margin-top: 0px !important;
-      margin-bottom: 0px !important;
-      padding-top: 0px !important;
-      border-top: none !important;
-      position: sticky !important;
-      width: 100% !important;
-      display: flex !important;
-    }
+    /* Let the mobile-headers.css file handle column header positioning */
+    /* Remove conflicting rules that override our proper CSS */
 
     /* Remove Tailwind class overrides - headers now use inline styles */
 

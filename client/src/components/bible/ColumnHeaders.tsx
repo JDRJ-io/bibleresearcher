@@ -429,7 +429,18 @@ export function ColumnHeaders({
         style={{ 
           left: -scrollLeft,  // keep horizontal sync only
           width: '100%',
-          height: 'var(--column-header-height)'
+          height: 'var(--column-header-height)',
+          minHeight: 'var(--column-header-height)',
+          position: 'sticky',
+          zIndex: 40
+        }}
+        onWheel={(e) => {
+          // Prevent wheel events from affecting this element's position
+          e.stopPropagation();
+        }}
+        onScroll={(e) => {
+          // Prevent scroll events from affecting this element's position
+          e.stopPropagation();
         }}
       >
         <div className="w-full h-full" style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
