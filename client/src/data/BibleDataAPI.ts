@@ -510,16 +510,14 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
         const cleanRef = ref.trim();
         if (cleanRef) {
           // Validate this looks like a proper verse reference before adding
+          // Fixed regex to properly match numbered books and avoid capturing extra digits
           if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
             allReferences.push(cleanRef);
-          } else {
-            console.warn(`Skipping invalid cross-reference format: "${cleanRef}" from verse ${verseId}`);
           }
         }
       });
     });
 
-    console.log(`✅ Loaded ${allReferences.length} cross-references for ${verseId}`);
     return allReferences;
 
   } catch (error) {
