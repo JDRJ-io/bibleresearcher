@@ -140,7 +140,7 @@ export function createVerseObjectsFromKeys(verseKeys: string[]): BibleVerse[] {
       book: book,
       chapter: parseInt(chapter),
       verse: parseInt(verseNum),
-      reference: key.replace('.', ' '), // Convert Gen.1:1 to Gen 1:1
+      reference: key, // OPTIMIZATION: Keep original dot format "Gen.1:1" - matches all file formats
       text: {}, // Empty - text will be loaded on demand
       crossReferences: [],
       strongsWords: [],

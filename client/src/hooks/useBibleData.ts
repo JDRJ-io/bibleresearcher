@@ -315,7 +315,7 @@ const parseTranslationFileWithKeys = (
     const match = key.match(/^(\w+)\.(\d+):(\d+)$/);
     if (match) {
       const [, book, chapter, verse] = match;
-      const reference = `${book} ${chapter}:${verse}`;
+      const reference = key; // OPTIMIZATION: Use original key format "Gen.1:1"
       const verseText =
         textMap.get(key) || `[${reference} - Text not available in demo]`;
 

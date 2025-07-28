@@ -39,13 +39,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
     try {
       console.log(`🔍 Loading Strong's data via new Range system for ${verse.reference}`);
       
+      // OPTIMIZATION: verse.reference now uses dot format "Gen.1:1" - matches Strong's files directly
       const referenceFormats = [
-        verse.reference,
-        verse.reference.replace(/\s/g, '.'),
-        verse.reference.replace(/\./g, ' '),
-        verse.reference.replace(/\s+/g, '.'),
-        verse.reference.replace('Genesis', 'Gen').replace(/\s/g, '.'),
-        verse.reference.replace('Gen ', 'Gen.'),
+        verse.reference, // Primary format: "Gen.1:1" - matches Strong's files
       ];
       
       let verseData = null;
