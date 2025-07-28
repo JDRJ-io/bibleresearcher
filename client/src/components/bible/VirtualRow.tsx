@@ -64,9 +64,9 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   };
 
   return (
-    <div className="px-2 py-2 cross-ref-container custom-scrollbar h-full overflow-y-auto relative z-10">
+    <div className="px-2 py-1 text-sm cell-content">
       {crossRefs.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {crossRefs.map((ref, i) => {
             // Convert cross-ref to space format for display and lookup
             const displayRef = ref.replace(/\./g, ' ');
@@ -82,28 +82,24 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             }
 
             return (
-              <div
-                key={i}
-                className="cross-ref-item block w-full px-2 py-2 rounded relative"
-              >
+              <div key={i} className="cross-ref-item block w-full">
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors relative z-20 inline-block"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-xs font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onMouseDown={(e) => e.stopPropagation()}
-                  style={{ pointerEvents: 'auto' }}
                 >
                   {displayRef}
                 </button>
-                <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words">
-                  {refText || 'Loading...'}
+                <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed whitespace-normal break-words mt-1">
+                  {refText || '—'}
                 </div>
               </div>
             );
           })}
-          {crossRefs.length > 0 && (
-            <div className="text-center text-xs text-gray-400 mt-2 py-1">
-              {crossRefs.length} reference{crossRefs.length > 1 ? 's' : ''}
+          {crossRefs.length > 3 && (
+            <div className="text-center text-xs text-gray-400 mt-1">
+              {crossRefs.length} references
             </div>
           )}
         </div>
@@ -150,7 +146,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
   if (!verseRoles) {
     return (
-      <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
+      <div className="px-2 py-1 text-sm cell-content">
         <div className="text-gray-400 text-center">—</div>
       </div>
     );
@@ -167,9 +163,9 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   const uniqueProphecyIds = Array.from(new Set(allProphecyIds));
 
   return (
-    <div className="flex-1 px-2 py-1 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded overflow-y-auto" style={{ maxHeight: '120px' }}>
+    <div className="px-2 py-1 text-sm cell-content">
       {uniqueProphecyIds.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {uniqueProphecyIds.map((prophecyId) => {
             const prophecyDetails = prophecyIndex[prophecyId];
             if (!prophecyDetails) return null; // still loading
@@ -326,10 +322,7 @@ function MainTranslationCell({
   }
 
   return (
-    <div 
-      className="verse-text p-2 text-sm leading-relaxed max-h-24 overflow-y-auto"
-      onClick={() => {/* handle verse click if needed */}}
-    >
+    <div className="px-2 py-1 text-sm cell-content">
       {shouldUseLabeledText ? (
         <LabeledText
           text={verseText}

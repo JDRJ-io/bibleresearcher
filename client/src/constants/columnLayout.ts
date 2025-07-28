@@ -80,25 +80,25 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     guestMode: false
   },
   
-  // Slot 6: Cross References
+  // Slot 6: Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
   {
     id: 'cross-references',
     name: 'Cross References',
     type: 'cross-ref',
-    width: 'w-80',
-    mobileWidth: 'w-40', // Cross references - remaining pixels (108px)
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 6,
     defaultVisible: true, // Default ON for free users
     guestMode: true
   },
   
-  // Slots 7-9: Prophecy columns - WIDER for better visibility
+  // Slots 7-9: Prophecy columns - SAME WIDTH AS ALTERNATE TRANSLATIONS
   {
     id: 'prophecy-prediction',
     name: 'Predictions',
     type: 'prophecy',
-    width: 'w-28',       // Wider desktop columns (112px)
-    mobileWidth: 'w-20', // Wider mobile columns (80px)
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 7,
     defaultVisible: false,
     guestMode: true
@@ -107,8 +107,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'prophecy-fulfillment',
     name: 'Fulfillments',
     type: 'prophecy',
-    width: 'w-28',       // Wider desktop columns (112px)
-    mobileWidth: 'w-20', // Wider mobile columns (80px)
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 8,
     defaultVisible: false,
     guestMode: true
@@ -117,8 +117,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'prophecy-verification',
     name: 'Verifications',
     type: 'prophecy',
-    width: 'w-28',       // Wider desktop columns (112px)
-    mobileWidth: 'w-20', // Wider mobile columns (80px)
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 9,
     defaultVisible: false,
     guestMode: true

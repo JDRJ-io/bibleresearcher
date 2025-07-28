@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useBibleStore } from '@/App';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
 import { TopHeader } from '@/components/bible/TopHeader';
 import VirtualBibleTable from '@/components/bible/VirtualBibleTable';
 import { StrongsOverlay } from '@/components/bible/StrongsOverlay';
