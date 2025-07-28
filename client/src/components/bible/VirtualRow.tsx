@@ -268,8 +268,9 @@ function MainTranslationCell({
     });
 
     // Try different reference formats
-    const altRef1 = verse.reference.replace('.', ' ');
-    const altRef2 = verse.reference.replace(' ', '.');
+    // OPTIMIZATION: verse.reference is now in dot format - no conversion needed
+    const altRef1 = verse.reference;
+    const altRef2 = verse.reference;
 
     if (getVerseLabels) {
       console.log(`🏷️ MainTranslationCell trying alt refs:`, {

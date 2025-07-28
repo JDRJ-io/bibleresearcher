@@ -42,9 +42,8 @@ export function useTranslationWorker() {
           // Convert verses array to Map
           const textMap = new Map<string, string>();
           payload.verses.forEach((verse: any) => {
+            // OPTIMIZATION: Store only in dot format 
             textMap.set(verse.ref, verse.text);
-            // Also store with space format
-            textMap.set(verse.ref.replace('.', ' '), verse.text);
           });
 
           setState(prev => {

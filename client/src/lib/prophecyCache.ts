@@ -61,12 +61,8 @@ export function getProphecyForVerse(id: string) {
     return { P: [], F: [], V: [] };
   }
   
-  // Try multiple formats for the verse lookup
-  const possibleKeys = [
-    id, // Direct match
-    id.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
-    id.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
-  ];
+  // OPTIMIZATION: id is now in dot format - direct lookup only
+  const possibleKeys = [id];
   
   let verse = null;
   let foundKey = null;

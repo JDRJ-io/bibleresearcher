@@ -445,8 +445,7 @@ const createFullBibleWithHeights = async (
       const cleanText = text.trim();
 
       // Store multiple key formats for maximum compatibility
-      textMap.set(cleanRef, cleanText); // "Gen.1:1"
-      textMap.set(cleanRef.replace(".", " "), cleanText); // "Gen 1:1"
+      textMap.set(cleanRef, cleanText); // OPTIMIZATION: Keep dot format "Gen.1:1"
 
       // Parse reference components for additional format variations
       const refMatch = cleanRef.match(/^(\w+)\.(\d+):(\d+)$/);
@@ -527,7 +526,7 @@ const mergeCrossReferences = (verses: BibleVerse[], crossRefText: string) => {
     if (parts.length >= 2) {
       const [reference, crossRefs] = parts;
       const verse = verses.find(
-        (v) => v.reference.replace(/\s/g, "") === reference.replace(/\s/g, ""),
+        (v) => v.reference === reference, // OPTIMIZATION: Direct comparison with dot format
       );
       if (verse) {
         if (!verse.crossReferences) verse.crossReferences = [];
@@ -557,7 +556,7 @@ const mergeStrongsData = (verses: BibleVerse[], strongsText: string) => {
     if (parts.length >= 4) {
       const [reference, original, strongs, definition] = parts;
       const verse = verses.find(
-        (v) => v.reference.replace(/\s/g, "") === reference.replace(/\s/g, ""),
+        (v) => v.reference === reference, // OPTIMIZATION: Direct comparison with dot format
       );
       if (verse) {
         if (!verse.strongsWords) verse.strongsWords = [];
@@ -609,12 +608,8 @@ const getProphecyDataForVerse = (verseKey: string) => {
     return [];
   }
 
-  // Try different formats of the verse key
-  const possibleKeys = [
-    verseKey,
-    verseKey.replace(' ', '.').replace(':', ':'), // Gen 1:1 -> Gen.1:1
-    verseKey.replace('.', ' '), // Gen.1:1 -> Gen 1:1
-  ];
+  // OPTIMIZATION: verseKey is now in dot format - direct lookup only
+  const possibleKeys = [verseKey];
 
   for (const key of possibleKeys) {
     const prophecyRefs = prophecyIndex.get(key);
@@ -867,7 +862,6 @@ export function useBibleData() {
         let kjvText = null;
         if (globalKjvTextMap && globalKjvTextMap.size > 0) {
           kjvText = globalKjvTextMap.get(verseKey) || 
-                   globalKjvTextMap.get(verseKey.replace('.', ' ')) ||
                    globalKjvTextMap.get(allVerses[i].reference);
         }
 
@@ -1314,8 +1308,8 @@ export function useBibleData() {
     // Apply cross-references to verses with actual text content
     let crossRefCount = 0;
     verses.forEach((verse) => {
-      // Convert verse reference back to Gen.1:1 format to match crossRefMap keys
-      const dotFormat = verse.reference.replace(/\s/g, ".");
+      // OPTIMIZATION: verse.reference is now already in dot format - direct use
+      const dotFormat = verse.reference;
 
       let crossRefs: string[] | undefined;
       if (crossRefMap instanceof Map) {

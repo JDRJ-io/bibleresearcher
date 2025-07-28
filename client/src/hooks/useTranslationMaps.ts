@@ -159,10 +159,8 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     const translationMap = masterCache.get(`translation-${translationCode}`);
     if (!translationMap) return undefined;
     
-    // Convert any format to canonical "Gen.1:1" format used in your source files
-    const canonicalRef = verseID.includes(' ') ? verseID.replace(' ', '.') : verseID;
-    
-    return translationMap.get(canonicalRef);
+    // OPTIMIZATION: verseID is now in dot format - direct lookup
+    return translationMap.get(verseID);
   }, []);
 
   /**
@@ -173,10 +171,8 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     const mainTranslationMap = masterCache.get(`translation-${mainTranslation}`);
     if (!mainTranslationMap) return undefined;
     
-    // Convert any format to canonical "Gen.1:1" format used in your source files
-    const canonicalRef = verseID.includes(' ') ? verseID.replace(' ', '.') : verseID;
-    
-    return mainTranslationMap.get(canonicalRef);
+    // OPTIMIZATION: verseID is now in dot format - direct lookup
+    return mainTranslationMap.get(verseID);
   }, [mainTranslation]);
 
   /**

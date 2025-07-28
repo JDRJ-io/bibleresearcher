@@ -13,17 +13,16 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
 
       // CENTER-ANCHORED: Only load cross-refs for verses we don't already have
       const neededVerses = verseKeys.filter(verseId => {
-        const dotFormat = verseId.replace(/\s/g, '.');
-        const spaceFormat = verseId.replace(/\./g, ' ');
-        return !crossRefsStore[dotFormat] && !crossRefsStore[spaceFormat] && !loadingRef.current.has(dotFormat);
+        // OPTIMIZATION: verseId is now in dot format - direct lookup
+        return !crossRefsStore[verseId] && !loadingRef.current.has(verseId);
       });
 
       if (neededVerses.length === 0) return;
 
       // Mark as loading to prevent duplicate requests
       neededVerses.forEach(verseId => {
-        const dotFormat = verseId.replace(/\s/g, '.');
-        loadingRef.current.add(dotFormat);
+        // OPTIMIZATION: verseId is now in dot format - direct use
+        loadingRef.current.add(verseId);
       });
 
       try {
@@ -42,13 +41,12 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
 
         const results = await Promise.all(batchPromises);
 
-        // Store in single format to reduce memory usage (dot format only)
+        // OPTIMIZATION: Store with original dot format keys
         const updatedCrossRefs: Record<string, string[]> = { ...crossRefsStore };
         results.forEach(({ verseId, refs }) => {
-          const dotFormat = verseId.replace(/\s/g, '.');
-          updatedCrossRefs[dotFormat] = refs;
+          updatedCrossRefs[verseId] = refs;
           // Remove from loading set
-          loadingRef.current.delete(dotFormat);
+          loadingRef.current.delete(verseId);
         });
 
         setCrossRefs(updatedCrossRefs);
@@ -58,8 +56,7 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         console.error('Failed to batch load cross-references:', error);
         // Clear loading flags on error
         neededVerses.forEach(verseId => {
-          const dotFormat = verseId.replace(/\s/g, '.');
-          loadingRef.current.delete(dotFormat);
+          loadingRef.current.delete(verseId);
         });
       }
     };
