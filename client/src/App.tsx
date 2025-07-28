@@ -439,13 +439,13 @@ export const useBibleStore = create<{
     }))
   },
 
-  // Size State (UI Layout Spec presets: S=0.85, M=1.0, L=1.35, XL=1.70)
+  // Size State (Updated presets: S=1.0, M=1.2, L=1.5, XL=1.8)
   sizeState: {
-    sizeMult: 1.0, // Default to Medium
+    sizeMult: 1.2, // Default to Medium
     setSizeMult: (mult: number) => {
       set({ sizeState: { sizeMult: mult, setSizeMult: get().sizeState.setSizeMult } });
-      // Apply CSS variable to root
-      document.documentElement.style.setProperty('--sizeMult', mult.toString());
+      // Apply CSS variable to root for global scaling
+      document.documentElement.style.setProperty('--content-size-mult', mult.toString());
       // Persist to localStorage
       localStorage.setItem('bibleSizeMult', mult.toString());
     }

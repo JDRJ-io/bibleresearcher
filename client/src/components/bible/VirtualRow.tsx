@@ -313,7 +313,7 @@ function MainTranslationCell({
   }
 
   return (
-    <div className="px-2 py-1 text-sm cell-content">
+    <div className="px-2 py-1 text-sm leading-tight cell-content">
       {shouldUseLabeledText ? (
         <LabeledText
           text={verseText}

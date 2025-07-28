@@ -6,10 +6,10 @@ interface SizeSelectorProps {
 }
 
 const SIZE_PRESETS = [
-  { label: 'S', value: 0.85, description: 'Small' },
-  { label: 'M', value: 1.0, description: 'Medium' },
-  { label: 'L', value: 1.35, description: 'Large' },
-  { label: 'XL', value: 1.70, description: 'Extra Large' }
+  { label: 'S', value: 1.0, description: 'Small' },
+  { label: 'M', value: 1.2, description: 'Medium' },
+  { label: 'L', value: 1.5, description: 'Large' },
+  { label: 'XL', value: 1.8, description: 'Extra Large' }
 ];
 
 export function SizeSelector({ className = '' }: SizeSelectorProps) {
