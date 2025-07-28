@@ -1034,6 +1034,56 @@ export function useBibleData() {
     loadData();
   }, []);
 
+  // Event listener for chronological order changes
+  useEffect(() => {
+    const handleReloadBibleData = async (event: CustomEvent) => {
+      const { isChronological } = event.detail;
+      console.log(`📅 useBibleData received reloadBibleData event: isChronological=${isChronological}`);
+      
+      try {
+        setIsLoading(true);
+        setLoadingProgress({ stage: "verse-keys", percentage: 10 });
+        
+        const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+        
+        const verseKeys = isChronological 
+          ? await loadVerseKeysChronological()
+          : await loadVerseKeysCanonical();
+        
+        const orderType = isChronological ? "chronological" : "canonical";
+        console.log(`🔑 Reloaded ${verseKeys.length} verse keys in ${orderType} order`);
+        
+        setLoadingProgress({ stage: "structure", percentage: 50 });
+        
+        // Update store with new verse keys
+        const { useBibleStore } = await import('@/App');
+        const store = useBibleStore.getState();
+        store.setCurrentVerseKeys(verseKeys);
+        
+        // Recreate verses with new order
+        const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
+        console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${orderType} timeline`);
+        
+        setLoadingProgress({ stage: "complete", percentage: 100 });
+        
+        setVerses(reorderedVerses);
+        setVerseOrder(isChronological ? "chronological" : "canonical");
+        setCenterVerseIndex(0); // Reset to start of new order
+        setIsLoading(false);
+        
+        console.log(`✅ Successfully switched to ${orderType} order via event`);
+      } catch (error) {
+        console.error('❌ Failed to reload Bible data:', error);
+        setIsLoading(false);
+      }
+    };
+
+    window.addEventListener('reloadBibleData', handleReloadBibleData as EventListener);
+    return () => {
+      window.removeEventListener('reloadBibleData', handleReloadBibleData as EventListener);
+    };
+  }, []);
+
   // Function to reload verses when chronological state changes
   const reloadVersesInNewOrder = async (isChronological: boolean) => {
     console.log(`🔄 Reloading verses in ${isChronological ? 'chronological' : 'canonical'} order...`);

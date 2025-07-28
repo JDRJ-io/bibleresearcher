@@ -162,11 +162,17 @@ export default function BiblePage() {
     };
   }, []);
 
-  // Add chronological order listener
+  // Add chronological order listener - triggers verse reloading
   useEffect(() => {
     const handleChronologicalChange = (event: CustomEvent) => {
       console.log('📅 BiblePage received chronological order change:', event.detail);
-      // The useBibleData hook will handle the actual reloading
+      const { isChronological } = event.detail;
+      
+      // Trigger verse reloading through custom event for useBibleData hook
+      const reloadEvent = new CustomEvent('reloadBibleData', { 
+        detail: { isChronological } 
+      });
+      window.dispatchEvent(reloadEvent);
     };
 
     window.addEventListener('chronologicalOrderChanged', handleChronologicalChange as EventListener);
