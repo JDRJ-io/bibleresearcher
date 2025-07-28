@@ -190,10 +190,10 @@ export function VerseRow({
                   <div key={index} className="mb-3">
                     <span 
                       onClick={() => onNavigateToVerse(ref)}
-                      className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer mr-1"
+                      className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
                       {ref.replace(/\./g, ' ')}
-                    </span>
+                    </span>{' '}
                     <span className="text-foreground">
                       {refText || 'Loading...'}
                     </span>
