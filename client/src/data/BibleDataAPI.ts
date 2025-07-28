@@ -98,11 +98,29 @@ export async function loadVerseKeys(chronological = false): Promise<string[]> {
 
   return getOrFetch(cacheKey, async () => {
     console.log(`🔑 STEP 6: Actually fetching ${filePath} from Supabase storage...`);
-    const data = await fetchFromStorage(filePath);
-    const verseKeys = JSON.parse(data);
-    console.log(`🔑 STEP 7: Loaded ${verseKeys.length} ${chronological ? 'chronological' : 'canonical'} verse keys as master index`);
-    console.log(`🔑 STEP 8: First few verses in order: [${verseKeys.slice(0, 5).join(', ')}]`);
-    return verseKeys;
+    
+    try {
+      const data = await fetchFromStorage(filePath);
+      const verseKeys = JSON.parse(data);
+      console.log(`🔑 STEP 7: Loaded ${verseKeys.length} ${chronological ? 'chronological' : 'canonical'} verse keys as master index`);
+      console.log(`🔑 STEP 8: First few verses in order: [${verseKeys.slice(0, 5).join(', ')}]`);
+      return verseKeys;
+    } catch (error) {
+      console.warn(`⚠️ STEP 6B: Failed to load ${filePath}, falling back to canonical order`);
+      console.warn(`Error details:`, error);
+      
+      if (chronological) {
+        // If chronological file doesn't exist, fall back to canonical
+        console.log(`🔑 STEP 7B: Loading canonical order as fallback...`);
+        const fallbackData = await fetchFromStorage(paths.verseKeys);
+        const fallbackKeys = JSON.parse(fallbackData);
+        console.log(`🔑 STEP 8B: Using canonical order (${fallbackKeys.length} verses) as chronological fallback`);
+        return fallbackKeys;
+      } else {
+        // Re-throw error for canonical file - this should always exist
+        throw error;
+      }
+    }
   });
 }
 
