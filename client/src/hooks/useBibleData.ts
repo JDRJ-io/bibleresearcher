@@ -972,24 +972,18 @@ export function useBibleData() {
         const verseKeys = await loadVerseKeys(isChronological);
         const orderType = isChronological ? "chronological" : "canonical";
         console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order as master index`);
-        console.log(`🔑 FIRST 5 VERSES: [${verseKeys.slice(0, 5).join(', ')}]`);
 
         setLoadingProgress({ stage: "structure", percentage: 50 });
 
         // Create verse objects from the master key index
         const verseObjects = createVerseObjectsFromKeys(verseKeys);
         console.log(`🏗️ Created ${verseObjects.length} verse structure from keys`);
-        console.log(`🏗️ FIRST 5 REFERENCES: [${verseObjects.slice(0, 5).map(v => v.reference).join(', ')}]`);
 
         setLoadingProgress({ stage: "complete", percentage: 100 });
 
-        // Update store with the loaded verse keys
-        store.setCurrentVerseKeys(verseKeys);
-
-        // Set the verses and order state using the verse keys foundation
+        // Set the verses using the verse keys foundation
         setVerses(verseObjects);
-        setVerseOrder(orderType); // CRITICAL: Set the initial verse order state
-        console.log(`📦 Bible structure loaded from verse keys foundation in ${orderType} order - text loading will be on-demand`);
+        console.log("📦 Bible structure loaded from verse keys foundation - text loading will be on-demand");
 
         setIsLoading(false);
       } catch (err) {
@@ -1004,7 +998,58 @@ export function useBibleData() {
     loadData();
   }, []);
 
-  // REMOVED: Complex order monitoring system - simplified to page reload approach
+  // Watch chronological state changes and reload verses accordingly
+  useEffect(() => {
+    const reloadVersesForOrderChange = async () => {
+      if (verses.length === 0) return; // Skip if verses not loaded yet
+      
+      const { useBibleStore } = await import('@/App');
+      const store = useBibleStore.getState();
+      const currentOrder = store.isChronological ? "chronological" : "canonical";
+      
+      // Only reload if the order actually changed
+      if (currentOrder !== verseOrder) {
+        console.log(`🔄 Order changed from ${verseOrder} to ${currentOrder}, reloading verses...`);
+        
+        try {
+          setIsLoading(true);
+          setLoadingProgress({ stage: "verse-keys", percentage: 10 });
+
+          const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+          const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+
+          const verseKeys = await loadVerseKeys(store.isChronological);
+          console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${currentOrder} order`);
+
+          setLoadingProgress({ stage: "structure", percentage: 50 });
+
+          // Update store with new verse keys
+          store.setCurrentVerseKeys(verseKeys);
+
+          // Recreate verses with new order
+          const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
+          console.log(`🔄 Reordered ${reorderedVerses.length} verses to ${currentOrder} order`);
+
+          setLoadingProgress({ stage: "complete", percentage: 100 });
+
+          setVerses(reorderedVerses);
+          setVerseOrder(currentOrder);
+          setCenterVerseIndex(0); // Reset to start of new order
+          setIsLoading(false);
+
+          console.log(`✅ Successfully switched to ${currentOrder} order`);
+        } catch (error) {
+          console.error('❌ Failed to reload verses in new order:', error);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // Check for order changes every 500ms
+    const interval = setInterval(reloadVersesForOrderChange, 500);
+    
+    return () => clearInterval(interval);
+  }, [verses.length, verseOrder]); // Dependencies: verses loaded and current order
 
   // DISABLED: Apply cross-references when crossRefSet changes - preventing infinite loading
   // TODO: Re-enable when center-anchored loading is stable

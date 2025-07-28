@@ -325,12 +325,6 @@ export const useBibleStore = create<{
   toggleChronological: () => set(state => {
     const newChronological = !state.isChronological;
     console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
-    
-    // Simple: just reload the page to force fresh data load
-    setTimeout(() => {
-      console.log('🔄 RELOADING PAGE to apply chronological order change');
-      window.location.reload();
-    }, 100);
 
     // If dates are currently visible, reload them in the new order
     if (state.showDates) {
