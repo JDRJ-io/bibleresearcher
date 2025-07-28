@@ -235,15 +235,7 @@ function MainTranslationCell({
   const contextBoundaries = store.contextBoundaries;
   const showContext = store.showContext;
 
-  // FIX #4: Debug translation lookup with normalization  
-  if (verse.reference === "Gen.4:1") {
-    console.log('CELL CHECK', {
-      verse: verse.reference,
-      mainTranslation,
-      normalizedCode: mainTranslation?.toUpperCase(),
-      textResult: getVerseText(verse.reference, mainTranslation)?.slice(0,40)
-    });
-  }
+
 
   // Get verse text with proper fallbacks
   const verseText = getVerseText(verse.reference, mainTranslation) || 
@@ -257,33 +249,7 @@ function MainTranslationCell({
   // Use LabeledText if we have active labels (don't require verseLabels yet, let component handle empty data)
   const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
 
-  // Enhanced debug for Gen.1:1
-  if (verse.reference === "Gen.1:1" || verse.reference === "Gen 1:1") {
-    console.log(`🏷️ MainTranslationCell DEBUG for ${verse.reference}:`, {
-      verseLabels,
-      activeLabels,
-      shouldUseLabeledText,
-      hasGetVerseLabels: !!getVerseLabels,
-      storeActiveLabels: store?.activeLabels,
-      verseText: verseText ? verseText.substring(0, 50) + '...' : 'NO TEXT',
-      verseTextLength: verseText?.length || 0
-    });
 
-    // Try different reference formats
-    // OPTIMIZATION: verse.reference is now in dot format - no conversion needed
-    const altRef1 = verse.reference;
-    const altRef2 = verse.reference;
-
-    if (getVerseLabels) {
-      console.log(`🏷️ MainTranslationCell trying alt refs:`, {
-        original: verse.reference,
-        alt1: altRef1,
-        alt2: altRef2,
-        labelsAlt1: getVerseLabels(altRef1),
-        labelsAlt2: getVerseLabels(altRef2)
-      });
-    }
-  }
 
   // Handle empty verse text - just return empty instead of loading message
   if (!verseText) {

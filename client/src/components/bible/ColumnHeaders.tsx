@@ -177,14 +177,7 @@ export function ColumnHeaders({
     return null;
   }
 
-  console.log('📋 ColumnHeaders render state:', { 
-    isInitialized, 
-    showCrossRefs, 
-    showProphecies, 
-    showNotes,
-    main,
-    alternates: alternates.length
-  });
+  // Removed excessive logging
 
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
@@ -251,13 +244,7 @@ export function ColumnHeaders({
     });
   }
 
-  // Debug logging
-  console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
-    slot: parseInt(slot), 
-    type: slotConfig[parseInt(slot)]?.type, 
-    header: slotConfig[parseInt(slot)]?.header, 
-    visible: slotConfig[parseInt(slot)]?.visible 
-  })));
+  // Removed debug logging
 
   // Build visible columns directly from our state
   const visibleColumns = useMemo(() => {
@@ -352,7 +339,7 @@ export function ColumnHeaders({
     return columns;
   }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile, columnState]);
 
-  console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
+  // Removed debug logging
 
   // Calculate actual total width from columnState for accurate measurement
   const actualTotalWidth = useMemo(() => {

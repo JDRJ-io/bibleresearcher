@@ -45,9 +45,8 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const toggleUnlockMode = bibleStore?.toggleUnlockMode ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
   
-  // DEBUG: Add activeLabels check
+  // Get activeLabels from store
   const activeLabels = bibleStore?.activeLabels ?? [];
-  console.log('🍔 HamburgerMenu activeLabels:', activeLabels);
 
   const { theme, setTheme, themes } = useTheme();
 
@@ -233,7 +232,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   className="w-3 h-3"
                   checked={showContext}
                   onCheckedChange={(checked) => {
-                    console.log('🔴 Context boundaries toggle clicked! New state:', checked);
                     toggleContext();
                   }}
                 />
@@ -247,16 +245,10 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
               <RadioGroup 
                 value={isChronological ? "chronological" : "canonical"} 
                 onValueChange={(value) => {
-                  console.log('📅 RADIO CLICK: Chronological radio button clicked, selected value:', value, 'current state:', isChronological);
-                  console.log('📅 RADIO CLICK: toggleChronological function exists:', typeof toggleChronological);
                   const shouldBeChronological = value === "chronological";
                   // Only toggle if the value actually changed
                   if (shouldBeChronological !== isChronological) {
-                    console.log('📅 RADIO CLICK: State needs to change, calling toggleChronological()');
                     toggleChronological();
-                    console.log('📅 RADIO CLICK: toggleChronological() completed');
-                  } else {
-                    console.log('📅 RADIO CLICK: State is already correct, no action needed');
                   }
                 }}
                 className="space-y-1"
@@ -266,7 +258,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   <Label 
                     htmlFor="canonical" 
                     className="text-xs cursor-pointer"
-                    onClick={() => console.log('📅 CANONICAL LABEL CLICKED')}
+
                   >
                     Canonical Order
                   </Label>
@@ -276,7 +268,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   <Label 
                     htmlFor="chronological" 
                     className="text-xs cursor-pointer"
-                    onClick={() => console.log('📅 CHRONOLOGICAL LABEL CLICKED')}
+
                   >
                     Chronological Order
                   </Label>
@@ -306,7 +298,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                     className="w-4 h-4"
                     checked={unlockMode}
                     onCheckedChange={(checked) => {
-                      console.log('🔓 Unlock mode toggle clicked! New state:', checked);
                       toggleUnlockMode();
                     }}
                   />
