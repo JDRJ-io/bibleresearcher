@@ -337,34 +337,33 @@ export const useBibleStore = create<{
     // IMMEDIATE VERSE RELOADING: Follow exact system logging path (STEP 5-8)
     console.log(`🔑 IMMEDIATE: Triggering verse reload for ${newChronological ? 'chronological' : 'canonical'} order...`);
     
-    // Use setTimeout to allow state to update first, then trigger reload
-    setTimeout(async () => {
+    // IMMEDIATE EXECUTION: Clear cache and reload verses synchronously
+    (async () => {
       try {
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
         const { masterCache } = await import('@/lib/supabaseClient');
 
-        // STEP 1: Clear the cache for the current order to force fresh load
-        const oldCacheKey = newChronological ? 'verse-keys-canonical' : 'verse-keys-chronological';
-        const newCacheKey = newChronological ? 'verse-keys-chronological' : 'verse-keys-canonical';
-        console.log(`🔑 STEP 1: Clearing cache keys: ${oldCacheKey}, ${newCacheKey}`);
-        
-        // Clear both cache keys to ensure fresh loading
-        if (masterCache.has(oldCacheKey)) masterCache.delete(oldCacheKey);
-        if (masterCache.has(newCacheKey)) masterCache.delete(newCacheKey);
+        // STEP 1: Clear ALL verse key cache entries to force fresh load
+        console.log(`🔑 STEP 1: Force clearing ALL verse key caches...`);
+        masterCache.delete('verse-keys-canonical');
+        masterCache.delete('verse-keys-chronological');
+        console.log(`🔑 STEP 1b: Cache cleared, size now: ${masterCache.size}`);
 
-        // STEP 2-8: Follow exact BibleDataAPI logging pattern  
-        console.log(`🔑 STEP 2: Calling loadVerseKeys with chronological=${newChronological}`);
+        // STEP 2-8: Direct call to BibleDataAPI with detailed logging
+        console.log(`🔑 STEP 2: Loading ${newChronological ? 'chronological' : 'canonical'} verse keys from Supabase...`);
         const verseKeys = await loadVerseKeys(newChronological);
         
-        // Update store with new verse keys
+        console.log(`🔑 STEP 9: Received ${verseKeys.length} verse keys, first 3: [${verseKeys.slice(0, 3).join(', ')}]`);
+
+        // Update store immediately
         get().setCurrentVerseKeys(verseKeys);
 
-        // Create new verse objects in the new order
+        // Create verse objects and trigger UI update
         const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
-        console.log(`🔄 STEP 9: Created ${reorderedVerses.length} verses in ${newChronological ? 'chronological' : 'canonical'} order`);
+        console.log(`🔄 STEP 10: Created verses, first verse: ${reorderedVerses[0]?.reference}`);
 
-        // Trigger useBibleData hook to detect the change via custom event
+        // Trigger immediate UI update
         window.dispatchEvent(new CustomEvent('verse-order-changed', { 
           detail: { 
             newOrder: newChronological ? 'chronological' : 'canonical',
@@ -372,11 +371,12 @@ export const useBibleStore = create<{
           }
         }));
 
-        console.log(`✅ STEP 10: Successfully triggered verse reload for ${newChronological ? 'chronological' : 'canonical'} order`);
+        console.log(`✅ STEP 11: Successfully reloaded to ${newChronological ? 'chronological' : 'canonical'} order`);
       } catch (error) {
         console.error('❌ IMMEDIATE: Failed to reload verses:', error);
+        console.error('❌ Error details:', error.stack);
       }
-    }, 100);
+    })();
 
     // If dates are currently visible, reload them in the new order
     if (state.showDates) {
