@@ -215,10 +215,12 @@ export async function getLabelsData(translation: string = 'KJV'): Promise<any> {
 }
 
 // Context boundaries - verse grouping data  
-export async function getContextGroups(): Promise<any> {
+export async function getContextGroups(): Promise<string[][]> {
   return getOrFetch('context-groups', async () => {
-    const text = await fetchFromStorage('metadata/context_groups.json');
-    return JSON.parse(text);
+    const text = await fetchFromStorage(paths.contextGroups);
+    const groups = JSON.parse(text);
+    console.log(`📚 Loaded ${groups.length} context groups from Supabase`);
+    return groups;
   });
 }
 

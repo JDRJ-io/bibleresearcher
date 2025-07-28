@@ -33,12 +33,14 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const showProphecies = bibleStore?.showProphecies ?? false;
   const showNotes = bibleStore?.showNotes ?? false;
   const showDates = bibleStore?.showDates ?? false;
+  const showContext = bibleStore?.showContext ?? false;
   const isChronological = bibleStore?.isChronological ?? false;
   const unlockMode = bibleStore?.unlockMode ?? false;
   const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
   const toggleProphecies = bibleStore?.toggleProphecies ?? (() => {});
   const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
+  const toggleContext = bibleStore?.toggleContext ?? (() => {});
   const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
   const toggleUnlockMode = bibleStore?.toggleUnlockMode ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
@@ -224,6 +226,18 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   }}
                 />
                 <Label htmlFor="dates-column" className="text-xs">Dates Column</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="context-boundaries" 
+                  className="w-3 h-3"
+                  checked={showContext}
+                  onCheckedChange={(checked) => {
+                    console.log('🔴 Context boundaries toggle clicked! New state:', checked);
+                    toggleContext();
+                  }}
+                />
+                <Label htmlFor="context-boundaries" className="text-xs">Context Boundaries</Label>
               </div>
             </div>
 

@@ -80,6 +80,8 @@ export const useBibleStore = create<{
   setDatesData: (dates: string[]) => void;
   labelsData: Record<string, any>;
   setLabelsData: (labels: Record<string, any>) => void;
+  contextBoundaries: Map<string, { startVerse: string; endVerse: string; groupIndex: number }>;
+  setContextBoundaries: (boundaries: Map<string, { startVerse: string; endVerse: string; groupIndex: number }>) => void;
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
@@ -131,6 +133,8 @@ export const useBibleStore = create<{
   setDatesData: (dates: string[]) => set({ datesData: dates }),
   labelsData: {},
   setLabelsData: (labels: Record<string, any>) => set({ labelsData: labels }),
+  contextBoundaries: new Map(),
+  setContextBoundaries: (boundaries: Map<string, { startVerse: string; endVerse: string; groupIndex: number }>) => set({ contextBoundaries: boundaries }),
   setSearchOpen: (open: boolean) => set({ isSearchOpen: open }),
   setCrossRefs: (refs: Record<string, string[]>) => set({ crossRefs: refs }),
   store: { crossRefs: {}, prophecies: {} },
@@ -320,6 +324,38 @@ export const useBibleStore = create<{
         try {
           const contextData = await getContextGroups();
           console.log('✅ Context groups data loaded:', contextData.length, 'groups');
+          
+          // Process context groups into a map for quick lookup
+          const newContextMap = new Map<string, { startVerse: string; endVerse: string; groupIndex: number }>();
+          
+          // Convert pipe format to dot format
+          const convertToDotFormat = (verseId: string): string => {
+            const parts = verseId.split('|');
+            if (parts.length !== 3) return verseId;
+            return `${parts[0]}.${parts[1]}:${parts[2]}`;
+          };
+          
+          contextData.forEach((group, groupIndex) => {
+            if (group.length === 0) return;
+            
+            // Convert all verses in the group to dot format
+            const dotFormatVerses = group.map(v => convertToDotFormat(v));
+            const startVerse = dotFormatVerses[0];
+            const endVerse = dotFormatVerses[dotFormatVerses.length - 1];
+            
+            // Map each verse in the group to its boundary info
+            dotFormatVerses.forEach(verse => {
+              newContextMap.set(verse, {
+                startVerse,
+                endVerse,
+                groupIndex
+              });
+            });
+          });
+          
+          get().setContextBoundaries(newContextMap);
+          console.log('📚 Context boundaries processed:', newContextMap.size, 'verses mapped');
+          
         } catch (error) {
           console.error('❌ Failed to load context groups:', error);
         }

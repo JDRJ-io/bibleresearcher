@@ -232,6 +232,8 @@ function MainTranslationCell({
 }) {
   const store = useBibleStore();
   const activeLabels = store.activeLabels || [];
+  const contextBoundaries = store.contextBoundaries;
+  const showContext = store.showContext;
 
   // FIX #4: Debug translation lookup with normalization  
   if (verse.reference === "Gen.4:1") {
@@ -292,8 +294,35 @@ function MainTranslationCell({
     );
   }
 
+  // Get context boundary info for this verse
+  const contextBoundary = showContext && contextBoundaries ? contextBoundaries.get(verse.reference) : null;
+  const isContextStart = contextBoundary && contextBoundary.startVerse === verse.reference;
+  const isContextEnd = contextBoundary && contextBoundary.endVerse === verse.reference;
+
+  // Determine border classes based on context boundaries
+  let contextClasses = '';
+  if (showContext && contextBoundary) {
+    const borderColor = 'border-blue-300 dark:border-blue-700';
+    
+    // Top border for start of context
+    if (isContextStart) {
+      contextClasses += ` border-t-2 ${borderColor}`;
+    }
+    
+    // Bottom border for end of context
+    if (isContextEnd) {
+      contextClasses += ` border-b-2 ${borderColor}`;
+    }
+    
+    // Left and right borders for all verses in context
+    contextClasses += ` border-l-2 border-r-2 ${borderColor}`;
+    
+    // Light background to show context grouping
+    contextClasses += ' bg-blue-50/30 dark:bg-blue-900/10';
+  }
+
   return (
-    <div className="px-2 py-1 text-sm leading-tight cell-content">
+    <div className={`px-2 py-1 text-sm leading-tight cell-content ${contextClasses}`}>
       {shouldUseLabeledText ? (
         <LabeledText
           text={verseText}
