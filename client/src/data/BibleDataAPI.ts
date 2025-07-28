@@ -486,7 +486,6 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
 
     if (!targetLine) {
-      console.log(`No cross-references found for ${verseId}`);
       return [];
     }
 
@@ -494,26 +493,22 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
     const [baseVerse, referencesData] = targetLine.split('$$');
     if (!referencesData) return [];
 
-    // FIXED: Proper parsing that handles numbered books like 1Cor, 2Tim, 3John
+    // FIXED: Proper parsing that handles numbered books and $ delimiters correctly
     const allReferences: string[] = [];
 
-    // Split by $ first to get reference groups
-    const referenceGroups = referencesData.split('$');
+    // Split by $ to get reference groups, filtering out empty strings
+    const referenceGroups = referencesData.split('$').filter(group => group.trim());
 
     referenceGroups.forEach(group => {
-      if (!group.trim()) return;
-
       // Split by # to get sequential references within a group
-      const sequentialRefs = group.split('#');
+      const sequentialRefs = group.split('#').filter(ref => ref.trim());
 
       sequentialRefs.forEach(ref => {
         const cleanRef = ref.trim();
-        if (cleanRef) {
-          // Validate this looks like a proper verse reference before adding
-          // Fixed regex to properly match numbered books and avoid capturing extra digits
-          if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
-            allReferences.push(cleanRef);
-          }
+        // Validate this looks like a proper verse reference
+        // Regex matches: optional 1-3, then letters, dot, digits, colon, digits
+        if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+          allReferences.push(cleanRef);
         }
       });
     });
