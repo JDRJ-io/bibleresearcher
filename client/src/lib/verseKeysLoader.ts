@@ -11,16 +11,17 @@
 import type { BibleVerse } from '@/types/bible';
 import { loadVerseKeysAsText, loadChronologicalVerseKeys } from '@/data/BibleDataAPI';
 
-// Global verse keys cache
-let cachedVerseKeys: string[] | null = null;
+// Global verse keys cache - separate caches for different orders
+let cachedCanonicalKeys: string[] | null = null;
+let cachedChronologicalKeys: string[] | null = null;
 
 // Load verse keys from the attached file
 export async function loadVerseKeysCanonical(): Promise<string[]> {
-  if (cachedVerseKeys) {
-    return cachedVerseKeys;
+  if (cachedCanonicalKeys) {
+    return cachedCanonicalKeys;
   }
 
-  console.log("🔑 Loading verse keys as master row index...");
+  console.log("🔑 Loading canonical verse keys as master row index...");
   
   try {
     // Load from Supabase via BibleDataAPI
@@ -29,8 +30,8 @@ export async function loadVerseKeysCanonical(): Promise<string[]> {
       .map(line => line.trim())
       .filter(line => line.length > 0);
     
-    cachedVerseKeys = verseKeys;
-    console.log(`🔑 Loaded ${verseKeys.length} verse keys as master row index from file`);
+    cachedCanonicalKeys = verseKeys;
+    console.log(`🔑 Loaded ${verseKeys.length} canonical verse keys as master row index from file`);
     
     return verseKeys;
   } catch (error) {
@@ -118,8 +119,8 @@ export async function loadVerseKeysCanonical(): Promise<string[]> {
       });
     });
     
-    cachedVerseKeys = allVerseKeys;
-    console.log(`🔑 Generated ${allVerseKeys.length} verse keys as fallback master row index`);
+    cachedCanonicalKeys = allVerseKeys;
+    console.log(`🔑 Generated ${allVerseKeys.length} canonical verse keys as fallback master row index`);
     
     return allVerseKeys;
   }
@@ -159,8 +160,9 @@ export function createVerseObjectsFromKeys(verseKeys: string[]): BibleVerse[] {
  * Helper functions for VirtualBibleTable compatibility
  */
 export function getVerseCount(): number {
-  if (cachedVerseKeys) {
-    return cachedVerseKeys.length;
+  const keys = getVerseKeys();
+  if (keys && keys.length > 0) {
+    return keys.length;
   }
   return 31102; // Expected total verse count
 }
@@ -177,6 +179,14 @@ export function getVerseKeys(): string[] {
         if (store.currentVerseKeys && store.currentVerseKeys.length > 0) {
           return store.currentVerseKeys;
         }
+        
+        // Check chronological state to determine which cache to use
+        const isChronological = store.isChronological || false;
+        if (isChronological && cachedChronologicalKeys) {
+          return cachedChronologicalKeys;
+        } else if (!isChronological && cachedCanonicalKeys) {
+          return cachedCanonicalKeys;
+        }
       }
     }
   } catch (error) {
@@ -184,7 +194,7 @@ export function getVerseKeys(): string[] {
   }
   
   // VERSE LOADING FIX: If verse keys aren't loaded yet, initialize them synchronously
-  if (!cachedVerseKeys) {
+  if (!cachedCanonicalKeys) {
     console.log("📖 Verse keys not loaded yet, initializing synchronously...");
     // Use the fallback system to generate verse keys immediately
     const allVerseKeys: string[] = [];
@@ -268,11 +278,12 @@ export function getVerseKeys(): string[] {
       });
     });
     
-    cachedVerseKeys = allVerseKeys;
-    console.log(`📖 Generated ${allVerseKeys.length} verse keys synchronously`);
+    cachedCanonicalKeys = allVerseKeys;
+    console.log(`📖 Generated ${allVerseKeys.length} canonical verse keys synchronously`);
   }
   
-  return cachedVerseKeys;
+  // Default to canonical keys if available
+  return cachedCanonicalKeys || [];
 }
 
 export function getVerseKeyByIndex(index: number): string {
@@ -288,6 +299,10 @@ export function getVerseKeyByIndex(index: number): string {
  * Ground rule: Changes order of verse-keys timeline without affecting data
  */
 export async function loadVerseKeysChronological(): Promise<string[]> {
+  if (cachedChronologicalKeys) {
+    return cachedChronologicalKeys;
+  }
+
   console.log("🔑 Loading chronological verse keys...");
   
   try {
@@ -299,8 +314,7 @@ export async function loadVerseKeysChronological(): Promise<string[]> {
     
     console.log(`✓ Loaded ${verseKeys.length} chronological verse keys`);
     
-    cachedVerseKeys = verseKeys;
-    const cachedVerseCount = verseKeys.length;
+    cachedChronologicalKeys = verseKeys;
     
     return verseKeys;
   } catch (error) {
