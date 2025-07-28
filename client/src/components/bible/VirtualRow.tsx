@@ -173,25 +173,23 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
             const isCollapsed = collapsedProphecies.has(String(prophecyId));
 
             return (
-              <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
-                {/* Clickable summary title - more contained and professional */}
+              <div key={prophecyId} className="mb-1">
+                {/* Compact clickable summary - no box, just text */}
                 <button
                   onClick={() => toggleProphecyCollapse(String(prophecyId))}
-                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-0 py-0"
                 >
-                  <div className="flex items-start gap-1">
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5">
-                      {prophecyId}.
-                    </span>
-                    <span className="text-sm leading-tight text-left break-words">
-                      {prophecyDetails.summary}
-                    </span>
-                  </div>
+                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400 mr-1">
+                    {prophecyId}.
+                  </span>
+                  <span className="text-sm leading-tight break-words">
+                    {prophecyDetails.summary}
+                  </span>
                 </button>
 
-                {/* Show ALL verses for this prophecy in this column - collapsible */}
+                {/* Compact verse list - tight spacing */}
                 {!isCollapsed && (
-                  <div className="space-y-1">
+                  <div className="mt-1 space-y-0">
                     {versesToShow.map((verseRef, i) => {
                       // Get the full verse text using the same method as other columns
                       const fullVerseText = getVerseText(verseRef, mainTranslation) || '';
@@ -200,12 +198,12 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                         <button
                           key={i}
                           onClick={() => onVerseClick && onVerseClick(verseRef)}
-                          className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 px-1 py-0.5 rounded transition-colors"
+                          className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 py-0 transition-colors"
                         >
-                          <div className="text-blue-600 dark:text-blue-400 font-medium text-sm mb-1">
+                          <div className="text-blue-600 dark:text-blue-400 font-medium text-sm leading-tight">
                             {verseRef}
                           </div>
-                          <div className="text-gray-600 dark:text-gray-400 text-sm leading-tight whitespace-normal break-words">
+                          <div className="text-gray-600 dark:text-gray-400 text-sm leading-tight whitespace-normal break-words -mt-0.5">
                             {fullVerseText || 'Loading...'}
                           </div>
                         </button>
