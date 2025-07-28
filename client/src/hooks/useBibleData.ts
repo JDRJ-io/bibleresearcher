@@ -997,7 +997,8 @@ export function useBibleData() {
         // Import store to check chronological state
         const { useBibleStore } = await import('@/App');
         const store = useBibleStore.getState();
-        const isChronological = store.isChronological || false;
+        const isChronological = store.isChronological;
+        console.log(`📅 INITIAL LOAD: Using ${isChronological ? 'chronological' : 'canonical'} order from store state`);
 
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
@@ -1033,9 +1034,9 @@ export function useBibleData() {
 
   // Event listener for chronological order changes
   useEffect(() => {
-    const handleReloadBibleData = async (event: CustomEvent) => {
+    const handleChronologicalOrderChanged = async (event: CustomEvent) => {
       const { isChronological } = event.detail;
-      console.log(`📅 STEP 4: useBibleData received reloadBibleData event: isChronological=${isChronological}`);
+      console.log(`📅 STEP 2: useBibleData received chronologicalOrderChanged event: isChronological=${isChronological}`);
 
       try {
         setIsLoading(true);
@@ -1074,9 +1075,9 @@ export function useBibleData() {
       }
     };
 
-    window.addEventListener('reloadBibleData', handleReloadBibleData as EventListener);
+    window.addEventListener('chronologicalOrderChanged', handleChronologicalOrderChanged as EventListener);
     return () => {
-      window.removeEventListener('reloadBibleData', handleReloadBibleData as EventListener);
+      window.removeEventListener('chronologicalOrderChanged', handleChronologicalOrderChanged as EventListener);
     };
   }, []);
 
