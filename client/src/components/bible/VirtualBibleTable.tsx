@@ -327,16 +327,42 @@ const VirtualBibleTable = ({
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // Calculate actual total width based on visible columns - simplified approach
+  // Calculate actual total width based on visible columns - Fix horizontal scroll boundary
   const actualTotalWidth = useMemo(() => {
-    let width = 0;
-    width += 80; // Reference column ~80px  
-    width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 320; // Cross refs ~320px
-    if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
-    return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
+    if (isMobile) {
+      // Mobile: Calculate exact width from mobile-headers.css
+      let width = 48; // Reference column (48px from CSS)
+      width += 300; // Main translation (300px from CSS)  
+      if (showCrossRefs) width += 280; // Cross refs (280px from CSS)
+      if (showProphecies) width += 180; // P+F+V ~60px each
+      width += (activeTranslations.filter(t => t !== mainTranslation).length * 300); // Alt translations (300px each)
+      
+      // Add extra padding to ensure we can scroll to the last column fully
+      width += 40; // Extra padding for scroll boundary
+      
+      console.log('📱 Mobile width calculation:', {
+        refWidth: 48,
+        mainWidth: 300,
+        crossRefsWidth: showCrossRefs ? 280 : 0,
+        propheciesWidth: showProphecies ? 180 : 0,
+        altTranslations: activeTranslations.filter(t => t !== mainTranslation).length,
+        altWidth: activeTranslations.filter(t => t !== mainTranslation).length * 300,
+        totalWidth: width,
+        screenWidth: window.innerWidth
+      });
+      
+      return width;
+    } else {
+      // Desktop: Original calculation
+      let width = 0;
+      width += 80; // Reference column ~80px  
+      width += 320; // Main translation ~320px
+      if (showCrossRefs) width += 320; // Cross refs ~320px
+      if (showProphecies) width += 180; // P+F+V ~60px each
+      width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+      return width;
+    }
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, isMobile]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;

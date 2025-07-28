@@ -501,22 +501,22 @@ body {
   }
 }
 
-/* FLUID HORIZONTAL SCROLLING FOR MOBILE */
+/* DIRECTIONAL SCROLLING FOR MOBILE - One direction at a time */
 @media (max-width: 640px) {
   .horizontal-scroll-wrapper {
-    touch-action: manipulation; /* Allow touch but prevent double-tap zoom */
+    touch-action: pan-x; /* Only allow horizontal panning */
     -webkit-overflow-scrolling: touch;
     overflow-x: auto;
     overflow-y: hidden;
-    overscroll-behavior-x: auto; /* Allow natural scroll bounce */
+    overscroll-behavior-x: contain; /* Prevent scroll chaining */
   }
 
   .bible-table-wrapper {
-    touch-action: manipulation; /* Allow touch but prevent double-tap zoom */
+    touch-action: pan-y; /* Only allow vertical panning */
     overflow-y: auto;
     overflow-x: visible;
     min-width: max-content;
-    overscroll-behavior-y: auto; /* Allow natural scroll bounce */
+    overscroll-behavior-y: contain; /* Prevent scroll chaining */
   }
 
   /* Enhanced horizontal scrollbar for mobile */
