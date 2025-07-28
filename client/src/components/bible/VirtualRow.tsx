@@ -114,20 +114,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   type: 'P' | 'F' | 'V';
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
-  const { prophecyData, prophecyIndex } = useBibleStore();
-  const [collapsedProphecies, setCollapsedProphecies] = React.useState<Set<string>>(new Set());
-
-  const toggleProphecyCollapse = (prophecyId: string) => {
-    setCollapsedProphecies(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(prophecyId)) {
-        newSet.delete(prophecyId);
-      } else {
-        newSet.add(prophecyId);
-      }
-      return newSet;
-    });
-  };
+  const { prophecyData, prophecyIndex, collapsedProphecies, toggleProphecyCollapse } = useBibleStore();
 
   // Try multiple formats for verse lookup - match the format used in VirtualRow for cross-refs
   const possibleKeys = [
@@ -187,13 +174,15 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
             return (
               <div key={prophecyId} className="border-b border-gray-300 dark:border-gray-600 last:border-b-0 pb-2">
-                {/* Clickable summary text with collapse indicator */}
+                {/* Clickable summary title - more contained and professional */}
                 <button
                   onClick={() => toggleProphecyCollapse(String(prophecyId))}
-                  className="w-full text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 px-1 py-0.5 bg-blue-100 dark:bg-blue-900/30 rounded text-center leading-tight hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors flex items-center justify-center gap-1"
+                  className="w-full text-sm font-medium text-white dark:text-white mb-2 px-2 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-md text-center leading-tight hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 transition-all duration-200 shadow-sm border border-blue-300 dark:border-blue-500"
                 >
-                  <span className="text-xs">{isCollapsed ? '▶' : '▼'}</span>
-                  <span>{prophecyId}. {prophecyDetails.summary}</span>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold opacity-90">#{prophecyId}</span>
+                    <span className="text-sm font-medium leading-tight">{prophecyDetails.summary}</span>
+                  </div>
                 </button>
 
                 {/* Show ALL verses for this prophecy in this column - collapsible */}

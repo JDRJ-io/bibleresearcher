@@ -55,8 +55,10 @@ export const useBibleStore = create<{
   prophecies: Record<string, any>;
   prophecyData: Record<string, { P: number[], F: number[], V: number[] }>;
   prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;
+  collapsedProphecies: Set<string>;
   setProphecyData: (data: Record<string, { P: number[], F: number[], V: number[] }>) => void;
   setProphecyIndex: (data: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>) => void;
+  toggleProphecyCollapse: (prophecyId: string) => void;
   datesData: string[] | null;
   setDatesData: (dates: string[]) => void;
   labelsData: Record<string, any>;
@@ -96,8 +98,18 @@ export const useBibleStore = create<{
   prophecies: {},
   prophecyData: {},
   prophecyIndex: {},
+  collapsedProphecies: new Set<string>(),
   setProphecyData: (data: Record<string, { P: number[], F: number[], V: number[] }>) => set({ prophecyData: data }),
   setProphecyIndex: (data: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>) => set({ prophecyIndex: data }),
+  toggleProphecyCollapse: (prophecyId: string) => set(state => {
+    const newSet = new Set(state.collapsedProphecies);
+    if (newSet.has(prophecyId)) {
+      newSet.delete(prophecyId);
+    } else {
+      newSet.add(prophecyId);
+    }
+    return { collapsedProphecies: newSet };
+  }),
   datesData: null,
   setDatesData: (dates: string[]) => set({ datesData: dates }),
   labelsData: {},
