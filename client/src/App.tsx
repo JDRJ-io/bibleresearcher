@@ -12,6 +12,8 @@ import { SystemLogger } from "@/components/debug/SystemLogger";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
 import '@/lib/preloader';
+// Initialize format conversion analyzer
+import '@/lib/formatConversionAnalyzer';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
