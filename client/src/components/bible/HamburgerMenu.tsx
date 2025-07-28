@@ -233,8 +233,15 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
               <RadioGroup 
                 value={isChronological ? "chronological" : "canonical"} 
                 onValueChange={(value) => {
-                  console.log('📅 Chronological toggle clicked:', value);
-                  toggleChronological();
+                  console.log('📅 RADIO CLICK: Chronological radio button clicked, selected value:', value, 'current state:', isChronological);
+                  const shouldBeChronological = value === "chronological";
+                  // Only toggle if the value actually changed
+                  if (shouldBeChronological !== isChronological) {
+                    console.log('📅 RADIO CLICK: State needs to change, calling toggleChronological()');
+                    toggleChronological();
+                  } else {
+                    console.log('📅 RADIO CLICK: State is already correct, no action needed');
+                  }
                 }}
                 className="space-y-1"
               >
