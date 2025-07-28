@@ -17,19 +17,21 @@ import {
 // Global KJV text map for dynamic verse text loading - uses master cache
 let globalKjvTextMap: Map<string, string> | null = null;
 
-// Load KJV text map once and store globally
+// Load KJV text map once and store globally - optimized for speed
 const loadKJVTextMap = async (): Promise<void> => {
   if (globalKjvTextMap && globalKjvTextMap.size > 0) return; // Already loaded
 
   try {
-    console.log("📖 Loading KJV text map from BibleDataAPI...");
+    console.log("⚡ INSTANT: Loading KJV text map...");
     const { loadTranslation } = await import('@/data/BibleDataAPI');
-    const kjvMap = await loadTranslation('KJV');
-
-    globalKjvTextMap = kjvMap;
-    console.log(`📖 KJV text map loaded: ${kjvMap.size} entries`);
+    
+    // Start loading but don't block - let it load in background
+    const kjvPromise = loadTranslation('KJV');
+    globalKjvTextMap = await kjvPromise;
+    
+    console.log(`⚡ KJV READY: ${globalKjvTextMap.size} entries`);
   } catch (error) {
-    console.error("Failed to load KJV from BibleDataAPI:", error);
+    console.error("Failed to load KJV:", error);
     globalKjvTextMap = new Map();
   }
 };

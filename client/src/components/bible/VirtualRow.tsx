@@ -669,7 +669,7 @@ export function VirtualRow({
   }, [visibleColumns, columnState]);
 
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.95;
+  const shouldCenter = actualTotalWidth <= viewportWidth * 0.95;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   // FIXED COLUMN WIDTHS - No compression, maintain exact pixel widths
@@ -678,10 +678,9 @@ export function VirtualRow({
       className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ 
         height: rowHeight,
+        width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
         minWidth: `${actualTotalWidth}px`,
-        width: `${actualTotalWidth}px`,
-        display: 'flex',
-        flexShrink: 0
+        display: 'flex'
       }}
       onDoubleClick={handleDoubleClick}
     >
