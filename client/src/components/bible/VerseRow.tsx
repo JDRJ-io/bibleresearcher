@@ -156,8 +156,8 @@ export function VerseRow({
       <div className="w-80 flex-shrink-0 border-r">
         <div className="h-[120px] overflow-y-auto p-3 text-sm leading-relaxed">
           {(() => {
-            const dotFormat = verse.reference.replace(/\s/g, '.');
-            const crossRefs = store.crossRefs[dotFormat] || [];
+            // OPTIMIZATION: verse.reference is now dot format - direct lookup
+            const crossRefs = store.crossRefs[verse.reference] || [];
 
             if (crossRefs.length > 0) {
               return crossRefs.map((ref: string, index: number) => {
@@ -166,30 +166,9 @@ export function VerseRow({
                 let refText = '';
 
                 if (mainTranslation && store.translations[mainTranslation.id]) {
-                  // Convert reference format - try different formats
-                  const displayRef = ref.replace(/\./g, ' '); // "Gen.1:1" -> "Gen 1:1"
+                  // OPTIMIZATION: Use consistent dot format for lookup
                   const translationData = store.translations[mainTranslation.id];
-                  
-                  // Try to find the verse text in the translation data
-                  if (translationData[displayRef]) {
-                    refText = translationData[displayRef];
-                  } else if (translationData[ref]) {
-                    refText = translationData[ref];
-                  } else {
-                    // Try alternative formats
-                    const altFormats = [
-                      ref.replace(/(\d+):(\d+)$/, ' $1:$2'),
-                      ref.replace(/\.(\d+):/, ' $1:'),
-                      displayRef
-                    ];
-                    
-                    for (const altRef of altFormats) {
-                      if (translationData[altRef]) {
-                        refText = translationData[altRef];
-                        break;
-                      }
-                    }
-                  }
+                  refText = translationData[ref] || '';
                 }
 
                 return (
@@ -198,8 +177,8 @@ export function VerseRow({
                       onClick={() => onNavigateToVerse(ref)}
                       className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
                     >
-                      {ref.replace(/\./g, ' ')}
-                    </span> {refText || 'But of the tree of the knowledge of good and evil, thou shalt not eat of it: for in the day that thou eatest thereof thou shalt surely die'}
+                      {ref}
+                    </span> {refText || ''}
                   </span>
                 );
               });

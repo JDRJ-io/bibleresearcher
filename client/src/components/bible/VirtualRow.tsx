@@ -46,10 +46,8 @@ function ReferenceCell({ verse }: CellProps) {
 function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
   const { crossRefs: crossRefsStore } = useBibleStore();
 
-  // Get cross-references from the Bible store - try both formats
-  const dotFormat = verse.reference.replace(/\s/g, '.');
-  const spaceFormat = verse.reference.replace(/\./g, ' ');
-  const crossRefs = crossRefsStore[dotFormat] || crossRefsStore[spaceFormat] || [];
+  // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
+  const crossRefs = crossRefsStore[verse.reference] || [];
 
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,17 +66,10 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
       {crossRefs.length > 0 ? (
         <div className="space-y-0">
           {crossRefs.map((ref, i) => {
-            // Convert cross-ref to space format for display and lookup
-            const displayRef = ref.replace(/\./g, ' ');
-            const lookupRef = ref.replace(/\s/g, '.');
-
-            // Get verse text using the same method as other columns - use mainTranslation parameter
+            // OPTIMIZATION: Cross-refs now use consistent dot format
             let refText = '';
             if (getVerseText && mainTranslation) {
-              // Try multiple formats to ensure we get the text from BibleDataAPI cache
-              refText = getVerseText(displayRef, mainTranslation) || 
-                        getVerseText(lookupRef, mainTranslation) || 
-                        getVerseText(ref, mainTranslation) || '';
+              refText = getVerseText(ref, mainTranslation) || '';
             }
 
             return (
@@ -89,7 +80,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
-                  {displayRef}
+                  {ref}
                 </button>
                 <div className="text-gray-700 dark:text-gray-300 text-sm leading-tight whitespace-normal break-words">
                   {refText || '—'}
@@ -116,20 +107,8 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 }) {
   const { prophecyData, prophecyIndex, collapsedProphecies, toggleProphecyCollapse } = useBibleStore();
 
-  // Try multiple formats for verse lookup - match the format used in VirtualRow for cross-refs
-  const possibleKeys = [
-    verse.reference,
-    verse.reference.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"
-    verse.reference.replace(/\./g, ' '), // "Gen.1:1" -> "Gen 1:1"
-  ];
-
-  let verseRoles = null;
-  for (const key of possibleKeys) {
-    if (prophecyData[key]) {
-      verseRoles = prophecyData[key];
-      break;
-    }
-  }
+  // OPTIMIZATION: verse.reference uses dot format - direct lookup
+  const verseRoles = prophecyData[verse.reference];
 
   if (!verseRoles) {
     return (

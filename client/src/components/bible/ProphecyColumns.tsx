@@ -49,7 +49,7 @@ function ProphecyBlock({ prophecyData, type, onVerseClick, getVerseText }: Proph
               onClick={() => onVerseClick(ref)}
               className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
             >
-              {ref.replace(/\./g, ' ')}
+              {ref}
             </button>
             {getVerseText && (
               <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight whitespace-pre-wrap">
@@ -88,24 +88,9 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
       try {
         console.log(`🔮 Loading prophecy data for verse: ${verseKey}`);
 
-        // Try multiple formats for verse key matching
-        const possibleKeys = [
-          verseKey,
-          verseKey.replace(/\s/g, '.'), // "Gen 1:1" -> "Gen.1:1"  
-          verseKey.replace(/\./g, ' ')   // "Gen.1:1" -> "Gen 1:1"
-        ];
-
-        let verseRoles = null;
-        let foundKey = null;
-
-        // Look up verse in prophecyData (this comes from prophecy_index.txt parsing)
-        for (const key of possibleKeys) {
-          if (prophecyData[key]) {
-            verseRoles = prophecyData[key];
-            foundKey = key;
-            break;
-          }
-        }
+        // OPTIMIZATION: verseKey uses dot format - direct lookup
+        const verseRoles = prophecyData[verseKey];
+        const foundKey = verseKey;
 
         if (!verseRoles || (!verseRoles.P?.length && !verseRoles.F?.length && !verseRoles.V?.length)) {
           console.log(`❌ No prophecy data found for ${verseKey} (tried keys: ${possibleKeys.join(', ')})`);
