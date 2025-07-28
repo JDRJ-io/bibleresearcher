@@ -94,10 +94,14 @@ export async function loadVerseKeys(chronological = false): Promise<string[]> {
   const cacheKey = chronological ? 'verse-keys-chronological' : 'verse-keys-canonical';
   const filePath = chronological ? paths.verseKeysChronological : paths.verseKeys;
 
+  console.log(`🔑 STEP 5: loadVerseKeys called with chronological=${chronological}, loading file: ${filePath}`);
+
   return getOrFetch(cacheKey, async () => {
+    console.log(`🔑 STEP 6: Actually fetching ${filePath} from Supabase storage...`);
     const data = await fetchFromStorage(filePath);
     const verseKeys = JSON.parse(data);
-    console.log(`🔑 Loaded ${verseKeys.length} ${chronological ? 'chronological' : 'canonical'} verse keys as master index`);
+    console.log(`🔑 STEP 7: Loaded ${verseKeys.length} ${chronological ? 'chronological' : 'canonical'} verse keys as master index`);
+    console.log(`🔑 STEP 8: First few verses in order: [${verseKeys.slice(0, 5).join(', ')}]`);
     return verseKeys;
   });
 }

@@ -957,12 +957,11 @@ export function useBibleData() {
       setIsLoading(true);
       setLoadingProgress({ stage: "verse-keys", percentage: 10 });
 
-      // Load the appropriate verse keys file
-      const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+      // Load the appropriate verse keys file using unified BibleDataAPI
+      const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+      const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
-      const verseKeys = newOrder === "canonical" 
-        ? await loadVerseKeysCanonical()
-        : await loadVerseKeysChronological();
+      const verseKeys = await loadVerseKeys(newOrder === "chronological");
 
       console.log(`📋 Loaded ${verseKeys.length} verse keys in ${newOrder} order`);
 
@@ -1001,11 +1000,10 @@ export function useBibleData() {
         const store = useBibleStore.getState();
         const isChronological = store.isChronological || false;
         
-        const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+        const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+        const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
-        const verseKeys = isChronological 
-          ? await loadVerseKeysChronological()
-          : await loadVerseKeysCanonical();
+        const verseKeys = await loadVerseKeys(isChronological);
         const orderType = isChronological ? "chronological" : "canonical";
         console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order as master index`);
 
@@ -1044,11 +1042,10 @@ export function useBibleData() {
         setIsLoading(true);
         setLoadingProgress({ stage: "verse-keys", percentage: 10 });
         
-        const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+        const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+        const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
         
-        const verseKeys = isChronological 
-          ? await loadVerseKeysChronological()
-          : await loadVerseKeysCanonical();
+        const verseKeys = await loadVerseKeys(isChronological);
         
         const orderType = isChronological ? "chronological" : "canonical";
         console.log(`🔑 Reloaded ${verseKeys.length} verse keys in ${orderType} order`);
@@ -1091,11 +1088,10 @@ export function useBibleData() {
     try {
       setIsLoading(true);
       
-      const { loadVerseKeysCanonical, loadVerseKeysChronological, createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
+      const { loadVerseKeys } = await import('@/data/BibleDataAPI');
+      const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
       
-      const verseKeys = isChronological 
-        ? await loadVerseKeysChronological()
-        : await loadVerseKeysCanonical();
+      const verseKeys = await loadVerseKeys(isChronological);
       
       const orderType = isChronological ? "chronological" : "canonical";
       console.log(`🔑 Loaded ${verseKeys.length} verse keys in ${orderType} order`);
