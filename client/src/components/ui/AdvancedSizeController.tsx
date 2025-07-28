@@ -94,7 +94,7 @@ export function AdvancedSizeController({ className = '' }: AdvancedSizeControlle
             <span>200%</span>
           </div>
           <p className="text-xs text-gray-600 dark:text-gray-400">
-            Controls text, columns, headers, and row spacing together
+            Controls content text, columns, and row spacing (excludes navigation)
           </p>
         </div>
       ) : (

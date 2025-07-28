@@ -185,7 +185,7 @@ export default function BiblePage() {
   if (shouldShowLoading) {
     return (
       <ThemeProvider>
-        <div className="min-h-screen bg-background">
+        <div className="bible-content-area min-h-screen bg-background">
           <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
@@ -218,7 +218,7 @@ export default function BiblePage() {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background">
+      <div className="bible-content-area min-h-screen bg-background">
         <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}

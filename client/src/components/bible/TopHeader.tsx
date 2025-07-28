@@ -40,7 +40,7 @@ export function TopHeader({
 
   return (
     <header 
-      className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between max-w-full shadow-sm"
+      className="top-header sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between max-w-full shadow-sm"
       style={{ 
         height: isMobile ? '48px' : '64px',
         minHeight: isMobile ? '48px' : '64px',

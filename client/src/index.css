@@ -57,6 +57,7 @@
   --text-size-mult: 1.2; /* Text-only size multiplier */
   --external-size-mult: 1.2; /* External elements size multiplier */
   --row-height-mult: 1.2; /* Row height multiplier */
+  --column-width-mult: 1.2; /* Column width multiplier */
   --font-size-multiplier: 1.0;
   --base-font-size: 14px;
   --text-sm: calc(var(--base-font-size) * 0.875 * var(--text-size-mult));
@@ -64,15 +65,46 @@
   --text-lg: calc(var(--base-font-size) * 1.125 * var(--text-size-mult));
   --row-height-base: 36px; /* Reduced base row height for tighter spacing */
   --row-height: calc(var(--row-height-base) * var(--row-height-mult));
+  
+  /* UI Chrome elements stay at fixed sizes */
+  --header-height-desktop: 52px;
+  --header-height-mobile: 48px;
 }
 
-/* Apply responsive sizing to HTML root and column widths */
-html { 
+/* Apply responsive sizing only to content areas, not UI chrome */
+.bible-content-area { 
   font-size: calc(var(--baseRem) * var(--external-size-mult)); 
 }
 
-.w-col { 
-  width: calc(var(--baseColW) * var(--external-size-mult)); 
+/* Top header should NOT scale with content sizing */
+.top-header {
+  font-size: var(--base-font-size) !important; /* Fixed font size, no scaling */
+  height: var(--header-height-desktop) !important;
+}
+
+.top-header * {
+  font-size: inherit !important; /* Prevent child elements from scaling */
+}
+
+@media (max-width: 640px) {
+  .top-header {
+    height: var(--header-height-mobile) !important;
+  }
+}
+
+/* Column width scaling - separate from overall UI scaling */
+.bible-column { 
+  width: calc(var(--column-width, 18rem) * var(--column-width-mult)); 
+}
+
+/* Reference column has fixed width */
+.bible-column.reference-column {
+  width: calc(5rem * var(--column-width-mult));
+}
+
+/* Main translation column */
+.bible-column.main-translation-column {
+  width: calc(20rem * var(--column-width-mult));
 }
 
 /* Adaptive text sizing for all text columns */

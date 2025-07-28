@@ -463,11 +463,12 @@ export const useBibleStore = create<{
       
       set({ sizeState: newState });
       
-      // Apply CSS variables for comprehensive scaling
+      // Apply CSS variables for content-specific scaling (not UI chrome)
       document.documentElement.style.setProperty('--content-size-mult', mult.toString());
       document.documentElement.style.setProperty('--text-size-mult', newState.textSizeMult.toString());
       document.documentElement.style.setProperty('--external-size-mult', newState.externalSizeMult.toString());
       document.documentElement.style.setProperty('--row-height-mult', newState.externalSizeMult.toString());
+      document.documentElement.style.setProperty('--column-width-mult', newState.externalSizeMult.toString());
       
       // Persist unified setting
       localStorage.setItem('bibleSizeMult', mult.toString());
@@ -488,6 +489,7 @@ export const useBibleStore = create<{
       
       document.documentElement.style.setProperty('--external-size-mult', mult.toString());
       document.documentElement.style.setProperty('--row-height-mult', mult.toString());
+      document.documentElement.style.setProperty('--column-width-mult', mult.toString());
       localStorage.setItem('bibleExternalSizeMult', mult.toString());
     },
     toggleUnifiedSizing: () => {
