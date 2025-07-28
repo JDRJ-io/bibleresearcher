@@ -179,7 +179,28 @@ export function getVisibleColumns(preferences: any, isGuest: boolean = true): Co
 }
 
 export function getColumnWidth(column: ColumnSlot, isMobile: boolean = false): string {
-  return isMobile ? column.mobileWidth : column.width;
+  // Convert Tailwind classes to CSS custom properties that can be scaled
+  const baseWidth = isMobile ? column.mobileWidth : column.width;
+  
+  // Convert common Tailwind width classes to rem values
+  const widthMap: Record<string, string> = {
+    'w-6': '1.5rem',
+    'w-20': '5rem', 
+    'w-52': '13rem',
+    'w-80': '20rem',
+    'w-64': '16rem',
+    'w-72': '18rem',
+    'w-full': '100%'
+  };
+  
+  const remValue = widthMap[baseWidth] || baseWidth;
+  
+  // Apply column width multiplier for scalable columns
+  if (remValue.includes('rem')) {
+    return `calc(${remValue} * var(--column-width-mult))`;
+  }
+  
+  return remValue;
 }
 
 // Translation slot management

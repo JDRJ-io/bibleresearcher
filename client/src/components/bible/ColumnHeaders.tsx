@@ -95,9 +95,10 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
     return `${pixelWidth}px`;
   };
   
-  // Get width from columnState - this is the single source of truth
+  // Get width from columnState and apply column width scaling
   const getColumnWidth = () => {
-    return { width: getSlotWidth(columnState, column.slot) };
+    const width = getSlotWidth(columnState, column.slot);
+    return { width };
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
@@ -112,8 +113,10 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
 
   return (
     <div 
-      className={`flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
-      style={getColumnWidth()}
+      className={`bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
+      style={{
+        width: `calc(${getSlotWidth(columnState, column.slot)} * var(--column-width-mult))`
+      }}
     >
       {isDraggable && (
         <div className="absolute top-0 right-0 text-blue-500 text-xs">⋮⋮</div>

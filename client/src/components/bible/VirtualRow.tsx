@@ -535,9 +535,9 @@ export function VirtualRow({
       return `${pixelWidth}px`;
     };
 
-    // Use inline styles for exact width matching instead of Tailwind classes
+    // Use inline styles for exact width matching with column width scaling
     const columnStyle = {
-      width: getColumnPixelWidth(slot),
+      width: `calc(${getColumnPixelWidth(slot)} * var(--column-width-mult))`,
       flexShrink: 0
     };
 
@@ -546,7 +546,7 @@ export function VirtualRow({
     switch (config.type) {
       case 'reference':
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-1 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref">
               <span>{verse.reference}</span>
             </div>
@@ -555,7 +555,7 @@ export function VirtualRow({
 
       case 'notes':
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-2 py-1 text-sm text-gray-500 cell-content">
               [Notes placeholder]
             </div>
@@ -564,7 +564,7 @@ export function VirtualRow({
 
       case 'main-translation':
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -591,7 +591,7 @@ export function VirtualRow({
                         getMainVerseText(verse.reference);
 
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="px-2 py-1 text-sm cell-content">
               {verseText || `[${config.translationCode} loading...]`}
             </div>
@@ -601,7 +601,7 @@ export function VirtualRow({
       case 'cross-refs':
         console.log('🔍 VirtualRow rendering cross-refs cell, onVerseClick:', !!onVerseClick);
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <CrossReferencesCell 
               verse={verse} 
               getVerseText={getVerseText} 
@@ -613,7 +613,7 @@ export function VirtualRow({
 
       case 'context':
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} />
           </div>
         );
@@ -622,7 +622,7 @@ export function VirtualRow({
       case 'prophecy-f':
       case 'prophecy-v':
         return (
-          <div key={slot} className="border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
