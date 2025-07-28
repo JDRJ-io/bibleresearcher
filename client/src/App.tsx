@@ -154,7 +154,7 @@ export const useBibleStore = create<{
 
     // If no specific verses requested, this is a no-op (we load on-demand only)
     if (!verseIds || verseIds.length === 0) {
-      console.log('📚 Cross-references will load on-demand as needed');
+
       return;
     }
 
@@ -165,11 +165,11 @@ export const useBibleStore = create<{
     });
 
     if (neededVerses.length === 0) {
-      console.log('✅ All requested cross-references already loaded');
+
       return;
     }
 
-    console.log(`📚 Loading cross-references for ${neededVerses.length} verses...`);
+
 
     try {
       const { getCrossReferences } = await import('@/data/BibleDataAPI');
@@ -188,7 +188,7 @@ export const useBibleStore = create<{
         }
       }
 
-      console.log(`✅ Loaded cross-references for ${neededVerses.length} verses`);
+
       set({ crossRefs: newCrossRefs });
 
     } catch (error) {
@@ -197,7 +197,7 @@ export const useBibleStore = create<{
   },
 
   toggleCrossRefs: () => set(state => {
-    console.log('🔄 TOGGLE CROSS REFS - Current:', state.showCrossRefs, '→ New:', !state.showCrossRefs);
+
     const newValue = !state.showCrossRefs;
 
     // Load cross-references data when toggling on
@@ -215,17 +215,17 @@ export const useBibleStore = create<{
         )
       }
     };
-    console.log('🔄 TOGGLE CROSS REFS - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+
     return newState;
   }),
 
   toggleProphecies: () => set(state => {
-    console.log('🔄 TOGGLE PROPHECIES - Current:', state.showProphecies, '→ New:', !state.showProphecies);
+
     const newValue = !state.showProphecies;
 
     // Load prophecy data when toggling on - using prophecy_rows.txt and prophecy_index.json
     if (newValue && Object.keys(state.prophecyData).length === 0) {
-      console.log('🔮 Loading prophecy data from Supabase files...');
+
       import('@/data/BibleDataAPI').then(async ({ loadProphecyData }) => {
         try {
           const { verseRoles, prophecyIndex } = await loadProphecyData();
@@ -235,7 +235,7 @@ export const useBibleStore = create<{
           currentState.setProphecyData(verseRoles);
           currentState.setProphecyIndex(prophecyIndex);
 
-          console.log(`✅ Prophecy system loaded: ${Object.keys(verseRoles).length} verses with roles, ${Object.keys(prophecyIndex).length} prophecies`);
+
         } catch (error) {
           console.error('❌ Failed to load prophecy data:', error);
           // Set empty data to prevent repeated loading attempts
@@ -255,12 +255,12 @@ export const useBibleStore = create<{
         )
       }
     };
-    console.log('🔄 TOGGLE PROPHECIES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+
     return newState;
   }),
 
   toggleNotes: () => set(state => {
-    console.log('🔄 TOGGLE NOTES - Current:', state.showNotes, '→ New:', !state.showNotes);
+
     const newValue = !state.showNotes;
     const newState = {
       showNotes: newValue,
@@ -271,23 +271,23 @@ export const useBibleStore = create<{
         )
       }
     };
-    console.log('🔄 TOGGLE NOTES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+
     return newState;
   }),
 
   toggleDates: () => set(state => {
-    console.log('🔄 TOGGLE DATES - Current:', state.showDates, '→ New:', !state.showDates);
+
     const newValue = !state.showDates;
 
     // Load dates data when toggling on - respect chronological state
     if (newValue) {
       const isChronological = state.isChronological;
-      console.log(`📅 Loading ${isChronological ? 'chronological' : 'canonical'} dates data from Supabase...`);
+
       import('@/data/BibleDataAPI').then(async ({ loadDatesData }) => {
         try {
           const datesArray = await loadDatesData(isChronological);
           get().setDatesData(datesArray);
-          console.log(`✅ ${isChronological ? 'Chronological' : 'Canonical'} dates data loaded:`, datesArray.length, 'verse dates');
+
         } catch (error) {
           console.error('❌ Failed to load dates data:', error);
         }
@@ -303,23 +303,23 @@ export const useBibleStore = create<{
         )
       }
     };
-    console.log('🔄 TOGGLE DATES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+
     return newState;
   }),
 
 
 
   toggleContext: () => set(state => {
-    console.log('🔄 TOGGLE CONTEXT - Current:', state.showContext, '→ New:', !state.showContext);
+
     const newValue = !state.showContext;
 
     // Load context groups data when toggling on
     if (newValue) {
-      console.log('🌐 Loading context groups data from Supabase...');
+
       import('@/data/BibleDataAPI').then(async ({ getContextGroups }) => {
         try {
           const contextData = await getContextGroups();
-          console.log('✅ Context groups data loaded:', contextData.length, 'groups');
+
           
           // Process context groups into a map for quick lookup
           const newContextMap = new Map<string, { startVerse: string; endVerse: string; groupIndex: number }>();
@@ -350,7 +350,7 @@ export const useBibleStore = create<{
           });
           
           get().setContextBoundaries(newContextMap);
-          console.log('📚 Context boundaries processed:', newContextMap.size, 'verses mapped');
+
           
         } catch (error) {
           console.error('❌ Failed to load context groups:', error);
@@ -364,10 +364,10 @@ export const useBibleStore = create<{
   // Toggle between canonical and chronological verse order
   toggleChronological: () => set(state => {
     const newChronological = !state.isChronological;
-    console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
+
 
     // IMMEDIATE VERSE RELOADING: Follow exact system logging path (STEP 5-8)
-    console.log(`🔑 IMMEDIATE: Triggering verse reload for ${newChronological ? 'chronological' : 'canonical'} order...`);
+
     
     // IMMEDIATE EXECUTION: Just load the new verse order
     (async () => {
@@ -376,17 +376,17 @@ export const useBibleStore = create<{
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
         // STEP 1: Load the new verse order
-        console.log(`🔑 STEP 1: Loading ${newChronological ? 'chronological' : 'canonical'} verse keys from Supabase...`);
+
         const verseKeys = await loadVerseKeys(newChronological);
         
-        console.log(`🔑 STEP 2: Received ${verseKeys.length} verse keys, first 3: [${verseKeys.slice(0, 3).join(', ')}]`);
+
 
         // Update store with new keys
         get().setCurrentVerseKeys(verseKeys);
 
         // Create verse objects in new order
         const reorderedVerses = createVerseObjectsFromKeys(verseKeys);
-        console.log(`🔄 STEP 3: Created ${reorderedVerses.length} verses, first verse: ${reorderedVerses[0]?.reference}`);
+
 
         // Trigger UI update
         window.dispatchEvent(new CustomEvent('verse-order-changed', { 
@@ -396,7 +396,7 @@ export const useBibleStore = create<{
           }
         }));
 
-        console.log(`✅ STEP 4: Successfully triggered reload to ${newChronological ? 'chronological' : 'canonical'} order`);
+
       } catch (error) {
         console.error('❌ IMMEDIATE: Failed to reload verses:', error);
         console.error('❌ Error details:', error.stack);
@@ -406,12 +406,12 @@ export const useBibleStore = create<{
 
     // If dates are currently visible, reload them in the new order
     if (state.showDates) {
-      console.log(`📅 Reloading dates data for ${newChronological ? 'chronological' : 'canonical'} order...`);
+
       import('@/data/BibleDataAPI').then(async ({ loadDatesData }) => {
         try {
           const datesArray = await loadDatesData(newChronological);
           get().setDatesData(datesArray);
-          console.log(`✅ ${newChronological ? 'Chronological' : 'Canonical'} dates data reloaded:`, datesArray.length, 'verse dates');
+
         } catch (error) {
           console.error('❌ Failed to reload dates data:', error);
         }
@@ -427,7 +427,7 @@ export const useBibleStore = create<{
   })),
   getAllActive: () => get().actives,
   setActiveLabels: (labels: LabelName[]) => {
-    console.log('🔍🔍🔍 STORE DEBUG - setActiveLabels called with:', labels, 'type:', typeof labels, 'length:', labels?.length);
+
     set({ activeLabels: labels });
   },
 
@@ -464,7 +464,7 @@ export const useBibleStore = create<{
       }
     })),
     reorder: (fromSlot: number, toSlot: number) => set(state => {
-      console.log(`🔄 Column reorder: slot ${fromSlot} → slot ${toSlot}`);
+
       
       // Find the columns being moved by slot number
       const fromColumn = state.columnState.columns.find(col => col.slot === fromSlot);
@@ -472,7 +472,7 @@ export const useBibleStore = create<{
       
       if (!fromColumn || !toColumn) {
         console.warn(`Column not found: fromSlot=${fromSlot} (found: ${!!fromColumn}), toSlot=${toSlot} (found: ${!!toColumn})`);
-        console.log('Available columns:', state.columnState.columns.map(c => `slot ${c.slot} (visible: ${c.visible})`));
+
         return state;
       }
       
@@ -506,10 +506,7 @@ export const useBibleStore = create<{
         }
       });
       
-      console.log(`✅ Column reorder complete`, 
-        newColumns.filter(c => c.visible)
-          .sort((a, b) => a.displayOrder - b.displayOrder)
-          .map(c => `slot ${c.slot} (order ${c.displayOrder})`));
+
       
       return { columnState: { ...state.columnState, columns: newColumns } };
     }),

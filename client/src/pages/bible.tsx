@@ -43,7 +43,8 @@ export default function BiblePage() {
     goBack,
     goForward,
     canGoBack,
-    canGoForward
+    canGoForward,
+    navigateToVerse
   } = useBibleData();
 
   // Strong's overlay handler
@@ -259,6 +260,7 @@ export default function BiblePage() {
             mainTranslation={mainTranslation}
             onExpandVerse={handleExpandVerse}
             getGlobalVerseText={getGlobalVerseText}
+            onNavigateToVerse={navigateToVerse}
           />
         </main>
 

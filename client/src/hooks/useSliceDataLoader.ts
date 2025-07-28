@@ -29,7 +29,7 @@ const apiRequest = async (url: string, method: string = 'GET', body?: any) => {
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
   // when "main" changes, useEffect([main]) invalidates and refetches the remote cache
   // prefetch remote refs in the new translation
-  console.log(`🔄 Prefetching remote verses for ${main} translation with ${sliceIndices.length} slice indices`);
+
   // TODO: implement prefetch logic for cross-references and prophecy
 };
 

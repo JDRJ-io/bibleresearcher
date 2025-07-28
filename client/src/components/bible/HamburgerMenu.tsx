@@ -143,7 +143,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
-            <AlternateTranslationSelector onUpdate={() => console.log('🔄 Translation updated from alt-translations tab')} />
+            <AlternateTranslationSelector onUpdate={() => {}} />
           </div>
         );
 
@@ -167,7 +167,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   className="w-3 h-3" 
                   checked={showCrossRefs}
                   onCheckedChange={(checked) => {
-                    console.log('🔴 Cross References toggle clicked! New state:', checked);
                     toggleCrossRefs();
                   }}
                 />
@@ -191,7 +190,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   className="w-3 h-3"
                   checked={showProphecies}
                   onCheckedChange={(checked) => {
-                    console.log('🔴 Prophecy toggle clicked! New state:', checked);
                     toggleProphecies();
                   }}
                 />
@@ -208,7 +206,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   className="w-3 h-3"
                   checked={showNotes}
                   onCheckedChange={(checked) => {
-                    console.log('🔴 Notes toggle clicked! New state:', checked);
                     toggleNotes();
                   }}
                 />
@@ -220,7 +217,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   className="w-3 h-3"
                   checked={showDates}
                   onCheckedChange={(checked) => {
-                    console.log('🔴 Dates toggle clicked! New state:', checked);
                     toggleDates();
                   }}
                 />

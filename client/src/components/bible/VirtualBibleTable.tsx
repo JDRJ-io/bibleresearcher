@@ -194,30 +194,35 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // STRAIGHT-LINE: Assume ref is already in dot format from system
-      const verseIndex = verseKeys.findIndex(key => key === ref);
-      const foundFormat = ref;
+      // Call the navigation function to update history
+      if (onNavigateToVerse) {
+        onNavigateToVerse(ref);
+      } else {
+        // Fallback to local scrolling if no navigation function provided
+        const verseIndex = verseKeys.findIndex(key => key === ref);
+        const foundFormat = ref;
 
-      if (verseIndex >= 0) {
-        if (containerRef.current) {
-          const containerHeight = containerRef.current.clientHeight;
-          const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
+        if (verseIndex >= 0) {
+          if (containerRef.current) {
+            const containerHeight = containerRef.current.clientHeight;
+            const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
 
-          // Instant jump with simple highlight
-          containerRef.current.scrollTo({
-            top: Math.max(0, targetScrollTop),
-            behavior: 'auto'
-          });
+            // Instant jump with simple highlight
+            containerRef.current.scrollTo({
+              top: Math.max(0, targetScrollTop),
+              behavior: 'auto'
+            });
 
-          // Simple highlight feedback
-          setTimeout(() => {
-            const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
-                               document.querySelector(`[data-verse-ref="${foundFormat}"]`);
-            if (targetVerse) {
-              targetVerse.classList.add('verse-highlight-flash');
-              setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 400);
-            }
-          }, 25);
+            // Simple highlight feedback
+            setTimeout(() => {
+              const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
+                                 document.querySelector(`[data-verse-ref="${foundFormat}"]`);
+              if (targetVerse) {
+                targetVerse.classList.add('verse-highlight-flash');
+                setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 400);
+              }
+            }, 25);
+          }
         }
       }
     },
@@ -263,9 +268,9 @@ const VirtualBibleTable = ({
     },
   });
 
-  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
-  console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
+
 
   // Enhanced directional scrolling - only one axis at a time
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -476,10 +481,7 @@ const VirtualBibleTable = ({
                   contextGroup: "standard" as const
                 };
 
-                // Only log for first verse to avoid spam
-                if (id === "Gen.1:1") {
-                  console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
-                }
+
                 return (
                   <VirtualRow 
                     key={id}
