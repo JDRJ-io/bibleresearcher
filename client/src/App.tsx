@@ -325,6 +325,19 @@ export const useBibleStore = create<{
   toggleChronological: () => set(state => {
     const newChronological = !state.isChronological;
     console.log('🔄 TOGGLE CHRONOLOGICAL - Current:', state.isChronological, '→ New:', newChronological);
+    
+    // Clear verse key cache to force fresh load and trigger reload
+    import('@/lib/supabaseClient').then(({ masterCache }) => {
+      masterCache.delete('verse-keys-canonical');
+      masterCache.delete('verse-keys-chronological');
+      console.log('💫 CACHE CLEARED: Forced fresh verse key reload');
+      
+      // Dispatch custom event to trigger verse reload
+      window.dispatchEvent(new CustomEvent('chronological-order-changed', { 
+        detail: { isChronological: newChronological } 
+      }));
+      console.log('📡 EVENT DISPATCHED: chronological-order-changed');
+    });
 
     // If dates are currently visible, reload them in the new order
     if (state.showDates) {

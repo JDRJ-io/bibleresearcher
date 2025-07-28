@@ -1012,6 +1012,8 @@ export function useBibleData() {
         return; // Skip if verses not loaded yet
       }
       
+      console.log('🔍 ORDER WATCHER: Running order change check...');
+      
       const { useBibleStore } = await import('@/App');
       const store = useBibleStore.getState();
       const currentOrder = store.isChronological ? "chronological" : "canonical";
@@ -1067,10 +1069,24 @@ export function useBibleData() {
       }
     };
 
+    // Run immediately and then set up interval
+    reloadVersesForOrderChange();
+    
     // Check for order changes every 1000ms
     const interval = setInterval(reloadVersesForOrderChange, 1000);
     
-    return () => clearInterval(interval);
+    // Also listen for custom chronological order change events
+    const handleOrderChange = (event: CustomEvent) => {
+      console.log('📡 EVENT RECEIVED: chronological-order-changed', event.detail);
+      reloadVersesForOrderChange();
+    };
+    
+    window.addEventListener('chronological-order-changed', handleOrderChange as EventListener);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('chronological-order-changed', handleOrderChange as EventListener);
+    };
   }, [verses.length, verseOrder]); // Dependencies: verses loaded and current order
 
   // DISABLED: Apply cross-references when crossRefSet changes - preventing infinite loading
