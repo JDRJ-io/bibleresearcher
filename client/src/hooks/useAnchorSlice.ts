@@ -4,8 +4,8 @@ import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
 // Simple loadChunk implementation to replace anchorLoader
-function loadChunk(anchorIndex: number, buffer: number = 100) {
-  const allVerseKeys = getVerseKeys();
+function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 100) {
+  const allVerseKeys = verseKeys.length > 0 ? verseKeys : getVerseKeys();
   const totalRows = allVerseKeys.length;
   
   // VERSE LOADING FIX: Ensure we have valid verse keys
@@ -29,10 +29,15 @@ function loadChunk(anchorIndex: number, buffer: number = 100) {
 
 const THRESH = 10;  // rows to skip before fetching a new slice
 
-export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
+export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
   const anchorIndexRef = useRef(0);
   const [anchorIndex, setAnchorIndex] = useState(0);
-  const [slice, setSlice] = useState(() => loadChunk(0));
+  const [slice, setSlice] = useState(() => loadChunk(0, verseKeys));
+
+  // Reload slice when verse keys change (canonical/chronological toggle)
+  useLayoutEffect(() => {
+    setSlice(loadChunk(anchorIndexRef.current, verseKeys));
+  }, [verseKeys]);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
@@ -45,13 +50,13 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
       if (Math.abs(anchor - lastAnchor) >= THRESH) {
         anchorIndexRef.current = anchor;
         setAnchorIndex(anchor);
-        setSlice(loadChunk(anchor));
+        setSlice(loadChunk(anchor, verseKeys));
       }
     };
 
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
-  }, [containerRef]);
+  }, [containerRef, verseKeys]);
 
   return {
     anchorIndex,

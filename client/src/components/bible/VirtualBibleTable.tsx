@@ -71,8 +71,12 @@ const VirtualBibleTable = ({
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
-  const verseKeys = getVerseKeys(); // loaded once
-  const { anchorIndex, slice } = useAnchorSlice(containerRef);
+  
+  // Get reactive verse keys from store instead of static function
+  const { currentVerseKeys, isChronological } = useBibleStore();
+  const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
+  
+  const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys);
 
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
