@@ -81,6 +81,12 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                         getVerseText(ref, mainTranslation) || '';
             }
 
+            // Format reference like "Gen 2:17" with proper capitalization
+            const formatReference = (ref: string) => {
+              const spaceFormatted = ref.replace(/\./g, ' ');
+              return spaceFormatted.charAt(0).toUpperCase() + spaceFormatted.slice(1);
+            };
+
             return (
               <div key={i} className="cross-ref-item block w-full mb-1">
                 <button
@@ -89,7 +95,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
-                  {displayRef}
+                  {formatReference(ref)}
                 </button>
                 <div className="text-gray-700 dark:text-gray-300 text-sm leading-tight whitespace-normal break-words">
                   {refText || '—'}

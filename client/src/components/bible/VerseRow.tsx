@@ -202,13 +202,19 @@ export function VerseRow({
                 const displayText = refText && refText.length > 150 ? 
                   refText.substring(0, 150) + '...' : refText;
 
+                // Format reference like "Gen 2:17" with proper capitalization
+                const formatReference = (ref: string) => {
+                  const spaceFormatted = ref.replace(/\./g, ' ');
+                  return spaceFormatted.charAt(0).toUpperCase() + spaceFormatted.slice(1);
+                };
+
                 return (
                   <div key={index} className="mb-3 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
                     <button 
                       onClick={() => onNavigateToVerse(ref)}
                       className="cross-ref-button font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer block mb-1"
                     >
-                      {ref.replace(/\./g, ' ')}
+                      {formatReference(ref)}
                     </button>
                     {displayText && (
                       <div className="text-muted-foreground break-words text-xs leading-relaxed">
