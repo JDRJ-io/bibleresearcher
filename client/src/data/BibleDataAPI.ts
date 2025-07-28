@@ -561,3 +561,7 @@ export const BibleDataAPI = {
   getVerseStrongsData: (reference: string) => strongsService.getVerseStrongsData(reference),
   getStrongsOccurrences: (strongsKey: string) => strongsService.getStrongsOccurrences(strongsKey),
 };
+
+// Apply instrumentation to the API
+import { createInstrumentedAPI } from '@/lib/instrumentedAPI';
+createInstrumentedAPI(BibleDataAPI);

@@ -13,6 +13,7 @@ import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
 import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
+import { QuickLogger } from '@/components/debug/QuickLogger';
 import type { BibleVerse } from '@/types/bible';
 
 export default function BiblePage() {
@@ -292,6 +293,9 @@ export default function BiblePage() {
 
         {/* Subtle Footer */}
         <Footer />
+        
+        {/* Development logging widget */}
+        {import.meta.env.DEV && <QuickLogger position="bottom-right" minimized={true} />}
       </div>
     </ThemeProvider>
   );
