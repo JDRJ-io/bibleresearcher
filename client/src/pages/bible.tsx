@@ -39,7 +39,11 @@ export default function BiblePage() {
     isLoading,
     allVerses,
     getGlobalVerseText,
-    mainTranslation
+    mainTranslation,
+    goBack,
+    goForward,
+    canGoBack,
+    canGoForward
   } = useBibleData();
 
   // Strong's overlay handler
@@ -199,10 +203,10 @@ export default function BiblePage() {
           <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
-          onBack={() => {}}
-          onForward={() => {}}
-          canGoBack={false}
-          canGoForward={false}
+          onBack={goBack}
+          onForward={goForward}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
         />
           <div className="flex items-center justify-center min-h-[60vh]">
@@ -232,10 +236,10 @@ export default function BiblePage() {
         <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
-          onBack={() => {}}
-          onForward={() => {}}
-          canGoBack={false}
-          canGoForward={false}
+          onBack={goBack}
+          onForward={goForward}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
         />
 
