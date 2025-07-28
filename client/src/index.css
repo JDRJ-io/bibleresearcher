@@ -1050,7 +1050,73 @@ body.overlay-open {
   background: var(--accent-color);
 }
 
-/* Mobile Optimizations */
+/* Mobile Portrait Optimizations */
+@media (max-width: 768px) and (orientation: portrait) {
+  .bible-table-wrapper {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+  }
+
+  /* Portrait mode column widths for optimal 3-column view */
+  .bible-column-reference { /* Reference column */
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    flex-shrink: 0;
+  }
+  
+  .bible-column-main-translation { /* Main translation */
+    width: 220px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
+    flex-shrink: 0;
+  }
+  
+  .bible-column-cross-refs { /* Cross references */
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    flex-shrink: 0;
+  }
+
+  /* Hide the ManualSizeController controls on mobile */
+  .bible-table-wrapper::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  /* Ensure proper text sizing in portrait mode */
+  .bible-cell {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Reference column optimizations */
+  .cell-ref {
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+  }
+
+  /* Main translation column */
+  .bible-column-main-translation .cell-content {
+    padding: 0.5rem 0.75rem;
+    font-size: 14px;
+  }
+
+  /* Cross references column */
+  .bible-column-cross-refs .cell-content {
+    font-size: 13px;
+    padding: 0.5rem 0.5rem;
+  }
+  
+  /* Ensure the three columns are visible initially */
+  .flex.overflow-x-auto {
+    scroll-behavior: smooth;
+  }
+}
+
+/* General mobile optimizations */
 @media (max-width: 639px) {
   .bible-table-wrapper.dual-col {
     justify-content: flex-start;

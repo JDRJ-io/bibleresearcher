@@ -121,7 +121,7 @@ const VirtualBibleTable = ({
   }, [activeLabels]);
   
   // Convert slice to verse objects for useViewportLabels
-  const sliceVerses = useMemo(() => {
+  const sliceVerses: BibleVerse[] = useMemo(() => {
     return slice.verseIDs.map(verseID => {
       const verseData = rowData?.[verseID];
       if (verseData) {
@@ -313,6 +313,15 @@ const VirtualBibleTable = ({
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
 
+  // Mobile detection for dual-column layout
+  const isMobile = useIsMobile();
+
+  // Detect orientation and determine centering logic
+  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
+
+  // Get viewport width
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+
   // Calculate visible columns for layout logic
   const visibleColumns = useMemo(() => {
     const columns = [
@@ -325,25 +334,29 @@ const VirtualBibleTable = ({
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // Calculate actual total width based on visible columns - simplified approach
+  // Calculate actual total width based on visible columns - optimized for mobile portrait
   const actualTotalWidth = useMemo(() => {
     let width = 0;
-    width += 80; // Reference column ~80px  
-    width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 320; // Cross refs ~320px
-    if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    
+    // For mobile portrait mode, use specific proportions
+    if (isPortrait && isMobile) {
+      width += 60; // Reference column - compact for mobile
+      width += 220; // Main translation - readable but efficient
+      width += 160; // Cross refs - slightly narrower (always shown on mobile)
+      if (showProphecies) width += 150; // P+F+V columns
+      width += (activeTranslations.filter(t => t !== mainTranslation).length * 180); // Alt translations
+    } else {
+      // Desktop/landscape sizes
+      width += 80; // Reference column ~80px  
+      width += 320; // Main translation ~320px
+      if (showCrossRefs) width += 320; // Cross refs ~320px
+      if (showProphecies) width += 180; // P+F+V ~60px each
+      width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    }
+    
     return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, isPortrait, isMobile]);
 
-  // Get viewport width
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-
-  // Mobile detection for dual-column layout
-  const isMobile = useIsMobile();
-
-  // Detect orientation and determine centering logic
-  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
   const fitsHorizontally = actualTotalWidth <= viewportWidth;
   const shouldCenter = !isPortrait && fitsHorizontally;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;

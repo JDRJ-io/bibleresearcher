@@ -354,9 +354,20 @@ export function ColumnHeaders({
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
+  // Get viewport width
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+
+  // Detect orientation and determine centering logic (same as VirtualBibleTable)
+  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
+
   // Calculate actual total width from columnState for accurate measurement
   const actualTotalWidth = useMemo(() => {
     if (!columnState?.columns) return 0;
+    
+    // For mobile portrait, use specific widths
+    if (adaptiveIsMobile && isPortrait) {
+      return 440; // 60 + 220 + 160 for the three columns
+    }
     
     return visibleColumns.reduce((total, col) => {
       const columnInfo = columnState.columns.find(c => c.slot === col.slot);
@@ -366,13 +377,7 @@ export function ColumnHeaders({
       }
       return total + 160; // fallback width
     }, 0);
-  }, [visibleColumns, columnState]);
-
-  // Get viewport width
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-
-  // Detect orientation and determine centering logic (same as VirtualBibleTable)
-  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
+  }, [visibleColumns, columnState, adaptiveIsMobile, isPortrait]);
   const fitsHorizontally = actualTotalWidth <= viewportWidth;
   const shouldCenter = !adaptiveIsMobile && !isPortrait && fitsHorizontally;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
