@@ -177,11 +177,16 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                 {/* Clickable summary title - more contained and professional */}
                 <button
                   onClick={() => toggleProphecyCollapse(String(prophecyId))}
-                  className="w-full text-sm font-medium text-white dark:text-white mb-2 px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-md text-center leading-tight hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 transition-all duration-200 shadow-sm border border-blue-300 dark:border-blue-500"
+                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 mb-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
-                  <span className="text-sm font-medium leading-tight">
-                    #{prophecyId} {prophecyDetails.summary}
-                  </span>
+                  <div className="flex items-start gap-1">
+                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5">
+                      {prophecyId}.
+                    </span>
+                    <span className="text-sm leading-tight text-left break-words">
+                      {prophecyDetails.summary}
+                    </span>
+                  </div>
                 </button>
 
                 {/* Show ALL verses for this prophecy in this column - collapsible */}
