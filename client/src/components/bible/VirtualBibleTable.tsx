@@ -531,8 +531,10 @@ const VirtualBibleTable = ({
                   contextGroup: "standard" as const
                 };
 
-                console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
-                console.log(`🔍 VirtualBibleTable onExpandVerse type:`, typeof onExpandVerse);
+                // Only log for first verse to avoid spam
+                if (id === "Gen.1:1") {
+                  console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
+                }
                 return (
                   <VirtualRow 
                     key={id}

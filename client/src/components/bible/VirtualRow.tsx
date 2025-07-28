@@ -352,8 +352,10 @@ export function VirtualRow({
   const store = useBibleStore();
   const { main: mainTranslation, alternates } = useTranslationMaps();
   
-  // Debug translation store state
-  console.log('🔍 VirtualRow translation state:', { mainTranslation, alternates });
+  // Debug translation store state (only for first verse to avoid spam)
+  if (verse.reference === "Gen 1:1") {
+    console.log('🔍 VirtualRow translation state:', { mainTranslation, alternates });
+  }
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
@@ -599,7 +601,6 @@ export function VirtualRow({
         );
 
       case 'cross-refs':
-        console.log('🔍 VirtualRow rendering cross-refs cell, onVerseClick:', !!onVerseClick);
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <CrossReferencesCell 

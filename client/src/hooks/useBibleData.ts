@@ -1000,16 +1000,19 @@ export function useBibleData() {
 
   // Watch chronological state changes and reload verses accordingly
   useEffect(() => {
+    let isReloading = false;
+    
     const reloadVersesForOrderChange = async () => {
-      if (verses.length === 0) return; // Skip if verses not loaded yet
+      if (verses.length === 0 || isReloading) return; // Skip if verses not loaded yet or already reloading
       
       const { useBibleStore } = await import('@/App');
       const store = useBibleStore.getState();
       const currentOrder = store.isChronological ? "chronological" : "canonical";
       
-      // Only reload if the order actually changed
+      // Only reload if the order actually changed and we're not already reloading
       if (currentOrder !== verseOrder) {
         console.log(`🔄 Order changed from ${verseOrder} to ${currentOrder}, reloading verses...`);
+        isReloading = true;
         
         try {
           setIsLoading(true);
@@ -1041,12 +1044,14 @@ export function useBibleData() {
         } catch (error) {
           console.error('❌ Failed to reload verses in new order:', error);
           setIsLoading(false);
+        } finally {
+          isReloading = false;
         }
       }
     };
 
-    // Check for order changes every 500ms
-    const interval = setInterval(reloadVersesForOrderChange, 500);
+    // Check for order changes every 1000ms (reduced frequency)
+    const interval = setInterval(reloadVersesForOrderChange, 1000);
     
     return () => clearInterval(interval);
   }, [verses.length, verseOrder]); // Dependencies: verses loaded and current order
