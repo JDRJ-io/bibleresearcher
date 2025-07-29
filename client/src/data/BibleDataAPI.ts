@@ -150,10 +150,13 @@ export async function loadChronologicalVerseKeys() {
   });
 }
 
-// Cross-reference loading with proper caching
+// Cross-reference loading with proper caching - FALLBACK ONLY (prefer getCrossRefsBatch)
 export async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
+  console.warn(`⚠️ FALLBACK: loadCrossReferences() called - this downloads entire ${set}.txt file. Use getCrossRefsBatch() for optimized range requests.`);
   return getOrFetch(`crossref-${set}`, async () => {
-    return await fetchFromStorage(paths.crossRef(set));
+    const data = await fetchFromStorage(paths.crossRef(set));
+    console.log(`✅ Cross-reference data loaded: ${data.length} bytes (FULL FILE - consider using range requests)`);
+    return data;
   });
 }
 
