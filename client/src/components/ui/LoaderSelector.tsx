@@ -1,5 +1,5 @@
 import React from 'react';
-import { HolyBookLoader } from './HolyBookLoader';
+
 import BibleHairFan from './BibleHairFan';
 
 interface LoaderSelectorProps {
@@ -35,9 +35,7 @@ export function LoaderSelector({
     lg: 160,
   };
 
-  if (type === 'holy-book') {
-    return <HolyBookLoader size={size} className={className} />;
-  }
+
 
   return (
     <div className={`inline-flex items-center justify-center ${className}`}>
