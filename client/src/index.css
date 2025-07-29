@@ -271,14 +271,22 @@ body {
 
 
 
-/* Expert's CSS-based Responsive Layout System */
+/* Precision Adaptive Portrait Column System */
 :root {
-  /* Baseline column widths - expert's clamp() approach */
+  /* Dynamic CSS variables set by useAdaptivePortraitColumns hook */
+  --adaptive-ref-width: 72px;          /* Reference column - dynamically calculated */
+  --adaptive-main-width: 352px;        /* Main translation - dynamically calculated */
+  --adaptive-cross-width: 288px;       /* Cross-reference - dynamically calculated */
+  --adaptive-alt-width: 320px;         /* Alternate translations - dynamically calculated */
+  --adaptive-prophecy-width: 352px;    /* Prophecy columns - same as main */
+  --adaptive-notes-width: 320px;       /* Notes column - dynamically calculated */
+  --adaptive-context-width: 192px;     /* Context/dates - dynamically calculated */
+  
+  /* Fallback baseline widths - expert's clamp() approach for landscape */
   --w-ref: 4.5rem;                              /* reference # column */
   --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */  
   --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
   --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
-  --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
   --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
 }
 

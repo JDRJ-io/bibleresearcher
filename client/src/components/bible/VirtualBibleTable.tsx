@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
+import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
 import { useOrientation } from '@/hooks/useOrientation';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
@@ -360,8 +361,35 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   
   // Responsive column system
   const responsiveConfig = useResponsiveColumns();
+  const adaptiveConfig = useAdaptivePortraitColumns();
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';
+
+  // Update CSS variables dynamically based on adaptive configuration
+  React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      // Update CSS custom properties for adaptive column widths
+      const root = document.documentElement;
+      const { adaptiveWidths } = adaptiveConfig;
+      
+      root.style.setProperty('--adaptive-ref-width', `${adaptiveWidths.reference}px`);
+      root.style.setProperty('--adaptive-main-width', `${adaptiveWidths.mainTranslation}px`);
+      root.style.setProperty('--adaptive-cross-width', `${adaptiveWidths.crossReference}px`);
+      root.style.setProperty('--adaptive-alt-width', `${adaptiveWidths.alternate}px`);
+      root.style.setProperty('--adaptive-prophecy-width', `${adaptiveWidths.prophecy}px`);
+      root.style.setProperty('--adaptive-notes-width', `${adaptiveWidths.notes}px`);
+      root.style.setProperty('--adaptive-context-width', `${adaptiveWidths.context}px`);
+
+      console.log('🎯 Applied Adaptive Column Widths:', {
+        viewport: `${adaptiveConfig.screenWidth}×${adaptiveConfig.screenHeight}`,
+        isPortrait: adaptiveConfig.isPortrait,
+        safeWidth: adaptiveConfig.safeViewportWidth,
+        coreColumnsWidth: adaptiveConfig.coreColumnsWidth,
+        guaranteedFit: adaptiveConfig.guaranteedFit,
+        widths: adaptiveWidths
+      });
+    }
+  }, [adaptiveConfig]);
 
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;

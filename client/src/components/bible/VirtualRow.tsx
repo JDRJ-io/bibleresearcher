@@ -543,16 +543,32 @@ export function VirtualRow({
         return '160px'; // fallback
       }
       
-      // Use expert's CSS variable system for responsive column widths
-      if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
-      if (slotNumber === 2 && config.type === 'main-translation') return 'var(--w-main)'; // Main translation
-      if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
+      // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
+      const isPortrait = window.innerHeight > window.innerWidth;
       
-      // Handle alternate translations and other column types
-      if (config.type === 'translation' && slotNumber !== 2) return 'var(--w-alt)'; // Alternate translations
-      if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
-      if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
-      if (config.type === 'context') return '12rem'; // Context/dates column
+      if (isPortrait) {
+        // Portrait mode - use precision adaptive widths
+        if (slotNumber === 0) return 'var(--adaptive-ref-width)'; // Reference column
+        if (slotNumber === 2 && config.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main translation
+        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross references
+        
+        // Handle alternate translations and other column types
+        if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--adaptive-alt-width)'; // Alternate translations
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
+        if (config.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
+        if (config.type === 'context') return 'var(--adaptive-context-width)'; // Context/dates column
+      } else {
+        // Landscape mode - use expert's clamp() system
+        if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
+        if (slotNumber === 2 && config.type === 'main-translation') return 'var(--w-main)'; // Main translation
+        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
+        
+        // Handle alternate translations and other column types
+        if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--w-alt)'; // Alternate translations
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
+        if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
+        if (config.type === 'context') return '12rem'; // Context/dates column
+      }
       
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
       const pixelWidth = columnInfo.widthRem * 16;
