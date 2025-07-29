@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookPageTransition } from './BookPageTransition';
 import { RealisticBookTransition } from './RealisticBookTransition';
-import { HolyBookLoader } from './HolyBookLoader';
+import BibleHairFan from './BibleHairFan';
 import { Button } from './button';
 
 export function PageTurnDemo() {
@@ -9,10 +9,10 @@ export function PageTurnDemo() {
 
   const demos = [
     {
-      id: 'holy-book',
-      name: 'Holy Book Loader',
-      description: 'Horizontal page flipping with divine light rays',
-      component: HolyBookLoader
+      id: 'hair-fan',
+      name: 'Bible Hair Fan',
+      description: 'Flowing hair-like page strands animation',
+      component: BibleHairFan
     },
     {
       id: 'page-transition',
@@ -63,8 +63,10 @@ export function PageTurnDemo() {
 
               {/* Small preview */}
               <div className="flex justify-center mb-6">
-                {demo.id === 'holy-book' ? (
-                  <demo.component size="sm" />
+                {demo.id === 'hair-fan' ? (
+                  <BibleHairFan size={60} color="#2fc2ff" duration={1800} />
+                ) : demo.id === 'page-transition' ? (
+                  <BookPageTransition isVisible={true} size="sm" speed="fast" />
                 ) : (
                   <div className="w-12 h-8 bg-gradient-to-br from-amber-800 to-amber-700 rounded shadow-lg flex items-center justify-center">
                     <div className="text-yellow-200 text-xs">📖</div>
@@ -98,7 +100,7 @@ export function PageTurnDemo() {
                 <div className="text-green-600 dark:text-green-400">// Show transition while loading new chapter</div>
                 <div className="text-blue-600 dark:text-blue-400">const</div> [showTransition, setShowTransition] = useState(false);
                 <br />
-                <div className="text-blue-600 dark:text-blue-400">const</div> handleChapterChange = () => {'{'}
+                <div className="text-blue-600 dark:text-blue-400">const</div> handleChapterChange = () =&gt; {'{'}
                 <br />
                 &nbsp;&nbsp;setShowTransition(true);
                 <br />
@@ -146,9 +148,9 @@ export function PageTurnDemo() {
       </div>
 
       {/* Demo overlays */}
-      {activeDemo === 'holy-book' && (
+      {activeDemo === 'hair-fan' && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" onClick={() => setActiveDemo(null)}>
-          <HolyBookLoader size="lg" />
+          <BibleHairFan size={200} color="#2fc2ff" duration={1800} />
         </div>
       )}
 

@@ -24,9 +24,9 @@ export function LoaderSelector({
   size = 'md',
   className = '',
   color = '#2fc2ff',
-  duration = 1600,
+  duration = 1800,
   spread = 60,
-  strands = 15,
+  strands = 30,
 }: LoaderSelectorProps) {
   // Convert size prop to pixel values for BibleHairFan
   const sizeMap = {
