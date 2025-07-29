@@ -159,7 +159,8 @@ async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
 
 // Get cross-reference data for BibleDataAPI facade
 export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
-  return await loadCrossReferences(set);
+  console.error(`❌ getCrossRef is deprecated. Use getCrossRefsBatch() instead.`);
+  throw new Error(`getCrossRef() is deprecated. Use getCrossRefsBatch() for optimized performance.`);
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
@@ -235,10 +236,11 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
     if (allEntries.length > 0) {
       const randomEntry = allEntries[Math.floor(Math.random() * allEntries.length)];
       const verseKeys = await loadVerseKeys();
-      const index = verseKeys.findIndex((key: string) => key === randomEntry[0]);
+      const [reference, text] = randomEntry as [string, string];
+      const index = verseKeys.findIndex((key: string) => key === reference);
       return [{
-        reference: randomEntry[0],
-        text: randomEntry[1],
+        reference,
+        text,
         index: index
       }];
     }
@@ -325,8 +327,10 @@ async function fetchSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Pro
     .storage
     .from(BUCKET)
     .download(paths.crossRef(cfSet), { 
-      range: { start, end } 
-    });
+      transform: {
+        range: { start, end }
+      }
+    } as any);
     
   if (error) throw error;
   
@@ -539,10 +543,10 @@ export async function loadProphecyData(): Promise<{
   }
 }
 
-// Cross-reference slice loader
+// Cross-reference slice loader - DEPRECATED
 export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
-  const fullText = await loadCrossReferences(cfSet);
-  return fullText.substring(start, end);
+  console.error(`❌ getCrossRefSlice is deprecated. Use fetchSlice() with HTTP Range requests instead.`);
+  throw new Error(`getCrossRefSlice() is deprecated. Use getCrossRefsBatch() for optimized performance.`);
 }
 
 export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string, index: number) => void) {
