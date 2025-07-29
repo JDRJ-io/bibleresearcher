@@ -28,9 +28,9 @@ type Props = {
 export default function BibleHairFan({
   size = 140,
   color = "#2fc2ff",
-  duration = 900, // Faster default for smoother feel
-  spread = 35,    // Slightly tighter spread for performance
-  strands = 15,   // Fewer strands for better performance
+  duration = 800, // Faster default for smoother feel
+  spread = 35, // Slightly tighter spread for performance
+  strands = 15, // Fewer strands for better performance
 }: Props) {
   const radius = size / 2;
   const startAngle = -spread;
