@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { BibleVerse, StrongsWord } from '@/types/bible';
 import { X, ChevronUp, ChevronDown, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,8 +31,27 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   const [interlinearCells, setInterlinearCells] = useState<InterlinearCell[]>([]);
   const [selectedOccurrences, setSelectedOccurrences] = useState<StrongsOccurrence[]>([]);
 
+  // Expert's recommended clean cursor-based navigation
+  const [currentStrongsId, setCurrentStrongsId] = useState<string | null>(null);
+  const [cursor, setCursor] = useState<number>(0);
+
   const { store } = useBibleStore();
   const allVerses = store.verses || [];
+
+  // Expert's Step 1: Keep a clean occurrence list
+  const occurrences = useMemo(() => {
+    if (!currentStrongsId || !selectedOccurrences.length) return [];
+    return selectedOccurrences.map(occ => occ.reference);
+  }, [currentStrongsId, selectedOccurrences]);
+
+  // Debug logging for expert's diagnostic
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__debugStrongs = { occurrences, cursor };
+    }
+  }, [occurrences, cursor]);
+
+
 
   const loadStrongsData = async (verse: BibleVerse) => {
     setLoading(true);
@@ -91,94 +110,132 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
         console.log(`🔍 Loading occurrences for Strong's ${word.strongs}`);
         const occurrences = await strongsService.getStrongsOccurrences(word.strongs);
         setSelectedOccurrences(occurrences);
+        
+        // Expert's Step 1: Set up clean occurrence tracking
+        setCurrentStrongsId(word.strongs);
+        setCursor(0); // Reset cursor to first occurrence
+        
         setShowSearch(true);
         console.log(`✅ Loaded ${occurrences.length} occurrences for Strong's ${word.strongs}`);
+        console.log(`📋 Expert tracking setup: strongsId=${word.strongs}, cursor=0`);
       } catch (error) {
         console.error(`❌ Error loading occurrences for ${word.strongs}:`, error);
         setSelectedOccurrences([]);
+        setCurrentStrongsId(null);
+        setCursor(0);
       }
     } else {
       setSelectedOccurrences([]);
+      setCurrentStrongsId(null);
+      setCursor(0);
       setShowSearch(false);
     }
   };
 
-  const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
-    console.log(`🚀 NAVIGATION STARTED: direction=${direction}`);
-    console.log(`🚀 verse exists:`, !!verse);
-    console.log(`🚀 verse reference:`, verse?.reference);
-    console.log(`🚀 allVerses.length:`, allVerses.length);
-    console.log(`🚀 onNavigateToVerse exists:`, !!onNavigateToVerse);
-    console.log(`🚀 onNavigateToVerse type:`, typeof onNavigateToVerse);
+  // Expert's Step 2: Clean cursor-based navigation
+  const go = (delta: number) => {
+    if (!occurrences.length) {
+      console.log('❌ No occurrences available for navigation');
+      return;
+    }
     
+    setCursor(c => {
+      const next = (c + delta + occurrences.length) % occurrences.length;
+      jumpToVerse(occurrences[next]);
+      return next;
+    });
+  };
+
+  // Expert's Step 3: Safe verse jumping
+  const jumpToVerse = async (key: string) => {
+    try {
+      console.log(`🚀 EXPERT JUMP: Navigating to ${key}`);
+      
+      if (!onNavigateToVerse) {
+        console.log('❌ onNavigateToVerse callback not available');
+        return;
+      }
+
+      // Call the navigation callback directly with the verse reference
+      onNavigateToVerse(key);
+      console.log(`✅ EXPERT JUMP: Successfully navigated to ${key}`);
+      
+    } catch (error) {
+      console.error('❌ EXPERT JUMP: Error navigating to verse:', error);
+    }
+  };
+
+  // Legacy function for backward compatibility - now uses expert's method
+  const navigateToAdjacentVerse = async (direction: 'up' | 'down') => {
+    console.log(`🚀 EXPERT NAVIGATION: direction=${direction}`);
+    
+    // If we have occurrences from a selected Strong's word, use cursor navigation
+    if (occurrences.length > 0 && currentStrongsId) {
+      console.log(`📋 Using expert cursor navigation with ${occurrences.length} occurrences`);
+      console.table(occurrences);
+      const delta = direction === 'up' ? -1 : 1;
+      go(delta);
+      return;
+    }
+    
+    // Fallback to verse-by-verse navigation if no Strong's word is selected
     if (!verse || !allVerses.length) {
       console.log(`❌ Navigation blocked: verse=${!!verse}, allVerses.length=${allVerses.length}`);
       return;
     }
     
-    console.log(`🔍 StrongsOverlay navigating ${direction} from ${verse.reference}`);
-    console.log(`🔍 All verses length: ${allVerses.length}`);
-    
-    // Create a more robust verse matching function
-    const normalizeReference = (ref: string) => {
-      return ref.replace(/\s+/g, '').toLowerCase();
-    };
-    
-    // Try multiple ways to find the current verse
+    // Find current verse in allVerses array
     let currentIndex = -1;
-    const currentRef = normalizeReference(verse.reference);
+    currentIndex = allVerses.findIndex((v: BibleVerse) => v.reference === verse.reference);
     
-    // First try exact match
-    currentIndex = allVerses.findIndex(v => normalizeReference(v.reference) === currentRef);
-    
-    // If not found, try with ID
     if (currentIndex === -1) {
-      currentIndex = allVerses.findIndex(v => v.id === verse.id);
+      currentIndex = allVerses.findIndex((v: BibleVerse) => v.id === verse.id);
     }
     
-    // If still not found, try book/chapter/verse matching
     if (currentIndex === -1) {
-      currentIndex = allVerses.findIndex(v => 
+      currentIndex = allVerses.findIndex((v: BibleVerse) => 
         v.book === verse.book && 
         v.chapter === verse.chapter && 
         v.verse === verse.verse
       );
     }
     
-    console.log(`🔍 Current verse index: ${currentIndex}`);
-    
     if (currentIndex === -1) {
       console.log(`❌ Current verse not found in allVerses array`);
-      console.log(`🔍 Looking for: ${verse.reference} (ID: ${verse.id})`);
-      console.log(`🔍 Sample verses:`, allVerses.slice(0, 3).map(v => ({ ref: v.reference, id: v.id })));
       return;
     }
     
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    console.log(`🔍 Target index: ${newIndex}`);
     
     if (newIndex >= 0 && newIndex < allVerses.length) {
       const newVerse = allVerses[newIndex];
-      console.log(`🔍 Navigating to verse: ${newVerse.reference}`);
-      
-      setLoading(true);
-      try {
-        // Directly call the navigation callback with the new verse
-        if (onNavigateToVerse) {
-          console.log(`🔍 Calling onNavigateToVerse with: ${newVerse.reference}`);
-          onNavigateToVerse(newVerse.reference);
-        }
-        
-        console.log(`✅ Successfully called navigation to ${newVerse.reference}`);
-      } catch (error) {
-        console.error('❌ Error navigating to adjacent verse:', error);
-      } finally {
-        setLoading(false);
-      }
+      console.log(`🔍 Sequential navigation to: ${newVerse.reference}`);
+      jumpToVerse(newVerse.reference);
     } else {
-      console.log(`❌ Target index ${newIndex} is out of bounds (0-${allVerses.length - 1})`);
+      console.log(`❌ Target index ${newIndex} is out of bounds`);
     }
   };
+
+  // Expert's Step 5: Keyboard navigation (after function declarations)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        navigateToAdjacentVerse('up');
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        navigateToAdjacentVerse('down');
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const filteredOccurrences = selectedOccurrences.filter(occ => 
     !searchQuery || occ.reference.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -214,32 +271,34 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(`🔼 UP ARROW CLICKED - Starting navigation from ${verse?.reference}`);
-                      console.log(`🔼 onNavigateToVerse callback exists:`, !!onNavigateToVerse);
-                      console.log(`🔼 allVerses.length:`, allVerses.length);
-                      console.log(`🔼 loading state:`, loading);
+                      console.log(`🔼 UP ARROW CLICKED - Expert navigation ${occurrences.length > 0 ? 'with occurrences' : 'sequential'}`);
                       navigateToAdjacentVerse('up');
                     }}
-                    disabled={loading}
+                    disabled={loading || (occurrences.length > 0 && occurrences.length < 2)}
                     className="w-8 h-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    title="Previous verse"
+                    title={occurrences.length > 0 ? `Previous occurrence (${cursor + 1} of ${occurrences.length})` : "Previous verse"}
                   >
                     <ChevronUp className="w-4 h-4" />
                   </Button>
+                  
+                  {/* Expert's Step 5: Show occurrence counter */}
+                  {occurrences.length > 0 && currentStrongsId && (
+                    <Badge variant="outline" className="text-xs px-2 py-1 font-mono">
+                      {cursor + 1} of {occurrences.length}
+                    </Badge>
+                  )}
+                  
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log(`🔽 DOWN ARROW CLICKED - Starting navigation from ${verse?.reference}`);
-                      console.log(`🔽 onNavigateToVerse callback exists:`, !!onNavigateToVerse);
-                      console.log(`🔽 allVerses.length:`, allVerses.length);
-                      console.log(`🔽 loading state:`, loading);
+                      console.log(`🔽 DOWN ARROW CLICKED - Expert navigation ${occurrences.length > 0 ? 'with occurrences' : 'sequential'}`);
                       navigateToAdjacentVerse('down');
                     }}
-                    disabled={loading}
+                    disabled={loading || (occurrences.length > 0 && occurrences.length < 2)}
                     className="w-8 h-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    title="Next verse"
+                    title={occurrences.length > 0 ? `Next occurrence (${cursor + 1} of ${occurrences.length})` : "Next verse"}
                   >
                     <ChevronDown className="w-4 h-4" />
                   </Button>
@@ -308,9 +367,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                                 original: cell.original,
                                 strongs: cell.strongsKey,
                                 transliteration: cell.transliteration,
-                                definition: cell.gloss,
-                                instances: [],
-                                morphology: cell.morphology
+                                definition: cell.gloss || 'No definition available',
+                                instances: []
                               };
                               await handleWordClick(word);
                             }}
@@ -329,9 +387,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                                 {cell.transliteration || 'No transliteration'}
                               </div>
                               {/* Additional pronunciation if available */}
-                              {cell.pronunciation && (
+                              {(cell as any).pronunciation && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400 italic">
-                                  [{cell.pronunciation}]
+                                  [{(cell as any).pronunciation}]
                                 </div>
                               )}
                             </div>
@@ -349,9 +407,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                                 {cell.strongsKey} {cell.strongsKey?.startsWith('H') ? '🕎' : '🏛️'}
                               </Badge>
                               {/* Word frequency if available */}
-                              {cell.frequency && (
+                              {(cell as any).frequency && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                                  Occurs {cell.frequency}x
+                                  Occurs {(cell as any).frequency}x
                                 </div>
                               )}
                             </div>
@@ -359,24 +417,24 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                             {/* Enhanced Definition */}
                             <div className="text-xs md:text-sm text-gray-700 dark:text-gray-300 text-center mb-3 leading-relaxed min-h-[2.5rem] flex items-center justify-center">
                               <span className="line-clamp-3">
-                                {cell.gloss || cell.definition || 'No definition available'}
+                                {cell.gloss || (cell as any).definition || 'No definition available'}
                               </span>
                             </div>
 
                             {/* Extended Definition Preview */}
-                            {cell.extendedDefinition && (
+                            {(cell as any).extendedDefinition && (
                               <div className="text-xs text-gray-600 dark:text-gray-400 text-center mb-2 leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span className="line-clamp-2">
-                                  {cell.extendedDefinition}
+                                  {(cell as any).extendedDefinition}
                                 </span>
                               </div>
                             )}
 
                             {/* Part of Speech */}
-                            {cell.partOfSpeech && (
+                            {(cell as any).partOfSpeech && (
                               <div className="text-center mb-2">
                                 <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                                  {cell.partOfSpeech}
+                                  {(cell as any).partOfSpeech}
                                 </Badge>
                               </div>
                             )}
@@ -392,11 +450,11 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                             )}
 
                             {/* Root word info if available */}
-                            {cell.rootWord && (
+                            {(cell as any).rootWord && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 text-center border-t pt-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div className="text-gray-600 dark:text-gray-300 font-medium">Root:</div>
-                                <div className="truncate" title={cell.rootWord}>
-                                  {cell.rootWord}
+                                <div className="truncate" title={(cell as any).rootWord}>
+                                  {(cell as any).rootWord}
                                 </div>
                               </div>
                             )}
@@ -404,8 +462,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
                             {/* Additional metadata with enhanced info */}
                             <div className="text-xs text-gray-400 dark:text-gray-500 text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <div>{cell.strongsKey?.startsWith('H') ? 'Hebrew' : 'Greek'} • Word {index + 1}</div>
-                              {cell.lemma && (
-                                <div className="mt-1">Lemma: {cell.lemma}</div>
+                              {(cell as any).lemma && (
+                                <div className="mt-1">Lemma: {(cell as any).lemma}</div>
                               )}
                             </div>
                           </div>
