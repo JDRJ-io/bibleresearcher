@@ -6,108 +6,87 @@ interface HolyBookLoaderProps {
 }
 
 export function HolyBookLoader({ size = 'md', className = '' }: HolyBookLoaderProps) {
-  const sizeMap = {
-    sm: 80,
-    md: 120,
-    lg: 160
+  const sizeClasses = {
+    sm: 'w-12 h-8',
+    md: 'w-16 h-12',
+    lg: 'w-20 h-16'
   };
-  
-  const pixelSize = sizeMap[size];
-  const h = pixelSize * 0.45;
-  const duration = 1400;
-  const stroke = '#8b4513'; // Biblical brown color
-  
-  // Define the morphing paths with significant curve differences
-  const d1a = `M10,38 Q${pixelSize / 2},8 ${pixelSize - 10},38`;   // tighter curve
-  const d1b = `M6,30 Q${pixelSize / 2},-2 ${pixelSize - 6},30`;    // looser fan
-  
-  const d2a = `M10,46 Q${pixelSize / 2},16 ${pixelSize - 10},46`;  // tighter curve  
-  const d2b = `M6,38 Q${pixelSize / 2},6 ${pixelSize - 6},38`;     // looser fan
-  
-  const d3a = `M10,54 Q${pixelSize / 2},24 ${pixelSize - 10},54`;  // tighter curve
-  const d3b = `M6,46 Q${pixelSize / 2},14 ${pixelSize - 6},46`;    // looser fan
 
   return (
-    <div className={`inline-flex flex-col items-center justify-center gap-2 ${className}`}>
-      <div className="relative">
-        <svg
-          width={pixelSize}
-          height={h + 20}
-          viewBox={`0 0 ${pixelSize} ${h + 20}`}
-          role="img"
-          aria-label="Fanning Bible pages"
-          className="filter drop-shadow-sm"
-        >
-          {/* Path 1 - Top arc */}
-          <path
-            d={d1a}
+    <>
+      <style>{`
+        @keyframes page-flip {
+          0% { 
+            opacity: 0;
+            transform: rotateY(-90deg);
+          }
+          50% { 
+            opacity: 1;
+            transform: rotateY(0deg);
+          }
+          100% { 
+            opacity: 0;
+            transform: rotateY(90deg);
+          }
+        }
+        
+        .page-sliver {
+          animation: page-flip 2s ease-in-out infinite;
+          transform-origin: center;
+        }
+      `}</style>
+      
+      <div className={`inline-flex items-center justify-center ${className}`}>
+        <div className={`relative ${sizeClasses[size]}`}>
+          <svg 
+            viewBox="0 0 100 60" 
+            className="w-full h-full"
             fill="none"
-            stroke={stroke}
-            strokeWidth={6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
           >
-            <animate 
-              attributeName="d"
-              dur="1.4s"
-              repeatCount="indefinite"
-              values={`${d1a};${d1b};${d1a}`} 
+            {/* Bottom spine curve */}
+            <path 
+              d="M10 45 C25 38, 35 38, 50 45 C65 38, 75 38, 90 45" 
+              stroke="#006064" 
+              strokeWidth="6" 
+              fill="none"
             />
-          </path>
-
-          {/* Path 2 - Middle arc (staggered 0.08s) */}
-          <path
-            d={d2a}
-            fill="none"
-            stroke={stroke}
-            strokeWidth={6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <animate 
-              attributeName="d"
-              dur="1.4s"
-              begin="0.08s"
-              repeatCount="indefinite"
-              values={`${d2a};${d2b};${d2a}`} 
+            
+            {/* Animated page slivers */}
+            <path 
+              d="M20 42 C30 36, 40 36, 50 42 C60 36, 70 36, 80 42" 
+              stroke="#00bcd4" 
+              strokeWidth="1" 
+              fill="none"
+              className="page-sliver"
+              style={{ animationDelay: '0s' }}
             />
-          </path>
-
-          {/* Path 3 - Bottom arc (staggered 0.16s) */}
-          <path
-            d={d3a}
-            fill="none"
-            stroke={stroke}
-            strokeWidth={6}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <animate 
-              attributeName="d"
-              dur="1.4s"
-              begin="0.16s"
-              repeatCount="indefinite"
-              values={`${d3a};${d3b};${d3a}`} 
+            <path 
+              d="M22 41 C32 35, 42 35, 50 41 C58 35, 68 35, 78 41" 
+              stroke="#4dd0e1" 
+              strokeWidth="1" 
+              fill="none"
+              className="page-sliver"
+              style={{ animationDelay: '0.3s' }}
             />
-          </path>
-          
-          {/* Divine sparkles with gentle shimmer */}
-          <g>
-            <circle cx="20" cy="25" r="1.5" fill="#daa520" opacity="0.7">
-              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite" />
-            </circle>
-            <circle cx={pixelSize - 20} cy="30" r="1" fill="#daa520" opacity="0.7">
-              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" begin="0.8s" repeatCount="indefinite" />
-            </circle>
-            <circle cx={pixelSize / 2} cy="15" r="1.2" fill="#daa520" opacity="0.7">
-              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" begin="1.6s" repeatCount="indefinite" />
-            </circle>
-            <circle cx={pixelSize * 0.75} cy="55" r="0.8" fill="#daa520" opacity="0.7">
-              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" begin="2.1s" repeatCount="indefinite" />
-            </circle>
-          </g>
-        </svg>
+            <path 
+              d="M24 40 C34 34, 44 34, 50 40 C56 34, 66 34, 76 40" 
+              stroke="#80deea" 
+              strokeWidth="1" 
+              fill="none"
+              className="page-sliver"
+              style={{ animationDelay: '0.6s' }}
+            />
+            <path 
+              d="M26 39 C36 33, 46 33, 50 39 C54 33, 64 33, 74 39" 
+              stroke="#b2ebf2" 
+              strokeWidth="1" 
+              fill="none"
+              className="page-sliver"
+              style={{ animationDelay: '0.9s' }}
+            />
+          </svg>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
