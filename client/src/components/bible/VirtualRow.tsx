@@ -6,6 +6,7 @@ import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
 import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { useColumnData } from '@/hooks/useColumnData';
+import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
@@ -371,6 +372,7 @@ export function VirtualRow({
   useColumnData();
   const isMobile = useIsMobile();
   const screenSize = useScreenSize();
+  const responsiveConfig = useResponsiveColumns();
 
   // Get viewport labels hook at top level - BEFORE any conditionals  
   const activeLabels = store.activeLabels || [];
@@ -533,22 +535,29 @@ export function VirtualRow({
     const { slot, config } = column;
     const isMain = config.translationCode === mainTranslation;
 
-    // Get exact pixel width from columnState to match headers exactly
-    const getColumnPixelWidth = (slotNumber: number) => {
+    // Get responsive pixel width for portrait/landscape modes
+    const getResponsiveColumnPixelWidth = (slotNumber: number) => {
       const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
       if (!columnInfo) {
         console.warn(`No column info found for slot ${slotNumber}`);
         return '160px'; // fallback
       }
       
-      // Convert rem to pixels (same as headers - 1rem = 16px)
+      // Use responsive widths for key columns in portrait mode
+      if (responsiveConfig.isPortrait) {
+        if (slotNumber === 0) return '56px'; // Thin reference column
+        if (slotNumber === 2 && config.type === 'main-translation') return '256px'; // Main translation
+        if (slotNumber === 7 && config.type === 'cross-refs') return '192px'; // Cross references
+      }
+      
+      // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
       const pixelWidth = columnInfo.widthRem * 16;
       return `${pixelWidth}px`;
     };
 
-    // Use inline styles for exact width matching with column width scaling
+    // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
-      width: `calc(${getColumnPixelWidth(slot)} * var(--column-width-mult))`,
+      width: `calc(${getResponsiveColumnPixelWidth(slot)} * var(--column-width-mult))`,
       flexShrink: 0
     };
 

@@ -3,6 +3,7 @@ import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
 import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
+import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { 
   DndContext, 
   closestCenter,
@@ -82,23 +83,26 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable, columnState
 }
 
 function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
-  // Import the utility at the top of the file
-  const getSlotWidth = (columnState: any, slot: number): string => {
+  const responsiveConfig = useResponsiveColumns();
+  
+  // Get responsive width based on portrait/landscape mode
+  const getResponsiveSlotWidth = (columnState: any, slot: number): string => {
     const columnInfo = columnState.columns.find((col: any) => col.slot === slot);
     if (!columnInfo) {
       console.warn(`No column info found for slot ${slot}`);
       return '160px'; // fallback
     }
     
-    // Convert rem to pixels (assuming 1rem = 16px)
+    // Use responsive widths for key columns in portrait mode
+    if (responsiveConfig.isPortrait) {
+      if (slot === 0) return '56px'; // Thin reference column
+      if (slot === 2 && column.type === 'main-translation') return '256px'; // Main translation
+      if (slot === 7 && column.type === 'cross-refs') return '192px'; // Cross references
+    }
+    
+    // Convert rem to pixels for other columns (assuming 1rem = 16px)
     const pixelWidth = columnInfo.widthRem * 16;
     return `${pixelWidth}px`;
-  };
-  
-  // Get width from columnState and apply column width scaling
-  const getColumnWidth = () => {
-    const width = getSlotWidth(columnState, column.slot);
-    return { width };
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
@@ -115,7 +119,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
     <div 
       className={`bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
       style={{
-        width: `calc(${getSlotWidth(columnState, column.slot)} * var(--column-width-mult))`
+        width: `calc(${getResponsiveSlotWidth(columnState, column.slot)} * var(--column-width-mult))`
       }}
     >
       {isDraggable && (
@@ -138,6 +142,7 @@ export function ColumnHeaders({
   isGuest = true 
 }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
+  const responsiveConfig = useResponsiveColumns();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   // Make headers adaptive to screen size changes

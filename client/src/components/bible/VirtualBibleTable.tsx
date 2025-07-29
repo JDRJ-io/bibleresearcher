@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
+import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
@@ -355,6 +356,9 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
 
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
+  
+  // Responsive column system
+  const responsiveConfig = useResponsiveColumns();
 
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
@@ -473,22 +477,26 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
           (wrapperRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
+        className={`bible-table-wrapper ${responsiveConfig.isPortrait ? 'portrait-mode' : 'landscape-mode'}`}
         style={{ 
           touchAction: "pan-y", 
-          marginTop: '0', // Remove the desktop gap below the header
+          marginTop: '0',
           height: "calc(100vh - 85px)",
-          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
+          overflowX: responsiveConfig.enableHorizontalScroll ? 'auto' : 'hidden',
           overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
+        <div className={`flex w-full ${responsiveConfig.containerClass}`} 
+             style={{ 
+               overflowX: responsiveConfig.enableHorizontalScroll ? 'auto' : 'hidden',
+               minWidth: responsiveConfig.isPortrait ? `${actualTotalWidth}px` : 'auto'
+             }}>
           <div style={{ 
-            minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
-            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
+            minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
+            width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
           }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {

@@ -271,6 +271,41 @@ body {
 
 
 
+/* Responsive Column Layout System */
+/* Portrait mode - Left-based columns with horizontal scroll */
+.bible-table-wrapper.portrait-mode {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.bible-table-wrapper.portrait-mode .flex {
+  justify-content: flex-start !important;
+  align-items: flex-start;
+}
+
+/* Landscape mode - Centered columns */
+.bible-table-wrapper.landscape-mode .flex {
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive column width CSS variables */
+@media (orientation: portrait) {
+  :root {
+    --portrait-ref-width: 56px;
+    --portrait-main-width: 256px; 
+    --portrait-cross-width: 192px;
+  }
+}
+
+@media (orientation: landscape) {
+  :root {
+    --landscape-ref-width: 80px;
+    --landscape-main-width: 320px;
+    --landscape-cross-width: 256px;
+  }
+}
+
 /* Apply font size scaling to verse content AND row height */
 .verse-text {
   font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
