@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { BibleVerse, StrongsWord } from '@/types/bible';
-import { X, ChevronUp, ChevronDown, Search } from 'lucide-react';
+import { X, ChevronUp, ChevronDown, Search, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -353,11 +353,13 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                   ) : interlinearCells.length > 0 ? (
                     <div>
                       <h3 className="text-lg font-semibold mb-4">Hebrew/Greek Word Analysis</h3>
-                      <div className="strongs-word-grid">
-                        {interlinearCells.map((cell, index) => (
+                      {/* Horizontal Scrolling Container */}
+                      <div className="overflow-x-auto pb-4">
+                        <div className="flex gap-4 w-max min-w-full">
+                          {interlinearCells.map((cell, index) => (
                           <div
                             key={index}
-                            className={`strongs-word-card group p-3 md:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${
+                            className={`flex-shrink-0 w-48 sm:w-56 group p-3 md:p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] ${
                               selectedWord?.strongs === cell.strongsKey
                                 ? 'selected border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 shadow-md'
                                 : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
@@ -467,7 +469,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                               )}
                             </div>
                           </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
                   ) : (
@@ -489,7 +492,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                   <>
                     <Separator orientation="vertical" className="hidden lg:block" />
                     <Separator orientation="horizontal" className="lg:hidden" />
-                    <div className="w-full lg:w-96 flex flex-col max-h-[50vh] lg:max-h-full overflow-hidden">
+                    <div className="w-full lg:w-96 flex flex-col max-h-[60vh] lg:max-h-full overflow-hidden">
                       <div className="p-4 border-b bg-gray-50 dark:bg-gray-800 flex-shrink-0">
                         <div className="flex items-center gap-2 mb-3">
                           <Badge className="font-mono">{selectedWord.strongs}</Badge>
@@ -501,8 +504,8 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                         <p className="text-sm leading-relaxed">{selectedWord.definition}</p>
                       </div>
 
-                      <div className="p-4 border-b flex-shrink-0">
-                        <div className="flex items-center gap-2 mb-2">
+                      <div className="p-3 md:p-4 border-b flex-shrink-0">
+                        <div className="flex items-center gap-2 mb-3">
                           <Search className="w-4 h-4 text-gray-500" />
                           <span className="text-sm font-medium">
                             Search {selectedOccurrences.length} occurrences
@@ -512,36 +515,29 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                           placeholder="Filter verses..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="text-sm"
+                          className="text-sm h-10"
                         />
                       </div>
 
                       <div className="flex-1 overflow-hidden">
                         <ScrollArea className="h-full">
-                          <div className="p-4 space-y-2">
+                          <div className="p-3 md:p-4 space-y-3">
                             {filteredOccurrences.length > 0 ? (
                               filteredOccurrences.map((occurrence, index) => (
                                 <button
                                   key={`${occurrence.reference}-${index}`}
-                                  onClick={() => {
-                                    onNavigateToVerse?.(occurrence.reference);
-                                    onClose();
-                                  }}
-                                  className="w-full text-left p-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors border border-gray-200 dark:border-gray-700"
+                                  onClick={() => jumpToVerse(occurrence.reference)}
+                                  className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
                                 >
-                                  <div className="font-medium text-blue-600 hover:text-blue-800 mb-1">
-                                    {occurrence.reference}
+                                  <div className="flex items-center justify-between mb-3">
+                                    <Badge variant="outline" className="font-mono text-sm px-3 py-1">
+                                      {occurrence.reference}
+                                    </Badge>
+                                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
                                   </div>
-                                  <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                                    <span className="font-medium">{occurrence.original}</span> • 
-                                    <span className="italic mx-1">{occurrence.transliteration}</span> • 
-                                    <span>{occurrence.gloss}</span>
-                                  </div>
-                                  {occurrence.context && (
-                                    <div className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed break-words">
-                                      {occurrence.context}
-                                    </div>
-                                  )}
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                                    {occurrence.context}
+                                  </p>
                                 </button>
                               ))
                             ) : searchQuery ? (
