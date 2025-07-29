@@ -184,7 +184,7 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   useColumnData();
 
   // Get store state for column toggles
-  const { showCrossRefs, showProphecies } = useBibleStore();
+  const { showCrossRefs, showProphecies, toggleCrossRefs } = useBibleStore();
 
   // Create getVerseText wrapper for VirtualRow (any translation) - USE TRANSLATION MAPS SYSTEM
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string): string => {
@@ -380,16 +380,31 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
       root.style.setProperty('--adaptive-notes-width', `${adaptiveWidths.notes}px`);
       root.style.setProperty('--adaptive-context-width', `${adaptiveWidths.context}px`);
 
-      console.log('🎯 Applied Adaptive Column Widths:', {
+      console.log('🎯 Applied THREE-COLUMN Adaptive Widths:', {
         viewport: `${adaptiveConfig.screenWidth}×${adaptiveConfig.screenHeight}`,
         isPortrait: adaptiveConfig.isPortrait,
         safeWidth: adaptiveConfig.safeViewportWidth,
         coreColumnsWidth: adaptiveConfig.coreColumnsWidth,
         guaranteedFit: adaptiveConfig.guaranteedFit,
-        widths: adaptiveWidths
+        threeColumnWidths: {
+          reference: adaptiveWidths.reference,
+          mainTranslation: adaptiveWidths.mainTranslation,
+          crossReference: adaptiveWidths.crossReference
+        },
+        equalMainCross: Math.abs(adaptiveWidths.mainTranslation - adaptiveWidths.crossReference) <= 1
       });
     }
   }, [adaptiveConfig]);
+
+  // FORCE show cross-references in portrait mode for three-column layout
+  // Note: useBibleStore is already called earlier in the component, use existing values
+
+  React.useEffect(() => {
+    if (isPortrait && !showCrossRefs) {
+      console.log('🎯 THREE-COLUMN: Force enabling cross-references for portrait mode');
+      toggleCrossRefs();
+    }
+  }, [isPortrait, showCrossRefs, toggleCrossRefs]);
 
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;

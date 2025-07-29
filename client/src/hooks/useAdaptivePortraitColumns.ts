@@ -18,7 +18,7 @@ interface AdaptivePortraitConfig {
   };
 }
 
-// Precision calculator for portrait mode - guarantees core columns always fit
+// EXACT THREE-COLUMN PORTRAIT SYSTEM - User's Specification
 function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight: number): AdaptivePortraitConfig['adaptiveWidths'] {
   const isPortrait = viewportHeight > viewportWidth;
   
@@ -35,66 +35,62 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     };
   }
 
-  // Portrait precision mode - calculate based on EXACT viewport dimensions
-  console.log('🎯 Portrait Precision Mode:', { viewportWidth, viewportHeight });
+  // Portrait precision mode - USER'S EXACT SPECIFICATION:
+  // 1. Detect portrait viewport width automatically 
+  // 2. Subtract reference column width
+  // 3. Divide remaining space EQUALLY between main translation and cross-references
+  console.log('🎯 THREE-COLUMN Portrait Mode:', { viewportWidth, viewportHeight });
   
-  // Account for scrollbars, borders, and safe margins
-  const safeWidth = viewportWidth - 24; // Conservative safe margin
+  // Account for scrollbars, borders, padding - conservative margin
+  const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
   
-  // Core column distribution: Ref (7%) + Main (46.5%) + Cross-refs (46.5%) = 100%
-  const refPortion = 0.07;
-  const mainPortion = 0.465;
-  const crossPortion = 0.465;
+  // STEP 1: Reference column gets fixed optimal width
+  const refWidth = Math.max(28, Math.min(40, Math.floor(safeViewportWidth * 0.08))); // 8% of viewport, min 28px, max 40px
   
-  const calculatedRef = Math.floor(safeWidth * refPortion);
-  const calculatedMain = Math.floor(safeWidth * mainPortion);
-  const calculatedCross = Math.floor(safeWidth * crossPortion);
+  // STEP 2: Calculate remaining space after reference column
+  const remainingSpace = safeViewportWidth - refWidth;
   
-  // Apply absolute minimums for readability
-  const minRef = 24;   // Absolute minimum for reference numbers
-  const minMain = 120; // Absolute minimum for readable text
-  const minCross = 100; // Absolute minimum for cross-references
+  // STEP 3: Divide remaining space EQUALLY between main translation and cross-references
+  const mainWidth = Math.floor(remainingSpace / 2);
+  const crossWidth = Math.floor(remainingSpace / 2);
   
-  let finalRef = Math.max(minRef, calculatedRef);
-  let finalMain = Math.max(minMain, calculatedMain);
-  let finalCross = Math.max(minCross, calculatedCross);
+  // Ensure minimum readability (compress proportionally if needed)
+  const minMain = 100;  // Absolute minimum for main translation
+  const minCross = 80;  // Absolute minimum for cross-references
   
-  // Ensure total doesn't exceed safe width
-  const totalCalculated = finalRef + finalMain + finalCross;
-  if (totalCalculated > safeWidth) {
-    // Proportional compression while maintaining minimums
-    const excessWidth = totalCalculated - safeWidth;
-    const compressionRatio = (safeWidth - minRef - minMain - minCross) / (totalCalculated - minRef - minMain - minCross);
-    
-    if (compressionRatio > 0) {
-      finalRef = minRef + Math.floor((finalRef - minRef) * compressionRatio);
-      finalMain = minMain + Math.floor((finalMain - minMain) * compressionRatio);
-      finalCross = minCross + Math.floor((finalCross - minCross) * compressionRatio);
-    } else {
-      // Extreme compression - use absolute minimums
-      finalRef = minRef;
-      finalMain = minMain;
-      finalCross = minCross;
-    }
+  let finalRef = refWidth;
+  let finalMain = Math.max(minMain, mainWidth);
+  let finalCross = Math.max(minCross, crossWidth);
+  
+  // If minimums exceed available space, compress proportionally
+  const totalNeeded = finalRef + finalMain + finalCross;
+  if (totalNeeded > safeViewportWidth) {
+    const compressionRatio = safeViewportWidth / totalNeeded;
+    finalRef = Math.floor(finalRef * compressionRatio);
+    finalMain = Math.floor(finalMain * compressionRatio);
+    finalCross = Math.floor(finalCross * compressionRatio);
   }
   
-  console.log('📐 Calculated Widths:', {
-    safeWidth,
-    ref: finalRef,
-    main: finalMain,
-    cross: finalCross,
-    total: finalRef + finalMain + finalCross,
-    fits: (finalRef + finalMain + finalCross) <= safeWidth
+  console.log('📐 THREE-COLUMN Adaptive Calculation:', {
+    viewportWidth,
+    safeViewportWidth,
+    refWidth: finalRef,
+    remainingSpace: safeViewportWidth - finalRef,
+    mainWidth: finalMain,
+    crossWidth: finalCross,
+    totalWidth: finalRef + finalMain + finalCross,
+    perfectFit: (finalRef + finalMain + finalCross) <= safeViewportWidth,
+    equalMainCross: Math.abs(finalMain - finalCross) <= 1 // Should be equal or within 1px
   });
 
   return {
     reference: finalRef,
     mainTranslation: finalMain,
     crossReference: finalCross,
-    alternate: Math.floor(finalMain * 0.85), // 85% of main for alternates
+    alternate: Math.floor(finalMain * 0.8), // 80% of main for alternates (horizontal scroll)
     prophecy: finalMain,  // Same width as main translation
-    notes: Math.floor(finalMain * 0.75), // 75% of main for notes
-    context: Math.floor(finalMain * 0.65)  // 65% of main for context
+    notes: Math.floor(finalMain * 0.7), // 70% of main for notes
+    context: Math.floor(finalMain * 0.6)  // 60% of main for context
   };
 }
 
