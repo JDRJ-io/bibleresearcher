@@ -7,9 +7,9 @@ interface HolyBookLoaderProps {
 
 export function HolyBookLoader({ size = 'md', className = '' }: HolyBookLoaderProps) {
   const sizeClasses = {
-    sm: 'w-20 h-16',
-    md: 'w-24 h-20',
-    lg: 'w-32 h-24'
+    sm: 'w-16 h-20',
+    md: 'w-20 h-24',
+    lg: 'w-24 h-32'
   };
 
   return (
@@ -97,61 +97,63 @@ export function HolyBookLoader({ size = 'md', className = '' }: HolyBookLoaderPr
       <div className={`inline-flex items-center justify-center ${className}`}>
         <div className={`relative ${sizeClasses[size]}`}>
           
-          {/* Book laying on its back */}
-          <div className="absolute bottom-0 left-0 right-0 h-3/4 bg-gradient-to-b from-amber-700 via-amber-600 to-amber-800 dark:from-amber-600 dark:via-amber-500 dark:to-amber-700 rounded-lg holy-glow transform perspective-1000 rotateX(20deg)">
+          {/* Book laying on its back - side view */}
+          <div className="absolute bottom-0 left-1/4 right-1/4 h-1/3 bg-gradient-to-r from-amber-800 via-amber-600 to-amber-700 dark:from-amber-700 dark:via-amber-500 dark:to-amber-600 rounded holy-glow">
             
-            {/* Book pages (base) */}
-            <div className="absolute inset-x-1 top-1 bottom-1 bg-gradient-to-b from-white via-yellow-50 to-amber-50 dark:from-gray-100 dark:via-yellow-100 dark:to-amber-100 rounded-t-lg">
-              
-              {/* Sacred text on visible pages */}
-              <div className="p-2 space-y-1">
-                <div className="h-0.5 bg-amber-600/20 w-4/5 mx-auto"></div>
-                <div className="h-0.5 bg-amber-600/20 w-5/6 mx-auto"></div>
-                <div className="h-0.5 bg-amber-600/20 w-3/4 mx-auto"></div>
-                <div className="h-0.5 bg-amber-600/20 w-5/6 mx-auto"></div>
+            {/* Book spine (left edge) */}
+            <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-amber-900 to-amber-800 dark:from-amber-800 dark:to-amber-700 rounded-l"></div>
+            
+            {/* Book pages (visible from side) */}
+            <div className="absolute left-2 right-1 top-1 bottom-1 bg-gradient-to-r from-yellow-50 via-white to-yellow-50 dark:from-yellow-100 dark:via-gray-50 dark:to-yellow-100">
+              {/* Page edge lines */}
+              <div className="absolute inset-y-0 left-0 w-full flex">
+                <div className="w-px bg-gray-300 dark:bg-gray-400 mx-0.5"></div>
+                <div className="w-px bg-gray-300 dark:bg-gray-400 mx-0.5"></div>
+                <div className="w-px bg-gray-300 dark:bg-gray-400 mx-0.5"></div>
+                <div className="w-px bg-gray-300 dark:bg-gray-400 mx-0.5"></div>
               </div>
             </div>
           </div>
           
-          {/* Flowing pages - multiple layers */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[90%]">
+          {/* Flowing pages - multiple layers rising from the book */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-1/2">
             {/* Page 1 */}
-            <div className="absolute inset-x-0 bottom-0 h-12 page-flow">
-              <div className="w-full h-full bg-gradient-to-b from-white via-yellow-50/90 to-amber-50/80 dark:from-gray-50 dark:via-yellow-100/90 dark:to-amber-100/80 rounded-t shadow-lg">
-                <div className="p-1 space-y-0.5">
+            <div className="absolute inset-x-0 bottom-0 w-full h-8 page-flow">
+              <div className="w-full h-full bg-gradient-to-t from-white via-yellow-50/90 to-transparent dark:from-gray-50 dark:via-yellow-100/90 dark:to-transparent rounded shadow-lg">
+                <div className="p-1">
                   <div className="h-0.5 bg-amber-600/15 w-3/4 mx-auto"></div>
-                  <div className="h-0.5 bg-amber-600/15 w-5/6 mx-auto"></div>
+                  <div className="h-0.5 bg-amber-600/15 w-5/6 mx-auto mt-0.5"></div>
                 </div>
               </div>
             </div>
             
             {/* Page 2 */}
-            <div className="absolute inset-x-0 bottom-0 h-12 page-flow" style={{ animationDelay: '0.5s' }}>
-              <div className="w-full h-full bg-gradient-to-b from-white/90 via-amber-50/80 to-yellow-100/70 dark:from-gray-50/90 dark:via-amber-100/80 dark:to-yellow-200/70 rounded-t shadow-lg">
-                <div className="p-1 space-y-0.5">
+            <div className="absolute inset-x-0 bottom-0 w-full h-8 page-flow" style={{ animationDelay: '0.5s' }}>
+              <div className="w-full h-full bg-gradient-to-t from-white/90 via-amber-50/80 to-transparent dark:from-gray-50/90 dark:via-amber-100/80 dark:to-transparent rounded shadow-lg">
+                <div className="p-1">
                   <div className="h-0.5 bg-amber-600/10 w-5/6 mx-auto"></div>
-                  <div className="h-0.5 bg-amber-600/10 w-2/3 mx-auto"></div>
+                  <div className="h-0.5 bg-amber-600/10 w-2/3 mx-auto mt-0.5"></div>
                 </div>
               </div>
             </div>
             
             {/* Page 3 */}
-            <div className="absolute inset-x-0 bottom-0 h-12 page-flow" style={{ animationDelay: '1s' }}>
-              <div className="w-full h-full bg-gradient-to-b from-yellow-50/80 via-white/70 to-amber-100/60 dark:from-yellow-100/80 dark:via-gray-50/70 dark:to-amber-200/60 rounded-t shadow-md">
-                <div className="p-1 space-y-0.5">
+            <div className="absolute inset-x-0 bottom-0 w-full h-8 page-flow" style={{ animationDelay: '1s' }}>
+              <div className="w-full h-full bg-gradient-to-t from-yellow-50/80 via-white/70 to-transparent dark:from-yellow-100/80 dark:via-gray-50/70 dark:to-transparent rounded shadow-md">
+                <div className="p-1">
                   <div className="h-0.5 bg-amber-600/8 w-2/3 mx-auto"></div>
                 </div>
               </div>
             </div>
             
             {/* Page 4 */}
-            <div className="absolute inset-x-0 bottom-0 h-12 page-flow" style={{ animationDelay: '1.5s' }}>
-              <div className="w-full h-full bg-gradient-to-b from-white/70 to-yellow-50/50 dark:from-gray-50/70 dark:to-yellow-100/50 rounded-t shadow-md"></div>
+            <div className="absolute inset-x-0 bottom-0 w-full h-8 page-flow" style={{ animationDelay: '1.5s' }}>
+              <div className="w-full h-full bg-gradient-to-t from-white/70 to-transparent dark:from-gray-50/70 dark:to-transparent rounded shadow-md"></div>
             </div>
             
             {/* Page 5 */}
-            <div className="absolute inset-x-0 bottom-0 h-12 page-flow" style={{ animationDelay: '2s' }}>
-              <div className="w-full h-full bg-gradient-to-b from-amber-50/60 to-white/40 dark:from-amber-100/60 dark:to-gray-50/40 rounded-t shadow"></div>
+            <div className="absolute inset-x-0 bottom-0 w-full h-8 page-flow" style={{ animationDelay: '2s' }}>
+              <div className="w-full h-full bg-gradient-to-t from-amber-50/60 to-transparent dark:from-amber-100/60 dark:to-transparent rounded shadow"></div>
             </div>
           </div>
           
