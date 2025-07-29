@@ -629,4 +629,8 @@ export const BibleDataAPI = {
   getStrongsWord: (strongsKey: string) => strongsService.getStrongsWord(strongsKey),
   getVerseStrongsData: (reference: string) => strongsService.getVerseStrongsData(reference),
   getStrongsOccurrences: (strongsKey: string) => strongsService.getStrongsOccurrences(strongsKey),
+  getInterlinearData: async (reference: string) => {
+    const data = await strongsService.getVerseStrongsData(reference);
+    return data.interlinearCells || [];
+  },
 };
