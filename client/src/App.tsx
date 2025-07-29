@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
+import LoaderDemo from "@/pages/LoaderDemo";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
@@ -392,7 +393,9 @@ export const useBibleStore = create<{
         console.log(`✅ STEP 4: Successfully triggered reload to ${newChronological ? 'chronological' : 'canonical'} order`);
       } catch (error) {
         console.error('❌ IMMEDIATE: Failed to reload verses:', error);
-        console.error('❌ Error details:', error.stack);
+        if (error instanceof Error) {
+          console.error('❌ Error details:', error.stack);
+        }
         console.error('❌ Error object:', error);
       }
     })();
@@ -637,6 +640,7 @@ function Router() {
     <Switch>
       <Route path="/" component={BiblePage} />
       <Route path="/auth/callback" component={AuthCallback} />
+      <Route path="/loader-demo" component={LoaderDemo} />
 
       <Route component={NotFound} />
     </Switch>
