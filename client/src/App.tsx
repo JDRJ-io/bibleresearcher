@@ -65,6 +65,7 @@ export const useBibleStore = create<{
   setTranslations: (id: string, data: any) => void;
   getAllActive: () => string[];
   crossRefs: Record<string, string[]>;
+  setCrossRefs: (refs: Record<string, string[]>) => void;
   prophecies: Record<string, any>;
   prophecyData: Record<string, { P: number[], F: number[], V: number[] }>;
   prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;

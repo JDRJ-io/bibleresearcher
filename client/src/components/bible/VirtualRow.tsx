@@ -48,6 +48,15 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
 
   // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
   const crossRefs = crossRefsStore[verse.reference] || [];
+  
+  // Debug: Log cross-refs availability for first few verses to diagnose display issues
+  if (verse.reference === 'Gen.1:1' || verse.reference === 'Gen.1:2') {
+    console.log(`🔍 CrossReferencesCell for ${verse.reference}:`, {
+      crossRefs: crossRefs.length,
+      onVerseClick: !!onVerseClick,
+      storeKeys: Object.keys(crossRefsStore).length
+    });
+  }
 
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     e.preventDefault();

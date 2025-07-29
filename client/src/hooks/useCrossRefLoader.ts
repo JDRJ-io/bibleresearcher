@@ -4,7 +4,8 @@ import { getCrossReferences } from '@/data/BibleDataAPI';
 import { useBibleStore } from '@/App';
 
 export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'cf1') {
-  const { crossRefs: crossRefsStore, setCrossRefs } = useBibleStore();
+  const store = useBibleStore();
+  const crossRefsStore = store.crossRefs;
   const loadingRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -55,7 +56,8 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
           loadingRef.current.delete(verseId);
         });
 
-        setCrossRefs(updatedCrossRefs);
+        // Update the store with the new cross-references
+        store.setCrossRefs(updatedCrossRefs);
         
         // Only log completion for significant loads
         if (results.length > 10) {
@@ -72,5 +74,5 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
     };
 
     loadCrossRefs().catch(console.error);
-  }, [verseKeys.join(','), cfSet, crossRefsStore, setCrossRefs]); // Only re-run when verse list changes
+  }, [verseKeys.join(','), cfSet, crossRefsStore, store.setCrossRefs]); // Only re-run when verse list changes
 }
