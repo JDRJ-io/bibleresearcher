@@ -1,28 +1,34 @@
 import React from 'react';
 import { HolyBookLoader } from './HolyBookLoader';
-import BiblePageFan from './BiblePageFan';
+import BibleHairFan from './BibleHairFan';
 
 interface LoaderSelectorProps {
   /** Choose which loader to display */
-  type?: 'holy-book' | 'page-fan';
+  type?: 'holy-book' | 'hair-fan';
   /** Size for the loader */
   size?: 'sm' | 'md' | 'lg';
   /** Additional CSS classes */
   className?: string;
-  /** Color for BiblePageFan (ignored for HolyBookLoader) */
+  /** Color for BibleHairFan (ignored for HolyBookLoader) */
   color?: string;
-  /** Animation duration for BiblePageFan in ms */
+  /** Animation duration for BibleHairFan in ms */
   duration?: number;
+  /** Fan spread in degrees */
+  spread?: number;
+  /** Number of strands */
+  strands?: number;
 }
 
 export function LoaderSelector({
-  type = 'page-fan',
+  type = 'hair-fan',
   size = 'md',
   className = '',
   color = '#2fc2ff',
-  duration = 1400,
+  duration = 1600,
+  spread = 60,
+  strands = 15,
 }: LoaderSelectorProps) {
-  // Convert size prop to pixel values for BiblePageFan
+  // Convert size prop to pixel values for BibleHairFan
   const sizeMap = {
     sm: 80,
     md: 120,
@@ -35,10 +41,12 @@ export function LoaderSelector({
 
   return (
     <div className={`inline-flex items-center justify-center ${className}`}>
-      <BiblePageFan 
+      <BibleHairFan 
         size={sizeMap[size]} 
         color={color} 
-        duration={duration} 
+        duration={duration}
+        spread={spread}
+        strands={strands}
       />
     </div>
   );

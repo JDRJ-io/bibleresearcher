@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
-import BiblePageFan from '@/components/ui/BiblePageFan';
+import BibleHairFan from '@/components/ui/BibleHairFan';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +9,9 @@ export default function LoaderDemo() {
   const [selectedLoader, setSelectedLoader] = useState<'current' | 'new'>('current');
   const [fanColor, setFanColor] = useState('#2fc2ff');
   const [fanSize, setFanSize] = useState(120);
-  const [fanSpeed, setFanSpeed] = useState(1400);
+  const [fanSpeed, setFanSpeed] = useState(1600);
+  const [fanSpread, setFanSpread] = useState(60);
+  const [fanStrands, setFanStrands] = useState(15);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -27,7 +29,7 @@ export default function LoaderDemo() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 Current HolyBookLoader
-                <Badge variant="secondary">Active</Badge>
+                <Badge variant="secondary">Current</Badge>
               </CardTitle>
               <CardDescription>
                 Multi-layer curved spine design with CSS animations and staggered page effects
@@ -69,21 +71,27 @@ export default function LoaderDemo() {
             </CardContent>
           </Card>
 
-          {/* New BiblePageFan */}
+          {/* New BibleHairFan */}
           <Card className="space-y-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                New BiblePageFan
-                <Badge variant="outline">Lightweight</Badge>
+                New BibleHairFan
+                <Badge variant="outline">Hair-like</Badge>
               </CardTitle>
               <CardDescription>
-                Elegant SVG-based fanning pages with SMIL animations and minimal footprint
+                Hair-like page strands in a semicircle with independent swaying motion
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-center min-h-[200px] bg-muted/30 rounded-lg">
                 <div className="text-center space-y-4">
-                  <BiblePageFan size={fanSize} color={fanColor} duration={fanSpeed} />
+                  <BibleHairFan 
+                    size={fanSize} 
+                    color={fanColor} 
+                    duration={fanSpeed}
+                    spread={fanSpread}
+                    strands={fanStrands}
+                  />
                   <p className="text-sm text-muted-foreground">Loading Scripture...</p>
                 </div>
               </div>
@@ -91,11 +99,11 @@ export default function LoaderDemo() {
               <div className="space-y-4">
                 <h4 className="font-semibold">Features:</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Pure SVG with SMIL animations</li>
-                  <li>• Three fanning page arcs with morphing paths</li>
-                  <li>• Staggered timing for ripple effect</li>
-                  <li>• Customizable color, size, and speed</li>
-                  <li>• ~1KB gzipped, zero external requests</li>
+                  <li>• 15 thin "page strands" that sway independently</li>
+                  <li>• Hair-like motion in a semicircle</li>
+                  <li>• Staggered animateTransform for cascade effect</li>
+                  <li>• Customizable color, size, speed, spread, and strands</li>
+                  <li>• ~1KB gzipped, compositor-only workload</li>
                 </ul>
               </div>
 
@@ -141,6 +149,30 @@ export default function LoaderDemo() {
                       className="w-full mt-1"
                     />
                   </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Spread: {fanSpread}°</label>
+                    <input
+                      type="range"
+                      min="30"
+                      max="90"
+                      value={fanSpread}
+                      onChange={(e) => setFanSpread(Number(e.target.value))}
+                      className="w-full mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Strands: {fanStrands}</label>
+                    <input
+                      type="range"
+                      min="8"
+                      max="25"
+                      value={fanStrands}
+                      onChange={(e) => setFanStrands(Number(e.target.value))}
+                      className="w-full mt-1"
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -162,14 +194,14 @@ export default function LoaderDemo() {
                   <tr className="border-b">
                     <th className="text-left p-4 font-semibold">Feature</th>
                     <th className="text-left p-4 font-semibold">HolyBookLoader</th>
-                    <th className="text-left p-4 font-semibold">BiblePageFan</th>
+                    <th className="text-left p-4 font-semibold">BibleHairFan</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
                   <tr className="border-b">
                     <td className="p-4 font-medium">Animation Type</td>
                     <td className="p-4">CSS Keyframes + Transform</td>
-                    <td className="p-4">SVG SMIL Animation</td>
+                    <td className="p-4">SVG animateTransform</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-medium">File Size</td>
@@ -179,22 +211,22 @@ export default function LoaderDemo() {
                   <tr className="border-b">
                     <td className="p-4 font-medium">Customization</td>
                     <td className="p-4">3 preset sizes</td>
-                    <td className="p-4">Color, size, speed props</td>
+                    <td className="p-4">Color, size, speed, spread, strands</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-4 font-medium">Performance</td>
                     <td className="p-4">CSS animations (GPU accelerated)</td>
-                    <td className="p-4">Native SVG (minimal CPU)</td>
+                    <td className="p-4">Compositor-only (no React re-renders)</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-4 font-medium">Browser Support</td>
-                    <td className="p-4">Modern browsers</td>
-                    <td className="p-4">SVG + SMIL support (97%+)</td>
+                    <td className="p-4 font-medium">Visual Effect</td>
+                    <td className="p-4">Curved spine with layers</td>
+                    <td className="p-4">Hair-like strands in semicircle</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-4 font-medium">Accessibility</td>
-                    <td className="p-4">Visual only</td>
-                    <td className="p-4">Built-in aria-label</td>
+                    <td className="p-4 font-medium">Motion Style</td>
+                    <td className="p-4">Page flip effect</td>
+                    <td className="p-4">Independent swaying motion</td>
                   </tr>
                 </tbody>
               </table>
@@ -207,7 +239,7 @@ export default function LoaderDemo() {
           <CardHeader>
             <CardTitle>Integration Options</CardTitle>
             <CardDescription>
-              Choose how to integrate the BiblePageFan component into your biblical research platform
+              Choose how to integrate the BibleHairFan component into your biblical research platform
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -215,7 +247,7 @@ export default function LoaderDemo() {
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Option 1: Replace</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Replace HolyBookLoader entirely with BiblePageFan for lighter footprint
+                  Replace HolyBookLoader entirely with BibleHairFan for hair-like motion
                 </p>
                 <Badge variant="outline" className="text-xs">Recommended</Badge>
               </div>
@@ -231,7 +263,7 @@ export default function LoaderDemo() {
               <div className="p-4 border rounded-lg">
                 <h4 className="font-semibold mb-2">Option 3: Context-specific</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Use HolyBookLoader for main loading, BiblePageFan for quick transitions
+                  Use HolyBookLoader for main loading, BibleHairFan for quick transitions
                 </p>
                 <Badge variant="secondary" className="text-xs">Specialized</Badge>
               </div>
