@@ -104,15 +104,16 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
-- **July 29, 2025: EXPERT CSS-BASED RESPONSIVE LAYOUT SYSTEM COMPLETED ✅**
-  - **Expert's CSS Variables**: Implemented clamp() based responsive system using --w-ref, --w-main, --w-xref, --w-alt
-  - **Orientation-Aware Layout**: CSS @media (orientation) automatically switches between centered (landscape) and left-aligned (portrait)
-  - **Natural Horizontal Scrolling**: Expert's flexbox + max-content system provides smooth scrolling only when needed
+- **July 29, 2025: EXPERT AXIS-LOCKED SCROLLING SYSTEM COMPLETED ✅**
+  - **One-Axis-at-a-Time Scrolling**: Implemented touch-action: pan-y (vertical) and pan-x (horizontal) for precise scroll control
+  - **Scroll Chain Prevention**: Added overscroll-behavior: contain to prevent scroll bounce bubbling between containers
+  - **Column Snap Scrolling**: Integrated scroll-snap-type: x mandatory for clean column boundary stops
+  - **iOS Momentum Scrolling**: Added -webkit-overflow-scrolling: touch for smooth native feel on mobile
+  - **Accessibility Support**: Disabled snap scrolling for users with prefers-reduced-motion: reduce
+  - **Portrait/Landscape Classes**: Added twPortrait/twLandscape classes for orientation-specific styling
+  - **Expert CSS Variables**: Implemented clamp() based responsive system using --w-ref, --w-main, --w-xref, --w-alt, --w-prophecy
   - **Fixed Column Ordering**: Alternate translations now correctly appear AFTER cross-references (slot 12+)
-  - **Equal Visual Importance**: Main translation and cross-reference columns have equal responsive widths
-  - **Scrollbar Gutter Stability**: Expert's scrollbar-gutter: stable prevents layout jumps when scrollbar appears
-  - **Progressive Width Scaling**: Intelligent clamp() ranges optimize for different screen sizes automatically
-  - **Expert's useOrientation Hook**: matchMedia-based orientation detection for precise responsive behavior
+  - **Equal-Width Prophecy Columns**: Prediction, Fulfillment, Verification columns now match main translation width
 - **July 29, 2025: COMPLETE STRONGS OVERLAY UX ENHANCEMENT ✅**
   - **Navigation System**: Fixed verse text synchronization during up/down navigation
   - **Horizontal Scrolling Layout**: Replaced vertical grid with space-efficient horizontal word boxes

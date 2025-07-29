@@ -322,12 +322,63 @@ body {
   }
 }
 
-/* Apply expert's layout classes to existing bible table */
+/* Expert's Refined Scrolling Logic - One-axis-at-a-time */
+
+/* Bible page container - vertical scroll only */
+.biblePage {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100dvh;                     /* full viewport */
+  touch-action: pan-y pinch-zoom;     /* allow Y-panning only */
+  overscroll-behavior: contain;       /* no scroll chaining */
+}
+
+/* Table wrapper - horizontal scroll only */
+.tableWrapper {
+  display: flex;
+  justify-content: center;            /* centering in landscape */
+  overflow-x: auto;                   /* shows bar only if needed */
+  overflow-y: hidden;
+  scrollbar-gutter: stable;           /* prevents width-jump when bar appears */
+  touch-action: pan-x pinch-zoom;     /* allow X-panning only */
+  overscroll-behavior: contain;       /* stop bounce from bubbling up */
+  scroll-snap-type: x mandatory;      /* neat column snap */
+  -webkit-overflow-scrolling: touch;  /* momentum on iOS */
+}
+
+/* Portrait mode - axis-locked scrolling with left alignment */
+.tableWrapper.twPortrait {
+  justify-content: flex-start;        /* hug the left in portrait */
+}
+
+/* Landscape mode - centered layout */
+.tableWrapper.twLandscape {
+  justify-content: center;            /* centered in landscape */
+}
+
+/* Column groups for snap alignment */
+.columnGroup { 
+  scroll-snap-align: start;           /* every column bundle snaps cleanly */
+}
+
+/* Accessibility - disable snap for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .tableWrapper {
+    scroll-snap-type: none;
+  }
+}
+
+/* Legacy support for existing bible-table-wrapper class */
 .bible-table-wrapper {
   display: flex;
   justify-content: center;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-gutter: stable;
+  touch-action: pan-x pinch-zoom;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bible-table-wrapper .flex {

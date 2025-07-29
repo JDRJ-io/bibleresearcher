@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ColumnHeaders } from "./ColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
+import { useOrientation } from '@/hooks/useOrientation';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
@@ -359,6 +360,8 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   
   // Responsive column system
   const responsiveConfig = useResponsiveColumns();
+  const orientation = useOrientation();
+  const isPortrait = orientation === 'portrait';
 
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
@@ -477,14 +480,11 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
           (wrapperRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className="tableWrapper"
-        data-orientation={responsiveConfig.isPortrait ? 'portrait' : 'landscape'}
+        className={`tableWrapper ${isPortrait ? 'twPortrait' : 'twLandscape'}`}
+        data-orientation={isPortrait ? 'portrait' : 'landscape'}
         style={{ 
-          touchAction: "pan-y", 
           marginTop: '0',
-          height: "calc(100vh - 85px)",
-          overflowX: responsiveConfig.enableHorizontalScroll ? 'auto' : 'hidden',
-          overflowY: 'auto'
+          height: "calc(100vh - 85px)"
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
