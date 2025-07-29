@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import { ROW_HEIGHT } from '@/constants/layout';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -43,9 +43,10 @@ interface VirtualBibleTableProps {
   onCenterVerseChange?: (verseIndex: number) => void;
   centerVerseIndex?: number;
   onPreserveAnchor?: (callback: any) => void;
+  onVerseClick?: (ref: string) => void;
 }
 
-const VirtualBibleTable = ({
+const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProps>(({
   selectedTranslations,
   preferences,
   mainTranslation,
@@ -58,7 +59,8 @@ const VirtualBibleTable = ({
   onCenterVerseChange,
   centerVerseIndex = 0,
   onPreserveAnchor,
-}: VirtualBibleTableProps) => {
+  onVerseClick,
+}, ref) => {
   // All hooks must be called at the top level of the component
   const { user } = useAuth();
   const { toast } = useToast();
@@ -73,6 +75,9 @@ const VirtualBibleTable = ({
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Merge external ref with internal ref
+  React.useImperativeHandle(ref, () => containerRef.current!);
   
   // Get reactive verse keys from store instead of static function
   const { currentVerseKeys, isChronological } = useBibleStore();
@@ -236,7 +241,7 @@ const VirtualBibleTable = ({
       showHighlights: true,
       showBookmarks: true,
     },
-    onVerseClick: (ref: string) => goTo(ref),
+    onVerseClick: onVerseClick || ((ref: string) => goTo(ref)),
   };
 
   // User actions
@@ -553,7 +558,9 @@ const VirtualBibleTable = ({
       </div>
     </div>
   );
-};
+});
+
+VirtualBibleTable.displayName = 'VirtualBibleTable';
 
 export default VirtualBibleTable;
 export { VirtualBibleTable };

@@ -13,6 +13,8 @@ import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
 import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
+import { useVerseNav } from '@/hooks/useVerseNav';
+import { makeScrollToVerse } from '@/utils/scrollToVerse';
 
 import type { BibleVerse } from '@/types/bible';
 
@@ -27,6 +29,10 @@ export default function BiblePage() {
   // Initialize body class and adaptive scaling
   useBodyClass('bible-page');
   useAdaptiveScaling();
+
+  // Navigation system
+  const scrollToVerse = makeScrollToVerse(tableRef);
+  const { goTo, goBack, goForward, canGoBack, canGoForward } = useVerseNav(scrollToVerse);
 
   // Handle URL parameters
   const { hashParams, updateHashParams } = useHashParams();
@@ -199,10 +205,10 @@ export default function BiblePage() {
           <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
-          onBack={() => window.history.back()}
-          onForward={() => window.history.forward()}
-          canGoBack={window.history.length > 1}
-          canGoForward={false}
+          onBack={goBack}
+          onForward={goForward}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
         />
           <div className="flex items-center justify-center min-h-[60vh]">
@@ -232,15 +238,16 @@ export default function BiblePage() {
         <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
-          onBack={() => window.history.back()}
-          onForward={() => window.history.forward()}
-          canGoBack={window.history.length > 1}
-          canGoForward={false}
+          onBack={goBack}
+          onForward={goForward}
+          canGoBack={canGoBack}
+          canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
         />
 
         <main className="flex-1 overflow-hidden">
           <VirtualBibleTable
+            ref={tableRef}
             verses={verses}
             selectedTranslations={selectedTranslations.map(t => ({ id: t, name: t, abbreviation: t, selected: true }))}
             preferences={{ 
@@ -255,6 +262,7 @@ export default function BiblePage() {
             mainTranslation={mainTranslation}
             onExpandVerse={handleExpandVerse}
             getGlobalVerseText={getGlobalVerseText}
+            onVerseClick={goTo}
           />
         </main>
 
