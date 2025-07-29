@@ -1,18 +1,22 @@
+import React from 'react';
 import { ROW_HEIGHT } from '@/constants/layout';
 import { getVerseKeys } from '@/lib/verseKeysLoader';
 
-export function makeScrollToVerse(container: HTMLDivElement | null) {
+export function makeScrollToVerse(containerRef: React.RefObject<HTMLDivElement>) {
   const verseKeys = getVerseKeys();
 
   return (ref: string) => {
+    const container = containerRef.current;
     if (!container) return;
+    
     const idx = verseKeys.findIndex(k => k === ref || k.replace(/\./g,' ') === ref || k.replace(/\s/g,'.') === ref);
     if (idx === -1) return;
 
     const containerH = container.clientHeight;
     const target = (idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2);
 
-    container.scrollTo({ top: Math.max(0, target), behavior: 'auto' });
+    // Use scrollTop assignment for better compatibility
+    container.scrollTop = Math.max(0, target);
 
     // optional flash
     setTimeout(() => {

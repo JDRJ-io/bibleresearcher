@@ -131,12 +131,13 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   const sliceVerses = useMemo(() => {
     return slice.verseIDs.map(verseID => {
       const verseData = rowData?.[verseID];
-      if (verseData) {
-        return verseData;
+      if (verseData && 'book' in verseData && 'chapter' in verseData) {
+        return verseData as BibleVerse;
       }
       // Create properly typed fallback verse
       return {
         id: verseID,
+        index: 0,
         reference: verseID, // STRAIGHT-LINE: Keep original format
         book: '',
         chapter: 0,
