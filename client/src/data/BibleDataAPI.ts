@@ -249,7 +249,7 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
   const searchLower = query.toLowerCase();
   const verseKeys = await loadVerseKeys();
 
-  for (const [reference, text] of Array.from(translationMap.entries())) {
+  for (const [reference, text] of translationMap.entries()) {
     if (text.toLowerCase().includes(searchLower)) {
       const index = verseKeys.findIndex((key: string) => key === reference);
       results.push({
@@ -315,6 +315,130 @@ export async function getCfOffsets(set: 'cf1' | 'cf2') {
   const obj = JSON.parse(txt) as Record<string, [number, number]>;
   cfOffsetsCache.set(set, obj);
   return obj;
+}
+
+// FAST: Range-fetch specific bytes from cross-reference file
+export async function fetchCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
+  try {
+    // Try direct HTTP range request to Supabase storage
+    const { data } = await supabase.storage.from(BUCKET).getPublicUrl(paths.crossRef(cfSet));
+    const url = data.publicUrl;
+    
+    const response = await fetch(url, {
+      headers: {
+        'Range': `bytes=${start}-${end}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Range request failed: ${response.status}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    console.warn(`Range fetch failed, falling back to offset slice:`, error);
+    
+    // Fallback: use cached full file and slice in memory
+    const fullText = await loadCrossReferences(cfSet);
+    return fullText.substring(start, end);
+  }
+}
+
+// ULTRA-FAST: Batch cross-reference loading with merged range requests
+export async function getCrossRefsBatch(verseIds: string[], cfSet: 'cf1' | 'cf2' = 'cf1'): Promise<Record<string, string[]>> {
+  if (verseIds.length === 0) return {};
+
+  try {
+    const offsetMap = await getCfOffsets(cfSet);
+    
+    // Get byte ranges for all verses, filtering out missing ones
+    const verseRanges = verseIds
+      .map(id => ({ id, range: offsetMap[id] }))
+      .filter(item => item.range)
+      .sort((a, b) => a.range[0] - b.range[0]);
+
+    if (verseRanges.length === 0) return {};
+
+    // Merge overlapping/adjacent byte windows to minimize requests
+    const mergedWindows: { start: number; end: number; verses: Array<{id: string, range: [number, number]}> }[] = [];
+    
+    for (const verseRange of verseRanges) {
+      const [start, end] = verseRange.range;
+      const lastWindow = mergedWindows[mergedWindows.length - 1];
+      
+      // Merge if windows are adjacent or overlapping (with small gap tolerance)
+      if (lastWindow && start <= lastWindow.end + 100) {
+        lastWindow.end = Math.max(lastWindow.end, end);
+        lastWindow.verses.push(verseRange);
+      } else {
+        mergedWindows.push({
+          start,
+          end,
+          verses: [verseRange]
+        });
+      }
+    }
+
+    console.log(`🚀 BATCH: Loading ${verseIds.length} verses using ${mergedWindows.length} range requests`);
+
+    // Download all merged windows in parallel
+    const windowChunks = await Promise.all(
+      mergedWindows.map(window => fetchCrossRefSlice(cfSet, window.start, window.end))
+    );
+
+    // Parse results and extract cross-references for each verse
+    const results: Record<string, string[]> = {};
+    
+    mergedWindows.forEach((window, windowIndex) => {
+      const chunk = windowChunks[windowIndex];
+      
+      // Parse each verse's cross-references from the chunk
+      window.verses.forEach(({ id, range }) => {
+        try {
+          // Calculate relative position within this chunk
+          const relativeStart = range[0] - window.start;
+          const relativeEnd = range[1] - window.start;
+          const verseLine = chunk.substring(relativeStart, relativeEnd).trim();
+          
+          if (!verseLine) {
+            results[id] = [];
+            return;
+          }
+
+          // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+          const [, referencesData] = verseLine.split('$$');
+          if (!referencesData) {
+            results[id] = [];
+            return;
+          }
+
+          const allReferences: string[] = [];
+          const referenceGroups = referencesData.split('$').filter(group => group.trim());
+
+          referenceGroups.forEach(group => {
+            const sequentialRefs = group.split('#').filter(ref => ref.trim());
+            sequentialRefs.forEach(ref => {
+              const cleanRef = ref.trim();
+              if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+                allReferences.push(cleanRef);
+              }
+            });
+          });
+
+          results[id] = allReferences;
+        } catch (error) {
+          console.warn(`Failed to parse cross-refs for ${id}:`, error);
+          results[id] = [];
+        }
+      });
+    });
+
+    return results;
+
+  } catch (error) {
+    console.error('Batch cross-reference loading failed:', error);
+    return {};
+  }
 }
 
 // -------- Strong's offsets ----------
