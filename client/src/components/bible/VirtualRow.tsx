@@ -543,20 +543,16 @@ export function VirtualRow({
         return '160px'; // fallback
       }
       
-      // Use intelligent responsive widths that maximize screen utilization
-      if (responsiveConfig.shouldOptimizeForPortrait || responsiveConfig.isPortrait) {
-        const { columnPixelWidths } = responsiveConfig;
-        
-        if (slotNumber === 0) return `${columnPixelWidths.reference}px`; // Smart reference width
-        if (slotNumber === 2 && config.type === 'main-translation') return `${columnPixelWidths.mainTranslation}px`; // Optimized main
-        if (slotNumber === 7 && config.type === 'cross-refs') return `${columnPixelWidths.crossReference}px`; // Optimized cross refs
-        
-        // Handle alternate translations and other column types
-        if (config.type === 'translation' && slotNumber !== 2) return `${columnPixelWidths.alternate}px`; // Alternate translations
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return `${columnPixelWidths.prophecy}px`;
-        if (config.type === 'notes') return `${columnPixelWidths.notes}px`;
-        if (config.type === 'context') return `${columnPixelWidths.context}px`;
-      }
+      // Use expert's CSS variable system for responsive column widths
+      if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
+      if (slotNumber === 2 && config.type === 'main-translation') return 'var(--w-main)'; // Main translation
+      if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
+      
+      // Handle alternate translations and other column types
+      if (config.type === 'translation' && slotNumber !== 2) return 'var(--w-alt)'; // Alternate translations
+      if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return '5rem'; // Prophecy columns
+      if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
+      if (config.type === 'context') return '12rem'; // Context/dates column
       
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
       const pixelWidth = columnInfo.widthRem * 16;

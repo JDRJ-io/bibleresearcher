@@ -93,20 +93,16 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       return '160px'; // fallback
     }
     
-    // Use intelligent responsive widths that maximize screen utilization
-    if (responsiveConfig.shouldOptimizeForPortrait || responsiveConfig.isPortrait) {
-      const { columnPixelWidths } = responsiveConfig;
-      
-      if (slot === 0) return `${columnPixelWidths.reference}px`; // Smart reference width
-      if (slot === 2 && column.type === 'main-translation') return `${columnPixelWidths.mainTranslation}px`; // Optimized main
-      if (slot === 7 && column.type === 'cross-refs') return `${columnPixelWidths.crossReference}px`; // Optimized cross refs
-      
-      // Handle alternate translations and other column types
-      if (column.type === 'translation' && slot !== 2) return `${columnPixelWidths.alternate}px`; // Alternate translations
-      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return `${columnPixelWidths.prophecy}px`;
-      if (column.type === 'notes') return `${columnPixelWidths.notes}px`;
-      if (column.type === 'context') return `${columnPixelWidths.context}px`;
-    }
+    // Use expert's CSS variable system for responsive column widths
+    if (slot === 0) return 'var(--w-ref)'; // Reference column
+    if (slot === 2 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
+    if (slot === 7 && column.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
+    
+    // Handle alternate translations and other column types
+    if (column.type === 'translation' && slot !== 2) return 'var(--w-alt)'; // Alternate translations
+    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return '5rem'; // Prophecy columns
+    if (column.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
+    if (column.type === 'context') return '12rem'; // Context/dates column
     
     // Convert rem to pixels for other columns (assuming 1rem = 16px)
     const pixelWidth = columnInfo.widthRem * 16;
@@ -244,18 +240,12 @@ export function ColumnHeaders({
   // HIDDEN ON MOBILE for clean dual-column layout
   if (!adaptiveIsMobile) {
     alternates.forEach((translationCode, index) => {
-      let slot;
-      if (index < 4) {
-        // Primary alternate translations: slots 3-6
-        slot = 3 + index;
-      } else {
-        // Extended alternate translations: slots 12-19 (8 additional slots)
-        slot = 12 + (index - 4);
-      }
+      // All alternate translations start from slot 12 (AFTER cross-references)
+      const slot = 12 + index;
       
-      if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
+      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
         slotConfig[slot] = { 
-          type: 'alt-translation', 
+          type: 'translation', 
           header: translationCode, 
           translationCode, 
           visible: true  // Show all active alternate translations

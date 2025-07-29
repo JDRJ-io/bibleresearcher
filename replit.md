@@ -104,14 +104,15 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
-- **July 29, 2025: RESPONSIVE MOBILE COLUMN LAYOUT SYSTEM COMPLETED ✅**
-  - **Ultra-Compact Portrait Mode**: Optimized for 3-column display (Ref + Main + Cross-refs) on all mobile devices
-  - **Adaptive Column Widths**: Standard 40px/200px/160px, ultra-compact 36px/190px/150px for small screens (<480px)
-  - **Portrait/Landscape Detection**: Automatic orientation-aware layout switching with useResponsiveColumns hook
-  - **Perfect Mobile Fit**: Total width 400px (standard) or 376px (ultra-compact) ensures all columns visible without cutoff
-  - **Horizontal Scroll Integration**: Seamless scrolling for additional columns with consistent header-content alignment
-  - **Cross-Device Compatibility**: Responsive system handles all portrait resolutions from 320px to 480px+ width
-  - **Pixel-Perfect Alignment**: Exact width matching between ColumnHeaders and VirtualRow components
+- **July 29, 2025: EXPERT CSS-BASED RESPONSIVE LAYOUT SYSTEM COMPLETED ✅**
+  - **Expert's CSS Variables**: Implemented clamp() based responsive system using --w-ref, --w-main, --w-xref, --w-alt
+  - **Orientation-Aware Layout**: CSS @media (orientation) automatically switches between centered (landscape) and left-aligned (portrait)
+  - **Natural Horizontal Scrolling**: Expert's flexbox + max-content system provides smooth scrolling only when needed
+  - **Fixed Column Ordering**: Alternate translations now correctly appear AFTER cross-references (slot 12+)
+  - **Equal Visual Importance**: Main translation and cross-reference columns have equal responsive widths
+  - **Scrollbar Gutter Stability**: Expert's scrollbar-gutter: stable prevents layout jumps when scrollbar appears
+  - **Progressive Width Scaling**: Intelligent clamp() ranges optimize for different screen sizes automatically
+  - **Expert's useOrientation Hook**: matchMedia-based orientation detection for precise responsive behavior
 - **July 29, 2025: COMPLETE STRONGS OVERLAY UX ENHANCEMENT ✅**
   - **Navigation System**: Fixed verse text synchronization during up/down navigation
   - **Horizontal Scrolling Layout**: Replaced vertical grid with space-efficient horizontal word boxes

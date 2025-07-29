@@ -477,7 +477,8 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
           (wrapperRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className={`bible-table-wrapper ${responsiveConfig.isPortrait ? 'portrait-mode' : 'landscape-mode'}`}
+        className="tableWrapper"
+        data-orientation={responsiveConfig.isPortrait ? 'portrait' : 'landscape'}
         style={{ 
           touchAction: "pan-y", 
           marginTop: '0',
@@ -489,10 +490,9 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className={`flex w-full ${responsiveConfig.containerClass}`} 
+        <div className="tableInner flex w-full"
              style={{ 
-               overflowX: 'auto', // Always enable horizontal scroll for 20-column system
-               minWidth: responsiveConfig.shouldOptimizeForPortrait ? `${responsiveConfig.availableWidth}px` : 'auto'
+               minWidth: 'max-content' // Natural content width for expert's system
              }}>
           <div style={{ 
             minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,

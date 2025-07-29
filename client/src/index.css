@@ -271,47 +271,68 @@ body {
 
 
 
-/* Responsive Column Layout System */
-/* Portrait mode - Left-based columns with horizontal scroll */
-.bible-table-wrapper.portrait-mode {
-  overflow-x: auto;
-  overflow-y: auto;
+/* Expert's CSS-based Responsive Layout System */
+:root {
+  /* Baseline column widths - expert's clamp() approach */
+  --w-ref: 4.5rem;                              /* reference # column */
+  --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */  
+  --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
+  --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
 }
 
-.bible-table-wrapper.portrait-mode .flex {
-  justify-content: flex-start !important;
-  align-items: flex-start;
+/* Table wrapper - expert's flexbox centering with auto-scroll */
+.tableWrapper {
+  display: flex;
+  justify-content: center;                       /* centering in landscape */
+  overflow-x: auto;                             /* scrollbar only if needed */
+  scrollbar-gutter: stable;                     /* prevents width-jump when bar appears */
 }
 
-/* Mobile portrait optimization - ensure all 3 core columns fit */
-@media (max-width: 480px) and (orientation: portrait) {
-  :root {
-    --portrait-ref-width: 36px;   /* Ultra-thin reference for small screens */
-    --portrait-main-width: 170px; /* Equal width main */
-    --portrait-cross-width: 170px; /* Equal width cross-refs */
-  }
+/* Table inner content - natural width scaling */
+.tableInner { 
+  inline-size: max-content; 
 }
 
-/* Landscape mode - Centered columns */
-.bible-table-wrapper.landscape-mode .flex {
-  justify-content: center;
-  align-items: center;
-}
-
-/* Responsive column width CSS variables */
+/* PORTRAIT MODE - Expert's orientation-aware layout */
 @media (orientation: portrait) {
+  /* Switch to left-aligned layout in portrait */
+  .tableWrapper { 
+    justify-content: flex-start;                 /* hug the left */
+  }
+  
   :root {
-    --portrait-ref-width: 40px;
-    --portrait-main-width: 180px; 
-    --portrait-cross-width: 180px; /* Equal width with main */
+    --w-ref: 3.5rem;
+    --w-main: clamp(45vw, 60vw, 80vw);          /* main fills most of the width */
+    --w-xref: clamp(40vw, 55vw, 70vw);          /* equal importance with main */
+    --w-alt: clamp(35vw, 50vw, 65vw);           /* alternate translations */
   }
 }
 
-@media (orientation: landscape) {
+/* Tiny phones - expert's fixed widths to prevent crumbs */
+@media (max-width: 480px) {
   :root {
-    --landscape-ref-width: 80px;
-    --landscape-main-width: 320px;
-    --landscape-cross-width: 320px; /* Equal width with main */
+    --w-ref: 3rem;
+    --w-main: 18rem;                            /* fixed width for readability */
+    --w-xref: 18rem;                            /* equal width with main */
+    --w-alt: 16rem;                             /* slightly smaller alternates */
+  }
+}
+
+/* Apply expert's layout classes to existing bible table */
+.bible-table-wrapper {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  scrollbar-gutter: stable;
+}
+
+.bible-table-wrapper .flex {
+  inline-size: max-content;
+}
+
+@media (orientation: portrait) {
+  .bible-table-wrapper {
+    justify-content: flex-start;
   }
 }
 
