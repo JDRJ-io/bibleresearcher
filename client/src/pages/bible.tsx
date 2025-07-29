@@ -326,7 +326,7 @@ export default function BiblePage() {
           {showSmartLoader && (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-40">
               <div className="text-center space-y-3">
-                <HolyBookLoader size="md" />
+                <BibleHairFan size={120} color="#2fc2ff" duration={1800} />
                 <div className="text-sm text-muted-foreground animate-pulse">
                   Navigating...
                 </div>
