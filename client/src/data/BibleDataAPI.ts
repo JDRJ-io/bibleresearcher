@@ -159,8 +159,7 @@ async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
 
 // Get cross-reference data for BibleDataAPI facade
 export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
-  console.error(`❌ getCrossRef is deprecated. Use getCrossRefsBatch() instead.`);
-  throw new Error(`getCrossRef() is deprecated. Use getCrossRefsBatch() for optimized performance.`);
+  return await loadCrossReferences(set);
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
@@ -236,11 +235,10 @@ export async function searchVerses(query: string, translationId: string = 'KJV')
     if (allEntries.length > 0) {
       const randomEntry = allEntries[Math.floor(Math.random() * allEntries.length)];
       const verseKeys = await loadVerseKeys();
-      const [reference, text] = randomEntry as [string, string];
-      const index = verseKeys.findIndex((key: string) => key === reference);
+      const index = verseKeys.findIndex((key: string) => key === randomEntry[0]);
       return [{
-        reference,
-        text,
+        reference: randomEntry[0],
+        text: randomEntry[1],
         index: index
       }];
     }
@@ -327,10 +325,8 @@ async function fetchSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Pro
     .storage
     .from(BUCKET)
     .download(paths.crossRef(cfSet), { 
-      transform: {
-        range: { start, end }
-      }
-    } as any);
+      range: { start, end } 
+    });
     
   if (error) throw error;
   
@@ -543,10 +539,10 @@ export async function loadProphecyData(): Promise<{
   }
 }
 
-// Cross-reference slice loader - DEPRECATED
+// Cross-reference slice loader
 export async function getCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
-  console.error(`❌ getCrossRefSlice is deprecated. Use fetchSlice() with HTTP Range requests instead.`);
-  throw new Error(`getCrossRefSlice() is deprecated. Use getCrossRefsBatch() for optimized performance.`);
+  const fullText = await loadCrossReferences(cfSet);
+  return fullText.substring(start, end);
 }
 
 export async function saveBookmark(bookmark: any, preserveAnchor?: (ref: string, index: number) => void) {
