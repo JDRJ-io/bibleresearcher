@@ -37,10 +37,8 @@ export default function BibleHairFan({
 
   const lines = Array.from({ length: strands }, (_, i) => {
     const base = startAngle + i * step;      // ­‑60° … +60°
-    const sway = 6;                          // ±3° each side
+    const sway = 6;                          // ±3° each side (feel free to tune)
     const delay = (i * duration) / strands / 3; // gentle cascade
-
-    /* Two‑step rotation values for animateTransform */
     const values = `${base - sway}; ${base + sway}; ${base - sway}`;
 
     return (
@@ -54,13 +52,14 @@ export default function BibleHairFan({
           strokeWidth={3}
           strokeLinecap="round"
         >
+          {/* ── NEW ──  makes the strand sway ±3° around its base angle */}
           <animateTransform
             attributeName="transform"
             type="rotate"
-            dur={`${duration}ms`}
-            begin={`${delay}ms`}
+            dur={`${duration}ms`}          // full back‑and‑forth cycle
+            begin={`${delay}ms`}           // small cascade per strand
             repeatCount="indefinite"
-            values={values}
+            values={`${base - sway}; ${base + sway}; ${base - sway}`}
           />
         </line>
       </g>

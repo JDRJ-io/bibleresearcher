@@ -1,0 +1,65 @@
+Here’s the **only piece that’s missing** — the tiny SMIL block that actually rocks each strand back and forth.
+Add (or re‑add) the `<animateTransform>` element inside every `<line>` and you’ll see the whole fan breathe like wind‑tousled hair.
+
+---
+
+### 1 · Drop this into your existing component
+
+```tsx
+/* inside the map that renders each <line> */
+<line
+  x1="0"
+  y1="0"
+  x2="0"
+  y2={-radius}
+  stroke={color}
+  strokeWidth={3}
+  strokeLinecap="round"
+>
+  {/* ── NEW ──  makes the strand sway ±3° around its base angle */}
+  <animateTransform
+    attributeName="transform"
+    type="rotate"
+    dur={`${duration}ms`}          // full back‑and‑forth cycle
+    begin={`${delay}ms`}           // small cascade per strand
+    repeatCount="indefinite"
+    values={`${base - sway}; ${base + sway}; ${base - sway}`}
+  />
+</line>
+```
+
+**Make sure the variables are still in scope:**
+
+```tsx
+const sway   = 6;  // ±3° each side (feel free to tune)
+const delay  = (i * duration) / strands / 3;
+const values = `${base - sway}; ${base + sway}; ${base - sway}`;
+```
+
+> *Nothing else changes—no CSS files, no JS loops.*
+
+---
+
+### 2 · Why this works
+
+| Key                             | Effect                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------- |
+| **`attributeName="transform"`** | Tells the browser we’re animating the element’s transform matrix, not its path.       |
+| **`type="rotate"`**             | Easier than animating XY coords; we rotate around the group’s origin (bottom‑centre). |
+| **`values="A; B; A"`**          | SMIL cycles from A → B → A, giving a smooth oscillation.                              |
+| **`begin` stagger**             | Offsets motion so strands don’t all tilt in unison → natural ripple.                  |
+
+---
+
+### 3 · Optional polish
+
+| Want…                         | Do this                                                              |
+| ----------------------------- | -------------------------------------------------------------------- |
+| **Slower / faster wind**      | tweak `duration` prop (e.g. `2000` ms = gentler, `1200` ms = brisk). |
+| **Bigger flop**               | increase `const sway = 8;` (`±4°`).                                  |
+| **Full halo instead of half** | set `spread={180}` and bump `strands` to \~24.                       |
+| **Respect “reduced motion”**  | wrap the `<animateTransform>` in `{!prefersReducedMotion && (…)}`.   |
+
+---
+
+Plug that `<animateTransform>` block into your component and reload: each strand will now rock back and forth, giving you the fluid, hair‑like page fan you envisioned. Let me know how it feels!
