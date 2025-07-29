@@ -265,7 +265,7 @@ export default function BiblePage() {
         />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
-              <BibleHairFan size={160} color="#2fc2ff" duration={1800} />
+              <BibleHairFan size={160} color="#2fc2ff" duration={1000} />
               <div className="text-muted-foreground animate-pulse">
                 Loading Scripture...
               </div>
@@ -326,7 +326,7 @@ export default function BiblePage() {
           {showSmartLoader && (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-40">
               <div className="text-center space-y-3">
-                <BibleHairFan size={120} color="#2fc2ff" duration={1800} />
+                <BibleHairFan size={120} color="#2fc2ff" duration={1000} />
                 <div className="text-sm text-muted-foreground animate-pulse">
                   Navigating...
                 </div>

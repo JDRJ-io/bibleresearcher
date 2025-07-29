@@ -7,9 +7,9 @@ import { Badge } from '@/components/ui/badge';
 export default function LoaderDemo() {
   const [fanColor, setFanColor] = useState('#2fc2ff');
   const [fanSize, setFanSize] = useState(120);
-  const [fanSpeed, setFanSpeed] = useState(1800);
+  const [fanSpeed, setFanSpeed] = useState(1000);
   const [fanSpread, setFanSpread] = useState(60);
-  const [fanStrands, setFanStrands] = useState(30);
+  const [fanStrands, setFanStrands] = useState(15);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -50,7 +50,7 @@ export default function LoaderDemo() {
               <div className="space-y-4">
                 <h4 className="font-semibold">Features:</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• 30 thin "page strands" flowing like hair in wind</li>
+                  <li>• 15 thin "page strands" flowing like hair in wind</li>
                   <li>• Sequential wave motion sweeping from side to side</li>
                   <li>• Spline-based animation for smooth flowing effect</li>
                   <li>• Customizable color, size, speed, spread, and strands</li>
