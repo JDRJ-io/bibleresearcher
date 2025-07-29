@@ -27,9 +27,9 @@ type Props = {
 export default function BibleHairFan({
   size = 120,
   color = '#2fc2ff',
-  duration = 1600,
+  duration = 1200,
   spread = 60,
-  strands = 15,
+  strands = 25,
 }: Props) {
   const radius = size / 2;
   const startAngle = -spread;
@@ -37,9 +37,14 @@ export default function BibleHairFan({
 
   const lines = Array.from({ length: strands }, (_, i) => {
     const base = startAngle + i * step;      // ­‑60° … +60°
-    const sway = 6;                          // ±3° each side (feel free to tune)
-    const delay = (i * duration) / strands / 3; // gentle cascade
-    const values = `${base - sway}; ${base + sway}; ${base - sway}`;
+    const sway = 8;                          // ±4° each side for more dramatic flow
+    
+    // Create a flowing wave effect - each strand follows the wave with a phase offset
+    const wavePhase = (i / strands) * 360;  // distribute phase across 360°
+    const delay = (i * 50);                 // tight stagger for wave effect
+    
+    // Wave flows from left to right, then back
+    const waveValues = `${base - sway}; ${base + sway}; ${base - sway}`;
 
     return (
       <g key={i} transform={`rotate(${base})`}>
@@ -49,17 +54,21 @@ export default function BibleHairFan({
           x2="0"
           y2={-radius}
           stroke={color}
-          strokeWidth={3}
+          strokeWidth={2.5}
           strokeLinecap="round"
+          opacity={0.9}
         >
-          {/* ── NEW ──  makes the strand sway ±3° around its base angle */}
+          {/* Wave-like flowing motion from side to side */}
           <animateTransform
             attributeName="transform"
             type="rotate"
-            dur={`${duration}ms`}          // full back‑and‑forth cycle
-            begin={`${delay}ms`}           // small cascade per strand
+            dur={`${duration}ms`}
+            begin={`${delay}ms`}
             repeatCount="indefinite"
-            values={`${base - sway}; ${base + sway}; ${base - sway}`}
+            values={waveValues}
+            calcMode="spline"
+            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+            keyTimes="0; 0.5; 1"
           />
         </line>
       </g>
