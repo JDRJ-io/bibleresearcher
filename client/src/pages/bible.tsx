@@ -58,65 +58,11 @@ export default function BiblePage() {
     setSelectedVerse(null);
   }, []);
 
-  // Navigation handler for Strong's overlay
+  // Navigation handler for cross-references and hyperlinks
   const handleNavigateToVerse = useCallback((reference: string) => {
-    console.log(`🔍 BiblePage navigating to verse: ${reference}`);
-    
-    // Normalize reference for better matching
-    const normalizeReference = (ref: string) => {
-      return ref.replace(/\s+/g, '').toLowerCase();
-    };
-    
-    const normalizedRef = normalizeReference(reference);
-    
-    // Find the target verse with more robust matching
-    let targetVerse = allVerses.find(v => normalizeReference(v.reference) === normalizedRef);
-    
-    // If not found, try direct format match (assuming v.reference is in dot format)
-    if (!targetVerse) {
-      targetVerse = allVerses.find(v => 
-        v.reference === reference ||
-        v.reference === reference.replace(/\s+/g, '.')
-      );
-    }
-    
-    // If still not found, try book/chapter/verse parsing
-    if (!targetVerse) {
-      const match = reference.match(/^(\w+)\.?(\d+):(\d+)$/);
-      if (match) {
-        const [, book, chapter, verse] = match;
-        targetVerse = allVerses.find(v => 
-          v.book === book && 
-          v.chapter === parseInt(chapter) && 
-          v.verse === parseInt(verse)
-        );
-      }
-    }
-    
-    if (targetVerse) {
-      console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id})`);
-      setSelectedVerse(targetVerse);
-      
-      // Optional: Also scroll to the verse in the main table
-      setTimeout(() => {
-        const verseElement = document.getElementById(`verse-${targetVerse.id}`);
-        if (verseElement) {
-          verseElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
-      }, 100);
-    } else {
-      console.warn(`❌ Could not find verse for reference: ${reference}`);
-      console.log(`🔍 Normalized search: ${normalizedRef}`);
-      console.log('Available verses sample:', allVerses.slice(0, 5).map(v => ({ 
-        ref: v.reference, 
-        normalized: normalizeReference(v.reference),
-        id: v.id 
-      })));
-    }
-  }, [allVerses]);
+    // Use the navigateToVerse function from useBibleData for proper navigation with history
+    navigateToVerse(reference);
+  }, [navigateToVerse]);
 
   // Prophecy drawer handlers
   const handleOpenProphecyDetail = useCallback((prophecyId: number) => {
@@ -182,11 +128,24 @@ export default function BiblePage() {
       console.log('📅 STEP 3: BiblePage dispatched reloadBibleData event with isChronological:', isChronological);
     };
 
+    // Handle cross-reference navigation to new Bible sections
+    const handleNavigateToReference = (event: CustomEvent) => {
+      const { reference, book, chapter, verse } = event.detail;
+      
+      // Use the handleNavigateToVerse function that's already set up
+      if (handleNavigateToVerse) {
+        handleNavigateToVerse(reference);
+      }
+    };
+
     window.addEventListener('chronologicalOrderChanged', handleChronologicalChange as EventListener);
+    window.addEventListener('navigate-to-reference', handleNavigateToReference as EventListener);
+    
     return () => {
       window.removeEventListener('chronologicalOrderChanged', handleChronologicalChange as EventListener);
+      window.removeEventListener('navigate-to-reference', handleNavigateToReference as EventListener);
     };
-  }, []);
+  }, [handleNavigateToVerse]);
 
   // Determine if we should show loading
   const shouldShowLoading = isLoading && verses.length === 0;

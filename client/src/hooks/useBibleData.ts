@@ -1096,8 +1096,6 @@ export function useBibleData() {
   };
 
   const navigateToVerse = async (reference: string) => {
-    console.log("🚀 SMART NAVIGATION to:", reference, "Current verses:", verses.length);
-
     // STRAIGHT-LINE: Minimal normalization, single conversion for user input
     const normalizedRef = reference.trim();
     const dotFormatRef = normalizedRef.includes(' ') ? normalizedRef.replace(/\s/g, ".") : normalizedRef;
@@ -1140,9 +1138,29 @@ export function useBibleData() {
         }
       }, 300);
 
-      console.log(`✅ SMART NAVIGATION COMPLETE: ${targetVerse.reference}`);
+      // Navigation complete
     } else {
-      console.warn("❌ Verse not found for reference:", normalizedRef);
+      // If verse not found in current verses, we need to load that range
+      // This is a cross-reference to a different part of the Bible
+      // For now, we'll implement a basic search to find and load the target
+      
+      // Try to load the target book/chapter/verse
+      if (dotFormatRef.includes('.')) {
+        const [book, chapterVerse] = dotFormatRef.split('.');
+        if (chapterVerse.includes(':')) {
+          const [chapter, verse] = chapterVerse.split(':');
+          
+          // Load a range around this verse (center-anchored loading)
+          window.dispatchEvent(new CustomEvent('navigate-to-reference', {
+            detail: { 
+              reference: dotFormatRef,
+              book,
+              chapter: parseInt(chapter),
+              verse: parseInt(verse)
+            }
+          }));
+        }
+      }
     }
   };
 
