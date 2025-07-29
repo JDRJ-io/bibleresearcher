@@ -16,6 +16,8 @@ import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
 import { useCrossRefLoader } from "@/hooks/useCrossRefLoader";
 import { useBibleStore } from "@/App";
 import { useBibleData } from "@/hooks/useBibleData";
+import { useVerseNav } from "@/hooks/useVerseNav";
+import { makeScrollToVerse } from "@/utils/scrollToVerse";
 
 import type {
   BibleVerse,
@@ -234,34 +236,7 @@ const VirtualBibleTable = ({
       showHighlights: true,
       showBookmarks: true,
     },
-    onVerseClick: (ref: string) => {
-      // STRAIGHT-LINE: Assume ref is already in dot format from system
-      const verseIndex = verseKeys.findIndex(key => key === ref);
-      const foundFormat = ref;
-
-      if (verseIndex >= 0) {
-        if (containerRef.current) {
-          const containerHeight = containerRef.current.clientHeight;
-          const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
-
-          // Instant jump with simple highlight
-          containerRef.current.scrollTo({
-            top: Math.max(0, targetScrollTop),
-            behavior: 'auto'
-          });
-
-          // Simple highlight feedback
-          setTimeout(() => {
-            const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
-                               document.querySelector(`[data-verse-ref="${foundFormat}"]`);
-            if (targetVerse) {
-              targetVerse.classList.add('verse-highlight-flash');
-              setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 400);
-            }
-          }, 25);
-        }
-      }
-    },
+    onVerseClick: (ref: string) => goTo(ref),
   };
 
   // User actions
@@ -312,6 +287,14 @@ const VirtualBibleTable = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
+  
+  // Navigation system for back/forward buttons
+  const scrollToVerse = useMemo(
+    () => makeScrollToVerse(containerRef.current),
+    [containerRef.current]
+  );
+  
+  const { goTo } = useVerseNav(scrollToVerse);
 
   // Calculate visible columns for layout logic
   const visibleColumns = useMemo(() => {

@@ -199,9 +199,9 @@ export default function BiblePage() {
           <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
-          onBack={() => {}}
-          onForward={() => {}}
-          canGoBack={false}
+          onBack={() => window.history.back()}
+          onForward={() => window.history.forward()}
+          canGoBack={window.history.length > 1}
           canGoForward={false}
           onMenuToggle={handleMenuToggle}
         />
@@ -232,9 +232,9 @@ export default function BiblePage() {
         <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
-          onBack={() => {}}
-          onForward={() => {}}
-          canGoBack={false}
+          onBack={() => window.history.back()}
+          onForward={() => window.history.forward()}
+          canGoBack={window.history.length > 1}
           canGoForward={false}
           onMenuToggle={handleMenuToggle}
         />

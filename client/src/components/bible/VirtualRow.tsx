@@ -676,6 +676,7 @@ export function VirtualRow({
         minWidth: `${actualTotalWidth}px`,
         display: 'flex'
       }}
+      data-verse-ref={verse.reference}
       onDoubleClick={handleDoubleClick}
     >
       {/* Fixed-width layout - all columns maintain exact widths */}
