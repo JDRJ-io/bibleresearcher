@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getContextGroups } from '@/data/BibleDataAPI';
-import { globalLogger } from '@/lib/globalLogger';
 
 interface ContextBoundary {
   startVerse: string;
@@ -53,12 +52,11 @@ export function useContextBoundaries() {
       });
       
       setContextMap(newContextMap);
-      globalLogger.info(`📚 Context boundaries loaded: ${contextGroups.length} groups, ${newContextMap.size} verses mapped`);
+      console.log(`📚 Context boundaries loaded: ${contextGroups.length} groups, ${newContextMap.size} verses mapped`);
       
     } catch (err) {
       console.error('Failed to load context boundaries:', err);
       setError('Failed to load context boundaries');
-      globalLogger.error('Failed to load context boundaries', err);
     } finally {
       setIsLoading(false);
     }

@@ -8,20 +8,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
-import { SystemLogger } from "@/components/debug/SystemLogger";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
 import '@/lib/preloader';
-// Initialize format conversion analyzer
-import '@/lib/formatConversionAnalyzer';
-// Verify straight-line pipeline implementation
-import '@/lib/straightLinePipelineVerification';
-// Generate final completion report
-import '@/lib/pipelineCompletionReport';
-// Run final comprehensive verification
-import '@/lib/finalPipelineVerification';
-// Ultimate verification - mission complete confirmation
-import '@/lib/ultimateVerification';
 
 // Inlined BibleDataProvider - Bible Store
 interface TranslationState {
@@ -648,7 +637,7 @@ function Router() {
     <Switch>
       <Route path="/" component={BiblePage} />
       <Route path="/auth/callback" component={AuthCallback} />
-      <Route path="/debug/logger" component={SystemLogger} />
+
       <Route component={NotFound} />
     </Switch>
   );
