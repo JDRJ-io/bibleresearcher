@@ -93,18 +93,19 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       return '160px'; // fallback
     }
     
-    // Use responsive widths for key columns in portrait mode
-    if (responsiveConfig.isPortrait) {
-      // Ultra-compact for very small screens
-      if (window.innerWidth <= 480) {
-        if (slot === 0) return '36px'; // Ultra-thin reference column
-        if (slot === 2 && column.type === 'main-translation') return '170px'; // Equal width main
-        if (slot === 7 && column.type === 'cross-refs') return '170px'; // Equal width cross refs
-      } else {
-        if (slot === 0) return '40px'; // Extra thin reference column
-        if (slot === 2 && column.type === 'main-translation') return '180px'; // Equal width main translation  
-        if (slot === 7 && column.type === 'cross-refs') return '180px'; // Equal width cross references
-      }
+    // Use intelligent responsive widths that maximize screen utilization
+    if (responsiveConfig.shouldOptimizeForPortrait || responsiveConfig.isPortrait) {
+      const { columnPixelWidths } = responsiveConfig;
+      
+      if (slot === 0) return `${columnPixelWidths.reference}px`; // Smart reference width
+      if (slot === 2 && column.type === 'main-translation') return `${columnPixelWidths.mainTranslation}px`; // Optimized main
+      if (slot === 7 && column.type === 'cross-refs') return `${columnPixelWidths.crossReference}px`; // Optimized cross refs
+      
+      // Handle alternate translations and other column types
+      if (column.type === 'translation' && slot !== 2) return `${columnPixelWidths.alternate}px`; // Alternate translations
+      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return `${columnPixelWidths.prophecy}px`;
+      if (column.type === 'notes') return `${columnPixelWidths.notes}px`;
+      if (column.type === 'context') return `${columnPixelWidths.context}px`;
     }
     
     // Convert rem to pixels for other columns (assuming 1rem = 16px)

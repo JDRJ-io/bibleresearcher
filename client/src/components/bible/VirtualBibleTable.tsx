@@ -491,8 +491,8 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
       >
         <div className={`flex w-full ${responsiveConfig.containerClass}`} 
              style={{ 
-               overflowX: responsiveConfig.enableHorizontalScroll ? 'auto' : 'hidden',
-               minWidth: responsiveConfig.isPortrait ? `${actualTotalWidth}px` : 'auto'
+               overflowX: 'auto', // Always enable horizontal scroll for 20-column system
+               minWidth: responsiveConfig.shouldOptimizeForPortrait ? `${responsiveConfig.availableWidth}px` : 'auto'
              }}>
           <div style={{ 
             minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
