@@ -27,9 +27,9 @@ type Props = {
 export default function BibleHairFan({
   size = 120,
   color = '#2fc2ff',
-  duration = 1200,
+  duration = 1800,
   spread = 60,
-  strands = 25,
+  strands = 30,
 }: Props) {
   const radius = size / 2;
   const startAngle = -spread;
@@ -37,14 +37,16 @@ export default function BibleHairFan({
 
   const lines = Array.from({ length: strands }, (_, i) => {
     const base = startAngle + i * step;      // ­‑60° … +60°
-    const sway = 8;                          // ±4° each side for more dramatic flow
+    const sway = 10;                         // ±5° each side for flowing motion
     
-    // Create a flowing wave effect - each strand follows the wave with a phase offset
-    const wavePhase = (i / strands) * 360;  // distribute phase across 360°
-    const delay = (i * 50);                 // tight stagger for wave effect
+    // Create a wave that flows from left to right across all strands
+    const waveDelay = (i / strands) * (duration * 0.3); // wave propagation delay
+    const flowDelay = i * 30;                // tight sequential timing
     
-    // Wave flows from left to right, then back
-    const waveValues = `${base - sway}; ${base + sway}; ${base - sway}`;
+    // Create flowing wave motion - strands lean all one way, then all the other way
+    const leftLean = base - sway;
+    const rightLean = base + sway;
+    const waveValues = `${leftLean}; ${rightLean}; ${leftLean}`;
 
     return (
       <g key={i} transform={`rotate(${base})`}>
@@ -54,20 +56,20 @@ export default function BibleHairFan({
           x2="0"
           y2={-radius}
           stroke={color}
-          strokeWidth={2.5}
+          strokeWidth={2}
           strokeLinecap="round"
-          opacity={0.9}
+          opacity={0.85}
         >
-          {/* Wave-like flowing motion from side to side */}
+          {/* Flowing wave motion that sweeps across all strands */}
           <animateTransform
             attributeName="transform"
             type="rotate"
             dur={`${duration}ms`}
-            begin={`${delay}ms`}
+            begin={`${flowDelay}ms`}
             repeatCount="indefinite"
             values={waveValues}
             calcMode="spline"
-            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+            keySplines="0.25 0.1 0.25 1; 0.25 0.1 0.25 1"
             keyTimes="0; 0.5; 1"
           />
         </line>
