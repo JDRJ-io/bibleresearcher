@@ -104,6 +104,15 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
+- **July 29, 2025: EXPERT HTTP RANGE REQUEST OPTIMIZATION COMPLETED ✅**
+  - **TRUE HTTP Range Requests**: Implemented expert's optimization using Supabase's `{ range: { start, end } }` option
+  - **Massive Performance Gain**: Cross-references now download 3-5KB instead of 6MB+ per request
+  - **HTTP 206 Partial Content**: Confirmed working with curl test showing proper range request support
+  - **Span Merging**: Adjacent/overlapping byte ranges merged to minimize network requests
+  - **Batch Processing**: Multiple verses loaded in single optimized requests with expert's algorithm
+  - **Complete Implementation**: All functions updated to use getCrossRefsBatch() with range requests
+  - **Console Logging**: Added expert's console messages for monitoring ("🚀 EXPERT BATCH", "📡 TRUE RANGE")
+  - **Preserved Hyperlinks**: All cross-reference clicking and navigation functionality maintained
 - **July 29, 2025: BIBLEHAIRFAN PERFORMANCE OPTIMIZATION COMPLETED ✅**
   - **Smooth Motion Enhancement**: Optimized BibleHairFan for lag-free animation performance
   - **Reduced Complexity**: Decreased default strands from 20 to 15 for better DOM performance

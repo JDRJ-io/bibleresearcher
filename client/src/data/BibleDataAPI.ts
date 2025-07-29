@@ -573,81 +573,15 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
 
 
 // Cross-reference data parsing with FAST offset-based lookup
-export async function getCrossReferences(verseId: string): Promise<string[]> {
+// EXPERT OPTIMIZED: Individual cross-reference lookup using HTTP Range requests
+export async function getCrossReferences(verseId: string, cfSet: 'cf1' | 'cf2' = 'cf1'): Promise<string[]> {
   try {
-    // OPTIMIZATION: Use offset-based lookup for instant access
-    const cfOffsets = await getCfOffsets('cf1');
-    const offset = cfOffsets[verseId];
-    
-    if (!offset) {
-      return []; // No cross-references for this verse
-    }
-
-    // FAST: Load only the specific line for this verse
-    const crossRefData = await loadCrossReferences('cf1');
-    const targetLine = crossRefData.substring(offset[0], offset[1]).trim();
-
-    if (!targetLine) {
-      return [];
-    }
-
-    // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-    const [baseVerse, referencesData] = targetLine.split('$$');
-    if (!referencesData) return [];
-
-    // FIXED: Proper parsing that handles numbered books and $ delimiters correctly
-    const allReferences: string[] = [];
-
-    // Split by $ to get reference groups, filtering out empty strings
-    const referenceGroups = referencesData.split('$').filter(group => group.trim());
-
-    referenceGroups.forEach(group => {
-      // Split by # to get sequential references within a group
-      const sequentialRefs = group.split('#').filter(ref => ref.trim());
-
-      sequentialRefs.forEach(ref => {
-        const cleanRef = ref.trim();
-        // Validate this looks like a proper verse reference
-        // Regex matches: optional 1-3, then letters, dot, digits, colon, digits
-        if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
-          allReferences.push(cleanRef);
-        }
-      });
-    });
-
-    return allReferences;
-
+    // Use the expert's optimized batch system for single verse (leverages HTTP Range requests)
+    const batchResult = await getCrossRefsBatch([verseId], cfSet);
+    return batchResult[verseId] || [];
   } catch (error) {
-    console.error(`❌ Error loading cross-references for ${verseId}:`, error);
-    // Fallback to slower method if offset lookup fails
-    try {
-      const crossRefData = await loadCrossReferences('cf1');
-      const lines = crossRefData.split('\n').filter(line => line.trim());
-      const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
-      
-      if (!targetLine) return [];
-      
-      const [, referencesData] = targetLine.split('$$');
-      if (!referencesData) return [];
-      
-      const allReferences: string[] = [];
-      const referenceGroups = referencesData.split('$').filter(group => group.trim());
-      
-      referenceGroups.forEach(group => {
-        const sequentialRefs = group.split('#').filter(ref => ref.trim());
-        sequentialRefs.forEach(ref => {
-          const cleanRef = ref.trim();
-          if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
-            allReferences.push(cleanRef);
-          }
-        });
-      });
-      
-      return allReferences;
-    } catch (fallbackError) {
-      console.error(`❌ Fallback cross-reference loading also failed for ${verseId}:`, fallbackError);
-      return [];
-    }
+    console.error(`Error loading cross-references for ${verseId}:`, error);
+    return [];
   }
 }
 
