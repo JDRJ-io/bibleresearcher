@@ -151,13 +151,10 @@ export async function loadChronologicalVerseKeys() {
 }
 
 // Cross-reference loading with proper caching - FALLBACK ONLY (prefer getCrossRefsBatch)
-export async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
-  console.warn(`⚠️ FALLBACK: loadCrossReferences() called - this downloads entire ${set}.txt file. Use getCrossRefsBatch() for optimized range requests.`);
-  return getOrFetch(`crossref-${set}`, async () => {
-    const data = await fetchFromStorage(paths.crossRef(set));
-    console.log(`✅ Cross-reference data loaded: ${data.length} bytes (FULL FILE - consider using range requests)`);
-    return data;
-  });
+// DEPRECATED: Old function replaced with expert's optimized range request system
+async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
+  console.error(`❌ DEPRECATED: loadCrossReferences() should not be called. Use getCrossRefsBatch() with HTTP Range requests instead.`);
+  throw new Error(`loadCrossReferences() is deprecated. Use getCrossRefsBatch() for optimized performance.`);
 }
 
 // Get cross-reference data for BibleDataAPI facade
