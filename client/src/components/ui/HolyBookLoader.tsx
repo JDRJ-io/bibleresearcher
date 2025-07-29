@@ -17,15 +17,15 @@ export function HolyBookLoader({ size = 'md', className = '' }: HolyBookLoaderPr
   const duration = 1400;
   const stroke = '#8b4513'; // Biblical brown color
   
-  // Define the morphing paths
-  const d1a = `M10,${h - 10} Q${pixelSize / 2},5 ${pixelSize - 10},${h - 10}`;
-  const d1b = `M6,${h - 18} Q${pixelSize / 2},0 ${pixelSize - 6},${h - 18}`;
+  // Define the morphing paths with significant curve differences
+  const d1a = `M10,38 Q${pixelSize / 2},8 ${pixelSize - 10},38`;   // tighter curve
+  const d1b = `M6,30 Q${pixelSize / 2},-2 ${pixelSize - 6},30`;    // looser fan
   
-  const d2a = `M10,${h - 2} Q${pixelSize / 2},13 ${pixelSize - 10},${h - 2}`;
-  const d2b = `M6,${h - 6} Q${pixelSize / 2},9 ${pixelSize - 6},${h - 6}`;
+  const d2a = `M10,46 Q${pixelSize / 2},16 ${pixelSize - 10},46`;  // tighter curve  
+  const d2b = `M6,38 Q${pixelSize / 2},6 ${pixelSize - 6},38`;     // looser fan
   
-  const d3a = `M10,${h + 6} Q${pixelSize / 2},21 ${pixelSize - 10},${h + 6}`;
-  const d3b = `M6,${h + 10} Q${pixelSize / 2},25 ${pixelSize - 6},${h + 10}`;
+  const d3a = `M10,54 Q${pixelSize / 2},24 ${pixelSize - 10},54`;  // tighter curve
+  const d3b = `M6,46 Q${pixelSize / 2},14 ${pixelSize - 6},46`;    // looser fan
 
   return (
     <div className={`inline-flex flex-col items-center justify-center gap-2 ${className}`}>
@@ -45,59 +45,67 @@ export function HolyBookLoader({ size = 'md', className = '' }: HolyBookLoaderPr
             stroke={stroke}
             strokeWidth={6}
             strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <animate 
               attributeName="d"
-              dur={`${duration}ms`}
+              dur="1.4s"
               repeatCount="indefinite"
               values={`${d1a};${d1b};${d1a}`} 
             />
           </path>
 
-          {/* Path 2 - Middle arc (staggered 0.1s) */}
+          {/* Path 2 - Middle arc (staggered 0.08s) */}
           <path
             d={d2a}
             fill="none"
             stroke={stroke}
             strokeWidth={6}
             strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <animate 
               attributeName="d"
-              dur={`${duration}ms`}
-              begin="0.1s"
+              dur="1.4s"
+              begin="0.08s"
               repeatCount="indefinite"
               values={`${d2a};${d2b};${d2a}`} 
             />
           </path>
 
-          {/* Path 3 - Bottom arc (staggered 0.2s) */}
+          {/* Path 3 - Bottom arc (staggered 0.16s) */}
           <path
             d={d3a}
             fill="none"
             stroke={stroke}
             strokeWidth={6}
             strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <animate 
               attributeName="d"
-              dur={`${duration}ms`}
-              begin="0.2s"
+              dur="1.4s"
+              begin="0.16s"
               repeatCount="indefinite"
               values={`${d3a};${d3b};${d3a}`} 
             />
           </path>
           
-          {/* Divine sparkles with SMIL animation */}
-          <circle cx={pixelSize * 0.2} cy={h * 0.3} r="1.5" fill="#daa520" opacity="0.7">
-            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={pixelSize * 0.8} cy={h * 0.4} r="1" fill="#daa520" opacity="0.7">
-            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="0.7s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={pixelSize * 0.5} cy={h * 0.1} r="1.2" fill="#daa520" opacity="0.7">
-            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="1.3s" repeatCount="indefinite" />
-          </circle>
+          {/* Divine sparkles with gentle shimmer */}
+          <g>
+            <circle cx="20" cy="25" r="1.5" fill="#daa520" opacity="0.7">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite" />
+            </circle>
+            <circle cx={pixelSize - 20} cy="30" r="1" fill="#daa520" opacity="0.7">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" begin="0.8s" repeatCount="indefinite" />
+            </circle>
+            <circle cx={pixelSize / 2} cy="15" r="1.2" fill="#daa520" opacity="0.7">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" begin="1.6s" repeatCount="indefinite" />
+            </circle>
+            <circle cx={pixelSize * 0.75} cy="55" r="0.8" fill="#daa520" opacity="0.7">
+              <animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" begin="2.1s" repeatCount="indefinite" />
+            </circle>
+          </g>
         </svg>
       </div>
     </div>
