@@ -548,12 +548,12 @@ export function VirtualRow({
         // Ultra-compact for very small screens
         if (window.innerWidth <= 480) {
           if (slotNumber === 0) return '36px'; // Ultra-thin reference column
-          if (slotNumber === 2 && config.type === 'main-translation') return '190px'; // Ultra-compressed main
-          if (slotNumber === 7 && config.type === 'cross-refs') return '150px'; // Ultra-compressed cross refs
+          if (slotNumber === 2 && config.type === 'main-translation') return '170px'; // Equal width main
+          if (slotNumber === 7 && config.type === 'cross-refs') return '170px'; // Equal width cross refs
         } else {
           if (slotNumber === 0) return '40px'; // Extra thin reference column
-          if (slotNumber === 2 && config.type === 'main-translation') return '200px'; // Compressed main translation
-          if (slotNumber === 7 && config.type === 'cross-refs') return '160px'; // Compressed cross references
+          if (slotNumber === 2 && config.type === 'main-translation') return '180px'; // Equal width main translation
+          if (slotNumber === 7 && config.type === 'cross-refs') return '180px'; // Equal width cross references
         }
       }
       

@@ -287,8 +287,8 @@ body {
 @media (max-width: 480px) and (orientation: portrait) {
   :root {
     --portrait-ref-width: 36px;   /* Ultra-thin reference for small screens */
-    --portrait-main-width: 190px; /* Slightly smaller main */
-    --portrait-cross-width: 150px; /* Compact cross-refs */
+    --portrait-main-width: 170px; /* Equal width main */
+    --portrait-cross-width: 170px; /* Equal width cross-refs */
   }
 }
 
@@ -302,8 +302,8 @@ body {
 @media (orientation: portrait) {
   :root {
     --portrait-ref-width: 40px;
-    --portrait-main-width: 200px; 
-    --portrait-cross-width: 160px;
+    --portrait-main-width: 180px; 
+    --portrait-cross-width: 180px; /* Equal width with main */
   }
 }
 
@@ -311,7 +311,7 @@ body {
   :root {
     --landscape-ref-width: 80px;
     --landscape-main-width: 320px;
-    --landscape-cross-width: 256px;
+    --landscape-cross-width: 320px; /* Equal width with main */
   }
 }
 

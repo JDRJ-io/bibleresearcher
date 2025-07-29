@@ -98,12 +98,12 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       // Ultra-compact for very small screens
       if (window.innerWidth <= 480) {
         if (slot === 0) return '36px'; // Ultra-thin reference column
-        if (slot === 2 && column.type === 'main-translation') return '190px'; // Ultra-compressed main
-        if (slot === 7 && column.type === 'cross-refs') return '150px'; // Ultra-compressed cross refs
+        if (slot === 2 && column.type === 'main-translation') return '170px'; // Equal width main
+        if (slot === 7 && column.type === 'cross-refs') return '170px'; // Equal width cross refs
       } else {
         if (slot === 0) return '40px'; // Extra thin reference column
-        if (slot === 2 && column.type === 'main-translation') return '200px'; // Compressed main translation  
-        if (slot === 7 && column.type === 'cross-refs') return '160px'; // Compressed cross references
+        if (slot === 2 && column.type === 'main-translation') return '180px'; // Equal width main translation  
+        if (slot === 7 && column.type === 'cross-refs') return '180px'; // Equal width cross references
       }
     }
     
