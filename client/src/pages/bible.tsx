@@ -34,6 +34,27 @@ export default function BiblePage() {
   
   // Smart loading detection
   const { isLoading: isSmartLoading, connectionSpeed, startLoading, stopLoading } = useLoadingDetection();
+  
+  // Connect navigation events to loading detection
+  useEffect(() => {
+    const handleNavigationStarted = () => {
+      if (connectionSpeed === 'slow' || connectionSpeed === 'medium') {
+        startLoading('navigation');
+      }
+    };
+    
+    const handleNavigationCompleted = () => {
+      stopLoading();
+    };
+    
+    window.addEventListener('navigationStarted', handleNavigationStarted);
+    window.addEventListener('navigationCompleted', handleNavigationCompleted);
+    
+    return () => {
+      window.removeEventListener('navigationStarted', handleNavigationStarted);
+      window.removeEventListener('navigationCompleted', handleNavigationCompleted);
+    };
+  }, [connectionSpeed, startLoading, stopLoading]);
 
   // Navigation system
   const scrollToVerse = makeScrollToVerse(tableRef);

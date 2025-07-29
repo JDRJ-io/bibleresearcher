@@ -108,7 +108,7 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
   };
 
   const canGoBack = isMobile ? mobileHistoryIndex > 0 : window.history.length > 1;
-  const canGoForward = isMobile ? mobileHistoryIndex < mobileHistory.length - 1 : false;
+  const canGoForward = isMobile ? mobileHistoryIndex < mobileHistory.length - 1 : true; // Desktop can always attempt forward
   
   // Debug logging for navigation state
   if (isMobile) {
