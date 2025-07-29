@@ -36,9 +36,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
   const [currentStrongsId, setCurrentStrongsId] = useState<string | null>(null);
   const [cursor, setCursor] = useState<number>(0);
   
-  // User guidance state
-  const [showScrollHint, setShowScrollHint] = useState(false);
-  const [showSearchHint, setShowSearchHint] = useState(false);
+
 
   // allVerses now comes from props instead of store
 
@@ -80,10 +78,6 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
         setStrongsWords(verseData.words);
         setInterlinearCells(verseData.interlinearCells);
         console.log(`✅ Loaded ${verseData.words.length} Strong's words for ${verse.reference}`);
-        
-        // Show scroll hint after data loads
-        setTimeout(() => setShowScrollHint(true), 1500);
-        setTimeout(() => setShowScrollHint(false), 6000);
       } else {
         console.log(`❌ No Strong's data found for ${verse.reference} in any format`);
         setStrongsWords([]);
@@ -126,10 +120,6 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
         setShowSearch(true);
         console.log(`✅ Loaded ${occurrences.length} occurrences for Strong's ${word.strongs}`);
         console.log(`📋 Expert tracking setup: strongsId=${word.strongs}, cursor=0`);
-        
-        // Show search results hint
-        setTimeout(() => setShowSearchHint(true), 800);
-        setTimeout(() => setShowSearchHint(false), 4000);
       } catch (error) {
         console.error(`❌ Error loading occurrences for ${word.strongs}:`, error);
         setSelectedOccurrences([]);
@@ -364,28 +354,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                     </div>
                   ) : interlinearCells.length > 0 ? (
                     <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">Hebrew/Greek Word Analysis</h3>
-                        {/* Subtle scroll hint */}
-                        <div className="hidden md:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                          <span>Scroll to explore</span>
-                          <div className="flex gap-1">
-                            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                            <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                            <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Horizontal Scrolling Container with enhanced mobile indicator */}
+                      <h3 className="text-lg font-semibold mb-4">Hebrew/Greek Word Analysis</h3>
+                      {/* Horizontal Scrolling Container */}
                       <div className="relative">
-                        {/* Scroll hint overlay */}
-                        {showScrollHint && (
-                          <div className="absolute inset-0 bg-black/20 rounded-lg z-10 flex items-center justify-center pointer-events-none">
-                            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium animate-bounce">
-                              👆 Scroll horizontally to explore all words
-                            </div>
-                          </div>
-                        )}
                         <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                           <div className="flex gap-4 w-max min-w-full">
                           {interlinearCells.map((cell, index) => (
@@ -529,19 +500,9 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                   <>
                     <Separator orientation="vertical" className="hidden lg:block" />
                     <Separator orientation="horizontal" className="lg:hidden" />
-                    <div className="w-full lg:w-96 flex flex-col max-h-[60vh] lg:max-h-full overflow-hidden animate-in slide-in-from-right-5 duration-300 relative">
-                      {/* Search results hint overlay */}
-                      {showSearchHint && (
-                        <div className="absolute inset-0 bg-black/30 rounded-lg z-20 flex items-center justify-center pointer-events-none">
-                          <div className="bg-green-600 text-white px-4 py-3 rounded-lg text-sm font-medium animate-pulse max-w-[280px] text-center">
-                            ✨ Search results loaded! Scroll down to explore all {selectedOccurrences.length} verses
-                          </div>
-                        </div>
-                      )}
-                      {/* Enhanced header with attention indicator */}
-                      <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0 relative">
-                        {/* New results indicator */}
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="w-full lg:w-96 flex flex-col h-[70vh] lg:max-h-full overflow-hidden animate-in slide-in-from-right-5 duration-300">
+                      {/* Enhanced header */}
+                      <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0">
                         <div className="flex items-center gap-2 mb-3">
                           <Badge className="font-mono">{selectedWord.strongs}</Badge>
                           <span className="font-semibold text-lg">{selectedWord.original}</span>
@@ -558,10 +519,6 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                           <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
                             Found {selectedOccurrences.length} occurrences
                           </span>
-                          {/* Scroll hint for results */}
-                          <div className="ml-auto text-xs text-gray-500 hidden md:block">
-                            ↓ Scroll to explore
-                          </div>
                         </div>
                         <Input
                           placeholder="Filter verses..."
@@ -572,7 +529,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allV
                       </div>
 
                       <div className="flex-1 overflow-hidden">
-                        <ScrollArea className="h-full">
+                        <ScrollArea className="flex-1 h-0">
                           <div className="p-3 md:p-4 space-y-3">
                             {filteredOccurrences.length > 0 ? (
                               filteredOccurrences.map((occurrence, index) => (
