@@ -293,7 +293,9 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
-  // Enhanced directional scrolling - only one axis at a time
+  // Expert's physically separated scroll axes - one axis at a time
+  const vScrollRef = useRef<HTMLDivElement>(null); // Vertical scroller
+  const hScrollRef = useRef<HTMLDivElement>(null); // Horizontal scroller
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
@@ -414,24 +416,84 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Expert's CSS Grid handles touch scrolling naturally - no manual touch interference needed
+  // Expert's rail-breaking system for smooth axis switching
   useEffect(() => {
-    if (!wrapperRef.current) return;
+    const vScroll = vScrollRef.current;
+    const hScroll = hScrollRef.current;
+    if (!vScroll || !hScroll) return;
 
-    const onScroll = (e: Event) => {
+    // Track scroll position for column headers
+    const onHorizontalScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       setScrollLeft(target.scrollLeft);
     };
 
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("scroll", onScroll);
+    // Ultra-light wheel/trackpad router
+    function wheelRouter(e: WheelEvent) {
+      const { deltaX, deltaY } = e;
+      // Pick the dominant delta every frame
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        hScroll!.scrollLeft += deltaX;
+      } else {
+        vScroll!.scrollTop += deltaY;
+      }
+      e.preventDefault(); // we already forwarded it
     }
 
+    // Pointer-move guard for mid-gesture "axis switch"
+    function attachRailBreaker(el: HTMLElement, axis: 'x' | 'y') {
+      let startX = 0, startY = 0, activeAxis: 'x' | 'y' | null = null;
+
+      const onPointerDown = (e: PointerEvent) => {
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+          startX = e.clientX;
+          startY = e.clientY;
+          activeAxis = null;
+          el.setPointerCapture(e.pointerId);
+        }
+      };
+
+      const onPointerMove = (e: PointerEvent) => {
+        if (!e.isPrimary) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        // If they cross 30° off the intended axis, hand off
+        if (!activeAxis && (axis === 'x' ? Math.abs(dy) > Math.abs(dx) : Math.abs(dx) > Math.abs(dy))) {
+          // Cancel this scroller & send to sibling
+          const tgt = axis === 'x' ? vScroll : hScroll;
+          tgt!.scrollBy({ left: dx, top: dy, behavior: 'auto' });
+          el.releasePointerCapture(e.pointerId);
+          e.preventDefault();
+          return;
+        }
+        activeAxis = axis; // lock once confirmed
+      };
+
+      el.addEventListener('pointerdown', onPointerDown);
+      el.addEventListener('pointermove', onPointerMove, { passive: false });
+
+      return () => {
+        el.removeEventListener('pointerdown', onPointerDown);
+        el.removeEventListener('pointermove', onPointerMove);
+      };
+    }
+
+    // Add event listeners
+    hScroll.addEventListener('scroll', onHorizontalScroll);
+    hScroll.addEventListener('wheel', wheelRouter, { passive: false });
+    vScroll.addEventListener('wheel', wheelRouter, { passive: false });
+
+    // Attach rail breakers
+    const cleanupH = attachRailBreaker(hScroll, 'x');
+    const cleanupV = attachRailBreaker(vScroll, 'y');
+
     return () => {
-      if (container) {
-        container.removeEventListener("scroll", onScroll);
-      }
+      hScroll.removeEventListener('scroll', onHorizontalScroll);
+      hScroll.removeEventListener('wheel', wheelRouter);
+      vScroll.removeEventListener('wheel', wheelRouter);
+      cleanupH();
+      cleanupV();
     };
   }, []);
 
@@ -463,25 +525,55 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
 
       />
 
+      {/* Expert's physically separated scroll axes */}
       <div 
         ref={(node) => {
           (wrapperRef as any).current = node;
-          (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className={`tableWrapper ${isPortrait ? 'twPortrait' : 'twLandscape'}`}
-        data-orientation={isPortrait ? 'portrait' : 'landscape'}
+        className="scroll-container"
         style={{ 
-          marginTop: '0',
+          position: 'relative',
           height: "calc(100vh - 85px)",
-          overflowY: "auto", // Enable vertical scrolling on the table container
-          overflowX: "auto"  // Enable horizontal scrolling for columns
-        }}
-        data-scroll-direction={scrollDirection}
-        onScroll={(e) => {
-          setScrollLeft(e.currentTarget.scrollLeft);
+          overflow: 'hidden' // Container manages child scrollers
         }}
         data-testid="bible-table"
       >
+        {/* Vertical scroller: entire verse stack */}
+        <div 
+          ref={(node) => {
+            (vScrollRef as any).current = node;
+            (containerRef as any).current = node; // Connect containerRef for anchor slice system
+          }}
+          className="v-scroll"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            overscrollBehavior: 'contain',
+            scrollbarGutter: 'stable both-edges',
+            contain: 'layout paint style',
+            willChange: 'scroll-position'
+          }}
+        >
+          {/* Horizontal scroller: extra columns */}
+          <div 
+            ref={(node) => {
+              (hScrollRef as any).current = node;
+            }}
+            className="h-scroll"
+            style={{
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              overscrollBehavior: 'contain',
+              scrollbarGutter: 'stable both-edges',
+              contain: 'layout paint style',
+              willChange: 'scroll-position'
+            }}
+          >
         <div className="tableInner flex w-full"
              style={{ 
                minWidth: 'max-content' // Natural content width for expert's system

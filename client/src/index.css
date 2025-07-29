@@ -327,6 +327,33 @@ body {
   }
 }
 
+/* Expert's physically separated scroll axes */
+.scroll-container {
+  position: relative;
+}
+
+.v-scroll {
+  /* Vertical scroller: entire verse stack */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  contain: layout paint style;
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
+}
+
+.h-scroll {
+  /* Horizontal scroller: extra columns */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  contain: layout paint style;
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Table wrapper - expert's flexbox centering with auto-scroll */
 .tableWrapper {
   display: flex;
