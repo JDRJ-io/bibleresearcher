@@ -278,6 +278,8 @@ body {
   --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */  
   --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
   --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
+  --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
+  --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
 }
 
 /* Table wrapper - expert's flexbox centering with auto-scroll */
@@ -305,6 +307,7 @@ body {
     --w-main: clamp(45vw, 60vw, 80vw);          /* main fills most of the width */
     --w-xref: clamp(40vw, 55vw, 70vw);          /* equal importance with main */
     --w-alt: clamp(35vw, 50vw, 65vw);           /* alternate translations */
+    --w-prophecy: clamp(45vw, 60vw, 80vw);      /* prophecy columns - same as main */
   }
 }
 
@@ -315,6 +318,7 @@ body {
     --w-main: 18rem;                            /* fixed width for readability */
     --w-xref: 18rem;                            /* equal width with main */
     --w-alt: 16rem;                             /* slightly smaller alternates */
+    --w-prophecy: 18rem;                        /* prophecy columns - same as main */
   }
 }
 

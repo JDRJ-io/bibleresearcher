@@ -100,7 +100,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
     
     // Handle alternate translations and other column types
     if (column.type === 'translation' && slot !== 2) return 'var(--w-alt)'; // Alternate translations
-    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return '5rem'; // Prophecy columns
+    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
     if (column.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
     if (column.type === 'context') return '12rem'; // Context/dates column
     
@@ -217,16 +217,16 @@ export function ColumnHeaders({
         slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
       case 8:
-        // Prophecy P column (moved from slot 7 to 8)
-        slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+        // Prophecy Prediction column (moved from slot 7 to 8)
+        slotConfig[8] = { type: 'prophecy-p', header: 'Prediction', visible: col.visible && showProphecies };
         break;
       case 9:
-        // Prophecy F column (moved from slot 8 to 9)
-        slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: showProphecies };
+        // Prophecy Fulfillment column (moved from slot 8 to 9)
+        slotConfig[9] = { type: 'prophecy-f', header: 'Fulfillment', visible: showProphecies };
         break;
       case 10:
-        // Prophecy V column (moved from slot 9 to 10)
-        slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: showProphecies };
+        // Prophecy Verification column (moved from slot 9 to 10)
+        slotConfig[10] = { type: 'prophecy-v', header: 'Verification', visible: showProphecies };
         break;
       case 11:
         // Dates column (unchanged)

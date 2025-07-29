@@ -550,7 +550,7 @@ export function VirtualRow({
       
       // Handle alternate translations and other column types
       if (config.type === 'translation' && slotNumber !== 2) return 'var(--w-alt)'; // Alternate translations
-      if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return '5rem'; // Prophecy columns
+      if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
       if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
       if (config.type === 'context') return '12rem'; // Context/dates column
       
