@@ -289,10 +289,35 @@ const VirtualBibleTable = ({
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
   // Navigation system for back/forward buttons
-  const scrollToVerse = useMemo(
-    () => makeScrollToVerse(containerRef.current),
-    [containerRef.current]
-  );
+  const scrollToVerse = useCallback((ref: string) => {
+    console.log('📜 VirtualBibleTable scrollToVerse called with:', ref, 'container exists:', !!containerRef.current);
+    if (!containerRef.current) {
+      console.log('📜 VirtualBibleTable scrollToVerse: container not available');
+      return;
+    }
+    const idx = verseKeys.findIndex(k => k === ref || k.replace(/\./g,' ') === ref || k.replace(/\s/g,'.') === ref);
+    console.log('📜 VirtualBibleTable scrollToVerse: found index', idx, 'for ref', ref);
+    if (idx === -1) {
+      console.log('📜 VirtualBibleTable scrollToVerse: verse not found in keys');
+      return;
+    }
+
+    const containerH = containerRef.current.clientHeight;
+    const target = (idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2);
+    console.log('📜 VirtualBibleTable scrollToVerse: scrolling to', target);
+
+    containerRef.current.scrollTo({ top: Math.max(0, target), behavior: 'auto' });
+
+    // Flash highlight
+    setTimeout(() => {
+      const el = document.querySelector(`[data-verse-ref="${ref}"]`) as HTMLElement | null;
+      console.log('📜 VirtualBibleTable scrollToVerse: highlight element found:', !!el);
+      if (el) {
+        el.classList.add('verse-highlight-flash');
+        setTimeout(() => el.classList.remove('verse-highlight-flash'), 400);
+      }
+    }, 25);
+  }, [verseKeys]);
   
   const { goTo } = useVerseNav(scrollToVerse);
 
