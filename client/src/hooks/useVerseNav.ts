@@ -20,6 +20,12 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
     const norm = ref.trim();
     console.log('🚀 useVerseNav goTo called with:', ref, 'normalized:', norm, 'mobile:', isMobile);
     
+    // Trigger loading detection for navigation (smart loading system)
+    const loadingEvent = new CustomEvent('navigationStarted', { 
+      detail: { reference: norm, isMobile } 
+    });
+    window.dispatchEvent(loadingEvent);
+    
     if (isMobile) {
       // Mobile: Use internal history stack to avoid browser memory issues
       setMobileHistory(prev => {
@@ -54,6 +60,14 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
     }
     
     scrollToVerse(norm);
+    
+    // Stop loading after navigation completes
+    setTimeout(() => {
+      const loadingCompleteEvent = new CustomEvent('navigationCompleted', { 
+        detail: { reference: norm } 
+      });
+      window.dispatchEvent(loadingCompleteEvent);
+    }, 300);
   };
 
   // Mobile: Handle internal back/forward

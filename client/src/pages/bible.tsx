@@ -8,10 +8,12 @@ import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
 import { SearchModal } from '@/components/bible/SearchModal';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { LoadingWheel } from '@/components/LoadingWheel';
+import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
 import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
+import { useLoadingDetection } from '@/hooks/useLoadingDetection';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
 import { useVerseNav } from '@/hooks/useVerseNav';
 import { makeScrollToVerse } from '@/utils/scrollToVerse';
@@ -29,6 +31,9 @@ export default function BiblePage() {
   // Initialize body class and adaptive scaling
   useBodyClass('bible-page');
   useAdaptiveScaling();
+  
+  // Smart loading detection
+  const { isLoading: isSmartLoading, connectionSpeed, startLoading, stopLoading } = useLoadingDetection();
 
   // Navigation system
   const scrollToVerse = makeScrollToVerse(tableRef);
@@ -169,6 +174,31 @@ export default function BiblePage() {
     };
   }, []);
 
+  // Smart loading system event listeners
+  useEffect(() => {
+    const handleNavigationStart = (event: CustomEvent) => {
+      const { reference, isMobile } = event.detail;
+      console.log('📖 Navigation started:', reference, 'mobile:', isMobile);
+      if (connectionSpeed === 'slow' || connectionSpeed === 'medium') {
+        startLoading('navigation');
+      }
+    };
+
+    const handleNavigationComplete = (event: CustomEvent) => {
+      const { reference } = event.detail;
+      console.log('📖 Navigation completed:', reference);
+      stopLoading();
+    };
+
+    window.addEventListener('navigationStarted', handleNavigationStart as EventListener);
+    window.addEventListener('navigationCompleted', handleNavigationComplete as EventListener);
+
+    return () => {
+      window.removeEventListener('navigationStarted', handleNavigationStart as EventListener);
+      window.removeEventListener('navigationCompleted', handleNavigationComplete as EventListener);
+    };
+  }, [startLoading, stopLoading, connectionSpeed]);
+
   // Add chronological order listener - triggers verse reloading
   useEffect(() => {
     const handleChronologicalChange = (event: CustomEvent) => {
@@ -191,6 +221,7 @@ export default function BiblePage() {
 
   // Determine if we should show loading
   const shouldShowLoading = isLoading && verses.length === 0;
+  const showSmartLoader = isSmartLoading && (connectionSpeed === 'slow' || connectionSpeed === 'medium');
 
   // Debug logging
   console.log('BiblePage render state:', {
@@ -213,10 +244,15 @@ export default function BiblePage() {
         />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
-              <LoadingWheel />
-              <div className="text-muted-foreground">
-                Loading Bible...
+              <HolyBookLoader size="lg" />
+              <div className="text-muted-foreground animate-pulse">
+                Loading Scripture...
               </div>
+              {connectionSpeed !== 'unknown' && (
+                <div className="text-xs text-muted-foreground/60">
+                  Connection: {connectionSpeed}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -245,7 +281,7 @@ export default function BiblePage() {
           onMenuToggle={handleMenuToggle}
         />
 
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden relative">
           <VirtualBibleTable
             ref={tableRef}
             verses={verses}
@@ -264,6 +300,18 @@ export default function BiblePage() {
             getGlobalVerseText={getGlobalVerseText}
             onVerseClick={goTo}
           />
+          
+          {/* Smart Loading Overlay */}
+          {showSmartLoader && (
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-40">
+              <div className="text-center space-y-3">
+                <HolyBookLoader size="md" />
+                <div className="text-sm text-muted-foreground animate-pulse">
+                  Navigating...
+                </div>
+              </div>
+            </div>
+          )}
         </main>
 
         {/* Strong's Overlay */}
