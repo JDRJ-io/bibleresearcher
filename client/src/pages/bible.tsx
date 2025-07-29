@@ -8,7 +8,7 @@ import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
 import { SearchModal } from '@/components/bible/SearchModal';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { LoadingWheel } from '@/components/LoadingWheel';
-import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
+import BibleHairFan from '@/components/ui/BibleHairFan';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
@@ -265,7 +265,7 @@ export default function BiblePage() {
         />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
-              <HolyBookLoader size="lg" />
+              <BibleHairFan size={180} color="#d4af37" duration={1200} spread={60} strands={25} />
               <div className="text-muted-foreground animate-pulse">
                 Loading Scripture...
               </div>
@@ -326,7 +326,7 @@ export default function BiblePage() {
           {showSmartLoader && (
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-40">
               <div className="text-center space-y-3">
-                <HolyBookLoader size="md" />
+                <BibleHairFan size={140} color="#d4af37" duration={1200} spread={60} strands={25} />
                 <div className="text-sm text-muted-foreground animate-pulse">
                   Navigating...
                 </div>

@@ -23,16 +23,16 @@ export function LoaderSelector({
   type = 'hair-fan',
   size = 'md',
   className = '',
-  color = '#2fc2ff',
-  duration = 1600,
+  color = '#d4af37',
+  duration = 1200,
   spread = 60,
-  strands = 15,
+  strands = 25,
 }: LoaderSelectorProps) {
   // Convert size prop to pixel values for BibleHairFan
   const sizeMap = {
-    sm: 80,
-    md: 120,
-    lg: 160,
+    sm: 100,
+    md: 140,
+    lg: 180,
   };
 
   if (type === 'holy-book') {
