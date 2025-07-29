@@ -62,9 +62,12 @@ export function TopHeader({
               variant="outline"
               size="sm"
               className={`w-8 h-8 p-0 ${!canGoBack ? 'opacity-50' : ''}`}
-              onClick={onBack}
+              onClick={() => {
+                console.log('📱 Mobile Back button clicked, canGoBack:', canGoBack);
+                onBack();
+              }}
               disabled={!canGoBack}
-              title="Previous"
+              title={canGoBack ? "Go back (Mobile)" : "No previous verses"}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -72,9 +75,12 @@ export function TopHeader({
               variant="outline"
               size="sm"
               className={`w-8 h-8 p-0 ${!canGoForward ? 'opacity-50' : ''}`}
-              onClick={onForward}
+              onClick={() => {
+                console.log('📱 Mobile Forward button clicked, canGoForward:', canGoForward);
+                onForward();
+              }}
               disabled={!canGoForward}
-              title="Next"
+              title={canGoForward ? "Go forward (Mobile)" : "No forward verses"}
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -138,9 +144,12 @@ export function TopHeader({
                 variant="outline"
                 size="sm"
                 className={`w-9 h-9 p-0 ${!canGoBack ? 'opacity-50' : ''}`}
-                onClick={onBack}
+                onClick={() => {
+                  console.log('🖥️ Desktop Back button clicked, canGoBack:', canGoBack);
+                  onBack();
+                }}
                 disabled={!canGoBack}
-                title="Previous"
+                title={canGoBack ? "Go back (Desktop)" : "No previous verses"}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -148,9 +157,12 @@ export function TopHeader({
                 variant="outline"
                 size="sm"
                 className={`w-9 h-9 p-0 ${!canGoForward ? 'opacity-50' : ''}`}
-                onClick={onForward}
+                onClick={() => {
+                  console.log('🖥️ Desktop Forward button clicked, canGoForward:', canGoForward);
+                  onForward();
+                }}
                 disabled={!canGoForward}
-                title="Next"
+                title={canGoForward ? "Go forward (Desktop)" : "No forward verses"}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>

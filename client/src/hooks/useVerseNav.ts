@@ -4,12 +4,14 @@ import { useMobileDetection } from './useMobileDetection';
 
 type ScrollToFn = (ref: string) => void;
 
+const MAX_HISTORY_SIZE = 20;
+
 export function useVerseNav(scrollToVerse: ScrollToFn) {
   const verseKeys = getVerseKeys();
   const isMobile = useMobileDetection();
   const lastPushed = useRef<string | null>(null);
   
-  // Mobile-only: internal navigation history stack
+  // Mobile-only: internal navigation history stack (limit to 20 entries)
   const [mobileHistory, setMobileHistory] = useState<string[]>([]);
   const [mobileHistoryIndex, setMobileHistoryIndex] = useState(-1);
 
@@ -21,17 +23,33 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
     if (isMobile) {
       // Mobile: Use internal history stack to avoid browser memory issues
       setMobileHistory(prev => {
-        const newHistory = [...prev.slice(0, mobileHistoryIndex + 1), norm];
-        console.log('📱 Mobile history updated:', newHistory);
-        return newHistory;
+        // Remove any forward history when navigating to a new location
+        const currentHistory = prev.slice(0, mobileHistoryIndex + 1);
+        const newHistory = [...currentHistory, norm];
+        
+        // Limit history to MAX_HISTORY_SIZE entries (keep most recent)
+        const limitedHistory = newHistory.length > MAX_HISTORY_SIZE 
+          ? newHistory.slice(newHistory.length - MAX_HISTORY_SIZE)
+          : newHistory;
+          
+        console.log('📱 Mobile history updated:', limitedHistory, 'size:', limitedHistory.length);
+        return limitedHistory;
       });
-      setMobileHistoryIndex(prev => prev + 1);
+      setMobileHistoryIndex(prev => {
+        const newIndex = Math.min(prev + 1, MAX_HISTORY_SIZE - 1);
+        console.log('📱 Mobile history index:', newIndex);
+        return newIndex;
+      });
     } else {
-      // Desktop: Use browser history as before
+      // Desktop: Use browser history with better state management
       if (norm && norm !== lastPushed.current) {
-        window.history.pushState({ ref: norm }, '', `#${norm}`);
+        window.history.pushState({ 
+          ref: norm, 
+          timestamp: Date.now(),
+          type: 'verse-navigation' 
+        }, '', `#${norm}`);
         lastPushed.current = norm;
-        console.log('🖥️ Desktop history pushed:', norm);
+        console.log('🖥️ Desktop history pushed:', norm, 'total entries:', window.history.length);
       }
     }
     
@@ -77,6 +95,25 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
 
   const canGoBack = isMobile ? mobileHistoryIndex > 0 : window.history.length > 1;
   const canGoForward = isMobile ? mobileHistoryIndex < mobileHistory.length - 1 : false;
+  
+  // Debug logging for navigation state
+  if (isMobile) {
+    console.log('📱 Mobile Navigation state:', {
+      historyLength: mobileHistory.length,
+      currentIndex: mobileHistoryIndex,
+      canGoBack,
+      canGoForward,
+      currentRef: mobileHistory[mobileHistoryIndex],
+      recentHistory: mobileHistory.slice(-5) // Show last 5 entries
+    });
+  } else {
+    console.log('🖥️ Desktop Navigation state:', {
+      browserHistoryLength: window.history.length,
+      canGoBack,
+      canGoForward,
+      currentHash: window.location.hash
+    });
+  }
 
   // Desktop only: Handle browser popstate events
   useEffect(() => {
