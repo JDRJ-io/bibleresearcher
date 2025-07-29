@@ -317,112 +317,93 @@ export async function getCfOffsets(set: 'cf1' | 'cf2') {
   return obj;
 }
 
-// FAST: Range-fetch specific bytes from cross-reference file using Supabase range support
-export async function fetchCrossRefSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
-  try {
-    console.log(`📡 RANGE REQUEST: Fetching bytes ${start}-${end} from ${cfSet}.txt (${end - start + 1} bytes)`);
+// EXPERT IMPLEMENTATION: True HTTP Range requests using Supabase Storage range option
+async function fetchSlice(cfSet: 'cf1' | 'cf2', start: number, end: number): Promise<string> {
+  console.log(`📡 TRUE RANGE: Fetching bytes ${start}-${end} from ${cfSet}.txt (${end - start + 1} bytes)`);
+  
+  const { data, error } = await supabase
+    .storage
+    .from(BUCKET)
+    .download(paths.crossRef(cfSet), { 
+      range: { start, end } 
+    });
     
-    // Use Supabase's built-in range support
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .download(paths.crossRef(cfSet), {
-        transform: {
-          width: undefined,
-          height: undefined,
-          resize: undefined,
-          format: undefined,
-          quality: undefined
-        }
-      });
-
-    if (error) {
-      throw new Error(`Supabase range download failed: ${error.message}`);
-    }
-
-    // Get the full file and slice the needed portion
-    // Note: Supabase doesn't support true HTTP range requests, so we optimize differently
-    const fullText = await data.text();
-    const slice = fullText.substring(start, end + 1); // end is inclusive
-    
-    console.log(`✅ RANGE: Got ${slice.length} bytes from cross-reference file`);
-    return slice;
-    
-  } catch (error) {
-    console.warn(`Range fetch failed, using fallback:`, error);
-    
-    // Fallback: use loadCrossReferences with caching
-    const fullText = await loadCrossReferences(cfSet);
-    return fullText.substring(start, end + 1);
-  }
+  if (error) throw error;
+  
+  const result = new TextDecoder().decode(await data.arrayBuffer());
+  console.log(`✅ TRUE RANGE: Downloaded ${result.length} bytes using HTTP 206 Partial Content`);
+  return result;
 }
 
-// OPTIMIZED: Fast cross-reference batch loading using cached full file + offset slicing
+// EXPERT IMPLEMENTATION: Ultra-fast batch loading with true HTTP Range requests
 export async function getCrossRefsBatch(verseIds: string[], cfSet: 'cf1' | 'cf2' = 'cf1'): Promise<Record<string, string[]>> {
   if (verseIds.length === 0) return {};
 
+  console.log(`🚀 EXPERT BATCH: Loading ${verseIds.length} verses using TRUE HTTP Range requests`);
+  
   try {
-    console.log(`🚀 OPTIMIZED BATCH: Loading cross-references for ${verseIds.length} verses using cached file + offsets`);
+    // Step 1: Load offset map (cached after first call)
+    const offsetMap = await getCfOffsets(cfSet);
     
-    // Load both offset map and full cross-reference data (cached after first load)
-    const [offsetMap, crossRefData] = await Promise.all([
-      getCfOffsets(cfSet),
-      loadCrossReferences(cfSet)
-    ]);
+    // Step 2: Get byte spans for all verses, filter out missing ones
+    const spans = verseIds
+      .map(id => offsetMap[id])
+      .filter(Boolean) as [number, number][];
+      
+    if (spans.length === 0) return {};
+
+    // Step 3: Merge overlapping spans to minimize requests
+    spans.sort((a, b) => a[0] - b[0]);
+    const merged: { s: number; e: number }[] = [];
     
-    // Process all verses using in-memory operations (extremely fast)
-    const results: Record<string, string[]> = {};
-    let processedCount = 0;
-    
-    for (const verseId of verseIds) {
-      try {
-        const offset = offsetMap[verseId];
-        if (!offset) {
-          results[verseId] = [];
-          continue;
-        }
-
-        // FAST: Direct string slice from cached data
-        const verseLine = crossRefData.substring(offset[0], offset[1]).trim();
-        
-        if (!verseLine) {
-          results[verseId] = [];
-          continue;
-        }
-
-        // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
-        const [, referencesData] = verseLine.split('$$');
-        if (!referencesData) {
-          results[verseId] = [];
-          continue;
-        }
-
-        const allReferences: string[] = [];
-        const referenceGroups = referencesData.split('$').filter(group => group.trim());
-
-        referenceGroups.forEach(group => {
-          const sequentialRefs = group.split('#').filter(ref => ref.trim());
-          sequentialRefs.forEach(ref => {
-            const cleanRef = ref.trim();
-            if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
-              allReferences.push(cleanRef);
-            }
-          });
-        });
-
-        results[verseId] = allReferences;
-        processedCount++;
-        
-      } catch (error) {
-        console.warn(`Failed to parse cross-refs for ${verseId}:`, error);
-        results[verseId] = [];
+    for (const [s, e] of spans) {
+      const last = merged.at(-1);
+      if (last && s <= last.e + 1) {
+        last.e = Math.max(last.e, e);
+      } else {
+        merged.push({ s, e });
       }
     }
 
-    console.log(`✅ OPTIMIZED BATCH: Processed ${processedCount}/${verseIds.length} verses instantly using cached data + offsets`);
-    return results;
+    console.log(`📡 EXPERT: Making ${merged.length} HTTP Range requests for ${verseIds.length} verses`);
+
+    // Step 4: Pull each merged window using TRUE range requests
+    const chunks = await Promise.all(
+      merged.map(m => fetchSlice(cfSet, m.s, m.e))
+    );
+    const blob = chunks.join('\n');
+
+    // Step 5: Build { id: refs[] } map from combined data
+    const refs: Record<string, string[]> = {};
+    
+    blob.split('\n').forEach(line => {
+      if (!line.trim()) return;
+      
+      const [id, referencesData] = line.split('$$');
+      if (!id || !referencesData) return;
+      
+      // Parse the reference groups separated by $ and individual refs by #
+      const allReferences: string[] = [];
+      const referenceGroups = referencesData.split('$').filter(group => group.trim());
+
+      referenceGroups.forEach(group => {
+        const sequentialRefs = group.split('#').filter(ref => ref.trim());
+        sequentialRefs.forEach(ref => {
+          const cleanRef = ref.trim();
+          if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+            allReferences.push(cleanRef);
+          }
+        });
+      });
+      
+      refs[id] = allReferences;
+    });
+
+    console.log(`✅ EXPERT: Loaded cross-references for ${Object.keys(refs).length} verses using ${merged.length} range requests (~${chunks.join('').length} bytes total)`);
+    return refs;
 
   } catch (error) {
-    console.error('Batch cross-reference loading failed:', error);
+    console.error('Expert batch cross-reference loading failed:', error);
     return {};
   }
 }

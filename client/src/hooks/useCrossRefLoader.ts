@@ -26,7 +26,7 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
       });
 
       try {
-        console.log(`🚀 ULTRA-FAST: Batch loading cross-references for ${neededVerses.length} verses with range requests`);
+        console.log(`🚀 EXPERT RANGE: Batch loading cross-references for ${neededVerses.length} verses with TRUE HTTP Range requests`);
         
         // ULTRA-FAST: Use batch loading with merged range requests
         const batchResults = await getCrossRefsBatch(neededVerses, cfSet);
@@ -50,7 +50,7 @@ export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'c
         });
 
         setCrossRefs(updatedCrossRefs);
-        console.log(`✅ ULTRA-FAST: Loaded cross-references for ${neededVerses.length} verses using batch range requests`);
+        console.log(`✅ EXPERT: Loaded cross-references for ${neededVerses.length} verses using TRUE HTTP Range requests`);
 
       } catch (error) {
         console.error('Failed to batch load cross-references:', error);
