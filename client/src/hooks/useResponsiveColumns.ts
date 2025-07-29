@@ -44,9 +44,9 @@ export function useResponsiveColumns(): ResponsiveColumnConfig {
         isTouchDevice,
         columnAlignment: 'left-based',
         enableHorizontalScroll: true,
-        referenceWidth: 'w-14', // Thin reference column (56px)
-        mainTranslationWidth: 'w-64', // Main translation (256px)
-        crossRefWidth: 'w-48', // Cross references (192px)
+        referenceWidth: 'w-10', // Extra thin reference column (40px)
+        mainTranslationWidth: 'w-50', // Compressed main translation (200px)
+        crossRefWidth: 'w-40', // Compressed cross references (160px)
         containerClass: 'overflow-x-auto flex-nowrap'
       };
     } else {

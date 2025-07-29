@@ -283,6 +283,15 @@ body {
   align-items: flex-start;
 }
 
+/* Mobile portrait optimization - ensure all 3 core columns fit */
+@media (max-width: 480px) and (orientation: portrait) {
+  :root {
+    --portrait-ref-width: 36px;   /* Ultra-thin reference for small screens */
+    --portrait-main-width: 190px; /* Slightly smaller main */
+    --portrait-cross-width: 150px; /* Compact cross-refs */
+  }
+}
+
 /* Landscape mode - Centered columns */
 .bible-table-wrapper.landscape-mode .flex {
   justify-content: center;
@@ -292,9 +301,9 @@ body {
 /* Responsive column width CSS variables */
 @media (orientation: portrait) {
   :root {
-    --portrait-ref-width: 56px;
-    --portrait-main-width: 256px; 
-    --portrait-cross-width: 192px;
+    --portrait-ref-width: 40px;
+    --portrait-main-width: 200px; 
+    --portrait-cross-width: 160px;
   }
 }
 

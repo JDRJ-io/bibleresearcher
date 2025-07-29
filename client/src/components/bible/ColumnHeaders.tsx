@@ -95,9 +95,16 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
     
     // Use responsive widths for key columns in portrait mode
     if (responsiveConfig.isPortrait) {
-      if (slot === 0) return '56px'; // Thin reference column
-      if (slot === 2 && column.type === 'main-translation') return '256px'; // Main translation
-      if (slot === 7 && column.type === 'cross-refs') return '192px'; // Cross references
+      // Ultra-compact for very small screens
+      if (window.innerWidth <= 480) {
+        if (slot === 0) return '36px'; // Ultra-thin reference column
+        if (slot === 2 && column.type === 'main-translation') return '190px'; // Ultra-compressed main
+        if (slot === 7 && column.type === 'cross-refs') return '150px'; // Ultra-compressed cross refs
+      } else {
+        if (slot === 0) return '40px'; // Extra thin reference column
+        if (slot === 2 && column.type === 'main-translation') return '200px'; // Compressed main translation  
+        if (slot === 7 && column.type === 'cross-refs') return '160px'; // Compressed cross references
+      }
     }
     
     // Convert rem to pixels for other columns (assuming 1rem = 16px)
