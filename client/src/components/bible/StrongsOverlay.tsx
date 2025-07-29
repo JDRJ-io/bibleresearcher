@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { BibleDataAPI } from '@/data/BibleDataAPI';
-import { BibleVerse, StrongsWord, InterlinearCell } from '@/types/bible';
+import { BibleVerse, StrongsWord } from '@/types/bible';
 import { useVerseNav } from '@/hooks/useVerseNav';
 
 interface StrongsOverlayProps {
@@ -24,13 +24,19 @@ interface WordOccurrence {
 
 export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProps) {
   const [loading, setLoading] = useState(true);
-  const [interlinearCells, setInterlinearCells] = useState<InterlinearCell[]>([]);
+  const [interlinearCells, setInterlinearCells] = useState<any[]>([]);
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [selectedWord, setSelectedWord] = useState<StrongsWord | null>(null);
   const [selectedOccurrences, setSelectedOccurrences] = useState<WordOccurrence[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-  const { jumpToVerse } = useVerseNav();
+  // Simple navigation function without the full useVerseNav hook
+  const goTo = (reference: string) => {
+    // Close the overlay and let the parent handle navigation
+    onClose();
+    // You can add navigation logic here or let the parent component handle it
+    window.location.hash = reference;
+  };
 
   // Find current verse in the array
   useEffect(() => {
@@ -42,14 +48,19 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
     }
   }, [verse, allVerses]);
 
-  // Load Strong's data for current verse
+  // Get current verse data
+  const currentVerse = allVerses[currentVerseIndex] || verse;
+
+  // Load Strong's data for current verse - FIXED: Now updates when verse changes
   useEffect(() => {
     const loadStrongsData = async () => {
-      if (!verse?.reference) return;
+      if (!currentVerse?.reference) return;
       
       setLoading(true);
+      setShowSearch(false); // Close search when switching verses
+      setSelectedWord(null); // Clear selected word
       try {
-        const cells = await BibleDataAPI.getInterlinearData(verse.reference);
+        const cells = await BibleDataAPI.getInterlinearData(currentVerse.reference);
         setInterlinearCells(cells || []);
       } catch (error) {
         console.error('Error loading Strong\'s data:', error);
@@ -60,7 +71,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
     };
 
     loadStrongsData();
-  }, [verse]);
+  }, [currentVerse?.reference]);
 
   const handleWordClick = useCallback(async (word: StrongsWord) => {
     setSelectedWord(word);
@@ -94,9 +105,6 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
       setSelectedWord(null);
     }
   }, [currentVerseIndex, allVerses.length]);
-
-  // Get current verse data
-  const currentVerse = allVerses[currentVerseIndex] || verse;
 
   // Filter occurrences based on search
   const filteredOccurrences = selectedOccurrences.filter(occurrence =>
@@ -205,7 +213,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                           filteredOccurrences.map((occurrence, index) => (
                             <button
                               key={`${occurrence.reference}-${index}`}
-                              onClick={() => jumpToVerse(occurrence.reference)}
+                              onClick={() => goTo(occurrence.reference)}
                               className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                             >
                               <div className="flex items-center justify-between mb-2">
@@ -237,45 +245,44 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       </div>
                     ) : interlinearCells.length > 0 ? (
                       <div>
-                        <h3 className="text-base md:text-lg font-semibold mb-3">Select a word to analyze</h3>
-                        <div className="overflow-x-auto pb-3">
-                          <div className="flex gap-3 w-max min-w-full">
-                            {interlinearCells.map((cell, index) => (
-                              <div
-                                key={index}
-                                className={`flex-shrink-0 w-32 md:w-40 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
-                                  selectedWord?.strongs === cell.strongsKey
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
-                                }`}
-                                onClick={async () => {
-                                  const word: StrongsWord = {
-                                    original: cell.original,
-                                    strongs: cell.strongsKey,
-                                    transliteration: cell.transliteration,
-                                    definition: cell.gloss || 'No definition available',
-                                    instances: []
-                                  };
-                                  await handleWordClick(word);
-                                }}
-                              >
-                                <div className="text-center">
-                                  <div className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-200 mb-1">
-                                    {cell.original || '—'}
-                                  </div>
-                                  <div className="text-xs text-gray-600 dark:text-gray-400 italic mb-1">
-                                    {cell.transliteration}
-                                  </div>
-                                  <Badge variant="outline" className="text-xs font-mono mb-2">
-                                    {cell.strongsKey}
-                                  </Badge>
-                                  <div className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
-                                    {cell.gloss || 'No definition'}
-                                  </div>
+                        <h3 className="text-base md:text-lg font-semibold mb-4">Select a word to analyze</h3>
+                        {/* Box-style grid layout instead of horizontal scrolling */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                          {interlinearCells.map((cell, index) => (
+                            <div
+                              key={index}
+                              className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                                selectedWord?.strongs === cell.strongsKey
+                                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                              }`}
+                              onClick={async () => {
+                                const word: StrongsWord = {
+                                  original: cell.original,
+                                  strongs: cell.strongsKey,
+                                  transliteration: cell.transliteration,
+                                  definition: cell.gloss || 'No definition available',
+                                  instances: []
+                                };
+                                await handleWordClick(word);
+                              }}
+                            >
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
+                                  {cell.original || '—'}
+                                </div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400 italic mb-1">
+                                  {cell.transliteration}
+                                </div>
+                                <Badge variant="outline" className="text-xs font-mono mb-2">
+                                  {cell.strongsKey}
+                                </Badge>
+                                <div className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
+                                  {cell.gloss || 'No definition'}
                                 </div>
                               </div>
-                            ))}
-                          </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ) : (
@@ -324,7 +331,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                               filteredOccurrences.map((occurrence, index) => (
                                 <button
                                   key={`${occurrence.reference}-${index}`}
-                                  onClick={() => jumpToVerse(occurrence.reference)}
+                                  onClick={() => goTo(occurrence.reference)}
                                   className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
                                 >
                                   <div className="flex items-center justify-between mb-3">
