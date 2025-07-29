@@ -478,15 +478,20 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
 
 
 
-// Cross-reference data parsing with proper BibleDataAPI facade
+// Cross-reference data parsing with FAST offset-based lookup
 export async function getCrossReferences(verseId: string): Promise<string[]> {
   try {
-    // Load complete cross-reference data from cf1
-    const crossRefData = await loadCrossReferences('cf1');
-    const lines = crossRefData.split('\n').filter(line => line.trim());
+    // OPTIMIZATION: Use offset-based lookup for instant access
+    const cfOffsets = await getCfOffsets('cf1');
+    const offset = cfOffsets[verseId];
+    
+    if (!offset) {
+      return []; // No cross-references for this verse
+    }
 
-    // STRAIGHT-LINE: Assume verseId is already in dot format from system
-    const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
+    // FAST: Load only the specific line for this verse
+    const crossRefData = await loadCrossReferences('cf1');
+    const targetLine = crossRefData.substring(offset[0], offset[1]).trim();
 
     if (!targetLine) {
       return [];
@@ -520,7 +525,35 @@ export async function getCrossReferences(verseId: string): Promise<string[]> {
 
   } catch (error) {
     console.error(`❌ Error loading cross-references for ${verseId}:`, error);
-    return [];
+    // Fallback to slower method if offset lookup fails
+    try {
+      const crossRefData = await loadCrossReferences('cf1');
+      const lines = crossRefData.split('\n').filter(line => line.trim());
+      const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
+      
+      if (!targetLine) return [];
+      
+      const [, referencesData] = targetLine.split('$$');
+      if (!referencesData) return [];
+      
+      const allReferences: string[] = [];
+      const referenceGroups = referencesData.split('$').filter(group => group.trim());
+      
+      referenceGroups.forEach(group => {
+        const sequentialRefs = group.split('#').filter(ref => ref.trim());
+        sequentialRefs.forEach(ref => {
+          const cleanRef = ref.trim();
+          if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+            allReferences.push(cleanRef);
+          }
+        });
+      });
+      
+      return allReferences;
+    } catch (fallbackError) {
+      console.error(`❌ Fallback cross-reference loading also failed for ${verseId}:`, fallbackError);
+      return [];
+    }
   }
 }
 
