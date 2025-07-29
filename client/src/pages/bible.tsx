@@ -342,6 +342,7 @@ export default function BiblePage() {
             isOpen={!!selectedVerse}
             onClose={handleCloseStrongsOverlay}
             onNavigateToVerse={handleNavigateToVerse}
+            allVerses={allVerses}
           />
         )}
 

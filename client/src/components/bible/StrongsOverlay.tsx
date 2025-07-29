@@ -18,9 +18,10 @@ interface StrongsOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigateToVerse?: (reference: string) => void;
+  allVerses?: BibleVerse[]; // Add allVerses prop for navigation
 }
 
-export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: StrongsOverlayProps) {
+export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse, allVerses = [] }: StrongsOverlayProps) {
   const [strongsWords, setStrongsWords] = useState<StrongsWord[]>([]);
   const [selectedWord, setSelectedWord] = useState<StrongsWord | null>(null);
   const [loading, setLoading] = useState(false);
@@ -35,8 +36,7 @@ export function StrongsOverlay({ verse, isOpen, onClose, onNavigateToVerse }: St
   const [currentStrongsId, setCurrentStrongsId] = useState<string | null>(null);
   const [cursor, setCursor] = useState<number>(0);
 
-  const { store } = useBibleStore();
-  const allVerses = store.verses || [];
+  // allVerses now comes from props instead of store
 
   // Expert's Step 1: Keep a clean occurrence list
   const occurrences = useMemo(() => {
