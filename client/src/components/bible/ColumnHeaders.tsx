@@ -238,20 +238,23 @@ export function ColumnHeaders({
 
   // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
   // HIDDEN ON MOBILE for clean dual-column layout
+  // FILTER OUT main translation to prevent duplication
   if (!adaptiveIsMobile) {
-    alternates.forEach((translationCode, index) => {
-      // All alternate translations start from slot 12 (AFTER cross-references)
-      const slot = 12 + index;
-      
-      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
-        slotConfig[slot] = { 
-          type: 'translation', 
-          header: translationCode, 
-          translationCode, 
-          visible: true  // Show all active alternate translations
-        };
-      }
-    });
+    alternates
+      .filter(translationCode => translationCode !== main) // Prevent main translation duplication
+      .forEach((translationCode, index) => {
+        // All alternate translations start from slot 12 (AFTER cross-references)
+        const slot = 12 + index;
+        
+        if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
+          slotConfig[slot] = { 
+            type: 'translation', 
+            header: translationCode, 
+            translationCode, 
+            visible: true  // Show all active alternate translations
+          };
+        }
+      });
   }
 
   // Debug logging

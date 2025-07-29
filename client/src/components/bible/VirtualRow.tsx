@@ -444,26 +444,29 @@ export function VirtualRow({
 
   // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
   // HIDDEN ON MOBILE for clean dual-column layout
+  // FILTER OUT main translation to prevent duplication
   if (!isMobile) {
-    alternates.forEach((translationCode, index) => {
-      let slot;
-      if (index < 4) {
-        // Primary alternate translations: slots 3-6
-        slot = 3 + index;
-      } else {
-        // Extended alternate translations: slots 12-19 (8 additional slots)
-        slot = 12 + (index - 4);
-      }
-      
-      if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
-        slotConfig[slot] = { 
-          type: 'alt-translation', 
-          header: translationCode, 
-          translationCode, 
-          visible: true  // Show all active alternate translations
-        };
-      }
-    });
+    alternates
+      .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
+      .forEach((translationCode, index) => {
+        let slot;
+        if (index < 4) {
+          // Primary alternate translations: slots 3-6
+          slot = 3 + index;
+        } else {
+          // Extended alternate translations: slots 12-19 (8 additional slots)
+          slot = 12 + (index - 4);
+        }
+        
+        if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
+          slotConfig[slot] = { 
+            type: 'alt-translation', 
+            header: translationCode, 
+            translationCode, 
+            visible: true  // Show all active alternate translations
+          };
+        }
+      });
   }
 
   // Get visible columns: combine store state with translation state
