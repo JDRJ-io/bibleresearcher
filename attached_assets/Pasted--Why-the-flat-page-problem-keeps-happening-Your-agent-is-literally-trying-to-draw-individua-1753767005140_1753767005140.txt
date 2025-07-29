@@ -1,0 +1,116 @@
+### Why the “flat‑page” problem keeps happening
+
+Your agent is literally trying to draw *individual* sheets because you’ve been asking for “pages.” What you really want is **one abstract shape that *suggests* a whole fan of pages** and then animate that shape. Think of it like a bird flapping: Disney didn’t draw every feather—just three arcs that change curvature.
+
+---
+
+## Two bullet‑proof ways to get the fanning effect
+
+*(pick whichever feels easier; both are sub‑40 kB total size and 100 % CSS/SVG—no runtime code, no libraries, no React re‑renders)*
+
+| Approach                      | When to use                                      | Core idea                                                                               | Weight        |
+| ----------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------- | ------------- |
+| **A. Sprite‑sheet flip‑book** | You’re happy exporting 6–8 static PNGs/WebP once | Create 6 frames where the arcs tilt slightly, pack into one sprite, loop with `steps()` | 15‑40 kB      |
+| **B. Pure SVG path‑morph**    | You want **one** XML file and infinite scaling   | Animate the control points of three `<path>` elements with CSS `d` interpolation        | <5 kB gzipped |
+
+Below is a concise recipe for **Method B (SVG Morph)** because that’s what’s tripping the agent up.
+
+---
+
+## Method B – SVG path‑morph animation
+
+### 1. Draw *three* arcs, not pages
+
+Create the icon in Figma/Illustrator (or code directly).
+You need two sets of path data—*start* and *end*.
+
+```svg
+<!-- start state (slightly closed) -->
+<path id="p1" d="M10,40 Q60,10 110,40" />
+<path id="p2" d="M10,50 Q60,20 110,50" />
+<path id="p3" d="M10,60 Q60,30 110,60" />
+
+<!-- end state (fully fanned) -->
+<!-- (the last two paths can share a single keyframe block) -->
+```
+
+> **Tip:** Keep the number of points in each path identical so the morph is smooth.
+
+### 2. Wire it with CSS keyframes
+
+```css
+@keyframes fan {
+  0%  {
+    d: path("M10,40 Q60,10 110,40");
+  }
+  50% {
+    d: path("M5,35  Q60, 5 115,35");
+  }
+  100%{
+    d: path("M10,40 Q60,10 110,40");
+  }
+}
+svg path {
+  stroke: #0077c8;
+  stroke-width: 8;
+  fill: none;
+  animation: fan 1.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * .1s); /* small stagger per arc */
+}
+```
+
+In the markup add `style="--i:0"` to the first path, `--i:1` to the second, etc. That offsets each arc by 0.1 s, giving the natural ripple.
+
+### 3. Drop the SVG inline (or as a React component)
+
+```tsx
+export default function BibleFan({
+  size = 96,
+}: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={(size * 0.5)}
+      viewBox="0 0 120 70"
+      aria-label="Fanning Bible pages"
+      role="img"
+    >
+      <path d="..." style={{ '--i': 0 } as any} />
+      <path d="..." style={{ '--i': 1 } as any} />
+      <path d="..." style={{ '--i': 2 } as any} />
+    </svg>
+  );
+}
+```
+
+### 4. Performance snapshot
+
+* **Network:** one tiny SVG (inline = zero extra request).
+* **GPU:** three stroked paths = <0.1 MB texture.
+* **CPU:** CSS keyframe on compositor thread, no JS.
+* **React:** mounts once, never re‑renders.
+
+---
+
+## If you prefer the sprite‑sheet flip‑book (Method A)
+
+1. Draw *6* frames (closed → open → closed).
+2. Export to 6 × 96 px PNGs, combine with an online sprite maker.
+3. Use the exact CSS I showed earlier (`animation: steps(6) infinite;`).
+4. Done—same low weight, more “stop‑motion” vibe.
+
+---
+
+### Troubleshooting cheatsheet
+
+| Symptom                      | Fix                                                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| **Icon jerks sideways**      | All frames/paths must share identical width & origin.                                     |
+| **Stutters on mobile**       | Keep duration ≥ 1 s; use `ease-in-out`, not `linear`.                                     |
+| **Colors look jagged**       | Use SVG stroke with `stroke-linecap:round;` or export sprite with transparent BG & PNG24. |
+| **Edge bleed on dark theme** | Add a subtle shadow or duplicate path with lower opacity to fake anti‑alias.              |
+
+---
+
+**Bottom line:**
+Tell the agent, *“We only need three curved strokes, morphing 2–3 px each, staggered by 0.1 s. No literal pages.”* That single insight removes 90 % of the complexity and memory bloat. Enjoy your holy, cool, perfectly looping fan‑animation!
