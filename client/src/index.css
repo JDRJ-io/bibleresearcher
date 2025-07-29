@@ -332,6 +332,7 @@ body {
   display: flex;
   justify-content: center;                       /* centering in landscape */
   overflow-x: auto;                             /* scrollbar only if needed */
+  overflow-y: auto;                             /* enable vertical scrolling */
   scrollbar-gutter: stable;                     /* prevents width-jump when bar appears */
   
   /* Expert's smooth scrolling enhancements */

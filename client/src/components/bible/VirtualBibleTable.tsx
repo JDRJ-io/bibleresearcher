@@ -472,10 +472,14 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
         data-orientation={isPortrait ? 'portrait' : 'landscape'}
         style={{ 
           marginTop: '0',
-          height: "calc(100vh - 85px)"
+          height: "calc(100vh - 85px)",
+          overflowY: "auto", // Enable vertical scrolling on the table container
+          overflowX: "auto"  // Enable horizontal scrolling for columns
         }}
         data-scroll-direction={scrollDirection}
-        onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
+        onScroll={(e) => {
+          setScrollLeft(e.currentTarget.scrollLeft);
+        }}
         data-testid="bible-table"
       >
         <div className="tableInner flex w-full"
