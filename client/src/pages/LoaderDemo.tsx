@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 
 export default function LoaderDemo() {
   const [selectedLoader, setSelectedLoader] = useState<'current' | 'new'>('current');
-  const [fanColor, setFanColor] = useState('#d4af37');
-  const [fanSize, setFanSize] = useState(140);
+  const [fanColor, setFanColor] = useState('#2fc2ff');
+  const [fanSize, setFanSize] = useState(120);
   const [fanSpeed, setFanSpeed] = useState(1200);
   const [fanSpread, setFanSpread] = useState(60);
   const [fanStrands, setFanStrands] = useState(25);

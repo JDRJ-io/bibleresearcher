@@ -25,8 +25,8 @@ type Props = {
 };
 
 export default function BibleHairFan({
-  size = 140,
-  color = '#d4af37',
+  size = 120,
+  color = '#2fc2ff',
   duration = 1200,
   spread = 60,
   strands = 25,
@@ -53,10 +53,10 @@ export default function BibleHairFan({
           y1="0"
           x2="0"
           y2={-radius}
-          stroke="url(#book-gradient)"
+          stroke={color}
           strokeWidth={2.5}
           strokeLinecap="round"
-          opacity={0.85}
+          opacity={0.9}
         >
           {/* Wave-like flowing motion from side to side */}
           <animateTransform
@@ -84,33 +84,6 @@ export default function BibleHairFan({
       aria-label="Bible pages fanning"
       style={{ overflow: 'visible' }}
     >
-      <defs>
-        {/* Book-like gradient from golden brown to aged cream */}
-        <linearGradient id="book-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#8b7355" stopOpacity={0.9} />
-          <stop offset="30%" stopColor={color} stopOpacity={0.95} />
-          <stop offset="70%" stopColor="#f4e4bc" stopOpacity={0.8} />
-          <stop offset="100%" stopColor="#d4af37" stopOpacity={0.7} />
-        </linearGradient>
-        
-        {/* Subtle parchment texture effect */}
-        <radialGradient id="parchment-glow" cx="50%" cy="0%" r="100%">
-          <stop offset="0%" stopColor="#f9f1e6" stopOpacity={0.3} />
-          <stop offset="50%" stopColor="#e6d3a3" stopOpacity={0.2} />
-          <stop offset="100%" stopColor="#8b7355" stopOpacity={0.1} />
-        </radialGradient>
-      </defs>
-      
-      {/* Subtle parchment background glow */}
-      <ellipse 
-        cx="0" 
-        cy={radius * 0.7} 
-        rx={radius * 0.8} 
-        ry={radius * 0.3} 
-        fill="url(#parchment-glow)" 
-        opacity={0.6}
-      />
-      
       {/* anchor the fan at bottom‑centre */}
       <g transform={`translate(0, ${radius})`}>{lines}</g>
     </svg>
