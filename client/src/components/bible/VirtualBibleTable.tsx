@@ -85,7 +85,40 @@ const VirtualBibleTable = ({
   const store = useBibleStore();
   const activeLabels = store.activeLabels;
   
-  // No excessive debug logging
+  // Immediate debug log to see current state
+  console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+  console.log('🔍🔍🔍 IMMEDIATE - Full store check:', { 
+    hasStore: !!store,
+    storeActiveLabels: store?.activeLabels,
+    directActiveLabels: useBibleStore.getState().activeLabels 
+  });
+  
+  // Force test to ensure store updates are working
+  useEffect(() => {
+    const unsubscribe = useBibleStore.subscribe(
+      (state) => {
+        console.log('🔥🔥🔥 STORE SUBSCRIPTION - activeLabels changed to:', state.activeLabels);
+      }
+    );
+    return unsubscribe;
+  }, []);
+  
+  // DIRECT TEST: Force test Dan.7:3 with known labels
+  useEffect(() => {
+    if (activeLabels?.includes('what' as any)) {
+      console.log('🧪 DIRECT TEST: Testing Dan.7:3 with what label active');
+      const testLabels = { what: ['four huge beasts'], where: ['out of the water'], action: ['came up'] };
+      const testText = 'Then four huge beasts came up out of the water, each different from the others.';
+      console.log('🧪 Test text:', testText);
+      console.log('🧪 Test labels:', testLabels);
+    }
+  }, [activeLabels]);
+  
+  // Debug activeLabels from store - FORCE RENDER CHECK
+  useEffect(() => {
+    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels changed:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
+    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels array:', JSON.stringify(activeLabels));
+  }, [activeLabels]);
   
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
@@ -110,7 +143,15 @@ const VirtualBibleTable = ({
     });
   }, [slice.verseIDs, rowData]);
   
-  // No excessive debug logging
+  // Force hook re-evaluation when activeLabels changes  
+  useEffect(() => {
+    console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
+      versesCount: sliceVerses.length,
+      activeLabels: activeLabels,
+      activeLabelsJSON: JSON.stringify(activeLabels),
+      mainTranslation: translationMainTranslation || mainTranslation
+    });
+  }, [activeLabels, sliceVerses.length, translationMainTranslation, mainTranslation]);
   
   const { getVerseLabels } = useViewportLabels({
     verses: sliceVerses, 
@@ -150,7 +191,7 @@ const VirtualBibleTable = ({
   useEffect(() => {
     if (onCenterVerseChange && anchorIndex !== centerVerseIndex) {
       onCenterVerseChange(anchorIndex);
-      // Viewport center changed
+      console.log(`📍 VIEWPORT CENTER CHANGED: ${centerVerseIndex} → ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
     }
   }, [anchorIndex, centerVerseIndex, onCenterVerseChange]);
 
@@ -194,35 +235,30 @@ const VirtualBibleTable = ({
       showBookmarks: true,
     },
     onVerseClick: (ref: string) => {
-      // Call the navigation function to update history
-      if (onNavigateToVerse) {
-        onNavigateToVerse(ref);
-      } else {
-        // Fallback to local scrolling if no navigation function provided
-        const verseIndex = verseKeys.findIndex(key => key === ref);
-        const foundFormat = ref;
+      // STRAIGHT-LINE: Assume ref is already in dot format from system
+      const verseIndex = verseKeys.findIndex(key => key === ref);
+      const foundFormat = ref;
 
-        if (verseIndex >= 0) {
-          if (containerRef.current) {
-            const containerHeight = containerRef.current.clientHeight;
-            const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
+      if (verseIndex >= 0) {
+        if (containerRef.current) {
+          const containerHeight = containerRef.current.clientHeight;
+          const targetScrollTop = (verseIndex * ROW_HEIGHT) - (containerHeight / 2) + (ROW_HEIGHT / 2);
 
-            // Instant jump with simple highlight
-            containerRef.current.scrollTo({
-              top: Math.max(0, targetScrollTop),
-              behavior: 'auto'
-            });
+          // Instant jump with simple highlight
+          containerRef.current.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: 'auto'
+          });
 
-            // Simple highlight feedback
-            setTimeout(() => {
-              const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
-                                 document.querySelector(`[data-verse-ref="${foundFormat}"]`);
-              if (targetVerse) {
-                targetVerse.classList.add('verse-highlight-flash');
-                setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 400);
-              }
-            }, 25);
-          }
+          // Simple highlight feedback
+          setTimeout(() => {
+            const targetVerse = document.getElementById(`verse-${foundFormat}`) || 
+                               document.querySelector(`[data-verse-ref="${foundFormat}"]`);
+            if (targetVerse) {
+              targetVerse.classList.add('verse-highlight-flash');
+              setTimeout(() => targetVerse.classList.remove('verse-highlight-flash'), 400);
+            }
+          }, 25);
         }
       }
     },
@@ -268,9 +304,9 @@ const VirtualBibleTable = ({
     },
   });
 
-
+  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
-
+  console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
 
   // Enhanced directional scrolling - only one axis at a time
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -306,10 +342,8 @@ const VirtualBibleTable = ({
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
 
-  // Detect orientation and determine centering logic
-  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
-  const fitsHorizontally = actualTotalWidth <= viewportWidth;
-  const shouldCenter = !isPortrait && fitsHorizontally;
+  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
+  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   useEffect(() => {
@@ -397,15 +431,14 @@ const VirtualBibleTable = ({
   }, [preferences.fontSize]);
 
   // Horizontal scrollbar guard: prevent scrollLeft overflow after column changes
-  // Clamp scroll when switching modes (portrait/landscape or fit/overflow)
   useEffect(() => {
     const w = wrapperRef.current;
     if (!w) return;
-    const max = w.scrollWidth - w.clientWidth;
-    if (w.scrollLeft > max) {
-      w.scrollLeft = max;
+    const tooWide = w.scrollWidth > w.clientWidth;
+    if (tooWide && w.scrollLeft > w.scrollWidth - w.clientWidth) {
+      w.scrollLeft = w.scrollWidth - w.clientWidth;
     }
-  }, [shouldCenter, actualTotalWidth, visibleColumns]); // Trigger when centering mode or width changes
+  }, [visibleColumns]); // Trigger when visible columns change
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
@@ -426,18 +459,23 @@ const VirtualBibleTable = ({
           (wrapperRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className={`flex overflow-x-auto ${shouldCenter ? 'justify-center' : 'justify-start'} ${isMobile ? 'dual-col' : ''}`}
+        className={`bible-table-wrapper ${isMobile ? 'dual-col' : ''}`}
         style={{ 
           touchAction: "pan-y", 
           marginTop: '0', // Remove the desktop gap below the header
           height: "calc(100vh - 85px)",
+          overflowX: 'auto', // ALWAYS allow horizontal scrolling on mobile when 3+ columns
           overflowY: 'auto'
         }}
         data-scroll-direction={scrollDirection}
         onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}
         data-testid="bible-table"
       >
-        <div className="min-w-max">
+        <div className={shouldCenter ? "flex justify-center w-full" : "flex w-full"} style={{ overflowX: needsHorizontalScroll ? 'auto' : 'hidden' }}>
+          <div style={{ 
+            minWidth: shouldCenter ? 'max-content' : `${actualTotalWidth}px`,
+            width: shouldCenter ? 'auto' : `${actualTotalWidth}px`
+          }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -481,7 +519,10 @@ const VirtualBibleTable = ({
                   contextGroup: "standard" as const
                 };
 
-
+                // Only log for first verse to avoid spam
+                if (id === "Gen.1:1") {
+                  console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
+                }
                 return (
                   <VirtualRow 
                     key={id}
@@ -499,6 +540,7 @@ const VirtualBibleTable = ({
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+          </div>
         </div>
       </div>
     </div>

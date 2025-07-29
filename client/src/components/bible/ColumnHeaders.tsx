@@ -177,7 +177,14 @@ export function ColumnHeaders({
     return null;
   }
 
-  // Removed excessive logging
+  console.log('📋 ColumnHeaders render state:', { 
+    isInitialized, 
+    showCrossRefs, 
+    showProphecies, 
+    showNotes,
+    main,
+    alternates: alternates.length
+  });
 
   // Use store's columnState as the authoritative source, enhanced with translation data
   const slotConfig: Record<number, any> = {};
@@ -244,7 +251,13 @@ export function ColumnHeaders({
     });
   }
 
-  // Removed debug logging
+  // Debug logging
+  console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
+    slot: parseInt(slot), 
+    type: slotConfig[parseInt(slot)]?.type, 
+    header: slotConfig[parseInt(slot)]?.header, 
+    visible: slotConfig[parseInt(slot)]?.visible 
+  })));
 
   // Build visible columns directly from our state
   const visibleColumns = useMemo(() => {
@@ -339,7 +352,7 @@ export function ColumnHeaders({
     return columns;
   }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile, columnState]);
 
-  // Removed debug logging
+  console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
 
   // Calculate actual total width from columnState for accurate measurement
   const actualTotalWidth = useMemo(() => {
@@ -358,10 +371,9 @@ export function ColumnHeaders({
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
-  // Detect orientation and determine centering logic (same as VirtualBibleTable)
-  const isPortrait = typeof window !== 'undefined' ? window.matchMedia('(orientation: portrait)').matches : false;
-  const fitsHorizontally = actualTotalWidth <= viewportWidth;
-  const shouldCenter = !adaptiveIsMobile && !isPortrait && fitsHorizontally;
+  // FIXED COLUMN WIDTHS: Never compress columns, always use horizontal scroll
+  // Only center when content genuinely fits without compression
+  const shouldCenter = !adaptiveIsMobile && actualTotalWidth <= viewportWidth * 0.95;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   const allColumns = visibleColumns.map(col => ({

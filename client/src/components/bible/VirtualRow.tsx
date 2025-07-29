@@ -48,14 +48,16 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
 
   // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
   const crossRefs = crossRefsStore[verse.reference] || [];
-  
-
 
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('🔗 Cross-reference clicked in cell:', ref, 'Handler available:', !!onVerseClick);
+
     if (onVerseClick) {
       onVerseClick(ref);
+    } else {
+      console.warn('⚠️ No onVerseClick handler available');
     }
   };
 
@@ -233,7 +235,15 @@ function MainTranslationCell({
   const contextBoundaries = store.contextBoundaries;
   const showContext = store.showContext;
 
-
+  // FIX #4: Debug translation lookup with normalization  
+  if (verse.reference === "Gen.4:1") {
+    console.log('CELL CHECK', {
+      verse: verse.reference,
+      mainTranslation,
+      normalizedCode: mainTranslation?.toUpperCase(),
+      textResult: getVerseText(verse.reference, mainTranslation)?.slice(0,40)
+    });
+  }
 
   // Get verse text with proper fallbacks
   const verseText = getVerseText(verse.reference, mainTranslation) || 
@@ -247,7 +257,33 @@ function MainTranslationCell({
   // Use LabeledText if we have active labels (don't require verseLabels yet, let component handle empty data)
   const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
 
+  // Enhanced debug for Gen.1:1
+  if (verse.reference === "Gen.1:1" || verse.reference === "Gen 1:1") {
+    console.log(`🏷️ MainTranslationCell DEBUG for ${verse.reference}:`, {
+      verseLabels,
+      activeLabels,
+      shouldUseLabeledText,
+      hasGetVerseLabels: !!getVerseLabels,
+      storeActiveLabels: store?.activeLabels,
+      verseText: verseText ? verseText.substring(0, 50) + '...' : 'NO TEXT',
+      verseTextLength: verseText?.length || 0
+    });
 
+    // Try different reference formats
+    // OPTIMIZATION: verse.reference is now in dot format - no conversion needed
+    const altRef1 = verse.reference;
+    const altRef2 = verse.reference;
+
+    if (getVerseLabels) {
+      console.log(`🏷️ MainTranslationCell trying alt refs:`, {
+        original: verse.reference,
+        alt1: altRef1,
+        alt2: altRef2,
+        labelsAlt1: getVerseLabels(altRef1),
+        labelsAlt2: getVerseLabels(altRef2)
+      });
+    }
+  }
 
   // Handle empty verse text - just return empty instead of loading message
   if (!verseText) {
@@ -325,7 +361,10 @@ export function VirtualRow({
   const store = useBibleStore();
   const { main: mainTranslation, alternates } = useTranslationMaps();
   
-
+  // Debug translation store state (only for first verse to avoid spam)
+  if (verse.reference === "Gen 1:1") {
+    console.log('🔍 VirtualRow translation state:', { mainTranslation, alternates });
+  }
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
@@ -341,12 +380,22 @@ export function VirtualRow({
     mainTranslation: mainTranslation
   });
 
-
+  // DEBUG: Check if VirtualRow is being called
+  if (verse.reference === "Gen 1:1") {
+    console.log('🔥 VirtualRow RENDERING for Gen 1:1');
+    console.log('🔥 Store states:', { showCrossRefs, showProphecies, showNotes, showDates });
+    console.log('🔥 Translation states:', { mainTranslation, alternates, activeTranslations });
+  }
 
   // Handle double-click to open Strong's overlay
   const handleDoubleClick = () => {
+    console.log(`🔍 VirtualRow handleDoubleClick called for ${verse.reference}`);
+    console.log(`🔍 onExpandVerse available:`, !!onExpandVerse);
     if (onExpandVerse) {
+      console.log(`🔍 Calling onExpandVerse for ${verse.reference}`);
       onExpandVerse(verse);
+    } else {
+      console.warn(`⚠️ onExpandVerse not available for ${verse.reference}`);
     }
   };
 
@@ -462,7 +511,21 @@ export function VirtualRow({
     }
   }
 
+  // Debug logging for first verse
+  if (verse.reference === "Gen 1:1") {
+    console.log('🔍 VirtualRow Debug - Translation state:', { mainTranslation, alternates });
+    console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
+    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
+    console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
+    console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
+    console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
+    console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
 
+    // Debug cross-references data
+    const { crossRefs } = useBibleStore.getState();
+    console.log('🔍 VirtualRow Debug - Cross refs for verse:', crossRefs[verse.reference]);
+    console.log('🔍 VirtualRow Debug - All cross refs keys:', Object.keys(crossRefs).slice(0, 10));
+  }
 
 
 
@@ -524,7 +587,15 @@ export function VirtualRow({
         );
 
       case 'alt-translation':
-
+        // Debug translation lookup for first verse
+        if (verse.reference === "Gen 1:1") {
+          console.log('🔍 Translation Debug:', {
+            verseRef: verse.reference,
+            translationCode: config.translationCode,
+            getVerseTextResult: getVerseText(verse.reference, config.translationCode),
+            getMainVerseTextResult: getMainVerseText(verse.reference)
+          });
+        }
 
         // Simple fallback to hook functions for alternate translations (no labels)
         let verseText = getVerseText(verse.reference, config.translationCode) || 

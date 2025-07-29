@@ -60,14 +60,13 @@ export class SystemDocumenter {
   private lastDocumentation: SystemArchitecture | null = null;
 
   start() {
-    // DISABLED: Performance impact too high
     // Update documentation every 30 seconds
-    // this.updateInterval = setInterval(() => {
-    //   this.generateDocumentation();
-    // }, 30000);
+    this.updateInterval = setInterval(() => {
+      this.generateDocumentation();
+    }, 30000);
 
     // Initial documentation
-    // this.generateDocumentation();
+    this.generateDocumentation();
   }
 
   stop() {

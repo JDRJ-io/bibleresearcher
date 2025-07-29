@@ -29,7 +29,7 @@ const apiRequest = async (url: string, method: string = 'GET', body?: any) => {
 const prefetchRemoteVerses = (sliceIndices: string[], main: string) => {
   // when "main" changes, useEffect([main]) invalidates and refetches the remote cache
   // prefetch remote refs in the new translation
-
+  console.log(`🔄 Prefetching remote verses for ${main} translation with ${sliceIndices.length} slice indices`);
   // TODO: implement prefetch logic for cross-references and prophecy
 };
 
@@ -48,9 +48,15 @@ export function useSliceDataLoader(verseIDs: string[], mainTranslation?: string)
 
   // Remove duplicate translation loading - handled by main useBibleData hook
 
-  // REMOVED: Old API endpoint that no longer exists
-  // The app is now client-side only, no need for slice-data API calls
-  // Cross-references and prophecy data are loaded directly from Supabase
-  
-  return { data: {}, isLoading: false, error: null };
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['/api/slice-data', verseIDs],
+    queryFn: async () => {
+      if (verseIDs.length === 0) return {};
+      return apiRequest(`/api/slice-data`, 'POST', { verseIDs });
+    },
+    enabled: verseIDs.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  return { data, isLoading, error };
 }

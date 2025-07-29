@@ -478,51 +478,45 @@ export async function saveHighlight(highlight: any, preserveAnchor?: (ref: strin
 
 
 
-// Cross-reference map cache to avoid reloading the entire file
-let crossRefMap: Map<string, string[]> | null = null;
-
 // Cross-reference data parsing with proper BibleDataAPI facade
 export async function getCrossReferences(verseId: string): Promise<string[]> {
   try {
-    // Load and parse cross-reference data only once
-    if (!crossRefMap) {
-      console.log('📚 Loading cross-reference data into memory cache...');
-      const crossRefData = await loadCrossReferences('cf1');
-      crossRefMap = new Map();
-      
-      const lines = crossRefData.split('\n').filter(line => line.trim());
-      
-      // Parse all cross-references into map for O(1) lookup
-      lines.forEach(line => {
-        const [verse, referencesData] = line.split('$$');
-        if (verse && referencesData) {
-          const allReferences: string[] = [];
-          
-          // Split by $ to get reference groups
-          const referenceGroups = referencesData.split('$').filter(group => group.trim());
-          
-          referenceGroups.forEach(group => {
-            // Split by # to get sequential references within a group
-            const sequentialRefs = group.split('#').filter(ref => ref.trim());
-            
-            sequentialRefs.forEach(ref => {
-              const cleanRef = ref.trim();
-              // Validate this looks like a proper verse reference
-              if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
-                allReferences.push(cleanRef);
-              }
-            });
-          });
-          
-          crossRefMap.set(verse.trim(), allReferences);
-        }
-      });
-      
-      console.log(`✅ Cross-reference cache built with ${crossRefMap.size} verses`);
+    // Load complete cross-reference data from cf1
+    const crossRefData = await loadCrossReferences('cf1');
+    const lines = crossRefData.split('\n').filter(line => line.trim());
+
+    // STRAIGHT-LINE: Assume verseId is already in dot format from system
+    const targetLine = lines.find(line => line.startsWith(verseId + '$$'));
+
+    if (!targetLine) {
+      return [];
     }
 
-    // Fast O(1) lookup from cache
-    return crossRefMap.get(verseId) || [];
+    // Parse format: Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3
+    const [baseVerse, referencesData] = targetLine.split('$$');
+    if (!referencesData) return [];
+
+    // FIXED: Proper parsing that handles numbered books and $ delimiters correctly
+    const allReferences: string[] = [];
+
+    // Split by $ to get reference groups, filtering out empty strings
+    const referenceGroups = referencesData.split('$').filter(group => group.trim());
+
+    referenceGroups.forEach(group => {
+      // Split by # to get sequential references within a group
+      const sequentialRefs = group.split('#').filter(ref => ref.trim());
+
+      sequentialRefs.forEach(ref => {
+        const cleanRef = ref.trim();
+        // Validate this looks like a proper verse reference
+        // Regex matches: optional 1-3, then letters, dot, digits, colon, digits
+        if (cleanRef.match(/^[123]?[A-Za-z]+\.\d+:\d+$/)) {
+          allReferences.push(cleanRef);
+        }
+      });
+    });
+
+    return allReferences;
 
   } catch (error) {
     console.error(`❌ Error loading cross-references for ${verseId}:`, error);
