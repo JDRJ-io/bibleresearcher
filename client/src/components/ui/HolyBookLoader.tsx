@@ -6,115 +6,99 @@ interface HolyBookLoaderProps {
 }
 
 export function HolyBookLoader({ size = 'md', className = '' }: HolyBookLoaderProps) {
-  const sizeClasses = {
-    sm: 'w-16 h-12',
-    md: 'w-24 h-18', 
-    lg: 'w-32 h-24'
+  const sizeMap = {
+    sm: 80,
+    md: 120,
+    lg: 160
   };
+  
+  const pixelSize = sizeMap[size];
+  const h = pixelSize * 0.45;
+  const duration = 1400;
+  const stroke = '#8b4513'; // Biblical brown color
+  
+  // Define the morphing paths
+  const d1a = `M10,${h - 10} Q${pixelSize / 2},5 ${pixelSize - 10},${h - 10}`;
+  const d1b = `M6,${h - 18} Q${pixelSize / 2},0 ${pixelSize - 6},${h - 18}`;
+  
+  const d2a = `M10,${h - 2} Q${pixelSize / 2},13 ${pixelSize - 10},${h - 2}`;
+  const d2b = `M6,${h - 6} Q${pixelSize / 2},9 ${pixelSize - 6},${h - 6}`;
+  
+  const d3a = `M10,${h + 6} Q${pixelSize / 2},21 ${pixelSize - 10},${h + 6}`;
+  const d3b = `M6,${h + 10} Q${pixelSize / 2},25 ${pixelSize - 6},${h + 10}`;
 
   return (
-    <div className={`inline-flex items-center justify-center ${className}`}>
-      <div className={`relative ${sizeClasses[size]}`}>
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes fanPage {
-              0% {
-                d: path("M10,40 Q60,10 110,40");
-              }
-              50% {
-                d: path("M5,35 Q60,5 115,35");
-              }
-              100% {
-                d: path("M10,40 Q60,10 110,40");
-              }
-            }
-            
-            @keyframes divineGlow {
-              0%, 100% { 
-                filter: drop-shadow(0 0 8px rgba(218, 165, 32, 0.4));
-                opacity: 0.6;
-              }
-              50% { 
-                filter: drop-shadow(0 0 16px rgba(218, 165, 32, 0.8));
-                opacity: 1;
-              }
-            }
-            
-            .fan-path {
-              stroke: #8b4513;
-              stroke-width: 3;
-              stroke-linecap: round;
-              fill: none;
-              animation: fanPage 1.2s ease-in-out infinite;
-              animation-delay: calc(var(--i) * 0.1s);
-            }
-            
-            .divine-sparkle {
-              animation: divineGlow 2s ease-in-out infinite;
-              animation-delay: calc(var(--spark-delay) * 0.3s);
-            }
-          `
-        }} />
-        
-        <div className="w-full h-full relative flex items-center justify-center">
-          <svg 
-            viewBox="0 0 120 70" 
-            className="w-full h-full"
-            aria-label="Fanning Bible pages"
-            role="img"
+    <div className={`inline-flex flex-col items-center justify-center gap-2 ${className}`}>
+      <div className="relative">
+        <svg
+          width={pixelSize}
+          height={h + 20}
+          viewBox={`0 0 ${pixelSize} ${h + 20}`}
+          role="img"
+          aria-label="Fanning Bible pages"
+          className="filter drop-shadow-sm"
+        >
+          {/* Path 1 - Top arc */}
+          <path
+            d={d1a}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={6}
+            strokeLinecap="round"
           >
-            {/* Three curved page arcs with staggered animation */}
-            <path 
-              className="fan-path"
-              style={{ '--i': 0 } as any}
-              d="M10,40 Q60,10 110,40"
+            <animate 
+              attributeName="d"
+              dur={`${duration}ms`}
+              repeatCount="indefinite"
+              values={`${d1a};${d1b};${d1a}`} 
             />
-            <path 
-              className="fan-path"
-              style={{ '--i': 1 } as any}  
-              d="M10,50 Q60,20 110,50"
+          </path>
+
+          {/* Path 2 - Middle arc (staggered 0.1s) */}
+          <path
+            d={d2a}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={6}
+            strokeLinecap="round"
+          >
+            <animate 
+              attributeName="d"
+              dur={`${duration}ms`}
+              begin="0.1s"
+              repeatCount="indefinite"
+              values={`${d2a};${d2b};${d2a}`} 
             />
-            <path 
-              className="fan-path"
-              style={{ '--i': 2 } as any}
-              d="M10,60 Q60,30 110,60"
+          </path>
+
+          {/* Path 3 - Bottom arc (staggered 0.2s) */}
+          <path
+            d={d3a}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={6}
+            strokeLinecap="round"
+          >
+            <animate 
+              attributeName="d"
+              dur={`${duration}ms`}
+              begin="0.2s"
+              repeatCount="indefinite"
+              values={`${d3a};${d3b};${d3a}`} 
             />
-            
-            {/* Divine sparkles around the fan */}
-            <circle 
-              className="divine-sparkle"
-              style={{ '--spark-delay': 0 } as any}
-              cx="25" 
-              cy="25" 
-              r="1.5" 
-              fill="#daa520"
-            />
-            <circle 
-              className="divine-sparkle"
-              style={{ '--spark-delay': 1 } as any}
-              cx="95" 
-              cy="30" 
-              r="1" 
-              fill="#daa520"
-            />
-            <circle 
-              className="divine-sparkle"
-              style={{ '--spark-delay': 2 } as any}
-              cx="60" 
-              cy="15" 
-              r="1.2" 
-              fill="#daa520"
-            />
-            <circle 
-              className="divine-sparkle"
-              style={{ '--spark-delay': 1.5 } as any}
-              cx="80" 
-              cy="55" 
-              r="0.8" 
-              fill="#daa520"
-            />
-          </svg>
-        </div>
+          </path>
+          
+          {/* Divine sparkles with SMIL animation */}
+          <circle cx={pixelSize * 0.2} cy={h * 0.3} r="1.5" fill="#daa520" opacity="0.7">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx={pixelSize * 0.8} cy={h * 0.4} r="1" fill="#daa520" opacity="0.7">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="0.7s" repeatCount="indefinite" />
+          </circle>
+          <circle cx={pixelSize * 0.5} cy={h * 0.1} r="1.2" fill="#daa520" opacity="0.7">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="1.3s" repeatCount="indefinite" />
+          </circle>
+        </svg>
       </div>
     </div>
   );

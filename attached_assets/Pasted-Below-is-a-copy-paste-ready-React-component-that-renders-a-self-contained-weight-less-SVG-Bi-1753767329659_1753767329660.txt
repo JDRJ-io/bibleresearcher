@@ -1,0 +1,127 @@
+Below is a **copy‑/‑paste‑ready** React component that renders a self‑contained, weight‑less SVG “Bible‑pages” fan‑animation.  No external images, no sprite sheet, no libraries—just three stroked paths that morph a few pixels back and forth and are time‑shifted so they ripple like pages catching a gentle breeze.
+
+```tsx
+// components/BiblePageFan.tsx
+import React from 'react';
+
+/**
+ * BiblePageFan
+ * ------------
+ * Lightweight SVG morph animation that suggests pages fanning.
+ *
+ * Props
+ * ─────
+ * size      : overall width in pixels   (default 120)
+ * stroke    : page line color           (default "#2fc2ff")
+ * duration  : full loop time in ms      (default 1400)
+ */
+export default function BiblePageFan({
+  size = 120,
+  stroke = '#2fc2ff',
+  duration = 1400,
+}: {
+  size?: number;
+  stroke?: string;
+  duration?: number;
+}) {
+  const h = size * 0.45;           // keep nice aspect ratio
+  const d1a = 'M10,' + (h - 10) + ` Q${size / 2},5 ${size - 10},${h - 10}`;  // tighter
+  const d1b = 'M6,'  + (h - 18) + ` Q${size / 2},0 ${size - 6},${h - 18}`;   // looser
+
+  const d2a = 'M10,' + (h - 2)  + ` Q${size / 2},13 ${size - 10},${h - 2}`;
+  const d2b = 'M6,'  + (h - 6)  + ` Q${size / 2}, 9 ${size - 6},${h - 6}`;
+
+  const d3a = 'M10,' + (h + 6)  + ` Q${size / 2},21 ${size - 10},${h + 6}`;
+  const d3b = 'M6,'  + (h + 10) + ` Q${size / 2},25 ${size - 6},${h + 10}`;
+
+  return (
+    <svg
+      width={size}
+      height={h + 20}
+      viewBox={`0 0 ${size} ${h + 20}`}
+      role="img"
+      aria-label="Fanning Bible pages"
+    >
+      {/* path 1 */}
+      <path
+        d={d1a}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={6}
+        strokeLinecap="round"
+      >
+        <animate attributeName="d"
+                 dur={`${duration}ms`}
+                 repeatCount="indefinite"
+                 values={`${d1a};${d1b};${d1a}`} />
+      </path>
+
+      {/* path 2 (staggered 0.1 s) */}
+      <path
+        d={d2a}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={6}
+        strokeLinecap="round"
+      >
+        <animate attributeName="d"
+                 dur={`${duration}ms`}
+                 begin="0.1s"
+                 repeatCount="indefinite"
+                 values={`${d2a};${d2b};${d2a}`} />
+      </path>
+
+      {/* path 3 (staggered 0.2 s) */}
+      <path
+        d={d3a}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={6}
+        strokeLinecap="round"
+      >
+        <animate attributeName="d"
+                 dur={`${duration}ms`}
+                 begin="0.2s"
+                 repeatCount="indefinite"
+                 values={`${d3a};${d3b};${d3a}`} />
+      </path>
+    </svg>
+  );
+}
+```
+
+### How it works
+
+| Piece                       | Purpose                                                                                |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| **Three `<path>` elements** | Represent three “stacks” of pages.                                                     |
+| **`<animate>` tag**         | Morphs each path’s **`d`** attribute between two curves (`tight` → `loose` → `tight`). |
+| **Staggered `begin` times** | 0 s, 0.1 s, 0.2 s → subtle ripple, not all arcs move together.                         |
+| **Duration prop**           | Control speed without touching the SVG.                                                |
+
+### Footprint & performance
+
+* **Network:** inlined in the bundle, so **0 extra requests**.
+* **Size:** \~1.2 kB gzip.
+* **RAM/GPU:** three vector paths; virtually nothing.
+* **CPU:** SMIL animation off‑loads to the browser compositor; no JS re‑renders.
+
+### Drop‑in usage
+
+```tsx
+import BiblePageFan from '@/components/BiblePageFan';
+
+<div className="flex flex-col items-center gap-4">
+  <BiblePageFan size={140} stroke="#ffd86b" duration={1600} />
+  <span className="text-sm text-gray-300">Navigating…</span>
+</div>
+```
+
+---
+
+## If your agent still insists on “literal pages”
+
+1. **Tell it to treat each path as one “page‑stack,” not individual sheets.**
+2. Reinforce that we’re morphing *control points*, not toggling full images.
+
+This single component should replace the orange‑arc mis‑attempt you screenshotted and finally give you that flowing, holy‑but‑minimal “pages in the wind” loader you’ve been chasing. 🙌
