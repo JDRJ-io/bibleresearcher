@@ -9,6 +9,7 @@ import { ColumnHeaders } from "./ColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
+import { useAdaptiveWidths } from '@/hooks/useAdaptiveWidths';
 import { useOrientation } from '@/hooks/useOrientation';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
@@ -361,6 +362,9 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   
   // Responsive column system
   const responsiveConfig = useResponsiveColumns();
+  // Expert's lightweight CSS-first adaptive system
+  useAdaptiveWidths();
+  
   const adaptiveConfig = useAdaptivePortraitColumns();
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';

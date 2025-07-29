@@ -271,9 +271,12 @@ body {
 
 
 
-/* Precision Adaptive Portrait Column System */
+/* Expert's CSS-first adaptive column system */
 :root {
-  /* Dynamic CSS variables set by useAdaptivePortraitColumns hook */
+  --ref-w: 72px;          /* Reference column - fixed width */
+  --col-w: auto;          /* Default for desktop columns */
+  
+  /* Dynamic CSS variables set by useAdaptivePortraitColumns hook (legacy) */
   --adaptive-ref-width: 72px;          /* Reference column - dynamically calculated */
   --adaptive-main-width: 352px;        /* Main translation - dynamically calculated */
   --adaptive-cross-width: 288px;       /* Cross-reference - dynamically calculated */
@@ -288,6 +291,40 @@ body {
   --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
   --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
   --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
+}
+
+.bibleTable {
+  display: grid;
+  grid-auto-columns: max-content; /* keeps desktop sizing logic */
+  grid-auto-flow: column;
+}
+
+/* Expert's adaptive portrait rule */
+@media (orientation: portrait) {
+  :root {
+    /* JS will update --vw-free in real time via useAdaptiveWidths hook */
+    --main-xref-w: calc(var(--vw-free) / 2);
+  }
+
+  .bibleTable {
+    /* Three columns locked, rest overflow horizontally */
+    grid-auto-columns: var(--main-xref-w);
+    grid-template-columns:
+      var(--ref-w)          /* Ref column – fixed width   */
+      var(--main-xref-w)    /* Main translation – flex    */
+      var(--main-xref-w)    /* Cross reference – flex     */
+      repeat(auto-fill, max-content); /* any other columns */
+    overflow-x: auto;       /* scrollbar for "extra" cols */
+    
+    /* Expert's scroll enhancements */
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  .bibleTable > * {
+    scroll-snap-align: start; /* Snap to column boundaries */
+  }
 }
 
 /* Table wrapper - expert's flexbox centering with auto-scroll */
