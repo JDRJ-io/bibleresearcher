@@ -7,10 +7,19 @@ export function makeScrollToVerse(containerRef: React.RefObject<HTMLDivElement>)
 
   return (ref: string) => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      console.log('📜 scrollToVerse: No container found');
+      return;
+    }
     
+    console.log('📜 scrollToVerse called with:', ref);
     const idx = verseKeys.findIndex(k => k === ref || k.replace(/\./g,' ') === ref || k.replace(/\s/g,'.') === ref);
-    if (idx === -1) return;
+    console.log('📜 scrollToVerse verse index:', idx, 'out of', verseKeys.length, 'verses');
+    
+    if (idx === -1) {
+      console.log('📜 scrollToVerse: Verse not found:', ref, 'First few keys:', verseKeys.slice(0, 10));
+      return;
+    }
 
     const containerH = container.clientHeight;
     const target = (idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2);
