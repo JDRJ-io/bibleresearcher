@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, Book, Filter, ArrowUp, ArrowDown, Settings } from 'lucide-react';
+import { Search, X, Book, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
@@ -24,6 +24,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const [displayedResults, setDisplayedResults] = useState(50);
   const [allResults, setAllResults] = useState<SearchResult[]>([]);
   const [searchAllTranslations, setSearchAllTranslations] = useState(false);
+  
+  // Advanced navigation state
+  const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [searchMode, setSearchMode] = useState<'smart' | 'exact' | 'fuzzy'>('smart');
+  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
   
   const bibleStore = useBibleStore();
   const verseKeys = bibleStore?.currentVerseKeys || [];
@@ -65,8 +72,24 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       setSearchQuery('');
       setSearchResults([]);
       setHasSearched(false);
+      setSelectedResultIndex(-1);
+      setShowHistory(false);
     }
   }, [isOpen]);
+
+  // Auto-scroll to selected result
+  useEffect(() => {
+    if (selectedResultIndex >= 0) {
+      const resultElement = document.querySelector(`[data-result-index="${selectedResultIndex}"]`);
+      if (resultElement) {
+        resultElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [selectedResultIndex]);
 
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -77,25 +100,49 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
     
     setIsSearching(true);
     setHasSearched(true);
+    setSelectedResultIndex(-1); // Reset selection
     
     try {
+      // Add to search history
+      if (searchQuery.trim() && !searchHistory.includes(searchQuery.trim())) {
+        setSearchHistory(prev => [searchQuery.trim(), ...prev.slice(0, 9)]); // Keep last 10 searches
+      }
+      
       // Small delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      console.log(`🔍 Searching "${searchQuery}" across ${versesWithText.length} verses with translation: ${activeTranslation}`);
-      console.log(`🔍 Sample verse data:`, versesWithText.slice(0, 3));
+      console.log(`🔍 Advanced Search: "${searchQuery}" mode: ${searchMode}, translations: ${selectedTranslations.join(',')}`);
       
-      const results = searchEngine.search(searchQuery, activeTranslation, 10000, searchAllTranslations);
+      let results: SearchResult[];
       
-      console.log(`🔍 Search found ${results.length} results`);
-      console.log(`🔍 Sample results:`, results.slice(0, 3));
+      // Enhanced search based on mode
+      switch (searchMode) {
+        case 'exact':
+          results = searchEngine.search(`"${searchQuery}"`, activeTranslation, 10000, searchAllTranslations);
+          break;
+        case 'fuzzy':
+          results = searchEngine.search(searchQuery, activeTranslation, 10000, true); // Enable fuzzy matching
+          break;
+        default: // 'smart'
+          results = searchEngine.search(searchQuery, activeTranslation, 10000, searchAllTranslations);
+      }
       
-      // Filter to text-only results
-      const textResults = results.filter(r => r.type === 'text');
+      console.log(`🔍 Search found ${results.length} results in ${searchMode} mode`);
+      
+      // Filter to text-only results and sort by confidence
+      const textResults = results
+        .filter(r => r.type === 'text')
+        .sort((a, b) => b.confidence - a.confidence);
+      
       console.log(`🔍 Text-only results: ${textResults.length}`);
       
       setAllResults(textResults);
       setSearchResults(textResults.slice(0, displayedResults));
+      
+      // Auto-select first result for keyboard navigation
+      if (textResults.length > 0) {
+        setSelectedResultIndex(0);
+      }
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
@@ -106,13 +153,80 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      performSearch();
+      if (selectedResultIndex >= 0 && searchResults.length > 0) {
+        // Navigate to selected result
+        handleResultClick(searchResults[selectedResultIndex]);
+      } else {
+        // Perform new search
+        performSearch();
+      }
+      return;
+    }
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (searchResults.length > 0) {
+        setSelectedResultIndex(prev => 
+          prev < searchResults.length - 1 ? prev + 1 : 0
+        );
+      }
+      return;
+    }
+    
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (searchResults.length > 0) {
+        setSelectedResultIndex(prev => 
+          prev > 0 ? prev - 1 : searchResults.length - 1
+        );
+      }
+      return;
+    }
+    
+    if (e.key === 'Escape') {
+      if (selectedResultIndex >= 0) {
+        setSelectedResultIndex(-1);
+      } else {
+        onClose();
+      }
+      return;
+    }
+    
+    // Quick navigation shortcuts
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'f':
+          e.preventDefault();
+          setShowAdvanced(!showAdvanced);
+          break;
+        case 'h':
+          e.preventDefault();
+          setShowHistory(!showHistory);
+          break;
+        case 'r':
+          e.preventDefault();
+          getRandomVerse();
+          break;
+      }
     }
   };
 
   const handleResultClick = (result: SearchResult) => {
+    console.log(`🎯 Navigating to verse: ${result.verseId} from search result`);
     onNavigateToVerse(result.verseId);
     onClose();
+  };
+
+  const handleHistoryClick = (query: string) => {
+    setSearchQuery(query);
+    setShowHistory(false);
+    // Auto-search when clicking history
+    setTimeout(() => performSearch(), 100);
+  };
+
+  const clearSearchHistory = () => {
+    setSearchHistory([]);
+    setShowHistory(false);
   };
 
   const getRandomVerse = () => {
@@ -176,11 +290,116 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
             <Button 
               variant="outline" 
               onClick={getRandomVerse}
-              title="Random Verse"
+              title="Random Verse (Ctrl+R)"
             >
               <Book className="w-4 h-4" />
             </Button>
+            <Button
+              variant={showHistory ? 'default' : 'outline'}
+              onClick={() => setShowHistory(!showHistory)}
+              title="Search History (Ctrl+H)"
+              disabled={searchHistory.length === 0}
+            >
+              <History className="w-4 h-4" />
+            </Button>
           </div>
+
+          {/* Quick Actions Row */}
+          <div className="flex flex-wrap gap-2">
+            {/* Search Mode Selector */}
+            <div className="flex items-center gap-1 border rounded-md p-1">
+              <Button
+                variant={searchMode === 'smart' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setSearchMode('smart')}
+                className="h-8 px-2 text-xs"
+              >
+                <Zap className="w-3 h-3 mr-1" />
+                Smart
+              </Button>
+              <Button
+                variant={searchMode === 'exact' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setSearchMode('exact')}
+                className="h-8 px-2 text-xs"
+              >
+                <Target className="w-3 h-3 mr-1" />
+                Exact
+              </Button>
+              <Button
+                variant={searchMode === 'fuzzy' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setSearchMode('fuzzy')}
+                className="h-8 px-2 text-xs"
+              >
+                <Filter className="w-3 h-3 mr-1" />
+                Fuzzy
+              </Button>
+            </div>
+
+            {/* Keyboard Shortcuts Help */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => alert(`Keyboard Shortcuts:
+• Enter: Search or navigate to selected result
+• ↑↓: Navigate through results
+• Escape: Clear selection or close
+• Ctrl+F: Toggle advanced options
+• Ctrl+H: Toggle search history
+• Ctrl+R: Random verse`)}
+              className="h-8 px-2 text-xs"
+            >
+              <Keyboard className="w-3 h-3 mr-1" />
+              Help
+            </Button>
+
+            {/* Results Info */}
+            {hasSearched && (
+              <div className="flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs">
+                <span className="font-medium">{searchResults.length}</span>
+                <span className="text-gray-500 ml-1">results</span>
+                {selectedResultIndex >= 0 && (
+                  <span className="ml-2 text-blue-600 dark:text-blue-400">
+                    [{selectedResultIndex + 1}/{searchResults.length}]
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Search History */}
+          {showHistory && searchHistory.length > 0 && (
+            <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm font-medium">Recent Searches</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSearchHistory}
+                  className="h-6 px-2 text-xs text-gray-500"
+                >
+                  Clear
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {searchHistory.map((query, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleHistoryClick(query)}
+                    className="h-7 px-2 text-xs hover:bg-blue-50 dark:hover:bg-blue-900"
+                  >
+                    {query}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Advanced Options */}
           {showAdvanced && (
@@ -226,20 +445,47 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
             </div>
           )}
 
-          {/* Search Examples */}
+          {/* Search Examples & Tips */}
           {!hasSearched && (
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              <p className="font-medium mb-2">Search Examples:</p>
+            <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
               <div>
-                <strong>Text Search Examples:</strong>
-                <ul className="ml-4 space-y-1 grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <li>• "love your enemies"</li>
-                  <li>• "faith hope love"</li>
-                  <li>• "in the beginning"</li>
-                  <li>• "fear not"</li>
-                  <li>• "blessed are"</li>
-                  <li>• "I am the way"</li>
-                </ul>
+                <p className="font-medium mb-2 flex items-center gap-2">
+                  <Search className="w-4 h-4" />
+                  Search Examples:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <strong>Text Search:</strong>
+                    <ul className="ml-4 space-y-1">
+                      <li>• "love your enemies"</li>
+                      <li>• "faith hope love"</li>
+                      <li>• "in the beginning"</li>
+                      <li>• "fear not"</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>Reference Search:</strong>
+                    <ul className="ml-4 space-y-1">
+                      <li>• John 3:16</li>
+                      <li>• Psalm 23</li>
+                      <li>• Genesis 1:1-3</li>
+                      <li>• Romans 8</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p className="font-medium mb-1 flex items-center gap-2">
+                  <Keyboard className="w-4 h-4" />
+                  Keyboard Shortcuts:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Enter</kbd> Search or navigate</div>
+                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">↑↓</kbd> Browse results</div>
+                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Ctrl+H</kbd> Search history</div>
+                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Ctrl+R</kbd> Random verse</div>
+                </div>
               </div>
             </div>
           )}
@@ -293,14 +539,28 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                   {searchResults.map((result, index) => (
                     <div
                       key={`${result.verseId}-${index}`}
+                      data-result-index={index}
                       onClick={() => handleResultClick(result)}
-                      className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                        selectedResultIndex === index
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-md ring-2 ring-blue-200 dark:ring-blue-800'
+                          : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
                     >
                       <div className="flex items-start justify-between mb-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-blue-600 dark:text-blue-400">
+                          <span className={`font-medium ${
+                            selectedResultIndex === index 
+                              ? 'text-blue-700 dark:text-blue-300' 
+                              : 'text-blue-600 dark:text-blue-400'
+                          }`}>
                             {result.reference}
                           </span>
+                          {selectedResultIndex === index && (
+                            <Badge variant="default" className="text-xs bg-blue-600 text-white">
+                              Selected
+                            </Badge>
+                          )}
                           {result.translationCode && searchAllTranslations && (
                             <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                               {result.translationCode}
@@ -312,11 +572,27 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                             </span>
                           )}
                         </div>
+                        {selectedResultIndex === index && (
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded text-xs">Enter</kbd>
+                          </div>
+                        )}
                       </div>
                       <div 
-                        className="text-sm leading-relaxed"
+                        className={`text-sm leading-relaxed ${
+                          selectedResultIndex === index 
+                            ? 'text-gray-900 dark:text-gray-100' 
+                            : 'text-gray-700 dark:text-gray-300'
+                        }`}
                         dangerouslySetInnerHTML={{ __html: result.highlightedText }}
                       />
+                      {selectedResultIndex === index && (
+                        <div className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                          <span>Press Enter to navigate</span>
+                          <span>•</span>
+                          <span>Use ↑↓ arrows to browse</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
