@@ -120,6 +120,13 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
   if (!isOpen) return null;
 
+  // Handle click outside to close menu
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   const tabs = [
     { id: "main-translation", label: "Main Translation", icon: Book },
     { id: "alt-translations", label: "Alt Translations", icon: Book },
@@ -403,9 +410,16 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   };
 
   return (
-    <div className="hamburger-menu fixed top-20 right-2 sm:right-4 z-40">
-      {/* Sleek Tab Bar */}
-      <div className="flex">
+    <>
+      {/* Backdrop overlay for click-outside functionality */}
+      <div 
+        className="fixed inset-0 z-30 bg-transparent"
+        onClick={handleOverlayClick}
+      />
+      
+      <div className="hamburger-menu fixed top-20 right-2 sm:right-4 z-40">
+        {/* Sleek Tab Bar */}
+        <div className="flex">
         <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
@@ -463,6 +477,6 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

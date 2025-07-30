@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -254,7 +254,22 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+      <DialogContent 
+        className="max-w-4xl max-h-[85vh] flex flex-col"
+        onInteractOutside={(e) => {
+          // Allow clicking outside to close the modal
+          onClose();
+        }}
+        onEscapeKeyDown={(e) => {
+          // Enhanced escape key handling
+          if (selectedResultIndex >= 0) {
+            e.preventDefault();
+            setSelectedResultIndex(-1);
+          } else {
+            onClose();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
