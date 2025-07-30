@@ -112,7 +112,6 @@ The cross-reference loading system has multiple layers that could be optimized:
   - **Verse Index Cache Fix**: Added `clearVerseIndexCache()` call when toggling canonical/chronological order to prevent wrong verse lookups
   - **Scroll Bounds Protection**: Added max scroll calculation to prevent scrolling beyond content bounds
   - **Precision Improvements**: Enhanced scroll position calculation with proper rounding and bounds checking
-  - **Expert's Two-Mode Layout**: Implementing production-ready portrait/landscape system with orientation-specific CSS classes
   - **Testing**: Verified fixes eliminate 5-6 verse jumps during scrolling and improve navigation accuracy
 - **July 29, 2025: PRECISION-ADAPTIVE PORTRAIT COLUMN SYSTEM COMPLETED ✅**
   - **Guaranteed Core Column Fit**: Created useAdaptivePortraitColumns hook that ensures reference, main translation, and cross-reference columns always fit in portrait viewport

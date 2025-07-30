@@ -5,11 +5,6 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
-      screens: {
-        /* Expert's True device orientation breakpoints */
-        portrait: { raw: '(orientation: portrait)' },
-        landscape: { raw: '(orientation: landscape)' },
-      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
