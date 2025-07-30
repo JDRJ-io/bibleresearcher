@@ -22,6 +22,7 @@ import { useBibleStore } from "@/App";
 import { useBibleData } from "@/hooks/useBibleData";
 import { useVerseNav } from "@/hooks/useVerseNav";
 import { makeScrollToVerse } from "@/utils/scrollToVerse";
+import { getVerseIndex } from "@/lib/verseIndexMap";
 
 import type {
   BibleVerse,
@@ -332,42 +333,41 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return () => observer.disconnect();
   }, []);
   
-  // Navigation system for back/forward buttons
+  // Navigation system for back/forward buttons - OPTIMIZED for instant navigation
   const scrollToVerse = useCallback((ref: string) => {
-    console.log('📜 VirtualBibleTable scrollToVerse called with:', ref, 'container exists:', !!containerRef.current);
+    console.log('🚀 INSTANT VirtualBibleTable scrollToVerse called with:', ref, 'container exists:', !!containerRef.current);
     if (!containerRef.current) {
       console.log('📜 VirtualBibleTable scrollToVerse: container not available');
       return;
     }
     
-    // Normalize reference format - handle both "John 1:1" and "John.1:1"
-    const normalizedRef = ref.includes(' ') ? ref.replace(/\s/g, '.') : ref;
-    const idx = verseKeys.findIndex(k => k === normalizedRef);
-    console.log('📜 VirtualBibleTable scrollToVerse: searching for', normalizedRef, 'found index', idx, 'out of', verseKeys.length);
+    // ⚡ PERFORMANCE FIX: Use O(1) Map lookup instead of O(n) findIndex
+    const idx = getVerseIndex(ref);
+    console.log('🚀 INSTANT lookup found index', idx, 'for verse', ref);
     
     if (idx === -1) {
-      console.log('📜 VirtualBibleTable scrollToVerse: verse not found in keys');
-      console.log('📜 First few verse keys:', verseKeys.slice(0, 10));
+      console.log('📜 VirtualBibleTable scrollToVerse: verse not found in index map');
       return;
     }
 
     const containerH = containerRef.current.clientHeight;
     const target = (idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2);
-    console.log('📜 VirtualBibleTable scrollToVerse: scrolling to position', target, 'for verse at index', idx);
+    console.log('🚀 INSTANT scrolling to position', target, 'for verse at index', idx);
 
     // Use direct scrollTop assignment for immediate response
     containerRef.current.scrollTop = Math.max(0, target);
 
-    // Flash highlight
+    // Flash highlight with normalized reference
+    const normalizedRef = ref.includes(' ') ? ref.replace(/\s/g, '.') : ref;
     setTimeout(() => {
       const el = document.querySelector(`[data-verse-ref="${normalizedRef}"]`) as HTMLElement | null;
-      console.log('📜 VirtualBibleTable scrollToVerse: highlight element found:', !!el, 'for ref:', normalizedRef);
+      console.log('🚀 INSTANT highlight element found:', !!el, 'for ref:', normalizedRef);
       if (el) {
         el.classList.add('verse-highlight-flash');
         setTimeout(() => el.classList.remove('verse-highlight-flash'), 400);
       }
     }, 25);
-  }, [verseKeys]);
+  }, []);
   
   // Expose the scroll function and container to parent via ref
   useImperativeHandle(ref, () => ({
