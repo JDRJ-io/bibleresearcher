@@ -52,7 +52,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
 
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
-    
+
     // Only stop propagation to prevent scroll interference, but allow the click to proceed
     e.stopPropagation();
 
@@ -316,20 +316,20 @@ function MainTranslationCell({
   let contextClasses = '';
   if (showContext && contextBoundary) {
     const borderColor = 'border-blue-300 dark:border-blue-700';
-    
+
     // Top border for start of context
     if (isContextStart) {
       contextClasses += ` border-t-2 ${borderColor}`;
     }
-    
+
     // Bottom border for end of context
     if (isContextEnd) {
       contextClasses += ` border-b-2 ${borderColor}`;
     }
-    
+
     // Left and right borders for all verses in context
     contextClasses += ` border-l-2 border-r-2 ${borderColor}`;
-    
+
     // Light background to show context grouping
     contextClasses += ' bg-blue-50/30 dark:bg-blue-900/10';
   }
@@ -373,7 +373,7 @@ export function VirtualRow({
   // FIX #1: Use translation store as SINGLE source of truth for mainTranslation
   const store = useBibleStore();
   const { main: mainTranslation, alternates } = useTranslationMaps();
-  
+
   // Debug translation store state (only for first verse to avoid spam)
   if (verse.reference === "Gen 1:1") {
     console.log('🔍 VirtualRow translation state:', { mainTranslation, alternates });
@@ -469,7 +469,7 @@ export function VirtualRow({
           // Extended alternate translations: slots 12-19 (8 additional slots)
           slot = 12 + (index - 4);
         }
-        
+
         if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
           slotConfig[slot] = { 
             type: 'alt-translation', 
@@ -557,16 +557,16 @@ export function VirtualRow({
         console.warn(`No column info found for slot ${slotNumber}`);
         return '160px'; // fallback
       }
-      
+
       // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
       const isPortrait = window.innerHeight > window.innerWidth;
-      
+
       if (isPortrait) {
         // Portrait mode - use precision adaptive widths
         if (slotNumber === 0) return 'var(--adaptive-ref-width)'; // Reference column
         if (slotNumber === 2 && config.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main translation
         if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross references
-        
+
         // Handle alternate translations and other column types
         if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--adaptive-alt-width)'; // Alternate translations
         if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
@@ -577,14 +577,14 @@ export function VirtualRow({
         if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
         if (slotNumber === 2 && config.type === 'main-translation') return 'var(--w-main)'; // Main translation
         if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
-        
+
         // Handle alternate translations and other column types
         if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--w-alt)'; // Alternate translations
         if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
         if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
         if (config.type === 'context') return '12rem'; // Context/dates column
       }
-      
+
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
       const pixelWidth = columnInfo.widthRem * 16;
       return `${pixelWidth}px`;
@@ -695,7 +695,7 @@ export function VirtualRow({
   // Calculate actual total width from columnState - SAME as ColumnHeaders
   const actualTotalWidth = useMemo(() => {
     if (!columnState?.columns) return 0;
-    
+
     return visibleColumns.reduce((total, col) => {
       const columnInfo = columnState.columns.find(c => c.slot === col.slot);
       if (columnInfo) {

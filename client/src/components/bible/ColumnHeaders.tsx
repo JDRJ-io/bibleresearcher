@@ -2,8 +2,8 @@ import { useMemo, useState, useEffect } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps, useColumnKeys } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
-import { getVisibleColumns, getColumnWidth, COLUMN_LAYOUT } from '@/constants/columnLayout';
-import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
+import { getColumnWidth } from '@/constants/orientationWidths';
+import { getVisibleColumns, getColumnWidth as getColumnWidthLegacy, COLUMN_LAYOUT } from '@/constants/columnLayout';
 import { 
   DndContext, 
   closestCenter,
@@ -83,8 +83,8 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable, columnState
 }
 
 function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
-  const responsiveConfig = useResponsiveColumns();
-  
+  const responsiveConfig = getColumnWidthLegacy();
+
   // Get responsive width based on portrait/landscape mode
   const getResponsiveSlotWidth = (columnState: any, slot: number): string => {
     const columnInfo = columnState.columns.find((col: any) => col.slot === slot);
@@ -92,18 +92,18 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       console.warn(`No column info found for slot ${slot}`);
       return '160px'; // fallback
     }
-    
+
     // Use expert's CSS variable system for responsive column widths
     if (slot === 0) return 'var(--w-ref)'; // Reference column
     if (slot === 2 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
     if (slot === 7 && column.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
-    
+
     // Handle alternate translations and other column types
     if (column.type === 'translation' && slot !== 2) return 'var(--w-alt)'; // Alternate translations
     if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
     if (column.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
     if (column.type === 'context') return '12rem'; // Context/dates column
-    
+
     // Convert rem to pixels for other columns (assuming 1rem = 16px)
     const pixelWidth = columnInfo.widthRem * 16;
     return `${pixelWidth}px`;
@@ -146,7 +146,6 @@ export function ColumnHeaders({
   isGuest = true 
 }: ColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
-  const responsiveConfig = useResponsiveColumns();
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   // Make headers adaptive to screen size changes
@@ -245,7 +244,7 @@ export function ColumnHeaders({
       .forEach((translationCode, index) => {
         // All alternate translations start from slot 12 (AFTER cross-references)
         const slot = 12 + index;
-        
+
         if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
           slotConfig[slot] = { 
             type: 'translation', 
@@ -363,7 +362,7 @@ export function ColumnHeaders({
   // Calculate actual total width from columnState for accurate measurement
   const actualTotalWidth = useMemo(() => {
     if (!columnState?.columns) return 0;
-    
+
     return visibleColumns.reduce((total, col) => {
       const columnInfo = columnState.columns.find(c => c.slot === col.slot);
       if (columnInfo) {
@@ -408,15 +407,15 @@ export function ColumnHeaders({
   // Handle drag end event
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
-    
+
     // Extract slot numbers from drag IDs
     const activeSlot = parseInt((active.id as string).replace('column-', ''));
     const overSlot = parseInt((over.id as string).replace('column-', ''));
-    
+
     console.log(`🔄 Reordering columns: slot ${activeSlot} → slot ${overSlot}`);
-    
+
     // Call the store's reorder function
     columnState.reorder(activeSlot, overSlot);
   };
