@@ -476,6 +476,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
             </svg>
           </button>
         </div>
+        </div>
       </div>
     </>
   );
