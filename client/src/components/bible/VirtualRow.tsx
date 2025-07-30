@@ -53,7 +53,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('🔗 Cross-reference clicked in cell:', ref, 'Handler available:', !!onVerseClick);
+    console.log('🔗 Cross-reference clicked:', ref, '-> navigating to verse');
 
     if (onVerseClick) {
       onVerseClick(ref);
