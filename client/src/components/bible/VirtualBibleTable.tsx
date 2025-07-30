@@ -351,11 +351,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
 
     const containerH = containerRef.current.clientHeight;
-    const target = (idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2);
+    // FIXED: More precise scroll calculation - center the verse exactly
+    const target = Math.round((idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2));
     console.log('🚀 INSTANT scrolling to position', target, 'for verse at index', idx);
 
-    // Use direct scrollTop assignment for immediate response
-    containerRef.current.scrollTop = Math.max(0, target);
+    // Use direct scrollTop assignment for immediate response, ensure bounds
+    const maxScroll = (verseKeys.length * ROW_HEIGHT) - containerH;
+    containerRef.current.scrollTop = Math.max(0, Math.min(target, maxScroll));
 
     // Flash highlight with normalized reference
     const normalizedRef = ref.includes(' ') ? ref.replace(/\s/g, '.') : ref;

@@ -104,6 +104,15 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
+- **July 30, 2025: VERSE SCROLLING JUMPING BUG FIXED ✅**
+  - **Root Cause Identified**: Height calculation mismatch between dynamic `calculateTextHeight()` and fixed `ROW_HEIGHT = 120px`
+  - **Primary Fix**: Eliminated dynamic height calculation - all verses now use consistent 120px height matching `ROW_HEIGHT` constant
+  - **Anchor Calculation Improved**: Changed from `Math.floor()` to `Math.round()` for more precise scroll center calculation
+  - **Scroll Threshold Reduced**: Decreased `THRESH` from 10 to 5 rows for smoother chunk loading during fast scrolling
+  - **Verse Index Cache Fix**: Added `clearVerseIndexCache()` call when toggling canonical/chronological order to prevent wrong verse lookups
+  - **Scroll Bounds Protection**: Added max scroll calculation to prevent scrolling beyond content bounds
+  - **Precision Improvements**: Enhanced scroll position calculation with proper rounding and bounds checking
+  - **Testing**: Verified fixes eliminate 5-6 verse jumps during scrolling and improve navigation accuracy
 - **July 29, 2025: PRECISION-ADAPTIVE PORTRAIT COLUMN SYSTEM COMPLETED ✅**
   - **Guaranteed Core Column Fit**: Created useAdaptivePortraitColumns hook that ensures reference, main translation, and cross-reference columns always fit in portrait viewport
   - **Exact Resolution Detection**: Precision width calculations based on actual device dimensions (430×667 detected and optimized)

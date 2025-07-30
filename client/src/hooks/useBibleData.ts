@@ -375,13 +375,10 @@ const createFullBibleWithHeights = async (
 
   const verses: BibleVerse[] = [];
 
-  // Calculate text heights for stable virtual scrolling
+  // FIXED: Use consistent 120px height for all verses to match ROW_HEIGHT constant
+  // This eliminates scroll calculation mismatches that cause verse jumping
   const calculateTextHeight = (text: string): number => {
-    const baseHeight = 40; // Minimum row height
-    const wordsPerLine = 12; // Average words per line in verse column
-    const words = text.split(" ").length;
-    const lines = Math.ceil(words / wordsPerLine);
-    return Math.max(baseHeight, lines * 20 + 20); // 20px per line + padding
+    return 120; // Fixed height matches ROW_HEIGHT constant for accurate scrolling
   };
 
   // Load complete KJV text from Supabase storage

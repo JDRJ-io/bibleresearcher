@@ -27,7 +27,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
   };
 }
 
-const THRESH = 10;  // rows to skip before fetching a new slice
+const THRESH = 5;  // FIXED: Reduced threshold for smoother scrolling - prevent large jumps
 
 export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
   const anchorIndexRef = useRef(0);
@@ -44,13 +44,18 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, ve
 
     const el = containerRef.current;
     const onScroll = () => {
-      const anchor = Math.floor((el.scrollTop + el.clientHeight / 2) / ROW_HEIGHT);
+      // FIXED: More precise anchor calculation to prevent drift
+      const scrollCenter = el.scrollTop + el.clientHeight / 2;
+      const anchor = Math.round(scrollCenter / ROW_HEIGHT); // Use round instead of floor for better precision
       const lastAnchor = anchorIndexRef.current;
       
-      if (Math.abs(anchor - lastAnchor) >= THRESH) {
-        anchorIndexRef.current = anchor;
-        setAnchorIndex(anchor);
-        setSlice(loadChunk(anchor, verseKeys));
+      // Ensure anchor is within valid bounds
+      const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
+      
+      if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
+        anchorIndexRef.current = clampedAnchor;
+        setAnchorIndex(clampedAnchor);
+        setSlice(loadChunk(clampedAnchor, verseKeys));
       }
     };
 

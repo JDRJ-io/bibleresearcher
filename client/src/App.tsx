@@ -367,6 +367,11 @@ export const useBibleStore = create<{
     // IMMEDIATE EXECUTION: Just load the new verse order
     (async () => {
       try {
+        // CRITICAL FIX: Clear verse index cache when switching order to prevent verse jumping
+        const { clearVerseIndexCache } = await import('@/lib/verseIndexMap');
+        clearVerseIndexCache();
+        console.log('🗺️ FIXED: Cleared verse index cache to prevent jumping after order change');
+        
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
