@@ -64,6 +64,15 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     }
   };
 
+  // Debug: Log cross-reference rendering for Gen.1:1
+  if (verse.reference === "Gen.1:1") {
+    console.log('🔗 RENDER DEBUG Gen.1:1:', {
+      crossRefsCount: crossRefs.length,
+      firstFew: crossRefs.slice(0, 3),
+      hasOnVerseClick: !!onVerseClick
+    });
+  }
+
   return (
     <div className="px-2 py-1 text-sm cell-content">
       {crossRefs.length > 0 ? (
@@ -79,9 +88,10 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               <div key={i} className="cross-ref-item block w-full mb-1">
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors bg-red-100 border border-red-500"
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onMouseDown={(e) => e.stopPropagation()}
+                  style={{ minHeight: '24px', minWidth: '60px' }}
                 >
                   {ref}
                 </button>
