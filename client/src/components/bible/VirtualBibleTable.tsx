@@ -445,6 +445,12 @@ function VirtualBibleTable(props: VirtualBibleTableProps) {
       let startX = 0, startY = 0, activeAxis: 'x' | 'y' | null = null;
 
       const onPointerDown = (e: PointerEvent) => {
+        // Don't capture pointer events on buttons or clickable elements
+        if ((e.target as HTMLElement).tagName === 'BUTTON' || 
+            (e.target as HTMLElement).closest('button')) {
+          return;
+        }
+        
         if (e.pointerType === 'touch' || e.pointerType === 'pen') {
           startX = e.clientX;
           startY = e.clientY;
