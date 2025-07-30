@@ -16,7 +16,7 @@ import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 import { useLoadingDetection } from '@/hooks/useLoadingDetection';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
 import { useVerseNav } from '@/hooks/useVerseNav';
-import { makeScrollToVerse } from '@/utils/scrollToVerse';
+import type { VirtualBibleTableHandle } from '@/components/bible/VirtualBibleTable';
 
 import type { BibleVerse } from '@/types/bible';
 
@@ -26,7 +26,7 @@ export default function BiblePage() {
   const [selectedProphecyId, setSelectedProphecyId] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const tableRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<VirtualBibleTableHandle>(null);
 
   // Initialize body class and adaptive scaling
   useBodyClass('bible-page');
@@ -56,8 +56,12 @@ export default function BiblePage() {
     };
   }, [connectionSpeed, startLoading, stopLoading]);
 
-  // Navigation system
-  const scrollToVerse = makeScrollToVerse(tableRef);
+  // Navigation system - use the exposed scroll function from VirtualBibleTable
+  const scrollToVerse = useCallback((ref: string) => {
+    console.log('📜 BiblePage scrollToVerse called with:', ref, 'tableRef.current exists:', !!tableRef.current);
+    tableRef.current?.scrollToVerse(ref);
+  }, []);
+  
   const { goTo, goBack, goForward, canGoBack, canGoForward } = useVerseNav(scrollToVerse);
 
   // Handle URL parameters

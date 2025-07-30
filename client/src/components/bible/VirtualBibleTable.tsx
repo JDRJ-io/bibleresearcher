@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
 import { ROW_HEIGHT } from '@/constants/layout';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -33,6 +33,11 @@ import type {
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import type { LabelName } from '@/lib/labelBits';
 
+export interface VirtualBibleTableHandle {
+  scrollToVerse: (ref: string) => void;
+  get node(): HTMLDivElement | null;
+}
+
 interface VirtualBibleTableProps {
   verses: BibleVerse[];
   selectedTranslations: Translation[];
@@ -50,7 +55,7 @@ interface VirtualBibleTableProps {
   onVerseClick?: (ref: string) => void;
 }
 
-function VirtualBibleTable(props: VirtualBibleTableProps) {
+const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableProps>((props, ref) => {
   const {
     selectedTranslations,
     preferences,
@@ -364,6 +369,14 @@ function VirtualBibleTable(props: VirtualBibleTableProps) {
     }, 25);
   }, [verseKeys]);
   
+  // Expose the scroll function and container to parent via ref
+  useImperativeHandle(ref, () => ({
+    scrollToVerse,
+    get node() {
+      return containerRef.current;
+    },
+  }));
+
   const { goTo } = useVerseNav(scrollToVerse);
 
   // Calculate visible columns for layout logic
@@ -692,7 +705,9 @@ function VirtualBibleTable(props: VirtualBibleTableProps) {
       </div>
     </div>
   );
-}
+});
+
+VirtualBibleTable.displayName = 'VirtualBibleTable';
 
 export default VirtualBibleTable;
 export { VirtualBibleTable };
