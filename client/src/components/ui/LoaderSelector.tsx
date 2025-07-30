@@ -1,50 +1,28 @@
 import React from 'react';
-
-import BibleHairFan from './BibleHairFan';
+import { LoadingWheel } from '../LoadingWheel';
 
 interface LoaderSelectorProps {
   /** Choose which loader to display */
-  type?: 'holy-book' | 'hair-fan';
+  type?: 'blue-circle' | 'loading-wheel';
   /** Size for the loader */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
   /** Additional CSS classes */
   className?: string;
-  /** Color for BibleHairFan (ignored for HolyBookLoader) */
-  color?: string;
-  /** Animation duration for BibleHairFan in ms */
-  duration?: number;
-  /** Fan spread in degrees */
-  spread?: number;
-  /** Number of strands */
-  strands?: number;
+  /** Loading message */
+  message?: string;
 }
 
 export function LoaderSelector({
-  type = 'hair-fan',
-  size = 'md',
+  type = 'blue-circle',
+  size = 'medium',
   className = '',
-  color = '#2fc2ff',
-  duration = 1800,
-  spread = 60,
-  strands = 30,
+  message = 'Loading...'
 }: LoaderSelectorProps) {
-  // Convert size prop to pixel values for BibleHairFan
-  const sizeMap = {
-    sm: 80,
-    md: 120,
-    lg: 160,
-  };
-
-
-
   return (
     <div className={`inline-flex items-center justify-center ${className}`}>
-      <BibleHairFan 
-        size={sizeMap[size]} 
-        color={color} 
-        duration={duration}
-        spread={spread}
-        strands={strands}
+      <LoadingWheel 
+        size={size}
+        message={message}
       />
     </div>
   );

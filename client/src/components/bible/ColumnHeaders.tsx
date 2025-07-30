@@ -93,7 +93,30 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       return '160px'; // fallback
     }
     
-    // Use expert's CSS variable system for responsive column widths
+    // Mobile-specific adaptive width calculations that match content columns
+    if (isMobile) {
+      const viewportWidth = window.innerWidth;
+      const safeWidth = viewportWidth - 40; // Account for padding
+      
+      if (slot === 0) return '32px'; // Reference column - compact on mobile
+      if (slot === 2 && column.type === 'main-translation') {
+        // Main translation gets ~48% of available space
+        return `${Math.floor(safeWidth * 0.48)}px`;
+      }
+      if (slot === 7 && column.type === 'cross-refs') {
+        // Cross references gets ~48% of available space  
+        return `${Math.floor(safeWidth * 0.48)}px`;
+      }
+      
+      // Other mobile columns
+      if (column.type === 'notes') return '80px';
+      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return '64px';
+      if (column.type === 'context') return '80px';
+      
+      return '120px'; // fallback for mobile
+    }
+    
+    // Desktop: Use expert's CSS variable system for responsive column widths
     if (slot === 0) return 'var(--w-ref)'; // Reference column
     if (slot === 2 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
     if (slot === 7 && column.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
@@ -119,11 +142,14 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
   // Add visual indicator for draggable mode
   const draggableClass = isDraggable ? "border-2 border-dashed border-blue-400 bg-blue-50 dark:bg-blue-950" : "";
 
+  const calculatedWidth = getResponsiveSlotWidth(columnState, column.slot);
+  
   return (
     <div 
       className={`bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
       style={{
-        width: `calc(${getResponsiveSlotWidth(columnState, column.slot)} * var(--column-width-mult))`
+        width: isMobile ? calculatedWidth : `calc(${calculatedWidth} * var(--column-width-mult))`,
+        minWidth: isMobile ? calculatedWidth : 'auto'
       }}
     >
       {isDraggable && (
@@ -364,6 +390,23 @@ export function ColumnHeaders({
   const actualTotalWidth = useMemo(() => {
     if (!columnState?.columns) return 0;
     
+    // For mobile, calculate width based on our mobile width logic
+    if (adaptiveIsMobile) {
+      const viewportWidth = window.innerWidth;
+      const safeWidth = viewportWidth - 40;
+      
+      return visibleColumns.reduce((total, col) => {
+        if (col.slot === 0) return total + 32; // Reference
+        if (col.slot === 2 && col.type === 'main-translation') return total + Math.floor(safeWidth * 0.48);
+        if (col.slot === 7 && col.type === 'cross-refs') return total + Math.floor(safeWidth * 0.48);
+        if (col.type === 'notes') return total + 80;
+        if (col.type === 'prophecy-p' || col.type === 'prophecy-f' || col.type === 'prophecy-v') return total + 64;
+        if (col.type === 'context') return total + 80;
+        return total + 120; // fallback
+      }, 0);
+    }
+    
+    // Desktop calculation
     return visibleColumns.reduce((total, col) => {
       const columnInfo = columnState.columns.find(c => c.slot === col.slot);
       if (columnInfo) {
@@ -372,7 +415,7 @@ export function ColumnHeaders({
       }
       return total + 160; // fallback width
     }, 0);
-  }, [visibleColumns, columnState]);
+  }, [visibleColumns, columnState, adaptiveIsMobile]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;

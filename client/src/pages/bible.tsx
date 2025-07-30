@@ -8,7 +8,6 @@ import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
 import { SearchModal } from '@/components/bible/SearchModal';
 import { HamburgerMenu } from '@/components/bible/HamburgerMenu';
 import { LoadingWheel } from '@/components/LoadingWheel';
-import BibleHairFan from '@/components/ui/BibleHairFan';
 import { useBibleData } from '@/hooks/useBibleData';
 import { useHashParams } from '@/hooks/useHashParams';
 import { useBodyClass } from '@/hooks/useBodyClass';
@@ -269,10 +268,7 @@ export default function BiblePage() {
         />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
-              <BibleHairFan size={160} color="#2fc2ff" duration={1000} />
-              <div className="text-muted-foreground animate-pulse">
-                Loading Scripture...
-              </div>
+              <LoadingWheel size="large" message="Loading Scripture..." />
               {connectionSpeed !== 'unknown' && (
                 <div className="text-xs text-muted-foreground/60">
                   Connection: {connectionSpeed}
