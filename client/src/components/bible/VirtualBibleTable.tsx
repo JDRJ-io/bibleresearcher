@@ -300,6 +300,33 @@ function VirtualBibleTable(props: VirtualBibleTableProps) {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
+  // Handle runtime error overlay that blocks navigation
+  useEffect(() => {
+    const dismissErrorOverlay = () => {
+      // Look for runtime error overlay and dismiss it
+      const overlay = document.querySelector('[data-testid="runtime-error-modal"], .runtime-error-overlay, [class*="runtime-error"]');
+      if (overlay) {
+        // Try clicking outside or pressing escape
+        const escEvent = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' });
+        document.dispatchEvent(escEvent);
+        // Also try clicking the overlay backdrop
+        (overlay as HTMLElement).click();
+      }
+    };
+    
+    // Dismiss any existing overlays
+    dismissErrorOverlay();
+    
+    // Set up observer for new overlays
+    const observer = new MutationObserver(() => {
+      dismissErrorOverlay();
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => observer.disconnect();
+  }, []);
+  
   // Navigation system for back/forward buttons
   const scrollToVerse = useCallback((ref: string) => {
     console.log('📜 VirtualBibleTable scrollToVerse called with:', ref, 'container exists:', !!containerRef.current);

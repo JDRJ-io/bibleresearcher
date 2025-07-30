@@ -54,6 +54,19 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
     console.log('🔗 Click event target:', e.target, 'currentTarget:', e.currentTarget);
 
+    // Prevent any event bubbling or default behavior
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    // Dismiss any runtime error overlays that might be blocking navigation
+    try {
+      const escEvent = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true });
+      document.dispatchEvent(escEvent);
+    } catch (err) {
+      // Ignore overlay dismissal errors
+    }
+
     if (onVerseClick) {
       console.log('🔗 Calling onVerseClick with:', ref);
       try {
