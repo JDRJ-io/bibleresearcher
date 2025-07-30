@@ -104,6 +104,14 @@ The cross-reference loading system has multiple layers that could be optimized:
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
 ## Recent Changes
+- **July 30, 2025: BLUE CIRCLE LOADER RESTORATION & ADAPTIVE MOBILE HEADERS COMPLETED ✅**
+  - **Blue Circle Loader Restored**: Completely replaced BibleHairFan with LoadingWheel component across entire platform
+  - **LoaderSelector Updated**: Now exclusively uses blue circle spinner with customizable size and message
+  - **All BibleHairFan References Removed**: Eliminated runtime errors by removing all remaining BibleHairFan imports and usage
+  - **Adaptive Mobile Column Headers**: Implemented mobile-first responsive width calculations that match content columns exactly
+  - **Pixel-Perfect Alignment**: Headers now use same width logic as content - Reference: 32px, Main/Cross-Refs: 48% of available width
+  - **Dynamic Width Calculation**: Real-time viewport-based calculations ensure headers always align with content columns
+  - **Mobile-Desktop Dual System**: Mobile uses pixel calculations, desktop uses CSS variables for optimal performance
 - **July 30, 2025: VERSE SCROLLING JUMPING BUG FIXED ✅**
   - **Root Cause Identified**: Height calculation mismatch between dynamic `calculateTextHeight()` and fixed `ROW_HEIGHT = 120px`
   - **Primary Fix**: Eliminated dynamic height calculation - all verses now use consistent 120px height matching `ROW_HEIGHT` constant
