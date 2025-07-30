@@ -29,18 +29,23 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
 
 const THRESH = 5;  // FIXED: Reduced threshold for smoother scrolling - prevent large jumps
 
-export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
+export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>) {
   const anchorIndexRef = useRef(0);
   const [anchorIndex, setAnchorIndex] = useState(0);
-  const [slice, setSlice] = useState(() => loadChunk(0, verseKeys));
+  const [slice, setSlice] = useState(() => loadChunk(0, []));
 
-  // Reload slice when verse keys change (canonical/chronological toggle)
+  // Get verse keys once and use consistently
+  const verseKeys = getVerseKeys();
+
+  // Initialize slice with verse keys when available
   useLayoutEffect(() => {
-    setSlice(loadChunk(anchorIndexRef.current, verseKeys));
-  }, [verseKeys]);
+    if (verseKeys.length > 0) {
+      setSlice(loadChunk(anchorIndexRef.current, verseKeys));
+    }
+  }, [verseKeys.length]); // Only depend on length to prevent infinite loops
 
   useLayoutEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || verseKeys.length === 0) return;
 
     const el = containerRef.current;
     const onScroll = () => {
@@ -59,9 +64,9 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, ve
       }
     };
 
-    el.addEventListener("scroll", onScroll);
+    el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
-  }, [containerRef, verseKeys]);
+  }, [verseKeys.length]); // Stable dependency
 
   return {
     anchorIndex,
