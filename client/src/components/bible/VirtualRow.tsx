@@ -51,8 +51,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   const crossRefs = crossRefsStore[verse.reference] || [];
 
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
+    // Only prevent default on the click, but allow event to propagate for navigation
     e.preventDefault();
-    e.stopPropagation();
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
 
     if (onVerseClick) {
@@ -88,9 +88,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               <div key={i} className="cross-ref-item block w-full mb-1">
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors bg-red-100 border border-red-500"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => handleCrossRefClick(ref, e)}
-                  onMouseDown={(e) => e.stopPropagation()}
                   style={{ minHeight: '24px', minWidth: '60px' }}
                 >
                   {ref}
