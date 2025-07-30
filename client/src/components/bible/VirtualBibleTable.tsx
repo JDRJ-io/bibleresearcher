@@ -50,21 +50,22 @@ interface VirtualBibleTableProps {
   onVerseClick?: (ref: string) => void;
 }
 
-const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProps>(({
-  selectedTranslations,
-  preferences,
-  mainTranslation,
-  className = "",
-  onExpandVerse,
-  onNavigateToVerse,
-  getProphecyDataForVerse,
-  getGlobalVerseText,
-  totalRows,
-  onCenterVerseChange,
-  centerVerseIndex = 0,
-  onPreserveAnchor,
-  onVerseClick,
-}, ref) => {
+function VirtualBibleTable(props: VirtualBibleTableProps) {
+  const {
+    selectedTranslations,
+    preferences,
+    mainTranslation,
+    className = "",
+    onExpandVerse,
+    onNavigateToVerse,
+    getProphecyDataForVerse,
+    getGlobalVerseText,
+    totalRows,
+    onCenterVerseChange,
+    centerVerseIndex = 0,
+    onPreserveAnchor,
+    onVerseClick,
+  } = props;
   // All hooks must be called at the top level of the component
   const { user } = useAuth();
   const { toast } = useToast();
@@ -80,8 +81,7 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Merge external ref with internal ref
-  React.useImperativeHandle(ref, () => containerRef.current!);
+  // Remove ref handling for now
   
   // Get reactive verse keys from store instead of static function
   const { currentVerseKeys, isChronological } = useBibleStore();
@@ -574,7 +574,7 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
               willChange: 'scroll-position'
             }}
           >
-        <div className="tableInner flex w-full"
+            <div className="tableInner flex w-full"
              style={{ 
                minWidth: 'max-content' // Natural content width for expert's system
              }}>
@@ -647,13 +647,13 @@ const VirtualBibleTable = React.forwardRef<HTMLDivElement, VirtualBibleTableProp
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
           </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-});
-
-VirtualBibleTable.displayName = 'VirtualBibleTable';
+}
 
 export default VirtualBibleTable;
 export { VirtualBibleTable };
