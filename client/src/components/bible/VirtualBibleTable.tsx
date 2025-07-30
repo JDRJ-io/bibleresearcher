@@ -307,23 +307,29 @@ function VirtualBibleTable(props: VirtualBibleTableProps) {
       console.log('📜 VirtualBibleTable scrollToVerse: container not available');
       return;
     }
-    const idx = verseKeys.findIndex(k => k === ref || k.replace(/\./g,' ') === ref || k.replace(/\s/g,'.') === ref);
-    console.log('📜 VirtualBibleTable scrollToVerse: found index', idx, 'for ref', ref);
+    
+    // Normalize reference format - handle both "John 1:1" and "John.1:1"
+    const normalizedRef = ref.includes(' ') ? ref.replace(/\s/g, '.') : ref;
+    const idx = verseKeys.findIndex(k => k === normalizedRef);
+    console.log('📜 VirtualBibleTable scrollToVerse: searching for', normalizedRef, 'found index', idx, 'out of', verseKeys.length);
+    
     if (idx === -1) {
       console.log('📜 VirtualBibleTable scrollToVerse: verse not found in keys');
+      console.log('📜 First few verse keys:', verseKeys.slice(0, 10));
       return;
     }
 
     const containerH = containerRef.current.clientHeight;
     const target = (idx * ROW_HEIGHT) - (containerH / 2) + (ROW_HEIGHT / 2);
-    console.log('📜 VirtualBibleTable scrollToVerse: scrolling to', target);
+    console.log('📜 VirtualBibleTable scrollToVerse: scrolling to position', target, 'for verse at index', idx);
 
-    containerRef.current.scrollTo({ top: Math.max(0, target), behavior: 'auto' });
+    // Use direct scrollTop assignment for immediate response
+    containerRef.current.scrollTop = Math.max(0, target);
 
     // Flash highlight
     setTimeout(() => {
-      const el = document.querySelector(`[data-verse-ref="${ref}"]`) as HTMLElement | null;
-      console.log('📜 VirtualBibleTable scrollToVerse: highlight element found:', !!el);
+      const el = document.querySelector(`[data-verse-ref="${normalizedRef}"]`) as HTMLElement | null;
+      console.log('📜 VirtualBibleTable scrollToVerse: highlight element found:', !!el, 'for ref:', normalizedRef);
       if (el) {
         el.classList.add('verse-highlight-flash');
         setTimeout(() => el.classList.remove('verse-highlight-flash'), 400);
