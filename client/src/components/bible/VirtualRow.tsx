@@ -52,29 +52,14 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
 
   const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
-    console.log('🔗 Click event target:', e.target, 'currentTarget:', e.currentTarget);
-
-    // Prevent any event bubbling or default behavior
-    e.preventDefault();
+    
+    // Only stop propagation to prevent scroll interference, but allow the click to proceed
     e.stopPropagation();
-    e.stopImmediatePropagation();
-
-    // Dismiss any runtime error overlays that might be blocking navigation
-    try {
-      const escEvent = new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true });
-      document.dispatchEvent(escEvent);
-    } catch (err) {
-      // Ignore overlay dismissal errors
-    }
 
     if (onVerseClick) {
       console.log('🔗 Calling onVerseClick with:', ref);
-      try {
-        onVerseClick(ref);
-        console.log('🔗 onVerseClick called successfully');
-      } catch (error) {
-        console.error('🔗 Error in onVerseClick:', error);
-      }
+      onVerseClick(ref);
+      console.log('🔗 onVerseClick called successfully');
     } else {
       console.warn('⚠️ No onVerseClick handler available');
     }
