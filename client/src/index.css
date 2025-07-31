@@ -518,57 +518,12 @@ body {
     padding: 0.5rem 0.25rem;
   }
 
-  /* OPTIMIZED MOBILE COLUMNS - Matching original mobile layout quality */
+  /* ADAPTIVE MOBILE COLUMNS - Using CSS variables for perfect synchronization */
+  /* Note: Column widths are now controlled by adaptive CSS variables set by useAdaptivePortraitColumns */
+  /* This ensures perfect alignment between headers and content across all device sizes */
 
-  /* Portrait phones (375px-414px) - Reference + 2 main content columns */
-  .w-6 { width: 24px !important; }     /* Reference column - Readable but compact */
-  .w-52 { width: calc((100vw - 36px) * 0.48) !important; }   /* Main translation - 48% of remaining space */  
-  .w-40 { width: calc((100vw - 36px) * 0.48) !important; }   /* Cross References - 48% of remaining space */
-  .w-16 { width: 60px !important; }    /* Prophecy P/F/V columns - Better visibility */
-  .w-20 { width: 60px !important; }    /* Prophecy P/F/V columns - Consistent sizing */
-
-  /* Column headers must match content widths */
-  .column-headers-adaptive .w-6 { width: 24px !important; }  /* Reference header */
-  .column-headers-adaptive .w-52 { width: calc((100vw - 36px) * 0.48) !important; }  /* Main translation header */
-  .column-headers-adaptive .w-40 { width: calc((100vw - 36px) * 0.48) !important; }  /* Cross-refs header */
-  .column-headers-adaptive .w-16 { width: 60px !important; }  /* Prophecy headers */
-  .column-headers-adaptive .w-20 { width: 60px !important; }  /* Prophecy headers - consistent */
-
-  /* Wider mobile screens (landscape phones ~667px-896px) */
-  @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
-    .w-6 { width: 20px !important; }   /* Reference column - Thin for landscape */
-    .w-52 { width: calc((100vw - 40px) * 0.47) !important; }   /* Main translation */  
-    .w-40 { width: calc((100vw - 40px) * 0.47) !important; }   /* Cross References */
-
-    /* Column headers must match content widths */
-    .column-headers-adaptive .w-6 { width: 20px !important; }
-    .column-headers-adaptive .w-52 { width: calc((100vw - 40px) * 0.47) !important; }
-    .column-headers-adaptive .w-40 { width: calc((100vw - 40px) * 0.47) !important; }
-  }
-
-  /* Tablet landscape (768px-1024px) */
-  @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
-    .w-6 { width: 64px !important; }   /* Reference column - More space in landscape */
-    .w-52 { width: calc((100vw - 160px) * 0.42) !important; }   /* Main translation - adjusted for larger ref */  
-    .w-40 { width: calc((100vw - 160px) * 0.42) !important; }   /* Cross References - adjusted for larger ref */
-
-    /* Column headers must match content widths */
-    .column-headers-adaptive .w-6 { width: 64px !important; }
-    .column-headers-adaptive .w-52 { width: calc((100vw - 160px) * 0.42) !important; }
-    .column-headers-adaptive .w-40 { width: calc((100vw - 160px) * 0.42) !important; }
-  }
-
-  /* Tablet portrait (768px-1024px) */
-  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    .w-6 { width: 56px !important; }   /* Reference column - Better tablet proportions */
-    .w-52 { width: calc((100vw - 140px) * 0.44) !important; }   /* Main translation - adjusted for new ref width */  
-    .w-40 { width: calc((100vw - 140px) * 0.44) !important; }   /* Cross References - adjusted for new ref width */
-
-    /* Column headers must match content widths */
-    .column-headers-adaptive .w-6 { width: 56px !important; }
-    .column-headers-adaptive .w-52 { width: calc((100vw - 140px) * 0.44) !important; }
-    .column-headers-adaptive .w-40 { width: calc((100vw - 140px) * 0.44) !important; }
-  }
+  /* All responsive column sizing now handled by adaptive CSS variables */
+  /* This allows for perfect synchronization between headers and content */
 
   /* Mobile header optimizations */
   @media (max-width: 767px) {
