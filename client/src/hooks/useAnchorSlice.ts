@@ -27,7 +27,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
   };
 }
 
-const THRESH = 20;  // FIXED: Much higher threshold to prevent jumping during fast scroll
+const THRESH = 15;  // FIXED: Balanced threshold - instant loading with position preservation
 
 export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
   const anchorIndexRef = useRef(0);
@@ -43,32 +43,35 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, ve
     if (!containerRef.current) return;
 
     const el = containerRef.current;
-    let scrollTimeout: NodeJS.Timeout;
     
     const onScroll = () => {
-      // FIXED: Debounce scroll events to prevent jumping during fast scroll
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        const scrollCenter = el.scrollTop + el.clientHeight / 2;
-        const anchor = Math.round(scrollCenter / ROW_HEIGHT);
-        const lastAnchor = anchorIndexRef.current;
+      // FIXED: Instant loading with better position preservation
+      const scrollCenter = el.scrollTop + el.clientHeight / 2;
+      const anchor = Math.round(scrollCenter / ROW_HEIGHT);
+      const lastAnchor = anchorIndexRef.current;
+      
+      // Ensure anchor is within valid bounds
+      const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
+      
+      if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
+        // Store current scroll position before slice change
+        const currentScrollTop = el.scrollTop;
         
-        // Ensure anchor is within valid bounds
-        const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
+        anchorIndexRef.current = clampedAnchor;
+        setAnchorIndex(clampedAnchor);
+        setSlice(loadChunk(clampedAnchor, verseKeys));
         
-        if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
-          anchorIndexRef.current = clampedAnchor;
-          setAnchorIndex(clampedAnchor);
-          setSlice(loadChunk(clampedAnchor, verseKeys));
-        }
-      }, 150); // Wait 150ms after scroll stops before reloading slice
+        // Restore exact scroll position after slice loads
+        requestAnimationFrame(() => {
+          if (el.scrollTop !== currentScrollTop) {
+            el.scrollTop = currentScrollTop;
+          }
+        });
+      }
     };
 
     el.addEventListener("scroll", onScroll);
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      clearTimeout(scrollTimeout);
-    };
+    return () => el.removeEventListener("scroll", onScroll);
   }, [containerRef, verseKeys]);
 
   return {
