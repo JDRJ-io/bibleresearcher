@@ -371,7 +371,9 @@ export function ColumnHeaders({
       columns.sort((a, b) => a.slot - b.slot);
     }
 
-    // Custom mobile ordering: Reference → Main Translation → Cross References → Alternate Translations
+    // FORCE custom mobile ordering: Reference → Main Translation → Cross References → Alternate Translations
+    console.log('🔧 BEFORE MOBILE ORDERING - adaptiveIsMobile:', adaptiveIsMobile, 'columns:', columns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
+    
     if (adaptiveIsMobile) {
       columns.sort((a, b) => {
         const order: Record<string, number> = { 
@@ -396,7 +398,9 @@ export function ColumnHeaders({
         return aOrder - bOrder;
       });
       
-      console.log('📱 Mobile ordered columns:', columns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
+      console.log('📱 AFTER MOBILE ORDERING:', columns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
+    } else {
+      console.log('🖥️ DESKTOP MODE - no mobile ordering applied');
     }
 
     return columns;
