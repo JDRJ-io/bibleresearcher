@@ -44,15 +44,39 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   // Account for scrollbars, borders, padding - conservative margin
   const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
   
-  // STEP 1: Reference column gets fixed optimal width
-  const refWidth = Math.max(28, Math.min(40, Math.floor(safeViewportWidth * 0.08))); // 8% of viewport, min 28px, max 40px
+  // STEP 1: Reference column gets fixed optimal width - SYNC WITH CSS BREAKPOINTS
+  let refWidth: number;
+  if (viewportWidth >= 768 && viewportWidth <= 1024) {
+    // Tablet portrait - match CSS breakpoint exactly
+    refWidth = 56; // Matches tablet CSS breakpoint
+  } else if (viewportWidth <= 640) {
+    // Mobile portrait - match mobile CSS
+    refWidth = 24; // Matches mobile CSS
+  } else if (viewportWidth > 640 && viewportWidth < 768) {
+    // Large mobile/small tablet transition
+    refWidth = Math.max(28, Math.min(40, Math.floor(safeViewportWidth * 0.08)));
+  } else {
+    // Desktop portrait (rare) - use comfortable width
+    refWidth = 64;
+  }
   
-  // STEP 2: Calculate remaining space after reference column
-  const remainingSpace = safeViewportWidth - refWidth;
+  // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
+  let remainingSpace: number;
+  let mainWidth: number;
+  let crossWidth: number;
   
-  // STEP 3: Divide remaining space EQUALLY between main translation and cross-references  
-  const mainWidth = Math.floor(remainingSpace / 2);
-  const crossWidth = Math.floor(remainingSpace / 2);
+  if (viewportWidth >= 768 && viewportWidth <= 1024) {
+    // Tablet portrait - match CSS calculation exactly: calc((100vw - 140px) * 0.44)
+    const cssRemainingSpace = viewportWidth - 140; // Matches CSS: 100vw - 140px
+    mainWidth = Math.floor(cssRemainingSpace * 0.44); // Matches CSS percentage
+    crossWidth = Math.floor(cssRemainingSpace * 0.44); // Equal to main
+    remainingSpace = mainWidth + crossWidth;
+  } else {
+    // Other sizes - use equal division approach
+    remainingSpace = safeViewportWidth - refWidth;
+    mainWidth = Math.floor(remainingSpace / 2);
+    crossWidth = Math.floor(remainingSpace / 2);
+  }
   
   // Ensure minimum readability (compress proportionally if needed)
   const minMain = 100;  // Absolute minimum for main translation
