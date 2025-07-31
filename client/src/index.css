@@ -412,8 +412,6 @@ body {
 
 /* Table wrapper - horizontal scroll only */
 .tableWrapper {
-  display: flex;
-  justify-content: center;            /* centering in landscape */
   overflow-x: auto;                   /* shows bar only if needed */
   overflow-y: hidden;
   scrollbar-gutter: stable;           /* prevents width-jump when bar appears */
@@ -428,9 +426,14 @@ body {
   justify-content: flex-start;        /* hug the left in portrait */
 }
 
-/* Landscape mode - centered layout */
+/* Landscape mode - smart centering with overflow support */
 .tableWrapper.twLandscape {
-  justify-content: center;            /* centered in landscape */
+  overflow-x: auto;                   /* horizontal scroll when needed */
+}
+
+.tableWrapper.twLandscape .bibleTable {
+  width: max-content;                 /* shrink-wrap to columns */
+  margin: 0 auto;                     /* center while columns fit viewport */
 }
 
 /* Column groups for snap alignment */
@@ -447,8 +450,6 @@ body {
 
 /* Legacy support for existing bible-table-wrapper class */
 .bible-table-wrapper {
-  display: flex;
-  justify-content: center;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-gutter: stable;
@@ -459,12 +460,13 @@ body {
 }
 
 .bible-table-wrapper .flex {
-  inline-size: max-content;
+  width: max-content;
+  margin: 0 auto;
 }
 
 @media (orientation: portrait) {
-  .bible-table-wrapper {
-    justify-content: flex-start;
+  .bible-table-wrapper .flex {
+    margin: 0;  /* Remove centering in portrait */
   }
 }
 
