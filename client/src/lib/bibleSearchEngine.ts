@@ -10,88 +10,93 @@ export interface SearchResult {
   translationCode?: string;
 }
 
-// Comprehensive Bible book abbreviations mapping
+// Comprehensive Bible book abbreviations mapping based on all standard citation styles
 const BIBLE_BOOKS = {
-  // Old Testament
-  'genesis': ['gen', 'ge', 'gn', 'genesis'],
-  'exodus': ['exo', 'ex', 'exod', 'exodus'],
-  'leviticus': ['lev', 'le', 'lv', 'leviticus'],
-  'numbers': ['num', 'nu', 'nm', 'nb', 'numbers'],
-  'deuteronomy': ['deu', 'dt', 'deut', 'deuteronomy'],
-  'joshua': ['jos', 'josh', 'joshua'],
-  'judges': ['jdg', 'jg', 'jgs', 'judges'],
-  'ruth': ['rut', 'ru', 'ruth'],
-  '1samuel': ['1sa', '1 sa', '1sam', '1 sam', '1 samuel', 'i samuel', 'first samuel'],
-  '2samuel': ['2sa', '2 sa', '2sam', '2 sam', '2 samuel', 'ii samuel', 'second samuel'],
-  '1kings': ['1ki', '1 ki', '1kgs', '1 kgs', '1 kings', 'i kings', 'first kings'],
-  '2kings': ['2ki', '2 ki', '2kgs', '2 kgs', '2 kings', 'ii kings', 'second kings'],
-  '1chronicles': ['1ch', '1 ch', '1chr', '1 chr', '1 chronicles', 'i chronicles', 'first chronicles'],
-  '2chronicles': ['2ch', '2 ch', '2chr', '2 chr', '2 chronicles', 'ii chronicles', 'second chronicles'],
-  'ezra': ['ezr', 'ez', 'ezra'],
-  'nehemiah': ['neh', 'ne', 'nehemiah'],
-  'esther': ['est', 'es', 'esth', 'esther'],
-  'job': ['job', 'jb'],
-  'psalms': ['psa', 'ps', 'psalm', 'psalms', 'pss'],
-  'proverbs': ['pro', 'pr', 'prov', 'proverbs'],
-  'ecclesiastes': ['ecc', 'ec', 'eccl', 'ecclesiastes', 'eccles'],
-  'songofsolomon': ['sng', 'ss', 'song', 'sol', 'sos', 'song of solomon', 'song of songs', 'canticles'],
-  'isaiah': ['isa', 'is', 'isaiah'],
-  'jeremiah': ['jer', 'je', 'jeremiah'],
-  'lamentations': ['lam', 'la', 'lamentations'],
-  'ezekiel': ['eze', 'ek', 'ezek', 'ezekiel'],
-  'daniel': ['dan', 'da', 'dn', 'daniel'],
-  'hosea': ['hos', 'ho', 'hosea'],
-  'joel': ['joe', 'jl', 'joel'],
-  'amos': ['amo', 'am', 'amos'],
-  'obadiah': ['oba', 'ob', 'obad', 'obadiah'],
-  'jonah': ['jon', 'jnh', 'jonah'],
-  'micah': ['mic', 'mi', 'micah'],
-  'nahum': ['nah', 'na', 'nahum'],
-  'habakkuk': ['hab', 'hb', 'habakkuk'],
-  'zephaniah': ['zep', 'zp', 'zeph', 'zephaniah'],
-  'haggai': ['hag', 'hg', 'haggai'],
-  'zechariah': ['zec', 'zc', 'zech', 'zechariah'],
-  'malachi': ['mal', 'ml', 'malachi'],
+  // Old Testament (39 books) - includes all variations from the mapping document
+  'gen': ['genesis', 'gen', 'ge', 'gn', 'gen.', 'gen1', 'gen1:1'],
+  'exo': ['exodus', 'exod', 'exo', 'ex', 'exod.', 'exod1', 'exod1:1'],
+  'lev': ['leviticus', 'lev', 'le', 'lv', 'lev.', 'lev1', 'lev1:1'],
+  'num': ['numbers', 'num', 'nu', 'nm', 'nb', 'num.', 'num1', 'num1:1'],
+  'deu': ['deuteronomy', 'deut', 'deu', 'dt', 'deut.', 'deut1', 'deut1:1'],
+  'jos': ['joshua', 'josh', 'jos', 'josh.', 'josh1', 'josh1:1'],
+  'jdg': ['judges', 'judg', 'jdg', 'jg', 'jgs', 'judg.', 'judg1', 'judg1:1'],
+  'rut': ['ruth', 'ruth', 'rut', 'ru', 'ruth1', 'ruth1:1'],
+  '1sa': ['1samuel', '1 sam', '1sam', '1sa', '1 sa', '1 sam.', '1sam1', '1sam1:1', 'i samuel', 'first samuel'],
+  '2sa': ['2samuel', '2 sam', '2sam', '2sa', '2 sa', '2 sam.', '2sam1', '2sam1:1', 'ii samuel', 'second samuel'],
+  '1ki': ['1kings', '1 kings', '1ki', '1 ki', '1kgs', '1 kgs', '1 kings.', '1kings1', '1kings1:1', 'i kings', 'first kings'],
+  '2ki': ['2kings', '2 kings', '2ki', '2 ki', '2kgs', '2 kgs', '2 kings.', '2kings1', '2kings1:1', 'ii kings', 'second kings'],
+  '1ch': ['1chronicles', '1 chron', '1chron', '1ch', '1 ch', '1chr', '1 chr', '1 chron.', '1chr1', '1chr1:1', 'i chronicles', 'first chronicles'],
+  '2ch': ['2chronicles', '2 chron', '2chron', '2ch', '2 ch', '2chr', '2 chr', '2 chron.', '2chr1', '2chr1:1', 'ii chronicles', 'second chronicles'],
+  'ezr': ['ezra', 'ezra', 'ezr', 'ez', 'ezra1', 'ezra1:1'],
+  'neh': ['nehemiah', 'neh', 'ne', 'neh.', 'neh1', 'neh1:1'],
+  'est': ['esther', 'est', 'es', 'esth', 'est.', 'est1', 'est1:1'],
+  'job': ['job', 'job', 'jb', 'job1', 'job1:1'],
+  'psa': ['psalms', 'ps', 'psa', 'psalm', 'psalms', 'pss', 'ps.', 'ps1', 'ps1:1'],
+  'pro': ['proverbs', 'prov', 'pro', 'pr', 'prv', 'prov.', 'prov1', 'prov1:1'],
+  'ecc': ['ecclesiastes', 'eccles', 'ecc', 'ec', 'eccl', 'eccles.', 'eccles1', 'eccles1:1'],
+  'sng': ['songofsolomon', 'song', 'sng', 'ss', 'sol', 'sos', 'song of solomon', 'song of songs', 'canticles', 'song1', 'song1:1'],
+  'isa': ['isaiah', 'isa', 'is', 'isa.', 'isa1', 'isa1:1'],
+  'jer': ['jeremiah', 'jer', 'je', 'jer.', 'jer1', 'jer1:1'],
+  'lam': ['lamentations', 'lam', 'la', 'lam.', 'lam1', 'lam1:1'],
+  'ezk': ['ezekiel', 'ezek', 'eze', 'ek', 'ezk', 'ezek.', 'ezek1', 'ezek1:1'],
+  'dan': ['daniel', 'dan', 'da', 'dn', 'dan.', 'dan1', 'dan1:1'],
+  'hos': ['hosea', 'hos', 'ho', 'hos.', 'hos1', 'hos1:1'],
+  'jol': ['joel', 'joel', 'joe', 'jl', 'joel1', 'joel1:1'],
+  'amo': ['amos', 'amos', 'amo', 'am', 'amos1', 'amos1:1'],
+  'oba': ['obadiah', 'obad', 'oba', 'ob', 'obad.', 'obad1', 'obad1:1'],
+  'jon': ['jonah', 'jon', 'jnh', 'jon.', 'jon1', 'jon1:1'],
+  'mic': ['micah', 'mic', 'mi', 'mic.', 'mic1', 'mic1:1'],
+  'nam': ['nahum', 'nah', 'nam', 'na', 'nah.', 'nah1', 'nah1:1'],
+  'hab': ['habakkuk', 'hab', 'hb', 'hab.', 'hab1', 'hab1:1'],
+  'zep': ['zephaniah', 'zeph', 'zep', 'zp', 'zeph.', 'zeph1', 'zeph1:1'],
+  'hag': ['haggai', 'hag', 'hg', 'hag.', 'hag1', 'hag1:1'],
+  'zec': ['zechariah', 'zech', 'zec', 'zc', 'zech.', 'zech1', 'zech1:1'],
+  'mal': ['malachi', 'mal', 'ml', 'mal.', 'mal1', 'mal1:1'],
   
-  // New Testament
-  'matthew': ['mat', 'mt', 'matt', 'matthew'],
-  'mark': ['mar', 'mk', 'mark'],
-  'luke': ['luk', 'lk', 'luke'],
-  'john': ['joh', 'jn', 'john'],
-  'acts': ['act', 'ac', 'acts'],
-  'romans': ['rom', 'ro', 'rm', 'romans'],
-  '1corinthians': ['1co', '1 co', '1cor', '1 cor', '1 corinthians', 'i corinthians', 'first corinthians'],
-  '2corinthians': ['2co', '2 co', '2cor', '2 cor', '2 corinthians', 'ii corinthians', 'second corinthians'],
-  'galatians': ['gal', 'ga', 'galatians'],
-  'ephesians': ['eph', 'ephesians'],
-  'philippians': ['phi', 'php', 'philippians'],
-  'colossians': ['col', 'colossians'],
-  '1thessalonians': ['1th', '1 th', '1thess', '1 thess', '1 thessalonians', 'i thessalonians', 'first thessalonians'],
-  '2thessalonians': ['2th', '2 th', '2thess', '2 thess', '2 thessalonians', 'ii thessalonians', 'second thessalonians'],
-  '1timothy': ['1ti', '1 ti', '1tim', '1 tim', '1 timothy', 'i timothy', 'first timothy'],
-  '2timothy': ['2ti', '2 ti', '2tim', '2 tim', '2 timothy', 'ii timothy', 'second timothy'],
-  'titus': ['tit', 'ti', 'titus'],
-  'philemon': ['phm', 'pm', 'philem', 'philemon'],
-  'hebrews': ['heb', 'he', 'hebrews'],
-  'james': ['jas', 'jm', 'james'],
-  '1peter': ['1pe', '1 pe', '1pet', '1 pet', '1 peter', 'i peter', 'first peter'],
-  '2peter': ['2pe', '2 pe', '2pet', '2 pet', '2 peter', 'ii peter', 'second peter'],
-  '1john': ['1jo', '1 jo', '1jn', '1 jn', '1 john', 'i john', 'first john'],
-  '2john': ['2jo', '2 jo', '2jn', '2 jn', '2 john', 'ii john', 'second john'],
-  '3john': ['3jo', '3 jo', '3jn', '3 jn', '3 john', 'iii john', 'third john'],
-  'jude': ['jud', 'jude'],
-  'revelation': ['rev', 're', 'rv', 'revelation', 'revelations']
+  // New Testament (27 books) - includes all variations from the mapping document
+  'mat': ['matthew', 'matt', 'mat', 'mt', 'matt.', 'matt1', 'matt1:1'],
+  'mrk': ['mark', 'mk', 'mar', 'mrk', 'mk.', 'mk1', 'mk1:1'],
+  'luk': ['luke', 'lk', 'luk', 'lk.', 'lk1', 'lk1:1'],
+  'jhn': ['john', 'jn', 'joh', 'jhn', 'jn.', 'jn1', 'jn1:1'],
+  'act': ['acts', 'acts', 'act', 'ac', 'acts1', 'acts1:1'],
+  'rom': ['romans', 'rom', 'ro', 'rm', 'rom.', 'rom1', 'rom1:1'],
+  '1co': ['1corinthians', '1 cor', '1cor', '1co', '1 co', '1 cor.', '1cor1', '1cor1:1', 'i corinthians', 'first corinthians'],
+  '2co': ['2corinthians', '2 cor', '2cor', '2co', '2 co', '2 cor.', '2cor1', '2cor1:1', 'ii corinthians', 'second corinthians'],
+  'gal': ['galatians', 'gal', 'ga', 'gal.', 'gal1', 'gal1:1'],
+  'eph': ['ephesians', 'eph', 'eph.', 'eph1', 'eph1:1'],
+  'php': ['philippians', 'phil', 'phi', 'php', 'phil.', 'phil1', 'phil1:1'],
+  'col': ['colossians', 'col', 'col.', 'col1', 'col1:1'],
+  '1th': ['1thessalonians', '1 thess', '1thess', '1th', '1 th', '1 thess.', '1th1', '1th1:1', 'i thessalonians', 'first thessalonians'],
+  '2th': ['2thessalonians', '2 thess', '2thess', '2th', '2 th', '2 thess.', '2th1', '2th1:1', 'ii thessalonians', 'second thessalonians'],
+  '1ti': ['1timothy', '1 tim', '1tim', '1ti', '1 ti', '1 tim.', '1ti1', '1ti1:1', 'i timothy', 'first timothy'],
+  '2ti': ['2timothy', '2 tim', '2tim', '2ti', '2 ti', '2 tim.', '2ti1', '2ti1:1', 'ii timothy', 'second timothy'],
+  'tit': ['titus', 'tit', 'ti', 'tit.', 'tit1', 'tit1:1'],
+  'phm': ['philemon', 'philem', 'phm', 'pm', 'philem.', 'philem1', 'philem1:1'],
+  'heb': ['hebrews', 'heb', 'he', 'heb.', 'heb1', 'heb1:1'],
+  'jas': ['james', 'jas', 'jm', 'jas.', 'jas1', 'jas1:1'],
+  '1pe': ['1peter', '1 pet', '1pet', '1pe', '1 pe', '1 pet.', '1pe1', '1pe1:1', 'i peter', 'first peter'],
+  '2pe': ['2peter', '2 pet', '2pet', '2pe', '2 pe', '2 pet.', '2pe1', '2pe1:1', 'ii peter', 'second peter'],
+  '1jn': ['1john', '1 jn', '1jn', '1jo', '1 jo', '1 jn.', '1jn1', '1jn1:1', 'i john', 'first john'],
+  '2jn': ['2john', '2 jn', '2jn', '2jo', '2 jo', '2 jn.', '2jn1', '2jn1:1', 'ii john', 'second john'],
+  '3jn': ['3john', '3 jn', '3jn', '3jo', '3 jo', '3 jn.', '3jn1', '3jn1:1', 'iii john', 'third john'],
+  'jud': ['jude', 'jude', 'jud', 'jude1', 'jude1:1'],
+  'rev': ['revelation', 'rev', 're', 'rv', 'revelation', 'revelations', 'rev.', 'rev1', 'rev1:1']
 };
 
-// Create reverse lookup map for fast searching
+// Create reverse lookup map for fast searching - maps all abbreviations to canonical form
 const ABBREVIATION_TO_BOOK: Record<string, string> = {};
 Object.entries(BIBLE_BOOKS).forEach(([canonical, abbreviations]) => {
+  // Add the canonical form itself
+  ABBREVIATION_TO_BOOK[canonical.toLowerCase()] = canonical;
+  // Add all abbreviations
   abbreviations.forEach(abbrev => {
+    ABBREVIATION_TO_BOOK[abbrev.toLowerCase().replace(/\s+/g, '')] = canonical;
+    // Also add version with spaces preserved for phrases like "1 sam"
     ABBREVIATION_TO_BOOK[abbrev.toLowerCase()] = canonical;
   });
 });
 
-// Parse various verse reference formats
+// Parse various verse reference formats with comprehensive support for all abbreviation styles
 export function parseVerseReference(input: string): {
   book?: string;
   chapter?: number;
@@ -101,11 +106,28 @@ export function parseVerseReference(input: string): {
 } | null {
   const normalized = input.toLowerCase().trim();
   
-  // Pattern 1: "John 3:16" or "Jn 3:16" or "jn3:16"
-  let match = normalized.match(/^(\d?\s*\w+)\s*(\d+):(\d+)(?:-(\d+))?$/);
+  // Remove common punctuation and normalize spacing
+  const cleaned = normalized.replace(/[.,;]/g, '').replace(/\s+/g, ' ');
+  
+  // Pattern 1: Full reference with verse - handles all formats from the mapping
+  // Examples: "John 3:16", "Jn 3:16", "jn3:16", "Gen.1:1", "Gen 1.1", "1 Sam 1:1", etc.
+  let match = cleaned.match(/^(\d?\s*\w+(?:\s+\w+)?)\s*(\d+)[:\.](\d+)(?:[-–](\d+))?$/);
   if (match) {
     const [, bookPart, chapterStr, verseStr, endVerseStr] = match;
-    const book = ABBREVIATION_TO_BOOK[bookPart.replace(/\s/g, '')];
+    
+    // Try multiple ways to match the book
+    const bookVariants = [
+      bookPart.trim(),
+      bookPart.replace(/\s/g, ''),
+      bookPart.replace(/\s+/g, ' ').trim()
+    ];
+    
+    let book = null;
+    for (const variant of bookVariants) {
+      book = ABBREVIATION_TO_BOOK[variant];
+      if (book) break;
+    }
+    
     if (book) {
       return {
         book,
@@ -117,11 +139,38 @@ export function parseVerseReference(input: string): {
     }
   }
   
-  // Pattern 2: "Genesis 1" (chapter only)
-  match = normalized.match(/^(\d?\s*\w+)\s*(\d+)$/);
+  // Pattern 2: Dot notation - "Gen.1:1", "John.3:16"
+  match = cleaned.match(/^(\d?\s*\w+(?:\s+\w+)?)\.(\d+):(\d+)(?:[-–](\d+))?$/);
+  if (match) {
+    const [, bookPart, chapterStr, verseStr, endVerseStr] = match;
+    const book = ABBREVIATION_TO_BOOK[bookPart.replace(/\s/g, '')] || ABBREVIATION_TO_BOOK[bookPart.trim()];
+    if (book) {
+      return {
+        book,
+        chapter: parseInt(chapterStr),
+        verse: parseInt(verseStr),
+        endVerse: endVerseStr ? parseInt(endVerseStr) : undefined,
+        confidence: 0.95
+      };
+    }
+  }
+  
+  // Pattern 3: Chapter only - "Genesis 1", "Gen 1", "Ps 23"
+  match = cleaned.match(/^(\d?\s*\w+(?:\s+\w+)?)\s+(\d+)$/);
   if (match) {
     const [, bookPart, chapterStr] = match;
-    const book = ABBREVIATION_TO_BOOK[bookPart.replace(/\s/g, '')];
+    const bookVariants = [
+      bookPart.trim(),
+      bookPart.replace(/\s/g, ''),
+      bookPart.replace(/\s+/g, ' ').trim()
+    ];
+    
+    let book = null;
+    for (const variant of bookVariants) {
+      book = ABBREVIATION_TO_BOOK[variant];
+      if (book) break;
+    }
+    
     if (book) {
       return {
         book,
@@ -131,90 +180,100 @@ export function parseVerseReference(input: string): {
     }
   }
   
-  // Pattern 3: Just book name
-  const book = ABBREVIATION_TO_BOOK[normalized.replace(/\s/g, '')];
-  if (book) {
-    return {
-      book,
-      confidence: 0.6
-    };
+  // Pattern 4: Book name only - "Genesis", "Gen", "1 Samuel", etc.
+  const bookVariants = [
+    cleaned.trim(),
+    cleaned.replace(/\s/g, ''),
+    cleaned.replace(/\s+/g, ' ').trim()
+  ];
+  
+  for (const variant of bookVariants) {
+    const book = ABBREVIATION_TO_BOOK[variant];
+    if (book) {
+      return {
+        book,
+        confidence: 0.6
+      };
+    }
   }
   
   return null;
 }
 
-// Convert canonical book name to standard verse reference format
+// Convert canonical book name to the three-letter format used in the data structure
 export function canonicalToReference(canonical: string): string {
+  // The canonical names are already in the three-letter format from our BIBLE_BOOKS keys
+  // Just capitalize them properly for display
   const bookMap: Record<string, string> = {
-    'genesis': 'Gen',
-    'exodus': 'Exo',
-    'leviticus': 'Lev',
-    'numbers': 'Num',
-    'deuteronomy': 'Deu',
-    'joshua': 'Jos',
-    'judges': 'Jdg',
-    'ruth': 'Rut',
-    '1samuel': '1Sa',
-    '2samuel': '2Sa',
-    '1kings': '1Ki',
-    '2kings': '2Ki',
-    '1chronicles': '1Ch',
-    '2chronicles': '2Ch',
-    'ezra': 'Ezr',
-    'nehemiah': 'Neh',
-    'esther': 'Est',
+    'gen': 'Gen',
+    'exo': 'Exo', 
+    'lev': 'Lev',
+    'num': 'Num',
+    'deu': 'Deu',
+    'jos': 'Jos',
+    'jdg': 'Jdg',
+    'rut': 'Rut',
+    '1sa': '1Sa',
+    '2sa': '2Sa',
+    '1ki': '1Ki',
+    '2ki': '2Ki',
+    '1ch': '1Ch',
+    '2ch': '2Ch',
+    'ezr': 'Ezr',
+    'neh': 'Neh',
+    'est': 'Est',
     'job': 'Job',
-    'psalms': 'Psa',
-    'proverbs': 'Pro',
-    'ecclesiastes': 'Ecc',
-    'songofsolomon': 'Sng',
-    'isaiah': 'Isa',
-    'jeremiah': 'Jer',
-    'lamentations': 'Lam',
-    'ezekiel': 'Eze',
-    'daniel': 'Dan',
-    'hosea': 'Hos',
-    'joel': 'Joe',
-    'amos': 'Amo',
-    'obadiah': 'Oba',
-    'jonah': 'Jon',
-    'micah': 'Mic',
-    'nahum': 'Nah',
-    'habakkuk': 'Hab',
-    'zephaniah': 'Zep',
-    'haggai': 'Hag',
-    'zechariah': 'Zec',
-    'malachi': 'Mal',
-    'matthew': 'Mat',
-    'mark': 'Mar',
-    'luke': 'Luk',
-    'john': 'Joh',
-    'acts': 'Act',
-    'romans': 'Rom',
-    '1corinthians': '1Co',
-    '2corinthians': '2Co',
-    'galatians': 'Gal',
-    'ephesians': 'Eph',
-    'philippians': 'Phi',
-    'colossians': 'Col',
-    '1thessalonians': '1Th',
-    '2thessalonians': '2Th',
-    '1timothy': '1Ti',
-    '2timothy': '2Ti',
-    'titus': 'Tit',
-    'philemon': 'Phm',
-    'hebrews': 'Heb',
-    'james': 'Jas',
-    '1peter': '1Pe',
-    '2peter': '2Pe',
-    '1john': '1Jo',
-    '2john': '2Jo',
-    '3john': '3Jo',
-    'jude': 'Jud',
-    'revelation': 'Rev'
+    'psa': 'Psa',
+    'pro': 'Pro',
+    'ecc': 'Ecc',
+    'sng': 'Sng',
+    'isa': 'Isa',
+    'jer': 'Jer',
+    'lam': 'Lam',
+    'ezk': 'Ezk',
+    'dan': 'Dan',
+    'hos': 'Hos',
+    'jol': 'Jol',
+    'amo': 'Amo',
+    'oba': 'Oba',
+    'jon': 'Jon',
+    'mic': 'Mic',
+    'nam': 'Nam',
+    'hab': 'Hab',
+    'zep': 'Zep',
+    'hag': 'Hag',
+    'zec': 'Zec',
+    'mal': 'Mal',
+    'mat': 'Mat',
+    'mrk': 'Mrk',
+    'luk': 'Luk',
+    'jhn': 'Jhn',
+    'act': 'Act',
+    'rom': 'Rom',
+    '1co': '1Co',
+    '2co': '2Co',
+    'gal': 'Gal',
+    'eph': 'Eph',
+    'php': 'Php',
+    'col': 'Col',
+    '1th': '1Th',
+    '2th': '2Th',
+    '1ti': '1Ti',
+    '2ti': '2Ti',
+    'tit': 'Tit',
+    'phm': 'Phm',
+    'heb': 'Heb',
+    'jas': 'Jas',
+    '1pe': '1Pe',
+    '2pe': '2Pe',
+    '1jn': '1Jn',
+    '2jn': '2Jn',
+    '3jn': '3Jn',
+    'jud': 'Jud',
+    'rev': 'Rev'
   };
   
-  return bookMap[canonical] || canonical;
+  return bookMap[canonical.toLowerCase()] || canonical;
 }
 
 // Main search engine

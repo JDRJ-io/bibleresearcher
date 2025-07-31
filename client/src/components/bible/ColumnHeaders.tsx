@@ -341,9 +341,10 @@ export function ColumnHeaders({
 
     // Add alternate translations from slotConfig (supports both slots 3-6 and 12-19)
     // Available on all devices with horizontal scrolling
+    // Skip slot 3 since we already added main translation there
     Object.entries(slotConfig).forEach(([slotStr, config]) => {
       const slot = parseInt(slotStr);
-      if (config?.type === 'alt-translation' && config?.visible) {
+      if (config?.type === 'alt-translation' && config?.visible && slot !== 3) {
         columns.push({
           slot,
           type: 'alt-translation',
@@ -357,7 +358,7 @@ export function ColumnHeaders({
     // Add all other feature columns from slotConfig (excluding main translation which we already added)
     Object.entries(slotConfig).forEach(([slotStr, config]) => {
       const slot = parseInt(slotStr);
-      if (config?.visible && slot > 2 && config?.type !== 'alt-translation' && config?.type !== 'main-translation') {
+      if (config?.visible && slot > 2 && slot !== 3 && config?.type !== 'alt-translation' && config?.type !== 'main-translation') {
         columns.push({
           slot,
           type: config.type,
@@ -420,7 +421,20 @@ export function ColumnHeaders({
       console.log('🖥️ DESKTOP MODE - no mobile ordering applied');
     }
 
-    return columns;
+    // Remove any duplicate slots to prevent React key errors
+    const uniqueColumns = [];
+    const seenSlots = new Set();
+    
+    for (const column of columns) {
+      if (!seenSlots.has(column.slot)) {
+        seenSlots.add(column.slot);
+        uniqueColumns.push(column);
+      } else {
+        console.warn(`🚨 Duplicate slot detected: ${column.slot} (${column.name}), skipping duplicate`);
+      }
+    }
+
+    return uniqueColumns;
   }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile, columnState]);
 
   console.log('📋 ColumnHeaders visibleColumns:', visibleColumns.map(col => ({ slot: col.slot, name: col.name, type: col.type, visible: col.visible })));
