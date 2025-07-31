@@ -99,7 +99,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     const result = verses.map((verse, index) => {
       // Get text for currently loaded translations using your working system
       const textObj: Record<string, string> = {};
-      const currentlyLoadedTranslations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
+      const currentlyLoadedTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
       
       currentlyLoadedTranslations.forEach(translationCode => {
         const text = getVerseText(verse.reference, translationCode);
@@ -181,7 +181,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         selectedTranslations : 
         [activeTranslation];
       
-      console.log(`🔍 REAL SEARCH - Searching translations: ${translationsToSearch.join(', ')}`);
+      console.log(`🔍 REAL SEARCH - Searching ${translationsToSearch.length} translations: ${translationsToSearch.join(', ')}`);
       
       // Load any translations that aren't already loaded
       const translationMaps = new Map<string, Map<string, string>>();
@@ -198,6 +198,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         
         if (translationMap) {
           translationMaps.set(translationCode, translationMap);
+          console.log(`🔍 Translation ${translationCode} ready with ${translationMap.size} verses`);
+        } else {
+          console.warn(`🔍 Failed to load translation: ${translationCode}`);
         }
       }
       
@@ -455,9 +458,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           {!isMobile && (
             <div className="flex flex-wrap gap-2">
               {/* Individual Translation Checkboxes */}
-              <div className="flex items-center gap-2 border rounded-md p-2">
+              <div className="flex flex-wrap items-center gap-2 border rounded-md p-2 max-w-full">
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
-                {['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'].map(translation => (
+                {['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'].map(translation => (
                   <label key={translation} className="flex items-center gap-1 cursor-pointer">
                     <input
                       type="checkbox"
@@ -478,14 +481,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    const allTranslations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'];
+                    const allTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
                     setSelectedTranslations(
                       selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
                     );
                   }}
                   className="h-6 px-2 text-xs ml-2"
                 >
-                  {selectedTranslations.length === 6 ? 'Clear All' : 'Select All'}
+                  {selectedTranslations.length === 13 ? 'Clear All' : 'Select All'}
                 </Button>
               </div>
 
