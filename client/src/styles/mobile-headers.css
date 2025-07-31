@@ -97,15 +97,32 @@
     }
   }
 
-  /* Tablet adjustments */
+  /* Tablet adjustments - both portrait and landscape */
   @media (min-width: 768px) and (max-width: 1024px) {
     .column-header-cell[data-column="reference"] {
-      width: 40px !important;
+      width: 56px !important;  /* Increased from 40px to fit "Ref" text properly */
     }
     
     .column-header-cell[data-column="main"],
     .column-header-cell[data-column="cross-refs"] {
-      width: calc((100vw - 100px) * 0.45) !important;
+      width: calc((100vw - 140px) * 0.44) !important;  /* Adjusted calculation for new ref width */
+    }
+    
+    /* Prophecy columns for tablet */
+    .column-header-cell[data-column="prophecy"] {
+      width: 72px !important;  /* Better tablet proportions */
+    }
+  }
+  
+  /* Tablet landscape specific adjustments */
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .column-header-cell[data-column="reference"] {
+      width: 64px !important;  /* Even more space in landscape for readability */
+    }
+    
+    .column-header-cell[data-column="main"],
+    .column-header-cell[data-column="cross-refs"] {
+      width: calc((100vw - 160px) * 0.42) !important;  /* Adjusted for larger ref width */
     }
   }
 }

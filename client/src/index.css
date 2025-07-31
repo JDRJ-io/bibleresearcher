@@ -546,16 +546,28 @@ body {
     .column-headers-adaptive .w-40 { width: calc((100vw - 40px) * 0.47) !important; }
   }
 
-  /* Tablet portrait (768px-1024px) */
-  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    .w-6 { width: 24px !important; }   /* Reference column - Tablet proportions */
-    .w-52 { width: calc((100vw - 48px) * 0.47) !important; }   /* Main translation */  
-    .w-40 { width: calc((100vw - 48px) * 0.47) !important; }   /* Cross References */
+  /* Tablet landscape (768px-1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .w-6 { width: 64px !important; }   /* Reference column - More space in landscape */
+    .w-52 { width: calc((100vw - 160px) * 0.42) !important; }   /* Main translation - adjusted for larger ref */  
+    .w-40 { width: calc((100vw - 160px) * 0.42) !important; }   /* Cross References - adjusted for larger ref */
 
     /* Column headers must match content widths */
-    .column-headers-adaptive .w-6 { width: 24px !important; }
-    .column-headers-adaptive .w-52 { width: calc((100vw - 48px) * 0.47) !important; }
-    .column-headers-adaptive .w-40 { width: calc((100vw - 48px) * 0.47) !important; }
+    .column-headers-adaptive .w-6 { width: 64px !important; }
+    .column-headers-adaptive .w-52 { width: calc((100vw - 160px) * 0.42) !important; }
+    .column-headers-adaptive .w-40 { width: calc((100vw - 160px) * 0.42) !important; }
+  }
+
+  /* Tablet portrait (768px-1024px) */
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .w-6 { width: 56px !important; }   /* Reference column - Better tablet proportions */
+    .w-52 { width: calc((100vw - 140px) * 0.44) !important; }   /* Main translation - adjusted for new ref width */  
+    .w-40 { width: calc((100vw - 140px) * 0.44) !important; }   /* Cross References - adjusted for new ref width */
+
+    /* Column headers must match content widths */
+    .column-headers-adaptive .w-6 { width: 56px !important; }
+    .column-headers-adaptive .w-52 { width: calc((100vw - 140px) * 0.44) !important; }
+    .column-headers-adaptive .w-40 { width: calc((100vw - 140px) * 0.44) !important; }
   }
 
   /* Mobile header optimizations */
