@@ -454,22 +454,16 @@ export function VirtualRow({
     });
   }
 
-  // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
-  // NOW AVAILABLE ON MOBILE with horizontal scrolling
+  // Dynamically add alternate translation columns to slots 12-19 (AFTER cross-references)
+  // This matches the slot assignment in ColumnHeaders.tsx
   // FILTER OUT main translation to prevent duplication
   alternates
     .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
     .forEach((translationCode, index) => {
-      let slot;
-      if (index < 4) {
-        // Primary alternate translations: slots 3-6
-        slot = 3 + index;
-      } else {
-        // Extended alternate translations: slots 12-19 (8 additional slots)
-        slot = 12 + (index - 4);
-      }
+      // All alternate translations start from slot 12 (AFTER cross-references at slot 7)
+      const slot = 12 + index;
       
-      if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
+      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
         slotConfig[slot] = { 
           type: 'alt-translation', 
           header: translationCode, 
