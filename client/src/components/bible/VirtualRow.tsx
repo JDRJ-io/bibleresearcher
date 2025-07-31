@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
@@ -26,148 +26,6 @@ interface VirtualRowProps {
 }
 
 // Cell Components
-
-// Notes Cell Component with user persistence
-function NotesCell({ verse }: { verse: BibleVerse }) {
-  const [note, setNote] = useState<string>('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Load note on mount
-  useEffect(() => {
-    const loadNote = async () => {
-      try {
-        // Check if user is logged in
-        const user = null; // TODO: Get from auth context when available
-        
-        if (user) {
-          // For logged-in users, load from server/database
-          // TODO: Implement server-side note loading
-          setNote('');
-        } else {
-          // For guests, use localStorage
-          const guestNotes = localStorage.getItem('bible-guest-notes');
-          if (guestNotes) {
-            const notes = JSON.parse(guestNotes);
-            setNote(notes[verse.reference] || '');
-          }
-        }
-      } catch (error) {
-        console.error('Error loading note:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadNote();
-  }, [verse.reference]);
-
-  // Save note
-  const saveNote = async (newNote: string) => {
-    try {
-      const user = null; // TODO: Get from auth context when available
-      
-      if (user) {
-        // For logged-in users, save to server/database
-        // TODO: Implement server-side note saving
-        console.log('Saving note to server for user:', user.id, 'verse:', verse.reference, 'note:', newNote);
-      } else {
-        // For guests, save to localStorage
-        const guestNotes = localStorage.getItem('bible-guest-notes');
-        const notes = guestNotes ? JSON.parse(guestNotes) : {};
-        
-        if (newNote.trim()) {
-          notes[verse.reference] = newNote.trim();
-        } else {
-          delete notes[verse.reference];
-        }
-        
-        localStorage.setItem('bible-guest-notes', JSON.stringify(notes));
-      }
-      
-      setNote(newNote);
-    } catch (error) {
-      console.error('Error saving note:', error);
-    }
-  };
-
-  const handleSave = () => {
-    saveNote(note);
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    // Reload original note
-    const guestNotes = localStorage.getItem('bible-guest-notes');
-    if (guestNotes) {
-      const notes = JSON.parse(guestNotes);
-      setNote(notes[verse.reference] || '');
-    }
-    setIsEditing(false);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="px-2 py-1 text-sm cell-content flex items-center justify-center h-full">
-        <div className="text-gray-400 text-xs">Loading...</div>
-      </div>
-    );
-  }
-
-  if (isEditing) {
-    return (
-      <div className="px-1 py-1 text-sm cell-content h-full">
-        <div className="flex flex-col h-full">
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Add note..."
-            className="flex-1 w-full text-xs p-1 border border-gray-300 dark:border-gray-600 rounded resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            style={{ minHeight: '60px' }}
-            autoFocus
-          />
-          <div className="flex gap-1 mt-1">
-            <button
-              onClick={handleSave}
-              className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex-1"
-            >
-              Save
-            </button>
-            <button
-              onClick={handleCancel}
-              className="text-xs px-2 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500 flex-1"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="px-2 py-1 text-sm cell-content h-full">
-      {note ? (
-        <div 
-          className="text-xs text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 rounded whitespace-pre-wrap break-words"
-          onClick={() => setIsEditing(true)}
-          title="Click to edit note"
-        >
-          {note}
-        </div>
-      ) : (
-        <div 
-          className="text-gray-400 italic text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-1 rounded text-center"
-          onClick={() => setIsEditing(true)}
-          title="Click to add note"
-        >
-          Add note...
-        </div>
-      )}
-    </div>
-  );
-}
-
 interface CellProps {
   verse: BibleVerse;
   getVerseText: (verseID: string, translationCode: string) => string | undefined;
@@ -371,23 +229,23 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
 
-  // Use upright text orientation (no rotation) like reference column
+  // Rotate text 90 degrees for compact vertical display
   return (
     <div className="flex items-center justify-center h-full w-full px-1 py-1">
-      <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight break-words overflow-hidden"
-           style={{ 
-             fontSize: '10px',
-             lineHeight: '1.2',
-             maxHeight: '100%',
-             wordWrap: 'break-word',
-             overflowWrap: 'break-word',
-             hyphens: 'auto',
-             writingMode: 'horizontal-tb', // Ensure upright text
-             textOrientation: 'mixed'
-           }}>
-        {dateText.trim()}
+        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight break-words overflow-hidden transform rotate-90"
+             style={{ 
+               fontSize: '10px',
+               lineHeight: '1.2',
+               maxHeight: '100%',
+               wordWrap: 'break-word',
+               overflowWrap: 'break-word',
+               hyphens: 'auto',
+               writingMode: 'horizontal-tb',
+               textOrientation: 'mixed'
+             }}>
+          {dateText.trim()}
+        </div>
       </div>
-    </div>
   );
 }
 
@@ -579,14 +437,14 @@ export function VirtualRow({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
 
+  // Notes column right after dates (slot 2)
+  slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
+
+  // Main translation after notes (slot 3)
+  slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
+
   // Dates column right after reference (slot 1)
   slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
-
-  // Always show main translation (slot 2)
-  slotConfig[2] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
-
-  // Notes column after main translation (slot 3)
-  slotConfig[3] = { type: 'notes', header: 'Notes', visible: showNotes };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
@@ -597,8 +455,12 @@ export function VirtualRow({
           slotConfig[1] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
           break;
         case 2:
-          // Notes column (moved to slot 3)
+          // Notes column (moved to slot 2)
           slotConfig[2] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+          break;
+        case 3:
+          // Main translation (moved to slot 3)
+          slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: col.visible };
           break;
         case 7:
           // Cross References column (unchanged)
@@ -767,7 +629,11 @@ export function VirtualRow({
       case 'notes':
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <NotesCell verse={verse} />
+            <div className="px-2 py-1 text-sm text-gray-500 cell-content flex items-center justify-center h-full">
+              <div className="text-gray-400 italic text-center">
+                <div className="text-xs">Add note...</div>
+              </div>
+            </div>
           </div>
         );
 
