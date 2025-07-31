@@ -142,7 +142,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return slice.verseIDs.map(verseID => {
       const verseData = rowData?.[verseID];
       if (verseData && 'book' in verseData && 'chapter' in verseData) {
-        return verseData as BibleVerse;
+        return verseData as unknown as BibleVerse;
       }
       // Create properly typed fallback verse
       return {

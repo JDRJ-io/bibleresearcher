@@ -274,7 +274,7 @@ export function ColumnHeaders({
         
         if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
           slotConfig[slot] = { 
-            type: 'translation', 
+            type: 'alt-translation', 
             header: translationCode, 
             translationCode, 
             visible: true  // Show all active alternate translations
@@ -378,11 +378,13 @@ export function ColumnHeaders({
 
     // On mobile, only show Reference, Main Translation, and Cross References
     if (adaptiveIsMobile) {
-      return columns.filter(col => 
+      const mobileColumns = columns.filter(col => 
         col.type === 'reference' || 
         col.type === 'main-translation' || 
         col.type === 'cross-refs'
       );
+      console.log('📱 Mobile filtered columns:', mobileColumns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
+      return mobileColumns;
     }
 
     return columns;
