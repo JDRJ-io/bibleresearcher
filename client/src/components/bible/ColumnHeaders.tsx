@@ -263,25 +263,23 @@ export function ColumnHeaders({
   }
 
   // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
-  // HIDDEN ON MOBILE for clean dual-column layout
+  // NOW AVAILABLE ON MOBILE with horizontal scrolling
   // FILTER OUT main translation to prevent duplication
-  if (!adaptiveIsMobile) {
-    alternates
-      .filter(translationCode => translationCode !== main) // Prevent main translation duplication
-      .forEach((translationCode, index) => {
-        // All alternate translations start from slot 12 (AFTER cross-references)
-        const slot = 12 + index;
-        
-        if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
-          slotConfig[slot] = { 
-            type: 'alt-translation', 
-            header: translationCode, 
-            translationCode, 
-            visible: true  // Show all active alternate translations
-          };
-        }
-      });
-  }
+  alternates
+    .filter(translationCode => translationCode !== main) // Prevent main translation duplication
+    .forEach((translationCode, index) => {
+      // All alternate translations start from slot 12 (AFTER cross-references)
+      const slot = 12 + index;
+      
+      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
+        slotConfig[slot] = { 
+          type: 'alt-translation', 
+          header: translationCode, 
+          translationCode, 
+          visible: true  // Show all active alternate translations
+        };
+      }
+    });
 
   // Debug logging
   console.log('📋 ColumnHeaders slotConfig:', Object.keys(slotConfig).map(slot => ({ 
@@ -305,8 +303,7 @@ export function ColumnHeaders({
     });
 
     // Add notes column if both store state AND individual column visibility enable it
-    // BUT NEVER on mobile for clean layout
-    if (slotConfig[1]?.visible && !adaptiveIsMobile) {
+    if (slotConfig[1]?.visible) {
       columns.push({
         slot: 1,
         type: 'notes',
@@ -326,21 +323,19 @@ export function ColumnHeaders({
     });
 
     // Add alternate translations from slotConfig (supports both slots 3-6 and 12-19)
-    // For mobile: Add alternates to hamburger menu only, not as columns
-    if (!adaptiveIsMobile) {
-      Object.entries(slotConfig).forEach(([slotStr, config]) => {
-        const slot = parseInt(slotStr);
-        if (config?.type === 'alt-translation' && config?.visible) {
-          columns.push({
-            slot,
-            type: 'alt-translation',
-            name: config.header,
-            visible: true,
-            isMain: false
-          });
-        }
-      });
-    }
+    // Available on all devices with horizontal scrolling
+    Object.entries(slotConfig).forEach(([slotStr, config]) => {
+      const slot = parseInt(slotStr);
+      if (config?.type === 'alt-translation' && config?.visible) {
+        columns.push({
+          slot,
+          type: 'alt-translation',
+          name: config.header,
+          visible: true,
+          isMain: false
+        });
+      }
+    });
 
     // Add all other feature columns from slotConfig
     Object.entries(slotConfig).forEach(([slotStr, config]) => {
@@ -374,17 +369,6 @@ export function ColumnHeaders({
     } else {
       // Fallback to slot-based sorting
       columns.sort((a, b) => a.slot - b.slot);
-    }
-
-    // On mobile, only show Reference, Main Translation, and Cross References
-    if (adaptiveIsMobile) {
-      const mobileColumns = columns.filter(col => 
-        col.type === 'reference' || 
-        col.type === 'main-translation' || 
-        col.type === 'cross-refs'
-      );
-      console.log('📱 Mobile filtered columns:', mobileColumns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
-      return mobileColumns;
     }
 
     return columns;

@@ -427,27 +427,27 @@ export function VirtualRow({
     columnState.columns.forEach(col => {
       switch (col.slot) {
         case 1:
-          // Notes column (moved to slot 1 between Ref and Main) - TOGGLEABLE ON MOBILE
+          // Notes column (moved to slot 1 between Ref and Main)
           slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
           break;
         case 7:
-          // Cross References column (moved from slot 6 to 7) - DEFAULT ON MOBILE
+          // Cross References column (moved from slot 6 to 7)
           slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
           break;
         case 8:
-          // Prophecy P column (moved from slot 7 to 8) - TOGGLEABLE ON MOBILE
+          // Prophecy P column (moved from slot 7 to 8)
           slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
           break;
         case 9:
-          // Prophecy F column (moved from slot 8 to 9) - TOGGLEABLE ON MOBILE
+          // Prophecy F column (moved from slot 8 to 9)
           slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
           break;
         case 10:
-          // Prophecy V column (moved from slot 9 to 10) - TOGGLEABLE ON MOBILE
+          // Prophecy V column (moved from slot 9 to 10)
           slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
           break;
         case 11:
-          // Dates column (unchanged) - TOGGLEABLE ON MOBILE
+          // Dates column (unchanged)
           slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
           break;
       }
@@ -455,31 +455,29 @@ export function VirtualRow({
   }
 
   // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
-  // HIDDEN ON MOBILE for clean dual-column layout
+  // NOW AVAILABLE ON MOBILE with horizontal scrolling
   // FILTER OUT main translation to prevent duplication
-  if (!isMobile) {
-    alternates
-      .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
-      .forEach((translationCode, index) => {
-        let slot;
-        if (index < 4) {
-          // Primary alternate translations: slots 3-6
-          slot = 3 + index;
-        } else {
-          // Extended alternate translations: slots 12-19 (8 additional slots)
-          slot = 12 + (index - 4);
-        }
-        
-        if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
-          slotConfig[slot] = { 
-            type: 'alt-translation', 
-            header: translationCode, 
-            translationCode, 
-            visible: true  // Show all active alternate translations
-          };
-        }
-      });
-  }
+  alternates
+    .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
+    .forEach((translationCode, index) => {
+      let slot;
+      if (index < 4) {
+        // Primary alternate translations: slots 3-6
+        slot = 3 + index;
+      } else {
+        // Extended alternate translations: slots 12-19 (8 additional slots)
+        slot = 12 + (index - 4);
+      }
+      
+      if (slot <= 19) { // Max 12 alternate translations total (4 primary + 8 extended)
+        slotConfig[slot] = { 
+          type: 'alt-translation', 
+          header: translationCode, 
+          translationCode, 
+          visible: true  // Show all active alternate translations
+        };
+      }
+    });
 
   // Get visible columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
