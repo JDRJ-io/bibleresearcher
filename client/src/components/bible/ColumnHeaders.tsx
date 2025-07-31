@@ -371,6 +371,24 @@ export function ColumnHeaders({
       columns.sort((a, b) => a.slot - b.slot);
     }
 
+    // On mobile, only show Reference, Main Translation, and Cross References in specific order
+    if (adaptiveIsMobile) {
+      const mobileColumns = columns.filter(col => 
+        col.type === 'reference' || 
+        col.type === 'main-translation' || 
+        col.type === 'cross-refs'
+      );
+      
+      // Force correct mobile order: Reference (0), Main Translation (2), Cross References (7)
+      mobileColumns.sort((a, b) => {
+        const order = { 'reference': 0, 'main-translation': 1, 'cross-refs': 2 };
+        return order[a.type] - order[b.type];
+      });
+      
+      console.log('📱 Mobile filtered columns:', mobileColumns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
+      return mobileColumns;
+    }
+
     return columns;
   }, [showCrossRefs, showProphecies, showNotes, showDates, main, alternates, adaptiveIsMobile, columnState]);
 
