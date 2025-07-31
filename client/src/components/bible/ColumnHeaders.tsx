@@ -100,12 +100,12 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
 
       if (slot === 0) return '32px'; // Reference column - compact on mobile
       if (slot === 3 && column.type === 'main-translation') {
-        // Main translation gets ~48% of available space
-        return `${Math.floor(safeWidth * 0.48)}px`;
+        // Main translation gets ~35% of available space (reduced from 48%)
+        return `${Math.floor(safeWidth * 0.35)}px`;
       }
       if (slot === 7 && column.type === 'cross-refs') {
-        // Cross references gets ~48% of available space  
-        return `${Math.floor(safeWidth * 0.48)}px`;
+        // Cross references gets ~35% of available space  
+        return `${Math.floor(safeWidth * 0.35)}px`;
       }
 
       // Other mobile columns
@@ -275,7 +275,7 @@ export function ColumnHeaders({
     });
   }
 
-  // Dynamically add alternate translation columns to slots 3-6 and 12-19 for 12 total alternates
+  // Dynamically add alternate translation columns to slots 12-19 for 8 total alternates
   // NOW AVAILABLE ON MOBILE with horizontal scrolling
   // FILTER OUT main translation to prevent duplication
   alternates
@@ -361,10 +361,10 @@ export function ColumnHeaders({
       }
     });
 
-    // Add all other feature columns from slotConfig
+    // Add all other feature columns from slotConfig (excluding main translation which we already added)
     Object.entries(slotConfig).forEach(([slotStr, config]) => {
       const slot = parseInt(slotStr);
-      if (config?.visible && slot > 2 && config?.type !== 'alt-translation') {
+      if (config?.visible && slot > 2 && config?.type !== 'alt-translation' && config?.type !== 'main-translation') {
         columns.push({
           slot,
           type: config.type,

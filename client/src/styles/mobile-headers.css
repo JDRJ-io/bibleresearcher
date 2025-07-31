@@ -67,12 +67,12 @@
 
   /* Main translation mobile sizing */
   .column-header-cell[data-column="main"] {
-    width: calc((100vw - 60px) * 0.48) !important;
+    width: calc((100vw - 60px) * 0.35) !important;
   }
 
   /* Cross references mobile sizing */  
   .column-header-cell[data-column="cross-refs"] {
-    width: calc((100vw - 60px) * 0.48) !important;
+    width: calc((100vw - 60px) * 0.35) !important;
   }
 
   /* Prophecy columns mobile sizing */
