@@ -417,56 +417,56 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         onClick={handleOverlayClick}
       />
       
-      <div className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40">
+      <div className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40 max-w-[calc(100vw-16px)]">
         {/* Sleek Tab Bar */}
-        <div className="flex">
-        <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
-          {tabs.map((tab, index) => {
-            const Icon = tab.icon;
-                        return (
-              <div key={tab.id} className="relative">
-                <button
-                  onClick={() => {
-                    if (activeTab === tab.id) {
-                      setActiveTab("");
-                    } else {
-                      setActiveTab(tab.id);
-                    }
-                  }}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
-                      : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-800/30"
-                  }`}
-                >
-                  <Icon className="w-3 h-3" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                </button>
+        <div className="flex flex-col">
+          <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
+            {tabs.map((tab, index) => {
+              const Icon = tab.icon;
+              return (
+                <div key={tab.id} className="relative">
+                  <button
+                    onClick={() => {
+                      if (activeTab === tab.id) {
+                        setActiveTab("");
+                      } else {
+                        setActiveTab(tab.id);
+                      }
+                    }}
+                    className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
+                        : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-800/30"
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                </div>
+              );
+            })}
 
-                {/* Individual Dropdown Slot - positioned under each tab */}
-                {activeTab === tab.id && (
-                  <div className="absolute top-full mt-2 w-80 max-w-[calc(100vw-16px)] z-50 right-0 transform sm:translate-x-0 -translate-x-2">
-                    <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
-                      <div className="p-3 sm:p-4 max-h-80 overflow-y-auto">
-                        {renderTabContent()}
-                      </div>
-                    </div>
-                  </div>
-                )}
+            {/* Close Button integrated in tab bar */}
+            <button
+              onClick={onClose}
+              className="flex items-center justify-center w-8 h-8 rounded-full text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-2"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Dropdown positioned directly under tab bar for mobile */}
+          {activeTab && (
+            <div className="mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] z-50">
+              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
+                <div className="p-3 sm:p-4 max-h-72 sm:max-h-80 overflow-y-auto">
+                  {renderTabContent()}
+                </div>
               </div>
-            );
-          })}
-
-          {/* Close Button integrated in tab bar */}
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center w-8 h-8 rounded-full text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-2"
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+            </div>
+          )}
         </div>
       </div>
     </>
