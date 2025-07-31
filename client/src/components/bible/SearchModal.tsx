@@ -201,10 +201,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       setAllResults(textResults);
       setSearchResults(textResults.slice(0, displayedResults));
       
-      // Auto-select first result for keyboard navigation
-      if (textResults.length > 0) {
-        setSelectedResultIndex(0);
-      }
+      // Don't auto-select - let user manually navigate with arrow keys
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
