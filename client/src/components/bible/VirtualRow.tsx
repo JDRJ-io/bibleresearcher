@@ -229,17 +229,17 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
 
-  // Display text upright for better readability 
+  // Display text vertically (rotated 90 degrees counterclockwise) to match reference design
   return (
-    <div className="flex items-center justify-center h-full w-full px-1 py-1">
-        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight break-words overflow-hidden"
+    <div className="flex items-center justify-center h-full w-full">
+        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight whitespace-nowrap"
              style={{ 
                fontSize: '10px',
                lineHeight: '1.2',
-               maxHeight: '100%',
-               wordWrap: 'break-word',
-               overflowWrap: 'break-word',
-               hyphens: 'auto'
+               transform: 'rotate(-90deg)',
+               transformOrigin: 'center',
+               whiteSpace: 'nowrap',
+               overflow: 'visible'
              }}>
           {dateText.trim()}
         </div>
