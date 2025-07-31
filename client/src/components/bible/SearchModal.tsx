@@ -57,9 +57,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
   
   // Create verse objects with text content for search engine
   const versesWithText = useMemo(() => {
-    if (!verses.length || !getVerseText) return [];
+    console.log(`🔍 SearchModal versesWithText memo - verses.length: ${verses.length}, getVerseText available: ${!!getVerseText}`);
     
-    return verses.map((verse, index) => {
+    if (!verses.length || !getVerseText) {
+      console.log(`🔍 SearchModal returning empty versesWithText`);
+      return [];
+    }
+    
+    const result = verses.map((verse, index) => {
       // Get text for all available translations using your working system
       const textObj: Record<string, string> = {};
       const translations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
@@ -78,6 +83,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
         index
       };
     });
+    
+    console.log(`🔍 SearchModal created ${result.length} versesWithText, sample:`, result[0]);
+    return result;
   }, [verses, getVerseText, activeTranslation]);
   
   // Create search engine instance
@@ -261,10 +269,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
   };
 
   const getRandomVerse = () => {
-    if (verseKeys.length === 0) return;
+    console.log(`🎲 Random verse - verses.length: ${verses.length}`);
+    if (verses.length === 0) return;
     
-    const randomIndex = Math.floor(Math.random() * verseKeys.length);
-    const randomVerseKey = verseKeys[randomIndex];
+    const randomIndex = Math.floor(Math.random() * verses.length);
+    const randomVerse = verses[randomIndex];
+    const randomVerseKey = randomVerse.reference;
+    console.log(`🎲 Selected random verse: ${randomVerseKey}`);
     onNavigateToVerse(randomVerseKey);
     onClose();
   };
