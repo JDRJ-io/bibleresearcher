@@ -135,11 +135,16 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
     
     const onPop = (e: PopStateEvent) => {
       console.log('🔙 Desktop popstate triggered:', e.state);
-      const ref = (e.state && e.state.ref) || window.location.hash.slice(1);
-      if (ref) {
+      
+      // FIXED: Only respond to actual user-initiated back/forward actions, not page loads
+      // Don't auto-navigate on page refresh or initial load
+      if (e.state && e.state.ref && e.state.type === 'verse-navigation') {
+        const ref = e.state.ref;
         console.log('🔙 Desktop navigating to:', ref);
         scrollToVerse(ref);
         lastPushed.current = ref;
+      } else {
+        console.log('🔙 Desktop popstate ignored - not a user navigation event');
       }
     };
     

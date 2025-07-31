@@ -27,7 +27,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
   };
 }
 
-const THRESH = 5;  // FIXED: Reduced threshold for smoother scrolling - prevent large jumps
+const THRESH = 10;  // FIXED: Increased threshold to prevent excessive slice reloading during scroll
 
 export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
   const anchorIndexRef = useRef(0);
