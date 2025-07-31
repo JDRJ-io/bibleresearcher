@@ -90,6 +90,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
     });
     
     console.log(`🔍 SearchModal created ${result.length} versesWithText, sample:`, result[0]);
+    console.log(`🔍 SearchModal sample verse text object:`, result[0]?.text);
+    console.log(`🔍 SearchModal sample verse keys in text:`, Object.keys(result[0]?.text || {}));
     return result;
   }, [verses, getVerseText, activeTranslation]);
   
