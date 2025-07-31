@@ -30,9 +30,10 @@ interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigateToVerse: (verseReference: string) => void;
+  verses?: any[]; // Array of verse objects with reference and text data
 }
 
-export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalProps) {
+export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }: SearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -52,34 +53,32 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   // Mobile responsiveness hook
   const isMobile = useIsMobile();
   
-  const bibleStore = useBibleStore();
-  const verseKeys = bibleStore?.currentVerseKeys || [];
   const { mainTranslation: activeTranslation, getVerseText } = useTranslationMaps();
   
   // Create verse objects with text content for search engine
   const versesWithText = useMemo(() => {
-    if (!verseKeys.length || !getVerseText) return [];
+    if (!verses.length || !getVerseText) return [];
     
-    return verseKeys.map((key, index) => {
+    return verses.map((verse, index) => {
       // Get text for all available translations using your working system
       const textObj: Record<string, string> = {};
       const translations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
       
       translations.forEach(translationCode => {
-        const text = getVerseText(key, translationCode);
+        const text = getVerseText(verse.reference, translationCode);
         if (text && text.trim()) {
           textObj[translationCode] = text.trim();
         }
       });
       
       return {
-        id: key,
-        reference: key, // Keep original format Gen.1:1 for proper search engine compatibility
+        id: verse.reference,
+        reference: verse.reference, // Keep original format Gen.1:1 for proper search engine compatibility
         text: textObj,
         index
       };
     });
-  }, [verseKeys, getVerseText, activeTranslation]);
+  }, [verses, getVerseText, activeTranslation]);
   
   // Create search engine instance
   const searchEngine = useMemo(() => {
@@ -113,10 +112,20 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
 
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
+    
+    console.log(`🔍 Search Debug - Query: "${searchQuery}"`);
+    console.log(`🔍 Search Debug - versesWithText.length: ${versesWithText.length}`);
+    console.log(`🔍 Search Debug - activeTranslation: ${activeTranslation}`);
+    console.log(`🔍 Search Debug - verses.length: ${verses.length}`);
+    
     if (!versesWithText.length) {
       console.warn('Search: No verse data available yet. Loaded verses:', versesWithText.length);
       return;
     }
+    
+    // Check if versesWithText has proper text data
+    const sampleVerse = versesWithText[0];
+    console.log(`🔍 Search Debug - Sample verse:`, sampleVerse);
     
     setIsSearching(true);
     setHasSearched(true);
@@ -148,6 +157,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
       }
       
       console.log(`🔍 Search found ${results.length} results in ${searchMode} mode`);
+      console.log(`🔍 Search raw results sample:`, results.slice(0, 3));
       
       // Filter to text-only results and sort by confidence
       const textResults = results
@@ -155,6 +165,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
         .sort((a, b) => b.confidence - a.confidence);
       
       console.log(`🔍 Text-only results: ${textResults.length}`);
+      console.log(`🔍 Text results sample:`, textResults.slice(0, 3));
       
       setAllResults(textResults);
       setSearchResults(textResults.slice(0, displayedResults));

@@ -361,6 +361,7 @@ export default function BiblePage() {
           isOpen={isSearchModalOpen}
           onClose={handleSearchClose}
           onNavigateToVerse={handleNavigateToVerse}
+          verses={verses}
         />
 
         {/* Hamburger Menu */}
