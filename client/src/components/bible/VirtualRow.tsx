@@ -226,23 +226,27 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   }
 
   if (!dateText || dateText.trim() === "") {
-    return <div className="text-gray-400 text-xs text-center py-1">-</div>;
+    return <div className="text-gray-400 text-xs text-center py-0.5">-</div>;
   }
 
   const containerClass = isMobile 
-    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-0.5 transform -rotate-90 origin-center flex items-center justify-center h-full w-full break-words hyphens-auto"
-    : "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-0.5 break-words";
+    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-0.5 px-0.5 transform rotate-90 origin-center flex items-center justify-center h-full w-full break-words hyphens-auto"
+    : "text-xs text-gray-700 dark:text-gray-300 text-center py-0.5 px-0.5 break-words";
 
-  // For mobile, create a container that allows text wrapping within the rotated space
+  // For mobile, create a container that allows vertical compactness with rotated text
   if (isMobile) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <div className={containerClass} style={{ 
-          maxWidth: '150px', // Reduced for thinner column
+          maxHeight: '80px', // Compact vertically instead of horizontally
+          width: '100%',
+          writingMode: 'vertical-rl', // Vertical text flow
+          textOrientation: 'mixed',
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
-          lineHeight: '1.1',
-          fontSize: '10px' // Smaller font for compact display
+          lineHeight: '1.0',
+          fontSize: '9px', // Very small font for compact display
+          padding: '2px 0'
         }}>
           {dateText.trim()}
         </div>
@@ -253,7 +257,8 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   return (
     <div className={containerClass} style={{ 
       fontSize: '10px', 
-      lineHeight: '1.1' 
+      lineHeight: '1.1',
+      padding: '2px 4px'
     }}>
       {dateText.trim()}
     </div>
@@ -453,6 +458,9 @@ export function VirtualRow({
 
   // Dates column right after reference (slot 1)
   slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
+
+  // Notes column right after main translation (slot 3)
+  slotConfig[3] = { type: 'notes', header: 'Notes', visible: showNotes };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {

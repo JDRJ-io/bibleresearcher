@@ -157,7 +157,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       )}
       {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : 
        isMobile && column.name === "Dates" ? (
-         <div className="transform -rotate-90 text-xs font-bold">Dates</div>
+         <div className="transform rotate-90 text-xs font-bold">Dates</div>
        ) : column.name}
     </div>
   );
@@ -327,6 +327,17 @@ export function ColumnHeaders({
       visible: true,
       isMain: true
     });
+
+    // Add notes column if visible (should appear after main translation)
+    if (slotConfig[3]?.visible) {
+      columns.push({
+        slot: 3,
+        type: 'notes',
+        name: 'Notes',
+        visible: true,
+        isMain: false
+      });
+    }
 
     // Add alternate translations from slotConfig (supports both slots 3-6 and 12-19)
     // Available on all devices with horizontal scrolling
