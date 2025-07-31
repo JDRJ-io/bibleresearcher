@@ -99,7 +99,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       const safeWidth = viewportWidth - 40; // Account for padding
 
       if (slot === 0) return '32px'; // Reference column - compact on mobile
-      if (slot === 2 && column.type === 'main-translation') {
+      if (slot === 3 && column.type === 'main-translation') {
         // Main translation gets ~48% of available space
         return `${Math.floor(safeWidth * 0.48)}px`;
       }
@@ -118,7 +118,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
 
     // Desktop: Use expert's CSS variable system for responsive column widths
     if (slot === 0) return 'var(--w-ref)'; // Reference column
-    if (slot === 2 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
+    if (slot === 3 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
     if (slot === 7 && column.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
 
     // Handle alternate translations and other column types
@@ -436,7 +436,7 @@ export function ColumnHeaders({
 
       return visibleColumns.reduce((total, col) => {
         if (col.slot === 0) return total + 32; // Reference
-        if (col.slot === 2 && col.type === 'main-translation') return total + Math.floor(safeWidth * 0.30);
+        if (col.slot === 3 && col.type === 'main-translation') return total + Math.floor(safeWidth * 0.30);
         if (col.slot === 7 && col.type === 'cross-refs') return total + Math.floor(safeWidth * 0.25);
         if (col.type === 'alt-translation') return total + Math.floor(safeWidth * 0.35); // Alternate translations
         if (col.type === 'notes') return total + 80;
