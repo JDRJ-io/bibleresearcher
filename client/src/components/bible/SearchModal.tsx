@@ -34,6 +34,11 @@ interface SearchModalProps {
 }
 
 export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }: SearchModalProps) {
+  console.log('🔍 SearchModal rendered with:', {
+    isOpen,
+    versesLength: verses.length,
+    firstVerse: verses[0]?.reference
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);

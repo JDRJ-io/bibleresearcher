@@ -173,8 +173,13 @@ export default function BiblePage() {
   // Search modal handlers
   const handleSearchTrigger = useCallback(() => {
     console.log('🔍 Opening search modal from TopHeader');
+    console.log('🔍 Verses data being passed to SearchModal:', {
+      versesLength: verses.length,
+      firstVerse: verses[0]?.reference,
+      sampleVerses: verses.slice(0, 3).map(v => v.reference)
+    });
     setIsSearchModalOpen(true);
-  }, []);
+  }, [verses]);
 
   const handleSearchClose = useCallback(() => {
     console.log('🔍 Closing search modal');
