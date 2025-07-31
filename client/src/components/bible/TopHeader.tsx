@@ -92,7 +92,10 @@ export function TopHeader({
               variant="outline"
               size="sm"
               className="w-8 h-8 p-0"
-              onClick={onSearchChange}
+              onClick={() => {
+                console.log('🔍 TopHeader: Search button clicked (Mobile)');
+                onSearchChange();
+              }}
               title="Open Search Modal"
             >
               <Search className="w-4 h-4" />

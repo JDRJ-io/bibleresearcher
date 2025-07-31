@@ -132,6 +132,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
     console.log(`🔍 Search Debug - versesWithText.length: ${versesWithText.length}`);
     console.log(`🔍 Search Debug - activeTranslation: ${activeTranslation}`);
     console.log(`🔍 Search Debug - verses.length: ${verses.length}`);
+    console.log(`🔍 Search Debug - Modal isOpen: ${isOpen}`);
     
     if (!versesWithText.length) {
       console.warn('Search: No verse data available yet. Loaded verses:', versesWithText.length);
