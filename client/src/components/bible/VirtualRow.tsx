@@ -229,19 +229,18 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
 
-  // Rotate text 90 degrees for compact vertical display
+  // For mobile, use upright text like the reference column
+  
   return (
     <div className="flex items-center justify-center h-full w-full px-1 py-1">
-        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight break-words overflow-hidden transform rotate-90"
+        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight break-words overflow-hidden"
              style={{ 
                fontSize: '10px',
                lineHeight: '1.2',
                maxHeight: '100%',
                wordWrap: 'break-word',
                overflowWrap: 'break-word',
-               hyphens: 'auto',
-               writingMode: 'horizontal-tb',
-               textOrientation: 'mixed'
+               hyphens: 'auto'
              }}>
           {dateText.trim()}
         </div>
@@ -437,14 +436,14 @@ export function VirtualRow({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
 
-  // Notes column right after dates (slot 2)
-  slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
-
-  // Main translation after notes (slot 3)
+  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
   slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
 
   // Dates column right after reference (slot 1)
   slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
+
+  // Notes column right after main translation (slot 3)
+  slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
@@ -455,12 +454,8 @@ export function VirtualRow({
           slotConfig[1] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
           break;
         case 2:
-          // Notes column (moved to slot 2)
+          // Notes column (moved to slot 3)
           slotConfig[2] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
-          break;
-        case 3:
-          // Main translation (moved to slot 3)
-          slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: col.visible };
           break;
         case 7:
           // Cross References column (unchanged)

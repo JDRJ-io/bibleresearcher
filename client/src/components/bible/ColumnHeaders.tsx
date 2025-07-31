@@ -233,11 +233,8 @@ export function ColumnHeaders({
   // Dates column right after reference (slot 1)
   slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
 
-  // Notes column moved to slot 2 (right after dates)
-  slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
-
-  // Main translation moved to slot 3
-  slotConfig[3] = { type: 'main-translation', header: main || 'KJV', translationCode: main || 'KJV', visible: true };
+  // Main translation moved to slot 2
+  slotConfig[2] = { type: 'main-translation', header: main || 'KJV', translationCode: main || 'KJV', visible: true };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
@@ -247,13 +244,9 @@ export function ColumnHeaders({
         // Dates column (moved to slot 1 after Ref)
         slotConfig[1] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
-      case 2:
-        // Notes column (moved to slot 2)
-        slotConfig[2] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
-        break;
       case 3:
-        // Main translation (moved to slot 3)
-        slotConfig[3] = { type: 'main-translation', header: main || 'KJV', translationCode: main || 'KJV', visible: true };
+        // Notes column (moved to slot 3)
+        slotConfig[3] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
       case 7:
         // Cross References column (unchanged)
@@ -326,10 +319,10 @@ export function ColumnHeaders({
       });
     }
 
-    // Add notes column if visible (right after dates)
-    if (slotConfig[2]?.visible) {
+    // Add notes column if visible (before main translation)
+    if (slotConfig[3]?.visible) {
       columns.push({
-        slot: 2,
+        slot: 3,
         type: 'notes',
         name: 'Notes',
         visible: true,
@@ -339,7 +332,7 @@ export function ColumnHeaders({
 
     // Always add main translation (after notes)
     columns.push({
-      slot: 3,
+      slot: 2,
       type: 'main-translation',
       name: main || 'KJV',
       visible: true,

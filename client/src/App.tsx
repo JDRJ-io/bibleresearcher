@@ -262,7 +262,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 2 ? { ...col, visible: newValue } : col // Slot 2 = Notes
+          col.slot === 3 ? { ...col, visible: newValue } : col // Slot 3 = Notes
         )
       }
     };
@@ -438,8 +438,8 @@ export const useBibleStore = create<{
     columns: [
       { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
       { slot: 1, visible: false, widthRem: 4, displayOrder: 1 },   // Dates (moved here)
-      { slot: 2, visible: false, widthRem: 16, displayOrder: 2 },   // Notes (moved here)
-      { slot: 3, visible: true, widthRem: 20, displayOrder: 3 },    // Main translation (moved here) 
+      { slot: 2, visible: true, widthRem: 20, displayOrder: 2 },    // Main translation (always visible)
+      { slot: 3, visible: false, widthRem: 16, displayOrder: 3 },   // Notes (moved here) 
       { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
       { slot: 8, visible: false, widthRem: 18, displayOrder: 8 },   // Prophecy P - SAME WIDTH AS ALTERNATE TRANSLATIONS  
       { slot: 9, visible: false, widthRem: 18, displayOrder: 9 },   // Prophecy F - SAME WIDTH AS ALTERNATE TRANSLATIONS
