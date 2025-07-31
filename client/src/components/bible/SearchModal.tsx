@@ -9,6 +9,23 @@ import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
+// Mobile detection hook
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+  
+  return isMobile;
+};
+
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -31,6 +48,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   const [showHistory, setShowHistory] = useState(false);
   const [searchMode, setSearchMode] = useState<'smart' | 'exact' | 'fuzzy'>('smart');
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
+  
+  // Mobile responsiveness hook
+  const isMobile = useIsMobile();
   
   const bibleStore = useBibleStore();
   const verseKeys = bibleStore?.currentVerseKeys || [];
@@ -255,7 +275,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-4xl max-h-[85vh] flex flex-col"
+        className={`max-h-[85vh] flex flex-col ${
+          isMobile ? 'max-w-sm w-[95vw] mx-2' : 'max-w-4xl'
+        }`}
         onInteractOutside={(e) => {
           // Allow clicking outside to close the modal
           onClose();
@@ -274,17 +296,19 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Search className="w-5 h-5" />
-              Intelligent Bible Search
+              {isMobile ? 'Search' : 'Intelligent Bible Search'}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-1"
-            >
-              <Settings className="w-4 h-4" />
-              {showAdvanced ? 'Simple' : 'Advanced'}
-            </Button>
+            {!isMobile && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-1"
+              >
+                <Settings className="w-4 h-4" />
+                {showAdvanced ? 'Simple' : 'Advanced'}
+              </Button>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -292,7 +316,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
           {/* Search Input */}
           <div className="flex gap-2">
             <Input
-              placeholder="Try: 'John 3:16', 'love', 'Gen 1', 'Psalm 23:1-3', or any book/verse..."
+              placeholder={isMobile ? "Search verses or references..." : "Try: 'John 3:16', 'love', 'Gen 1', 'Psalm 23:1-3', or any book/verse..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -302,86 +326,104 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
             <Button onClick={performSearch} disabled={isSearching}>
               {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={getRandomVerse}
-              title="Random Verse (Ctrl+R)"
-            >
-              <Book className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={showHistory ? 'default' : 'outline'}
-              onClick={() => setShowHistory(!showHistory)}
-              title="Search History (Ctrl+H)"
-              disabled={searchHistory.length === 0}
-            >
-              <History className="w-4 h-4" />
-            </Button>
+            {!isMobile && (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={getRandomVerse}
+                  title="Random Verse (Ctrl+R)"
+                >
+                  <Book className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={showHistory ? 'default' : 'outline'}
+                  onClick={() => setShowHistory(!showHistory)}
+                  title="Search History (Ctrl+H)"
+                  disabled={searchHistory.length === 0}
+                >
+                  <History className="w-4 h-4" />
+                </Button>
+              </>
+            )}
           </div>
 
-          {/* Quick Actions Row */}
-          <div className="flex flex-wrap gap-2">
-            {/* Search Mode Selector */}
-            <div className="flex items-center gap-1 border rounded-md p-1">
-              <Button
-                variant={searchMode === 'smart' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setSearchMode('smart')}
-                className="h-8 px-2 text-xs"
-              >
-                <Zap className="w-3 h-3 mr-1" />
-                Smart
-              </Button>
-              <Button
-                variant={searchMode === 'exact' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setSearchMode('exact')}
-                className="h-8 px-2 text-xs"
-              >
-                <Target className="w-3 h-3 mr-1" />
-                Exact
-              </Button>
-              <Button
-                variant={searchMode === 'fuzzy' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setSearchMode('fuzzy')}
-                className="h-8 px-2 text-xs"
-              >
-                <Filter className="w-3 h-3 mr-1" />
-                Fuzzy
-              </Button>
-            </div>
+          {/* Quick Actions Row - Hidden on Mobile */}
+          {!isMobile && (
+            <div className="flex flex-wrap gap-2">
+              {/* Search Mode Selector */}
+              <div className="flex items-center gap-1 border rounded-md p-1">
+                <Button
+                  variant={searchMode === 'smart' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSearchMode('smart')}
+                  className="h-8 px-2 text-xs"
+                >
+                  <Zap className="w-3 h-3 mr-1" />
+                  Smart
+                </Button>
+                <Button
+                  variant={searchMode === 'exact' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSearchMode('exact')}
+                  className="h-8 px-2 text-xs"
+                >
+                  <Target className="w-3 h-3 mr-1" />
+                  Exact
+                </Button>
+                <Button
+                  variant={searchMode === 'fuzzy' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setSearchMode('fuzzy')}
+                  className="h-8 px-2 text-xs"
+                >
+                  <Filter className="w-3 h-3 mr-1" />
+                  Fuzzy
+                </Button>
+              </div>
 
-            {/* Keyboard Shortcuts Help */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => alert(`Keyboard Shortcuts:
+              {/* Keyboard Shortcuts Help */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => alert(`Keyboard Shortcuts:
 • Enter: Search or navigate to selected result
 • ↑↓: Navigate through results
 • Escape: Clear selection or close
 • Ctrl+F: Toggle advanced options
 • Ctrl+H: Toggle search history
 • Ctrl+R: Random verse`)}
-              className="h-8 px-2 text-xs"
-            >
-              <Keyboard className="w-3 h-3 mr-1" />
-              Help
-            </Button>
+                className="h-8 px-2 text-xs"
+              >
+                <Keyboard className="w-3 h-3 mr-1" />
+                Help
+              </Button>
 
-            {/* Results Info */}
-            {hasSearched && (
-              <div className="flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs">
-                <span className="font-medium">{searchResults.length}</span>
-                <span className="text-gray-500 ml-1">results</span>
-                {selectedResultIndex >= 0 && (
-                  <span className="ml-2 text-blue-600 dark:text-blue-400">
-                    [{selectedResultIndex + 1}/{searchResults.length}]
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
+              {/* Results Info */}
+              {hasSearched && (
+                <div className="flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs">
+                  <span className="font-medium">{searchResults.length}</span>
+                  <span className="text-gray-500 ml-1">results</span>
+                  {selectedResultIndex >= 0 && (
+                    <span className="ml-2 text-blue-600 dark:text-blue-400">
+                      [{selectedResultIndex + 1}/{searchResults.length}]
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Mobile Results Info - Simple version */}
+          {isMobile && hasSearched && (
+            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+              <span>{searchResults.length} results found</span>
+              {selectedResultIndex >= 0 && (
+                <span className="text-blue-600 dark:text-blue-400">
+                  {selectedResultIndex + 1}/{searchResults.length}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Search History */}
           {showHistory && searchHistory.length > 0 && (
@@ -463,45 +505,59 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
           {/* Search Examples & Tips */}
           {!hasSearched && (
             <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-              <div>
-                <p className="font-medium mb-2 flex items-center gap-2">
-                  <Search className="w-4 h-4" />
-                  Search Examples:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <strong>Text Search:</strong>
-                    <ul className="ml-4 space-y-1">
-                      <li>• "love your enemies"</li>
-                      <li>• "faith hope love"</li>
-                      <li>• "in the beginning"</li>
-                      <li>• "fear not"</li>
-                    </ul>
+              {!isMobile ? (
+                // Desktop version - full examples
+                <div>
+                  <p className="font-medium mb-2 flex items-center gap-2">
+                    <Search className="w-4 h-4" />
+                    Search Examples:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <strong>Text Search:</strong>
+                      <ul className="ml-4 space-y-1">
+                        <li>• "love your enemies"</li>
+                        <li>• "faith hope love"</li>
+                        <li>• "in the beginning"</li>
+                        <li>• "fear not"</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Reference Search:</strong>
+                      <ul className="ml-4 space-y-1">
+                        <li>• John 3:16</li>
+                        <li>• Psalm 23</li>
+                        <li>• Genesis 1:1-3</li>
+                        <li>• Romans 8</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div>
-                    <strong>Reference Search:</strong>
-                    <ul className="ml-4 space-y-1">
-                      <li>• John 3:16</li>
-                      <li>• Psalm 23</li>
-                      <li>• Genesis 1:1-3</li>
-                      <li>• Romans 8</li>
-                    </ul>
+                  
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <p className="font-medium mb-1 flex items-center gap-2">
+                      <Keyboard className="w-4 h-4" />
+                      Keyboard Shortcuts:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                      <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Enter</kbd> Search or navigate</div>
+                      <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">↑↓</kbd> Browse results</div>
+                      <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Ctrl+H</kbd> Search history</div>
+                      <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Ctrl+R</kbd> Random verse</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-                <p className="font-medium mb-1 flex items-center gap-2">
-                  <Keyboard className="w-4 h-4" />
-                  Keyboard Shortcuts:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Enter</kbd> Search or navigate</div>
-                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">↑↓</kbd> Browse results</div>
-                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Ctrl+H</kbd> Search history</div>
-                  <div>• <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Ctrl+R</kbd> Random verse</div>
+              ) : (
+                // Mobile version - simplified examples
+                <div className="text-center">
+                  <p className="font-medium mb-2">Try searching for:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">John 3:16</span>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">love</span>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Psalm 23</span>
+                    <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">faith hope</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -526,7 +582,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                   <span>{searchResults.length} results found</span>
-                  {showAdvanced && (
+                  {!isMobile && showAdvanced && (
                     <div className="flex gap-2">
                       <Badge variant="outline" className="text-xs">Ref</Badge>
                       <Badge variant="outline" className="text-xs">Text</Badge>
@@ -556,38 +612,38 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                       key={`${result.verseId}-${index}`}
                       data-result-index={index}
                       onClick={() => handleResultClick(result)}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                      className={`${isMobile ? 'p-2' : 'p-3'} border rounded-lg cursor-pointer transition-all ${
                         selectedResultIndex === index
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-md ring-2 ring-blue-200 dark:ring-blue-800'
                           : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className={`font-medium ${
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`font-medium ${isMobile ? 'text-sm' : ''} ${
                             selectedResultIndex === index 
                               ? 'text-blue-700 dark:text-blue-300' 
                               : 'text-blue-600 dark:text-blue-400'
                           }`}>
                             {result.reference}
                           </span>
-                          {selectedResultIndex === index && (
+                          {!isMobile && selectedResultIndex === index && (
                             <Badge variant="default" className="text-xs bg-blue-600 text-white">
                               Selected
                             </Badge>
                           )}
-                          {result.translationCode && searchAllTranslations && (
+                          {result.translationCode && searchAllTranslations && !isMobile && (
                             <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                               {result.translationCode}
                             </Badge>
                           )}
-                          {showAdvanced && (
+                          {showAdvanced && !isMobile && (
                             <span className={`text-xs ${getConfidenceColor(result.confidence)}`}>
                               {Math.round(result.confidence * 100)}%
                             </span>
                           )}
                         </div>
-                        {selectedResultIndex === index && (
+                        {selectedResultIndex === index && !isMobile && (
                           <div className="flex items-center gap-1 text-xs text-gray-500">
                             <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded text-xs">Enter</kbd>
                           </div>
@@ -601,7 +657,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse }: SearchModalP
                         }`}
                         dangerouslySetInnerHTML={{ __html: result.highlightedText }}
                       />
-                      {selectedResultIndex === index && (
+                      {selectedResultIndex === index && !isMobile && (
                         <div className="mt-2 text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
                           <span>Press Enter to navigate</span>
                           <span>•</span>
