@@ -30,10 +30,11 @@ interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigateToVerse: (verseReference: string) => void;
+  onSwitchTranslation?: (translationCode: string) => void;
   verses?: any[]; // Array of verse objects with reference and text data
 }
 
-export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }: SearchModalProps) {
+export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTranslation, verses = [] }: SearchModalProps) {
   console.log('🔍 SearchModal rendered with:', {
     isOpen,
     versesLength: verses.length,
@@ -53,7 +54,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
+  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV', 'ESV', 'NIV']);
   
   // Mobile responsiveness hook
   const isMobile = useIsMobile();
@@ -157,7 +158,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
       const directResults: SearchResult[] = [];
       const searchTerm = searchQuery.toLowerCase().trim();
       const translationsToSearch = searchAllTranslations ? 
-        ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'] : 
+        selectedTranslations.length > 0 ? selectedTranslations : ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'] : 
         [activeTranslation];
       
       console.log(`🔍 REAL SEARCH - Searching translations: ${translationsToSearch.join(', ')}`);
@@ -273,8 +274,16 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
   };
 
   const handleResultClick = (result: SearchResult) => {
-    console.log(`🎯 Navigating to verse: ${result.verseId} from search result`);
-    onNavigateToVerse(result.verseId);
+    console.log(`🎯 Navigating to verse: ${result.reference} from search result`);
+    console.log(`🎯 Translation switching to: ${result.translationCode}`);
+    
+    // Switch to the translation if it's different from current and we have the function
+    if (result.translationCode && result.translationCode !== activeTranslation && onSwitchTranslation) {
+      onSwitchTranslation(result.translationCode);
+    }
+    
+    // Navigate to the verse (use reference, not verseId which has translation suffix)
+    onNavigateToVerse(result.reference);
     onClose();
   };
 
@@ -511,20 +520,49 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
               </div>
               
               {/* Multi-Translation Search Toggle */}
-              <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <input
-                  type="checkbox"
-                  id="searchAllTranslations"
-                  checked={searchAllTranslations}
-                  onChange={(e) => setSearchAllTranslations(e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <label htmlFor="searchAllTranslations" className="text-sm font-medium">
-                  Search across all translations
-                </label>
-                <div className="text-xs text-gray-500 ml-2">
-                  (Find verses where specific translations use unique phrasing)
+              <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="searchAllTranslations"
+                    checked={searchAllTranslations}
+                    onChange={(e) => setSearchAllTranslations(e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="searchAllTranslations" className="text-sm font-medium">
+                    Search across multiple translations
+                  </label>
                 </div>
+                
+                {/* Translation Selection */}
+                {searchAllTranslations && (
+                  <div className="space-y-2">
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      Select translations to search (click results to switch main translation):
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'].map(translation => (
+                        <label key={translation} className="flex items-center space-x-1 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={selectedTranslations.includes(translation)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedTranslations(prev => [...prev, translation]);
+                              } else {
+                                setSelectedTranslations(prev => prev.filter(t => t !== translation));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className={translation === activeTranslation ? 'font-bold text-blue-600' : ''}>
+                            {translation}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               {searchAllTranslations && (

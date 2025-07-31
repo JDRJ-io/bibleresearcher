@@ -15,6 +15,7 @@ import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 import { useLoadingDetection } from '@/hooks/useLoadingDetection';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
 import { useVerseNav } from '@/hooks/useVerseNav';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import type { VirtualBibleTableHandle } from '@/components/bible/VirtualBibleTable';
 
 import type { BibleVerse } from '@/types/bible';
@@ -76,6 +77,9 @@ export default function BiblePage() {
     getGlobalVerseText,
     mainTranslation
   } = useBibleData();
+
+  // Translation management
+  const { setMain: setMainTranslation } = useTranslationMaps();
 
   // Strong's overlay handler
   const handleExpandVerse = useCallback((verse: BibleVerse) => {
@@ -366,6 +370,7 @@ export default function BiblePage() {
           isOpen={isSearchModalOpen}
           onClose={handleSearchClose}
           onNavigateToVerse={handleNavigateToVerse}
+          onSwitchTranslation={setMainTranslation}
           verses={verses}
         />
 
