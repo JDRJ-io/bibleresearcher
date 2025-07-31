@@ -308,7 +308,7 @@ export function ColumnHeaders({
       isMain: false
     });
 
-    // Add dates column if visible (right after reference)
+    // Add dates column if visible (slot 1 - right after reference)
     if (slotConfig[1]?.visible) {
       columns.push({
         slot: 1,
@@ -319,7 +319,16 @@ export function ColumnHeaders({
       });
     }
 
-    // Add notes column if visible (before main translation)
+    // Always add main translation (slot 2)
+    columns.push({
+      slot: 2,
+      type: 'main-translation',
+      name: main || 'KJV',
+      visible: true,
+      isMain: true
+    });
+
+    // Add notes column if visible (slot 3 - after main translation)
     if (slotConfig[3]?.visible) {
       columns.push({
         slot: 3,
@@ -329,15 +338,6 @@ export function ColumnHeaders({
         isMain: false
       });
     }
-
-    // Always add main translation (after notes)
-    columns.push({
-      slot: 2,
-      type: 'main-translation',
-      name: main || 'KJV',
-      visible: true,
-      isMain: true
-    });
 
     // Add alternate translations from slotConfig (supports both slots 3-6 and 12-19)
     // Available on all devices with horizontal scrolling
