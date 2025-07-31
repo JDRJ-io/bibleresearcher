@@ -230,8 +230,24 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   }
 
   const containerClass = isMobile 
-    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis"
-    : "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 whitespace-nowrap overflow-hidden text-ellipsis";
+    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 transform -rotate-90 origin-center flex items-center justify-center h-full w-full break-words hyphens-auto"
+    : "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 break-words";
+
+  // For mobile, create a container that allows text wrapping within the rotated space
+  if (isMobile) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <div className={containerClass} style={{ 
+          maxWidth: '200px', // Allow more space for rotated text
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
+          lineHeight: '1.2'
+        }}>
+          {dateText.trim()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={containerClass}>
@@ -615,8 +631,10 @@ export function VirtualRow({
       case 'notes':
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="px-2 py-1 text-sm text-gray-500 cell-content">
-              [Notes placeholder]
+            <div className="px-2 py-1 text-sm text-gray-500 cell-content flex items-center justify-center h-full">
+              <div className="text-gray-400 italic text-center">
+                <div className="text-xs">Add note...</div>
+              </div>
             </div>
           </div>
         );
