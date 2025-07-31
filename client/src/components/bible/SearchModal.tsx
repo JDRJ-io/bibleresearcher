@@ -524,6 +524,47 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
             </div>
           )}
 
+          {/* Mobile Translation Selection */}
+          {isMobile && (
+            <div className="border rounded-md p-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const allTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
+                    setSelectedTranslations(
+                      selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
+                    );
+                  }}
+                  className="h-6 px-2 text-xs"
+                >
+                  {selectedTranslations.length === 13 ? 'Clear All' : 'Select All'}
+                </Button>
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                {['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'].map(translation => (
+                  <label key={translation} className="flex items-center gap-1 cursor-pointer text-xs">
+                    <input
+                      type="checkbox"
+                      checked={selectedTranslations.includes(translation)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTranslations(prev => [...prev, translation]);
+                        } else {
+                          setSelectedTranslations(prev => prev.filter(t => t !== translation));
+                        }
+                      }}
+                      className="rounded text-blue-600 focus:ring-blue-500 w-3 h-3"
+                    />
+                    <span className="font-medium">{translation}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Mobile Results Info - Simple version */}
           {isMobile && hasSearched && (
             <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
