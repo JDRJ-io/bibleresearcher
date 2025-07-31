@@ -10,6 +10,9 @@ import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
+import { NotesCell } from '@/components/user/NotesCell';
+import { HighlightableText } from '@/components/user/HighlightableText';
+import { BookmarkButton } from '@/components/user/BookmarkButton';
 
 interface VirtualRowProps {
   verseID: string;
@@ -361,7 +364,10 @@ function MainTranslationCell({
           translationCode={mainTranslation}
         />
       ) : (
-        verseText
+        <HighlightableText 
+          text={verseText} 
+          verseRef={verse.reference}
+        />
       )}
     </div>
   );
@@ -627,24 +633,29 @@ export function VirtualRow({
       case 'notes':
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="px-2 py-1 text-sm text-gray-500 cell-content flex items-center justify-center h-full">
-              <div className="text-gray-400 italic text-center">
-                <div className="text-xs">Add note...</div>
-              </div>
-            </div>
+            <NotesCell verseRef={verse.reference} className="h-full" />
           </div>
         );
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <MainTranslationCell 
-              key={`${verse.reference}-${mainTranslation}`}
-              verse={verse} 
-              getVerseText={getVerseText} 
-              mainTranslation={mainTranslation}
-              getVerseLabels={getVerseLabels}
-            />
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 group" style={columnStyle}>
+            <div className="relative">
+              <MainTranslationCell 
+                key={`${verse.reference}-${mainTranslation}`}
+                verse={verse} 
+                getVerseText={getVerseText} 
+                mainTranslation={mainTranslation}
+                getVerseLabels={getVerseLabels}
+              />
+              <div className="absolute top-1 right-1">
+                <BookmarkButton 
+                  verseRef={verse.reference} 
+                  indexValue={verse.index ?? 0} 
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                />
+              </div>
+            </div>
           </div>
         );
 

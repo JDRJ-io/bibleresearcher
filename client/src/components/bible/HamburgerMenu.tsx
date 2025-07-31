@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move } from "lucide-react";
+import { BookmarksList } from '@/components/user/BookmarksList';
 import { LabelsLegend } from './LabelsLegend';
 import { MainTranslationSelector } from './MainTranslationSelector';
 import { AlternateTranslationSelector } from './AlternateTranslationSelector';
@@ -348,49 +349,15 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
 
       case "bookmarks":
         return (
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Saved Bookmarks</h4>
-            {user ? (
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowBookmarkForm(!showBookmarkForm)}
-                  className="w-full text-sm"
-                >
-                  + Create Bookmark
-                </Button>
-                {showBookmarkForm && (
-                  <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 space-y-3">
-                    <input
-                      placeholder="Bookmark name..."
-                      value={bookmarkName}
-                      onChange={(e) => setBookmarkName(e.target.value)}
-                      className="w-full text-sm p-2 border rounded"
-                    />
-                    <div className="flex space-x-2">
-                      <input
-                        type="color"
-                        value={bookmarkColor}
-                        onChange={(e) => setBookmarkColor(e.target.value)}
-                        className="w-8 h-8 rounded border"
-                      />
-                      <Button
-                        onClick={handleCreateBookmark}
-                        disabled={createBookmarkMutation.isPending}
-                        className="flex-1 text-sm"
-                      >
-                        Save
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center text-xs text-gray-500 dark:text-gray-400">
-                <p className="mb-2">Sign in to access your bookmarks</p>
-                <Button size="sm" className="text-xs h-6 px-3">Sign In</Button>
-              </div>
-            )}
+          <div className="space-y-2 h-full flex flex-col">
+            <BookmarksList 
+              onNavigateToVerse={(indexValue) => {
+                // Handle verse navigation here
+                console.log('Navigate to verse:', indexValue);
+                onClose();
+              }}
+              className="flex-1"
+            />
           </div>
         );
 
