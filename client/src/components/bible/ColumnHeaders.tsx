@@ -111,7 +111,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       // Other mobile columns
       if (column.type === 'notes') return '80px';
       if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return '64px';
-      if (column.type === 'context') return '80px';
+      if (column.type === 'context') return '48px'; // Compact dates column
       
       return '120px'; // fallback for mobile
     }
@@ -155,7 +155,10 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       {isDraggable && (
         <div className="absolute top-0 right-0 text-blue-500 text-xs">⋮⋮</div>
       )}
-      {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : column.name}
+      {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : 
+       isMobile && column.name === "Dates" ? (
+         <div className="transform -rotate-90 text-xs font-bold">Dates</div>
+       ) : column.name}
     </div>
   );
 }
@@ -227,7 +230,10 @@ export function ColumnHeaders({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
 
-  // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)  
+  // Dates column right after reference (slot 1)
+  slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
+
+  // Main translation moved to slot 2
   slotConfig[2] = { type: 'main-translation', header: main || 'KJV', translationCode: main || 'KJV', visible: true };
 
   // Map all column types based on store state - updated slot assignments
@@ -235,28 +241,28 @@ export function ColumnHeaders({
     columnState.columns.forEach(col => {
     switch (col.slot) {
       case 1:
-        // Notes column (moved to slot 1 between Ref and Main)
-        slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+        // Dates column (moved to slot 1 after Ref)
+        slotConfig[1] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+        break;
+      case 3:
+        // Notes column (moved to slot 3)
+        slotConfig[3] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
         break;
       case 7:
-        // Cross References column (moved from slot 6 to 7)
+        // Cross References column (unchanged)
         slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
         break;
       case 8:
-        // Prophecy Prediction column (moved from slot 7 to 8)
+        // Prophecy Prediction column (unchanged)
         slotConfig[8] = { type: 'prophecy-p', header: 'Prediction', visible: col.visible && showProphecies };
         break;
       case 9:
-        // Prophecy Fulfillment column (moved from slot 8 to 9)
+        // Prophecy Fulfillment column (unchanged)
         slotConfig[9] = { type: 'prophecy-f', header: 'Fulfillment', visible: showProphecies };
         break;
       case 10:
-        // Prophecy Verification column (moved from slot 9 to 10)
+        // Prophecy Verification column (unchanged)
         slotConfig[10] = { type: 'prophecy-v', header: 'Verification', visible: showProphecies };
-        break;
-      case 11:
-        // Dates column (unchanged)
-        slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
         break;
     }
     });
@@ -302,12 +308,12 @@ export function ColumnHeaders({
       isMain: false
     });
 
-    // Add notes column if both store state AND individual column visibility enable it
+    // Add dates column if visible
     if (slotConfig[1]?.visible) {
       columns.push({
         slot: 1,
-        type: 'notes',
-        name: 'Notes',
+        type: 'context',
+        name: 'Dates',
         visible: true,
         isMain: false
       });
@@ -378,14 +384,14 @@ export function ColumnHeaders({
       columns.sort((a, b) => {
         const order: Record<string, number> = { 
           'reference': 0, 
-          'main-translation': 1, 
-          'cross-refs': 2, 
-          'alt-translation': 3,
-          'notes': 4,
-          'prophecy-p': 5,
-          'prophecy-f': 6,
-          'prophecy-v': 7,
-          'context': 8
+          'context': 1,
+          'main-translation': 2, 
+          'cross-refs': 3, 
+          'alt-translation': 4,
+          'notes': 5,
+          'prophecy-p': 6,
+          'prophecy-f': 7,
+          'prophecy-v': 8
         };
         const aOrder = order[a.type] ?? 9;
         const bOrder = order[b.type] ?? 9;

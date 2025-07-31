@@ -214,18 +214,27 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   );
 }
 
-function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
+function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobile }: CellProps & { isMobile?: boolean }) {
   const { datesData } = useBibleStore();
 
   // Get date for this verse index from loaded dates data
-  const dateText = datesData?.[verse.index ?? 0] || "";
+  let dateText = datesData?.[verse.index ?? 0] || "";
+
+  // Remove verse key references (everything before and including #)
+  if (dateText && dateText.includes('#')) {
+    dateText = dateText.split('#').slice(1).join('#').trim();
+  }
 
   if (!dateText || dateText.trim() === "") {
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
 
+  const containerClass = isMobile 
+    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 transform -rotate-90 whitespace-nowrap overflow-hidden text-ellipsis"
+    : "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 whitespace-nowrap overflow-hidden text-ellipsis";
+
   return (
-    <div className="text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 whitespace-nowrap overflow-hidden text-ellipsis">
+    <div className={containerClass}>
       {dateText.trim()}
     </div>
   );
@@ -422,33 +431,36 @@ export function VirtualRow({
   // Always show main translation (slot 2 - moved to accommodate Notes at slot 1)
   slotConfig[2] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
 
+  // Dates column right after reference (slot 1)
+  slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
+
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
     columnState.columns.forEach(col => {
       switch (col.slot) {
         case 1:
-          // Notes column (moved to slot 1 between Ref and Main)
-          slotConfig[1] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+          // Dates column (moved to slot 1 after Ref)
+          slotConfig[1] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+          break;
+        case 3:
+          // Notes column (moved to slot 3)
+          slotConfig[3] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
           break;
         case 7:
-          // Cross References column (moved from slot 6 to 7)
+          // Cross References column (unchanged)
           slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
           break;
         case 8:
-          // Prophecy P column (moved from slot 7 to 8)
+          // Prophecy P column (unchanged)
           slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
           break;
         case 9:
-          // Prophecy F column (moved from slot 8 to 9)
+          // Prophecy F column (unchanged)
           slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
           break;
         case 10:
-          // Prophecy V column (moved from slot 9 to 10)
+          // Prophecy V column (unchanged)
           slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
-          break;
-        case 11:
-          // Dates column (unchanged)
-          slotConfig[11] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
           break;
       }
     });
@@ -563,7 +575,7 @@ export function VirtualRow({
         if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--adaptive-alt-width)'; // Alternate translations
         if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
         if (config.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
-        if (config.type === 'context') return 'var(--adaptive-context-width)'; // Context/dates column
+        if (config.type === 'context') return '48px'; // Compact dates column
       } else {
         // Landscape mode - use expert's clamp() system
         if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
@@ -660,7 +672,7 @@ export function VirtualRow({
       case 'context':
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} />
+            <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} isMobile={isMobile} />
           </div>
         );
 

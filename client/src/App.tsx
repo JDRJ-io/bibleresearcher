@@ -315,25 +315,25 @@ export const useBibleStore = create<{
         try {
           const contextData = await getContextGroups();
           console.log('✅ Context groups data loaded:', contextData.length, 'groups');
-          
+
           // Process context groups into a map for quick lookup
           const newContextMap = new Map<string, { startVerse: string; endVerse: string; groupIndex: number }>();
-          
+
           // Convert pipe format to dot format
           const convertToDotFormat = (verseId: string): string => {
             const parts = verseId.split('|');
             if (parts.length !== 3) return verseId;
             return `${parts[0]}.${parts[1]}:${parts[2]}`;
           };
-          
+
           contextData.forEach((group, groupIndex) => {
             if (group.length === 0) return;
-            
+
             // Convert all verses in the group to dot format
             const dotFormatVerses = group.map(v => convertToDotFormat(v));
             const startVerse = dotFormatVerses[0];
             const endVerse = dotFormatVerses[dotFormatVerses.length - 1];
-            
+
             // Map each verse in the group to its boundary info
             dotFormatVerses.forEach(verse => {
               newContextMap.set(verse, {
@@ -343,10 +343,10 @@ export const useBibleStore = create<{
               });
             });
           });
-          
+
           get().setContextBoundaries(newContextMap);
           console.log('📚 Context boundaries processed:', newContextMap.size, 'verses mapped');
-          
+
         } catch (error) {
           console.error('❌ Failed to load context groups:', error);
         }
@@ -363,7 +363,7 @@ export const useBibleStore = create<{
 
     // IMMEDIATE VERSE RELOADING: Follow exact system logging path (STEP 5-8)
     console.log(`🔑 IMMEDIATE: Triggering verse reload for ${newChronological ? 'chronological' : 'canonical'} order...`);
-    
+
     // IMMEDIATE EXECUTION: Just load the new verse order
     (async () => {
       try {
@@ -371,14 +371,14 @@ export const useBibleStore = create<{
         const { clearVerseIndexCache } = await import('@/lib/verseIndexMap');
         clearVerseIndexCache();
         console.log('🗺️ FIXED: Cleared verse index cache to prevent jumping after order change');
-        
+
         const { loadVerseKeys } = await import('@/data/BibleDataAPI');
         const { createVerseObjectsFromKeys } = await import('@/lib/verseKeysLoader');
 
         // STEP 1: Load the new verse order
         console.log(`🔑 STEP 1: Loading ${newChronological ? 'chronological' : 'canonical'} verse keys from Supabase...`);
         const verseKeys = await loadVerseKeys(newChronological);
-        
+
         console.log(`🔑 STEP 2: Received ${verseKeys.length} verse keys, first 3: [${verseKeys.slice(0, 3).join(', ')}]`);
 
         // Update store with new keys
@@ -437,12 +437,9 @@ export const useBibleStore = create<{
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 16, displayOrder: 1 },   // Notes 
+      { slot: 1, visible: false, widthRem: 8, displayOrder: 1 },  // Context/Dates (current working position)
       { slot: 2, visible: true, widthRem: 20, displayOrder: 2 },    // Main translation (always visible)
-      { slot: 3, visible: false, widthRem: 18, displayOrder: 3 },   // Alt translation 1 (T₁)
-      { slot: 4, visible: false, widthRem: 18, displayOrder: 4 },   // Alt translation 2 (T₂)
-      { slot: 5, visible: false, widthRem: 18, displayOrder: 5 },   // Alt translation 3 (T₃)
-      { slot: 6, visible: false, widthRem: 18, displayOrder: 6 },   // Alt translation 4 (T₄)
+      { slot: 3, visible: false, widthRem: 16, displayOrder: 3 },   // Notes 
       { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
       { slot: 8, visible: false, widthRem: 18, displayOrder: 8 },   // Prophecy P - SAME WIDTH AS ALTERNATE TRANSLATIONS  
       { slot: 9, visible: false, widthRem: 18, displayOrder: 9 },   // Prophecy F - SAME WIDTH AS ALTERNATE TRANSLATIONS
@@ -467,35 +464,35 @@ export const useBibleStore = create<{
     })),
     reorder: (fromSlot: number, toSlot: number) => set(state => {
       console.log(`🔄 Column reorder: slot ${fromSlot} → slot ${toSlot}`);
-      
+
       // Find the columns being moved by slot number
       const fromColumn = state.columnState.columns.find(col => col.slot === fromSlot);
       const toColumn = state.columnState.columns.find(col => col.slot === toSlot);
-      
+
       if (!fromColumn || !toColumn) {
         console.warn(`Column not found: fromSlot=${fromSlot} (found: ${!!fromColumn}), toSlot=${toSlot} (found: ${!!toColumn})`);
         console.log('Available columns:', state.columnState.columns.map(c => `slot ${c.slot} (visible: ${c.visible})`));
         return state;
       }
-      
+
       // Get only visible columns sorted by current display order
       const visibleColumns = state.columnState.columns
         .filter(col => col.visible)
         .sort((a, b) => a.displayOrder - b.displayOrder);
-      
+
       const fromDisplayIndex = visibleColumns.findIndex(col => col.slot === fromSlot);
       const toDisplayIndex = visibleColumns.findIndex(col => col.slot === toSlot);
-      
+
       if (fromDisplayIndex === -1 || toDisplayIndex === -1) {
         console.warn(`Display position not found: fromIndex=${fromDisplayIndex}, toIndex=${toDisplayIndex}`);
         return state;
       }
-      
+
       // Reorder the visible columns array by display order
       const reorderedVisible = [...visibleColumns];
       const [movedColumn] = reorderedVisible.splice(fromDisplayIndex, 1);
       reorderedVisible.splice(toDisplayIndex, 0, movedColumn);
-      
+
       // Update only the displayOrder property, keep slot numbers unchanged
       const newColumns = [...state.columnState.columns];
       reorderedVisible.forEach((col, newIndex) => {
@@ -507,12 +504,12 @@ export const useBibleStore = create<{
           };
         }
       });
-      
+
       console.log(`✅ Column reorder complete`, 
         newColumns.filter(c => c.visible)
           .sort((a, b) => a.displayOrder - b.displayOrder)
           .map(c => `slot ${c.slot} (order ${c.displayOrder})`));
-      
+
       return { columnState: { ...state.columnState, columns: newColumns } };
     }),
     resize: (slot: number, deltaRem: number) => set(state => ({
@@ -540,16 +537,16 @@ export const useBibleStore = create<{
         textSizeMult: currentState.unifiedSizing ? mult : currentState.textSizeMult,
         externalSizeMult: currentState.unifiedSizing ? mult : currentState.externalSizeMult
       };
-      
+
       set({ sizeState: newState });
-      
+
       // Apply CSS variables for content-specific scaling (not UI chrome)
       document.documentElement.style.setProperty('--content-size-mult', mult.toString());
       document.documentElement.style.setProperty('--text-size-mult', newState.textSizeMult.toString());
       document.documentElement.style.setProperty('--external-size-mult', newState.externalSizeMult.toString());
       document.documentElement.style.setProperty('--row-height-mult', newState.externalSizeMult.toString());
       document.documentElement.style.setProperty('--column-width-mult', newState.externalSizeMult.toString());
-      
+
       // Persist unified setting
       localStorage.setItem('bibleSizeMult', mult.toString());
       localStorage.setItem('bibleUnifiedSizing', currentState.unifiedSizing.toString());
@@ -558,7 +555,7 @@ export const useBibleStore = create<{
       const currentState = get().sizeState;
       const newState = { ...currentState, textSizeMult: mult };
       set({ sizeState: newState });
-      
+
       document.documentElement.style.setProperty('--text-size-mult', mult.toString());
       localStorage.setItem('bibleTextSizeMult', mult.toString());
     },
@@ -566,7 +563,7 @@ export const useBibleStore = create<{
       const currentState = get().sizeState;
       const newState = { ...currentState, externalSizeMult: mult };
       set({ sizeState: newState });
-      
+
       document.documentElement.style.setProperty('--external-size-mult', mult.toString());
       document.documentElement.style.setProperty('--row-height-mult', mult.toString());
       document.documentElement.style.setProperty('--column-width-mult', mult.toString());
@@ -575,7 +572,7 @@ export const useBibleStore = create<{
     toggleUnifiedSizing: () => {
       const currentState = get().sizeState;
       const newUnified = !currentState.unifiedSizing;
-      
+
       // If switching to unified, sync both values to current sizeMult
       const newState = {
         ...currentState,
@@ -583,7 +580,7 @@ export const useBibleStore = create<{
         textSizeMult: newUnified ? currentState.sizeMult : currentState.textSizeMult,
         externalSizeMult: newUnified ? currentState.sizeMult : currentState.externalSizeMult
       };
-      
+
       set({ sizeState: newState });
       localStorage.setItem('bibleUnifiedSizing', newUnified.toString());
     }
