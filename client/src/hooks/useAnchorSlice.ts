@@ -27,7 +27,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
   };
 }
 
-const THRESH = 10;  // FIXED: Increased threshold to prevent excessive slice reloading during scroll
+const THRESH = 20;  // FIXED: Much higher threshold to prevent jumping during fast scroll
 
 export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
   const anchorIndexRef = useRef(0);
@@ -43,24 +43,32 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, ve
     if (!containerRef.current) return;
 
     const el = containerRef.current;
+    let scrollTimeout: NodeJS.Timeout;
+    
     const onScroll = () => {
-      // FIXED: More precise anchor calculation to prevent drift
-      const scrollCenter = el.scrollTop + el.clientHeight / 2;
-      const anchor = Math.round(scrollCenter / ROW_HEIGHT); // Use round instead of floor for better precision
-      const lastAnchor = anchorIndexRef.current;
-      
-      // Ensure anchor is within valid bounds
-      const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
-      
-      if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
-        anchorIndexRef.current = clampedAnchor;
-        setAnchorIndex(clampedAnchor);
-        setSlice(loadChunk(clampedAnchor, verseKeys));
-      }
+      // FIXED: Debounce scroll events to prevent jumping during fast scroll
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollCenter = el.scrollTop + el.clientHeight / 2;
+        const anchor = Math.round(scrollCenter / ROW_HEIGHT);
+        const lastAnchor = anchorIndexRef.current;
+        
+        // Ensure anchor is within valid bounds
+        const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
+        
+        if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
+          anchorIndexRef.current = clampedAnchor;
+          setAnchorIndex(clampedAnchor);
+          setSlice(loadChunk(clampedAnchor, verseKeys));
+        }
+      }, 150); // Wait 150ms after scroll stops before reloading slice
     };
 
     el.addEventListener("scroll", onScroll);
-    return () => el.removeEventListener("scroll", onScroll);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      clearTimeout(scrollTimeout);
+    };
   }, [containerRef, verseKeys]);
 
   return {
