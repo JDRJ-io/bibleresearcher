@@ -95,16 +95,20 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     finalCross = Math.floor(finalCross * compressionRatio);
   }
   
-  console.log('📐 THREE-COLUMN Adaptive Calculation:', {
+  console.log('📐 THREE-COLUMN Adaptive Calculation (UPDATED):', {
     viewportWidth,
+    viewportHeight,
+    isTabletPortrait: viewportWidth >= 768 && viewportWidth <= 1024 && viewportHeight > viewportWidth,  
     safeViewportWidth,
-    refWidth: finalRef,
-    remainingSpace: safeViewportWidth - finalRef,
-    mainWidth: finalMain,
-    crossWidth: finalCross,
+    selectedRefWidth: refWidth,
+    calculatedMainWidth: mainWidth,
+    calculatedCrossWidth: crossWidth,
+    finalRefWidth: finalRef,
+    finalMainWidth: finalMain,
+    finalCrossWidth: finalCross,
     totalWidth: finalRef + finalMain + finalCross,
     perfectFit: (finalRef + finalMain + finalCross) <= safeViewportWidth,
-    equalMainCross: Math.abs(finalMain - finalCross) <= 1 // Should be equal or within 1px
+    equalMainCross: Math.abs(finalMain - finalCross) <= 1
   });
 
   return {
@@ -187,7 +191,14 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       });
     };
 
+    // Force immediate update on mount
     updateConfig();
+    
+    // FORCE immediate recalculation to sync with CSS breakpoints
+    setTimeout(() => {
+      console.log('🔄 FORCING adaptive columns recalculation...');
+      updateConfig();
+    }, 100);
     
     // Listen for both resize and orientation changes
     window.addEventListener('resize', updateConfig);
