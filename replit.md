@@ -1,229 +1,51 @@
-# Biblical Research Platform - July 2025
+# Biblical Research Platform
 
 ## Overview
-A sophisticated biblical research web application built with React 18, TypeScript, and Supabase. The app provides an Excel-like interface for studying the Bible with multi-translation support, cross-references, Strong's concordance, prophecy tracking, and community features. The architecture uses client-side data loading with Supabase Storage for all Bible content and a PostgreSQL database for user data.
-
-## Current Architecture
-
-### Frontend Stack
-- **React 18** with TypeScript for the main UI
-- **Vite** as the build tool and development server
-- **Tailwind CSS** with Radix UI components (shadcn/ui) for styling
-- **Wouter** for client-side routing
-- **TanStack Query** for data caching and synchronization
-- **Zustand** for global state management
-- **Dexie (IndexedDB)** for offline data storage
-- **Progressive Web App (PWA)** capabilities
-
-### Backend Services
-- **Supabase** as the complete backend solution:
-  - PostgreSQL database for user data (notes, bookmarks, highlights, forum posts)
-  - Storage bucket ('anointed') for all Bible content files
-  - Authentication system (magic link email auth)
-- **No custom Express server** - the app runs entirely client-side
-
-### Data Architecture
-- **Single Data API**: `BibleDataAPI.ts` serves as the only entry point for all data operations
-- **Master Cache**: Global in-memory cache using Map for storing translations, cross-references, etc.
-- **File-based Content**: All Bible data stored as text/JSON files in Supabase Storage
-- **Anchor-centered Loading**: Virtual scrolling with center-anchored verse loading
-
-## Key Components
-
-### Bible Interface
-- **VirtualBibleTable**: Main scrollable table with virtualized rendering (~150-250 rows in DOM)
-- **VerseRow**: Individual verse display with multiple translation columns
-- **Column System**: 20-column flexible layout with toggleable sections:
-  - Slot 0: Reference column (always visible)
-  - Slot 1: Notes column
-  - Slots 2-6: Translation columns (KJV is default main)
-  - Slot 7: Cross-references
-  - Slots 8-10: Prophecy columns (P/F/V)
-  - Slot 11: Dates/Context
-
-### Cross-Reference System
-The cross-reference loading system has multiple layers that could be optimized:
-
-**Current Implementation:**
-1. `useCrossRefLoader` hook loads cross-refs for current verse slice
-2. Data stored in `App.tsx` Zustand store under `crossRefs`
-3. `BibleDataAPI.getCrossReferences()` fetches individual verse cross-refs
-4. Both dot format ("Gen.1:1") and space format ("Gen 1:1") are stored redundantly
-5. Format conversion happens multiple times during loading and rendering
-
-**Data Sources:**
-- `references/cf1.txt` and `references/cf2.txt` contain cross-reference data
-- `references/cf1_offsets.json` and `references/cf2_offsets.json` provide byte offsets
-- Format: `Gen.1:1$$John.1:1#John.1:2#John.1:3$Heb.11:3` (verse$$group1$group2)
-
-**Potential Optimizations Needed:**
-- Duplicate format storage could be eliminated (pick one standard format)
-- Multiple format conversions in the same loading cycle
-- Individual verse loading vs batch loading efficiency
-- Legacy loading patterns from when there was an Express server
-
-## Data Files Structure
-
-### Supabase Storage Bucket: 'anointed'
-- `translations/{CODE}.txt` - Bible translations (KJV.txt, ESV.txt, etc.)
-- `references/cf1.txt, cf2.txt` - Cross-reference data
-- `references/cf1_offsets.json, cf2_offsets.json` - Cross-ref byte offsets
-- `references/prophecy_rows.json` - Prophecy verse mappings
-- `references/prophecy_index.txt` - Prophecy details
-- `metadata/verseKeys-canonical.json` - Canonical verse order
-- `metadata/verseKeys-chronological.json` - Chronological verse order
-- `metadata/dates-canonical.txt, dates-chronological.txt` - Timeline data
-- `strongs/` - Strong's concordance data with offsets
-- `labels/{TRANSLATION}/` - Semantic label data
-
-## Working Features
-- ✅ Multi-translation Bible display with KJV as default
-- ✅ Virtual scrolling with anchor-centered loading
-- ✅ Cross-reference display (basic functionality working)
-- ✅ Strong's overlay for word analysis
-- ✅ Prophecy tracking system (P/F/V columns)
-- ✅ User notes and highlights
-- ✅ Responsive design with mobile support
-- ✅ Dark/light theme switching
-- ✅ Offline capability with IndexedDB
-- ✅ Search functionality
-
-## Development Status
-- **Global Logging System**: ✅ Fully operational with real-time monitoring
-- **System Documentation**: ✅ Auto-generated every 30 seconds from actual usage
-- **Debug Dashboard**: ✅ Available at `/debug/logger` with live data analysis
-- **Performance Tracking**: ✅ All operations timed and analyzed
-- **Cross-Reference Loading**: Functional but has optimization opportunities
-- **Authentication**: Magic link email auth implemented
-- **Chronological Mode**: UI exists but reordering not yet implemented
-- **Dates Column**: Toggle exists but UI integration pending
+A sophisticated web application for biblical research, providing an Excel-like interface for studying the Bible. It supports multi-translations, cross-references, Strong's concordance, prophecy tracking, and community features. The platform is designed for client-side data loading, utilizing Supabase Storage for all Bible content and PostgreSQL for user-specific data, aiming to provide a comprehensive and intuitive study experience.
 
 ## User Preferences
 - **Documentation Style**: Prefers comprehensive real implementation analysis over static docs
 - **Debugging Approach**: Wants global system monitoring to understand actual data flows
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
-## Recent Changes
-- **July 30, 2025: COMPLETE MOBILE LAYOUT OPTIMIZATION & BLUE CIRCLE LOADER RESTORATION ✅**
-  - **Blue Circle Loader Restored**: Completely replaced BibleHairFan with LoadingWheel component across entire platform
-  - **LoaderSelector Updated**: Now exclusively uses blue circle spinner with customizable size and message
-  - **All BibleHairFan References Removed**: Eliminated runtime errors by removing all remaining BibleHairFan imports and usage
-  - **Mobile Column Layout Fixed**: Eliminated blank columns on mobile - now shows exactly 3 columns (Reference | Main Translation | Cross References)
-  - **Notes Column Mobile Hidden**: Notes column properly hidden on mobile devices for clean layout
-  - **Alternate Translation Access**: Alternate translations accessible through hamburger menu "Alt Translations" tab on mobile
-  - **Perfect Menu Positioning**: Hamburger menu dropdowns now always appear directly under tab bar, never off-screen
-  - **Column Type Consistency**: Fixed column type mismatch (alt-translation vs translation) that was causing layout issues
-  - **Adaptive Mobile Column Headers**: Implemented mobile-first responsive width calculations that match content columns exactly
-  - **Pixel-Perfect Alignment**: Headers now use same width logic as content - Reference: 32px, Main/Cross-Refs: 48% of available width
-  - **Dynamic Width Calculation**: Real-time viewport-based calculations ensure headers always align with content columns
-  - **Mobile-Desktop Dual System**: Mobile uses pixel calculations, desktop uses CSS variables for optimal performance
-- **July 30, 2025: VERSE SCROLLING JUMPING BUG FIXED ✅**
-  - **Root Cause Identified**: Height calculation mismatch between dynamic `calculateTextHeight()` and fixed `ROW_HEIGHT = 120px`
-  - **Primary Fix**: Eliminated dynamic height calculation - all verses now use consistent 120px height matching `ROW_HEIGHT` constant
-  - **Anchor Calculation Improved**: Changed from `Math.floor()` to `Math.round()` for more precise scroll center calculation
-  - **Scroll Threshold Reduced**: Decreased `THRESH` from 10 to 5 rows for smoother chunk loading during fast scrolling
-  - **Verse Index Cache Fix**: Added `clearVerseIndexCache()` call when toggling canonical/chronological order to prevent wrong verse lookups
-  - **Scroll Bounds Protection**: Added max scroll calculation to prevent scrolling beyond content bounds
-  - **Precision Improvements**: Enhanced scroll position calculation with proper rounding and bounds checking
-  - **Testing**: Verified fixes eliminate 5-6 verse jumps during scrolling and improve navigation accuracy
-- **July 29, 2025: PRECISION-ADAPTIVE PORTRAIT COLUMN SYSTEM COMPLETED ✅**
-  - **Guaranteed Core Column Fit**: Created useAdaptivePortraitColumns hook that ensures reference, main translation, and cross-reference columns always fit in portrait viewport
-  - **Exact Resolution Detection**: Precision width calculations based on actual device dimensions (430×667 detected and optimized)
-  - **Dynamic CSS Variables**: Real-time updates to --adaptive-ref-width, --adaptive-main-width, --adaptive-cross-width CSS properties
-  - **Intelligent Compression**: Maintains minimum readable widths while fitting any portrait resolution through proportional scaling
-  - **Dual-Mode System**: Adaptive pixel-perfect widths for portrait, expert's clamp() system for landscape
-  - **Column Duplication Fix**: Filtered out main translation from alternates array to prevent duplicate columns
-  - **Expert Axis-Locked Scrolling**: One-axis-at-a-time touch behavior with column snap alignment and momentum scrolling
-  - **Console Monitoring**: Real-time logging shows fit guarantee status and calculated widths for debugging
-- **July 29, 2025: COMPLETE STRONGS OVERLAY UX ENHANCEMENT ✅**
-  - **Navigation System**: Fixed verse text synchronization during up/down navigation
-  - **Horizontal Scrolling Layout**: Replaced vertical grid with space-efficient horizontal word boxes
-  - **Mobile Search Optimization**: Enhanced search menu accessibility with larger touch targets
-  - **User Guidance System**: Added subtle hints to guide users through functionality
-  - **Condensed Mobile UI**: Compressed verse display section for better mobile experience
-  - **Visual Feedback**: Animated search results panel with attention indicators
-  - **Scroll Indicators**: Mobile scroll hints and desktop guidance cues
-  - **Enhanced Search Results**: Improved button styling and visual hierarchy
-  - **Progressive Disclosure**: Timed hints that appear after data loads to guide user discovery
-- **July 29, 2025: EXPERT HTTP RANGE REQUEST OPTIMIZATION COMPLETED ✅**
-  - **TRUE HTTP Range Requests**: Implemented expert's optimization using Supabase's `{ range: { start, end } }` option
-  - **Massive Performance Gain**: Cross-references now download 3-5KB instead of 6MB+ per request
-  - **HTTP 206 Partial Content**: Confirmed working with curl test showing proper range request support
-  - **Span Merging**: Adjacent/overlapping byte ranges merged to minimize network requests
-  - **Batch Processing**: Multiple verses loaded in single optimized requests with expert's algorithm
-  - **Complete Implementation**: All functions updated to use getCrossRefsBatch() with range requests
-  - **Console Logging**: Added expert's console messages for monitoring ("🚀 EXPERT BATCH", "📡 TRUE RANGE")
-  - **Preserved Hyperlinks**: All cross-reference clicking and navigation functionality maintained
-- **July 29, 2025: BIBLEHAIRFAN PERFORMANCE OPTIMIZATION COMPLETED ✅**
-  - **Smooth Motion Enhancement**: Optimized BibleHairFan for lag-free animation performance
-  - **Reduced Complexity**: Decreased default strands from 20 to 15 for better DOM performance
-  - **Faster Animation**: Reduced duration from 1800ms to 1000ms for more responsive feel
-  - **Gentler Motion**: Reduced sway amplitude from ±8° to ±6° for smoother visual flow
-  - **Optimized Easing**: Improved cubic-bezier curves for fluid motion without jerky acceleration
-  - **Visual Refinements**: Thinner strokes (1.5px) with opacity for lighter visual weight
-  - **Platform-wide Update**: Applied optimizations to all BibleHairFan instances across the app
-- **July 29, 2025: BIBLEHAIRFAN PLATFORM INTEGRATION COMPLETED ✅**
-  - **Complete HolyBookLoader Replacement**: Replaced all HolyBookLoader instances with BibleHairFan throughout platform
-  - **Main Bible Page Loading**: Bible page now uses flowing hair animation while loading Scripture
-  - **LoaderDemo Rewrite**: Completely rewrote LoaderDemo to showcase only BibleHairFan with interactive controls
-  - **LoaderSelector Cleanup**: Removed HolyBookLoader references from LoaderSelector component
-  - **PageTurnDemo Update**: Updated demo page to use BibleHairFan instead of HolyBookLoader
-  - **Error Resolution**: Fixed all "HolyBookLoader is not defined" runtime errors
-  - **Unified Animation**: BibleHairFan is now the single loading animation across the entire platform
-- **July 29, 2025: BIBLEHAIRFAN COMPONENT IMPLEMENTATION COMPLETED ✅**
-  - **BibleHairFan Component**: Created hair-like page strands in semicircle with independent swaying motion
-  - **15 Thin Strands**: Each strand represents a Bible page that sways independently like hair blowing
-  - **SVG animateTransform**: Pure SVG with compositor-only animations, no CSS dependencies
-  - **Customizable Properties**: Size, color, duration, spread angle, and strand count all configurable
-  - **LoaderDemo Page**: Comprehensive comparison page at /loader-demo showcasing both loaders
-  - **LoaderSelector Component**: Unified interface for choosing between HolyBookLoader and BibleHairFan
-  - **Interactive Controls**: Real-time customization sliders for all BibleHairFan properties
-  - **Performance Optimized**: ~1KB gzipped with zero external requests and minimal CPU usage
-- **July 29, 2025: HOLY BOOK HORIZONTAL PAGE FLIPPING ANIMATION COMPLETED ✅**
-  - **HolyBookLoader Component**: Redesigned with classic open book layout and sideways page flipping
-  - **Horizontal Book Design**: Book opens horizontally with left and right pages visible
-  - **Page Flip Animation**: Pages turn from right to left with realistic 3D rotation effect
-  - **Divine Light Rays**: Three light beams radiate outward from the book's center
-  - **Book Spine Detail**: Central spine with golden cross emblem dividing left and right pages
-  - **Multiple Page Layers**: Four animated pages with staggered timing for continuous flipping effect
-  - **Sacred Text Lines**: Scripture-like lines on each page representing holy text
-  - **Celestial Sparkles**: Divine sparkles positioned around the book for holy ambiance
-- **July 29, 2025: MOBILE-OPTIMIZED NAVIGATION SYSTEM COMPLETED ✅**
-  - **Mobile Detection System**: Created `useMobileDetection` hook to identify mobile devices using user agent
-  - **Dual Navigation Strategy**: Implemented split navigation - browser history for desktop, internal stack for mobile
-  - **Mobile Memory Fix**: Resolved mobile app restart issue by using lightweight internal navigation instead of browser history API
-  - **Navigation Hook Enhancement**: Updated `useVerseNav` to automatically choose appropriate navigation method based on device
-  - **Scroll Utility Fix**: Fixed `container.scrollTo` errors by using `scrollTop` assignment and proper ref handling
-  - **Cross-Reference Integration**: Connected mobile-friendly navigation to cross-reference clicking system
-  - **Type Safety**: Resolved all TypeScript compilation errors in navigation components
-  - **Component Forwarding**: Added proper ref forwarding for VirtualBibleTable scroll positioning
-  - **Performance Optimization**: Eliminated scroll errors and improved navigation responsiveness
-- **July 29, 2025: SYSTEM CLEANUP & NAVIGATION IMPLEMENTATION ✅**
-  - **Global Logging Removal**: Removed verbose global logging system that was generating excessive console output
-  - **Debug System Cleanup**: Eliminated systemDocumenter, globalLogger, and debug dashboard components
-  - **Performance Improvement**: Reduced console noise and removed unnecessary instrumentation overhead
-  - **Browser History Integration**: Implemented back/forward button functionality using browser history API
-  - **Navigation Hook**: Created `useVerseNav` hook for tracking verse jumps and adding to history stack
-  - **Scroll Utility**: Added `makeScrollToVerse` utility for smooth navigation with verse highlighting
-  - **Back/Forward Buttons**: Updated TopHeader to use `window.history.back()` and `window.history.forward()`
-  - **Verse Highlighting**: Added data attributes and CSS flash effects for navigation feedback
-  - **Integration Points**: Connected navigation system to cross-reference clicks and verse links
-- **July 28, 2025: STRAIGHT-LINE PIPELINE OPTIMIZATION COMPLETED ✅**
-  - **MISSION ACCOMPLISHED**: Successfully eliminated ALL critical format conversions from core data loading pipeline
-  - **Final verification**: 7 critical conversions eliminated, remaining conversions are appropriate (search engine, UI formatting)
-  - **Files optimized**: useBibleData.ts, App.tsx, VirtualBibleTable.tsx, BibleDataAPI.ts, labels.worker.ts, labelsCache.ts, ColumnHeaders.tsx
-  - **Performance gain**: ~75% reduction in string operations for 31,102+ verse operations  
-  - **Architecture**: TRUE STRAIGHT-LINE - Supabase Storage → Master Cache → UI Display (zero conversions)
-  - **BibleDataAPI preserved**: Maintained as single entry point with optimized boundaries
-  - **System logging preserved**: All debugging and monitoring functionality retained
-  - **Strategic decisions**: Search engine retains bidirectional flexibility, core pipeline uses dot format only
-  - **Future protection**: No new format conversions allowed in core pipeline - direct Map.get() lookups only
-  - **Verification systems**: Comprehensive monitoring and completion reporting implemented
-- July 28, 2025: **Implemented Comprehensive Global Logging System**
-  - Added real-time filesystem and data flow monitoring
-  - Created automatic system documentation generator
-  - Built debug dashboard at `/debug/logger` route
-  - Integrated performance tracking and error analysis
-  - Added QuickLogger widget for development monitoring
-  - All file operations, API calls, and component interactions now tracked
-- July 28, 2025: Analyzed cross-reference loading system for optimization opportunities
+## System Architecture
+
+### Core Design Principles
+- **Client-Side Centric**: No custom backend server; entirely client-side with Supabase as BaaS.
+- **Single Data API**: All data operations funnel through `BibleDataAPI.ts`.
+- **Master Cache**: Global in-memory caching for frequently accessed data (translations, cross-references).
+- **File-based Content**: All Bible content (translations, cross-references, Strong's data, metadata) is stored as text/JSON files in Supabase Storage.
+- **Anchor-centered Virtual Scrolling**: Efficient rendering of large Bible texts by loading verses centered around the current view.
+- **PWA Capabilities**: Designed for offline access and installability.
+
+### Frontend
+- **Framework**: React 18 with TypeScript.
+- **Build Tool**: Vite.
+- **Styling**: Tailwind CSS with Radix UI components (shadcn/ui).
+- **Routing**: Wouter for client-side navigation.
+- **Data Fetching/Caching**: TanStack Query.
+- **State Management**: Zustand for global state.
+- **Offline Data**: Dexie (IndexedDB) for client-side persistence.
+
+### UI/UX Decisions
+- **Layout**: Flexible 20-column system with toggleable sections, including reference, notes, multiple translation columns, cross-references, and prophecy tracking.
+- **Theming**: Dark/light theme switching.
+- **Responsiveness**: Mobile-first design with adaptive column layouts for various screen sizes, ensuring core columns (Reference, Main Translation, Cross-References) fit in portrait mode.
+- **Interactive Elements**: Strong's overlay for word analysis, user notes and highlights, search functionality.
+- **Loading Indicators**: Uses a blue circle spinner across the platform.
+
+### Feature Specifications
+- Multi-translation Bible display with KJV as default.
+- Virtual scrolling with anchor-centered loading.
+- Cross-reference display with optimized HTTP Range Requests for efficient data fetching.
+- Strong's concordance integration with word analysis overlay.
+- Prophecy tracking system (P/F/V columns).
+- User notes and highlights.
+- Search functionality.
+- Chronological and Canonical verse ordering modes.
+
+## External Dependencies
+- **Supabase**:
+    - **PostgreSQL**: For user data (notes, bookmarks, highlights, forum posts).
+    - **Storage ('anointed' bucket)**: Hosts all Bible content files (translations, cross-references, metadata, Strong's data).
+    - **Authentication**: Magic link email authentication.

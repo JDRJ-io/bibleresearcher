@@ -50,9 +50,9 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   // STEP 2: Calculate remaining space after reference column
   const remainingSpace = safeViewportWidth - refWidth;
   
-  // STEP 3: Divide remaining space as 35% main translation, 65% cross-references
-  const mainWidth = Math.floor(remainingSpace * 0.35);
-  const crossWidth = Math.floor(remainingSpace * 0.65);
+  // STEP 3: Divide remaining space EQUALLY between main translation and cross-references  
+  const mainWidth = Math.floor(remainingSpace / 2);
+  const crossWidth = Math.floor(remainingSpace / 2);
   
   // Ensure minimum readability (compress proportionally if needed)
   const minMain = 100;  // Absolute minimum for main translation

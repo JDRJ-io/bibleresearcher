@@ -93,25 +93,16 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       return '160px'; // fallback
     }
 
-    // Mobile-specific adaptive width calculations that match content columns
+    // Mobile-specific adaptive width calculations that match content columns exactly
     if (isMobile) {
-      const viewportWidth = window.innerWidth;
-      const safeWidth = viewportWidth - 40; // Account for padding
-
-      if (slot === 0) return '32px'; // Reference column - compact on mobile
-      if (slot === 3 && column.type === 'main-translation') {
-        // Main translation gets ~35% of available space (reduced from 48%)
-        return `${Math.floor(safeWidth * 0.35)}px`;
-      }
-      if (slot === 7 && column.type === 'cross-refs') {
-        // Cross references gets ~35% of available space  
-        return `${Math.floor(safeWidth * 0.35)}px`;
-      }
-
-      // Other mobile columns
-      if (column.type === 'notes') return '80px';
-      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return '64px';
-      if (column.type === 'context') return '48px'; // Compact dates column
+      // Use the same adaptive width variables as VirtualRow for perfect alignment
+      if (slot === 0) return 'var(--adaptive-ref-width)'; // Reference column
+      if (slot === 3 && column.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main translation
+      if (slot === 7 && column.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross references
+      if (slot === 2 && column.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
+      if (slot === 1 && column.type === 'context') return 'var(--adaptive-context-width)'; // Dates column
+      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
+      if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)'; // Alternate translations
 
       return '120px'; // fallback for mobile
     }
@@ -403,10 +394,10 @@ export function ColumnHeaders({
         const order: Record<string, number> = { 
           'reference': 0, 
           'context': 1,
-          'main-translation': 2, 
-          'cross-refs': 3, 
-          'alt-translation': 4,
-          'notes': 5,
+          'notes': 2,       // Notes come right after dates
+          'main-translation': 3, 
+          'cross-refs': 4, 
+          'alt-translation': 5,
           'prophecy-p': 6,
           'prophecy-f': 7,
           'prophecy-v': 8
