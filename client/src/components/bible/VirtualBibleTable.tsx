@@ -628,9 +628,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               willChange: 'scroll-position'
             }}
           >
-            <div className="tableInner flex w-full"
+            <div className="tableInner flex"
              style={{ 
-               minWidth: 'max-content' // Natural content width for expert's system
+               minWidth: 'max-content', // Natural content width for expert's system
+               width: 'max-content',    // Shrink-wrap to content
+               margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
              }}>
           <div style={{ 
             minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
