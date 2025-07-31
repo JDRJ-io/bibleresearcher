@@ -61,6 +61,32 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   
   const { mainTranslation: activeTranslation, getVerseText } = useTranslationMaps();
   
+  // State for loaded translations cache
+  const [loadedTranslations, setLoadedTranslations] = useState<Map<string, Map<string, string>>>(new Map());
+
+  // Load additional translations for search
+  const loadTranslationForSearch = async (translationCode: string): Promise<Map<string, string> | null> => {
+    if (loadedTranslations.has(translationCode)) {
+      return loadedTranslations.get(translationCode)!;
+    }
+
+    try {
+      console.log(`🔍 Loading translation for search: ${translationCode}`);
+      const { loadTranslation } = await import('@/data/BibleDataAPI');
+      const translationMap = await loadTranslation(translationCode);
+      
+      if (translationMap && translationMap.size > 0) {
+        setLoadedTranslations(prev => new Map(prev).set(translationCode, translationMap));
+        console.log(`🔍 Successfully loaded ${translationCode} with ${translationMap.size} verses`);
+        return translationMap;
+      }
+    } catch (error) {
+      console.error(`🔍 Failed to load translation ${translationCode}:`, error);
+    }
+    
+    return null;
+  };
+
   // Create verse objects with text content for search engine
   const versesWithText = useMemo(() => {
     console.log(`🔍 SearchModal versesWithText memo - verses.length: ${verses.length}, getVerseText available: ${!!getVerseText}`);
@@ -71,11 +97,11 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     }
     
     const result = verses.map((verse, index) => {
-      // Get text for all available translations using your working system
+      // Get text for currently loaded translations using your working system
       const textObj: Record<string, string> = {};
-      const translations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
+      const currentlyLoadedTranslations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
       
-      translations.forEach(translationCode => {
+      currentlyLoadedTranslations.forEach(translationCode => {
         const text = getVerseText(verse.reference, translationCode);
         if (text && text.trim()) {
           textObj[translationCode] = text.trim();
@@ -148,25 +174,54 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         setSearchHistory(prev => [searchQuery.trim(), ...prev.slice(0, 9)]); // Keep last 10 searches
       }
       
-      // Small delay to show loading state
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       console.log(`🔍 REAL SEARCH EXECUTE - Search term: "${searchQuery}"`);
       console.log(`🔍 REAL SEARCH - Multi-translation: ${searchAllTranslations}`);
       
-      // DIRECT SEARCH - Simple text matching across translations
-      const directResults: SearchResult[] = [];
-      const searchTerm = searchQuery.toLowerCase().trim();
+      // Determine which translations to search
       const translationsToSearch = searchAllTranslations ? 
         selectedTranslations.length > 0 ? selectedTranslations : ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'] : 
         [activeTranslation];
       
       console.log(`🔍 REAL SEARCH - Searching translations: ${translationsToSearch.join(', ')}`);
       
+      // Load any translations that aren't already loaded
+      const translationMaps = new Map<string, Map<string, string>>();
+      
+      for (const translationCode of translationsToSearch) {
+        // First try to get from current system
+        let translationMap = loadedTranslations.get(translationCode);
+        
+        if (!translationMap) {
+          // Load the translation dynamically
+          console.log(`🔍 Loading additional translation: ${translationCode}`);
+          translationMap = await loadTranslationForSearch(translationCode);
+        }
+        
+        if (translationMap) {
+          translationMaps.set(translationCode, translationMap);
+        }
+      }
+      
+      // DIRECT SEARCH - Simple text matching across all loaded translations
+      const directResults: SearchResult[] = [];
+      const searchTerm = searchQuery.toLowerCase().trim();
+      
       verses.forEach((verse, index) => {
         // Search each translation for this verse
         translationsToSearch.forEach(translation => {
-          const verseText = getVerseText(verse.reference, translation);
+          let verseText = '';
+          
+          // First try to get from currently loaded system
+          verseText = getVerseText(verse.reference, translation);
+          
+          // If not available, try from newly loaded translation maps
+          if (!verseText || !verseText.trim()) {
+            const translationMap = translationMaps.get(translation);
+            if (translationMap) {
+              verseText = translationMap.get(verse.reference) || '';
+            }
+          }
+          
           if (verseText && verseText.toLowerCase().includes(searchTerm)) {
             const highlightedText = verseText.replace(
               new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
@@ -188,7 +243,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       });
       
       const results = directResults;
-      console.log(`🔍 REAL SEARCH FOUND ${results.length} direct matches`);
+      console.log(`🔍 REAL SEARCH FOUND ${results.length} direct matches across ${translationsToSearch.join(', ')}`);
       
       // Use the direct results (they're already text-only)
       const textResults = results.sort((a, b) => b.confidence - a.confidence);
