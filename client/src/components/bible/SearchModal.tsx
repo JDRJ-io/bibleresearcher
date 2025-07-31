@@ -52,7 +52,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [searchMode, setSearchMode] = useState<'smart' | 'exact' | 'fuzzy'>('smart');
+
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
   
   // Mobile responsiveness hook
@@ -151,30 +151,39 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
       await new Promise(resolve => setTimeout(resolve, 100));
       
       console.log(`🔍 REAL SEARCH EXECUTE - Search term: "${searchQuery}"`);
+      console.log(`🔍 REAL SEARCH - Multi-translation: ${searchAllTranslations}`);
       
-      // DIRECT SEARCH - No search engine complexity, just find verses with the text
+      // DIRECT SEARCH - Simple text matching across translations
       const directResults: SearchResult[] = [];
       const searchTerm = searchQuery.toLowerCase().trim();
+      const translationsToSearch = searchAllTranslations ? 
+        ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'] : 
+        [activeTranslation];
+      
+      console.log(`🔍 REAL SEARCH - Searching translations: ${translationsToSearch.join(', ')}`);
       
       verses.forEach((verse, index) => {
-        const verseText = getVerseText(verse.reference, activeTranslation);
-        if (verseText && verseText.toLowerCase().includes(searchTerm)) {
-          const highlightedText = verseText.replace(
-            new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
-            '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>'
-          );
-          
-          directResults.push({
-            verseId: verse.reference,
-            reference: verse.reference,
-            text: verseText,
-            index,
-            highlightedText,
-            type: 'text',
-            confidence: 0.9,
-            translationCode: activeTranslation
-          });
-        }
+        // Search each translation for this verse
+        translationsToSearch.forEach(translation => {
+          const verseText = getVerseText(verse.reference, translation);
+          if (verseText && verseText.toLowerCase().includes(searchTerm)) {
+            const highlightedText = verseText.replace(
+              new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+              '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>'
+            );
+            
+            directResults.push({
+              verseId: `${verse.reference}-${translation}`,
+              reference: verse.reference,
+              text: verseText,
+              index,
+              highlightedText,
+              type: 'text',
+              confidence: 0.9,
+              translationCode: translation
+            });
+          }
+        });
       });
       
       const results = directResults;
@@ -382,37 +391,26 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
             )}
           </div>
 
-          {/* Quick Actions Row - Hidden on Mobile */}
+          {/* Multi-Translation Search Toggle */}
           {!isMobile && (
             <div className="flex flex-wrap gap-2">
-              {/* Search Mode Selector */}
+              {/* Translation Search Options */}
               <div className="flex items-center gap-1 border rounded-md p-1">
                 <Button
-                  variant={searchMode === 'smart' ? 'default' : 'ghost'}
+                  variant={!searchAllTranslations ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setSearchMode('smart')}
+                  onClick={() => setSearchAllTranslations(false)}
                   className="h-8 px-2 text-xs"
                 >
-                  <Zap className="w-3 h-3 mr-1" />
-                  Smart
+                  Single Translation
                 </Button>
                 <Button
-                  variant={searchMode === 'exact' ? 'default' : 'ghost'}
+                  variant={searchAllTranslations ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setSearchMode('exact')}
+                  onClick={() => setSearchAllTranslations(true)}
                   className="h-8 px-2 text-xs"
                 >
-                  <Target className="w-3 h-3 mr-1" />
-                  Exact
-                </Button>
-                <Button
-                  variant={searchMode === 'fuzzy' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setSearchMode('fuzzy')}
-                  className="h-8 px-2 text-xs"
-                >
-                  <Filter className="w-3 h-3 mr-1" />
-                  Fuzzy
+                  All Translations
                 </Button>
               </div>
 
@@ -667,7 +665,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
                               Selected
                             </Badge>
                           )}
-                          {result.translationCode && searchAllTranslations && !isMobile && (
+                          {result.translationCode && (
                             <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                               {result.translationCode}
                             </Badge>
