@@ -46,9 +46,10 @@ export function TopHeader({
   // Get the current central verse from the Bible store
   const getCurrentCentralVerse = () => {
     // This should get the current verse that's in the center of the viewport
-    // For now, we'll use the currentVerse from the store or a fallback
-    const currentRef = bibleStore?.currentVerse?.reference || 'Gen.1:1';
-    const currentIndex = bibleStore?.currentVerse?.index || 0;
+    // For now, we'll use the currentVerseKeys from the store or a fallback
+    const currentKeys = bibleStore?.currentVerseKeys;
+    const currentRef = currentKeys?.[0] || 'Gen.1:1';
+    const currentIndex = 0; // We'll use 0 as default index
     return { reference: currentRef, index: currentIndex };
   };
 

@@ -73,6 +73,22 @@
   --header-height-mobile: 48px;
 }
 
+/* Highlight color picker animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
 /* Apply manual sizing only to Bible content, not UI chrome */
 .bible-content-area { 
   font-size: calc(var(--baseRem) * var(--text-size-mult)); 

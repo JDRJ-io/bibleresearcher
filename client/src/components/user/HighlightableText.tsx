@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Palette } from 'lucide-react';
+import { Palette, X } from 'lucide-react';
 import { useCreateHighlight, useDeleteHighlight, useUserHighlights } from '@/hooks/useUserData';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import type { Highlight } from '@shared/schema';
+import { useWindowSize } from 'react-use';
 
 interface HighlightableTextProps {
   text: string;
@@ -34,9 +35,12 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
   const createHighlight = useCreateHighlight();
   const deleteHighlight = useDeleteHighlight();
   const { toast } = useToast();
+  const { width } = useWindowSize();
+  const isMobile = width < 640;
   
   const [selection, setSelection] = useState<Selection | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [pickerPosition, setPickerPosition] = useState({ x: 0, y: 0 });
   const textRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
@@ -44,8 +48,19 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
   const verseHighlights = highlights.filter(h => h.verseRef === verseRef);
 
   // Handle text selection
-  const handleMouseUp = () => {
-    if (!isLoggedIn) return;
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      // Show toast for guests
+      if (window.getSelection() && !window.getSelection()?.isCollapsed) {
+        toast({
+          title: "Sign in required",
+          description: "Please sign in to highlight text.",
+          variant: "destructive",
+        });
+        window.getSelection()?.removeAllRanges();
+      }
+      return;
+    }
     
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed) {
@@ -71,12 +86,24 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
 
     if (startIdx === endIdx) return;
 
+    // Calculate position for color picker
+    const rect = range.getBoundingClientRect();
+    const containerRect = containerElement.getBoundingClientRect();
+    
+    setPickerPosition({
+      x: rect.left + rect.width / 2 - containerRect.left,
+      y: rect.bottom - containerRect.top + 8
+    });
+
     setSelection({
       startIdx,
       endIdx,
       selectedText: range.toString()
     });
     setShowColorPicker(true);
+    
+    // Prevent the selection from being cleared immediately
+    e.preventDefault();
   };
 
   // Handle highlight creation
@@ -145,7 +172,7 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
           key={`highlight-${highlight.id}`}
           className="rounded px-1 cursor-pointer transition-opacity hover:opacity-75"
           style={{ 
-            backgroundColor: `var(--theme-mode) === 'dark' ? ${getColorForTheme(highlight.color, true)} : ${getColorForTheme(highlight.color, false)}`
+            backgroundColor: getColorForTheme(highlight.color, document.documentElement.classList.contains('dark'))
           }}
           onClick={(e) => {
             e.stopPropagation();
@@ -199,34 +226,110 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
       </div>
 
       {showColorPicker && selection && (
-        <div
-          ref={colorPickerRef}
-          className="absolute z-50 bg-background border rounded-lg shadow-lg p-2 mt-1"
-          style={{
-            top: '100%',
-            left: '50%',
-            transform: 'translateX(-50%)'
-          }}
-        >
-          <div className="flex gap-1 items-center">
-            <Palette className="w-3 h-3 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground mr-2">Choose color:</span>
-            {HIGHLIGHT_COLORS.map((color) => (
-              <Button
-                key={color.name}
-                size="sm"
-                variant="ghost"
-                className="w-6 h-6 p-0 rounded"
-                style={{ 
-                  backgroundColor: getColorForTheme(color.name, false),
-                  minWidth: '24px'
-                }}
-                onClick={() => handleCreateHighlight(color.name.toLowerCase())}
-                title={`Highlight with ${color.name}`}
-              />
-            ))}
-          </div>
-        </div>
+        <>
+          {/* Mobile/Small screen: Full-width bottom sheet */}
+          {isMobile ? (
+            <div className="fixed inset-x-0 bottom-0 z-50 bg-background border-t shadow-lg rounded-t-2xl p-4 animate-slide-up">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <Palette className="w-4 h-4" />
+                    <span>Choose highlight color</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-8 h-8 p-0"
+                    onClick={() => {
+                      setShowColorPicker(false);
+                      setSelection(null);
+                      window.getSelection()?.removeAllRanges();
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                
+                <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                  "{selection.selectedText.length > 30 ? selection.selectedText.slice(0, 30) + '...' : selection.selectedText}"
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3">
+                  {HIGHLIGHT_COLORS.map((color) => (
+                    <Button
+                      key={color.name}
+                      size="sm"
+                      variant="outline"
+                      className="h-12 flex flex-col gap-1 p-2"
+                      onClick={() => handleCreateHighlight(color.name.toLowerCase())}
+                    >
+                      <div 
+                        className="w-6 h-6 rounded-full border"
+                        style={{ 
+                          backgroundColor: getColorForTheme(color.name, document.documentElement.classList.contains('dark'))
+                        }}
+                      />
+                      <span className="text-xs">{color.name}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Desktop: Positioned popup */
+            <div
+              ref={colorPickerRef}
+              className="absolute z-50 bg-background border rounded-lg shadow-xl p-3 backdrop-blur-sm"
+              style={{
+                left: pickerPosition.x,
+                top: pickerPosition.y,
+                transform: 'translateX(-50%)',
+                minWidth: '240px'
+              }}
+            >
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-medium">
+                    <Palette className="w-3 h-3" />
+                    <span>Highlight text</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-6 h-6 p-0"
+                    onClick={() => {
+                      setShowColorPicker(false);
+                      setSelection(null);
+                      window.getSelection()?.removeAllRanges();
+                    }}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+                
+                <div className="text-xs text-muted-foreground bg-muted/30 p-2 rounded">
+                  "{selection.selectedText.length > 25 ? selection.selectedText.slice(0, 25) + '...' : selection.selectedText}"
+                </div>
+                
+                <div className="grid grid-cols-6 gap-2">
+                  {HIGHLIGHT_COLORS.map((color) => (
+                    <Button
+                      key={color.name}
+                      size="sm"
+                      variant="ghost"
+                      className="w-8 h-8 p-0 rounded-full border-2 border-transparent hover:border-foreground/20 hover:scale-110 transition-all"
+                      style={{ 
+                        backgroundColor: getColorForTheme(color.name, document.documentElement.classList.contains('dark'))
+                      }}
+                      onClick={() => handleCreateHighlight(color.name.toLowerCase())}
+                      title={`Highlight with ${color.name}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
