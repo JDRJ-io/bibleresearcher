@@ -128,20 +128,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
     
-    console.log(`🔍 Search Debug - Query: "${searchQuery}"`);
-    console.log(`🔍 Search Debug - versesWithText.length: ${versesWithText.length}`);
-    console.log(`🔍 Search Debug - activeTranslation: ${activeTranslation}`);
-    console.log(`🔍 Search Debug - verses.length: ${verses.length}`);
-    console.log(`🔍 Search Debug - Modal isOpen: ${isOpen}`);
+    console.log(`🔍 REAL SEARCH START - Query: "${searchQuery}"`);
+    console.log(`🔍 REAL SEARCH - verses available: ${verses.length}`);
+    console.log(`🔍 REAL SEARCH - activeTranslation: ${activeTranslation}`);
     
-    if (!versesWithText.length) {
-      console.warn('Search: No verse data available yet. Loaded verses:', versesWithText.length);
+    if (!verses.length) {
+      console.error('🔍 REAL SEARCH ABORT - No verses loaded');
       return;
     }
-    
-    // Check if versesWithText has proper text data
-    const sampleVerse = versesWithText[0];
-    console.log(`🔍 Search Debug - Sample verse:`, sampleVerse);
     
     setIsSearching(true);
     setHasSearched(true);
@@ -156,32 +150,43 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, verses = [] }:
       // Small delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      console.log(`🔍 Advanced Search: "${searchQuery}" mode: ${searchMode}, translations: ${selectedTranslations.join(',')}`);
+      console.log(`🔍 REAL SEARCH EXECUTE - Search term: "${searchQuery}"`);
       
-      let results: SearchResult[];
+      // DIRECT SEARCH - No search engine complexity, just find verses with the text
+      const directResults: SearchResult[] = [];
+      const searchTerm = searchQuery.toLowerCase().trim();
       
-      // Enhanced search based on mode
-      switch (searchMode) {
-        case 'exact':
-          results = searchEngine.search(`"${searchQuery}"`, activeTranslation, 10000, searchAllTranslations);
-          break;
-        case 'fuzzy':
-          results = searchEngine.search(searchQuery, activeTranslation, 10000, true); // Enable fuzzy matching
-          break;
-        default: // 'smart'
-          results = searchEngine.search(searchQuery, activeTranslation, 10000, searchAllTranslations);
+      verses.forEach((verse, index) => {
+        const verseText = getVerseText(verse.reference, activeTranslation);
+        if (verseText && verseText.toLowerCase().includes(searchTerm)) {
+          const highlightedText = verseText.replace(
+            new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+            '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>'
+          );
+          
+          directResults.push({
+            verseId: verse.reference,
+            reference: verse.reference,
+            text: verseText,
+            index,
+            highlightedText,
+            type: 'text',
+            confidence: 0.9,
+            translationCode: activeTranslation
+          });
+        }
+      });
+      
+      const results = directResults;
+      console.log(`🔍 REAL SEARCH FOUND ${results.length} direct matches`);
+      
+      // Use the direct results (they're already text-only)
+      const textResults = results.sort((a, b) => b.confidence - a.confidence);
+      
+      console.log(`🔍 REAL SEARCH FINAL: ${textResults.length} results found`);
+      if (textResults.length > 0) {
+        console.log(`🔍 First result:`, textResults[0]);
       }
-      
-      console.log(`🔍 Search found ${results.length} results in ${searchMode} mode`);
-      console.log(`🔍 Search raw results sample:`, results.slice(0, 3));
-      
-      // Filter to text-only results and sort by confidence
-      const textResults = results
-        .filter(r => r.type === 'text')
-        .sort((a, b) => b.confidence - a.confidence);
-      
-      console.log(`🔍 Text-only results: ${textResults.length}`);
-      console.log(`🔍 Text results sample:`, textResults.slice(0, 3));
       
       setAllResults(textResults);
       setSearchResults(textResults.slice(0, displayedResults));
