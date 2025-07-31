@@ -84,7 +84,7 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable, columnState
 
 function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
   const responsiveConfig = useResponsiveColumns();
-  
+
   // Get responsive width based on portrait/landscape mode
   const getResponsiveSlotWidth = (columnState: any, slot: number): string => {
     const columnInfo = columnState.columns.find((col: any) => col.slot === slot);
@@ -92,12 +92,12 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       console.warn(`No column info found for slot ${slot}`);
       return '160px'; // fallback
     }
-    
+
     // Mobile-specific adaptive width calculations that match content columns
     if (isMobile) {
       const viewportWidth = window.innerWidth;
       const safeWidth = viewportWidth - 40; // Account for padding
-      
+
       if (slot === 0) return '32px'; // Reference column - compact on mobile
       if (slot === 2 && column.type === 'main-translation') {
         // Main translation gets ~48% of available space
@@ -107,26 +107,26 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
         // Cross references gets ~48% of available space  
         return `${Math.floor(safeWidth * 0.48)}px`;
       }
-      
+
       // Other mobile columns
       if (column.type === 'notes') return '80px';
       if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return '64px';
       if (column.type === 'context') return '48px'; // Compact dates column
-      
+
       return '120px'; // fallback for mobile
     }
-    
+
     // Desktop: Use expert's CSS variable system for responsive column widths
     if (slot === 0) return 'var(--w-ref)'; // Reference column
     if (slot === 2 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
     if (slot === 7 && column.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
-    
+
     // Handle alternate translations and other column types
     if (column.type === 'translation' && slot !== 2) return 'var(--w-alt)'; // Alternate translations
     if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
     if (column.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
     if (column.type === 'context') return '12rem'; // Context/dates column
-    
+
     // Convert rem to pixels for other columns (assuming 1rem = 16px)
     const pixelWidth = columnInfo.widthRem * 16;
     return `${pixelWidth}px`;
@@ -143,7 +143,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
   const draggableClass = isDraggable ? "border-2 border-dashed border-blue-400 bg-blue-50 dark:bg-blue-950" : "";
 
   const calculatedWidth = getResponsiveSlotWidth(columnState, column.slot);
-  
+
   return (
     <div 
       className={`bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
@@ -276,7 +276,7 @@ export function ColumnHeaders({
     .forEach((translationCode, index) => {
       // All alternate translations start from slot 12 (AFTER cross-references)
       const slot = 12 + index;
-      
+
       if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
         slotConfig[slot] = { 
           type: 'alt-translation', 
@@ -379,7 +379,7 @@ export function ColumnHeaders({
 
     // FORCE custom mobile ordering: Reference → Main Translation → Cross References → Alternate Translations
     console.log('🔧 BEFORE MOBILE ORDERING - adaptiveIsMobile:', adaptiveIsMobile, 'columns:', columns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
-    
+
     if (adaptiveIsMobile) {
       columns.sort((a, b) => {
         const order: Record<string, number> = { 
@@ -395,15 +395,15 @@ export function ColumnHeaders({
         };
         const aOrder = order[a.type] ?? 9;
         const bOrder = order[b.type] ?? 9;
-        
+
         // If same type, sort by slot number for alternate translations
         if (aOrder === bOrder && a.type === 'alt-translation') {
           return a.slot - b.slot;
         }
-        
+
         return aOrder - bOrder;
       });
-      
+
       console.log('📱 AFTER MOBILE ORDERING:', columns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
     } else {
       console.log('🖥️ DESKTOP MODE - no mobile ordering applied');
@@ -417,12 +417,12 @@ export function ColumnHeaders({
   // Calculate actual total width from columnState for accurate measurement
   const actualTotalWidth = useMemo(() => {
     if (!columnState?.columns) return 0;
-    
+
     // For mobile, calculate width based on our mobile width logic
     if (adaptiveIsMobile) {
       const viewportWidth = window.innerWidth;
       const safeWidth = viewportWidth - 40;
-      
+
       return visibleColumns.reduce((total, col) => {
         if (col.slot === 0) return total + 32; // Reference
         if (col.slot === 2 && col.type === 'main-translation') return total + Math.floor(safeWidth * 0.30);
@@ -434,7 +434,7 @@ export function ColumnHeaders({
         return total + 120; // fallback
       }, 0);
     }
-    
+
     // Desktop calculation
     return visibleColumns.reduce((total, col) => {
       const columnInfo = columnState.columns.find(c => c.slot === col.slot);
@@ -480,15 +480,15 @@ export function ColumnHeaders({
   // Handle drag end event
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
-    
+
     // Extract slot numbers from drag IDs
     const activeSlot = parseInt((active.id as string).replace('column-', ''));
     const overSlot = parseInt((over.id as string).replace('column-', ''));
-    
+
     console.log(`🔄 Reordering columns: slot ${activeSlot} → slot ${overSlot}`);
-    
+
     // Call the store's reorder function
     columnState.reorder(activeSlot, overSlot);
   };

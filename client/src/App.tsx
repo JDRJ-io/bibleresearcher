@@ -437,7 +437,7 @@ export const useBibleStore = create<{
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 8, displayOrder: 1 },   // Dates (moved here)
+      { slot: 1, visible: false, widthRem: 4, displayOrder: 1 },   // Dates (moved here)
       { slot: 2, visible: true, widthRem: 20, displayOrder: 2 },    // Main translation (always visible)
       { slot: 3, visible: false, widthRem: 16, displayOrder: 3 },   // Notes (moved here) 
       { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS

@@ -168,27 +168,17 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Study Features</h4>
 
             {/* Cross References */}
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="cross-references" 
-                  className="w-3 h-3" 
-                  checked={showCrossRefs}
-                  onCheckedChange={(checked) => {
-                    console.log('🔴 Cross References toggle clicked! New state:', checked);
-                    toggleCrossRefs();
-                  }}
-                />
-                <Label htmlFor="cross-references" className="text-xs font-medium">Cross References</Label>
-              </div>
-              {showCrossRefs && (
-                <div className="ml-5">
-                  <CrossReferenceSwitcher
-                    currentSet="cf1"
-                    onSetChange={() => {}}
-                  />
-                </div>
-              )}
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="cross-references" 
+                className="w-3 h-3" 
+                checked={showCrossRefs}
+                onCheckedChange={(checked) => {
+                  console.log('🔴 Cross References toggle clicked! New state:', checked);
+                  toggleCrossRefs();
+                }}
+              />
+              <Label htmlFor="cross-references" className="text-xs font-medium">Cross References</Label>
             </div>
 
             {/* Prophecy Tracking */}

@@ -230,18 +230,19 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   }
 
   const containerClass = isMobile 
-    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 transform -rotate-90 origin-center flex items-center justify-center h-full w-full break-words hyphens-auto"
-    : "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 break-words";
+    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-0.5 transform -rotate-90 origin-center flex items-center justify-center h-full w-full break-words hyphens-auto"
+    : "text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-0.5 break-words";
 
   // For mobile, create a container that allows text wrapping within the rotated space
   if (isMobile) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <div className={containerClass} style={{ 
-          maxWidth: '200px', // Allow more space for rotated text
+          maxWidth: '150px', // Reduced for thinner column
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
-          lineHeight: '1.2'
+          lineHeight: '1.1',
+          fontSize: '10px' // Smaller font for compact display
         }}>
           {dateText.trim()}
         </div>
@@ -250,7 +251,10 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   }
 
   return (
-    <div className={containerClass}>
+    <div className={containerClass} style={{ 
+      fontSize: '10px', 
+      lineHeight: '1.1' 
+    }}>
       {dateText.trim()}
     </div>
   );
@@ -591,7 +595,7 @@ export function VirtualRow({
         if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--adaptive-alt-width)'; // Alternate translations
         if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
         if (config.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
-        if (config.type === 'context') return '48px'; // Compact dates column
+        if (config.type === 'context') return '32px'; // Very compact dates column
       } else {
         // Landscape mode - use expert's clamp() system
         if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
@@ -602,7 +606,7 @@ export function VirtualRow({
         if (config.type === 'alt-translation' && slotNumber !== 2) return 'var(--w-alt)'; // Alternate translations
         if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
         if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
-        if (config.type === 'context') return '12rem'; // Context/dates column
+        if (config.type === 'context') return '4rem'; // Compact context/dates column
       }
       
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
