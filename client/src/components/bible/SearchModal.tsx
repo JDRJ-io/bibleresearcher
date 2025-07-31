@@ -47,14 +47,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [displayedResults, setDisplayedResults] = useState(50);
   const [allResults, setAllResults] = useState<SearchResult[]>([]);
-  const [searchAllTranslations, setSearchAllTranslations] = useState(false);
+  // Removed searchAllTranslations toggle - now using individual translation selection
   
   // Advanced navigation state
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV', 'ESV', 'NIV']);
+  const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
   
   // Mobile responsiveness hook
   const isMobile = useIsMobile();
@@ -175,11 +175,10 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       }
       
       console.log(`🔍 REAL SEARCH EXECUTE - Search term: "${searchQuery}"`);
-      console.log(`🔍 REAL SEARCH - Multi-translation: ${searchAllTranslations}`);
       
-      // Determine which translations to search
-      const translationsToSearch = searchAllTranslations ? 
-        selectedTranslations.length > 0 ? selectedTranslations : ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'] : 
+      // Determine which translations to search - use selected translations or fallback to active translation
+      const translationsToSearch = selectedTranslations.length > 0 ? 
+        selectedTranslations : 
         [activeTranslation];
       
       console.log(`🔍 REAL SEARCH - Searching translations: ${translationsToSearch.join(', ')}`);
@@ -452,26 +451,41 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
             )}
           </div>
 
-          {/* Multi-Translation Search Toggle */}
+          {/* Translation Selection */}
           {!isMobile && (
             <div className="flex flex-wrap gap-2">
-              {/* Translation Search Options */}
-              <div className="flex items-center gap-1 border rounded-md p-1">
+              {/* Individual Translation Checkboxes */}
+              <div className="flex items-center gap-2 border rounded-md p-2">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
+                {['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'].map(translation => (
+                  <label key={translation} className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedTranslations.includes(translation)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedTranslations(prev => [...prev, translation]);
+                        } else {
+                          setSelectedTranslations(prev => prev.filter(t => t !== translation));
+                        }
+                      }}
+                      className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-xs font-medium">{translation}</span>
+                  </label>
+                ))}
                 <Button
-                  variant={!searchAllTranslations ? 'default' : 'ghost'}
+                  variant="ghost"
                   size="sm"
-                  onClick={() => setSearchAllTranslations(false)}
-                  className="h-8 px-2 text-xs"
+                  onClick={() => {
+                    const allTranslations = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB'];
+                    setSelectedTranslations(
+                      selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
+                    );
+                  }}
+                  className="h-6 px-2 text-xs ml-2"
                 >
-                  Single Translation
-                </Button>
-                <Button
-                  variant={searchAllTranslations ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setSearchAllTranslations(true)}
-                  className="h-8 px-2 text-xs"
-                >
-                  All Translations
+                  {selectedTranslations.length === 6 ? 'Clear All' : 'Select All'}
                 </Button>
               </div>
 
