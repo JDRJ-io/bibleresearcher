@@ -371,22 +371,32 @@ export function ColumnHeaders({
       columns.sort((a, b) => a.slot - b.slot);
     }
 
-    // On mobile, only show Reference, Main Translation, and Cross References in specific order
+    // Custom mobile ordering: Reference → Main Translation → Cross References → Alternate Translations
     if (adaptiveIsMobile) {
-      const mobileColumns = columns.filter(col => 
-        col.type === 'reference' || 
-        col.type === 'main-translation' || 
-        col.type === 'cross-refs'
-      );
-      
-      // Force correct mobile order: Reference (0), Main Translation (2), Cross References (7)
-      mobileColumns.sort((a, b) => {
-        const order = { 'reference': 0, 'main-translation': 1, 'cross-refs': 2 };
-        return order[a.type] - order[b.type];
+      columns.sort((a, b) => {
+        const order: Record<string, number> = { 
+          'reference': 0, 
+          'main-translation': 1, 
+          'cross-refs': 2, 
+          'alt-translation': 3,
+          'notes': 4,
+          'prophecy-p': 5,
+          'prophecy-f': 6,
+          'prophecy-v': 7,
+          'context': 8
+        };
+        const aOrder = order[a.type] ?? 9;
+        const bOrder = order[b.type] ?? 9;
+        
+        // If same type, sort by slot number for alternate translations
+        if (aOrder === bOrder && a.type === 'alt-translation') {
+          return a.slot - b.slot;
+        }
+        
+        return aOrder - bOrder;
       });
       
-      console.log('📱 Mobile filtered columns:', mobileColumns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
-      return mobileColumns;
+      console.log('📱 Mobile ordered columns:', columns.map(c => ({ slot: c.slot, type: c.type, name: c.name })));
     }
 
     return columns;
@@ -405,8 +415,9 @@ export function ColumnHeaders({
       
       return visibleColumns.reduce((total, col) => {
         if (col.slot === 0) return total + 32; // Reference
-        if (col.slot === 2 && col.type === 'main-translation') return total + Math.floor(safeWidth * 0.48);
-        if (col.slot === 7 && col.type === 'cross-refs') return total + Math.floor(safeWidth * 0.48);
+        if (col.slot === 2 && col.type === 'main-translation') return total + Math.floor(safeWidth * 0.30);
+        if (col.slot === 7 && col.type === 'cross-refs') return total + Math.floor(safeWidth * 0.25);
+        if (col.type === 'alt-translation') return total + Math.floor(safeWidth * 0.35); // Alternate translations
         if (col.type === 'notes') return total + 80;
         if (col.type === 'prophecy-p' || col.type === 'prophecy-f' || col.type === 'prophecy-v') return total + 64;
         if (col.type === 'context') return total + 80;
