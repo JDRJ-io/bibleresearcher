@@ -97,32 +97,33 @@
     }
   }
 
-  /* Tablet adjustments - both portrait and landscape */
-  @media (min-width: 768px) and (max-width: 1024px) {
+  /* Tablet and larger screens - use adaptive CSS variables for perfect sync */
+  @media (min-width: 641px) {
     .column-header-cell[data-column="reference"] {
-      width: 56px !important;  /* Increased from 40px to fit "Ref" text properly */
+      width: var(--adaptive-ref-width) !important;  /* Sync with table content */
     }
     
-    .column-header-cell[data-column="main"],
+    .column-header-cell[data-column="main"] {
+      width: var(--adaptive-main-width) !important;  /* Sync with table content */
+    }
+    
     .column-header-cell[data-column="cross-refs"] {
-      width: calc((100vw - 140px) * 0.44) !important;  /* Adjusted calculation for new ref width */
+      width: var(--adaptive-cross-width) !important;  /* Sync with table content */
     }
     
-    /* Prophecy columns for tablet */
+    /* Prophecy columns sync */
     .column-header-cell[data-column="prophecy"] {
-      width: 72px !important;  /* Better tablet proportions */
-    }
-  }
-  
-  /* Tablet landscape specific adjustments */
-  @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
-    .column-header-cell[data-column="reference"] {
-      width: 64px !important;  /* Even more space in landscape for readability */
+      width: var(--adaptive-prophecy-width) !important;  /* Sync with table content */
     }
     
-    .column-header-cell[data-column="main"],
-    .column-header-cell[data-column="cross-refs"] {
-      width: calc((100vw - 160px) * 0.42) !important;  /* Adjusted for larger ref width */
+    /* Notes column sync */
+    .column-header-cell[data-column="notes"] {
+      width: var(--adaptive-notes-width) !important;  /* Sync with table content */
+    }
+    
+    /* Context column sync */
+    .column-header-cell[data-column="context"] {
+      width: var(--adaptive-context-width) !important;  /* Sync with table content */
     }
   }
 }

@@ -93,8 +93,10 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       return '160px'; // fallback
     }
 
-    // Mobile-specific adaptive width calculations that match content columns exactly
-    if (isMobile) {
+    // Portrait mode (mobile + tablet) - use adaptive width variables for perfect alignment
+    const isPortrait = typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
+    
+    if (isPortrait) {
       // Use the same adaptive width variables as VirtualRow for perfect alignment
       if (slot === 0) return 'var(--adaptive-ref-width)'; // Reference column
       if (slot === 3 && column.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main translation
@@ -104,7 +106,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
       if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)'; // Alternate translations
 
-      return '120px'; // fallback for mobile
+      return '120px'; // fallback for portrait mode
     }
 
     // Desktop: Use expert's CSS variable system for responsive column widths
@@ -135,12 +137,24 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
 
   const calculatedWidth = getResponsiveSlotWidth(columnState, column.slot);
 
+  // Determine data-column attribute for CSS synchronization
+  const getDataColumn = () => {
+    if (column.type === 'reference') return 'reference';
+    if (column.type === 'main-translation') return 'main';
+    if (column.type === 'cross-refs') return 'cross-refs';
+    if (column.type === 'notes') return 'notes';
+    if (column.type === 'context') return 'context';
+    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'prophecy';
+    return column.type;
+  };
+
   return (
     <div 
-      className={`bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
+      className={`column-header-cell bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
+      data-column={getDataColumn()}
       style={{
-        width: isMobile ? calculatedWidth : `calc(${calculatedWidth} * var(--column-width-mult))`,
-        minWidth: isMobile ? calculatedWidth : 'auto'
+        width: calculatedWidth,
+        minWidth: calculatedWidth
       }}
     >
       {isDraggable && (
