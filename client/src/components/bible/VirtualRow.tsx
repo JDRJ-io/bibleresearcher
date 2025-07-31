@@ -226,28 +226,22 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   }
 
   if (!dateText || dateText.trim() === "") {
-    return <div className="text-gray-400 text-xs text-center py-0.5">-</div>;
+    return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
 
-  const containerClass = isMobile 
-    ? "text-xs text-gray-700 dark:text-gray-300 text-center py-0.5 px-0.5 transform rotate-90 origin-center flex items-center justify-center h-full w-full break-words hyphens-auto"
-    : "text-xs text-gray-700 dark:text-gray-300 text-center py-0.5 px-0.5 break-words";
-
-  // For mobile, create a container that allows vertical compactness with rotated text
+  // For mobile, use upright text like the reference column
   if (isMobile) {
     return (
-      <div className="flex items-center justify-center h-full w-full">
-        <div className={containerClass} style={{ 
-          maxHeight: '80px', // Compact vertically instead of horizontally
-          width: '100%',
-          writingMode: 'vertical-rl', // Vertical text flow
-          textOrientation: 'mixed',
-          wordWrap: 'break-word',
-          overflowWrap: 'break-word',
-          lineHeight: '1.0',
-          fontSize: '9px', // Very small font for compact display
-          padding: '2px 0'
-        }}>
+      <div className="flex items-center justify-center h-full w-full px-1 py-1">
+        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight break-words overflow-hidden"
+             style={{ 
+               fontSize: '10px',
+               lineHeight: '1.2',
+               maxHeight: '100%',
+               wordWrap: 'break-word',
+               overflowWrap: 'break-word',
+               hyphens: 'auto'
+             }}>
           {dateText.trim()}
         </div>
       </div>
@@ -255,7 +249,7 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   }
 
   return (
-    <div className={containerClass} style={{ 
+    <div className="text-xs text-gray-700 dark:text-gray-300 text-center py-1 px-1 break-words" style={{ 
       fontSize: '10px', 
       lineHeight: '1.1',
       padding: '2px 4px'

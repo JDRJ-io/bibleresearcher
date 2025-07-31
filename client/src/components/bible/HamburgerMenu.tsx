@@ -44,7 +44,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
   const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
   const toggleUnlockMode = bibleStore?.toggleUnlockMode ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
-  
+
   // DEBUG: Add activeLabels check
   const activeLabels = bibleStore?.activeLabels ?? [];
   console.log('🍔 HamburgerMenu activeLabels:', activeLabels);
@@ -295,7 +295,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
                   Manual controls: text, row height, column width (auto: header/menu)
                 </p>
               </div>
-              
+
               <div className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-2 mb-2">
                   <Checkbox 
@@ -406,7 +406,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         className="fixed inset-0 z-30 bg-transparent"
         onClick={handleOverlayClick}
       />
-      
+
       <div className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40 max-w-[calc(100vw-16px)]">
         {/* Sleek Tab Bar */}
         <div className="flex flex-col">
@@ -446,7 +446,7 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
               </svg>
             </button>
           </div>
-          
+
           {/* Dropdown positioned directly under tab bar for mobile */}
           {activeTab && (
             <div className="mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] z-50">

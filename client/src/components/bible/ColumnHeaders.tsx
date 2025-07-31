@@ -157,7 +157,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       )}
       {isMobile && (column.name === "Ref" || column.name === "Reference") ? "#" : 
        isMobile && column.name === "Dates" ? (
-         <div className="transform rotate-90 text-xs font-bold">Dates</div>
+         <div className="text-xs font-bold text-center">Dates</div>
        ) : column.name}
     </div>
   );
