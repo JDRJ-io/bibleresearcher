@@ -405,9 +405,21 @@ export class BibleSearchEngine {
     const results: SearchResult[] = [];
     const words = query.split(/\s+/).filter(w => w.length > 0);
     
+    console.log(`🔍 searchByText: query="${query}", translationCode="${translationCode}", maxResults=${maxResults}`);
+    console.log(`🔍 searchByText: verses count=${this.verses.length}`);
+    
     this.verses.forEach((verseData, index) => {
       const text = verseData.text?.[translationCode] || '';
       const lowerText = text.toLowerCase();
+      
+      if (index < 3) {
+        console.log(`🔍 searchByText sample verse ${index}:`, {
+          reference: verseData.reference,
+          text: text?.substring(0, 50) + '...',
+          textLength: text?.length,
+          hasTranslation: !!text
+        });
+      }
       
       // Calculate relevance score
       let score = 0;

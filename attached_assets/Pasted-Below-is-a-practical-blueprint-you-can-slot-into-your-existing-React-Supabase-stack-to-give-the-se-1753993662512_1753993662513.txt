@@ -1,0 +1,156 @@
+Below is a practical blueprint you can slot into your existing React + Supabase stack to give the search-menu instant, cross-translation power **without** forcing the browser to download megabytes of Bible text up-front.
+
+---
+
+## 1 · Where the heavy lifting should live
+
+| Layer                    | Responsibility                                                                                                                                                                      | Why it keeps payloads small                                                                                        |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Postgres (Supabase)**  | • Holds every verse as a row<br>• Keeps a full-text index per translation (`tsvector`)                                                                                              | The index stays on the server; each query returns only matching keys + snippet—not whole books.                    |
+| **Edge Function / RPC**  | • Receives search string, translation filters, hit-limit<br>• Runs the FTS query<br>• Returns JSON `{translation, verseKey, snippet}`                                               | Runs close to the DB (low latency) and serialises just what the UI needs.                                          |
+| **Front-end SearchMenu** | • Debounces user input (250 ms)<br>• Calls the edge function<br>• Shows results with highlighted snippet<br>• On click: asks your existing `loadVerse()` for the *one* verse needed | Browser downloads the verse only when the user opens it, re-using your offset loader; memory footprint stays tiny. |
+
+---
+
+## 2 · Schema & indexing recipe
+
+```sql
+-- ① One “verses” table for *all* translations
+create table verses (
+  id            bigint generated always as identity primary key,
+  translation   text  not null,              -- e.g. 'NKJV'
+  book          text  not null,              -- 'Gen'
+  chapter       int   not null,
+  verse         int   not null,
+  verse_key     text  not null,              -- 'Gen.1:1'
+  text          text  not null,
+  text_tsv      tsvector
+);
+
+-- ② Build per-translation search index
+update verses
+set    text_tsv = to_tsvector('english', text);  -- swap config for non-Eng
+
+create index verses_tsv_idx
+  on verses using gin (translation, text_tsv);
+```
+
+*Migration tip:* you can bulk-COPY the existing flat files once, then forget about them for search purposes; your offset loader can still stream from Storage for reading mode, so nothing breaks.
+
+---
+
+## 3 · Edge function: `search_verses.ts`
+
+```ts
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export const onRequest: PagesFunction = async (context) => {
+  const { q, translations = [], limit = 50 } = await context.request.json();
+
+  const client = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  ) as SupabaseClient;
+
+  // Build query
+  const query = client
+    .from("verses")
+    .select("translation, verse_key, snippet", { count: "exact" })
+    .limit(limit)
+    // Supabase helper for headline-style snippet
+    .select(
+      `translation, verse_key,
+       ts_headline('english', text, plainto_tsquery('english', $1)) as snippet`,
+      { count: "exact" }
+    )
+    .textSearch("text_tsv", plainto_tsquery("english", q), {
+      type: "plain"
+    });
+
+  if (translations.length) query.eq("translation", translations);
+
+  const { data, error } = await query;
+  if (error) return new Response(error.message, { status: 400 });
+
+  return Response.json(data);
+};
+```
+
+*Edge-deploy* this via `supabase functions deploy search_verses`.
+
+---
+
+## 4 · React hook for the SearchMenu
+
+```tsx
+import { useState, useCallback } from "react";
+import { debounce } from "lodash";
+import supabase from "@/lib/supabaseClient";
+
+export function useVerseSearch() {
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const runSearch = useCallback(
+    debounce(async (q: string, translations: string[]) => {
+      if (!q.trim()) return setResults([]);
+
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke("search_verses", {
+        body: { q, translations, limit: 40 }
+      });
+      setLoading(false);
+      if (error) console.error(error);
+      else setResults(data ?? []);
+    }, 250),
+    []
+  );
+
+  return { results, loading, runSearch };
+}
+```
+
+### Integrate into your existing menu
+
+1. **TextField** → onChange → `runSearch(value, selectedTranslations)`.
+2. Show `results.map(hit ⇒ <SearchResultCard …/>)`.
+3. On click: `navigateToVerse(hit.verse_key, hit.translation)` – your existing loader will fetch that single verse text via offset range.
+
+---
+
+## 5 · Keeping bandwidth & memory lean
+
+| Optimisation             | How it helps                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------ |
+| **`LIMIT` & pagination** | default 40 hits; provide “Load more” if needed.                                            |
+| **`snippet` only**       | ±120 B per row vs. full verse (+ translation) payload.                                     |
+| **Shared verse files**   | Reading mode still streams from Storage with byte-range; search never touches those blobs. |
+| **Edge-cached**          | Supabase edge caches identical search queries for a short TTL (you can tune headers).      |
+| **Client-side memo**     | Cache the hit→verse lookup in a `Map` so repeated clicks don’t refetch.                    |
+
+---
+
+## 6 · Fallbacks & nice-to-haves (future)
+
+1. **Language-aware configs**
+   Use `to_tsvector('simple', ...)` for non-English translations, or add `pg_tgrm` for fuzzy matches.
+
+2. **Verse-reference search**
+   For `Jn 3:16` style queries, add a tiny *client-side* map (`bookAbbrev → index offset`)—\~20 KB gzipped—to jump instantly without hitting the server.
+
+3. **Highlight UI**
+   In the snippet, wrap `<mark>` tags already returned by `ts_headline` with Tailwind `bg-yellow-200` etc.
+
+4. **Search analytics**
+   Log query strings server-side (anonymised) to learn what users search most and pre-warm those caches.
+
+---
+
+### What you *don’t* need to do
+
+* No huge client-side inverted index
+* No GraphQL or extra search service (unless you outgrow PG-FTS)
+* No duplication of verse text—one canonical table powers everything
+
+Plug this in and your search menu will feel instant, stay lightweight, and scale gracefully as you add more translations or users. Let me know where you’d like deeper code samples (e.g., `Supabase SQL`, menu UI tweaks, or advanced ranking)!
