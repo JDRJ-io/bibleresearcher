@@ -305,7 +305,8 @@ export function ColumnHeaders({
     });
 
     // Add notes column if both store state AND individual column visibility enable it
-    if (slotConfig[1]?.visible) {
+    // BUT NEVER on mobile for clean layout
+    if (slotConfig[1]?.visible && !adaptiveIsMobile) {
       columns.push({
         slot: 1,
         type: 'notes',
@@ -325,18 +326,21 @@ export function ColumnHeaders({
     });
 
     // Add alternate translations from slotConfig (supports both slots 3-6 and 12-19)
-    Object.entries(slotConfig).forEach(([slotStr, config]) => {
-      const slot = parseInt(slotStr);
-      if (config?.type === 'alt-translation' && config?.visible) {
-        columns.push({
-          slot,
-          type: 'alt-translation',
-          name: config.header,
-          visible: true,
-          isMain: false
-        });
-      }
-    });
+    // For mobile: Add alternates to hamburger menu only, not as columns
+    if (!adaptiveIsMobile) {
+      Object.entries(slotConfig).forEach(([slotStr, config]) => {
+        const slot = parseInt(slotStr);
+        if (config?.type === 'alt-translation' && config?.visible) {
+          columns.push({
+            slot,
+            type: 'alt-translation',
+            name: config.header,
+            visible: true,
+            isMain: false
+          });
+        }
+      });
+    }
 
     // Add all other feature columns from slotConfig
     Object.entries(slotConfig).forEach(([slotStr, config]) => {
