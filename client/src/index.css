@@ -77,7 +77,7 @@
   --text-size-mult: 1.0; /* Text size in Bible content */
   --row-height-mult: 1.0; /* Row spacing in Bible table */
   --column-width-mult: 1.0; /* Universal column width expansion */
-  
+
   /* Automatic adaptive sizing - screen resolution based */
   --adaptive-header-scale: 1.0; /* Top header auto-sizing */
   --adaptive-menu-scale: 1.0; /* Menu and UI chrome auto-sizing */
@@ -88,7 +88,7 @@
   --text-lg: calc(var(--base-font-size) * 1.125 * var(--text-size-mult));
   --row-height-base: 36px; /* Reduced base row height for tighter spacing */
   --row-height: calc(var(--row-height-base) * var(--row-height-mult));
-  
+
   /* UI Chrome elements stay at fixed sizes */
   --header-height-desktop: 52px;
   --header-height-mobile: 48px;
@@ -312,7 +312,7 @@ body {
 :root {
   --ref-w: 72px;          /* Reference column - fixed width */
   --col-w: auto;          /* Default for desktop columns */
-  
+
   /* Dynamic CSS variables set by useAdaptivePortraitColumns hook (legacy) */
   --adaptive-ref-width: 72px;          /* Reference column - dynamically calculated */
   --adaptive-main-width: 352px;        /* Main translation - dynamically calculated */
@@ -321,7 +321,7 @@ body {
   --adaptive-prophecy-width: 352px;    /* Prophecy columns - same as main */
   --adaptive-notes-width: 320px;       /* Notes column - dynamically calculated */
   --adaptive-context-width: 192px;     /* Context/dates - dynamically calculated */
-  
+
   /* Fallback baseline widths - expert's clamp() approach for landscape */
   --w-ref: 4.5rem;                              /* reference # column */
   --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */  
@@ -352,13 +352,13 @@ body {
       var(--main-xref-w)    /* Cross reference – flex     */
       repeat(auto-fill, max-content); /* any other columns */
     overflow-x: auto;       /* scrollbar for "extra" cols */
-    
+
     /* Expert's scroll enhancements */
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  
+
   .bibleTable > * {
     scroll-snap-align: start; /* Snap to column boundaries */
   }
@@ -398,7 +398,7 @@ body {
   overflow-x: auto;                             /* scrollbar only if needed */
   overflow-y: auto;                             /* enable vertical scrolling */
   scrollbar-gutter: stable;                     /* prevents width-jump when bar appears */
-  
+
   /* Expert's smooth scrolling enhancements */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain; /* Prevent scroll bounce bubbling */
@@ -415,7 +415,7 @@ body {
   .tableWrapper { 
     justify-content: flex-start;                 /* hug the left */
   }
-  
+
   :root {
     --w-ref: 3.5rem;
     --w-main: clamp(45vw, 60vw, 80vw);          /* main fills most of the width */

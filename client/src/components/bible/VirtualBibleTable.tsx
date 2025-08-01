@@ -305,6 +305,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
+  // Development check for row height consistency
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      const cssRow = parseFloat(getComputedStyle(document.documentElement)
+                        .getPropertyValue('--row-height-base'));
+      if (cssRow !== ROW_HEIGHT) {
+        console.warn('⚠️ ROW_HEIGHT MISMATCH: CSS', cssRow, 'px, JS', ROW_HEIGHT, 'px - This will cause scroll jumps!');
+      } else {
+        console.log('✅ ROW_HEIGHT unified:', ROW_HEIGHT, 'px');
+      }
+    }
+  }, []);
+
   // Handle runtime error overlay that blocks navigation
   useEffect(() => {
     const dismissErrorOverlay = () => {
