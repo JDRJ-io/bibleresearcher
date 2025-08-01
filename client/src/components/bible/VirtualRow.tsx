@@ -11,7 +11,7 @@ import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
 import { NotesCell } from '@/components/user/NotesCell';
-import { HighlightableText } from '@/components/user/HighlightableText';
+
 import { BookmarkButton } from '@/components/user/BookmarkButton';
 
 interface VirtualRowProps {
@@ -371,10 +371,9 @@ function MainTranslationCell({
           translationCode={mainTranslation}
         />
       ) : (
-        <HighlightableText 
-          text={verseText} 
-          verseRef={verse.reference}
-        />
+        <div className="h-full">
+          {verseText}
+        </div>
       )}
     </div>
   );

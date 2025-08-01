@@ -28,7 +28,6 @@ import type {
   BibleVerse,
   Translation,
   UserNote,
-  Highlight,
   AppPreferences,
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
@@ -249,7 +248,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       showProphecy: showProphecies,
       showStrongs: false,
       showNotes: preferences.showNotes,
-      showHighlights: true,
+
       showBookmarks: true,
     },
     onVerseClick: onVerseClick || ((ref: string) => goTo(ref)),
