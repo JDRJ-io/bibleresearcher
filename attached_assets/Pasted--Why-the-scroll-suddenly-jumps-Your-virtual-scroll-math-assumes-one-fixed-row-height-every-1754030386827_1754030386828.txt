@@ -1,0 +1,72 @@
+### Why the scroll suddenly “jumps”
+
+Your virtual-scroll math assumes **one fixed row height everywhere**, but the codebase now contains *two* competing values:
+
+| Location                                                 | Value now                                                         |
+| -------------------------------------------------------- | ----------------------------------------------------------------- |
+| **CSS variable** `--row-height-base` (later declaration) | **36 px**                                                         |
+| CSS rule for the rendered rows                           | **120 px** height/min-height                                      |
+| `usePreserveAnchor()` hook                               | hard-codes **ROW\_HEIGHT = 120**                                  |
+| `scrollToVerse()`, `useAnchorSlice()`, etc.              | import `ROW_HEIGHT` from `constants/layout` (currently **36 px**) |
+
+When the browser paints each verse at 120 px but the JS thinks it is 36 px, all index-to-pixel calculations are off.
+That shows up as:
+
+* large blank bands or “jumping” while scrolling (the slice is rendered for the wrong pixel window)
+* mis-centred `scrollToVerse()` navigation
+* touch momentum breaking on mobile
+
+---
+
+### 15-minute fix
+
+1. **Pick a single canonical row height**.
+   *If you like the taller look*, set everything to **120 px**; otherwise cut everything to **36 px**.
+
+2. **Make the CSS and TS share the same source-of-truth**
+
+   ```ts
+   // constants/layout.ts
+   export const ROW_HEIGHT = 120;          // <— ONE place only
+   ```
+
+   ```css
+   :root {
+     --row-height-base: 120px;             /* ONE declaration only */
+   }
+   .bible-verse-row,
+   .verse-row { height: var(--row-height-base); min-height: var(--row-height-base); }
+   ```
+
+3. **Remove duplicates**
+
+   * Delete the earlier/later duplicate `--row-height-base` declarations in `index.css`.
+   * Delete the hard-coded `const ROW_HEIGHT = 120;` line in `usePreserveAnchor()` and import the constant instead.
+
+4. **Safety net** (optional but helpful): add a runtime check during development:
+
+   ```ts
+   if (process.env.NODE_ENV !== 'production') {
+     const cssRow = parseFloat(getComputedStyle(document.documentElement)
+                       .getPropertyValue('--row-height-base'));
+     if (cssRow !== ROW_HEIGHT) {
+       console.warn('ROW_HEIGHT mismatch: CSS', cssRow, 'JS', ROW_HEIGHT);
+     }
+   }
+   ```
+
+After the constants are unified the anchor math in `useAnchorSlice()` and the centring math in `scrollToVerse()` align perfectly, so vertical scroll regains its smooth, “no-gaps” feel and mobile touch momentum stops fighting the overscroll lock.
+
+---
+
+### Quick checks once you patch
+
+| Test                             | Expected                                 |
+| -------------------------------- | ---------------------------------------- |
+| **Desktop wheel scroll**         | Continuous render, no sudden white gaps  |
+| **`scrollToVerse("John.3:16")`** | Verse lands centred without overshooting |
+| **Fast swipe on phone**          | Momentum feels natural, no diagonal tug  |
+
+If any jitter remains, look next at the pointer-capture logic in `VirtualBibleTable` (wheel router vs. touch) and the `overscroll-behavior` rules, but 90 % of the “jump” you’re seeing comes from this single height mismatch.
+
+Happy scrolling 🚀
