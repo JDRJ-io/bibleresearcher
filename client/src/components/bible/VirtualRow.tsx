@@ -69,22 +69,6 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     }
   };
 
-  // Comprehensive scroll event guard to prevent table scrolling when interacting with cross-refs
-  const handleScrollEvent = (e: React.UIEvent) => {
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-  };
-
-  const handleTouchEvent = (e: React.TouchEvent) => {
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-  };
-
-  const handleWheelEvent = (e: React.WheelEvent) => {
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-  };
-
   // Debug: Log cross-reference rendering for Gen.1:1
   if (verse.reference === "Gen.1:1") {
     console.log('🔗 RENDER DEBUG Gen.1:1:', {
@@ -95,26 +79,9 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   }
 
   return (
-    <div 
-      className="px-2 py-1 text-sm cell-content"
-      onTouchStart={handleTouchEvent}
-      onTouchMove={handleTouchEvent}
-      onTouchEnd={handleTouchEvent}
-      onWheel={handleWheelEvent}
-      onScroll={handleScrollEvent}
-    >
+    <div className="px-2 py-1 text-sm cell-content">
       {crossRefs.length > 0 ? (
-        <div 
-          className="space-y-0 overflow-y-auto max-h-[100px]"
-          style={{ 
-            overscrollBehavior: 'contain',
-            touchAction: 'pan-y' // Only allow vertical scrolling within this container
-          }}
-          onTouchStart={handleTouchEvent}
-          onTouchMove={handleTouchEvent}
-          onTouchEnd={handleTouchEvent}
-          onScroll={handleScrollEvent}
-          onWheel={handleWheelEvent}
+        <div className="space-y-0">
           {crossRefs.map((ref, i) => {
             // OPTIMIZATION: Cross-refs now use consistent dot format
             let refText = '';
@@ -128,10 +95,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   type="button"
                   className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => handleCrossRefClick(ref, e)}
-                  onTouchStart={handleTouchEvent}
-                  onTouchMove={handleTouchEvent}
+                  onTouchStart={(e) => e.stopPropagation()}
                   onTouchEnd={(e) => handleCrossRefClick(ref, e)}
-                  onWheel={handleWheelEvent}
                   style={{ 
                     minHeight: '24px', 
                     minWidth: '60px',
