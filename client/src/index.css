@@ -8,27 +8,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile touch event fixes for cross-reference cells only */
-.cross-ref-item {
-  touch-action: manipulation;
-  overscroll-behavior: contain;
-  isolation: isolate; /* Create new stacking context to isolate events */
-}
-
-/* Only apply isolation to cross-reference cell content, not all cells */
-.cross-ref-cell .cell-content {
-  touch-action: auto; /* Allow natural scrolling within cross-ref cells */
-  overscroll-behavior: contain;
-  isolation: isolate; /* Prevent parent event capture only for cross-refs */
-}
-
-/* Prevent parent scroll when cross-ref content is scrolling */
-.cross-ref-scrollable {
-  touch-action: pan-y;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Simple Theme System - Light and Dark only */
 :root.light {
   --header-bg: hsl(0, 0%, 100%);
@@ -92,22 +71,6 @@
   /* UI Chrome elements stay at fixed sizes */
   --header-height-desktop: 52px;
   --header-height-mobile: 48px;
-}
-
-/* Highlight color picker animations */
-@keyframes slide-up {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
 }
 
 /* Apply manual sizing only to Bible content, not UI chrome */
@@ -918,7 +881,20 @@ body.menu-open {
   background: inherit;
 }
 
-/* Removed verse highlighting and hover effects for mobile scroll optimization */
+/* Verse hover and highlight animations matching original design */
+@keyframes highlight-anim {
+  0% { background-color: gold; }
+  100% { background-color: transparent; }
+}
+
+.verse-highlight {
+  animation: highlight-anim 2s ease-out;
+}
+
+.verse-row:hover {
+  background-color: rgba(2, 136, 209, 0.1);
+  transition: background-color 0.3s ease;
+}
 
 /* Smooth scrolling behavior for verse navigation */
 html {

@@ -10,9 +10,6 @@ import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
-import { NotesCell } from '@/components/user/NotesCell';
-
-import { BookmarkButton } from '@/components/user/BookmarkButton';
 
 interface VirtualRowProps {
   verseID: string;
@@ -53,12 +50,11 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
   const crossRefs = crossRefsStore[verse.reference] || [];
 
-  const handleCrossRefClick = (ref: string, e: React.MouseEvent | React.TouchEvent) => {
+  const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
 
-    // Stop all event propagation to prevent scroll interference
+    // Only stop propagation to prevent scroll interference, but allow the click to proceed
     e.stopPropagation();
-    e.preventDefault();
 
     if (onVerseClick) {
       console.log('🔗 Calling onVerseClick with:', ref);
@@ -79,7 +75,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   }
 
   return (
-    <div className="px-2 py-1 text-sm cell-content cross-ref-cell">
+    <div className="px-2 py-1 text-sm cell-content">
       {crossRefs.length > 0 ? (
         <div className="space-y-0">
           {crossRefs.map((ref, i) => {
@@ -93,15 +89,9 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               <div key={i} className="cross-ref-item block w-full mb-1">
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold cursor-pointer"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => handleCrossRefClick(ref, e)}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onTouchEnd={(e) => handleCrossRefClick(ref, e)}
-                  style={{ 
-                    minHeight: '24px', 
-                    minWidth: '60px',
-                    touchAction: 'manipulation'
-                  }}
+                  style={{ minHeight: '24px', minWidth: '60px' }}
                 >
                   {ref}
                 </button>
@@ -179,7 +169,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                 {/* Compact clickable summary - no box, just text */}
                 <button
                   onClick={() => toggleProphecyCollapse(String(prophecyId))}
-                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 px-0 py-0"
+                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-0 py-0"
                 >
                   <span className="text-xs font-bold text-blue-600 dark:text-blue-400 mr-1">
                     {prophecyId}.
@@ -200,7 +190,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                         <button
                           key={i}
                           onClick={() => onVerseClick && onVerseClick(verseRef)}
-                          className="block w-full text-left py-0"
+                          className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 py-0 transition-colors"
                         >
                           <div className="text-blue-600 dark:text-blue-400 font-medium text-sm leading-tight">
                             {verseRef}
@@ -371,9 +361,7 @@ function MainTranslationCell({
           translationCode={mainTranslation}
         />
       ) : (
-        <div className="h-full">
-          {verseText}
-        </div>
+        verseText
       )}
     </div>
   );
@@ -639,29 +627,24 @@ export function VirtualRow({
       case 'notes':
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <NotesCell verseRef={verse.reference} className="h-full" />
+            <div className="px-2 py-1 text-sm text-gray-500 cell-content flex items-center justify-center h-full">
+              <div className="text-gray-400 italic text-center">
+                <div className="text-xs">Add note...</div>
+              </div>
+            </div>
           </div>
         );
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 group" style={columnStyle}>
-            <div className="relative">
-              <MainTranslationCell 
-                key={`${verse.reference}-${mainTranslation}`}
-                verse={verse} 
-                getVerseText={getVerseText} 
-                mainTranslation={mainTranslation}
-                getVerseLabels={getVerseLabels}
-              />
-              <div className="absolute top-1 right-1">
-                <BookmarkButton 
-                  verseRef={verse.reference} 
-                  indexValue={verse.index ?? 0} 
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                />
-              </div>
-            </div>
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+            <MainTranslationCell 
+              key={`${verse.reference}-${mainTranslation}`}
+              verse={verse} 
+              getVerseText={getVerseText} 
+              mainTranslation={mainTranslation}
+              getVerseLabels={getVerseLabels}
+            />
           </div>
         );
 
@@ -690,16 +673,7 @@ export function VirtualRow({
 
       case 'cross-refs':
         return (
-          <div 
-            key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
-            style={columnStyle}
-            onWheel={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-            onScroll={(e) => e.stopPropagation()}
-          >
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <CrossReferencesCell 
               verse={verse} 
               getVerseText={getVerseText} 
@@ -757,7 +731,7 @@ export function VirtualRow({
   // FIXED COLUMN WIDTHS - No compression, maintain exact pixel widths
   return (
     <div 
-      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
+      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
       style={{ 
         height: rowHeight,
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
