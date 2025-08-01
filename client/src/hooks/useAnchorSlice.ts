@@ -54,18 +54,16 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, ve
       const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
       
       if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
-        // Store current scroll position before slice change
-        const currentScrollTop = el.scrollTop;
-        
+        const oldStart = slice.start;            // keep current slice start
         anchorIndexRef.current = clampedAnchor;
         setAnchorIndex(clampedAnchor);
-        setSlice(loadChunk(clampedAnchor, verseKeys));
         
-        // Restore exact scroll position after slice loads
+        const nextSlice = loadChunk(clampedAnchor, verseKeys);
+        setSlice(nextSlice);
+        
+        // adjust by the number of rows we inserted/removed
         requestAnimationFrame(() => {
-          if (el.scrollTop !== currentScrollTop) {
-            el.scrollTop = currentScrollTop;
-          }
+          el.scrollTop += (nextSlice.start - oldStart) * ROW_HEIGHT;
         });
       }
     };

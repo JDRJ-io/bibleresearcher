@@ -86,7 +86,7 @@
   --text-sm: calc(var(--base-font-size) * 0.875 * var(--text-size-mult));
   --text-base: calc(var(--base-font-size) * var(--text-size-mult));
   --text-lg: calc(var(--base-font-size) * 1.125 * var(--text-size-mult));
-  --row-height-base: 36px; /* Reduced base row height for tighter spacing */
+  --row-height-base: 120px; /* Match JavaScript ROW_HEIGHT constant */
   --row-height: calc(var(--row-height-base) * var(--row-height-mult));
 
   /* UI Chrome elements stay at fixed sizes */
