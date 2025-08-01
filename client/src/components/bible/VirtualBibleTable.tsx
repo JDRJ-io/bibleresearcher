@@ -478,6 +478,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
     // Ultra-light wheel/trackpad router
     function wheelRouter(e: WheelEvent) {
+      // Don't intercept wheel events from cross-reference cells
+      const target = e.target as HTMLElement;
+      if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
+        return;
+      }
+      
       const { deltaX, deltaY } = e;
       // Pick the dominant delta every frame
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -493,9 +499,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       let startX = 0, startY = 0, activeAxis: 'x' | 'y' | null = null;
 
       const onPointerDown = (e: PointerEvent) => {
-        // Don't capture pointer events on buttons or clickable elements
-        if ((e.target as HTMLElement).tagName === 'BUTTON' || 
-            (e.target as HTMLElement).closest('button')) {
+        // Don't capture pointer events on buttons, clickable elements, or cross-reference cells
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'BUTTON' || 
+            target.closest('button') ||
+            target.closest('.cross-ref-item') ||
+            target.closest('.cell-content')) {
           return;
         }
         
@@ -509,6 +518,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
       const onPointerMove = (e: PointerEvent) => {
         if (!e.isPrimary) return;
+        
+        // Don't handle pointer moves from cross-reference cells
+        const target = e.target as HTMLElement;
+        if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
+          return;
+        }
+        
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
 

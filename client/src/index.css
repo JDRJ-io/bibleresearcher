@@ -12,11 +12,13 @@
 .cross-ref-item {
   touch-action: manipulation;
   overscroll-behavior: contain;
+  isolation: isolate; /* Create new stacking context to isolate events */
 }
 
 .cell-content {
-  touch-action: manipulation;
+  touch-action: auto; /* Allow natural scrolling within cells */
   overscroll-behavior: contain;
+  isolation: isolate; /* Prevent parent event capture */
 }
 
 /* Prevent parent scroll when cross-ref content is scrolling */
@@ -24,6 +26,7 @@
   touch-action: pan-y;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  isolation: isolate;
 }
 
 /* Simple Theme System - Light and Dark only */
