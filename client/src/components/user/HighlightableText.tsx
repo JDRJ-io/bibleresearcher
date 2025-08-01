@@ -48,9 +48,16 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
   // Get highlights for this verse
   const verseHighlights = highlights.filter(h => h.verseRef === verseRef);
 
-  // Handle text selection
+  // Handle text selection - with mobile scroll prevention
   const handleMouseUp = (e: React.MouseEvent) => {
-    console.log('🎨 HighlightableText: handleMouseUp called', { isLoggedIn, hasSelection: !window.getSelection()?.isCollapsed });
+    console.log('🎨 HighlightableText: handleMouseUp called', { isLoggedIn, hasSelection: !window.getSelection()?.isCollapsed, isMobile });
+    
+    // On mobile, prevent text selection interference with scrolling
+    if (isMobile) {
+      // Don't trigger selection on mobile to avoid scroll interference
+      console.log('🎨 Mobile device detected - skipping text selection to prevent scroll interference');
+      return;
+    }
     
     if (!isLoggedIn) {
       // Show toast for guests
@@ -231,7 +238,10 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
         ref={textRef}
         onMouseUp={handleMouseUp}
         className="select-text cursor-text"
-        style={{ userSelect: isLoggedIn ? 'text' : 'none' }}
+        style={{ 
+          userSelect: (isLoggedIn && !isMobile) ? 'text' : 'none',
+          touchAction: 'manipulation' // Prevent text selection on mobile
+        }}
       >
         {renderHighlightedText()}
       </div>
