@@ -1,0 +1,105 @@
+### What’s really causing the “auto-jump” right now
+
+1. **Row-height mismatch between CSS and JavaScript**
+
+   * JS: `useAnchorSlice` and other hooks compute scroll math with `ROW_HEIGHT` they import from `constants/layout` (looks like 36 px originally), while
+   * CSS: every rendered row is actually `120 px` tall (`.verse-row` rule) and `min-height: 120 px` on the inner cell.
+     Because the math is off by \~3×, the hook thinks you’ve scrolled **15 rows** when you’ve really only moved 5, it swaps slices early, then “restores” the wrong `scrollTop`, so the viewport jumps.
+
+2. **Scroll-position restore uses the wrong reference**
+   `useAnchorSlice` saves the raw `scrollTop` **before** it throws rows away, then re-applies that same value after the DOM shrinks or grows. If the new slice has a different `start` index, the old `scrollTop` now points at another verse, producing the visible hop.
+
+---
+
+### Drop-in fixes
+
+<details><summary>1. Make one, authoritative <code>ROW_HEIGHT</code></summary>
+
+```ts
+// constants/layout.ts
+export const ROW_HEIGHT = 120;     // 🔧 keep in sync with CSS
+
+// read it in CSS too (optional but nice)
+:root { --row-height: 120px; }
+```
+
+*Replace the hard-coded `120` in `usePreserveAnchor` with the import.*
+
+```ts
+// usePreserveAnchor.ts
+import { ROW_HEIGHT } from '@/constants/layout';
+...
+const targetScrollTop = anchorIndex * ROW_HEIGHT;
+```
+
+</details>
+
+<details><summary>2. Restore scrollTop with a row-delta, not the stale pixel value</summary>
+
+```ts
+// useAnchorSlice.ts
+...
+const onScroll = () => {
+  const scrollCenter = el.scrollTop + el.clientHeight / 2;
+  const anchor = Math.round(scrollCenter / ROW_HEIGHT);
+  const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
+
+  if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
+    const oldStart = slice.start;            // keep current slice start
+    anchorIndexRef.current = clampedAnchor;
+
+    const next = loadChunk(clampedAnchor, verseKeys);
+    setSlice(next);
+
+    // adjust by the number of rows we inserted/removed
+    requestAnimationFrame(() => {
+      el.scrollTop += (next.start - oldStart) * ROW_HEIGHT;
+    });
+  }
+};
+```
+
+Instead of replaying the **old** pixel value, we shift by exactly the rows that moved. No more jump.
+
+</details>
+
+<details><summary>3. Lower THRESH or make it pixel-based</summary>
+
+If you keep the 15-row threshold, on a phone that’s **1800 px**—bigger than most screens. Consider
+
+```ts
+const THRESH_PX = 600;           // about half a viewport
+if (Math.abs(scrollCenter - lastAnchorPx) > THRESH_PX) { … }
+```
+
+or drop the row threshold to 5 so loads happen sooner but with smaller adjustments.
+
+</details>
+
+---
+
+### Quick test checklist
+
+| Scenario                 | Expected now                                                                        |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| Slow drag                | No hitch; rows stream smoothly                                                      |
+| Fast flick on mobile     | Momentum scroll stays continuous; slices swap invisibly                             |
+| Scroll to verse via link | Verse centred, **no extra jump**                                                    |
+| Rotate device            | Hook re-reads `ROW_HEIGHT` once (use `useLayoutEffect`) and still scrolls correctly |
+
+---
+
+### Longer-term niceties (optional)
+
+* Adopt a virtualization helper such as **react-window** or **@tanstack/virtual**—they already handle row-delta compensation.
+* Pull the CSS value at runtime:
+
+  ```ts
+  const ROW_HEIGHT = parseFloat(getComputedStyle(document.documentElement)
+                    .getPropertyValue('--row-height')) || 120;
+  ```
+
+  That keeps JS & CSS in lock-step even if design tweaks the size later.
+* Replace custom “THRESH” logic with an **IntersectionObserver** sentinel; that removes magic numbers completely.
+
+Give these two patches a spin—unified row height plus delta-based correction usually eliminates the runaway jumps in one shot. Let me know how the scroll feels after you drop them in!
