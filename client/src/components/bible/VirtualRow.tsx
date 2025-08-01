@@ -79,7 +79,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   }
 
   return (
-    <div className="px-2 py-1 text-sm cell-content">
+    <div className="px-2 py-1 text-sm cell-content cross-ref-cell">
       {crossRefs.length > 0 ? (
         <div className="space-y-0">
           {crossRefs.map((ref, i) => {

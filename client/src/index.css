@@ -8,17 +8,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile touch event fixes for cross-reference cells */
+/* Mobile touch event fixes for cross-reference cells only */
 .cross-ref-item {
   touch-action: manipulation;
   overscroll-behavior: contain;
   isolation: isolate; /* Create new stacking context to isolate events */
 }
 
-.cell-content {
-  touch-action: auto; /* Allow natural scrolling within cells */
+/* Only apply isolation to cross-reference cell content, not all cells */
+.cross-ref-cell .cell-content {
+  touch-action: auto; /* Allow natural scrolling within cross-ref cells */
   overscroll-behavior: contain;
-  isolation: isolate; /* Prevent parent event capture */
+  isolation: isolate; /* Prevent parent event capture only for cross-refs */
 }
 
 /* Prevent parent scroll when cross-ref content is scrolling */
@@ -26,7 +27,6 @@
   touch-action: pan-y;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  isolation: isolate;
 }
 
 /* Simple Theme System - Light and Dark only */
