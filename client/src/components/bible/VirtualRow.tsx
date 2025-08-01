@@ -93,7 +93,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               <div key={i} className="cross-ref-item block w-full mb-1">
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
+                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold cursor-pointer"
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onTouchStart={(e) => e.stopPropagation()}
                   onTouchEnd={(e) => handleCrossRefClick(ref, e)}
@@ -179,7 +179,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                 {/* Compact clickable summary - no box, just text */}
                 <button
                   onClick={() => toggleProphecyCollapse(String(prophecyId))}
-                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-0 py-0"
+                  className="w-full text-left text-sm font-medium text-gray-800 dark:text-gray-200 px-0 py-0"
                 >
                   <span className="text-xs font-bold text-blue-600 dark:text-blue-400 mr-1">
                     {prophecyId}.
@@ -200,7 +200,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                         <button
                           key={i}
                           onClick={() => onVerseClick && onVerseClick(verseRef)}
-                          className="block w-full text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 py-0 transition-colors"
+                          className="block w-full text-left py-0"
                         >
                           <div className="text-blue-600 dark:text-blue-400 font-medium text-sm leading-tight">
                             {verseRef}
@@ -757,7 +757,7 @@ export function VirtualRow({
   // FIXED COLUMN WIDTHS - No compression, maintain exact pixel widths
   return (
     <div 
-      className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors bible-verse-row"
+      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
       style={{ 
         height: rowHeight,
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
