@@ -1,0 +1,146 @@
+Below is a “starter kit” you can drop into /layout and wire into VirtualBibleTable.tsx.
+It gives you orientation-aware layouts, automatic centering, and a horizontal scrollbar that only appears when columns overflow.
+
+⸻
+
+1 · CSS – the heavy lifting (no JS required for most cases)
+
+/* layout.css ---------------------------------------------------- */
+:root {
+  /* baseline column widths – tweak to taste */
+  --w-ref:   4.5rem;   /* reference # column  */
+  --w-main:  clamp(14rem, 35vw, 22rem);   /* primary translation */
+  --w-xref:  clamp(10rem, 45vw, 18rem);   /* cross-ref column   */
+}
+
+/* wrapper flexbox keeps the table centered while room remains */
+.tableWrapper {
+  display: flex;
+  justify-content: center;      /* centering in landscape */
+  overflow-x: auto;             /* scrollbar only if needed */
+  scrollbar-gutter: stable;     /* prevents width-jump when bar appears */
+}
+
+/* make the actual grid as wide as it needs */
+.tableInner { inline-size: max-content; }
+
+/* PORTRAIT ------------------------------------------------------ */
+@media (orientation: portrait) {
+  /* 100 vw minus room for the vertical scrollbar (safe area) */
+  .tableWrapper { justify-content: flex-start; }  /* hug the left */
+  :root {
+    --w-ref:  3.5rem;
+    --w-main: clamp(45vw, 60vw, 80vw);  /* main fills most of the width */
+    --w-xref: clamp(40vw, 55vw, 70vw);
+  }
+}
+
+/* tiny phones – let everything scroll horizontally, nothing shrinks to crumbs */
+@media (max-width: 480px) {
+  :root {
+    --w-ref:  3rem;
+    --w-main: 18rem;
+    --w-xref: 16rem;
+  }
+}
+
+Why this works
+	•	@media (orientation: …) lets the browser pick the portrait or landscape block for you.  ￼
+	•	No manual width maths: clamp() gives each column a min, an ideal, and a hard max.
+	•	Because .tableInner uses inline-size:max-content, it naturally grows as you add columns. When its width > the viewport, the parent’s overflow-x:auto triggers the scrollbar; otherwise the flexbox keeps it centred.
+
+⸻
+
+2 · React hook – when you do need JS logic (e.g., hiding/showing columns, saving user prefs)
+
+// useOrientation.ts ------------------------------------------------
+import { useEffect, useState } from 'react';
+
+export function useOrientation() {
+  const query = '(orientation: portrait)';
+  const [portrait, setPortrait] = useState<boolean>(
+    typeof window !== 'undefined' && window.matchMedia(query).matches
+  );
+
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const handler = (e: MediaQueryListEvent) => setPortrait(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
+  return portrait ? 'portrait' : 'landscape';
+}
+
+window.matchMedia() is the smallest, cross-browser way to react to orientation changes in JS.  ￼
+
+⸻
+
+3 · Optional: detect overflow in real time
+
+If you dynamically add/remove columns at runtime, you can know whether the scrollbar is needed using ResizeObserver.
+
+// Inside VirtualBibleTable.tsx
+const wrapperRef = useRef<HTMLDivElement>(null);
+const [needsScroll, setNeedsScroll] = useState(false);
+
+useEffect(() => {
+  if (!wrapperRef.current) return;
+  const ro = new ResizeObserver(([entry]) => {
+    const { width } = entry.contentRect;
+    const contentW = wrapperRef.current!.firstElementChild?.scrollWidth ?? 0;
+    setNeedsScroll(contentW > width);
+  });
+  ro.observe(wrapperRef.current);
+  return () => ro.disconnect();
+}, [columns]);            // recalc when you change the column set
+
+ResizeObserver fires even if the element size changes without a window resize, making it perfect for virtualised tables.  ￼
+You can stash needsScroll in context if you want to toggle visual hints (“⇆ drag to scroll”) only when it matters.
+
+⸻
+
+4 · Wiring it up
+
+/* VirtualBibleTable.tsx (excerpt) */
+import { useOrientation } from '@/hooks/useOrientation';
+import '@/styles/layout.css';
+
+export function VirtualBibleTable({ /* props */ }) {
+  const orientation = useOrientation();   // 'portrait' | 'landscape'
+
+  return (
+    <div
+      className="tableWrapper"
+      data-orientation={orientation}        // handy if you want special CSS
+      ref={wrapperRef}
+    >
+      <div className="tableInner">
+        {/* your ColumnHeaders + VirtualRows here */}
+      </div>
+    </div>
+  );
+}
+
+No more manual padding/translate hacks – everything keys off one rule-set and a couple of CSS custom-properties, so maintenance stays painless.
+
+⸻
+
+5 · Next-level niceties (optional)
+
+Idea	Benefit
+Scroll-snap: scroll-snap-type: x mandatory; on .tableWrapper + scroll-snap-align: start; on each column group	Stops the horizontal scroll at clean column boundaries.
+container queries for each translation column	If you later wrap individual columns in cards, container queries let them adapt even inside split-screen apps. Browsers are stable for this now.  ￼
+Reduced-motion media query for animated themes	Keeps accessibility reviewers happy without extra JS.
+
+
+
+⸻
+
+TL;DR
+	•	CSS @media (orientation) decides portrait vs. landscape instantly in the compositor.
+	•	Flex-box + max-content gives natural centring until overflow.
+	•	Overflow-x:auto & scrollbar-gutter:stable mean the scrollbar only shows when required and doesn’t cause layout jump.
+	•	matchMedia + ResizeObserver hooks are all you need if the layout rules themselves must change in JS.
+
+Drop the snippets in, adjust the --w-* numbers to match your design system, and your table will fluidly adapt on every phone, tablet, and desktop without further micromanagement.

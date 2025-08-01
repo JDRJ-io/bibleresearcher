@@ -1,13 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book, Bookmark } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
+import { useBibleStore } from '@/App';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 
 interface TopHeaderProps {
@@ -32,9 +36,71 @@ export function TopHeader({
   const { theme, setTheme, themes } = useTheme();
   const { user, loading } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const bibleStore = useBibleStore();
 
   const { width } = useWindowSize();
   const isMobile = width < 640;
+
+  // Get the current central verse from the Bible store
+  const getCurrentCentralVerse = () => {
+    // This should get the current verse that's in the center of the viewport
+    // For now, we'll use the currentVerseKeys from the store or a fallback
+    const currentKeys = bibleStore?.currentVerseKeys;
+    const currentRef = currentKeys?.[0] || 'Gen.1:1';
+    const currentIndex = 0; // We'll use 0 as default index
+    return { reference: currentRef, index: currentIndex };
+  };
+
+  // Bookmark creation mutation
+  const createBookmarkMutation = useMutation({
+    mutationFn: async (bookmark: {
+      userId: string;
+      verseRef: string;
+      indexValue: number;
+      name: string;
+      color: string;
+    }) => {
+      return await apiRequest("/api/bookmarks", "POST", bookmark);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookmarks"] });
+      toast({
+        title: "Bookmark saved",
+        description: "Current position has been bookmarked successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to save bookmark. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSaveBookmark = () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save bookmarks.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const centralVerse = getCurrentCentralVerse();
+    const timestamp = new Date().toLocaleString();
+    
+    createBookmarkMutation.mutate({
+      userId: user.id,
+      verseRef: centralVerse.reference,
+      indexValue: centralVerse.index,
+      name: `Reading position - ${centralVerse.reference}`,
+      color: '#3b82f6', // Default blue color
+    });
+  };
 
 
 
@@ -86,8 +152,18 @@ export function TopHeader({
             </Button>
           </div>
 
-          {/* Center: Search */}
-          <div className="flex-1 mx-2 max-w-[180px]">
+          {/* Center: Bookmark + Search */}
+          <div className="flex-1 mx-2 max-w-[180px] flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-8 h-8 p-0"
+              onClick={handleSaveBookmark}
+              disabled={createBookmarkMutation.isPending}
+              title="Save current reading position"
+            >
+              <Bookmark className="w-3 h-3" />
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -137,8 +213,7 @@ export function TopHeader({
                 <Book className="w-6 h-6 text-primary-foreground" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg">Scripture Study</span>
-                <span className="text-xs text-muted-foreground">Bible Research Tool</span>
+                <span className="font-bold text-lg">Anointed.io</span>
               </div>
             </div>
 
@@ -190,37 +265,19 @@ export function TopHeader({
             </div>
           </div>
 
-          {/* Right Section: Quick Links + Auth + Menu */}
+          {/* Right Section: Bookmark + Auth + Menu */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onSearchChange}
-                className="px-3 py-2 h-9 text-sm"
-                title="Search Genesis 1:1"
-              >
-                Genesis 1:1
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onSearchChange}
-                className="px-3 py-2 h-9 text-sm"
-                title="Search Psalm 23"
-              >
-                Psalm 23
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onSearchChange}
-                className="px-3 py-2 h-9 text-sm"
-                title="Search John 3:16"
-              >
-                John 3:16
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveBookmark}
+              disabled={createBookmarkMutation.isPending}
+              className="px-3 py-2 h-9 text-sm flex items-center gap-2"
+              title="Save current reading position as bookmark"
+            >
+              <Bookmark className="w-4 h-4" />
+              {createBookmarkMutation.isPending ? 'Saving...' : 'Save Position'}
+            </Button>
 
             {!user && (
               <Button

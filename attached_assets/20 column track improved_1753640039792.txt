@@ -1,0 +1,59 @@
+# Complete 20-Column Layout Architecture
+
+## Slot Assignments (0-19)
+
+| Slot | Purpose | Header | Data Source | Default Visible | Toggle Function | Notes |
+|------|---------|--------|-------------|----------------|-----------------|-------|
+| 0 | Reference | Ref | verse.reference | ✓ | Always visible | Sticky column |
+| 1 | Notes | Notes | userNotes[ref] | ✗ | toggleNotes() | User-generated content |
+| 2 | Main Translation | [CODE] | getVerseText(ref, main) | ✓ | Always visible | User's primary Bible |
+| 3 | Alt Translation 1 | [CODE] | getVerseText(ref, alt1) | ✗ | setActives() | Dynamic translation |
+| 4 | Alt Translation 2 | [CODE] | getVerseText(ref, alt2) | ✗ | setActives() | Dynamic translation |
+| 5 | Alt Translation 3 | [CODE] | getVerseText(ref, alt3) | ✗ | setActives() | Dynamic translation |
+| 6 | Alt Translation 4 | [CODE] | getVerseText(ref, alt4) | ✗ | setActives() | Dynamic translation |
+| 7 | Cross References | Cross Refs | crossRefs[ref][] | ✓ | toggleCrossRefs() | Current working position |
+| 8 | Prophecy P | P | prophecies[ref].P[] | ✗ | toggleProphecies() | Predictions |
+| 9 | Prophecy F | F | prophecies[ref].F[] | ✗ | toggleProphecies() | Fulfillments |
+| 10 | Prophecy V | V | prophecies[ref].V[] | ✗ | toggleProphecies() | Verifications |
+| 11 | Dates | Dates | verse.dates[] | ✗ | toggleDates() | Timeline data |
+| 12 | Alt Translation 5 | [CODE] | getVerseText(ref, alt5) | ✗ | setActives() | Additional translation |
+| 13 | Alt Translation 6 | [CODE] | getVerseText(ref, alt6) | ✗ | setActives() | Additional translation |
+| 14 | Alt Translation 7 | [CODE] | getVerseText(ref, alt7) | ✗ | setActives() | Additional translation |
+| 15 | Alt Translation 8 | [CODE] | getVerseText(ref, alt8) | ✗ | setActives() | Additional translation |
+| 16 | Alt Translation 9 | [CODE] | getVerseText(ref, alt9) | ✗ | setActives() | Additional translation |
+| 17 | Alt Translation 10 | [CODE] | getVerseText(ref, alt10) | ✗ | setActives() | Additional translation |
+| 18 | Alt Translation 11 | [CODE] | getVerseText(ref, alt11) | ✗ | setActives() | Additional translation |
+| 19 | Alt Translation 12 | [CODE] | getVerseText(ref, alt12) | ✗ | setActives() | Additional translation |
+
+## Architecture Notes
+
+### Dual-Layer System
+- **Slot Assignment**: Fixed purpose per slot (0-19)
+- **Display Order**: Visual reordering via displayOrder property
+- **Reordering**: Changes displayOrder while preserving slot numbers
+
+### Translation Slots (3-6, 12-19)
+- Total of 12 possible alternate translations
+- Dynamically assigned based on user selection
+- Slots 3-6 are primary alternates (first 4 selected)
+- Slots 12-19 are extended alternates (translations 5-12)
+
+### Feature-Specific Slots
+- **Notes** (1): User-generated content, requires authentication
+- **Cross Refs** (7): Biblical cross-references, loads cf1.txt/cf2.txt data
+- **Prophecy** (8-10): Three-column prophecy system (P/F/V)
+- **Dates** (11): Timeline/chronological data
+
+### Current Working State
+- Slots 0, 2, 7 are visible by default
+- Drag-and-drop reordering works between visible columns
+- All 20 slots are initialized in store with appropriate widths
+- Translation loading populates slots 3-6 first, then 12-19 for additional versions
+
+## Implementation Status
+✓ All 20 slots initialized in columnState
+✓ Reordering system works with slot/displayOrder architecture  
+✓ Translation system ready for 12 alternates
+✓ Feature toggles mapped to correct slots
+⚠ Need to update ColumnHeaders/VirtualRow to handle extended translation slots
+⚠ Need to verify all feature data loading works with slot assignments

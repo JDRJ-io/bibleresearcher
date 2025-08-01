@@ -1,0 +1,88 @@
+Below is a short roadmap I use when one of my own overlays stops stepping cleanly through verses.  Walk through the list in order—the first two fixes usually solve it.
+
+⸻
+
+1  Verify that the overlay is keeping a clean occurrence list
+
+// inside StrongOverlay.tsx (or wherever you hold the state)
+const occurrences = useMemo(
+  () => strongIndex[currentStrongsId] ?? [],   // ["Gen.1:1", "Exo.3:14", …]
+  [currentStrongsId]
+);
+
+	•	Put a console.table(occurrences) and click a Strong’s number.
+	•	If the array is empty or you see undefined, the Concordance index wasn’t loaded or the key doesn’t match the format you store (Gen.1:1 vs Gen 1:1).
+	•	Fix the index or normalise the incoming key before lookup.
+
+⸻
+
+2  Drive navigation from a cursor stored in React / Zustand
+
+const [cursor, setCursor] = useState(0);
+
+const go = (delta: number) => {
+  setCursor(c => {
+    const next   = (c + delta + occurrences.length) % occurrences.length;
+    jumpToVerse(occurrences[next]);   // ← see step 3
+    return next;
+  });
+};
+
+<Button onClick={() => go(-1)}>▲</Button>
+<Button onClick={() => go(+1)}>▼</Button>
+
+No math tricks at render-time, no querying the DOM to find “the next row” – just a clean integer you control.
+
+⸻
+
+3  Jump safely inside a virtual table
+
+async function jumpToVerse(key: string) {
+  const index = verseKeysMap[key];        // e.g. "Gen.1:1" → 0
+
+  // ❶ Ensure the row exists (lazy chunk loader)
+  await loadChunkIfNeeded(index);
+
+  // ❷ Scroll the virtual list
+  listRef.current?.scrollToIndex(index, { align: "center" });
+
+  // ❸ Highlight / setAnchor so your row styles update
+  setAnchorSlice({ index, key });
+}
+
+Common slip-ups that break the ▲/▼ buttons:
+
+Symptom	Likely cause	Quick fix
+Button flashes but view never moves	You scrolled before the row was mounted	Always await loadChunkIfNeeded first
+It jumps, but row is off-screen	Wrong align param or listRef null	scrollToIndex(idx, {align:"center"}) after the ref exists
+First click works, next click freezes	cursor stored outside React state (a ref or plain variable)	Put it in useState / Zustand
+
+
+
+⸻
+
+4  Disable the buttons when you can’t move
+
+<Button disabled={occurrences.length < 2}>▲</Button>
+
+A surprising number of “it doesn’t work” reports are just single-occurrence lemmas where ▲ / ▼ have nowhere to go.
+
+⸻
+
+5  Polish & UX extras
+	•	Keyboard shortcuts: add ArrowUp / ArrowDown listeners while the overlay is open.
+	•	Smooth-scroll option: wrap scrollToIndex in a setTimeout(() => {/* smooth */}, 0) when users enable “reduced motion” in settings.
+	•	Edge badges: show “1 of 12” so users see that the button actually cycled.
+
+⸻
+
+Still stuck?
+
+Open your console and run:
+
+window.__debugStrongs = { occurrences, cursor };
+
+Watch the cursor and occurrences[cursor] live as you click.
+If the cursor updates but the table never scrolls, the issue is inside your virtual-list integration.  If the cursor doesn’t update, the handler isn’t attached (React key clash or bubbling issue).
+
+That diagnostic usually pinpoints the last missing piece in minutes.  Let me know what you find and we can drill deeper!
