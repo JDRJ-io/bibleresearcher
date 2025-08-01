@@ -8,6 +8,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile touch event fixes for cross-reference cells */
+.cross-ref-item {
+  touch-action: manipulation;
+  overscroll-behavior: contain;
+}
+
+.cell-content {
+  touch-action: manipulation;
+  overscroll-behavior: contain;
+}
+
+/* Prevent parent scroll when cross-ref content is scrolling */
+.cross-ref-scrollable {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Simple Theme System - Light and Dark only */
 :root.light {
   --header-bg: hsl(0, 0%, 100%);

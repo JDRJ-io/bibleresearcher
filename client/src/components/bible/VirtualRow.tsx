@@ -53,11 +53,12 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
   const crossRefs = crossRefsStore[verse.reference] || [];
 
-  const handleCrossRefClick = (ref: string, e: React.MouseEvent) => {
+  const handleCrossRefClick = (ref: string, e: React.MouseEvent | React.TouchEvent) => {
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
 
-    // Only stop propagation to prevent scroll interference, but allow the click to proceed
+    // Stop all event propagation to prevent scroll interference
     e.stopPropagation();
+    e.preventDefault();
 
     if (onVerseClick) {
       console.log('🔗 Calling onVerseClick with:', ref);
@@ -78,9 +79,21 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   }
 
   return (
-    <div className="px-2 py-1 text-sm cell-content">
+    <div 
+      className="px-2 py-1 text-sm cell-content"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+    >
       {crossRefs.length > 0 ? (
-        <div className="space-y-0">
+        <div 
+          className="space-y-0 overflow-y-auto max-h-[100px]"
+          style={{ overscrollBehavior: 'contain' }}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+          onScroll={(e) => e.stopPropagation()}
+        >
           {crossRefs.map((ref, i) => {
             // OPTIMIZATION: Cross-refs now use consistent dot format
             let refText = '';
@@ -94,7 +107,13 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   type="button"
                   className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors"
                   onClick={(e) => handleCrossRefClick(ref, e)}
-                  style={{ minHeight: '24px', minWidth: '60px' }}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => handleCrossRefClick(ref, e)}
+                  style={{ 
+                    minHeight: '24px', 
+                    minWidth: '60px',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   {ref}
                 </button>

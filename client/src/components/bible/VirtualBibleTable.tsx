@@ -610,7 +610,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             overscrollBehavior: 'contain',
             scrollbarGutter: 'stable both-edges',
             contain: 'layout paint style',
-            willChange: 'scroll-position'
+            willChange: 'scroll-position',
+            touchAction: 'pan-y' // Only allow vertical panning
           }}
         >
           {/* Horizontal scroller: extra columns */}
@@ -623,6 +624,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               overflowX: 'auto',
               overflowY: 'hidden',
               overscrollBehavior: 'contain',
+              touchAction: 'pan-x', // Only allow horizontal panning
               scrollbarGutter: 'stable both-edges',
               contain: 'layout paint style',
               willChange: 'scroll-position'
