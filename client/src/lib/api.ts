@@ -98,7 +98,13 @@ export const highlightsApi = {
 
     const { data, error } = await supabase
       .from('highlights')
-      .insert({ ...highlightData, user_id: userId })
+      .insert({ 
+        verse_ref: highlightData.verseRef,
+        start_idx: highlightData.startIdx,
+        end_idx: highlightData.endIdx,
+        color: highlightData.color,
+        user_id: userId 
+      })
       .select()
       .single();
 

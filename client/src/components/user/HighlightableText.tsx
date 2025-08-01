@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Palette, X } from 'lucide-react';
 import { useCreateHighlight, useDeleteHighlight, useUserHighlights } from '@/hooks/useUserData';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import type { Highlight } from '@shared/schema';
 import { useWindowSize } from 'react-use';
@@ -30,7 +30,8 @@ interface Selection {
 }
 
 export function HighlightableText({ text, verseRef, className }: HighlightableTextProps) {
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   const { data: highlights = [] } = useUserHighlights();
   const createHighlight = useCreateHighlight();
   const deleteHighlight = useDeleteHighlight();
@@ -49,9 +50,12 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
 
   // Handle text selection
   const handleMouseUp = (e: React.MouseEvent) => {
+    console.log('🎨 HighlightableText: handleMouseUp called', { isLoggedIn, hasSelection: !window.getSelection()?.isCollapsed });
+    
     if (!isLoggedIn) {
       // Show toast for guests
       if (window.getSelection() && !window.getSelection()?.isCollapsed) {
+        console.log('🎨 Guest user tried to highlight, showing toast');
         toast({
           title: "Sign in required",
           description: "Please sign in to highlight text.",
@@ -95,11 +99,14 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
       y: rect.bottom - containerRect.top + 8
     });
 
-    setSelection({
+    const selectionData = {
       startIdx,
       endIdx,
       selectedText: range.toString()
-    });
+    };
+    
+    console.log('🎨 Setting selection and showing color picker:', selectionData);
+    setSelection(selectionData);
     setShowColorPicker(true);
     
     // Prevent the selection from being cleared immediately
@@ -110,6 +117,8 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
   const handleCreateHighlight = async (color: string) => {
     if (!selection) return;
 
+    console.log('🎨 Creating highlight:', { verseRef, selection, color });
+    
     try {
       await createHighlight.mutateAsync({
         verseRef,
@@ -118,6 +127,7 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
         color
       });
       
+      console.log('🎨 Highlight created successfully');
       toast({ title: "Text highlighted" });
       setShowColorPicker(false);
       setSelection(null);
@@ -125,6 +135,7 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
       // Clear text selection
       window.getSelection()?.removeAllRanges();
     } catch (error) {
+      console.error('🎨 Failed to create highlight:', error);
       toast({ 
         title: "Error", 
         description: "Failed to create highlight", 

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notesApi, highlightsApi, bookmarksApi, preferencesApi } from '@/lib/api';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import type { 
   UserNote, 
   InsertUserNote, 
@@ -14,7 +14,8 @@ import type {
 
 // Notes hooks
 export const useUserNotes = () => {
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   
   return useQuery({
     queryKey: ['user-notes'],
@@ -60,7 +61,8 @@ export const useDeleteNote = () => {
 
 // Highlights hooks
 export const useUserHighlights = () => {
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   
   return useQuery({
     queryKey: ['user-highlights'],
@@ -94,7 +96,8 @@ export const useDeleteHighlight = () => {
 
 // Bookmarks hooks
 export const useUserBookmarks = () => {
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   
   return useQuery({
     queryKey: ['user-bookmarks'],
@@ -140,7 +143,8 @@ export const useDeleteBookmark = () => {
 
 // Preferences hooks
 export const useUserPreferences = () => {
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
   
   return useQuery({
     queryKey: ['user-preferences'],
