@@ -463,7 +463,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Strict no-diagonal scrolling system
+  // Minimal axis-clamped scrolling system
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -474,86 +474,58 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       setScrollLeft(target.scrollLeft);
     };
 
-    // Strict no-diagonal helper with proper mouse/touch handling
-    const start = { x: 0, y: 0 };
-    let active = false;
-    let scrollApply: (dx: number, dy: number) => void;
+    // Apply the minimal axis clamp
+    let startX = 0, startY = 0, dragging = false;
 
     const apply = (dx: number, dy: number) => {
       container.scrollLeft += dx;
       container.scrollTop += dy;
     };
 
-    // Wheel handler - picks dominant axis per tick
+    // Wheel – capture phase, passive:false so we can preventDefault
     const wheel = (e: WheelEvent) => {
-      // Don't intercept wheel events from cross-reference cells
-      const target = e.target as HTMLElement;
-      if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
-        return;
-      }
-      
       const { deltaX: dx, deltaY: dy } = e;
-      (Math.abs(dx) > Math.abs(dy) ? apply(dx, 0) : apply(0, dy));
-      e.preventDefault(); // ✓ stop browser diagonal
+      if (Math.abs(dx) > Math.abs(dy)) apply(dx, 0); else apply(0, dy);
+      e.preventDefault(); // kill native 2-D scroll right here
     };
 
-    // Pointer handlers - strict mouse/touch handling
-    const pd = (e: PointerEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'BUTTON' || 
-          target.closest('button') ||
-          target.closest('.cross-ref-item') ||
-          target.closest('.cell-content')) {
-        return;
-      }
-      
-      if (e.pointerType === 'mouse' && e.buttons !== 1) return; // ignore hover
-      active = true;
-      start.x = e.clientX;
-      start.y = e.clientY;
-      scrollApply = apply;
+    // Pointer drag
+    const down = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' && e.buttons !== 1) return;
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
       container.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    };
+    const move = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = startX - e.clientX;
+      const dy = startY - e.clientY;
+      if (Math.abs(dx) > Math.abs(dy)) apply(dx, 0); else apply(0, dy);
+      startX = e.clientX; startY = e.clientY;
+      e.preventDefault();
+    };
+    const up = (e: PointerEvent) => {
+      dragging = false;
+      container.releasePointerCapture(e.pointerId);
     };
 
-    const pm = (e: PointerEvent) => {
-      if (!active) return; // ignore hover moves
-      
-      const target = e.target as HTMLElement;
-      if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
-        return;
-      }
-      
-      const dx = start.x - e.clientX;
-      const dy = start.y - e.clientY;
-      (Math.abs(dx) > Math.abs(dy) ? scrollApply(dx, 0) : scrollApply(0, dy));
-      
-      start.x = e.clientX;
-      start.y = e.clientY;
-      e.preventDefault(); // ✓ stop native pan
-    };
-
-    const pu = (e: PointerEvent) => {
-      active = false;
-      if (container.hasPointerCapture && container.hasPointerCapture(e.pointerId)) {
-        container.releasePointerCapture(e.pointerId);
-      }
-    };
-
-    // Add event listeners
+    // Attach – capture phase ensures we beat bubbling parents
     container.addEventListener('scroll', onScroll);
-    container.addEventListener('wheel', wheel, { passive: false });
-    container.addEventListener('pointerdown', pd);
-    container.addEventListener('pointermove', pm, { passive: false });
-    container.addEventListener('pointerup', pu);
-    container.addEventListener('pointercancel', pu);
+    container.addEventListener('wheel', wheel, { passive: false, capture: true });
+    container.addEventListener('pointerdown', down, { capture: true });
+    container.addEventListener('pointermove', move, { passive: false, capture: true });
+    container.addEventListener('pointerup', up, { capture: true });
+    container.addEventListener('pointercancel', up, { capture: true });
 
     return () => {
       container.removeEventListener('scroll', onScroll);
-      container.removeEventListener('wheel', wheel);
-      container.removeEventListener('pointerdown', pd);
-      container.removeEventListener('pointermove', pm);
-      container.removeEventListener('pointerup', pu);
-      container.removeEventListener('pointercancel', pu);
+      container.removeEventListener('wheel', wheel, { capture: true } as any);
+      container.removeEventListener('pointerdown', down, { capture: true } as any);
+      container.removeEventListener('pointermove', move, { capture: true } as any);
+      container.removeEventListener('pointerup', up, { capture: true } as any);
+      container.removeEventListener('pointercancel', up, { capture: true } as any);
     };
   }, []);
 
@@ -593,7 +565,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           (hScrollRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className="unified-scroll-container"
+        className="unified-scroll-container scroll-area"
         style={{ 
           position: 'relative',
           height: "calc(100vh - 85px)",

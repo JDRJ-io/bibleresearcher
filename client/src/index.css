@@ -925,6 +925,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Minimal axis-clamped scrolling */
+.scroll-area { 
+  touch-action: none; 
+}
+
 /* Custom scrollbar for cross-reference cells */
 .custom-scrollbar {
   scrollbar-width: thin;
