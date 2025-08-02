@@ -56,7 +56,7 @@
 
   /* Mobile column headers must use adaptive CSS variables for perfect sync */
   .column-header-cell[data-column="reference"] {
-    width: var(--adaptive-ref-width) !important;  /* Sync with table content */
+    width: var(--adaptive-ref-width) !important;  /* Portrait mode sync */
     box-sizing: border-box !important;
     padding: 0 !important; /* NO PADDING - match data cell */
   }
@@ -86,45 +86,15 @@
     width: var(--adaptive-context-width) !important;  /* Sync with table content */
   }
 
-  /* Landscape phone adjustments - use adaptive variables for perfect sync */
-  @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
+  /* Portrait phone landscape adjustments - use adaptive variables */
+  @media (max-width: 896px) and (orientation: landscape) {
     .column-header-cell[data-column="reference"] {
-      width: var(--adaptive-ref-width) !important;  /* Sync with table content */
+      width: var(--adaptive-ref-width) !important;  /* Portrait system in landscape phone */
     }
 
     .column-header-cell[data-column="main"],
     .column-header-cell[data-column="cross-refs"] {
-      width: var(--adaptive-main-width) !important;  /* Sync with table content */
-    }
-  }
-
-  /* Tablet and larger screens - use adaptive CSS variables for perfect sync */
-  @media (min-width: 641px) {
-    .column-header-cell[data-column="reference"] {
-      width: var(--adaptive-ref-width) !important;  /* Sync with table content */
-    }
-
-    .column-header-cell[data-column="main"] {
-      width: var(--adaptive-main-width) !important;  /* Sync with table content */
-    }
-
-    .column-header-cell[data-column="cross-refs"] {
-      width: var(--adaptive-cross-width) !important;  /* Sync with table content */
-    }
-
-    /* Prophecy columns sync */
-    .column-header-cell[data-column="prophecy"] {
-      width: var(--adaptive-prophecy-width) !important;  /* Sync with table content */
-    }
-
-    /* Notes column sync */
-    .column-header-cell[data-column="notes"] {
-      width: var(--adaptive-notes-width) !important;  /* Sync with table content */
-    }
-
-    /* Context column sync */
-    .column-header-cell[data-column="context"] {
-      width: var(--adaptive-context-width) !important;  /* Sync with table content */
+      width: var(--adaptive-main-width) !important;
     }
   }
 }
@@ -158,6 +128,11 @@
   .bible-content-container {
     margin-top: var(--top-header-height-desktop) !important;
     height: calc(100vh - var(--top-header-height-desktop)) !important;
+  }
+
+  /* LANDSCAPE MODE: Reference column header must use --w-ref to match data cells */
+  .column-header-cell[data-column="reference"] {
+    width: calc(var(--w-ref) * var(--column-width-mult)) !important;
   }
 }
 
