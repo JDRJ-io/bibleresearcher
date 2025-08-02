@@ -584,8 +584,8 @@ export function ColumnHeaders({
                 <div 
                   className="flex h-full"
                   style={{ 
-                    minWidth: `${actualTotalWidth}px`,
-                    width: `${actualTotalWidth}px`,
+                    minWidth: 'max-content',
+                    width: 'max-content',
                     transform: `translateX(-${Math.round(scrollLeft)}px)`,
                     willChange: 'transform'
                   }}
