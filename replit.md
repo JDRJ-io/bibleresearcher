@@ -18,6 +18,9 @@ A sophisticated web application for biblical research, providing an Excel-like i
 - **Anchor-centered Virtual Scrolling**: Efficient rendering of large Bible texts by loading verses centered around the current view.
 - **PWA Capabilities**: Designed for offline access and installability.
 
+### Recent Changes
+- **Column Headers Refactor (Jan 2025)**: Replaced complex ColumnHeaders component with simplified NewColumnHeaders that uses the same responsive width system as VirtualRow, ensuring perfect alignment between headers and data cells.
+
 ### Frontend
 - **Framework**: React 18 with TypeScript.
 - **Build Tool**: Vite.

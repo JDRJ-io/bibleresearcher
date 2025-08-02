@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
+import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
 
 interface NewColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -34,11 +35,41 @@ export function NewColumnHeaders({
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
   const { isInitialized } = useBibleStore();
+  
+  // Use the same adaptive widths system as VirtualRow
+  const { adaptiveWidths } = useAdaptivePortraitColumns();
 
   // Don't render until store is ready
   if (!isInitialized) {
     return null;
   }
+
+  // Function to get responsive width (matching VirtualRow logic exactly)
+  const getResponsiveWidth = (columnType: string): string => {
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    if (isPortrait) {
+      // Portrait mode - use adaptive CSS variables (IDENTICAL to VirtualRow)
+      if (columnType === 'reference') return 'var(--adaptive-ref-width)';
+      if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
+      if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
+      if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
+      if (columnType === 'notes') return 'var(--adaptive-notes-width)';
+      if (columnType === 'context') return 'var(--adaptive-context-width)';
+      return 'var(--adaptive-alt-width)';
+    } else {
+      // Landscape mode - use unified variables (IDENTICAL to VirtualRow)
+      if (columnType === 'reference') return 'var(--ref-col-width)';
+      if (columnType === 'main-translation') return 'var(--main-col-width)';
+      if (columnType === 'cross-refs') return 'var(--xref-col-width)';
+      if (columnType === 'alt-translation') return 'var(--alt-col-width)';
+      if (columnType === 'prophecy') return 'var(--prophecy-col-width)';
+      if (columnType === 'notes') return 'var(--alt-col-width)';
+      if (columnType === 'context') return 'calc(12rem * var(--column-width-mult))';
+      return 'var(--alt-col-width)';
+    }
+  };
 
   // Build clean column configuration
   const columns: SimpleColumn[] = useMemo(() => {
@@ -50,7 +81,7 @@ export function NewColumnHeaders({
       name: 'Ref',
       type: 'reference',
       visible: true,
-      width: 'var(--ref-col-width, 4rem)'
+      width: getResponsiveWidth('reference')
     });
 
     // 2. Context/Dates column
@@ -60,7 +91,7 @@ export function NewColumnHeaders({
         name: 'Dates',
         type: 'context',
         visible: true,
-        width: 'var(--context-col-width, 8rem)'
+        width: getResponsiveWidth('context')
       });
     }
 
@@ -71,7 +102,7 @@ export function NewColumnHeaders({
         name: 'Notes',
         type: 'notes',
         visible: true,
-        width: 'var(--notes-col-width, 12rem)'
+        width: getResponsiveWidth('notes')
       });
     }
 
@@ -81,7 +112,7 @@ export function NewColumnHeaders({
       name: main || 'KJV',
       type: 'main-translation',
       visible: true,
-      width: 'var(--main-col-width, 20rem)'
+      width: getResponsiveWidth('main-translation')
     });
 
     // 5. Alternate translations (filter out main to avoid duplication)
@@ -93,7 +124,7 @@ export function NewColumnHeaders({
           name: code,
           type: 'alt-translation',
           visible: true,
-          width: 'var(--alt-col-width, 18rem)'
+          width: getResponsiveWidth('alt-translation')
         });
       });
 
@@ -104,7 +135,7 @@ export function NewColumnHeaders({
         name: 'Cross Refs',
         type: 'cross-refs',
         visible: true,
-        width: 'var(--xref-col-width, 16rem)'
+        width: getResponsiveWidth('cross-refs')
       });
     }
 
@@ -116,27 +147,27 @@ export function NewColumnHeaders({
           name: 'Prediction',
           type: 'prophecy',
           visible: true,
-          width: 'var(--prophecy-col-width, 16rem)'
+          width: getResponsiveWidth('prophecy')
         },
         {
           id: 'prophecy-fulfillment',
           name: 'Fulfillment',
           type: 'prophecy',
           visible: true,
-          width: 'var(--prophecy-col-width, 16rem)'
+          width: getResponsiveWidth('prophecy')
         },
         {
           id: 'prophecy-verification',
           name: 'Verification',
           type: 'prophecy',
           visible: true,
-          width: 'var(--prophecy-col-width, 16rem)'
+          width: getResponsiveWidth('prophecy')
         }
       );
     }
 
     return cols.filter(col => col.visible);
-  }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy]);
+  }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy, adaptiveWidths]);
 
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type })));
 
