@@ -625,12 +625,47 @@ body {
     padding: 0.5rem 0.25rem;
   }
 
-  /* ADAPTIVE MOBILE COLUMNS - Using CSS variables for perfect synchronization */
-  /* Note: Column widths are now controlled by adaptive CSS variables set by useAdaptivePortraitColumns */
-  /* This ensures perfect alignment between headers and content across all device sizes */
-
-  /* All responsive column sizing now handled by adaptive CSS variables */
-  /* This allows for perfect synchronization between headers and content */
+  /* UNIFIED COLUMN ALIGNMENT - Headers and data cells use identical CSS variables */
+  /* Fix for rotation mismatch between horizontal headers and vertical-rl data cells */
+  
+  /* Force both header and data cells to reference the SAME physical dimension */
+  .column-header-cell,
+  .row .cell {
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-right: 1px solid #e5e7eb !important;
+  }
+  
+  /* Reference column - unified width for header and rotated data */
+  .column-header-cell[data-column="reference"],
+  .cell[data-column="reference"],
+  .cell-ref {
+    flex: 0 0 var(--adaptive-ref-width) !important;
+    width: var(--adaptive-ref-width) !important;
+    max-width: var(--adaptive-ref-width) !important;
+    min-width: var(--adaptive-ref-width) !important;
+  }
+  
+  /* Main translation column - unified width */
+  .column-header-cell[data-column="main-translation"],
+  .cell[data-column="main-translation"],
+  .cell-main {
+    flex: 0 0 var(--adaptive-main-width) !important;
+    width: var(--adaptive-main-width) !important;
+    max-width: var(--adaptive-main-width) !important;
+    min-width: var(--adaptive-main-width) !important;
+  }
+  
+  /* Cross reference column - unified width */
+  .column-header-cell[data-column="cross-refs"],
+  .cell[data-column="cross-refs"],
+  .cell-cross {
+    flex: 0 0 var(--adaptive-cross-width) !important;
+    width: var(--adaptive-cross-width) !important;
+    max-width: var(--adaptive-cross-width) !important;
+    min-width: var(--adaptive-cross-width) !important;
+  }
 
   /* Mobile header optimizations */
   @media (max-width: 767px) {

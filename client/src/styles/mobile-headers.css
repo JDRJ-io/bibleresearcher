@@ -91,7 +91,7 @@
     .column-header-cell[data-column="reference"] {
       width: var(--adaptive-ref-width) !important;  /* Sync with table content */
     }
-    
+
     .column-header-cell[data-column="main"],
     .column-header-cell[data-column="cross-refs"] {
       width: var(--adaptive-main-width) !important;  /* Sync with table content */
@@ -103,29 +103,45 @@
     .column-header-cell[data-column="reference"] {
       width: var(--adaptive-ref-width) !important;  /* Sync with table content */
     }
-    
+
     .column-header-cell[data-column="main"] {
       width: var(--adaptive-main-width) !important;  /* Sync with table content */
     }
-    
+
     .column-header-cell[data-column="cross-refs"] {
       width: var(--adaptive-cross-width) !important;  /* Sync with table content */
     }
-    
+
     /* Prophecy columns sync */
     .column-header-cell[data-column="prophecy"] {
       width: var(--adaptive-prophecy-width) !important;  /* Sync with table content */
     }
-    
+
     /* Notes column sync */
     .column-header-cell[data-column="notes"] {
       width: var(--adaptive-notes-width) !important;  /* Sync with table content */
     }
-    
+
     /* Context column sync */
     .column-header-cell[data-column="context"] {
       width: var(--adaptive-context-width) !important;  /* Sync with table content */
     }
+  }
+}
+
+/* Mobile reference column - match data cell rotation exactly */
+@media (max-width: 767px) {
+  .column-header-cell[data-column="reference"] {
+    writing-mode: vertical-rl !important;
+    transform: rotate(180deg) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.65rem !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    /* Width now handled by unified system in index.css */
   }
 }
 
