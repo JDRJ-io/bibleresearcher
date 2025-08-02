@@ -640,15 +640,15 @@ export function VirtualRow({
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
-      const pixelWidth = columnInfo?.widthRem * 16 || 160;
+      const pixelWidth = (columnInfo?.widthRem ?? 10) * 16;
       return `${pixelWidth}px`;
     };
 
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
-      width: getUnifiedColumnWidth(config.type), // Unified variables already include multiplier
+      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
       flexShrink: 0,
-      boxSizing: 'border-box'
+      boxSizing: 'border-box' as const
     };
 
     const bgClass = "";
@@ -751,8 +751,7 @@ export function VirtualRow({
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
-              ```text
-getVerseText={getVerseText}
+              getVerseText={getVerseText}
               mainTranslation={mainTranslation}
               onVerseClick={onVerseClick}
             />
