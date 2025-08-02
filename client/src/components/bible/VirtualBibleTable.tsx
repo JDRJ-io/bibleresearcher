@@ -32,6 +32,7 @@ import type {
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import type { LabelName } from '@/lib/labelBits';
+import { useAxisLock } from '@/hooks/useAxisLock';
 
 export interface VirtualBibleTableHandle {
   scrollToVerse: (ref: string) => void;
@@ -463,7 +464,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Expert's rail-breaking system for smooth axis switching
+  // Initialize the new momentary axis lock system
+  const { onWheel, onPointerDown, onPointerMove, onPointerUp } = useAxisLock();
+
+  // Momentary axis lock system - resets after each gesture
   useEffect(() => {
     const vScroll = vScrollRef.current;
     const hScroll = hScrollRef.current;
@@ -475,96 +479,77 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       setScrollLeft(target.scrollLeft);
     };
 
-    // Ultra-light wheel/trackpad router
-    function wheelRouter(e: WheelEvent) {
+    // Apply scroll function for the axis lock system
+    const applyScroll = (dx: number, dy: number) => {
+      hScroll.scrollLeft += dx;
+      vScroll.scrollTop += dy;
+    };
+
+    // Enhanced wheel handler with momentary axis lock
+    const wheelHandler = (e: WheelEvent) => {
       // Don't intercept wheel events from cross-reference cells
       const target = e.target as HTMLElement;
       if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
         return;
       }
       
-      const { deltaX, deltaY } = e;
-      // Pick the dominant delta every frame
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        hScroll!.scrollLeft += deltaX;
-      } else {
-        vScroll!.scrollTop += deltaY;
+      onWheel(e, applyScroll);
+      e.preventDefault();
+    };
+
+    // Enhanced pointer handlers with momentary axis lock
+    const pointerDownHandler = (e: PointerEvent) => {
+      // Don't capture pointer events on buttons, clickable elements, or cross-reference cells
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'BUTTON' || 
+          target.closest('button') ||
+          target.closest('.cross-ref-item') ||
+          target.closest('.cell-content')) {
+        return;
       }
-      e.preventDefault(); // we already forwarded it
-    }
+      
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        onPointerDown(e);
+        vScroll.setPointerCapture(e.pointerId);
+      }
+    };
 
-    // Pointer-move guard for mid-gesture "axis switch"
-    function attachRailBreaker(el: HTMLElement, axis: 'x' | 'y') {
-      let startX = 0, startY = 0, activeAxis: 'x' | 'y' | null = null;
+    const pointerMoveHandler = (e: PointerEvent) => {
+      if (!e.isPrimary) return;
+      
+      // Don't handle pointer moves from cross-reference cells
+      const target = e.target as HTMLElement;
+      if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
+        return;
+      }
+      
+      onPointerMove(e, applyScroll);
+    };
 
-      const onPointerDown = (e: PointerEvent) => {
-        // Don't capture pointer events on buttons, clickable elements, or cross-reference cells
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'BUTTON' || 
-            target.closest('button') ||
-            target.closest('.cross-ref-item') ||
-            target.closest('.cell-content')) {
-          return;
-        }
-        
-        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
-          startX = e.clientX;
-          startY = e.clientY;
-          activeAxis = null;
-          el.setPointerCapture(e.pointerId);
-        }
-      };
-
-      const onPointerMove = (e: PointerEvent) => {
-        if (!e.isPrimary) return;
-        
-        // Don't handle pointer moves from cross-reference cells
-        const target = e.target as HTMLElement;
-        if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
-          return;
-        }
-        
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-
-        // If they cross 30° off the intended axis, hand off
-        if (!activeAxis && (axis === 'x' ? Math.abs(dy) > Math.abs(dx) : Math.abs(dx) > Math.abs(dy))) {
-          // Cancel this scroller & send to sibling
-          const tgt = axis === 'x' ? vScroll : hScroll;
-          tgt!.scrollBy({ left: dx, top: dy, behavior: 'auto' });
-          el.releasePointerCapture(e.pointerId);
-          e.preventDefault();
-          return;
-        }
-        activeAxis = axis; // lock once confirmed
-      };
-
-      el.addEventListener('pointerdown', onPointerDown);
-      el.addEventListener('pointermove', onPointerMove, { passive: false });
-
-      return () => {
-        el.removeEventListener('pointerdown', onPointerDown);
-        el.removeEventListener('pointermove', onPointerMove);
-      };
-    }
+    const pointerUpHandler = (e: PointerEvent) => {
+      onPointerUp();
+      vScroll.releasePointerCapture(e.pointerId);
+    };
 
     // Add event listeners
     hScroll.addEventListener('scroll', onHorizontalScroll);
-    hScroll.addEventListener('wheel', wheelRouter, { passive: false });
-    vScroll.addEventListener('wheel', wheelRouter, { passive: false });
-
-    // Attach rail breakers
-    const cleanupH = attachRailBreaker(hScroll, 'x');
-    const cleanupV = attachRailBreaker(vScroll, 'y');
+    vScroll.addEventListener('wheel', wheelHandler, { passive: false });
+    hScroll.addEventListener('wheel', wheelHandler, { passive: false });
+    vScroll.addEventListener('pointerdown', pointerDownHandler);
+    vScroll.addEventListener('pointermove', pointerMoveHandler);
+    vScroll.addEventListener('pointerup', pointerUpHandler);
+    vScroll.addEventListener('pointercancel', pointerUpHandler);
 
     return () => {
       hScroll.removeEventListener('scroll', onHorizontalScroll);
-      hScroll.removeEventListener('wheel', wheelRouter);
-      vScroll.removeEventListener('wheel', wheelRouter);
-      cleanupH();
-      cleanupV();
+      vScroll.removeEventListener('wheel', wheelHandler);
+      hScroll.removeEventListener('wheel', wheelHandler);
+      vScroll.removeEventListener('pointerdown', pointerDownHandler);
+      vScroll.removeEventListener('pointermove', pointerMoveHandler);
+      vScroll.removeEventListener('pointerup', pointerUpHandler);
+      vScroll.removeEventListener('pointercancel', pointerUpHandler);
     };
-  }, []);
+  }, [onWheel, onPointerDown, onPointerMove, onPointerUp]);
 
   // CSS handles centering automatically with margin-inline: auto
 
@@ -626,7 +611,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             scrollbarGutter: 'stable both-edges',
             contain: 'layout paint style',
             willChange: 'scroll-position',
-            touchAction: 'pan-y' // Only allow vertical panning
+            touchAction: 'pan-x pan-y' // Allow both axes for momentary commitment
           }}
         >
           {/* Horizontal scroller: extra columns */}
@@ -639,7 +624,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               overflowX: 'auto',
               overflowY: 'hidden',
               overscrollBehavior: 'contain',
-              touchAction: 'pan-x', // Only allow horizontal panning
+              touchAction: 'pan-x pan-y', // Allow both axes for momentary commitment
               scrollbarGutter: 'stable both-edges',
               contain: 'layout paint style',
               willChange: 'scroll-position'
