@@ -211,6 +211,14 @@
   line-height: 1 !important;
 }
 
+/* Dark mode border color */
+.dark .column-header-cell,
+.dark .virtual-row > div,
+.dark .bible-verse-row > div,
+.dark [data-verse-ref] > div {
+  border-right-color: #374151 !important;
+}
+
 /* Ensure identical width calculations for all column elements */
 .column-header-cell[data-column="reference"],
 .bible-verse-row > div:first-child,

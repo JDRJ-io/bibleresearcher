@@ -52,26 +52,25 @@ export function NewColumnHeaders({
     const isPortrait = window.innerHeight > window.innerWidth;
 
     if (isPortrait) {
-      // Portrait mode - use exact pixel values from adaptive widths for most columns,
-      // but use CSS variable for reference column to match VirtualRow exactly
+      // Portrait mode - use CSS variables to match VirtualRow exactly
       if (columnType === 'reference') return 'var(--adaptive-ref-width)';
-      if (columnType === 'main-translation') return `${adaptiveWidths.mainTranslation}px`;
-      if (columnType === 'cross-refs') return `${adaptiveWidths.crossReference}px`;
-      if (columnType === 'alt-translation') return `${adaptiveWidths.alternate}px`;
-      if (columnType === 'prophecy') return `${adaptiveWidths.prophecy}px`;
-      if (columnType === 'notes') return `${adaptiveWidths.notes}px`;
-      if (columnType === 'context') return `${adaptiveWidths.context}px`;
-      return `${adaptiveWidths.alternate}px`;
+      if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
+      if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
+      if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
+      if (columnType === 'notes') return 'var(--adaptive-notes-width)';
+      if (columnType === 'context') return 'var(--adaptive-context-width)';
+      return 'var(--adaptive-alt-width)';
     } else {
-      // Landscape mode - use CSS variables for landscape widths
-      if (columnType === 'reference') return 'var(--ref-col-width)';
-      if (columnType === 'main-translation') return 'var(--main-col-width)';
-      if (columnType === 'cross-refs') return 'var(--xref-col-width)';
-      if (columnType === 'alt-translation') return 'var(--alt-col-width)';
-      if (columnType === 'prophecy') return 'var(--prophecy-col-width)';
-      if (columnType === 'notes') return 'var(--alt-col-width)';
-      if (columnType === 'context') return 'calc(12rem * var(--column-width-mult))';
-      return 'var(--alt-col-width)';
+      // Landscape mode - use adaptive CSS variables for consistency
+      if (columnType === 'reference') return 'var(--adaptive-ref-width)';
+      if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
+      if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
+      if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
+      if (columnType === 'notes') return 'var(--adaptive-notes-width)';
+      if (columnType === 'context') return 'var(--adaptive-context-width)';
+      return 'var(--adaptive-alt-width)';
     }
   };
 
