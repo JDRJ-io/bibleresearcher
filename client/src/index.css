@@ -314,7 +314,7 @@ body {
   --col-w: auto;          /* Default for desktop columns */
   
   /* Dynamic CSS variables set by useAdaptivePortraitColumns hook (legacy) */
-  --adaptive-ref-width: 72px;          /* Reference column - dynamically calculated */
+  --adaptive-ref-width: 80px;          /* Reference column - dynamically calculated */
   --adaptive-main-width: 352px;        /* Main translation - dynamically calculated */
   --adaptive-cross-width: 288px;       /* Cross-reference - dynamically calculated */
   --adaptive-alt-width: 320px;         /* Alternate translations - dynamically calculated */

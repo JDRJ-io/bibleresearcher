@@ -85,45 +85,32 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable, columnState
 function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
   const responsiveConfig = useResponsiveColumns();
 
-  // Get responsive width based on portrait/landscape mode
+  // Get responsive width - USE EXACT SAME LOGIC AS VirtualRow
   const getResponsiveSlotWidth = (columnState: any, slot: number): string => {
-    const columnInfo = columnState.columns.find((col: any) => col.slot === slot);
-    if (!columnInfo) {
-      console.warn(`No column info found for slot ${slot}`);
-      return '160px'; // fallback
-    }
+    // Check if portrait mode (same check as VirtualRow)
+    const isPortrait = window.innerHeight > window.innerWidth;
 
-    // Portrait mode (mobile + tablet) - use adaptive width variables for perfect alignment
-    const isPortrait = typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
-    
     if (isPortrait) {
-      // Use the same adaptive width variables as VirtualRow for perfect alignment
-      if (slot === 0) return 'var(--adaptive-ref-width)'; // Reference column
-      if (slot === 3 && column.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main translation
-      if (slot === 7 && column.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross references
-      if (slot === 2 && column.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
-      if (slot === 1 && column.type === 'context') return 'var(--adaptive-context-width)'; // Dates column
-      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
-      if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)'; // Alternate translations
-
-      return '120px'; // fallback for portrait mode
+      // Portrait mode - use adaptive CSS variables (SAME as VirtualRow)
+      if (slot === 0) return 'var(--adaptive-ref-width)'; // Reference
+      if (slot === 3 && column.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main
+      if (slot === 7 && column.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross refs
+      if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+      if (column.type === 'notes') return 'var(--adaptive-notes-width)';
+      if (column.type === 'context') return 'var(--adaptive-context-width)';
+      return 'var(--adaptive-alt-width)'; // fallback
+    } else {
+      // Landscape mode - use unified CSS variables (SAME as VirtualRow)
+      if (slot === 0) return 'var(--ref-col-width)'; // Reference
+      if (slot === 3) return 'var(--main-col-width)'; // Main translation  
+      if (slot === 7) return 'var(--xref-col-width)'; // Cross references
+      if (column.type === 'alt-translation') return 'var(--alt-col-width)';
+      if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--prophecy-col-width)';
+      if (column.type === 'notes') return 'var(--alt-col-width)';
+      if (column.type === 'context') return 'calc(12rem * var(--column-width-mult))';
+      return 'var(--alt-col-width)'; // fallback
     }
-
-    // Desktop: Use unified column widths for perfect header/data alignment
-    if (slot === 0) return 'var(--ref-col-width)'; // Reference column
-    if (slot === 3 && column.type === 'main-translation') return 'var(--main-col-width)'; // Main translation
-    if (slot === 7 && column.type === 'cross-refs') return 'var(--xref-col-width)'; // Cross references
-
-    // Handle alternate translations and other column types
-    if (column.type === 'alt-translation') return 'var(--alt-col-width)'; // Alternate translations
-    if (column.type === 'translation' && slot !== 3) return 'var(--alt-col-width)'; // Other translation columns
-    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--prophecy-col-width)'; // Prophecy columns
-    if (column.type === 'notes') return 'var(--alt-col-width)'; // Notes use alternate width
-    if (column.type === 'context') return 'calc(12rem * var(--column-width-mult))'; // Context/dates column
-
-    // Convert rem to pixels for other columns (assuming 1rem = 16px)
-    const pixelWidth = columnInfo.widthRem * 16;
-    return `${pixelWidth}px`;
   };
 
   const bgClass = isMain ? "bg-blue-100 dark:bg-blue-900" : "bg-background";
@@ -270,7 +257,7 @@ export function ColumnHeaders({
         break;
       case 8:
         // Prophecy Prediction column (unchanged)
-        slotConfig[8] = { type: 'prophecy-p', header: 'Prediction', visible: col.visible && showProphecies };
+        slotConfig[8] = { type: 'prophecy-p', header: 'Prediction', visible: showProphecies };
         break;
       case 9:
         // Prophecy Fulfillment column (unchanged)
@@ -440,7 +427,7 @@ export function ColumnHeaders({
     // Remove any duplicate slots to prevent React key errors
     const uniqueColumns = [];
     const seenSlots = new Set();
-    
+
     for (const column of columns) {
       if (!seenSlots.has(column.slot)) {
         seenSlots.add(column.slot);
