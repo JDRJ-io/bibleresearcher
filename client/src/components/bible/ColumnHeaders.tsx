@@ -85,31 +85,31 @@ function SortableHeaderCell({ column, isMain, isMobile, isDraggable, columnState
 function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: HeaderCellProps) {
   const responsiveConfig = useResponsiveColumns();
 
-  // Get responsive width - USE EXACT SAME LOGIC AS VirtualRow
+  // CRITICAL FIX: Use IDENTICAL width logic as VirtualRow - no more mismatches
   const getResponsiveSlotWidth = (columnState: any, slot: number): string => {
-    // Check if portrait mode (same check as VirtualRow)
     const isPortrait = window.innerHeight > window.innerWidth;
 
+    // IDENTICAL LOGIC TO VirtualRow.tsx getResponsiveColumnPixelWidth()
     if (isPortrait) {
-      // Portrait mode - use adaptive CSS variables (SAME as VirtualRow)
-      if (slot === 0) return 'var(--adaptive-ref-width)'; // Reference
-      if (slot === 3 && column.type === 'main-translation') return 'var(--adaptive-main-width)'; // Main
-      if (slot === 7 && column.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross refs
+      // Portrait mode - use adaptive CSS variables (EXACTLY same as VirtualRow)
+      if (slot === 0) return 'var(--adaptive-ref-width)';
+      if (slot === 3 && column.type === 'main-translation') return 'var(--adaptive-main-width)';
+      if (slot === 7 && column.type === 'cross-refs') return 'var(--adaptive-cross-width)';
       if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)';
       if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
       if (column.type === 'notes') return 'var(--adaptive-notes-width)';
       if (column.type === 'context') return 'var(--adaptive-context-width)';
-      return 'var(--adaptive-alt-width)'; // fallback
+      return 'var(--adaptive-alt-width)';
     } else {
-      // Landscape mode - use unified CSS variables (SAME as VirtualRow)
-      if (slot === 0) return 'var(--ref-col-width)'; // Reference
-      if (slot === 3) return 'var(--main-col-width)'; // Main translation  
-      if (slot === 7) return 'var(--xref-col-width)'; // Cross references
+      // Landscape mode - use unified variables (EXACTLY same as VirtualRow)
+      if (slot === 0) return 'var(--ref-col-width)';
+      if (slot === 3) return 'var(--main-col-width)';
+      if (slot === 7) return 'var(--xref-col-width)';
       if (column.type === 'alt-translation') return 'var(--alt-col-width)';
       if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--prophecy-col-width)';
       if (column.type === 'notes') return 'var(--alt-col-width)';
       if (column.type === 'context') return 'calc(12rem * var(--column-width-mult))';
-      return 'var(--alt-col-width)'; // fallback
+      return 'var(--alt-col-width)';
     }
   };
 
