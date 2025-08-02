@@ -609,28 +609,10 @@ export function VirtualRow({
         if (config.type === 'notes') return 'var(--alt-col-width)';
         if (config.type === 'context') return 'calc(12rem * var(--column-width-mult))';
         return 'var(--alt-col-width)';
-      } config.type === 'cross-refs') return 'var(--adaptive-cross-width)'; // Cross references
-
-        // Handle alternate translations and other column types
-        if (config.type === 'alt-translation' && slotNumber !== 3) return 'var(--adaptive-alt-width)'; // Alternate translations
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)'; // Prophecy columns
-        if (config.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
-        if (config.type === 'context') return '32px'; // Very compact dates column
-      } else {
-        // Landscape mode - use unified column widths for perfect header/data alignment
-        if (slotNumber === 0) return 'var(--ref-col-width)'; // Reference column
-        if (slotNumber === 3 && config.type === 'main-translation') return 'var(--main-col-width)'; // Main translation
-        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--xref-col-width)'; // Cross references
-
-        // Handle alternate translations and other column types
-        if (config.type === 'alt-translation' && slotNumber !== 3) return 'var(--alt-col-width)'; // Alternate translations
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--prophecy-col-width)'; // Prophecy columns
-        if (config.type === 'notes') return 'var(--alt-col-width)'; // Notes use alternate width
-        if (config.type === 'context') return '4rem'; // Compact context/dates column
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
-      const pixelWidth = columnInfo.widthRem * 16;
+      const pixelWidth = columnInfo?.widthRem * 16 || 160;
       return `${pixelWidth}px`;
     };
 
