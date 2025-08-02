@@ -619,7 +619,8 @@ export function VirtualRow({
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
       width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
-      flexShrink: 0
+      flexShrink: 0,
+      boxSizing: 'border-box'
     };
 
     const bgClass = "";

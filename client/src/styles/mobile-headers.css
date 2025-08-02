@@ -63,6 +63,8 @@
   /* Mobile column headers must use adaptive CSS variables for perfect sync */
   .column-header-cell[data-column="reference"] {
     width: var(--adaptive-ref-width) !important;  /* Sync with table content */
+    box-sizing: border-box !important;
+    padding: 0.25rem 0.125rem !important; /* Match data cell padding exactly */
   }
 
   /* Main translation mobile sizing */

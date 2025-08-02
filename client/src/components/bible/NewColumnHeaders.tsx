@@ -197,18 +197,17 @@ export function NewColumnHeaders({
             items-center 
             justify-center 
             border-r 
-            px-2 
-            py-1 
             font-bold 
             text-xs 
             leading-none
             ${column.type === 'main-translation' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-background'}
-            ${column.type === 'reference' ? 'text-sm' : 'text-xs'}
+            ${column.type === 'reference' ? 'text-sm px-0.5 py-1' : 'text-xs px-2 py-1'}
           `}
           style={{
             width: column.width,
             minWidth: column.width,
-            maxWidth: column.width
+            maxWidth: column.width,
+            boxSizing: 'border-box'
           }}
           data-column={column.type}
         >
