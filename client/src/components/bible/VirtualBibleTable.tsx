@@ -32,7 +32,6 @@ import type {
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import type { LabelName } from '@/lib/labelBits';
-import { useAxisLock } from '@/hooks/useAxisLock';
 
 export interface VirtualBibleTableHandle {
   scrollToVerse: (ref: string) => void;
@@ -464,10 +463,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Initialize the new momentary axis lock system
-  const { onWheel, onPointerDown, onPointerMove, onPointerUp } = useAxisLock();
-
-  // Momentary axis lock system - resets after each gesture
+  // Simple momentary axis guidance using inline implementation
   useEffect(() => {
     const vScroll = vScrollRef.current;
     const hScroll = hScrollRef.current;
@@ -479,27 +475,44 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       setScrollLeft(target.scrollLeft);
     };
 
-    // Apply scroll function for the axis lock system
-    const applyScroll = (dx: number, dy: number) => {
-      hScroll.scrollLeft += dx;
-      vScroll.scrollTop += dy;
-    };
+    // Momentary axis tracking - resets on each gesture
+    let activeAxis: 'x' | 'y' | null = null;
+    let wheelTimer: number;
 
-    // Enhanced wheel handler with momentary axis lock
+    // Simple wheel handler with momentary axis lock
     const wheelHandler = (e: WheelEvent) => {
       // Don't intercept wheel events from cross-reference cells
       const target = e.target as HTMLElement;
       if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
         return;
       }
-      
-      onWheel(e, applyScroll);
+
+      // Detect dominant axis on first move of gesture
+      if (!activeAxis) {
+        activeAxis = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
+      }
+
+      // Apply scroll only on active axis
+      if (activeAxis === 'x') {
+        hScroll.scrollLeft += e.deltaX;
+      } else {
+        vScroll.scrollTop += e.deltaY;
+      }
+
+      // Reset axis after 100ms of silence
+      window.clearTimeout(wheelTimer);
+      wheelTimer = window.setTimeout(() => {
+        activeAxis = null;
+      }, 100);
+
       e.preventDefault();
     };
 
-    // Enhanced pointer handlers with momentary axis lock
+    // Simple touch/pointer handling for mobile
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
     const pointerDownHandler = (e: PointerEvent) => {
-      // Don't capture pointer events on buttons, clickable elements, or cross-reference cells
       const target = e.target as HTMLElement;
       if (target.tagName === 'BUTTON' || 
           target.closest('button') ||
@@ -509,26 +522,47 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       }
       
       if (e.pointerType === 'touch' || e.pointerType === 'pen') {
-        onPointerDown(e);
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        activeAxis = null;
         vScroll.setPointerCapture(e.pointerId);
       }
     };
 
     const pointerMoveHandler = (e: PointerEvent) => {
-      if (!e.isPrimary) return;
+      if (!isDragging || !e.isPrimary) return;
       
-      // Don't handle pointer moves from cross-reference cells
       const target = e.target as HTMLElement;
       if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
         return;
       }
       
-      onPointerMove(e, applyScroll);
+      const dx = startX - e.clientX;
+      const dy = startY - e.clientY;
+
+      // Detect axis on first meaningful move
+      if (!activeAxis && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+        activeAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      }
+
+      // Apply scroll only on active axis
+      if (activeAxis === 'x') {
+        hScroll.scrollLeft += dx;
+      } else if (activeAxis) {
+        vScroll.scrollTop += dy;
+      }
+
+      startX = e.clientX;
+      startY = e.clientY;
     };
 
     const pointerUpHandler = (e: PointerEvent) => {
-      onPointerUp();
-      vScroll.releasePointerCapture(e.pointerId);
+      isDragging = false;
+      activeAxis = null;
+      if (vScroll.hasPointerCapture && vScroll.hasPointerCapture(e.pointerId)) {
+        vScroll.releasePointerCapture(e.pointerId);
+      }
     };
 
     // Add event listeners
@@ -542,14 +576,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
     return () => {
       hScroll.removeEventListener('scroll', onHorizontalScroll);
-      vScroll.removeEventListener('wheel', wheelHandler);
+      vScroll.removeEventListener('wheel', wheelHandler);  
       hScroll.removeEventListener('wheel', wheelHandler);
       vScroll.removeEventListener('pointerdown', pointerDownHandler);
       vScroll.removeEventListener('pointermove', pointerMoveHandler);
       vScroll.removeEventListener('pointerup', pointerUpHandler);
       vScroll.removeEventListener('pointercancel', pointerUpHandler);
+      window.clearTimeout(wheelTimer);
     };
-  }, [onWheel, onPointerDown, onPointerMove, onPointerUp]);
+  }, []);
 
   // CSS handles centering automatically with margin-inline: auto
 
