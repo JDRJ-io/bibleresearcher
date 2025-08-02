@@ -313,14 +313,14 @@ body {
   --ref-w: 72px;          /* Reference column - fixed width */
   --col-w: auto;          /* Default for desktop columns */
   
-  /* Dynamic CSS variables set by useAdaptivePortraitColumns hook (legacy) */
-  --adaptive-ref-width: 80px;          /* Reference column - dynamically calculated */
-  --adaptive-main-width: 352px;        /* Main translation - dynamically calculated */
-  --adaptive-cross-width: 288px;       /* Cross-reference - dynamically calculated */
-  --adaptive-alt-width: 320px;         /* Alternate translations - dynamically calculated */
-  --adaptive-prophecy-width: 352px;    /* Prophecy columns - same as main */
-  --adaptive-notes-width: 320px;       /* Notes column - dynamically calculated */
-  --adaptive-context-width: 192px;     /* Context/dates - dynamically calculated */
+  /* Dynamic CSS variables set by useAdaptivePortraitColumns hook */
+  --adaptive-ref-width: 72px;          /* Reference column - will be dynamically updated */
+  --adaptive-main-width: 320px;        /* Main translation - will be dynamically updated */
+  --adaptive-cross-width: 280px;       /* Cross-reference - will be dynamically updated */
+  --adaptive-alt-width: 300px;         /* Alternate translations - will be dynamically updated */
+  --adaptive-prophecy-width: 320px;    /* Prophecy columns - will be dynamically updated */
+  --adaptive-notes-width: 300px;       /* Notes column - will be dynamically updated */
+  --adaptive-context-width: 180px;     /* Context/dates - will be dynamically updated */
   
   /* Fallback baseline widths - expert's clamp() approach for landscape */
   --w-ref: 4.5rem;                              /* reference # column */

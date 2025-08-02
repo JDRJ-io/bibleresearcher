@@ -143,18 +143,6 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
     const coreColumnsWidth = adaptiveWidths.reference + adaptiveWidths.mainTranslation + adaptiveWidths.crossReference;
     const guaranteedFit = coreColumnsWidth <= safeViewportWidth;
 
-    // Update CSS variables immediately
-    if (typeof document !== 'undefined') {
-      const root = document.documentElement;
-      root.style.setProperty('--adaptive-ref-width', `${adaptiveWidths.reference}px`);
-      root.style.setProperty('--adaptive-main-width', `${adaptiveWidths.mainTranslation}px`);
-      root.style.setProperty('--adaptive-cross-width', `${adaptiveWidths.crossReference}px`);
-      root.style.setProperty('--adaptive-alt-width', `${adaptiveWidths.alternate}px`);
-      root.style.setProperty('--adaptive-prophecy-width', `${adaptiveWidths.prophecy}px`);
-      root.style.setProperty('--adaptive-notes-width', `${adaptiveWidths.notes}px`);
-      root.style.setProperty('--adaptive-context-width', `${adaptiveWidths.context}px`);
-    }
-
     return {
       isPortrait,
       screenWidth,
@@ -165,6 +153,26 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       adaptiveWidths
     };
   });
+
+  // Function to update CSS variables with current adaptive widths
+  const updateCSSVariables = (widths: AdaptivePortraitConfig['adaptiveWidths']) => {
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      root.style.setProperty('--adaptive-ref-width', `${widths.reference}px`);
+      root.style.setProperty('--adaptive-main-width', `${widths.mainTranslation}px`);
+      root.style.setProperty('--adaptive-cross-width', `${widths.crossReference}px`);
+      root.style.setProperty('--adaptive-alt-width', `${widths.alternate}px`);
+      root.style.setProperty('--adaptive-prophecy-width', `${widths.prophecy}px`);
+      root.style.setProperty('--adaptive-notes-width', `${widths.notes}px`);
+      root.style.setProperty('--adaptive-context-width', `${widths.context}px`);
+      
+      console.log('🎯 CSS Variables Updated:', {
+        '--adaptive-ref-width': `${widths.reference}px`,
+        '--adaptive-main-width': `${widths.mainTranslation}px`,
+        '--adaptive-cross-width': `${widths.crossReference}px`
+      });
+    }
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -188,6 +196,10 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
         widths: adaptiveWidths
       });
 
+      // Update CSS variables FIRST
+      updateCSSVariables(adaptiveWidths);
+
+      // Then update React state
       setConfig({
         isPortrait,
         screenWidth,
@@ -197,18 +209,9 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
         guaranteedFit,
         adaptiveWidths
       });
-
-      // Update CSS variables to sync with calculated widths
-      const root = document.documentElement;
-      root.style.setProperty('--adaptive-ref-width', `${adaptiveWidths.reference}px`);
-      root.style.setProperty('--adaptive-main-width', `${adaptiveWidths.mainTranslation}px`);
-      root.style.setProperty('--adaptive-cross-width', `${adaptiveWidths.crossReference}px`);
-      root.style.setProperty('--adaptive-alt-width', `${adaptiveWidths.alternate}px`);
-      root.style.setProperty('--adaptive-prophecy-width', `${adaptiveWidths.prophecy}px`);
-      root.style.setProperty('--adaptive-notes-width', `${adaptiveWidths.notes}px`);
-      root.style.setProperty('--adaptive-context-width', `${adaptiveWidths.context}px`);
     };
 
+    // Initial update
     updateConfig();
     
     // Listen for both resize and orientation changes
@@ -223,6 +226,11 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       window.removeEventListener('orientationchange', updateConfig);
     };
   }, []);
+
+  // Update CSS variables whenever config changes
+  useEffect(() => {
+    updateCSSVariables(config.adaptiveWidths);
+  }, [config.adaptiveWidths]);
 
   return config;
 }
