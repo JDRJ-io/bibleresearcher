@@ -201,7 +201,7 @@ export function NewColumnHeaders({
             text-xs 
             leading-none
             ${column.type === 'main-translation' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-background'}
-            ${column.type === 'reference' ? 'text-sm px-0.5 py-1' : 'text-xs px-2 py-1'}
+            ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2 py-1'}
           `}
           style={{
             width: column.width,
