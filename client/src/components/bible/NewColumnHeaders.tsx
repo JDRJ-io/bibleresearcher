@@ -25,7 +25,7 @@ interface SimpleColumn {
 
 export function NewColumnHeaders({ 
   selectedTranslations, 
-  showNotes, 
+  showNotes: propShowNotes, 
   showProphecy, 
   showCrossRefs = false,
   showContext, 
@@ -34,7 +34,10 @@ export function NewColumnHeaders({
   isGuest = true 
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
-  const { isInitialized } = useBibleStore();
+  const { isInitialized, showNotes: storeShowNotes } = useBibleStore();
+  
+  // Use the live store state instead of preferences for notes visibility
+  const showNotes = storeShowNotes;
   
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
@@ -169,7 +172,7 @@ export function NewColumnHeaders({
     return cols.filter(col => col.visible);
   }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy, adaptiveWidths]);
 
-  console.log('📋 NewColumnHeaders props:', { showNotes, showContext, showCrossRefs, showProphecy });
+  console.log('📋 NewColumnHeaders props:', { propShowNotes, storeShowNotes, showNotes, showContext, showCrossRefs, showProphecy });
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
 
   const isPortrait = window.innerHeight > window.innerWidth;
