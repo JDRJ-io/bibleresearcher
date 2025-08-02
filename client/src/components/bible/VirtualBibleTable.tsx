@@ -316,6 +316,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         const headerWidth = getComputedStyle(headerCell).width;
         const dataWidth = getComputedStyle(dataCell).width;
         console.log('🔍 Actual Widths:', { headerWidth, dataWidth, match: headerWidth === dataWidth });
+        console.log('🔍 ANSWER: Header width =', headerWidth, ', Data width =', dataWidth);
+      } else {
+        console.log('🔍 Elements not found:', { headerCell: !!headerCell, dataCell: !!dataCell });
       }
     }, 100);
     
