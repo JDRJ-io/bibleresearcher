@@ -143,6 +143,7 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
     if (column.type === 'reference') return 'reference';
     if (column.type === 'main-translation') return 'main';
     if (column.type === 'cross-refs') return 'cross-refs';
+    if (column.type === 'alt-translation') return 'alt-translation';
     if (column.type === 'notes') return 'notes';
     if (column.type === 'context') return 'context';
     if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'prophecy';
