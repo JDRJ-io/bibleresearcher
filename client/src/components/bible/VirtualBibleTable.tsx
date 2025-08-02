@@ -297,6 +297,30 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
+  
+  // DEBUG: Check column widths after render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const root = document.documentElement;
+      const refWidth = getComputedStyle(root).getPropertyValue('--w-ref');
+      const adaptiveRefWidth = getComputedStyle(root).getPropertyValue('--adaptive-ref-width');
+      const columnWidthMult = getComputedStyle(root).getPropertyValue('--column-width-mult');
+      const isPortrait = window.innerHeight > window.innerWidth;
+      
+      console.log('🔍 CSS Variables:', { refWidth, adaptiveRefWidth, columnWidthMult, isPortrait });
+      
+      const headerCell = document.querySelector('[data-column="reference"]');
+      const dataCell = document.querySelector('[data-verse-ref] > div:first-child');
+      
+      if (headerCell && dataCell) {
+        const headerWidth = getComputedStyle(headerCell).width;
+        const dataWidth = getComputedStyle(dataCell).width;
+        console.log('🔍 Actual Widths:', { headerWidth, dataWidth, match: headerWidth === dataWidth });
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [slice.verseIDs]);
 
   // Expert's physically separated scroll axes - one axis at a time
   const vScrollRef = useRef<HTMLDivElement>(null); // Vertical scroller
