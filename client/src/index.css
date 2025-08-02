@@ -200,13 +200,38 @@
 
 /* UNIVERSAL COLUMN ALIGNMENT - Headers and data cells must match exactly */
 .column-header-cell,
-.virtual-row > div {
+.virtual-row > div,
+.bible-verse-row > div,
+[data-verse-ref] > div {
   box-sizing: border-box !important;
   padding: 0 !important;
   margin: 0 !important;
   border-right: 1px solid #e5e7eb !important;
   font-size: var(--table-font-size, 0.75rem) !important;
   line-height: 1 !important;
+}
+
+/* Ensure identical width calculations for all column elements */
+.column-header-cell[data-column="reference"],
+.bible-verse-row > div:first-child,
+[data-verse-ref] > div:first-child {
+  width: var(--adaptive-ref-width) !important;
+  min-width: var(--adaptive-ref-width) !important;
+  max-width: var(--adaptive-ref-width) !important;
+}
+
+.column-header-cell[data-column="main"],
+.column-header-cell[data-column*="translation"]:not([data-column="reference"]) {
+  width: var(--adaptive-main-width) !important;
+  min-width: var(--adaptive-main-width) !important;
+  max-width: var(--adaptive-main-width) !important;
+}
+
+.column-header-cell[data-column="cross-refs"],
+.column-header-cell[data-column*="cross"] {
+  width: var(--adaptive-cross-width) !important;
+  min-width: var(--adaptive-cross-width) !important;
+  max-width: var(--adaptive-cross-width) !important;
 }
 
 .dark .column-header-cell,
