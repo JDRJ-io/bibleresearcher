@@ -57,7 +57,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     refWidth = Math.max(20, Math.min(28, Math.floor(safeViewportWidth * 0.05)));
   } else {
     // Desktop portrait (rare) - use comfortable width
-    refWidth = 64;
+    refWidth = 60;
   }
   
   // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
