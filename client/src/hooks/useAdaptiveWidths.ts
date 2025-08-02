@@ -7,19 +7,33 @@ export function useAdaptiveWidths() {
     const root = document.documentElement;
     
     function setWidths() {
-      const vw = window.innerWidth;            // full viewport width
-      const refW = 72;                         // keep in sync with CSS --ref-w
-      root.style.setProperty("--vw-free", `${vw - refW}px`);
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const isPortrait = vh > vw;
       
-      console.log('🎯 Expert Adaptive Widths:', {
-        viewport: vw,
-        refWidth: refW,
-        freeSpace: vw - refW,
-        mainXrefWidth: (vw - refW) / 2
+      if (isPortrait) {
+        // Portrait handled by adaptive system - no CSS variables needed
+        const refW = 72;
+        root.style.setProperty("--vw-free", `${vw - refW}px`);
+      } else {
+        // Landscape - set unified CSS variables for consistent sizing
+        root.style.setProperty("--unified-ref-width", "80px");
+        root.style.setProperty("--unified-main-width", "320px");
+        root.style.setProperty("--unified-cross-width", "320px");
+        root.style.setProperty("--unified-alt-width", "320px");
+        root.style.setProperty("--unified-prophecy-width", "180px");
+        root.style.setProperty("--unified-notes-width", "280px");
+        root.style.setProperty("--unified-context-width", "200px");
+      }
+      
+      console.log('🎯 Unified Adaptive Widths:', {
+        viewport: `${vw}×${vh}`,
+        mode: isPortrait ? 'Portrait' : 'Landscape',
+        refWidth: isPortrait ? '72px (adaptive)' : '80px (CSS var)'
       });
     }
 
-    setWidths();                               // run once on mount
+    setWidths();
     window.addEventListener("resize", setWidths);
     window.addEventListener("orientationchange", setWidths);
     

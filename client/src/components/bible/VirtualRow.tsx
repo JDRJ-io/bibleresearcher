@@ -578,6 +578,34 @@ export function VirtualRow({
     const { slot, config } = column;
     const isMain = config.translationCode === mainTranslation;
 
+    // Helper function to get unified column width based on column type
+    const getUnifiedColumnWidth = (columnType: string) => {
+      // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
+      const isPortrait = window.innerHeight > window.innerWidth;
+
+      if (isPortrait) {
+        // Portrait mode - use adaptive CSS variables (IDENTICAL to ColumnHeaders)
+        if (slot === 0) return 'var(--adaptive-ref-width)';
+        if (slot === 3 && config.type === 'main-translation') return 'var(--adaptive-main-width)';
+        if (slot === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)';
+        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
+        if (config.type === 'context') return 'var(--adaptive-context-width)';
+        return 'var(--adaptive-alt-width)';
+      } else {
+        // Landscape mode - use unified variables (IDENTICAL to ColumnHeaders)
+        if (slot === 0) return 'var(--ref-col-width)';
+        if (slot === 3) return 'var(--main-col-width)';
+        if (slot === 7) return 'var(--xref-col-width)';
+        if (config.type === 'alt-translation') return 'var(--alt-col-width)';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--prophecy-col-width)';
+        if (config.type === 'notes') return 'var(--alt-col-width)';
+        if (config.type === 'context') return 'calc(12rem * var(--column-width-mult))';
+        return 'var(--alt-col-width)';
+      }
+    };
+
     // Get responsive pixel width for portrait/landscape modes
     const getResponsiveColumnPixelWidth = (slotNumber: number) => {
       const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
@@ -618,7 +646,7 @@ export function VirtualRow({
 
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
-      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
+      width: getUnifiedColumnWidth(config.type), // Unified variables already include multiplier
       flexShrink: 0,
       boxSizing: 'border-box'
     };
@@ -723,7 +751,8 @@ export function VirtualRow({
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
-              getVerseText={getVerseText}
+              ```text
+getVerseText={getVerseText}
               mainTranslation={mainTranslation}
               onVerseClick={onVerseClick}
             />
