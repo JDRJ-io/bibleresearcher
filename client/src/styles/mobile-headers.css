@@ -59,6 +59,8 @@
     width: var(--adaptive-ref-width) !important;  /* Portrait mode sync */
     box-sizing: border-box !important;
     padding: 0 !important; /* NO PADDING - match data cell */
+    margin: 0 !important; /* NO MARGIN - match data cell */
+    border-left: none !important; /* NO EXTRA BORDERS - match data cell */
   }
 
   /* Main translation mobile sizing */
@@ -130,9 +132,14 @@
     height: calc(100vh - var(--top-header-height-desktop)) !important;
   }
 
-  /* LANDSCAPE MODE: Reference column header must use --w-ref to match data cells */
+  /* LANDSCAPE MODE: Reference column header must use IDENTICAL calculation as data cells */
   .column-header-cell[data-column="reference"] {
-    width: calc(var(--w-ref) * var(--column-width-mult)) !important;
+    width: var(--ref-col-width) !important; /* Use exact same variable as data cells */
+    min-width: var(--ref-col-width) !important;
+    max-width: var(--ref-col-width) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-left: none !important;
   }
 }
 
