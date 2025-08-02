@@ -47,13 +47,14 @@ export function NewColumnHeaders({
     return null;
   }
 
-  // UNIFIED WIDTH SYSTEM: Single source of truth for all column widths
+  // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
   const getResponsiveWidth = (columnType: string): string => {
     const isPortrait = window.innerHeight > window.innerWidth;
 
     if (isPortrait) {
-      // Portrait mode - use adaptive widths directly (no CSS variables)
-      if (columnType === 'reference') return `${adaptiveWidths.reference}px`;
+      // Portrait mode - use exact pixel values from adaptive widths for most columns,
+      // but use CSS variable for reference column to match VirtualRow exactly
+      if (columnType === 'reference') return 'var(--adaptive-ref-width)';
       if (columnType === 'main-translation') return `${adaptiveWidths.mainTranslation}px`;
       if (columnType === 'cross-refs') return `${adaptiveWidths.crossReference}px`;
       if (columnType === 'alt-translation') return `${adaptiveWidths.alternate}px`;
@@ -62,15 +63,15 @@ export function NewColumnHeaders({
       if (columnType === 'context') return `${adaptiveWidths.context}px`;
       return `${adaptiveWidths.alternate}px`;
     } else {
-      // Landscape mode - use single unified CSS variable system
-      if (columnType === 'reference') return 'var(--unified-ref-width)';
-      if (columnType === 'main-translation') return 'var(--unified-main-width)';
-      if (columnType === 'cross-refs') return 'var(--unified-cross-width)';
-      if (columnType === 'alt-translation') return 'var(--unified-alt-width)';
-      if (columnType === 'prophecy') return 'var(--unified-prophecy-width)';
-      if (columnType === 'notes') return 'var(--unified-notes-width)';
-      if (columnType === 'context') return 'var(--unified-context-width)';
-      return 'var(--unified-alt-width)';
+      // Landscape mode - use CSS variables for landscape widths
+      if (columnType === 'reference') return 'var(--ref-col-width)';
+      if (columnType === 'main-translation') return 'var(--main-col-width)';
+      if (columnType === 'cross-refs') return 'var(--xref-col-width)';
+      if (columnType === 'alt-translation') return 'var(--alt-col-width)';
+      if (columnType === 'prophecy') return 'var(--prophecy-col-width)';
+      if (columnType === 'notes') return 'var(--alt-col-width)';
+      if (columnType === 'context') return 'calc(12rem * var(--column-width-mult))';
+      return 'var(--alt-col-width)';
     }
   };
 

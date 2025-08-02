@@ -337,25 +337,25 @@ body {
   --prophecy-col-width: calc(var(--w-prophecy) * var(--column-width-mult));
 }
 
-/* UNIFIED COLUMN ALIGNMENT SYSTEM */
-.unified-ref-col {
-  width: var(--unified-ref-width);
-  min-width: var(--unified-ref-width);
-  max-width: var(--unified-ref-width);
+/* Re-usable utility classes for perfect column alignment */
+.ref-col {
+  width: var(--ref-col-width);
+  min-width: var(--ref-col-width);
+  max-width: var(--ref-col-width);
   box-sizing: border-box;
 }
 
-.unified-main-col {
-  width: var(--unified-main-width);
-  min-width: var(--unified-main-width);
-  max-width: var(--unified-main-width);
+.main-col {
+  width: var(--main-col-width);
+  min-width: var(--main-col-width);
+  max-width: var(--main-col-width);
   box-sizing: border-box;
 }
 
-.unified-alt-col {
-  width: var(--unified-alt-width);
-  min-width: var(--unified-alt-width);
-  max-width: var(--unified-alt-width);
+.alt-col {
+  width: var(--alt-col-width);
+  min-width: var(--alt-col-width);
+  max-width: var(--alt-col-width);
   box-sizing: border-box;
 }
 

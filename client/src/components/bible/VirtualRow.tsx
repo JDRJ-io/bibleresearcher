@@ -578,34 +578,6 @@ export function VirtualRow({
     const { slot, config } = column;
     const isMain = config.translationCode === mainTranslation;
 
-    // Helper function to get unified column width based on column type
-    const getUnifiedColumnWidth = (columnType: string) => {
-      // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
-      const isPortrait = window.innerHeight > window.innerWidth;
-
-      if (isPortrait) {
-        // Portrait mode - use adaptive CSS variables (IDENTICAL to ColumnHeaders)
-        if (slot === 0) return 'var(--adaptive-ref-width)';
-        if (slot === 3 && config.type === 'main-translation') return 'var(--adaptive-main-width)';
-        if (slot === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)';
-        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (config.type === 'context') return 'var(--adaptive-context-width)';
-        return 'var(--adaptive-alt-width)';
-      } else {
-        // Landscape mode - use unified variables (IDENTICAL to ColumnHeaders)
-        if (slot === 0) return 'var(--ref-col-width)';
-        if (slot === 3) return 'var(--main-col-width)';
-        if (slot === 7) return 'var(--xref-col-width)';
-        if (config.type === 'alt-translation') return 'var(--alt-col-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--prophecy-col-width)';
-        if (config.type === 'notes') return 'var(--alt-col-width)';
-        if (config.type === 'context') return 'calc(12rem * var(--column-width-mult))';
-        return 'var(--alt-col-width)';
-      }
-    };
-
     // Get responsive pixel width for portrait/landscape modes
     const getResponsiveColumnPixelWidth = (slotNumber: number) => {
       const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
@@ -640,7 +612,7 @@ export function VirtualRow({
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
-      const pixelWidth = (columnInfo?.widthRem ?? 10) * 16;
+      const pixelWidth = columnInfo?.widthRem * 16 || 160;
       return `${pixelWidth}px`;
     };
 
@@ -648,7 +620,7 @@ export function VirtualRow({
     const columnStyle = {
       width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
       flexShrink: 0,
-      boxSizing: 'border-box' as const
+      boxSizing: 'border-box'
     };
 
     const bgClass = "";
