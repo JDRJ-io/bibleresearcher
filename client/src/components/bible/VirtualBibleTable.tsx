@@ -485,25 +485,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         return;
       }
 
-      // Detect dominant axis on first move of gesture
+      // Detect dominant axis on first move of gesture - strict single axis commitment
       if (!activeAxis) {
         activeAxis = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
       }
 
-      // Apply scroll only on active axis
+      // Apply scroll ONLY on active axis - zero out the other axis completely
       if (activeAxis === 'x') {
         container.scrollLeft += e.deltaX;
+        // Prevent any vertical movement during horizontal gesture
+        e.preventDefault();
       } else {
         container.scrollTop += e.deltaY;
+        // Prevent any horizontal movement during vertical gesture  
+        e.preventDefault();
       }
 
-      // Reset axis after 100ms of silence
+      // Reset axis after 150ms of silence (slightly longer for cleaner gestures)
       window.clearTimeout(wheelTimer);
       wheelTimer = window.setTimeout(() => {
         activeAxis = null;
-      }, 100);
-
-      e.preventDefault();
+      }, 150);
     };
 
     // Touch/pointer handling for mobile
@@ -539,20 +541,23 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       const dx = startX - e.clientX;
       const dy = startY - e.clientY;
 
-      // Detect axis on first meaningful move
+      // Detect axis on first meaningful move - strict single axis commitment
       if (!activeAxis && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
         activeAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
       }
 
-      // Apply scroll only on active axis
+      // Apply scroll ONLY on committed axis - completely eliminate diagonal movement
       if (activeAxis === 'x') {
         container.scrollLeft += dx;
-      } else if (activeAxis) {
+        // Update only X position, ignore Y changes to prevent diagonal drift
+        startX = e.clientX;
+        // Keep startY unchanged to maintain axis lock
+      } else if (activeAxis === 'y') {
         container.scrollTop += dy;
+        // Update only Y position, ignore X changes to prevent diagonal drift  
+        startY = e.clientY;
+        // Keep startX unchanged to maintain axis lock
       }
-
-      startX = e.clientX;
-      startY = e.clientY;
     };
 
     const pointerUpHandler = (e: PointerEvent) => {
