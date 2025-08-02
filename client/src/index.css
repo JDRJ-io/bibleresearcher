@@ -927,7 +927,7 @@ html {
 
 /* Minimal axis-clamped scrolling */
 .scroll-area { 
-  touch-action: none; 
+  touch-action: auto; 
 }
 
 /* Custom scrollbar for cross-reference cells */

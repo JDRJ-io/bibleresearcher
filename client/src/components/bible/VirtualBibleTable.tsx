@@ -482,50 +482,41 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       container.scrollTop += dy;
     };
 
-    // Wheel – capture phase, passive:false so we can preventDefault
-    const wheel = (e: WheelEvent) => {
-      const { deltaX: dx, deltaY: dy } = e;
-      if (Math.abs(dx) > Math.abs(dy)) apply(dx, 0); else apply(0, dy);
-      e.preventDefault(); // kill native 2-D scroll right here
+    let lastScrollLeft = container.scrollLeft;
+    let lastScrollTop = container.scrollTop;
+
+    // Simple scroll correction - redirect diagonal movement to dominant axis
+    const onScrollCorrect = () => {
+      const currentLeft = container.scrollLeft;
+      const currentTop = container.scrollTop;
+      
+      const deltaX = currentLeft - lastScrollLeft;
+      const deltaY = currentTop - lastScrollTop;
+      
+      // If both axes moved, keep only the dominant one
+      if (Math.abs(deltaX) > 0 && Math.abs(deltaY) > 0) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // Horizontal wins - reset vertical
+          container.scrollTop = lastScrollTop;
+          lastScrollLeft = currentLeft;
+        } else {
+          // Vertical wins - reset horizontal  
+          container.scrollLeft = lastScrollLeft;
+          lastScrollTop = currentTop;
+        }
+      } else {
+        // Single axis movement is fine
+        lastScrollLeft = currentLeft;
+        lastScrollTop = currentTop;
+      }
     };
 
-    // Pointer drag
-    const down = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse' && e.buttons !== 1) return;
-      dragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      container.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    };
-    const move = (e: PointerEvent) => {
-      if (!dragging) return;
-      const dx = startX - e.clientX;
-      const dy = startY - e.clientY;
-      if (Math.abs(dx) > Math.abs(dy)) apply(dx, 0); else apply(0, dy);
-      startX = e.clientX; startY = e.clientY;
-      e.preventDefault();
-    };
-    const up = (e: PointerEvent) => {
-      dragging = false;
-      container.releasePointerCapture(e.pointerId);
-    };
-
-    // Attach – capture phase ensures we beat bubbling parents
     container.addEventListener('scroll', onScroll);
-    container.addEventListener('wheel', wheel, { passive: false, capture: true });
-    container.addEventListener('pointerdown', down, { capture: true });
-    container.addEventListener('pointermove', move, { passive: false, capture: true });
-    container.addEventListener('pointerup', up, { capture: true });
-    container.addEventListener('pointercancel', up, { capture: true });
+    container.addEventListener('scroll', onScrollCorrect, { passive: true });
 
     return () => {
       container.removeEventListener('scroll', onScroll);
-      container.removeEventListener('wheel', wheel, { capture: true } as any);
-      container.removeEventListener('pointerdown', down, { capture: true } as any);
-      container.removeEventListener('pointermove', move, { capture: true } as any);
-      container.removeEventListener('pointerup', up, { capture: true } as any);
-      container.removeEventListener('pointercancel', up, { capture: true } as any);
+      container.removeEventListener('scroll', onScrollCorrect);
     };
   }, []);
 
@@ -574,7 +565,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'none' // Let JS handle everything, prevent browser diagonal gestures
+          touchAction: 'auto' // Allow natural scrolling, we'll redirect it
         }}
         data-testid="bible-table"
       >
