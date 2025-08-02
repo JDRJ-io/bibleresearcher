@@ -44,22 +44,22 @@ export function NewColumnHeaders({
     return null;
   }
 
-  // Function to get responsive width (matching VirtualRow logic exactly)
+  // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
   const getResponsiveWidth = (columnType: string): string => {
     const isPortrait = window.innerHeight > window.innerWidth;
 
     if (isPortrait) {
-      // Portrait mode - use adaptive CSS variables (IDENTICAL to VirtualRow)
-      if (columnType === 'reference') return 'var(--adaptive-ref-width)';
-      if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
-      if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
-      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
-      if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
-      if (columnType === 'notes') return 'var(--adaptive-notes-width)';
-      if (columnType === 'context') return 'var(--adaptive-context-width)';
-      return 'var(--adaptive-alt-width)';
+      // Portrait mode - use exact pixel values from adaptive widths
+      if (columnType === 'reference') return `${adaptiveWidths.reference}px`;
+      if (columnType === 'main-translation') return `${adaptiveWidths.mainTranslation}px`;
+      if (columnType === 'cross-refs') return `${adaptiveWidths.crossReference}px`;
+      if (columnType === 'alt-translation') return `${adaptiveWidths.alternate}px`;
+      if (columnType === 'prophecy') return `${adaptiveWidths.prophecy}px`;
+      if (columnType === 'notes') return `${adaptiveWidths.notes}px`;
+      if (columnType === 'context') return `${adaptiveWidths.context}px`;
+      return `${adaptiveWidths.alternate}px`;
     } else {
-      // Landscape mode - use unified variables (IDENTICAL to VirtualRow)
+      // Landscape mode - use CSS variables for landscape widths
       if (columnType === 'reference') return 'var(--ref-col-width)';
       if (columnType === 'main-translation') return 'var(--main-col-width)';
       if (columnType === 'cross-refs') return 'var(--xref-col-width)';
@@ -169,12 +169,20 @@ export function NewColumnHeaders({
     return cols.filter(col => col.visible);
   }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy, adaptiveWidths]);
 
-  console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type })));
+  console.log('📋 NewColumnHeaders props:', { showNotes, showContext, showCrossRefs, showProphecy });
+  console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
+
+  const isPortrait = window.innerHeight > window.innerWidth;
 
   return (
     <div 
       className="column-headers-row sticky top-0 z-20 bg-background border-b flex"
-      style={{ left: -scrollLeft }}
+      style={{ 
+        left: -scrollLeft,
+        // Center headers in landscape mode
+        margin: isPortrait ? '0' : '0 auto',
+        width: isPortrait ? '100%' : 'max-content'
+      }}
     >
       {columns.map((column) => (
         <div
@@ -196,7 +204,8 @@ export function NewColumnHeaders({
           `}
           style={{
             width: column.width,
-            minWidth: column.width
+            minWidth: column.width,
+            maxWidth: column.width
           }}
           data-column={column.type}
         >
