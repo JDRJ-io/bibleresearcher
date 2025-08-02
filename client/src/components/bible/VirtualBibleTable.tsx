@@ -463,7 +463,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Momentary commitment scrolling system
+  // Clean no-diagonal scrolling system
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -474,45 +474,31 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       setScrollLeft(target.scrollLeft);
     };
 
-    // Momentary axis commitment - resets after each gesture
-    let activeAxis: 'x' | 'y' | null = null;
-    let wheelTimer: number;
+    // Dead-simple no-diagonal helper
+    let lastX = 0, lastY = 0;
 
-    const wheelHandler = (e: WheelEvent) => {
+    const apply = (dx: number, dy: number) => {
+      container.scrollLeft += dx;
+      container.scrollTop += dy;
+    };
+
+    // Wheel handler - picks dominant axis per tick
+    const wheel = (e: WheelEvent) => {
       // Don't intercept wheel events from cross-reference cells
       const target = e.target as HTMLElement;
       if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
         return;
       }
-
-      // Detect dominant axis on first move of gesture - strict single axis commitment
-      if (!activeAxis) {
-        activeAxis = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
-      }
-
-      // Apply scroll ONLY on active axis - zero out the other axis completely
-      if (activeAxis === 'x') {
-        container.scrollLeft += e.deltaX;
-        // Prevent any vertical movement during horizontal gesture
-        e.preventDefault();
-      } else {
-        container.scrollTop += e.deltaY;
-        // Prevent any horizontal movement during vertical gesture  
-        e.preventDefault();
-      }
-
-      // Reset axis after 150ms of silence (slightly longer for cleaner gestures)
-      window.clearTimeout(wheelTimer);
-      wheelTimer = window.setTimeout(() => {
-        activeAxis = null;
-      }, 150);
+      
+      const { deltaX: dx, deltaY: dy } = e;
+      (Math.abs(dx) > Math.abs(dy))
+        ? apply(dx, 0)
+        : apply(0, dy);
+      e.preventDefault(); // keeps the browser from "helping"
     };
 
-    // Touch/pointer handling for mobile
-    let isDragging = false;
-    let startX = 0, startY = 0;
-
-    const pointerDownHandler = (e: PointerEvent) => {
+    // Pointer handlers - picks dominant axis per move
+    const pd = (e: PointerEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'BUTTON' || 
           target.closest('button') ||
@@ -521,48 +507,29 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         return;
       }
       
-      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        activeAxis = null;
-        container.setPointerCapture(e.pointerId);
-      }
+      lastX = e.clientX;
+      lastY = e.clientY;
+      container.setPointerCapture(e.pointerId);
     };
 
-    const pointerMoveHandler = (e: PointerEvent) => {
-      if (!isDragging || !e.isPrimary) return;
+    const pm = (e: PointerEvent) => {
+      if (!e.isPrimary) return;
       
       const target = e.target as HTMLElement;
       if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
         return;
       }
       
-      const dx = startX - e.clientX;
-      const dy = startY - e.clientY;
-
-      // Detect axis on first meaningful move - strict single axis commitment
-      if (!activeAxis && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
-        activeAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-      }
-
-      // Apply scroll ONLY on committed axis - completely eliminate diagonal movement
-      if (activeAxis === 'x') {
-        container.scrollLeft += dx;
-        // Update only X position, ignore Y changes to prevent diagonal drift
-        startX = e.clientX;
-        // Keep startY unchanged to maintain axis lock
-      } else if (activeAxis === 'y') {
-        container.scrollTop += dy;
-        // Update only Y position, ignore X changes to prevent diagonal drift  
-        startY = e.clientY;
-        // Keep startX unchanged to maintain axis lock
-      }
+      const dx = lastX - e.clientX;
+      const dy = lastY - e.clientY;
+      (Math.abs(dx) > Math.abs(dy))
+        ? apply(dx, 0)
+        : apply(0, dy);
+      lastX = e.clientX;
+      lastY = e.clientY;
     };
 
-    const pointerUpHandler = (e: PointerEvent) => {
-      isDragging = false;
-      activeAxis = null;
+    const pu = (e: PointerEvent) => {
       if (container.hasPointerCapture && container.hasPointerCapture(e.pointerId)) {
         container.releasePointerCapture(e.pointerId);
       }
@@ -570,20 +537,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
     // Add event listeners
     container.addEventListener('scroll', onScroll);
-    container.addEventListener('wheel', wheelHandler, { passive: false });
-    container.addEventListener('pointerdown', pointerDownHandler);
-    container.addEventListener('pointermove', pointerMoveHandler);
-    container.addEventListener('pointerup', pointerUpHandler);
-    container.addEventListener('pointercancel', pointerUpHandler);
+    container.addEventListener('wheel', wheel, { passive: false });
+    container.addEventListener('pointerdown', pd);
+    container.addEventListener('pointermove', pm);
+    container.addEventListener('pointerup', pu);
+    container.addEventListener('pointercancel', pu);
 
     return () => {
       container.removeEventListener('scroll', onScroll);
-      container.removeEventListener('wheel', wheelHandler);
-      container.removeEventListener('pointerdown', pointerDownHandler);
-      container.removeEventListener('pointermove', pointerMoveHandler);
-      container.removeEventListener('pointerup', pointerUpHandler);
-      container.removeEventListener('pointercancel', pointerUpHandler);
-      window.clearTimeout(wheelTimer);
+      container.removeEventListener('wheel', wheel);
+      container.removeEventListener('pointerdown', pd);
+      container.removeEventListener('pointermove', pm);
+      container.removeEventListener('pointerup', pu);
+      container.removeEventListener('pointercancel', pu);
     };
   }, []);
 
@@ -632,7 +598,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'none' // Disable native scrolling so our handlers work
+          touchAction: 'pan-x pan-y' // Allow either axis, but JS chooses one per tick
         }}
         data-testid="bible-table"
       >
