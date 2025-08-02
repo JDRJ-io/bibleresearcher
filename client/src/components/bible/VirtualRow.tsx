@@ -445,7 +445,7 @@ export function VirtualRow({
   const slotConfig: Record<number, SlotConfig> = {};
 
   // Always show reference column (slot 0)
-  slotConfig[0] = { type: 'reference', header: 'Ref', visible: true };
+  slotConfig[0] = { type: 'reference', header: '#', visible: true };
 
   // Notes column right after dates (slot 2)
   slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };

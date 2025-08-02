@@ -81,7 +81,7 @@ export function NewColumnHeaders({
     // 1. Reference column (always visible)
     cols.push({
       id: 'reference',
-      name: 'Ref',
+      name: '#',
       type: 'reference',
       visible: true,
       width: getResponsiveWidth('reference')
@@ -172,7 +172,6 @@ export function NewColumnHeaders({
     return cols.filter(col => col.visible);
   }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy, adaptiveWidths]);
 
-  console.log('📋 NewColumnHeaders props:', { propShowNotes, storeShowNotes, showNotes, showContext, showCrossRefs, showProphecy });
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
 
   const isPortrait = window.innerHeight > window.innerWidth;
