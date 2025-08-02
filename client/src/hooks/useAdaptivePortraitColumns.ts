@@ -50,11 +50,11 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     // Tablet portrait - match CSS breakpoint exactly
     refWidth = 56; // Matches tablet CSS breakpoint
   } else if (viewportWidth <= 640) {
-    // Mobile portrait - match mobile CSS
-    refWidth = 24; // Matches mobile CSS
+    // Mobile portrait - ultra-compact for reference column
+    refWidth = 20; // More compact than mobile CSS to match "#" header
   } else if (viewportWidth > 640 && viewportWidth < 768) {
     // Large mobile/small tablet transition - make reference column more compact
-    refWidth = Math.max(24, Math.min(32, Math.floor(safeViewportWidth * 0.06)));
+    refWidth = Math.max(20, Math.min(28, Math.floor(safeViewportWidth * 0.05)));
   } else {
     // Desktop portrait (rare) - use comfortable width
     refWidth = 64;

@@ -619,8 +619,7 @@ export function VirtualRow({
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
       width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
-      flexShrink: 0,
-      boxSizing: 'border-box'
+      flexShrink: 0
     };
 
     const bgClass = "";
@@ -629,8 +628,8 @@ export function VirtualRow({
       case 'reference':
         return (
           <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="px-0.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref text-center">
-              <span className="block truncate">{verse.reference}</span>
+            <div className="py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref text-center flex items-center justify-center h-full">
+              <span className="block truncate leading-none">{verse.reference}</span>
             </div>
           </div>
         );
