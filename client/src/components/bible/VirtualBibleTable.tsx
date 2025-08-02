@@ -298,29 +298,46 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
   console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
   
-  // DEBUG: Check column widths after render
+  // DEBUG: Check column widths after render  
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const checkWidths = () => {
       const root = document.documentElement;
-      const refWidth = getComputedStyle(root).getPropertyValue('--w-ref');
-      const adaptiveRefWidth = getComputedStyle(root).getPropertyValue('--adaptive-ref-width');
-      const columnWidthMult = getComputedStyle(root).getPropertyValue('--column-width-mult');
+      const refWidth = getComputedStyle(root).getPropertyValue('--w-ref').trim();
+      const adaptiveRefWidth = getComputedStyle(root).getPropertyValue('--adaptive-ref-width').trim();
+      const columnWidthMult = getComputedStyle(root).getPropertyValue('--column-width-mult').trim();
       const isPortrait = window.innerHeight > window.innerWidth;
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
       
-      console.log('🔍 CSS Variables:', { refWidth, adaptiveRefWidth, columnWidthMult, isPortrait });
+      console.log('🔍 CSS Variables:', { refWidth, adaptiveRefWidth, columnWidthMult, isPortrait, screenWidth, screenHeight });
       
       const headerCell = document.querySelector('[data-column="reference"]');
       const dataCell = document.querySelector('[data-verse-ref] > div:first-child');
       
       if (headerCell && dataCell) {
-        const headerWidth = getComputedStyle(headerCell).width;
-        const dataWidth = getComputedStyle(dataCell).width;
-        console.log('🔍 Actual Widths:', { headerWidth, dataWidth, match: headerWidth === dataWidth });
+        const headerStyles = getComputedStyle(headerCell);
+        const dataStyles = getComputedStyle(dataCell);
+        const headerWidth = headerStyles.width;
+        const dataWidth = dataStyles.width;
+        const headerMinWidth = headerStyles.minWidth;
+        const dataMinWidth = dataStyles.minWidth;
+        
         console.log('🔍 ANSWER: Header width =', headerWidth, ', Data width =', dataWidth);
+        console.log('🔍 Min widths: Header min =', headerMinWidth, ', Data min =', dataMinWidth);
+        console.log('🔍 Width match:', headerWidth === dataWidth ? 'YES' : 'NO');
       } else {
-        console.log('🔍 Elements not found:', { headerCell: !!headerCell, dataCell: !!dataCell });
+        console.log('🔍 Elements not found:', { 
+          headerCell: !!headerCell, 
+          dataCell: !!dataCell,
+          headerSelector: '[data-column="reference"]',
+          dataSelector: '[data-verse-ref] > div:first-child'
+        });
       }
-    }, 100);
+    };
+    
+    // Check immediately and after a delay
+    checkWidths();
+    const timer = setTimeout(checkWidths, 200);
     
     return () => clearTimeout(timer);
   }, [slice.verseIDs]);
