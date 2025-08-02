@@ -463,21 +463,122 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Natural scrolling - no axis locks at all
+  // Momentary commitment scrolling system
   useEffect(() => {
-    const hScroll = hScrollRef.current;
-    if (!hScroll) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    // Only track horizontal scroll position for column headers
-    const onHorizontalScroll = (e: Event) => {
+    // Track scroll position for column headers
+    const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       setScrollLeft(target.scrollLeft);
     };
 
-    hScroll.addEventListener('scroll', onHorizontalScroll);
+    // Momentary axis commitment - resets after each gesture
+    let activeAxis: 'x' | 'y' | null = null;
+    let wheelTimer: number;
+
+    const wheelHandler = (e: WheelEvent) => {
+      // Don't intercept wheel events from cross-reference cells
+      const target = e.target as HTMLElement;
+      if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
+        return;
+      }
+
+      // Detect dominant axis on first move of gesture
+      if (!activeAxis) {
+        activeAxis = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
+      }
+
+      // Apply scroll only on active axis
+      if (activeAxis === 'x') {
+        container.scrollLeft += e.deltaX;
+      } else {
+        container.scrollTop += e.deltaY;
+      }
+
+      // Reset axis after 100ms of silence
+      window.clearTimeout(wheelTimer);
+      wheelTimer = window.setTimeout(() => {
+        activeAxis = null;
+      }, 100);
+
+      e.preventDefault();
+    };
+
+    // Touch/pointer handling for mobile
+    let isDragging = false;
+    let startX = 0, startY = 0;
+
+    const pointerDownHandler = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'BUTTON' || 
+          target.closest('button') ||
+          target.closest('.cross-ref-item') ||
+          target.closest('.cell-content')) {
+        return;
+      }
+      
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        activeAxis = null;
+        container.setPointerCapture(e.pointerId);
+      }
+    };
+
+    const pointerMoveHandler = (e: PointerEvent) => {
+      if (!isDragging || !e.isPrimary) return;
+      
+      const target = e.target as HTMLElement;
+      if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
+        return;
+      }
+      
+      const dx = startX - e.clientX;
+      const dy = startY - e.clientY;
+
+      // Detect axis on first meaningful move
+      if (!activeAxis && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+        activeAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      }
+
+      // Apply scroll only on active axis
+      if (activeAxis === 'x') {
+        container.scrollLeft += dx;
+      } else if (activeAxis) {
+        container.scrollTop += dy;
+      }
+
+      startX = e.clientX;
+      startY = e.clientY;
+    };
+
+    const pointerUpHandler = (e: PointerEvent) => {
+      isDragging = false;
+      activeAxis = null;
+      if (container.hasPointerCapture && container.hasPointerCapture(e.pointerId)) {
+        container.releasePointerCapture(e.pointerId);
+      }
+    };
+
+    // Add event listeners
+    container.addEventListener('scroll', onScroll);
+    container.addEventListener('wheel', wheelHandler, { passive: false });
+    container.addEventListener('pointerdown', pointerDownHandler);
+    container.addEventListener('pointermove', pointerMoveHandler);
+    container.addEventListener('pointerup', pointerUpHandler);
+    container.addEventListener('pointercancel', pointerUpHandler);
 
     return () => {
-      hScroll.removeEventListener('scroll', onHorizontalScroll);
+      container.removeEventListener('scroll', onScroll);
+      container.removeEventListener('wheel', wheelHandler);
+      container.removeEventListener('pointerdown', pointerDownHandler);
+      container.removeEventListener('pointermove', pointerMoveHandler);
+      container.removeEventListener('pointerup', pointerUpHandler);
+      container.removeEventListener('pointercancel', pointerUpHandler);
+      window.clearTimeout(wheelTimer);
     };
   }, []);
 
@@ -509,57 +610,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
       />
 
-      {/* Expert's physically separated scroll axes */}
+      {/* Unified scroll container with momentary axis commitment */}
       <div 
         ref={(node) => {
           (wrapperRef as any).current = node;
+          (vScrollRef as any).current = node;
+          (hScrollRef as any).current = node;
+          (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className="scroll-container"
+        className="unified-scroll-container"
         style={{ 
           position: 'relative',
           height: "calc(100vh - 85px)",
-          overflow: 'hidden' // Container manages child scrollers
+          overflow: 'auto', // Allow both directions naturally
+          overscrollBehavior: 'contain',
+          scrollbarGutter: 'stable both-edges',
+          contain: 'layout paint style',
+          willChange: 'scroll-position',
+          touchAction: 'auto' // Natural scrolling with momentary commitment
         }}
         data-testid="bible-table"
       >
-        {/* Vertical scroller: entire verse stack */}
-        <div 
-          ref={(node) => {
-            (vScrollRef as any).current = node;
-            (containerRef as any).current = node; // Connect containerRef for anchor slice system
-          }}
-          className="v-scroll"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            overscrollBehavior: 'contain',
-            scrollbarGutter: 'stable both-edges',
-            contain: 'layout paint style',
-            willChange: 'scroll-position',
-            touchAction: 'auto' // Completely natural scrolling
-          }}
-        >
-          {/* Horizontal scroller: extra columns */}
-          <div 
-            ref={(node) => {
-              (hScrollRef as any).current = node;
-            }}
-            className="h-scroll"
-            style={{
-              overflowX: 'auto',
-              overflowY: 'hidden',
-              overscrollBehavior: 'contain',
-              touchAction: 'auto', // Completely natural scrolling
-              scrollbarGutter: 'stable both-edges',
-              contain: 'layout paint style',
-              willChange: 'scroll-position'
-            }}
-          >
             <div className="tableInner flex"
              style={{ 
                minWidth: 'max-content', // Natural content width for expert's system
@@ -634,8 +705,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-          </div>
-            </div>
           </div>
         </div>
       </div>
