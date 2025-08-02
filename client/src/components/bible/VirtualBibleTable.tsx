@@ -463,7 +463,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Clean no-diagonal scrolling system
+  // Strict no-diagonal scrolling system
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -474,8 +474,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       setScrollLeft(target.scrollLeft);
     };
 
-    // Dead-simple no-diagonal helper
-    let lastX = 0, lastY = 0;
+    // Strict no-diagonal helper with proper mouse/touch handling
+    const start = { x: 0, y: 0 };
+    let active = false;
+    let scrollApply: (dx: number, dy: number) => void;
 
     const apply = (dx: number, dy: number) => {
       container.scrollLeft += dx;
@@ -491,13 +493,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       }
       
       const { deltaX: dx, deltaY: dy } = e;
-      (Math.abs(dx) > Math.abs(dy))
-        ? apply(dx, 0)
-        : apply(0, dy);
-      e.preventDefault(); // keeps the browser from "helping"
+      (Math.abs(dx) > Math.abs(dy) ? apply(dx, 0) : apply(0, dy));
+      e.preventDefault(); // ✓ stop browser diagonal
     };
 
-    // Pointer handlers - picks dominant axis per move
+    // Pointer handlers - strict mouse/touch handling
     const pd = (e: PointerEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'BUTTON' || 
@@ -507,29 +507,33 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         return;
       }
       
-      lastX = e.clientX;
-      lastY = e.clientY;
+      if (e.pointerType === 'mouse' && e.buttons !== 1) return; // ignore hover
+      active = true;
+      start.x = e.clientX;
+      start.y = e.clientY;
+      scrollApply = apply;
       container.setPointerCapture(e.pointerId);
     };
 
     const pm = (e: PointerEvent) => {
-      if (!e.isPrimary) return;
+      if (!active) return; // ignore hover moves
       
       const target = e.target as HTMLElement;
       if (target.closest('.cross-ref-item') || target.closest('.cell-content')) {
         return;
       }
       
-      const dx = lastX - e.clientX;
-      const dy = lastY - e.clientY;
-      (Math.abs(dx) > Math.abs(dy))
-        ? apply(dx, 0)
-        : apply(0, dy);
-      lastX = e.clientX;
-      lastY = e.clientY;
+      const dx = start.x - e.clientX;
+      const dy = start.y - e.clientY;
+      (Math.abs(dx) > Math.abs(dy) ? scrollApply(dx, 0) : scrollApply(0, dy));
+      
+      start.x = e.clientX;
+      start.y = e.clientY;
+      e.preventDefault(); // ✓ stop native pan
     };
 
     const pu = (e: PointerEvent) => {
+      active = false;
       if (container.hasPointerCapture && container.hasPointerCapture(e.pointerId)) {
         container.releasePointerCapture(e.pointerId);
       }
@@ -539,7 +543,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     container.addEventListener('scroll', onScroll);
     container.addEventListener('wheel', wheel, { passive: false });
     container.addEventListener('pointerdown', pd);
-    container.addEventListener('pointermove', pm);
+    container.addEventListener('pointermove', pm, { passive: false });
     container.addEventListener('pointerup', pu);
     container.addEventListener('pointercancel', pu);
 
@@ -598,7 +602,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'pan-x pan-y' // Allow either axis, but JS chooses one per tick
+          touchAction: 'none' // Let JS handle everything, prevent browser diagonal gestures
         }}
         data-testid="bible-table"
       >

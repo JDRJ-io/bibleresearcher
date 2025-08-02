@@ -1,33 +1,43 @@
-// useNoDiagonal.ts
+// useNoDiagonalStrict.ts
 import { useRef } from 'react';
 
-export function useNoDiagonal() {
-  let lastX = 0, lastY = 0;
+export function useNoDiagonalStrict() {
+  const start = useRef({ x: 0, y: 0 });
+  const active = useRef(false);         // TRUE only while dragging
+  const scroll = useRef<(dx: number, dy: number) => void>(() => {});
 
-  /** Wheel */
+  /* wheel ─────────────────────────────────────────────── */
   function onWheel(e: WheelEvent, apply: (dx: number, dy: number) => void) {
     const { deltaX: dx, deltaY: dy } = e;
-    (Math.abs(dx) > Math.abs(dy))
-      ? apply(dx, 0)
-      : apply(0, dy);
-    e.preventDefault();          // keeps the browser from "helping"
+    (Math.abs(dx) > Math.abs(dy) ? apply(dx, 0) : apply(0, dy));
+    e.preventDefault();                           // ✓ stop browser diagonal
   }
 
-  /** Pointer drag trio */
-  function onPointerDown(e: PointerEvent) {
-    lastX = e.clientX;
-    lastY = e.clientY;
+  /* pointer (touch / mouse drag) ──────────────────────── */
+  function onPointerDown(
+    e: PointerEvent,
+    apply: (dx: number, dy: number) => void
+  ) {
+    if (e.pointerType === 'mouse' && e.buttons !== 1) return;  // ignore hover
+    active.current = true;
+    start.current = { x: e.clientX, y: e.clientY };
+    scroll.current = apply;
   }
-  function onPointerMove(e: PointerEvent, apply: (dx:number,dy:number)=>void) {
-    const dx = lastX - e.clientX;
-    const dy = lastY - e.clientY;
-    (Math.abs(dx) > Math.abs(dy))
-      ? apply(dx, 0)
-      : apply(0, dy);
-    lastX = e.clientX;
-    lastY = e.clientY;
+
+  function onPointerMove(e: PointerEvent) {
+    if (!active.current) return;                // ignore hover moves
+    const dx = start.current.x - e.clientX;
+    const dy = start.current.y - e.clientY;
+
+    (Math.abs(dx) > Math.abs(dy) ? scroll.current(dx, 0) : scroll.current(0, dy));
+
+    start.current = { x: e.clientX, y: e.clientY };
+    e.preventDefault();                         // ✓ stop native pan
   }
-  function onPointerUp() { /* nothing to reset */ }
+
+  function onPointerUp() {
+    active.current = false;
+  }
 
   return { onWheel, onPointerDown, onPointerMove, onPointerUp };
 }
