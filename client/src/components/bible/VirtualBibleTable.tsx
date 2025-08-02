@@ -632,20 +632,28 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'auto' // Natural scrolling with momentary commitment
+          touchAction: 'none' // Disable native scrolling so our handlers work
         }}
         data-testid="bible-table"
       >
-            <div className="tableInner flex"
-             style={{ 
-               minWidth: 'max-content', // Natural content width for expert's system
-               width: 'max-content',    // Shrink-wrap to content
-               margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
-             }}>
-          <div style={{ 
-            minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
-            width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
-          }}>
+        {/* Content container that can be larger than viewport in both dimensions */}
+        <div 
+          style={{ 
+            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
+            position: 'relative'
+          }}
+        >
+          <div className="tableInner flex"
+            style={{ 
+              minWidth: 'max-content', // Natural content width for expert's system
+              width: 'max-content',    // Shrink-wrap to content
+              margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
+            }}>
+            <div style={{ 
+              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
+            }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -710,6 +718,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+            </div>
           </div>
         </div>
       </div>
