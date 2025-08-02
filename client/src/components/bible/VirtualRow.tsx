@@ -601,15 +601,15 @@ export function VirtualRow({
         if (config.type === 'notes') return 'var(--adaptive-notes-width)'; // Notes column
         if (config.type === 'context') return '32px'; // Very compact dates column
       } else {
-        // Landscape mode - use expert's clamp() system
-        if (slotNumber === 0) return 'var(--w-ref)'; // Reference column
-        if (slotNumber === 3 && config.type === 'main-translation') return 'var(--w-main)'; // Main translation
-        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
+        // Landscape mode - use unified column widths for perfect header/data alignment
+        if (slotNumber === 0) return 'var(--ref-col-width)'; // Reference column
+        if (slotNumber === 3 && config.type === 'main-translation') return 'var(--main-col-width)'; // Main translation
+        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--xref-col-width)'; // Cross references
 
         // Handle alternate translations and other column types
-        if (config.type === 'alt-translation' && slotNumber !== 3) return 'var(--w-alt)'; // Alternate translations
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
-        if (config.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
+        if (config.type === 'alt-translation' && slotNumber !== 3) return 'var(--alt-col-width)'; // Alternate translations
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--prophecy-col-width)'; // Prophecy columns
+        if (config.type === 'notes') return 'var(--alt-col-width)'; // Notes use alternate width
         if (config.type === 'context') return '4rem'; // Compact context/dates column
       }
 
@@ -620,7 +620,7 @@ export function VirtualRow({
 
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
-      width: `calc(${getResponsiveColumnPixelWidth(slot)} * var(--column-width-mult))`,
+      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
       flexShrink: 0
     };
 

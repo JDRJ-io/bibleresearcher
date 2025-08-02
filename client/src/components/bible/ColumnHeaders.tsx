@@ -109,14 +109,14 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       return '120px'; // fallback for portrait mode
     }
 
-    // Desktop: Use expert's CSS variable system for responsive column widths
-    if (slot === 0) return 'var(--w-ref)'; // Reference column
-    if (slot === 3 && column.type === 'main-translation') return 'var(--w-main)'; // Main translation
-    if (slot === 7 && column.type === 'cross-refs') return 'var(--w-xref)'; // Cross references
+    // Desktop: Use unified column widths for perfect header/data alignment
+    if (slot === 0) return 'var(--ref-col-width)'; // Reference column
+    if (slot === 3 && column.type === 'main-translation') return 'var(--main-col-width)'; // Main translation
+    if (slot === 7 && column.type === 'cross-refs') return 'var(--xref-col-width)'; // Cross references
 
     // Handle alternate translations and other column types
-    if (column.type === 'translation' && slot !== 2) return 'var(--w-alt)'; // Alternate translations
-    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--w-prophecy)'; // Prophecy columns
+    if (column.type === 'translation' && slot !== 2) return 'var(--alt-col-width)'; // Alternate translations
+    if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--prophecy-col-width)'; // Prophecy columns
     if (column.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
     if (column.type === 'context') return '12rem'; // Context/dates column
 
@@ -153,8 +153,8 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       className={`column-header-cell bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
       data-column={getDataColumn()}
       style={{
-        width: `calc(${calculatedWidth} * var(--column-width-mult))`,
-        minWidth: `calc(${calculatedWidth} * var(--column-width-mult))`
+        width: calculatedWidth, // Unified variables already include multiplier
+        minWidth: calculatedWidth
       }}
     >
       {isDraggable && (

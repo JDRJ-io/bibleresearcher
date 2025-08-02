@@ -328,6 +328,13 @@ body {
   --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
   --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
   --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
+  
+  /* UNIFIED COLUMN WIDTHS - Final calculated values used everywhere */
+  --ref-col-width: calc(var(--w-ref) * var(--column-width-mult));
+  --main-col-width: calc(var(--w-main) * var(--column-width-mult));
+  --xref-col-width: calc(var(--w-xref) * var(--column-width-mult));
+  --alt-col-width: calc(var(--w-alt) * var(--column-width-mult));
+  --prophecy-col-width: calc(var(--w-prophecy) * var(--column-width-mult));
 }
 
 .bibleTable {
