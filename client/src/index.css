@@ -446,7 +446,7 @@ body {
   }
   
   :root {
-    --w-ref: 3.5rem;
+    --w-ref: 2rem;
     --w-main: clamp(45vw, 60vw, 80vw);          /* main fills most of the width */
     --w-xref: clamp(40vw, 55vw, 70vw);          /* equal importance with main */
     --w-alt: clamp(35vw, 50vw, 65vw);           /* alternate translations */
@@ -457,7 +457,7 @@ body {
 /* Tiny phones - expert's fixed widths to prevent crumbs */
 @media (max-width: 480px) {
   :root {
-    --w-ref: 3rem;
+    --w-ref: 2rem;
     --w-main: 18rem;                            /* fixed width for readability */
     --w-xref: 18rem;                            /* equal width with main */
     --w-alt: 16rem;                             /* slightly smaller alternates */
