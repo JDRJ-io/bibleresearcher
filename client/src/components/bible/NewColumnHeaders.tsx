@@ -178,41 +178,48 @@ export function NewColumnHeaders({
 
   return (
     <div 
-      className="column-headers-row sticky top-0 z-20 bg-background border-b flex"
+      className="column-headers-wrapper sticky top-0 z-20 bg-background border-b"
       style={{ 
         left: -scrollLeft,
-        // Center headers in landscape mode
-        margin: isPortrait ? '0' : '0 auto',
-        width: isPortrait ? '100%' : 'max-content'
+        width: '100%'
       }}
     >
-      {columns.map((column) => (
-        <div
-          key={column.id}
-          className={`
-            column-header-cell 
-            flex-shrink-0 
-            flex 
-            items-center 
-            justify-center 
-            border-r 
-            font-bold 
-            text-xs 
-            leading-none
-            ${column.type === 'main-translation' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-background'}
-            ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2 py-1'}
-          `}
-          style={{
-            width: column.width,
-            minWidth: column.width,
-            maxWidth: column.width,
-            boxSizing: 'border-box'
-          }}
-          data-column={column.type}
-        >
-          {column.name}
-        </div>
-      ))}
+      <div 
+        className="column-headers-inner flex"
+        style={{ 
+          minWidth: 'max-content',
+          width: 'max-content',
+          margin: isPortrait ? '0' : '0 auto' // Match the tableInner margin
+        }}
+      >
+        {columns.map((column) => (
+          <div
+            key={column.id}
+            className={`
+              column-header-cell 
+              flex-shrink-0 
+              flex 
+              items-center 
+              justify-center 
+              border-r 
+              font-bold 
+              text-xs 
+              leading-none
+              ${column.type === 'main-translation' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-background'}
+              ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2 py-1'}
+            `}
+            style={{
+              width: column.width,
+              minWidth: column.width,
+              maxWidth: column.width,
+              boxSizing: 'border-box'
+            }}
+            data-column={column.type}
+          >
+            {column.name}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
