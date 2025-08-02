@@ -628,8 +628,8 @@ export function VirtualRow({
       case 'reference':
         return (
           <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref text-center flex items-center justify-center h-full">
-              <span className="block truncate leading-none text-center">{verse.reference}</span>
+            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex items-center justify-center h-full m-0 p-0">
+              <span className="truncate leading-none m-0 p-0">{verse.reference}</span>
             </div>
           </div>
         );

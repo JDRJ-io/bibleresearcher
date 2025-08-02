@@ -636,13 +636,12 @@ body {
     font-size: 12px !important;        /* Even bigger text for mobile readability */
     font-weight: bold !important;      /* Make reference text bold */
     text-align: center;
-    padding: 0.1875rem 0.09375rem !important; /* More padding for bigger reference column */
+    padding: 0 !important;             /* NO PADDING ANYWHERE */
+    margin: 0 !important;              /* NO MARGIN ANYWHERE */
     line-height: 1.2 !important;       /* Better line height for readability */
-    writing-mode: vertical-rl;
+    writing-mode: horizontal-tb;        /* Normal horizontal text */
     text-orientation: mixed;
-    transform: rotate(180deg);
     white-space: nowrap;
-    margin: 0;
     overflow: hidden;
     color: var(--text-primary) !important; /* Ensure good contrast */
   }
@@ -651,14 +650,16 @@ body {
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .cell-ref {
       font-size: 12px !important;      /* Even bigger for landscape */
-      padding: 0.1875rem 0.09375rem !important;
+      padding: 0 !important;           /* NO PADDING */
+      margin: 0 !important;            /* NO MARGIN */
     }
   }
 
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     .cell-ref {
       font-size: 14px !important;      /* Tablet size */
-      padding: 0.25rem 0.125rem !important;
+      padding: 0 !important;           /* NO PADDING */
+      margin: 0 !important;            /* NO MARGIN */
     }
   }
 
@@ -902,6 +903,8 @@ body.menu-open {
 
   .cell-ref{
     position:sticky; left:0; z-index:10; background:inherit;
+    padding: 0 !important;
+    margin: 0 !important;
   }
   .cell-ref span{
     writing-mode:vertical-rl; transform:rotate(180deg);
