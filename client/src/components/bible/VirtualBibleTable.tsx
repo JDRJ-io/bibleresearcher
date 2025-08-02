@@ -5,7 +5,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ColumnHeaders } from "./ColumnHeaders";
+import { NewColumnHeaders } from "./NewColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
@@ -580,7 +580,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
-      <ColumnHeaders 
+      <NewColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
         showProphecy={showProphecies}
@@ -589,7 +589,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
-
       />
 
       {/* Unified scroll container with momentary axis commitment */}

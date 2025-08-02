@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { ColumnHeaders } from "./ColumnHeaders";
+import { NewColumnHeaders } from "./NewColumnHeaders";
 import { VerseRow } from "./VerseRow";
 import type {
   BibleVerse,
@@ -166,12 +166,13 @@ export function BibleTable({
 
   return (
     <div className="flex-1 flex flex-col h-full relative">
-      <ColumnHeaders
+      <NewColumnHeaders
         selectedTranslations={selectedTranslations}
         showNotes={preferences.showNotes}
         showProphecy={preferences.showProphecy}
         showContext={preferences.showContext}
         scrollLeft={scrollLeft}
+        preferences={preferences}
       />
 
       <div
