@@ -1,0 +1,57 @@
+[vite] connecting...
+[vite] connected.
+⚡ PRELOADER: Starting KJV load at module level
+SW disabled in dev - enable by setting VITE_PWA_DEV=true
+📖 Verse keys not loaded yet, initializing synchronously...
+📖 Generated 31102 canonical verse keys synchronously
+🖥️ Desktop Navigation state: 
+Object {browserHistoryLength: 18, canGoBack: true, canGoForward: true, currentHash: ""}
+BiblePage render state: 
+Object {isLoading: true, versesLength: 0}
+🎨 Theme 'Light' applied in 0.00ms
+Loading available translations from Supabase...
+🔑 Starting verse keys foundation architecture...
+⚡ INSTANT: KJV ready status = false
+🎨 Theme 'Light' applied in 0.00ms
+🖥️ Desktop Navigation state: 
+Object {browserHistoryLength: 18, canGoBack: true, canGoForward: true, currentHash: ""}
+BiblePage render state: 
+Object {isLoading: true, versesLength: 0}
+📥 LOADING: KJV translation...
+📅 INITIAL LOAD: Using canonical order from store state
+🔑 STEP 5: loadVerseKeys called with chronological=false, loading file: metadata/verseKeys-canonical.json
+🔑 STEP 6: Actually fetching metadata/verseKeys-canonical.json from Supabase storage...
+🔑 STEP 7: Loaded 31102 canonical verse keys as master index
+🔑 STEP 8: First few verses in order: [Gen.1:1, Gen.1:2, Gen.1:3, Gen.1:4, Gen.1:5]
+🔑 Loaded 31102 verse keys in canonical order as master index
+🏗️ Creating verse objects from master key index...
+🏗️ Created 31102 verse objects from key index
+🏗️ Created 31102 verse structure from keys
+📦 Bible structure loaded from verse keys foundation - text loading will be on-demand
+🖥️ Desktop Navigation state: 
+Object {browserHistoryLength: 18, canGoBack: true, canGoForward: true, currentHash: ""}
+BiblePage render state: 
+Object {isLoading: false, versesLength: 31102}
+BiblePage SHOWING INTERFACE: 
+Object {versesCount: 31102, filteredCount: 31102, firstVerse: {…}, isLoading: false, shouldShowLoading: false}
+📖 loadChunk: anchor=0, buffer=100, start=0, end=100, sliceLength=101
+🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels: 
+Array []
+ type: object length: 0
+🔍🔍🔍 IMMEDIATE - Full store check: 
+Object {hasStore: true, storeActiveLabels: Array(0), directActiveLabels: Array(0)}
+🎯 VirtualBibleTable anchor-centered render: 0 (Gen.1:1)
+📊 CHUNK DATA: start=0, end=100, verseIDs=101, rowData keys=0
+🖥️ Desktop Navigation state: 
+Object {browserHistoryLength: 18, canGoBack: true, canGoForward: true, currentHash: ""}
+Translation KJV not found in cache. Available keys: 
+Array ["has cache entries"]
+🔍 VirtualBibleTable rendering VirtualRow for Gen.1:1, onExpandVerse available: true
+Translation KJV not found in cache. Available keys: 
+Array ["has cache entries"]
+Translation KJV not found in cache. Available keys: 
+Array ["has cache entries"]
+Translation KJV not found in cache. Available keys: 
+Array ["has cache entries"]
+Translation KJV not found in cache. Available keys: 
+Array ["has cache entries"]
