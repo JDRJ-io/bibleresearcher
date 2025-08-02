@@ -115,10 +115,11 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
     if (slot === 7 && column.type === 'cross-refs') return 'var(--xref-col-width)'; // Cross references
 
     // Handle alternate translations and other column types
-    if (column.type === 'translation' && slot !== 2) return 'var(--alt-col-width)'; // Alternate translations
+    if (column.type === 'alt-translation') return 'var(--alt-col-width)'; // Alternate translations
+    if (column.type === 'translation' && slot !== 3) return 'var(--alt-col-width)'; // Other translation columns
     if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--prophecy-col-width)'; // Prophecy columns
-    if (column.type === 'notes') return 'var(--w-alt)'; // Notes use alternate width
-    if (column.type === 'context') return '12rem'; // Context/dates column
+    if (column.type === 'notes') return 'var(--alt-col-width)'; // Notes use alternate width
+    if (column.type === 'context') return 'calc(12rem * var(--column-width-mult))'; // Context/dates column
 
     // Convert rem to pixels for other columns (assuming 1rem = 16px)
     const pixelWidth = columnInfo.widthRem * 16;

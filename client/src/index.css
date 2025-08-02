@@ -337,6 +337,28 @@ body {
   --prophecy-col-width: calc(var(--w-prophecy) * var(--column-width-mult));
 }
 
+/* Re-usable utility classes for perfect column alignment */
+.ref-col {
+  width: var(--ref-col-width);
+  min-width: var(--ref-col-width);
+  max-width: var(--ref-col-width);
+  box-sizing: border-box;
+}
+
+.main-col {
+  width: var(--main-col-width);
+  min-width: var(--main-col-width);
+  max-width: var(--main-col-width);
+  box-sizing: border-box;
+}
+
+.alt-col {
+  width: var(--alt-col-width);
+  min-width: var(--alt-col-width);
+  max-width: var(--alt-col-width);
+  box-sizing: border-box;
+}
+
 .bibleTable {
   display: grid;
   grid-auto-columns: max-content; /* keeps desktop sizing logic */
