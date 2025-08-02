@@ -153,8 +153,8 @@ function HeaderCell({ column, isMain, isMobile, isDraggable, columnState }: Head
       className={`column-header-cell bible-column flex-shrink-0 flex items-center justify-center border-r px-1 ${textClass} leading-none ${bgClass} ${draggableClass} relative`}
       data-column={getDataColumn()}
       style={{
-        width: calculatedWidth,
-        minWidth: calculatedWidth
+        width: `calc(${calculatedWidth} * var(--column-width-mult))`,
+        minWidth: `calc(${calculatedWidth} * var(--column-width-mult))`
       }}
     >
       {isDraggable && (
