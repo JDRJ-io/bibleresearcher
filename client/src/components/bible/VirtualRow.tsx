@@ -361,7 +361,7 @@ function MainTranslationCell({
   }
 
   return (
-    <div className={`px-2 py-1 text-sm leading-tight cell-content ${contextClasses}`}>
+    <div className={`px-2 py-1 text-sm leading-tight cell-content h-full max-h-full ${contextClasses}`}>
       {shouldUseLabeledText ? (
         <LabeledText
           text={verseText}
@@ -645,8 +645,8 @@ export function VirtualRow({
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 group" style={columnStyle}>
-            <div className="relative">
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 group h-full" style={columnStyle}>
+            <div className="relative h-full">
               <MainTranslationCell 
                 key={`${verse.reference}-${mainTranslation}`}
                 verse={verse} 
@@ -681,8 +681,8 @@ export function VirtualRow({
                         getMainVerseText(verse.reference);
 
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="px-2 py-1 text-sm cell-content">
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+            <div className="px-2 py-1 text-sm cell-content h-full max-h-full">
               {verseText || `[${config.translationCode} loading...]`}
             </div>
           </div>
