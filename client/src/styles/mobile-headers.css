@@ -91,7 +91,7 @@
   /* Landscape phone adjustments - use adaptive variables for perfect sync */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .column-header-cell[data-column="reference"] {
-      width: var(--adaptive-ref-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-ref-width) + 4px) !important;  /* Sync with table content */
     }
 
     .column-header-cell[data-column="main"],
