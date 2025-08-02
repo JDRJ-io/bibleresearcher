@@ -56,9 +56,11 @@
 
   /* Mobile column headers must use adaptive CSS variables for perfect sync */
   .column-header-cell[data-column="reference"] {
-    width: var(--adaptive-ref-width) !important;  /* Sync with table content */
+    width: calc(var(--adaptive-ref-width) + 4px) !important;  /* Sync with table content + 4px */
     box-sizing: border-box !important;
     padding: 0 !important; /* NO PADDING - match data cell */
+    margin: 0 !important; /* NO MARGIN - match data cell */
+    border-left: none !important; /* NO EXTRA BORDERS - match data cell */
   }
 
   /* Main translation mobile sizing */
