@@ -52,8 +52,9 @@ export function NewColumnHeaders({
     const isPortrait = window.innerHeight > window.innerWidth;
 
     if (isPortrait) {
-      // Portrait mode - use exact pixel values from adaptive widths
-      if (columnType === 'reference') return `${adaptiveWidths.reference}px`;
+      // Portrait mode - use exact pixel values from adaptive widths for most columns,
+      // but use CSS variable for reference column to match VirtualRow exactly
+      if (columnType === 'reference') return 'var(--adaptive-ref-width)';
       if (columnType === 'main-translation') return `${adaptiveWidths.mainTranslation}px`;
       if (columnType === 'cross-refs') return `${adaptiveWidths.crossReference}px`;
       if (columnType === 'alt-translation') return `${adaptiveWidths.alternate}px`;
