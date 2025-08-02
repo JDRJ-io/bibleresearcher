@@ -601,13 +601,13 @@ export function VirtualRow({
         return 'var(--adaptive-alt-width)';
       } else {
         // Landscape mode - use unified variables (IDENTICAL to ColumnHeaders)
-        if (slotNumber === 0) return 'var(--ref-col-width)';
-        if (slotNumber === 3) return 'var(--main-col-width)';
-        if (slotNumber === 7) return 'var(--xref-col-width)';
-        if (config.type === 'alt-translation') return 'var(--alt-col-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--prophecy-col-width)';
-        if (config.type === 'notes') return 'var(--alt-col-width)';
-        if (config.type === 'context') return 'calc(12rem * var(--column-width-mult))';
+        if (slotNumber === 0) return 'var(--adaptive-ref-width)'; // Use adaptive even in landscape for consistency
+        if (slotNumber === 3) return 'var(--adaptive-main-width)';
+        if (slotNumber === 7) return 'var(--adaptive-cross-width)';
+        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
+        if (config.type === 'context') return 'var(--adaptive-context-width)'; 'calc(12rem * var(--column-width-mult))';
         return 'var(--alt-col-width)';
       }
 

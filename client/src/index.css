@@ -198,6 +198,22 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* UNIVERSAL COLUMN ALIGNMENT - Headers and data cells must match exactly */
+.column-header-cell,
+.virtual-row > div {
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-right: 1px solid #e5e7eb !important;
+  font-size: var(--table-font-size, 0.75rem) !important;
+  line-height: 1 !important;
+}
+
+.dark .column-header-cell,
+.dark .virtual-row > div {
+  border-right-color: #374151 !important;
+}
+
 /* Cell scrollbar styling - only show when content overflows */
 .cell-content {
   max-height: 100%;

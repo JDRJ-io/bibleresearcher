@@ -43,21 +43,15 @@
     z-index: 50 !important;
   }
 
-  /* Column header cells responsive sizing */
+  /* Column header cells responsive sizing - inherit universal alignment */
   .column-header-cell {
     flex-shrink: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-right: 1px solid #e5e7eb !important;
     font-weight: 600 !important;
-    font-size: 0.75rem !important;
-    line-height: 1 !important;
     height: var(--column-header-height) !important;
-  }
-
-  .dark .column-header-cell {
-    border-right-color: #374151 !important;
+    /* box-sizing, padding, margin, border inherited from universal alignment in index.css */
   }
 
   /* Mobile column headers must use adaptive CSS variables for perfect sync */
