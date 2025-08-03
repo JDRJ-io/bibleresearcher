@@ -53,10 +53,6 @@ export function VirtualRowWithLayout({
   // Get visible columns based on mode
   const visibleColumns = visible(windowWidth);
   
-  // Get verse labels for labeled text
-  const labeledTextState = useLabeledText();
-  const labeledTextGetVerseLabels = labeledTextState.getVerseLabels;
-  
   // Get viewport labels for the current verse
   const { getVerseLabels } = useViewportLabels({
     verses: [verse],
@@ -105,11 +101,10 @@ export function VirtualRowWithLayout({
           <div key="main" className="px-2 py-1 text-sm border-r" style={cellStyle}>
             <LabeledText
               text={mainText}
-              verseReference={verse.reference}
+              labelData={getVerseLabels(verse.reference)}
+              activeLabels={activeLabels || []}
+              verseKey={verse.reference}
               translationCode={mainTranslation}
-              getVerseLabels={getVerseLabels}
-              activeLabels={activeLabels}
-              onDoubleClick={onDoubleClick}
             />
           </div>
         );
@@ -174,11 +169,10 @@ export function VirtualRowWithLayout({
             <div key={columnId} className="px-2 py-1 text-sm border-r" style={cellStyle}>
               <LabeledText
                 text={altText || ''}
-                verseReference={verse.reference}
+                labelData={getVerseLabels(verse.reference)}
+                activeLabels={activeLabels || []}
+                verseKey={verse.reference}
                 translationCode={altCode}
-                getVerseLabels={getVerseLabels}
-                activeLabels={activeLabels}
-                onDoubleClick={onDoubleClick}
               />
             </div>
           );

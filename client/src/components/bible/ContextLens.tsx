@@ -9,11 +9,11 @@ import { memo, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ContextLens() {
-  const { panelOpen, panelVerse, closePanel } = useLayoutStore((s) => ({
-    panelOpen: s.panelOpen,
-    panelVerse: s.panelVerse,
-    closePanel: s.closePanel,
-  }));
+  const panelOpen = useLayoutStore((s) => s.panelOpen);
+  const panelVerse = useLayoutStore((s) => s.panelVerse);
+  const closePanel = useLayoutStore((s) => s.closePanel);
+  
+  console.log('ContextLens render:', { panelOpen, panelVerse });
   
   if (!panelOpen || !panelVerse) return null;
 
