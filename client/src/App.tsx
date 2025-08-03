@@ -11,6 +11,7 @@ import LoaderDemo from "@/pages/LoaderDemo";
 import Forum from "@/pages/Forum";
 import Voting from "@/pages/Voting";
 import TestAuth from "@/pages/auth/test-auth";
+import AuthHelp from "@/pages/auth/help";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
@@ -649,6 +650,7 @@ function Router() {
       <Route path="/forum" component={Forum} />
       <Route path="/voting" component={Voting} />
       <Route path="/test-auth" component={TestAuth} />
+      <Route path="/auth-help" component={AuthHelp} />
       <Route path="/loader-demo" component={LoaderDemo} />
 
       <Route component={NotFound} />
