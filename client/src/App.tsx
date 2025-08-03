@@ -10,6 +10,7 @@ import AuthCallback from "@/pages/auth/callback";
 import LoaderDemo from "@/pages/LoaderDemo";
 import Forum from "@/pages/Forum";
 import Voting from "@/pages/Voting";
+import TestAuth from "@/pages/auth/test-auth";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
@@ -647,6 +648,7 @@ function Router() {
       <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/forum" component={Forum} />
       <Route path="/voting" component={Voting} />
+      <Route path="/test-auth" component={TestAuth} />
       <Route path="/loader-demo" component={LoaderDemo} />
 
       <Route component={NotFound} />
