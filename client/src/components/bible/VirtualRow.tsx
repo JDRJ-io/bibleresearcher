@@ -615,7 +615,7 @@ export function VirtualRow({
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
-      const pixelWidth = columnInfo?.widthRem * 16 || 160;
+      const pixelWidth = (columnInfo?.widthRem || 10) * 16;
       return `${pixelWidth}px`;
     };
 

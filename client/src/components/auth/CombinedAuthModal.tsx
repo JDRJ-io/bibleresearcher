@@ -4,7 +4,9 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { KeyRound, Mail, Sparkles } from "lucide-react";
+import { KeyRound, Mail, Sparkles, CheckCircle, AlertCircle } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface CombinedAuthModalProps {
   isOpen: boolean;
@@ -13,23 +15,46 @@ interface CombinedAuthModalProps {
 
 export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      // TODO: Implement Supabase sign in
-      console.log("Sign in attempt:", { email });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
       
-      // Mock delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (error) throw error;
       
-      onClose();
-    } catch (error) {
+      setMagicLinkSent(true);
+      toast({
+        title: "Magic link sent!",
+        description: "Check your email for the sign-in link.",
+        duration: 5000,
+      });
+      
+      // Reset after 5 seconds
+      setTimeout(() => {
+        setMagicLinkSent(false);
+        setEmail("");
+        onClose();
+      }, 5000);
+      
+    } catch (error: any) {
       console.error("Sign in error:", error);
+      toast({
+        title: "Sign in failed",
+        description: error.message || "Failed to send magic link",
+        variant: "destructive",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -40,15 +65,40 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
     setIsLoading(true);
     
     try {
-      // TODO: Implement Supabase sign up
-      console.log("Sign up attempt:", { email });
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            isNewUser: true,
+          }
+        }
+      });
       
-      // Mock delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (error) throw error;
       
-      onClose();
-    } catch (error) {
+      setMagicLinkSent(true);
+      toast({
+        title: "Welcome! Check your email",
+        description: "We've sent you a magic link to complete your registration.",
+        duration: 5000,
+      });
+      
+      // Reset after 5 seconds
+      setTimeout(() => {
+        setMagicLinkSent(false);
+        setEmail("");
+        onClose();
+      }, 5000);
+      
+    } catch (error: any) {
       console.error("Sign up error:", error);
+      toast({
+        title: "Sign up failed",
+        description: error.message || "Failed to create account",
+        variant: "destructive",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -98,14 +148,26 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
               <Button 
                 type="submit" 
                 className="w-full bg-purple-500 hover:bg-purple-600"
-                disabled={isLoading}
+                disabled={isLoading || magicLinkSent}
               >
-                {isLoading ? "Signing in..." : "Send Magic Link"}
+                {magicLinkSent ? (
+                  <span className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Magic Link Sent!
+                  </span>
+                ) : isLoading ? (
+                  "Sending..."
+                ) : (
+                  "Send Magic Link"
+                )}
               </Button>
             </form>
             
             <div className="text-xs text-center text-muted-foreground">
-              We'll send you a secure link to sign in without a password.
+              {magicLinkSent 
+                ? "Check your email for the sign-in link."
+                : "We'll send you a secure link to sign in without a password."
+              }
             </div>
           </TabsContent>
           
@@ -134,14 +196,26 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
               <Button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                disabled={isLoading}
+                disabled={isLoading || magicLinkSent}
               >
-                {isLoading ? "Creating account..." : "Create Account"}
+                {magicLinkSent ? (
+                  <span className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Check Your Email!
+                  </span>
+                ) : isLoading ? (
+                  "Creating account..."
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
             
             <div className="text-xs text-center text-muted-foreground">
-              By signing up, you agree to our Terms of Service and Privacy Policy.
+              {magicLinkSent 
+                ? "We've sent you a magic link to complete your registration."
+                : "By signing up, you agree to our Terms of Service and Privacy Policy."
+              }
             </div>
           </TabsContent>
         </Tabs>

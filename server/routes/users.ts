@@ -1,8 +1,8 @@
 import express from 'express';
 import { db } from '../db.js';
-import { userNotes, highlights, bookmarks, users, userPreferences } from '../../shared/schema.js';
+import { userNotes, highlights, bookmarks, users, userPreferences, profiles } from '../../shared/schema.js';
 import { eq, and } from 'drizzle-orm';
-import { insertUserNoteSchema, insertHighlightSchema, insertBookmarkSchema, insertUserPreferencesSchema } from '../../shared/schema.js';
+import { insertUserNoteSchema, insertHighlightSchema, insertBookmarkSchema, insertUserPreferencesSchema, insertProfileSchema } from '../../shared/schema.js';
 
 const router = express.Router();
 
@@ -261,6 +261,49 @@ router.put('/preferences', requireAuth, async (req: any, res) => {
   } catch (error) {
     console.error('Error updating preferences:', error);
     res.status(400).json({ error: 'Failed to update preferences' });
+  }
+});
+
+// Profile endpoints
+router.get('/profile', requireAuth, async (req: any, res) => {
+  try {
+    const [profile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, req.userId));
+    
+    res.json(profile || null);
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+router.put('/profile', requireAuth, async (req: any, res) => {
+  try {
+    const validatedData = insertProfileSchema.parse({
+      id: req.userId,
+      ...req.body
+    });
+    
+    // Upsert profile
+    const [profile] = await db
+      .insert(profiles)
+      .values(validatedData)
+      .onConflictDoUpdate({
+        target: profiles.id,
+        set: { 
+          name: validatedData.name,
+          bio: validatedData.bio,
+          updatedAt: new Date() 
+        }
+      })
+      .returning();
+    
+    res.json(profile);
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(400).json({ error: 'Failed to update profile' });
   }
 });
 

@@ -9,6 +9,15 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const profiles = pgTable("profiles", {
+  id: uuid("id").primaryKey().references(() => users.id),
+  name: text("name"), // Nullable for incomplete profiles
+  bio: text("bio"),
+  tier: text("tier").default("free"), // 'free' or 'premium'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const userNotes = pgTable("user_notes", {
   id: serial("id").primaryKey(),
   userId: uuid("user_id").references(() => users.id).notNull(),
@@ -69,6 +78,7 @@ export const userPreferences = pgTable("user_preferences", {
 });
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertProfileSchema = createInsertSchema(profiles).omit({ createdAt: true, updatedAt: true });
 export const insertUserNoteSchema = createInsertSchema(userNotes).omit({ id: true, updatedAt: true });
 export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({ id: true, createdAt: true });
 export const insertHighlightSchema = createInsertSchema(highlights).omit({ id: true, createdAt: true });
@@ -78,6 +88,8 @@ export const insertUserPreferencesSchema = createInsertSchema(userPreferences).o
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Profile = typeof profiles.$inferSelect;
+export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type UserNote = typeof userNotes.$inferSelect;
 export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
 export type Bookmark = typeof bookmarks.$inferSelect;

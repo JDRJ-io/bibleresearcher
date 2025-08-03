@@ -43,8 +43,15 @@ export default function AuthCallback() {
               // Clear the hash from URL
               window.history.replaceState(null, '', window.location.pathname);
               
-              // Redirect to main page after a brief success message
-              setTimeout(() => setLocation('/'), 2000);
+              // Check if this is a new user who needs to complete their profile
+              const isNewUser = data.session.user?.user_metadata?.isNewUser;
+              
+              // TODO: Check if profile exists/is complete
+              // For now, redirect new users to welcome page
+              const redirectPath = isNewUser ? '/welcome' : '/';
+              
+              // Redirect after a brief success message
+              setTimeout(() => setLocation(redirectPath), 2000);
               return;
             }
           }
@@ -89,7 +96,7 @@ export default function AuthCallback() {
           
           {status === 'loading' && (
             <div className="space-y-4">
-              <LoadingWheel size="lg" />
+              <LoadingWheel size="large" />
               <p className="text-gray-600 dark:text-gray-400">
                 Completing authentication...
               </p>

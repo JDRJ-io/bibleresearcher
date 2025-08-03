@@ -20,6 +20,13 @@ A sophisticated web application for biblical research, providing an Excel-like i
 
 ### Recent Changes
 - **Column Headers Refactor (Jan 2025)**: Replaced complex ColumnHeaders component with simplified NewColumnHeaders that uses the same responsive width system as VirtualRow, ensuring perfect alignment between headers and data cells.
+- **Authentication System Implementation (Jan 2025)**: 
+  - Added real Supabase magic link authentication in CombinedAuthModal
+  - Created profiles table schema with name, bio, and tier fields
+  - Implemented profile completion flow with Welcome page
+  - Added premium subscription gating system with usePremiumCheck hook
+  - Created forum/voting placeholder pages for future integration
+  - Updated AuthContext to manage user profiles and tier status
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.

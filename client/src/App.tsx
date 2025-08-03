@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
+import Welcome from "@/pages/auth/Welcome";
 import LoaderDemo from "@/pages/LoaderDemo";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
@@ -643,6 +644,7 @@ function Router() {
     <Switch>
       <Route path="/" component={BiblePage} />
       <Route path="/auth/callback" component={AuthCallback} />
+      <Route path="/welcome" component={Welcome} />
       <Route path="/loader-demo" component={LoaderDemo} />
 
       <Route component={NotFound} />
