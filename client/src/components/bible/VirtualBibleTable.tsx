@@ -620,7 +620,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
         data-testid="bible-table"
       >
-        {/* Simplified content container - starts from absolute left edge */}
+        {/* Content container - responsive alignment based on orientation */}
         <div 
           style={{ 
             minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
@@ -633,14 +633,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             left: '0'
           }}
         >
-          {/* Remove centering logic - table content starts from left boundary */}
+          {/* Smart centering - center in landscape if content fits, left-align in portrait or overflow */}
           <div className="tableInner"
             style={{ 
               minWidth: `${actualTotalWidth}px`,
               width: `${actualTotalWidth}px`,
-              margin: '0',
+              margin: shouldCenter ? '0 auto' : '0',
               padding: '0',
-              marginLeft: '0',
+              marginLeft: shouldCenter ? 'auto' : '0',
               paddingLeft: '0',
               borderCollapse: 'collapse',
               borderSpacing: '0',
