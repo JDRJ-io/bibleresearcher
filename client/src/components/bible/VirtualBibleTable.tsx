@@ -707,8 +707,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         </div>
       </div>
       
-      {/* Context Lens Panel */}
-      <ContextLens />
+      {/* Context Lens Panel - only render in context-lens mode */}
+      {mode === 'context-lens' && <ContextLens />}
     </div>
   );
 });

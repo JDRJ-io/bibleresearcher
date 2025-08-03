@@ -43,16 +43,14 @@ export default function ContextLens() {
 }
 
 const PanelContent = memo(({ verseKey }: { verseKey: string }) => {
-  const { 
-    translations, 
-    translationState, 
-    crossRefs, 
-    showNotes, 
-    showDates,
-    prophecyData,
-    prophecyIndex,
-    datesData
-  } = useBibleStore();
+  const translations = useBibleStore((state) => state.translations);
+  const translationState = useBibleStore((state) => state.translationState);
+  const crossRefs = useBibleStore((state) => state.crossRefs);
+  const showNotes = useBibleStore((state) => state.showNotes);
+  const showDates = useBibleStore((state) => state.showDates);
+  const prophecyData = useBibleStore((state) => state.prophecyData);
+  const prophecyIndex = useBibleStore((state) => state.prophecyIndex);
+  const datesData = useBibleStore((state) => state.datesData);
   
   const mainTranslation = translationState.main;
   const alternates = translationState.alternates;
@@ -156,7 +154,7 @@ function Section({ title, children }: React.PropsWithChildren<{ title: string }>
 }
 
 function AlternateTranslation({ translationCode, verseKey }: { translationCode: string; verseKey: string }) {
-  const { translations } = useBibleStore();
+  const translations = useBibleStore((state) => state.translations);
   const [verseText, setVerseText] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -202,7 +200,7 @@ function AlternateTranslation({ translationCode, verseKey }: { translationCode: 
 }
 
 function ProphecyList({ prophecyIds, type }: { prophecyIds: number[]; type: 'prediction' | 'fulfillment' | 'verification' }) {
-  const { prophecyIndex } = useBibleStore();
+  const prophecyIndex = useBibleStore((state) => state.prophecyIndex);
   
   return (
     <div className="space-y-2">

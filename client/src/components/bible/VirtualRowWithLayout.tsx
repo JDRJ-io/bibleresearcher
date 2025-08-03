@@ -56,13 +56,11 @@ export function VirtualRowWithLayout({
   // Get verse labels for labeled text
   const labeledTextState = useLabeledText();
   const labeledTextGetVerseLabels = labeledTextState.getVerseLabels;
-  const store = useBibleStore();
-  const activeLabels = store.activeLabels || [];
   
   // Get viewport labels for the current verse
   const { getVerseLabels } = useViewportLabels({
     verses: [verse],
-    activeLabels: activeLabels,
+    activeLabels: activeLabels || [],
     mainTranslation: mainTranslation
   });
   
