@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseBrowser';
 
 export async function sendMagicLink(email: string) {
   const redirect = `${window.location.origin}/auth/callback`;

@@ -1,5 +1,5 @@
 // Translation loading helper that ensures translations are loaded before switching
-import { masterCache } from '@/lib/supabaseClient';
+import { masterCache } from '@/lib/supabaseBrowser';
 import { loadTranslation } from '@/data/BibleDataAPI';
 
 export const useEnsureTranslationLoaded = () => {

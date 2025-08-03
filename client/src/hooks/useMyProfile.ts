@@ -25,7 +25,7 @@ export function useMyProfile() {
       setError(null);
       
       const { data: { user }, error: uErr } = await supabase.auth.getUser();
-      console.log('USER', user, uErr);  // Debug log
+      console.log('USER ↩️', user, uErr);  // Debug log
       
       if (!user) {
         setProfile(null);
@@ -35,11 +35,11 @@ export function useMyProfile() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, bio, tier, created_at, updated_at')
+        .select('name, bio, tier')
         .eq('id', user.id)
         .single();
 
-      console.log('PROFILE QUERY', data, error);  // Debug log
+      console.log('PROFILE ↩️', data, error);  // Debug log
 
       if (error && error.code !== 'PGRST116') {
         console.error('Profile load error:', error);

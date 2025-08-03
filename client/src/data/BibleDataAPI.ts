@@ -1,4 +1,4 @@
-import { supabase, masterCache } from '@/lib/supabaseClient';
+import { supabase, masterCache } from '@/lib/supabaseBrowser';
 import { db } from '@/offline/offlineDB';
 import { queueSync } from '@/offline/queueSync';
 

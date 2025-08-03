@@ -1,5 +1,5 @@
 // PRELOADER - Aggressive translation loading for instant display
-import { masterCache } from '@/lib/supabaseClient';
+import { masterCache } from '@/lib/supabaseBrowser';
 
 // Start loading KJV immediately when module loads (before any component mounts)
 let kjvPreloadPromise: Promise<Map<string, string>> | null = null;

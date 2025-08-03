@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase, masterCache } from "@/lib/supabaseClient";
+import { supabase, masterCache } from "@/lib/supabaseBrowser";
 import { useTranslationMaps } from './useTranslationMaps';
 import type { BibleVerse, Translation, AppPreferences } from "@/types/bible";
 import {
@@ -11,7 +11,7 @@ import {
 import { loadTranslationAsText } from "@/data/BibleDataAPI";
 import {
   loadTranslationSecure,
-} from "@/lib/supabaseClient";
+} from "@/lib/supabaseBrowser";
 
 // Global KJV text map for dynamic verse text loading - uses master cache
 let globalKjvTextMap: Map<string, string> | null = null;

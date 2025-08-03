@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseBrowser';
 import { LoadingWheel } from '@/components/LoadingWheel';
 
 export default function AuthCallback() {
