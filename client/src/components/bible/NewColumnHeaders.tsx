@@ -35,10 +35,10 @@ export function NewColumnHeaders({
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
   const { isInitialized, showNotes: storeShowNotes } = useBibleStore();
-  
+
   // Use the live store state instead of preferences for notes visibility
   const showNotes = storeShowNotes;
-  
+
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
 
@@ -56,21 +56,21 @@ export function NewColumnHeaders({
       if (columnType === 'reference') return 'var(--adaptive-ref-width)';
       if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
       if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
-      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-cross-width)';
       if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
       if (columnType === 'notes') return 'var(--adaptive-notes-width)';
       if (columnType === 'context') return 'var(--adaptive-context-width)';
-      return 'var(--adaptive-alt-width)';
+      return 'var(--adaptive-cross-width)';
     } else {
       // Landscape mode - use adaptive CSS variables for consistency
       if (columnType === 'reference') return 'var(--adaptive-ref-width)';
       if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
       if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
-      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-cross-width)';
       if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
       if (columnType === 'notes') return 'var(--adaptive-notes-width)';
       if (columnType === 'context') return 'var(--adaptive-context-width)';
-      return 'var(--adaptive-alt-width)';
+      return 'var(--adaptive-cross-width)';
     }
   };
 
