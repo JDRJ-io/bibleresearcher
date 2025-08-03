@@ -6,16 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NewColumnHeaders } from "./NewColumnHeaders";
-import { NewColumnHeadersWithLayout } from "./NewColumnHeadersWithLayout";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
 import { useAdaptiveWidths } from '@/hooks/useAdaptiveWidths';
 import { useOrientation } from '@/hooks/useOrientation';
 import { VirtualRow } from "./VirtualRow";
-import { VirtualRowWithLayout } from "./VirtualRowWithLayout";
-import { useLayoutStore } from '@/store/useLayoutStore';
-import ContextLens from "./ContextLens";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
@@ -457,9 +453,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
   
-  // Layout mode from store
-  const { mode } = useLayoutStore();
-  
   // Responsive column system
   const responsiveConfig = useResponsiveColumns();
   // Expert's lightweight CSS-first adaptive system
@@ -587,8 +580,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
-      {/* Use layout-aware headers */}
-      <NewColumnHeadersWithLayout 
+      <NewColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
         showProphecy={showProphecies}
@@ -686,7 +678,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                   console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
                 }
                 return (
-                  <VirtualRowWithLayout 
+                  <VirtualRow 
                     key={id}
                     verseID={id}
                     verse={bibleVerse}
@@ -706,9 +698,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           </div>
         </div>
       </div>
-      
-      {/* Context Lens Panel - only render in context-lens mode */}
-      {mode === 'context-lens' && <ContextLens />}
     </div>
   );
 });

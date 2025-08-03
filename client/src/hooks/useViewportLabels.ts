@@ -23,13 +23,13 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
   useEffect(() => {
     console.log('🔄 WORKER: useViewportLabels effect triggered', { 
       activeLabels, 
-      activeLabelsLength: activeLabels?.length || 0,
+      activeLabelsLength: activeLabels.length,
       mainTranslation, 
       verseCount: verses.length,
       verseKeysFirst3: verseKeys.slice(0, 3)
     });
 
-    if (!activeLabels || activeLabels.length === 0 || !mainTranslation) {
+    if (activeLabels.length === 0 || !mainTranslation) {
       console.log('🔄 WORKER: No active labels, clearing data');
       setLabelsData({});
       return;
@@ -37,7 +37,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
 
     const loadLabels = async () => {
       setIsLoading(true);
-      console.log(`🔄 WORKER: Loading labels for ${activeLabels?.length || 0} active labels:`, activeLabels, 'translation:', mainTranslation);
+      console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
       try {
         // Normalize active labels before passing to worker
         const normActive = activeLabels.map(lbl => lbl.toLowerCase() as LabelName);
@@ -59,7 +59,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     };
 
     loadLabels();
-  }, [activeLabels?.join() || '', mainTranslation, verseKeys.join('|')]); // Use .join() for array deps
+  }, [activeLabels.join(), mainTranslation, verseKeys.join('|')]); // Use .join() for array deps
 
   // Function to get labels for a specific verse
   const getVerseLabels = (verseReference: string): Partial<Record<LabelName, string[]>> => {

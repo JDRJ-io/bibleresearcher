@@ -12,7 +12,6 @@ import { useBibleStore } from '@/App';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { LayoutModeSelector } from './LayoutModeSelector';
 
 
 interface TopHeaderProps {
@@ -266,10 +265,8 @@ export function TopHeader({
             </div>
           </div>
 
-          {/* Right Section: Layout Mode + Bookmark + Auth + Menu */}
+          {/* Right Section: Bookmark + Auth + Menu */}
           <div className="flex items-center gap-3">
-            <LayoutModeSelector />
-            
             <Button
               variant="outline"
               size="sm"
