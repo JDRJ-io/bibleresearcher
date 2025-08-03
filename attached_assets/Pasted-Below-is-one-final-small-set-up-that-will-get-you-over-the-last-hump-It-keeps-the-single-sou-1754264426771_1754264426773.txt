@@ -1,0 +1,111 @@
+Below is **one final, small set-up that will get you over the last hump**.
+It keeps the “single-source-of-truth” idea the Replit agent just enforced, but adds the missing pieces so `/profile` finally loads and `/dev` can redeem codes.
+
+> **Do the three boxes in order.**
+> After each box, reload **/profile** and look at the console.
+> Stop if an error appears and copy it here.
+
+---
+
+## BOX 1 Create ONE singleton client (client/src/lib/supabaseClient.ts)
+
+Copy–paste **exactly**:
+
+```ts
+// client/src/lib/supabaseClient.ts
+import { createClient } from '@supabase/supabase-js';
+
+// ✅ Vite reads only VITE_ vars
+const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Debug so we see them on every page load
+console.log('🔑 ENV DEBUG - VITE_SUPABASE_URL:',   supabaseUrl);
+console.log('🔑 ENV DEBUG - VITE_SUPABASE_ANON_KEY:',
+            supabaseAnon ? supabaseAnon.substring(0, 20) + '…' : undefined);
+
+if (!supabaseUrl || !supabaseAnon) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+// -------- Singleton pattern to avoid multiple GoTrue warnings
+export const supabase = (() => {
+  // @ts-ignore — attach to globalThis only in browser
+  const g = globalThis as any;
+  if (!g.__supabase__) {
+    g.__supabase__ = createClient(supabaseUrl, supabaseAnon);
+  }
+  return g.__supabase__ as ReturnType<typeof createClient>;
+})();
+```
+
+*This file is now the only place `createClient()` is ever called.*
+
+---
+
+## BOX 2 Import from that file **everywhere**
+
+Search your entire repo for **`createBrowserSupabaseClient`**,
+`createClient(`, or `'@supabase/supabase-js'` imports.
+
+* Replace each occurrence with
+
+  ```ts
+  import { supabase } from '@/lib/supabaseClient';
+  ```
+
+* Delete **client/src/lib/supabaseBrowser.ts** if it still exists.
+
+After the search-and-replace, the *console warning about “Multiple GoTrueClient instances”* must disappear on page reload. If it’s still there, you missed an import—search again.
+
+---
+
+## BOX 3 Re-run the console logging test
+
+1. Add logging inside **useMyProfile.ts** once more:
+
+   ```ts
+   const { data: { user }, error: uErr } = await supabase.auth.getUser();
+   console.log('USER ↩️', user, uErr);
+
+   const { data, error } = await supabase
+     .from('profiles')
+     .select('name,bio,tier')
+     .eq('id', user!.id)
+     .single();
+   console.log('PROFILE ↩️', data, error);
+   ```
+
+2. Reload **/profile** with DevTools open.
+
+| What you should now see                               | Next move                                                                                                            |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `USER ↩️ {…}` and `PROFILE ↩️ { name: null, … } null` | 🎉 The hook got data.  Remove the logs and toggle your loading flag (`setLoading(false)`) so the spinner disappears. |
+| `USER ↩️ null`                                        | You aren’t logged in. Click a fresh magic-link, wait for `/auth/callback`, then retry.                               |
+| `PROFILE ↩️ null { code:'42501' … }`                  | RLS still blocking. Run the **drop + create policy** block for `public.profiles` one more time, then reload.         |
+| Any other error code                                  | Copy it here verbatim; I’ll send the one-line SQL or code fix.                                                       |
+
+Once you see real profile data in the console, the **Save** button will also work because it’s using the same singleton client.
+
+---
+
+### Redeem code (quick confirm)
+
+Open DevTools → Network, click **Redeem** in your Dev page.
+
+*Request:* `POST /functions/v1/redeem-code`
+*Status:* **200**
+*Response:* `{ "message": "ok" }`
+
+Refresh `/profile` – tier should read **premium**.
+
+---
+
+#### You are now production-ready
+
+* **One** Supabase client loaded once per tab.
+* Profile table auto-inserts & edits for every user.
+* Dev codes work without manual SQL.
+* Route `/dev` stays hidden unless you set `VITE_SHOW_DEVTOOLS=true`.
+
+If a **specific** error shows up after these three boxes, paste that exact console or SQL message and we’ll patch just that line.

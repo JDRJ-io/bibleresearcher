@@ -1,27 +1,28 @@
-import { createClient } from '@supabase/supabase-js'
+// client/src/lib/supabaseClient.ts
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// ✅ Vite reads only VITE_ vars
+const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Debug environment variables
-console.log('🔑 ENV DEBUG - VITE_SUPABASE_URL:', supabaseUrl);
-console.log('🔑 ENV DEBUG - VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'undefined');
+// Debug so we see them on every page load
+console.log('🔑 ENV DEBUG - VITE_SUPABASE_URL:',   supabaseUrl);
+console.log('🔑 ENV DEBUG - VITE_SUPABASE_ANON_KEY:',
+            supabaseAnon ? supabaseAnon.substring(0, 20) + '…' : undefined);
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing Supabase environment variables:', {
-    url: !!supabaseUrl,
-    key: !!supabaseAnonKey
-  });
-  throw new Error('Missing Supabase environment variables')
+if (!supabaseUrl || !supabaseAnon) {
+  throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+// -------- Singleton pattern to avoid multiple GoTrue warnings
+export const supabase = (() => {
+  // @ts-ignore — attach to globalThis only in browser
+  const g = globalThis as any;
+  if (!g.__supabase__) {
+    g.__supabase__ = createClient(supabaseUrl, supabaseAnon);
   }
-})
+  return g.__supabase__ as ReturnType<typeof createClient>;
+})();
 
 // Master cache with LRU eviction
 interface CacheEntry {
