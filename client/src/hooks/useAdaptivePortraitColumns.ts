@@ -21,7 +21,7 @@ interface AdaptivePortraitConfig {
 // EXACT THREE-COLUMN PORTRAIT SYSTEM - User's Specification
 function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight: number): AdaptivePortraitConfig['adaptiveWidths'] {
   const isPortrait = viewportHeight > viewportWidth;
-  
+
   if (!isPortrait) {
     // Landscape - use standard comfortable widths
     return {
@@ -40,10 +40,10 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   // 2. Subtract reference column width
   // 3. Divide remaining space EQUALLY between main translation and cross-references
   console.log('🎯 THREE-COLUMN Portrait Mode:', { viewportWidth, viewportHeight });
-  
+
   // Account for scrollbars, borders, padding - conservative margin
   const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
-  
+
   // STEP 1: Reference column gets fixed optimal width - SYNC WITH CSS BREAKPOINTS
   let refWidth: number;
   if (viewportWidth >= 768 && viewportWidth <= 1024) {
@@ -59,12 +59,12 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     // Desktop portrait (rare) - use comfortable width
     refWidth = 60;
   }
-  
+
   // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
   let remainingSpace: number;
   let mainWidth: number;
   let crossWidth: number;
-  
+
   if (viewportWidth >= 768 && viewportWidth <= 1024) {
     // Tablet portrait - match CSS calculation exactly: calc((100vw - 140px) * 0.44)
     const cssRemainingSpace = viewportWidth - 140; // Matches CSS: 100vw - 140px
@@ -77,15 +77,15 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     mainWidth = Math.floor(remainingSpace / 2);
     crossWidth = Math.floor(remainingSpace / 2);
   }
-  
+
   // Ensure minimum readability (compress proportionally if needed)
   const minMain = 100;  // Absolute minimum for main translation
   const minCross = 80;  // Absolute minimum for cross-references
-  
+
   let finalRef = refWidth;
   let finalMain = Math.max(minMain, mainWidth);
   let finalCross = Math.max(minCross, crossWidth);
-  
+
   // If minimums exceed available space, compress proportionally
   const totalNeeded = finalRef + finalMain + finalCross;
   if (totalNeeded > safeViewportWidth) {
@@ -94,7 +94,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     finalMain = Math.floor(finalMain * compressionRatio);
     finalCross = Math.floor(finalCross * compressionRatio);
   }
-  
+
   console.log('📐 THREE-COLUMN Adaptive Calculation:', {
     viewportWidth,
     safeViewportWidth,
@@ -111,7 +111,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     reference: finalRef,
     mainTranslation: finalMain,
     crossReference: finalCross,
-    alternate: Math.floor(finalMain * 0.8), // 80% of main for alternates (horizontal scroll)
+    alternate: finalMain, // Same width as main translation
     prophecy: finalMain,  // Same width as main translation
     notes: Math.floor(finalMain * 0.7), // 70% of main for notes
     context: Math.floor(finalMain * 0.6)  // 60% of main for context
@@ -138,7 +138,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
     const screenHeight = window.innerHeight;
     const isPortrait = screenHeight > screenWidth;
     const safeViewportWidth = screenWidth - 24;
-    
+
     const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight);
     const coreColumnsWidth = adaptiveWidths.reference + adaptiveWidths.mainTranslation + adaptiveWidths.crossReference;
     const guaranteedFit = coreColumnsWidth <= safeViewportWidth;
@@ -165,7 +165,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       root.style.setProperty('--adaptive-prophecy-width', `${widths.prophecy}px`);
       root.style.setProperty('--adaptive-notes-width', `${widths.notes}px`);
       root.style.setProperty('--adaptive-context-width', `${widths.context}px`);
-      
+
       console.log('🎯 CSS Variables Updated:', {
         '--adaptive-ref-width': `${widths.reference}px`,
         '--adaptive-main-width': `${widths.mainTranslation}px`,
@@ -182,7 +182,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       const screenHeight = window.innerHeight;
       const isPortrait = screenHeight > screenWidth;
       const safeViewportWidth = screenWidth - 24;
-      
+
       const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight);
       const coreColumnsWidth = adaptiveWidths.reference + adaptiveWidths.mainTranslation + adaptiveWidths.crossReference;
       const guaranteedFit = coreColumnsWidth <= safeViewportWidth;
@@ -213,14 +213,14 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
 
     // Initial update
     updateConfig();
-    
+
     // Listen for both resize and orientation changes
     window.addEventListener('resize', updateConfig);
     window.addEventListener('orientationchange', () => {
       // Delay to ensure orientation change is complete
       setTimeout(updateConfig, 150);
     });
-    
+
     return () => {
       window.removeEventListener('resize', updateConfig);
       window.removeEventListener('orientationchange', updateConfig);
