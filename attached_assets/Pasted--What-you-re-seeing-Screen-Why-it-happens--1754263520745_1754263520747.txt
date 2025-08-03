@@ -1,0 +1,102 @@
+### What you’re seeing
+
+| Screen                                             | Why it happens                                                                                                                                                                                                | Is it expected?                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **“Page Not Found”** when you browse to **/dev**   | Your new guard `if (import.meta.env.VITE_SHOW_DEVTOOLS !== 'true') return <NotFound />` is **working**. Because the flag isn’t set, the route returns a 404.                                                  | ✔ Yes – that’s correct for normal visitors. |
+| **“Loading profile…”** spinner that never finishes | The React hook is mounted, but the Supabase query never resolves (or throws). 90 % of the time that means: 1) the browser can’t read your env keys, or 2) the query returns an error that you’re not logging. | ✘ We need to fix this.                      |
+
+We’ll debug the spinner in **three tiny steps**.
+Do them in order; after each step re-load `/profile` and see if the spinner disappears.
+
+---
+
+## 1 Confirm the browser can read your env keys (15 s)
+
+Open the browser console (F12 → Console) and type:
+
+```js
+console.log(import.meta.env.VITE_SUPABASE_URL);
+console.log(import.meta.env.VITE_SUPABASE_ANON_KEY);
+```
+
+| Output                                               | Meaning                                                                                                                                                                                                                                                                  |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Two long strings starting with `https://…` and `ey…` | ✅ keys are available – go to Step 2                                                                                                                                                                                                                                      |
+| `undefined` (one or both)                            | The build doesn’t see your env. <br>**Fix:** in Replit secrets panel make sure the names are exactly `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Vite uses the **VITE\_** prefix, not NEXT\_PUBLIC). Stop & restart the Replit server, then try the console again. |
+
+---
+
+## 2 Log the query result (60 s)
+
+Temporarily edit **`useMyProfile.ts`** like this:
+
+```ts
+/* load once */
+useEffect(() => {
+  (async () => {
+    const { data: { user }, error: uErr } = await supabase.auth.getUser();
+    console.log('USER', user, uErr);                 // ← add
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('name,bio,tier')
+      .eq('id', user.id)
+      .single();
+
+    console.log('PROFILE QUERY', data, error);       // ← add
+
+    if (error) return alert(error.message);
+    setProfile(data);
+  })();
+}, []);
+```
+
+Reload `/profile` with DevTools → Console open and read the logs.
+
+| Console shows                                                             | What it means                                                                                                                | Fix |
+| ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --- |
+| `USER null`                                                               | You are **not logged in** in this tab. Re-click the magic-link, wait for `/auth/callback` to finish, then reload `/profile`. |     |
+| `PROFILE QUERY null {error details…}`                                     | The query ran but returned an error. Continue to Step 3 with that error text.                                                |     |
+| Both `USER` and `PROFILE QUERY` show real objects but spinner still shows | State update isn’t wired – but we know DB fetch works. Remove the console logs and check the component’s `loading` flag.     |     |
+
+---
+
+## 3 Most common query errors & one-line fixes
+
+| `error.code` you see                            | Cause                                  | One-line SQL fix                                                                                                                                                                                                                            |
+| ----------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `42501`, `permission denied for table profiles` | RLS policy missing                     | `sql alter table public.profiles enable row level security; drop policy if exists "profile owner rw" on public.profiles; create policy "profile owner rw" on public.profiles for all using (id = auth.uid()) with check (id = auth.uid());` |
+| `PGRST116`, `JWT expired`                       | Old session                            | Log out → click fresh magic-link.                                                                                                                                                                                                           |
+| `22P02`, `invalid input syntax for type uuid`   | You’re passing `undefined` for user.id | Make sure `user` exists before the `.eq('id', user.id)`.                                                                                                                                                                                    |
+
+After you apply the fix, reload `/profile`. The spinner should vanish and the form should fill.
+
+---
+
+## 4 Redeem-code button still silent?
+
+Once `/profile` works, open DevTools → **Network**, press the **Redeem** button and watch for:
+
+* **Request:** `POST /functions/v1/redeem-code`
+* **Status:** 200
+* **Response:** `{ "message": "ok" }`
+
+If you get **401** → add `credentials:'include'` to the fetch.
+If you get **400 "Invalid code"** → typo; run the seed insert again.
+If you get **200 but tier still free** → check the console; maybe you forgot `location.reload()` after success.
+
+---
+
+### Recap
+
+* The 404 on /dev is correct – that’s now hidden.
+* Env keys must be `VITE_…` for Vite / Replit.
+* Use console logs to see exactly what the Supabase call returns; fix based on the error code.
+
+Do Step 1 now. Tell me:
+
+* Whether the two `console.log()` lines show real keys
+* The exact `error` object from `PROFILE QUERY` (if any)
+
+I’ll reply with the single SQL or code line to fix that specific error.

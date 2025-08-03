@@ -24,7 +24,9 @@ export function useMyProfile() {
       setLoading(true);
       setError(null);
       
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: uErr } = await supabase.auth.getUser();
+      console.log('USER', user, uErr);  // Debug log
+      
       if (!user) {
         setProfile(null);
         setLoading(false);
@@ -37,9 +39,12 @@ export function useMyProfile() {
         .eq('id', user.id)
         .single();
 
+      console.log('PROFILE QUERY', data, error);  // Debug log
+
       if (error && error.code !== 'PGRST116') {
         console.error('Profile load error:', error);
         setError(error.message);
+        if (error) alert(`Profile error: ${error.message}`);  // Temporary alert
       } else {
         setProfile(data || {
           id: user.id,
@@ -51,6 +56,7 @@ export function useMyProfile() {
     } catch (err) {
       console.error('Unexpected error loading profile:', err);
       setError('Failed to load profile');
+      alert(`Unexpected error: ${err}`);  // Temporary alert
     } finally {
       setLoading(false);
     }
