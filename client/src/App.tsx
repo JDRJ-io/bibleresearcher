@@ -138,7 +138,7 @@ export const useBibleStore = create<{
   showCrossRefs: true,  // Default ON for free users (optimal mobile display)
   showProphecies: false, // Default OFF for free users (cleaner mobile)
   showNotes: false,     // Notes column toggle
-  showDates: true,      // Dates column toggle - temporarily enabled to show changes
+  showDates: false,      // Dates column toggle
   showContext: false,   // Context boundaries toggle
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
