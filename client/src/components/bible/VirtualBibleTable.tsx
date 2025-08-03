@@ -591,7 +591,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         isGuest={true}
       />
 
-      {/* Unified scroll container with momentary axis commitment */}
+      {/* Unified scroll container - simplified for exact left alignment */}
       <div 
         ref={(node) => {
           (wrapperRef as any).current = node;
@@ -612,7 +612,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
         data-testid="bible-table"
       >
-        {/* Content container that can be larger than viewport in both dimensions */}
+        {/* Simplified content container - starts from absolute left edge */}
         <div 
           style={{ 
             minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
@@ -620,15 +620,17 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             position: 'relative'
           }}
         >
-          <div className="tableInner flex"
+          {/* Remove centering logic - table content starts from left boundary */}
+          <div className="tableInner"
             style={{ 
-              minWidth: 'max-content', // Natural content width for expert's system
-              width: 'max-content',    // Shrink-wrap to content
-              margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
+              minWidth: `${actualTotalWidth}px`,
+              width: `${actualTotalWidth}px`,
+              margin: '0', // Remove all margins - start from left edge
+              padding: '0' // Remove all padding
             }}>
             <div style={{ 
-              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
+              minWidth: `${actualTotalWidth}px`,
+              width: `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {

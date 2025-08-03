@@ -189,7 +189,8 @@ export function NewColumnHeaders({
         style={{ 
           minWidth: 'max-content',
           width: 'max-content',
-          margin: isPortrait ? '0' : '0 auto' // Match the tableInner margin
+          margin: '0', // Remove all margins to align with table content from left edge
+          padding: '0' // Remove all padding
         }}
       >
         {columns.map((column) => (

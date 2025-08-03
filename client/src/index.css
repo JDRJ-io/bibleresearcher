@@ -414,6 +414,27 @@ body {
   grid-auto-flow: column;
 }
 
+/* VIRTUAL TABLE ALIGNMENT - Force alignment from left edge */
+.virtual-bible-table {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.virtual-bible-table .tableInner {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.column-headers-wrapper {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.column-headers-inner {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
 /* Expert's adaptive portrait rule */
 @media (orientation: portrait) {
   :root {
