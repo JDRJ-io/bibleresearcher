@@ -16,59 +16,33 @@ export function useMyProfile() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadProfile();
-  }, []);
+    (async () => {
+      const { data: { user }, error: userErr } = await supabase.auth.getUser();
+      console.log('USER ↩️', user, userErr);
 
-  async function loadProfile() {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { data: { user }, error: uErr } = await supabase.auth.getUser();
-      console.log('USER ↩️', user, uErr);
-      
       if (!user) {
-        setProfile(null);
         setLoading(false);
         return;
       }
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('name,bio,tier')
+        .select('name, bio, tier')
         .eq('id', user.id)
         .single();
 
       console.log('PROFILE ↩️', data, error);
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Profile load error:', error);
-        setError(error.message);
-        if (error) alert(`Profile error: ${error.message}`);  // Temporary alert
+      if (error) {
+        setError(error);
       } else {
-        const profileData = data ? {
-          id: data.id || user.id,
-          name: data.name,
-          bio: data.bio,
-          tier: data.tier,
-          created_at: data.created_at,
-          updated_at: data.updated_at
-        } : {
-          id: user.id,
-          name: null,
-          bio: null,
-          tier: 'free'
-        };
-        setProfile(profileData);
+        setProfile(data);
       }
-    } catch (err) {
-      console.error('Unexpected error loading profile:', err);
-      setError('Failed to load profile');
-      alert(`Unexpected error: ${err}`);  // Temporary alert
-    } finally {
       setLoading(false);
-    }
-  }
+    })();
+  }, []);
+
+  // Temporarily remove loadProfile function for diagnostic
 
   async function save(update: { name: string; bio: string }) {
     try {
