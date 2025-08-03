@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book, Bookmark } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserProfile } from '@/components/auth/UserProfile';
+import { UserProfileDropdown } from '@/components/auth/UserProfileDropdown';
 import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
@@ -180,7 +180,9 @@ export function TopHeader({
 
           {/* Right: Auth + Menu */}
           <div className="flex items-center gap-2">
-            {!user && (
+            {user ? (
+              <UserProfileDropdown />
+            ) : (
               <Button
                 variant="default"
                 size="sm"
@@ -279,7 +281,9 @@ export function TopHeader({
               {createBookmarkMutation.isPending ? 'Saving...' : 'Save Position'}
             </Button>
 
-            {!user && (
+            {user ? (
+              <UserProfileDropdown />
+            ) : (
               <Button
                 variant="default"
                 size="sm"
