@@ -114,7 +114,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     alternate: finalMain, // Same width as main translation
     prophecy: finalMain,  // Same width as main translation
     notes: Math.floor(finalMain * 0.7), // 70% of main for notes
-    context: Math.floor(finalMain * 0.6)  // 60% of main for context
+    context: 40  // Very thin for portrait mode since text is upright - just needs emoji space
   };
 }
 

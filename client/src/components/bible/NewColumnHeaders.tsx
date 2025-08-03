@@ -91,7 +91,7 @@ export function NewColumnHeaders({
     if (showContext) {
       cols.push({
         id: 'context',
-        name: 'Dates',
+        name: '📅',
         type: 'context',
         visible: true,
         width: getResponsiveWidth('context')

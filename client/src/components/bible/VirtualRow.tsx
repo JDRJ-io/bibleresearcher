@@ -457,7 +457,7 @@ export function VirtualRow({
   slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
 
   // Dates column right after reference (slot 1)
-  slotConfig[1] = { type: 'context', header: 'Dates', visible: showDates };
+  slotConfig[1] = { type: 'context', header: '📅', visible: showDates };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
@@ -465,7 +465,7 @@ export function VirtualRow({
       switch (col.slot) {
         case 1:
           // Dates column (moved to slot 1 after Ref)
-          slotConfig[1] = { type: 'context', header: 'Dates', visible: col.visible && showDates };
+          slotConfig[1] = { type: 'context', header: '📅', visible: col.visible && showDates };
           break;
         case 2:
           // Notes column (moved to slot 2)

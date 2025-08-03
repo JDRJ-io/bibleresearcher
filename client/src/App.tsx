@@ -132,7 +132,7 @@ export const useBibleStore = create<{
   showCrossRefs: true,  // Default ON for free users (optimal mobile display)
   showProphecies: false, // Default OFF for free users (cleaner mobile)
   showNotes: false,     // Notes column toggle
-  showDates: false,     // Dates column toggle - off by default, user can enable via hamburger menu
+  showDates: true,      // Dates column toggle - temporarily enabled to show changes
   showContext: false,   // Context boundaries toggle
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
