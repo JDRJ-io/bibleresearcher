@@ -56,17 +56,17 @@ export function NewColumnHeaders({
       if (columnType === 'reference') return 'var(--adaptive-ref-width)';
       if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
       if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
-      if (columnType === 'alt-translation') return 'var(--adaptive-cross-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
       if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
       if (columnType === 'notes') return 'var(--adaptive-notes-width)';
       if (columnType === 'context') return 'var(--adaptive-context-width)';
-      return 'var(--adaptive-cross-width)';
+      return 'var(--adaptive-alt-width)';
     } else {
       // Landscape mode - use adaptive CSS variables for consistency
       if (columnType === 'reference') return 'var(--adaptive-ref-width)';
       if (columnType === 'main-translation') return 'var(--adaptive-main-width)';
       if (columnType === 'cross-refs') return 'var(--adaptive-cross-width)';
-      if (columnType === 'alt-translation') return 'var(--adaptive-cross-width)';
+      if (columnType === 'alt-translation') return 'var(--adaptive-alt-width)';
       if (columnType === 'prophecy') return 'var(--adaptive-prophecy-width)';
       if (columnType === 'notes') return 'var(--adaptive-notes-width)';
       if (columnType === 'context') return 'var(--adaptive-context-width)';
@@ -118,7 +118,18 @@ export function NewColumnHeaders({
       width: getResponsiveWidth('main-translation')
     });
 
-    // 5. Alternate translations (filter out main to avoid duplication)
+    // 5. Cross references (should come before alternate translations)
+    if (showCrossRefs) {
+      cols.push({
+        id: 'cross-refs',
+        name: 'Cross Refs',
+        type: 'cross-refs',
+        visible: true,
+        width: getResponsiveWidth('cross-refs')
+      });
+    }
+
+    // 6. Alternate translations (filter out main to avoid duplication)
     alternates
       .filter(code => code !== main)
       .forEach((code, index) => {
@@ -130,17 +141,6 @@ export function NewColumnHeaders({
           width: getResponsiveWidth('alt-translation')
         });
       });
-
-    // 6. Cross references
-    if (showCrossRefs) {
-      cols.push({
-        id: 'cross-refs',
-        name: 'Cross Refs',
-        type: 'cross-refs',
-        visible: true,
-        width: getResponsiveWidth('cross-refs')
-      });
-    }
 
     // 7. Prophecy columns
     if (showProphecy) {
