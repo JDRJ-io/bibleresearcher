@@ -1,0 +1,164 @@
+2 Create the redeem-code Edge Function
+Requires Supabase CLI installed. If you don’t have it yet:
+npm i -g supabase
+
+2-a Generate & edit the function
+bash
+Copy
+Edit
+# In your project root
+supabase functions new redeem-code
+Open supabase/functions/redeem-code/index.ts and replace everything with:
+
+ts
+Copy
+Edit
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+serve(async (req) => {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!   // server role key
+  );
+
+  const { code } = await req.json().catch(() => ({}));
+  if (!code) return resp('Missing code', 400);
+
+  /* 1. get current user from the JWT in the request */
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser(req);
+  if (authError || !user) return resp('Unauthorized', 401);
+
+  /* 2. find the code row */
+  const { data: access } = await supabase
+    .from('access_codes')
+    .select('*')
+    .eq('code', code)
+    .maybeSingle();
+
+  if (!access)                    return resp('Invalid code',   400);
+  if (access.expires_at && new Date(access.expires_at) < new Date())
+                                   return resp('Code expired',  400);
+  if (access.used_count >= access.max_uses)
+                                   return resp('Code exhausted',400);
+
+  /* 3. upgrade profile */
+  const { error: upErr } = await supabase
+    .from('profiles')
+    .update({ tier: access.tier })
+    .eq('id', user.id);
+  if (upErr) return resp(upErr.message, 400);
+
+  /* 4. increment use counter */
+  await supabase
+    .from('access_codes')
+    .update({ used_count: access.used_count + 1 })
+    .eq('code', code);
+
+  return resp('ok', 200);
+
+  function resp(msg: string, status = 200) {
+    return new Response(JSON.stringify({ message: msg }), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+});
+2-b Deploy
+bash
+Copy
+Edit
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+supabase functions deploy redeem-code
+(CLI prompts for the project if not linked yet.)
+
+3 Front-end: simple unlock dialog
+Add a minimal component somewhere only testers can see:
+
+tsx
+Copy
+Edit
+'use client';
+import { useState } from 'react';
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
+
+export default function DevUnlock() {
+  const [code, setCode] = useState('');
+  const [msg,  setMsg]  = useState('');
+  const supabase = createBrowserSupabaseClient();
+
+  async function redeem() {
+    const res = await fetch('/functions/v1/redeem-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const { message } = await res.json();
+    setMsg(message);
+    if (res.ok) {
+      await supabase.auth.refreshSession();
+      location.reload();
+    }
+  }
+
+  return (
+    <div className="my-6 space-y-3">
+      <input className="border p-2 w-full"
+             placeholder="Enter dev code"
+             onChange={(e) => setCode(e.target.value)} />
+      <button className="bg-blue-600 text-white px-4 py-2 rounded"
+              onClick={redeem}>Unlock</button>
+      {msg && <p>{msg}</p>}
+    </div>
+  );
+}
+Mount it e.g. on /dev route:
+
+tsx
+Copy
+Edit
+export default function DevPage() {
+  return (
+    <main className="max-w-md mx-auto p-8">
+      <h1 className="text-2xl mb-4">Dev Tools</h1>
+      <DevUnlock />
+    </main>
+  );
+}
+4 Smoke-test
+Log in as a normal user → Premium features locked.
+
+Navigate to /dev, enter DEV-ALPHA-2025, click Unlock.
+
+Page reloads → profile.tier is now premium → paywall opens.
+
+Check DB:
+
+sql
+Copy
+Edit
+select tier from profiles where id = auth.uid();      -- “premium”
+select used_count from access_codes where code='DEV-ALPHA-2025';
+Recap of what you actually had to run
+Block	Where you ran it
+Part A (structural SQL)	Done
+Part B (seed code SQL)	SQL Editor – tiny insert
+Edge Function code	supabase functions new … → deploy
+Front-end component	Any secure page in your Next.js app
+
+That’s it. If any of these commands throw an error (line #, message), paste it here verbatim and we’ll iron it out.
+
+
+
+
+
+
+
+
+
+Sources
+
+Ask ChatGPT

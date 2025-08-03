@@ -44,16 +44,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const response = await fetch(`/api/users/profile`, {
-        headers: {
-          'x-user-id': user.id,
-        },
-      });
-      
-      if (response.ok) {
-        const profileData = await response.json();
-        setProfile(profileData);
+      // Fetch profile directly from Supabase
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // Ignore "not found" errors
+        console.error('Profile fetch error:', error);
+        return;
       }
+
+      setProfile(profileData || { tier: 'free' });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
     }
@@ -62,21 +65,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfile = async (data: { name: string; bio: string }) => {
     if (!user) throw new Error('No authenticated user');
 
-    const response = await fetch('/api/users/profile', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-user-id': user.id,
-      },
-      body: JSON.stringify(data),
-    });
+    try {
+      // Update profile directly with Supabase
+      const { data: updatedProfile, error } = await supabase
+        .from('profiles')
+        .update({
+          name: data.name,
+          bio: data.bio,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+        .select()
+        .single();
 
-    if (!response.ok) {
+      if (error) throw error;
+
+      setProfile(updatedProfile);
+      return updatedProfile;
+    } catch (error) {
+      console.error('Profile update error:', error);
       throw new Error('Failed to update profile');
     }
-
-    const updatedProfile = await response.json();
-    setProfile(updatedProfile);
   };
 
   useEffect(() => {

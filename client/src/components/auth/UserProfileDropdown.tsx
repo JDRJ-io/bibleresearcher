@@ -75,9 +75,9 @@ export function UserProfileDropdown() {
           <span>Profile</span>
         </DropdownMenuItem>
         
-        <DropdownMenuItem onClick={() => setLocation('/settings')}>
+        <DropdownMenuItem onClick={() => setLocation('/dev')}>
           <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+          <span>Dev Tools</span>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />

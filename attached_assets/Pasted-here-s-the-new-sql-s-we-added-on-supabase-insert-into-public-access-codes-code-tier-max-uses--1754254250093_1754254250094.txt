@@ -1,0 +1,90 @@
+here's the new sql's we added on supabase
+
+insert into public.access_codes (code, tier, max_uses, expires_at)
+values ('DEV-ALPHA-2025', 'premium', 9999, null)
+on conflict (code) do nothing;
+
+---
+
+/* ---------- 1. PROFILES  ---------- */
+create table if not exists public.profiles (
+  id         uuid primary key references auth.users(id) on delete cascade,
+  name       text,
+  bio        text,
+  tier       text default 'free' check (tier in ('free','premium','lifetime')),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table public.profiles enable row level security;
+drop policy if exists profiles_rw on public.profiles;
+create policy profiles_rw
+  on public.profiles
+  for all using (id = auth.uid()) with check (id = auth.uid());
+
+-- auto-insert profile row at first sign-in
+create or replace function public.handle_new_user() returns trigger
+language plpgsql as $$
+begin
+  insert into public.profiles (id) values (new.id) on conflict do nothing;
+  return new;
+end $$;
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users for each row
+  execute function public.handle_new_user();
+
+/* ---------- 2. ACCESS_CODES  ---------- */
+create table if not exists public.access_codes (
+  code        text primary key,
+  tier        text not null check (tier in ('premium','lifetime')),
+  max_uses    integer default 1 check (max_uses > 0),
+  used_count  integer default 0,
+  expires_at  timestamptz,
+  created_at  timestamptz default now()
+);
+alter table public.access_codes enable row level security;
+drop policy if exists access_codes_block on public.access_codes;
+create policy access_codes_block
+  on public.access_codes
+  for all using (false);
+
+/* ---------- 3. REFRESH the existing table policies ---------- */
+-- NOTES, BOOKMARKS, HIGHLIGHTS, FORUM POSTS, FORUM VOTES
+-- (these blocks just make sure RLS is ON and policies match auth.uid())
+
+alter table public.user_notes   enable row level security;
+alter table public.bookmarks    enable row level security;
+alter table public.highlights   enable row level security;
+alter table public.forum_posts  enable row level security;
+alter table public.forum_votes  enable row level security;
+
+drop policy if exists notes_crud  on public.user_notes;
+create policy notes_crud
+  on public.user_notes
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists bms_crud    on public.bookmarks;
+create policy bms_crud
+  on public.bookmarks
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists hl_crud     on public.highlights;
+create policy hl_crud
+  on public.highlights
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists forum_posts_rw on public.forum_posts;
+create policy forum_posts_rw
+  on public.forum_posts
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists forum_votes_rw on public.forum_votes;
+create policy forum_votes_rw
+  on public.forum_votes
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+/* ---------- 4. STORAGE read-only bucket ---------- */
+drop policy if exists anon_read_anointed on storage.objects;
+create policy anon_read_anointed
+  on storage.objects
+  for select using (bucket_id = 'anointed');

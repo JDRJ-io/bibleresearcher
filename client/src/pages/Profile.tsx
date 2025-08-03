@@ -196,15 +196,10 @@ export default function Profile() {
                   <Button 
                     variant="outline" 
                     className="w-full"
-                    onClick={() => {
-                      toast({
-                        title: "Coming Soon",
-                        description: "Premium subscriptions will be available soon!",
-                      });
-                    }}
+                    onClick={() => setLocation('/dev')}
                   >
                     <Crown className="h-4 w-4 mr-2" />
-                    Upgrade to Premium
+                    Get Premium Access
                   </Button>
                 </div>
               )}
