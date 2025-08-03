@@ -11,110 +11,43 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the 'code' parameter from URL (modern PKCE flow)
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         
-        if (code) {
-          console.log('🔑 Found auth code, exchanging for session...');
-          console.log('Current URL:', window.location.href);
-          console.log('Auth code:', code);
-          
-          // Exchange the code for a session (PKCE flow)
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-          
-          if (error) {
-            console.error('❌ Code exchange error:', error);
-            console.error('Error details:', JSON.stringify(error, null, 2));
-            
-            // Log specific error types for debugging
-            if (error.message?.includes('redirect_url_mismatch')) {
-              console.error('❌ REDIRECT URL MISMATCH: The callback URL is not in Supabase whitelist');
-              setMessage('Authentication failed: redirect URL not configured. Please add your Replit URL to Supabase.');
-            } else if (error.message?.includes('invalid_grant') || error.message?.includes('expired_token')) {
-              console.error('❌ TOKEN EXPIRED: Magic link token has expired (>60 minutes)');
-              setMessage('Authentication failed: magic link expired. Please request a new one.');
-            } else {
-              setMessage(error.message || 'Authentication failed');
-            }
-            
-            setStatus('error');
-            setTimeout(() => setLocation('/'), 5000);
-            return;
-          }
-
-          if (data.session) {
-            console.log('✅ Authentication successful:', data.session.user?.email);
-            setStatus('success');
-            setMessage(`Welcome, ${data.session.user?.email}!`);
-            
-            // Clear the URL parameters
-            window.history.replaceState(null, '', window.location.pathname);
-            
-            // Check if this is a new user who needs to complete their profile
-            const isNewUser = data.session.user?.user_metadata?.isNewUser;
-            
-            // TODO: Check if profile exists/is complete
-            // For now, redirect new users to welcome page
-            const redirectPath = isNewUser ? '/welcome' : '/';
-            
-            // Redirect after a brief success message
-            setTimeout(() => setLocation(redirectPath), 2000);
-            return;
-          }
+        if (!code) {
+          console.log('No auth code found, redirecting to home');
+          setLocation('/');
+          return;
         }
 
-        // Fallback: Check for old hash-based tokens (legacy flow)
-        const hashFragment = window.location.hash;
-        if (hashFragment) {
-          const params = new URLSearchParams(hashFragment.substring(1));
-          const accessToken = params.get('access_token');
-          const refreshToken = params.get('refresh_token');
-          
-          if (accessToken && refreshToken) {
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-
-            if (error) {
-              console.error('❌ Legacy auth error:', error);
-              setStatus('error');
-              setMessage(error.message || 'Authentication failed');
-              setTimeout(() => setLocation('/'), 3000);
-              return;
-            }
-
-            if (data.session) {
-              console.log('✅ Legacy authentication successful:', data.session.user?.email);
-              setStatus('success');
-              setMessage(`Welcome, ${data.session.user?.email}!`);
-              
-              window.history.replaceState(null, '', window.location.pathname);
-              const isNewUser = data.session.user?.user_metadata?.isNewUser;
-              const redirectPath = isNewUser ? '/welcome' : '/';
-              setTimeout(() => setLocation(redirectPath), 2000);
-              return;
-            }
-          }
-        }
-
-        // Final fallback: try to get existing session
-        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('🔑 Processing PKCE auth code...');
+        
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
         
         if (error) {
-          console.error('❌ Session retrieval error:', error);
+          console.error('❌ Authentication error:', error);
           setStatus('error');
-          setMessage('Failed to retrieve session');
-        } else if (session) {
-          console.log('✅ Session found:', session.user?.email);
-          setStatus('success');
-          setMessage(`Welcome back, ${session.user?.email}!`);
-        } else {
-          setStatus('error');
-          setMessage('No active session found');
+          setMessage(error.message || 'Authentication failed');
+          setTimeout(() => setLocation('/'), 3000);
+          return;
         }
-        
+
+        if (data.session) {
+          console.log('✅ Authentication successful:', data.session.user?.email);
+          setStatus('success');
+          setMessage(`Welcome, ${data.session.user?.email}!`);
+          
+          // Clear URL parameters
+          window.history.replaceState(null, '', window.location.pathname);
+          
+          // Redirect to home after success
+          setTimeout(() => setLocation('/'), 2000);
+          return;
+        }
+
+        // If no session created, something went wrong
+        setStatus('error');
+        setMessage('No session created');
         setTimeout(() => setLocation('/'), 3000);
         
       } catch (error) {
