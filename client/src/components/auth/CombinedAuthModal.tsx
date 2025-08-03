@@ -5,8 +5,8 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { KeyRound, Mail, Sparkles, CheckCircle, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/hooks/use-toast";
+import { sendMagicLink } from "@/utils/auth";
 
 interface CombinedAuthModalProps {
   isOpen: boolean;
@@ -24,12 +24,7 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
-      });
+      const { error } = await sendMagicLink(email);
       
       if (error) throw error;
       
@@ -65,15 +60,7 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            isNewUser: true,
-          }
-        }
-      });
+      const { error } = await sendMagicLink(email);
       
       if (error) throw error;
       

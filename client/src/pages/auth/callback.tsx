@@ -17,15 +17,29 @@ export default function AuthCallback() {
         
         if (code) {
           console.log('🔑 Found auth code, exchanging for session...');
+          console.log('Current URL:', window.location.href);
+          console.log('Auth code:', code);
           
           // Exchange the code for a session (PKCE flow)
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
           
           if (error) {
             console.error('❌ Code exchange error:', error);
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            
+            // Log specific error types for debugging
+            if (error.message?.includes('redirect_url_mismatch')) {
+              console.error('❌ REDIRECT URL MISMATCH: The callback URL is not in Supabase whitelist');
+              setMessage('Authentication failed: redirect URL not configured. Please add your Replit URL to Supabase.');
+            } else if (error.message?.includes('invalid_grant') || error.message?.includes('expired_token')) {
+              console.error('❌ TOKEN EXPIRED: Magic link token has expired (>60 minutes)');
+              setMessage('Authentication failed: magic link expired. Please request a new one.');
+            } else {
+              setMessage(error.message || 'Authentication failed');
+            }
+            
             setStatus('error');
-            setMessage(error.message || 'Authentication failed');
-            setTimeout(() => setLocation('/'), 3000);
+            setTimeout(() => setLocation('/'), 5000);
             return;
           }
 

@@ -1,0 +1,80 @@
+ Let the SDK build the link – don’t hand-edit emails
+
+```ts
+// utils/auth.ts
+export async function sendMagicLink(email: string) {
+  const supabase = createBrowserSupabaseClient();
+  const redirectTo =
+    typeof window !== 'undefined'
+      ? `${location.origin}/auth/callback`
+      : 'https://b5a59dfe-…replit.dev/auth/callback';
+
+  return supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo }
+  });
+}
+```
+
+* The SDK automatically URL-encodes `redirect_to`.
+* It injects the correct scheme (`http` locally, `https` in Replit).
+
+---
+
+## 2  Callback page (exchange the code)
+
+```tsx
+// app/auth/callback/page.tsx
+'use client';
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function Callback() {
+  const params   = useSearchParams();
+  const router   = useRouter();
+  const supabase = createBrowserSupabaseClient();
+
+  useEffect(() => {
+    (async () => {
+      const code = params.get('code');
+      if (!code) return;
+
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) return alert(error.message);
+
+      router.replace('/');        // signed in, go home
+    })();
+  }, []);
+
+  return <p style={{padding:32}}>Signing you in…</p>;
+}
+```
+
+---
+
+## 3  Send a **fresh** magic link and click it once
+
+1. Clear out every earlier email – those tokens are tied to the old (bad) URL.
+2. Run your form, submit the email, open the brand-new message.
+3. The link should now look like
+
+```
+…/auth/v1/verify?token=…&type=magiclink&redirect_to=https%3A%2F%2Fb5a59dfe-…
+```
+
+> **Notice** the `redirect_to=` value is *URL-encoded* (slashes become `%2F`).
+> That’s the difference between a working link and the “requested path is invalid” you saw.
+
+---
+
+### Still seeing an error?
+
+* Open DevTools → **Network** → find the `POST /token?grant_type=pkce` call.
+
+  * `{"error":"redirect_url_mismatch"}` → callback not in whitelist → re-check step 1.
+  * `{"error":"invalid_grant"}` / `{"error":"expired_token"}` → you waited > 60 min or clicked the same link twice → send a new one.
+
+* Paste that JSON here and we can zero-in further.
+
+Once this round-trip works on Replit, the exact same settings & code will work on Vercel, Netlify, or any production host—just add the new domain to **Redirect URLs** before switching DNS.
