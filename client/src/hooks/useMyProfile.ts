@@ -46,12 +46,20 @@ export function useMyProfile() {
         setError(error.message);
         if (error) alert(`Profile error: ${error.message}`);  // Temporary alert
       } else {
-        setProfile(data || {
+        const profileData = data ? {
+          id: data.id || user.id,
+          name: data.name,
+          bio: data.bio,
+          tier: data.tier,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        } : {
           id: user.id,
           name: null,
           bio: null,
           tier: 'free'
-        });
+        };
+        setProfile(profileData);
       }
     } catch (err) {
       console.error('Unexpected error loading profile:', err);

@@ -203,7 +203,7 @@ export const onAuthStateChange = (callback: (event: string, session: any) => voi
 
 // Service role client for backend operations
 export const createSupabaseServiceClient = () => {
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  return createClient(supabaseUrl, supabaseAnon, {
     auth: {
       persistSession: false
     }
