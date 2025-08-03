@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useBibleStore } from '@/App';
 import Footer from "@/components/Footer";
 import { TopHeader } from '@/components/bible/TopHeader';
+import { useAuth } from '@/contexts/AuthContext';
+import Welcome from '@/pages/auth/Welcome';
 import VirtualBibleTable from '@/components/bible/VirtualBibleTable';
 import { StrongsOverlay } from '@/components/bible/StrongsOverlay';
 import { ProphecyDetailDrawer } from '@/components/bible/ProphecyDetailDrawer';
@@ -22,11 +24,20 @@ import type { BibleVerse } from '@/types/bible';
 
 export default function BiblePage() {
   const { store } = useBibleStore();
+  const { user, profile } = useAuth();
   const [selectedVerse, setSelectedVerse] = useState<BibleVerse | null>(null);
   const [selectedProphecyId, setSelectedProphecyId] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
   const tableRef = useRef<VirtualBibleTableHandle>(null);
+
+  // Show welcome modal for users without completed profiles
+  useEffect(() => {
+    if (user && profile !== null && !profile?.name) {
+      setIsWelcomeOpen(true);
+    }
+  }, [user, profile]);
 
   // Initialize body class and adaptive scaling
   useBodyClass('bible-page');
@@ -370,6 +381,12 @@ export default function BiblePage() {
         <HamburgerMenu 
           isOpen={isMenuOpen}
           onClose={handleMenuClose}
+        />
+
+        {/* Welcome Modal for Profile Completion */}
+        <Welcome 
+          isOpen={isWelcomeOpen}
+          onClose={() => setIsWelcomeOpen(false)}
         />
 
         {/* Subtle Footer */}

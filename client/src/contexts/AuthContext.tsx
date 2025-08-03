@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setProfile(null);
     }
-  }, [user]);
+  }, [user, refreshProfile]);
 
   return (
     <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile }}>

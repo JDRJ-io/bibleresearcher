@@ -18,6 +18,60 @@ const requireAuth = (req: any, res: any, next: any) => {
   next();
 };
 
+// Profile endpoints
+router.get('/profile', requireAuth, async (req: any, res) => {
+  try {
+    const [profile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, req.userId));
+    
+    if (!profile) {
+      // Create a default profile if it doesn't exist
+      const [newProfile] = await db
+        .insert(profiles)
+        .values({
+          id: req.userId,
+          tier: 'free'
+        })
+        .returning();
+      return res.json(newProfile);
+    }
+    
+    res.json(profile);
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+router.put('/profile', requireAuth, async (req: any, res) => {
+  try {
+    const validatedData = insertProfileSchema.omit({ id: true }).parse(req.body);
+    
+    const [profile] = await db
+      .insert(profiles)
+      .values({
+        id: req.userId,
+        ...validatedData,
+        updatedAt: new Date()
+      })
+      .onConflictDoUpdate({
+        target: profiles.id,
+        set: {
+          ...validatedData,
+          updatedAt: new Date()
+        }
+      })
+      .returning();
+    
+    res.json(profile);
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(400).json({ error: 'Failed to update profile' });
+  }
+});
+
 // Notes endpoints
 router.get('/notes', requireAuth, async (req: any, res) => {
   try {

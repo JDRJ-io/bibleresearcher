@@ -3,19 +3,21 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useAuth } from '@/contexts/AuthContext'
-import { User, LogOut, Heart } from 'lucide-react'
+import { User, LogOut, Heart, MessageSquare, Vote } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { useLocation } from 'wouter'
 
 interface UserProfileProps {
   className?: string
 }
 
 export function UserProfile({ className }: UserProfileProps) {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [, setLocation] = useLocation()
 
-  const displayName = user?.user_metadata?.display_name || user?.email || 'User'
+  const displayName = profile?.name || user?.user_metadata?.display_name || user?.email || 'User'
   const initials = displayName
     .split(' ')
     .map((name: string) => name.charAt(0))
@@ -70,6 +72,22 @@ export function UserProfile({ className }: UserProfileProps) {
         <DropdownMenuItem className="cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950/20">
           <User className="mr-2 h-4 w-4" />
           <span>My Profile</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem 
+          className="cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950/20"
+          onClick={() => setLocation('/forum')}
+        >
+          <MessageSquare className="mr-2 h-4 w-4" />
+          <span>Forum</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem 
+          className="cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950/20"
+          onClick={() => setLocation('/voting')}
+        >
+          <Vote className="mr-2 h-4 w-4" />
+          <span>Voting</span>
         </DropdownMenuItem>
         
         <DropdownMenuItem className="cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-950/20">

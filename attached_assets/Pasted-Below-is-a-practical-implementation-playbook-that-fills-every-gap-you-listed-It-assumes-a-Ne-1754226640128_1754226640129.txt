@@ -1,0 +1,248 @@
+Below is a **practical implementation playbook** that fills every gap you listed.  It assumes a **Next-13/14 “app/” router** with **Supabase JS v2**, **Zod**, and **Drizzle ORM** (feel free to swap in your own stack—patterns stay the same).
+
+---
+
+## 1  📦 Database & Migrations (first, unblock `npm run db:push`)
+
+| Step                                                             | What to do                                                                                                                                                                                                                                                                                                            | Why it fixes the block                                                                                         |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 1.1                                                              | **Make sure the remote URL is reachable**. In `.env.local` (client) **and** `.env` (server / migration runner) put:<br>`SUPABASE_URL=<project>.supabase.co`<br>`SUPABASE_ANON_KEY=…`<br>`SUPABASE_SERVICE_ROLE_KEY=…`<br>`DATABASE_URL=postgres://postgres:<SERVICE_ROLE_KEY>@db.<project>.supabase.co:5432/postgres` | Drizzle and Supabase CLI both read `DATABASE_URL`. A wrong host/port is the #1 “network connectivity” culprit. |
+| 1.2                                                              | Add **SSL mode flags** (Supabase requires) in `drizzle.config.ts`:<br>`ssl: require` or append `?sslmode=require` to `DATABASE_URL`.                                                                                                                                                                                  | Stops “handshake failed” errors on CI.                                                                         |
+| 1.3                                                              | Run once:  \`\`\`bash                                                                                                                                                                                                                                                                                                 |                                                                                                                |
+| npx supabase db reset --linked # drops & recreates in one shot   |                                                                                                                                                                                                                                                                                                                       |                                                                                                                |
+| npx drizzle-kit generate\:pg # creates SQL from shared/schema.ts |                                                                                                                                                                                                                                                                                                                       |                                                                                                                |
+| npx supabase db push \<supabase/migrations.sql>                  |                                                                                                                                                                                                                                                                                                                       |                                                                                                                |
+
+````| Guarantees the schema exists *before* you start the dev server. |
+
+---
+
+## 2  👤 `/api/users/profile` route (handler)  
+
+> _Why:_ AuthContext is already calling it; we just need it to exist.
+
+```ts
+// app/api/users/profile/route.ts
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { z } from 'zod';
+
+const Update = z.object({
+  name: z.string().min(2).optional(),
+  bio:  z.string().max(160).optional(),
+  tier: z.enum(['free', 'premium']).optional(),
+});
+
+export async function GET() {
+  const supabase = createRouteHandlerClient({ cookies });
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .single();
+  if (error) return Response.json({ error }, { status: 400 });
+  return Response.json(data);
+}
+
+export async function PUT(req: Request) {
+  const supabase = createRouteHandlerClient({ cookies });
+  const body = await req.json();
+  const update = Update.parse(body);   // throws on bad data
+  const {
+    data, error,
+  } = await supabase.from('profiles').update(update).eq('id', body.id).select();
+  if (error) return Response.json({ error }, { status: 400 });
+  return Response.json(data);
+}
+````
+
+---
+
+## 3  🎉 `Welcome.tsx` (profile-completion flow)
+
+```tsx
+// app/(auth)/welcome/page.tsx
+'use client';
+import { useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { ProfileForm } from '@/components/ProfileForm';
+
+export default function Welcome() {
+  const { user, profile, refreshProfile } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return router.replace('/');               // not signed in
+    if (profile?.name) return router.replace('/');       // already complete
+  }, [user, profile]);
+
+  return (
+    <main className="mx-auto max-w-md p-6">
+      <h1 className="text-2xl font-bold mb-4">Finish setting up</h1>
+      <ProfileForm
+        initial={profile}
+        onSave={async () => {
+          await refreshProfile();
+          router.replace('/');
+        }}
+      />
+    </main>
+  );
+}
+```
+
+*Wire it:* in `AuthContext`, after every session change:
+
+```ts
+if (session && !profile?.name && pathname !== '/welcome') router.push('/welcome');
+```
+
+---
+
+## 4  🔑 Premium Gating Integration (points-of-use)
+
+1. **Translation selector** (`TranslationDropdown.tsx`)
+
+   ```tsx
+   const { hasPremium } = usePremiumCheck();
+   const locked = !hasPremium && translation.isPremium;
+   <DropdownItem
+     disabled={locked}
+     onClick={() => locked ? openPremiumGate() : select(translation)}
+   >
+     {locked && <LockIcon className="mr-2" />}
+     {translation.name}
+   </DropdownItem>
+   ```
+
+2. **Forum pages** (next section) wrap in:
+
+   ```tsx
+   export default withPremiumGate(ForumPage);
+   ```
+
+`withPremiumGate` is a simple HOC that returns `<PremiumGate>{<Original />}</PremiumGate>`.
+
+---
+
+## 5  🗣 Forum Scaffolding (+ access control)
+
+### 5.1 Schema (Drizzle)
+
+```ts
+export const posts = pgTable('posts', {
+  id: serial('id').primaryKey(),
+  author_id: uuid('author_id').references(() => users.id),
+  title: text('title'),
+  body: text('body'),
+  created_at: timestamp('created_at').defaultNow(),
+});
+
+export const votes = pgTable('votes', {
+  user_id: uuid('user_id').references(() => users.id),
+  post_id: integer('post_id').references(() => posts.id),
+  value: integer('value').$type<-1 | 1>(),
+  primaryKey: (t) => [t.user_id, t.post_id],
+});
+```
+
+### 5.2 Routes
+
+```
+app/forum/page.tsx           // list view
+app/forum/[id]/page.tsx      // detail & comments
+app/api/forum/post/route.ts  // CRUD handlers
+```
+
+Use the same pattern as profile route; restrict mutations with:
+
+```ts
+if (!hasPremium) return NextResponse.json(
+  { error: 'Upgrade required' }, { status: 402 }
+);
+```
+
+### 5.3 Simple list page
+
+```tsx
+export const metadata = { title: 'Forum • Anointed.io' };
+
+export default async function ForumPage() {
+  const supabase = createServerComponentClient();
+  const { data: posts } = await supabase.from('posts')
+    .select('id, title, created_at, profiles(name)');
+  return (
+    <div className="max-w-3xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Community Forum</h1>
+      <ul className="space-y-4">
+        {posts?.map(p => (
+          <Link href={`/forum/${p.id}`} key={p.id} className="block p-4 border rounded-lg hover:bg-muted">
+            <h2 className="font-semibold">{p.title}</h2>
+            <p className="text-sm text-muted-foreground">
+              by {p.profiles?.name ?? 'Someone'} • {dayjs(p.created_at).fromNow()}
+            </p>
+          </Link>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+*You now have a navigable, gated forum placeholder ready to iterate.*
+
+---
+
+## 6  🔄 Data Flow Hooks (finish wiring)
+
+```ts
+// hooks/useProfile.ts
+export function useProfile() {
+  const { token } = useAuth();                       // from AuthContext
+  return useSWR(token ? '/api/users/profile' : null);
+}
+```
+
+Ensure **every component** needing profile loads via this SWR hook instead of `supabase.from('profiles')` calls everywhere; keeps caching consistent.
+
+---
+
+## 7  🧪 End-to-end Test Script (Playwright)
+
+```ts
+test('premium gating', async ({ page }) => {
+  await page.goto('/');
+  await page.getByText('Sign In').click();
+  await loginMagic(page, 'free@example.com');      // helper doing the email flow
+  await page.getByText('Translations').click();
+  await expect(page.getByText('AMP')).toHaveAttribute('aria-disabled', 'true');
+  await page.goto('/forum');
+  await expect(page.getByText('Upgrade to post')).toBeVisible();
+});
+```
+
+Run in CI after every push → prevents regressions.
+
+---
+
+## 8  🚀 Roll-out Checklist
+
+1. `pnpm run lint && pnpm run test` – green?
+2. `supabase secret set JWT_SECRET=$(openssl rand -base64 32)`
+3. `vercel env pull .env.production` (or Netlify/Render equivalents)
+4. `git tag v1.0.0 && git push --tags`
+
+---
+
+### What’s left?
+
+| Area                                 | Status                  |
+| ------------------------------------ | ----------------------- |
+| **Welcome Page**                     | ✅ now coded             |
+| **Profile API**                      | ✅ coded                 |
+| **Forum Infra**                      | ✅ schema + CRUD + pages |
+| **Premium Gate in Selector & Forum** | ✅ integrated            |
+| **Migrations**                       | ✅ run steps 1.1-1.3     |
+| **E2E tests**                        | ✅ sample Playwright     |
+
+You can copy-paste the snippets directly, run the migration commands, and the missing pieces will compile.  From here it’s pure UI/UX polish and iterative enhancement—exactly where you want to be.  Happy shipping!

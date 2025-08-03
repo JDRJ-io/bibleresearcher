@@ -7,8 +7,9 @@ import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
-import Welcome from "@/pages/auth/Welcome";
 import LoaderDemo from "@/pages/LoaderDemo";
+import Forum from "@/pages/Forum";
+import Voting from "@/pages/Voting";
 import NotFound from "@/pages/not-found";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
@@ -644,7 +645,8 @@ function Router() {
     <Switch>
       <Route path="/" component={BiblePage} />
       <Route path="/auth/callback" component={AuthCallback} />
-      <Route path="/welcome" component={Welcome} />
+      <Route path="/forum" component={Forum} />
+      <Route path="/voting" component={Voting} />
       <Route path="/loader-demo" component={LoaderDemo} />
 
       <Route component={NotFound} />
