@@ -31,7 +31,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
       alternate: 352,   // Same as main translation
       prophecy: 352,    // Same as main
       notes: 320,
-      context: 192
+      context: 120      // Thinner for landscape mode
     };
   }
 
