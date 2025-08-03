@@ -418,21 +418,32 @@ body {
 .virtual-bible-table {
   margin: 0 !important;
   padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .virtual-bible-table .tableInner {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .column-headers-wrapper {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .column-headers-inner {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure unified scroll container has no unexpected spacing */
+.unified-scroll-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Expert's adaptive portrait rule */

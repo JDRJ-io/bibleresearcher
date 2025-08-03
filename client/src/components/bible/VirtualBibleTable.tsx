@@ -579,7 +579,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Expert's CSS Grid handles overflow naturally - no manual scroll interference needed
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
+    <div className={`virtual-bible-table ${className}`} style={{ 
+      paddingTop: '0px', 
+      marginTop: '0px',
+      margin: '0',
+      padding: '0',
+      boxSizing: 'border-box'
+    }}>
       <NewColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
@@ -603,12 +609,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         style={{ 
           position: 'relative',
           height: "calc(100vh - 85px)",
-          overflow: 'auto', // Allow both directions naturally
+          overflow: 'auto',
           overscrollBehavior: 'contain',
           scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'auto' // Allow natural scrolling, we'll redirect it
+          touchAction: 'auto',
+          margin: '0',
+          padding: '0',
+          boxSizing: 'border-box'
         }}
         data-testid="bible-table"
       >
