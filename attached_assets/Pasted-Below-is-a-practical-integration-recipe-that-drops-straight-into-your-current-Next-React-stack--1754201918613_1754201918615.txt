@@ -1,0 +1,291 @@
+Below is a **practical integration recipe** that drops straight into your current Next/React stack.  It has two deliverables:
+
+1. **A single Zustand slice** that drives both the new locked-vs-carousel logic *and* the Context Lens side-pane.
+2. **A minimal component scaffold** (just stubs + props) so you can wire things without breaking the existing table or virtual-scroll code.
+
+Copy-paste the code blocks, then replace the  TODO  markers with your real loaders / rendering hooks.
+
+---
+
+## 1 State: `useLayoutStore.ts`
+
+```ts
+import create from 'zustand';
+
+export type ColumnId =
+  | 'ref'            // always in locked array – front-pinned
+  | 'dates'
+  | 'notes'
+  | 'main'
+  | 'crossRefs'
+  | 'prediction'
+  | 'verification'
+  | 'fulfillment'
+  | 'alt-1' | 'alt-2' | 'alt-3';   // whatever IDs you use
+
+type LayoutState = {
+  /* ----- column layout ----- */
+  locked: ColumnId[];      // pinned left – ordered
+  carousel: ColumnId[];    // scrollable set – ordered
+  start: number;           // first visible index inside carousel
+  /* derived selector you’ll use everywhere */
+  visible(windowPx: number): ColumnId[];
+
+  /* mutations */
+  pin(id: ColumnId): void;
+  unpin(id: ColumnId): void;
+  page(dir: -1 | 1, windowPx: number): void; // ← / →
+  /* ----- context lens ----- */
+  panelOpen: boolean;
+  panelVerse: string | null;           // 'Gen.1:1'
+  openPanel(verseKey: string): void;
+  closePanel(): void;
+};
+
+export const useLayoutStore = create<LayoutState>((set, get) => ({
+  /* defaults ---------------------------------------------------- */
+  locked: ['ref', 'dates', 'notes', 'main'],
+  carousel: [
+    'crossRefs',
+    'prediction',
+    'verification',
+    'fulfillment',
+    'alt-1',
+    'alt-2',
+    'alt-3',
+  ],
+  start: 0,
+
+  /* selectors --------------------------------------------------- */
+  visible: (windowPx) => {
+    const { locked, carousel, start } = get();
+    const PINNED_WIDTH =
+      locked.reduce((w, id) => w + COL_WIDTH[id], 0) + ARROW_GUTTER;
+    let avail = windowPx - PINNED_WIDTH;
+    const vis: ColumnId[] = [];
+    for (let i = start; i < carousel.length && avail > 0; i++) {
+      const id = carousel[i];
+      const w = COL_WIDTH[id];
+      if (w <= avail) {
+        vis.push(id);
+        avail -= w;
+      } else break;
+    }
+    return [...locked, ...vis];
+  },
+
+  /* mutations --------------------------------------------------- */
+  pin: (id) =>
+    set((s) => {
+      if (s.locked.includes(id)) return {};
+      return {
+        locked: [...s.locked, id],
+        carousel: s.carousel.filter((c) => c !== id),
+        start: 0,
+      };
+    }),
+  unpin: (id) =>
+    set((s) => {
+      if (id === 'ref' || !s.locked.includes(id)) return {};
+      const newLocked = s.locked.filter((l) => l !== id);
+      return {
+        locked: newLocked,
+        carousel: [...newLocked, id] /* keep order */,
+        start: 0,
+      };
+    }),
+  page: (dir, windowPx) =>
+    set((s) => {
+      const maxStart = Math.max(
+        0,
+        s.carousel.length -
+          /* how many fit */ get().visible(windowPx).length +
+          s.locked.length
+      );
+      return { start: Math.min(maxStart, Math.max(0, s.start + dir)) };
+    }),
+
+  /* context panel ----------------------------------------------- */
+  panelOpen: false,
+  panelVerse: null,
+  openPanel: (vk) => set({ panelOpen: true, panelVerse: vk }),
+  closePanel: () => set({ panelOpen: false, panelVerse: null }),
+}));
+
+/* ---------------------------------------------------------------
+   Column width tokens – keep these central so layout math
+   is identical everywhere
+---------------------------------------------------------------- */
+export const COL_WIDTH: Record<ColumnId, number> = {
+  ref: 80,
+  dates: 140,
+  notes: 320,
+  main: 320,
+  crossRefs: 360,
+  prediction: 360,
+  verification: 360,
+  fulfillment: 360,
+  'alt-1': 320,
+  'alt-2': 320,
+  'alt-3': 320,
+};
+
+const ARROW_GUTTER = 40;     // width of ← / → buttons
+```
+
+*All carousel math is now centralized*—no magic numbers scattered in components.
+
+---
+
+## 2 Carousel arrow buttons
+
+```tsx
+// ArrowPager.tsx
+import { useLayoutStore } from '@/state/useLayoutStore';
+
+export function ArrowPager({ windowPx }: { windowPx: number }) {
+  const { page, start, carousel, visible } = useLayoutStore((s) => ({
+    page: s.page,
+    start: s.start,
+    carousel: s.carousel,
+    visible: s.visible,
+  }));
+  const visCount = visible(windowPx).length - useLayoutStore.getState().locked.length;
+
+  const canLeft  = start > 0;
+  const canRight = start + visCount < carousel.length;
+
+  return (
+    <div className="absolute inset-y-0 flex items-center">
+      <button
+        disabled={!canLeft}
+        onClick={() => page(-1, windowPx)}
+        className="mx-1 disabled:opacity-30"
+      >
+        ←
+      </button>
+      <button
+        disabled={!canRight}
+        onClick={() => page(1, windowPx)}
+        className="mx-1 disabled:opacity-30"
+      >
+        →
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## 3 Context Lens skeleton
+
+```tsx
+// ContextLens.tsx
+import { createPortal } from 'react-dom';
+import { useLayoutStore } from '@/state/useLayoutStore';
+
+export default function ContextLens() {
+  const { panelOpen, panelVerse, closePanel } = useLayoutStore((s) => ({
+    panelOpen: s.panelOpen,
+    panelVerse: s.panelVerse,
+    closePanel: s.closePanel,
+  }));
+  if (!panelOpen || !panelVerse) return null;
+
+  return createPortal(
+    <aside
+      className="fixed lg:absolute right-0 top-0 h-full w-full lg:w-[34%] max-w-[480px] bg-white shadow-xl
+                 transition-transform duration-200"
+    >
+      <button
+        className="absolute top-2 right-2 text-xl"
+        onClick={closePanel}
+        aria-label="Close panel"
+      >
+        ✕
+      </button>
+
+      <PanelContent verseKey={panelVerse} />
+    </aside>,
+    document.body
+  );
+}
+
+/* ↓ stub for now */
+function PanelContent({ verseKey }: { verseKey: string }) {
+  /* TODO – fetch alt translations, Strong’s, refs, prophecy */
+  return (
+    <div className="p-4 space-y-4 overflow-y-auto h-full">
+      <Section title={verseKey}>
+        {/* main + alt translations */}
+      </Section>
+      <Section title="Strong’s Original Word Study">{/* ... */}</Section>
+      <Section title="Cross References">{/* ... */}</Section>
+      <Section title="Prophecy Connections">{/* ... */}</Section>
+    </div>
+  );
+}
+function Section({ title, children }: React.PropsWithChildren<{ title: string }>) {
+  return (
+    <div className="border rounded-lg p-2">
+      <h3 className="font-semibold mb-1">{title}</h3>
+      {children}
+    </div>
+  );
+}
+```
+
+---
+
+## 4 Hooking row clicks & viewport width
+
+```tsx
+/* Inside your VirtualBibleTable row renderer */
+const row = (
+  <tr
+    key={verseKey}
+    onClick={() => useLayoutStore.getState().openPanel(verseKey)}
+  >
+    {/* cells */}
+  </tr>
+);
+
+/* In parent component – measure viewport width */
+const [vpWidth, setVpWidth] = useState(window.innerWidth);
+useEffect(() => {
+  const onResize = () => setVpWidth(window.innerWidth);
+  window.addEventListener('resize', onResize);
+  return () => window.removeEventListener('resize', onResize);
+}, []);
+/* pass vpWidth to ArrowPager & visible() calls */
+```
+
+---
+
+## 5 Remove old axis-lock code
+
+1. Delete every `useNoDiagonal*.ts`, `wheelRouter.ts`, dual-container remnants.
+2. Set main scroll wrapper to:
+
+```css
+overflow-y: auto;
+overflow-x: hidden;
+```
+
+3. Make sure `.scrollContainer` no longer registers wheel / pointer handlers for X-axis.
+
+---
+
+## 6 Next micro-tasks
+
+| Task                                                 | Effort | Note                             |
+| ---------------------------------------------------- | ------ | -------------------------------- |
+| Wire `visible()` output to actual column render loop | 5 min  | Replace old width calc.          |
+| Implement real loaders in `PanelContent`             | 1–2 h  | Use existing Supabase helpers.   |
+| Persist `locked`, `carousel`, `start` per user       | 30 min | Supabase `profiles` JSON column. |
+| Keyboard: `[` / `]` pages carousel                   | 10 min | call `page(dir)` in key handler. |
+
+---
+
+That’s all you need to **compile & run** the new carousel logic **and** the Context Lens panel without breaking your lightning-fast vertical scroll.  Replace the TODO parts with your existing data fetchers and you’re live.  Ping me when you hit the next snag!
