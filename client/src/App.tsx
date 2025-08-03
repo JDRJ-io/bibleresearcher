@@ -133,7 +133,7 @@ export const useBibleStore = create<{
   showProphecies: false, // Default OFF for free users (cleaner mobile)
   showNotes: false,     // Notes column toggle
   showDates: false,     // Dates column toggle
-  showContext: false,   // Context boundaries toggle
+  showContext: true,    // Context boundaries toggle - enabled to show dates column
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
   isChronological: false,   // Verse order toggle (canonical vs chronological)

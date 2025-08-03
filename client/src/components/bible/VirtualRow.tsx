@@ -239,14 +239,17 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
     return <div className="text-gray-400 text-xs text-center py-1">-</div>;
   }
 
-  // Display text vertically (rotated 90 degrees counterclockwise) to match reference design
+  // Responsive text orientation: rotated on mobile, left-to-right on desktop
+  const isPortrait = window.innerHeight > window.innerWidth;
+  const shouldRotate = isMobile || isPortrait;
+
   return (
     <div className="flex items-center justify-center h-full w-full">
-        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight whitespace-nowrap"
+        <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight"
              style={{ 
                fontSize: '10px',
                lineHeight: '1.2',
-               transform: 'rotate(-90deg)',
+               transform: shouldRotate ? 'rotate(-90deg)' : 'none',
                transformOrigin: 'center',
                whiteSpace: 'nowrap',
                overflow: 'visible'
