@@ -11,24 +11,60 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the hash fragment from the URL
-        const hashFragment = window.location.hash;
+        // Get the 'code' parameter from URL (modern PKCE flow)
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
         
+        if (code) {
+          console.log('🔑 Found auth code, exchanging for session...');
+          
+          // Exchange the code for a session (PKCE flow)
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          
+          if (error) {
+            console.error('❌ Code exchange error:', error);
+            setStatus('error');
+            setMessage(error.message || 'Authentication failed');
+            setTimeout(() => setLocation('/'), 3000);
+            return;
+          }
+
+          if (data.session) {
+            console.log('✅ Authentication successful:', data.session.user?.email);
+            setStatus('success');
+            setMessage(`Welcome, ${data.session.user?.email}!`);
+            
+            // Clear the URL parameters
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            // Check if this is a new user who needs to complete their profile
+            const isNewUser = data.session.user?.user_metadata?.isNewUser;
+            
+            // TODO: Check if profile exists/is complete
+            // For now, redirect new users to welcome page
+            const redirectPath = isNewUser ? '/welcome' : '/';
+            
+            // Redirect after a brief success message
+            setTimeout(() => setLocation(redirectPath), 2000);
+            return;
+          }
+        }
+
+        // Fallback: Check for old hash-based tokens (legacy flow)
+        const hashFragment = window.location.hash;
         if (hashFragment) {
-          // Parse the access_token and refresh_token from the hash
           const params = new URLSearchParams(hashFragment.substring(1));
           const accessToken = params.get('access_token');
           const refreshToken = params.get('refresh_token');
           
           if (accessToken && refreshToken) {
-            // Set the session using the tokens
             const { data, error } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });
 
             if (error) {
-              console.error('❌ Auth callback error:', error);
+              console.error('❌ Legacy auth error:', error);
               setStatus('error');
               setMessage(error.message || 'Authentication failed');
               setTimeout(() => setLocation('/'), 3000);
@@ -36,28 +72,20 @@ export default function AuthCallback() {
             }
 
             if (data.session) {
-              console.log('✅ Authentication successful:', data.session.user?.email);
+              console.log('✅ Legacy authentication successful:', data.session.user?.email);
               setStatus('success');
               setMessage(`Welcome, ${data.session.user?.email}!`);
               
-              // Clear the hash from URL
               window.history.replaceState(null, '', window.location.pathname);
-              
-              // Check if this is a new user who needs to complete their profile
               const isNewUser = data.session.user?.user_metadata?.isNewUser;
-              
-              // TODO: Check if profile exists/is complete
-              // For now, redirect new users to welcome page
               const redirectPath = isNewUser ? '/welcome' : '/';
-              
-              // Redirect after a brief success message
               setTimeout(() => setLocation(redirectPath), 2000);
               return;
             }
           }
         }
 
-        // Fallback: try to get session normally
+        // Final fallback: try to get existing session
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {

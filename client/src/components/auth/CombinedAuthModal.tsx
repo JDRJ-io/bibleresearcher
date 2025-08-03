@@ -80,7 +80,7 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
       setMagicLinkSent(true);
       toast({
         title: "Welcome! Check your email",
-        description: `Magic link sent! If the link doesn't work, replace 'localhost:3000' with '${window.location.host}' in the URL.`,
+        description: "Magic link sent! Click the link in your email to complete authentication.",
         duration: 8000,
       });
       

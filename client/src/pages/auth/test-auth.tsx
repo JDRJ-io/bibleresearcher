@@ -1,25 +1,25 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function TestAuth() {
   const { user, session, loading } = useAuth();
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const addResult = (result: string) => {
-    setTestResults(prev => [...prev, result]);
+    setTestResults((prev) => [...prev, result]);
   };
 
   const testSupabaseConnection = async () => {
-    addResult('Testing Supabase connection...');
+    addResult("Testing Supabase connection...");
     try {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
         addResult(`❌ Connection error: ${error.message}`);
       } else {
-        addResult('✅ Supabase connection successful');
+        addResult("✅ Supabase connection successful");
         addResult(`Session exists: ${!!data.session}`);
         if (data.session) {
           addResult(`User email: ${data.session.user.email}`);
@@ -31,17 +31,17 @@ export default function TestAuth() {
   };
 
   const testManualAuth = async () => {
-    addResult('Testing manual authentication...');
-    const testEmail = 'test@example.com';
-    
+    addResult("Testing manual authentication...");
+    const testEmail = "jdrjacobus@yahoo.com";
+
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: testEmail,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
+        },
       });
-      
+
       if (error) {
         addResult(`❌ Auth test failed: ${error.message}`);
       } else {
@@ -79,7 +79,7 @@ export default function TestAuth() {
                 Clear Results
               </Button>
             </div>
-            
+
             <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
               <h3 className="font-semibold mb-2">Test Results:</h3>
               <div className="space-y-1 text-sm font-mono">
@@ -99,9 +99,9 @@ export default function TestAuth() {
                 Current Auth State:
               </h3>
               <div className="text-sm space-y-1">
-                <div>Loading: {loading ? 'Yes' : 'No'}</div>
-                <div>User: {user ? user.email : 'None'}</div>
-                <div>Session: {session ? 'Active' : 'None'}</div>
+                <div>Loading: {loading ? "Yes" : "No"}</div>
+                <div>User: {user ? user.email : "None"}</div>
+                <div>Session: {session ? "Active" : "None"}</div>
               </div>
             </div>
           </CardContent>

@@ -1,0 +1,151 @@
+### Why the link stalls
+
+1. **`redirect_to=http://localhost:3000` is invalid in production.**
+   Supabase’s auth server will happily send you to that URL, but the browser cannot resolve it when you’re on a phone or a hosted Replit instance—so it “hangs”.
+
+2. **The new domain must be allow-listed.**
+   Supabase blocks redirects to any URL *not* in **Auth → Settings → Redirect URLs**.
+   If `b5a59dfe-…riker.replit.dev` (your Replit preview domain) isn’t on that list, the request fails before your app ever loads.
+
+3. **Magic-link tokens expire quickly (default: 60 minutes).**
+   Copy-pasting an old URL usually produces a blank screen or “Invalid token” JSON.
+
+---
+
+## Quick fix in three minutes
+
+| Step  | Action                                                                                                                                                                                           |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **1** | **Add your Replit URL to Supabase** → *Dashboard → Auth → URL Configuration*<br>`https://b5a59dfe-123c-4bf8-be2f-a0f11519d56d-00-17yiegmsu8rtl.riker.replit.dev`                                 |
+| **2** | **Resend the magic link** using `emailRedirectTo`:<br>`ts<br>await supabase.auth.signInWithOtp({<br>  email,<br>  options: { emailRedirectTo: 'https://b5a59…replit.dev/auth/callback' }<br>});` |
+| **3** | **Open the fresh email and click once.**<br>Supabase will confirm the token and bounce you to `/auth/callback` on your Replit app, where you swap the `code` for a session.                      |
+
+*(If you absolutely must reuse the old email, replace the **redirect\_to** value in the query string before hitting Enter, but the token may already be expired.)*
+
+---
+
+## “Make this website” — a minimal working auth front-end on Replit
+
+Below is a single–file **Next 14** example (`app/`) that:
+
+* accepts the redirect from Supabase
+* exchanges the `code` param for a session
+* shows the user’s email & a “Sign out” button
+
+You can paste this into a fresh **Replit → Node + Next.js** template.
+
+```tsx
+// app/layout.tsx
+export const metadata = { title: 'Supabase Magic-Link Demo' };
+export default function Root({ children }) {
+  return <html><body className="font-sans">{children}</body></html>;
+}
+
+/* ---------- app/page.tsx (landing) ---------- */
+'use client';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
+
+export default function Home() {
+  const router = useRouter();
+  const supabase = createBrowserSupabaseClient();
+  const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState('');
+
+  async function send() {
+    setSending(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${location.origin}/auth/callback`
+      }
+    });
+    setSending(false);
+    if (error) setErr(error.message);
+    else alert('Check your inbox!');
+  }
+
+  return (
+    <main className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Magic-Link Login</h1>
+      <input
+        className="border p-2 w-full mb-4"
+        placeholder="you@example.com"
+        onChange={e => setEmail(e.target.value)}
+      />
+      <button
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+        disabled={sending}
+        onClick={send}
+      >
+        {sending ? 'Sending…' : 'Send Link'}
+      </button>
+      {err && <p className="text-red-600 mt-4">{err}</p>}
+    </main>
+  );
+}
+
+/* ---------- app/auth/callback/page.tsx ---------- */
+'use client';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
+
+export default function Callback() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const supabase = createBrowserSupabaseClient();
+  const [user, setUser] = useState<any>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      const code = params.get('code');
+      if (!code) return setError('Missing code');
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) return setError(error.message);
+      setUser(data.user);
+    })();
+  }, []);
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    router.push('/');
+  }
+
+  if (error) return <p className="p-6 text-red-600">{error}</p>;
+  if (!user)   return <p className="p-6">Signing you in…</p>;
+
+  return (
+    <main className="p-6">
+      <h1 className="text-xl mb-2">Welcome, {user.email}!</h1>
+      <button
+        className="bg-gray-800 text-white px-4 py-2 rounded"
+        onClick={signOut}
+      >
+        Sign out
+      </button>
+    </main>
+  );
+}
+```
+
+### Deploy on Replit
+
+1. **Secrets** → add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+2. `replit.nix` already installs Node 20—nothing else to tweak.
+3. Click **Run** → Replit gives you a `*.riker.replit.dev` URL.
+4. Paste that URL into **Auth → Redirect URLs** in Supabase.
+5. Visit the site, enter your email, and confirm the link. 🎉
+
+---
+
+#### What if it still doesn’t load?
+
+* **Console shows `XHR failed`** → `*.replit.dev` not on redirect list.
+* **Blank white page** → token expired; resend magic link.
+* **Supabase 404** → you opened the *verify* URL directly from Gmail after editing the hostname but forgot to URL-encode it (ampersands break Gmail’s link). Copy the whole URL into the browser’s address bar instead.
+
+Try the checklist above, and you’ll be logged in under 5 minutes—then you can layer in your full AuthContext, PremiumGate, etc. as described in the previous playbook. If you run into a specific console error, drop it here and we’ll squash it next.
