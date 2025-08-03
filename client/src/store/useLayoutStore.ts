@@ -145,9 +145,22 @@ export const useLayoutStore = create<LayoutState>()(
         
       page: (dir, windowPx) =>
         set((s) => {
-          const visibleCount = get().visible(windowPx).length - s.locked.length;
-          const newStart = s.start + (dir * Math.max(1, Math.floor(visibleCount)));
-          const maxStart = Math.max(0, s.carousel.length - visibleCount);
+          // Calculate visible count directly to avoid circular dependency
+          const PINNED_WIDTH = s.locked.reduce((w, id) => w + COL_WIDTH[id], 0) + ARROW_GUTTER;
+          let avail = windowPx - PINNED_WIDTH;
+          let visibleCount = 0;
+          
+          for (let i = s.start; i < s.carousel.length && avail > 0; i++) {
+            const id = s.carousel[i];
+            const w = COL_WIDTH[id];
+            if (w <= avail) {
+              visibleCount++;
+              avail -= w;
+            } else break;
+          }
+          
+          const newStart = s.start + (dir * Math.max(1, visibleCount));
+          const maxStart = Math.max(0, s.carousel.length - 1);
           return { start: Math.max(0, Math.min(maxStart, newStart)) };
         }),
 
