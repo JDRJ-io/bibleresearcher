@@ -579,13 +579,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Expert's CSS Grid handles overflow naturally - no manual scroll interference needed
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ 
-      paddingTop: '0px', 
-      marginTop: '0px',
-      margin: '0',
-      padding: '0',
-      boxSizing: 'border-box'
-    }}>
+    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
       <NewColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
@@ -597,7 +591,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         isGuest={true}
       />
 
-      {/* Unified scroll container - simplified for exact left alignment */}
+      {/* Unified scroll container with momentary axis commitment */}
       <div 
         ref={(node) => {
           (wrapperRef as any).current = node;
@@ -609,44 +603,32 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         style={{ 
           position: 'relative',
           height: "calc(100vh - 85px)",
-          overflow: 'auto',
+          overflow: 'auto', // Allow both directions naturally
           overscrollBehavior: 'contain',
+          scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'auto',
-          margin: '0',
-          padding: '0',
-          boxSizing: 'border-box'
+          touchAction: 'auto' // Allow natural scrolling, we'll redirect it
         }}
         data-testid="bible-table"
       >
-        {/* Content container - responsive alignment based on orientation */}
+        {/* Content container that can be larger than viewport in both dimensions */}
         <div 
           style={{ 
             minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
-            position: 'relative',
-            marginLeft: '0',
-            paddingLeft: '0',
-            borderCollapse: 'collapse',
-            borderSpacing: '0',
-            left: '0'
+            position: 'relative'
           }}
         >
-          {/* Smart centering - center in landscape if content fits, left-align in portrait or overflow */}
-          <div className="tableInner"
+          <div className="tableInner flex"
             style={{ 
-              minWidth: `${actualTotalWidth}px`,
-              width: `${actualTotalWidth}px`,
-              margin: shouldCenter ? '0 auto' : '0',
-              padding: '0',
-              borderCollapse: 'collapse',
-              borderSpacing: '0',
-              left: '0'
+              minWidth: 'max-content', // Natural content width for expert's system
+              width: 'max-content',    // Shrink-wrap to content
+              margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
             }}>
             <div style={{ 
-              minWidth: `${actualTotalWidth}px`,
-              width: `${actualTotalWidth}px`
+              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
