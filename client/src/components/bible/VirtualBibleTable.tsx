@@ -605,7 +605,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           height: "calc(100vh - 85px)",
           overflow: 'auto', // Allow both directions naturally
           overscrollBehavior: 'contain',
-          scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
           touchAction: 'auto' // Allow natural scrolling, we'll redirect it
