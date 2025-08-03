@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyProfile } from '@/hooks/useMyProfile';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,12 @@ import { Crown, User, Mail, Calendar, Save } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export default function Profile() {
-  const { user, profile, updateProfile, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading, save, error } = useMyProfile();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  const loading = authLoading || profileLoading;
   
   const [formData, setFormData] = useState({
     name: '',
@@ -40,14 +44,14 @@ export default function Profile() {
     
     setIsSaving(true);
     try {
-      await updateProfile(formData);
+      await save(formData);
       toast({
         title: "Profile updated",
         description: "Your profile has been saved successfully.",
       });
     } catch (error: any) {
       toast({
-        title: "Update failed",
+        title: "Update failed", 
         description: error.message || "Failed to update profile",
         variant: "destructive",
       });

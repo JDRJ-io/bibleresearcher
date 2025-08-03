@@ -16,6 +16,18 @@ import {
 } from 'lucide-react';
 
 export default function DevTools() {
+  // Hide DevTools in production unless explicitly enabled
+  if (import.meta.env.VITE_SHOW_DEVTOOLS !== 'true') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
+          <p className="text-muted-foreground">The page you're looking for doesn't exist.</p>
+        </div>
+      </div>
+    );
+  }
+
   const { user, profile, loading } = useAuth();
   const [, setLocation] = useLocation();
 
