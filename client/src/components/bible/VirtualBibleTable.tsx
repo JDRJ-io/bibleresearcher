@@ -640,8 +640,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               width: `${actualTotalWidth}px`,
               margin: shouldCenter ? '0 auto' : '0',
               padding: '0',
-              marginLeft: shouldCenter ? 'auto' : '0',
-              paddingLeft: '0',
               borderCollapse: 'collapse',
               borderSpacing: '0',
               left: '0'
