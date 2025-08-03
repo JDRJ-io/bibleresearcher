@@ -211,6 +211,15 @@
   line-height: 1 !important;
 }
 
+/* Force reference column to start exactly at left edge - no gaps */
+.column-header-cell[data-column="reference"],
+.bible-verse-row > div:first-child,
+[data-verse-ref] > div:first-child {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  border-left: none !important;
+}
+
 /* Dark mode border color */
 .dark .column-header-cell,
 .dark .virtual-row > div,

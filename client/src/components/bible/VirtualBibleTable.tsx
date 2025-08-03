@@ -626,7 +626,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           style={{ 
             minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
-            position: 'relative'
+            position: 'relative',
+            marginLeft: '0',
+            paddingLeft: '0'
           }}
         >
           {/* Remove centering logic - table content starts from left boundary */}
@@ -634,8 +636,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             style={{ 
               minWidth: `${actualTotalWidth}px`,
               width: `${actualTotalWidth}px`,
-              margin: '0', // Remove all margins - start from left edge
-              padding: '0' // Remove all padding
+              margin: '0',
+              padding: '0',
+              marginLeft: '0',
+              paddingLeft: '0'
             }}>
             <div style={{ 
               minWidth: `${actualTotalWidth}px`,

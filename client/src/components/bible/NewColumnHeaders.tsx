@@ -183,7 +183,9 @@ export function NewColumnHeaders({
         left: -scrollLeft,
         width: '100%',
         margin: '0',
-        padding: '0'
+        padding: '0',
+        marginLeft: '0',
+        paddingLeft: '0'
       }}
     >
       <div 
@@ -193,6 +195,8 @@ export function NewColumnHeaders({
           width: 'max-content',
           margin: '0',
           padding: '0',
+          marginLeft: '0',
+          paddingLeft: '0',
           boxSizing: 'border-box'
         }}
       >
