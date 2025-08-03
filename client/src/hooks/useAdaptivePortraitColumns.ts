@@ -28,7 +28,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
       reference: 72,    // 4.5rem equivalent
       mainTranslation: 352, // 22rem equivalent  
       crossReference: 288,  // 18rem equivalent
-      alternate: 320,   // 20rem equivalent
+      alternate: 352,   // Same as main translation
       prophecy: 352,    // Same as main
       notes: 320,
       context: 192
