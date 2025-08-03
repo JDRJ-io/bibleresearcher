@@ -209,6 +209,17 @@
   border-right: 1px solid #e5e7eb !important;
   font-size: var(--table-font-size, 0.75rem) !important;
   line-height: 1 !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+/* Force reference column to start exactly at left edge - no gaps */
+.column-header-cell[data-column="reference"],
+.bible-verse-row > div:first-child,
+[data-verse-ref] > div:first-child {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  border-left: none !important;
 }
 
 /* Dark mode border color */
@@ -412,6 +423,48 @@ body {
   display: grid;
   grid-auto-columns: max-content; /* keeps desktop sizing logic */
   grid-auto-flow: column;
+}
+
+/* VIRTUAL TABLE ALIGNMENT - Force alignment from left edge */
+.virtual-bible-table {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+.virtual-bible-table .tableInner {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+.column-headers-wrapper {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  left: 0 !important;
+}
+
+.column-headers-inner {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+/* Ensure unified scroll container has no unexpected spacing */
+.unified-scroll-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  left: 0 !important;
 }
 
 /* Expert's adaptive portrait rule */

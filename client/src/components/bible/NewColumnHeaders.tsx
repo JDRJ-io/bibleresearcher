@@ -181,7 +181,11 @@ export function NewColumnHeaders({
       className="column-headers-wrapper sticky top-0 z-20 bg-background border-b"
       style={{ 
         left: -scrollLeft,
-        width: '100%'
+        width: '100%',
+        margin: '0',
+        padding: '0',
+        marginLeft: '0',
+        paddingLeft: '0'
       }}
     >
       <div 
@@ -189,7 +193,11 @@ export function NewColumnHeaders({
         style={{ 
           minWidth: 'max-content',
           width: 'max-content',
-          margin: isPortrait ? '0' : '0 auto' // Match the tableInner margin
+          margin: '0',
+          padding: '0',
+          marginLeft: '0',
+          paddingLeft: '0',
+          boxSizing: 'border-box'
         }}
       >
         {columns.map((column) => (

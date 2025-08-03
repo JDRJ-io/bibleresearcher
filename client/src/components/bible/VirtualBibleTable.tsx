@@ -6,16 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NewColumnHeaders } from "./NewColumnHeaders";
-import { NewColumnHeadersWithLayout } from "./NewColumnHeadersWithLayout";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
 import { useAdaptiveWidths } from '@/hooks/useAdaptiveWidths';
 import { useOrientation } from '@/hooks/useOrientation';
 import { VirtualRow } from "./VirtualRow";
-import { VirtualRowWithLayout } from "./VirtualRowWithLayout";
-import { useLayoutStore } from '@/store/useLayoutStore';
-import ContextLens from "./ContextLens";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
@@ -457,9 +453,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Mobile detection for dual-column layout
   const isMobile = useIsMobile();
   
-  // Layout mode from store
-  const { mode } = useLayoutStore();
-  
   // Responsive column system
   const responsiveConfig = useResponsiveColumns();
   // Expert's lightweight CSS-first adaptive system
@@ -586,9 +579,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Expert's CSS Grid handles overflow naturally - no manual scroll interference needed
 
   return (
-    <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
-      {/* Use layout-aware headers */}
-      <NewColumnHeadersWithLayout 
+    <div className={`virtual-bible-table ${className}`} style={{ 
+      paddingTop: '0px', 
+      marginTop: '0px',
+      margin: '0',
+      padding: '0',
+      boxSizing: 'border-box'
+    }}>
+      <NewColumnHeaders 
         selectedTranslations={selectedTranslations}
         showNotes={preferences?.showNotes || false}
         showProphecy={showProphecies}
@@ -599,7 +597,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         isGuest={true}
       />
 
-      {/* Unified scroll container with momentary axis commitment */}
+      {/* Unified scroll container - simplified for exact left alignment */}
       <div 
         ref={(node) => {
           (wrapperRef as any).current = node;
@@ -611,32 +609,47 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         style={{ 
           position: 'relative',
           height: "calc(100vh - 85px)",
-          overflow: 'auto', // Allow both directions naturally
+          overflow: 'auto',
           overscrollBehavior: 'contain',
           scrollbarGutter: 'stable both-edges',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'auto' // Allow natural scrolling, we'll redirect it
+          touchAction: 'auto',
+          margin: '0',
+          padding: '0',
+          boxSizing: 'border-box'
         }}
         data-testid="bible-table"
       >
-        {/* Content container that can be larger than viewport in both dimensions */}
+        {/* Simplified content container - starts from absolute left edge */}
         <div 
           style={{ 
             minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
-            position: 'relative'
+            position: 'relative',
+            marginLeft: '0',
+            paddingLeft: '0',
+            borderCollapse: 'collapse',
+            borderSpacing: '0',
+            left: '0'
           }}
         >
-          <div className="tableInner flex"
+          {/* Remove centering logic - table content starts from left boundary */}
+          <div className="tableInner"
             style={{ 
-              minWidth: 'max-content', // Natural content width for expert's system
-              width: 'max-content',    // Shrink-wrap to content
-              margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
+              minWidth: `${actualTotalWidth}px`,
+              width: `${actualTotalWidth}px`,
+              margin: '0',
+              padding: '0',
+              marginLeft: '0',
+              paddingLeft: '0',
+              borderCollapse: 'collapse',
+              borderSpacing: '0',
+              left: '0'
             }}>
             <div style={{ 
-              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
+              minWidth: `${actualTotalWidth}px`,
+              width: `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
@@ -686,7 +699,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                   console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
                 }
                 return (
-                  <VirtualRowWithLayout 
+                  <VirtualRow 
                     key={id}
                     verseID={id}
                     verse={bibleVerse}
@@ -706,9 +719,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           </div>
         </div>
       </div>
-      
-      {/* Context Lens Panel - only render in context-lens mode */}
-      {mode === 'context-lens' && <ContextLens />}
     </div>
   );
 });

@@ -10,8 +10,8 @@ export function useLabeledText(
 ): Segment[] {
 
   return useMemo(() => {
-    if (!text || !activeLabels || activeLabels.length === 0) {
-      return [{ start: 0, end: text?.length || 0, mask: 0 }];
+    if (!text || activeLabels.length === 0) {
+      return [{ start: 0, end: text.length, mask: 0 }];
     }
 
     type Ev = { pos: number; bit: number; add: boolean };
@@ -46,5 +46,5 @@ export function useLabeledText(
     }
     if (last < text.length) segs.push({ start: last, end: text.length, mask });
     return segs;
-  }, [text, JSON.stringify(labelData), activeLabels?.join() || '']);
+  }, [text, JSON.stringify(labelData), activeLabels.join()]);
 }
