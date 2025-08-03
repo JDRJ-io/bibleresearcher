@@ -12,7 +12,7 @@ import { useLocation } from 'wouter';
 
 export default function Profile() {
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading, save, error } = useMyProfile();
+  const { profile, profileLoading, save, error } = useMyProfile();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -70,10 +70,9 @@ export default function Profile() {
     error 
   });
 
-  if (loading) {
+  if (profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div>Loading profile...</div>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p>Loading profile...</p>
