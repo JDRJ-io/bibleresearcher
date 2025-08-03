@@ -24,11 +24,12 @@ export default function Profile() {
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  // Temporarily comment out redirect to debug
   useEffect(() => {
-    if (!loading && !user) {
-      setLocation('/');
-      return;
-    }
+    // if (!loading && !user) {
+    //   setLocation('/');
+    //   return;
+    // }
     
     if (profile) {
       setFormData({
@@ -60,9 +61,19 @@ export default function Profile() {
     }
   };
 
+  // Debug render - show what's happening
+  console.log('🔍 Profile page render state:', { 
+    user: !!user, 
+    authLoading, 
+    profileLoading, 
+    profile: !!profile,
+    error 
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
+        <div>Loading profile...</div>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p>Loading profile...</p>
@@ -72,7 +83,22 @@ export default function Profile() {
   }
 
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>You need to sign in to access your profile</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-muted-foreground">Please return to the main page and sign in with your email to continue.</p>
+            <Button onClick={() => setLocation('/')} className="w-full">
+              Go to Main Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const isPremium = profile?.tier === 'premium';
