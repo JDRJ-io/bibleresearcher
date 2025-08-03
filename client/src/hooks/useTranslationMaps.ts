@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { masterCache } from '@/lib/supabaseBrowser';
+import { masterCache } from '@/lib/supabaseClient';
 import { preloadKJV, isKJVReady } from '@/lib/preloader';
 
 /**

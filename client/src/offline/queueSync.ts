@@ -1,5 +1,5 @@
 import { db } from './offlineDB';
-import { supabase } from '@/lib/supabaseBrowser';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function queueSync() {
   if (typeof window !== 'undefined' && 'serviceWorker' in window.navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
