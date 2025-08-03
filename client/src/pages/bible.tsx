@@ -292,7 +292,7 @@ export default function BiblePage() {
 
   return (
     <ThemeProvider>
-      <div className="bible-content-area min-h-screen bg-background" style={{ margin: '0', padding: '0' }}>
+      <div className="bible-content-area min-h-screen bg-background">
         <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
@@ -303,7 +303,7 @@ export default function BiblePage() {
           onMenuToggle={handleMenuToggle}
         />
 
-        <main className="flex-1 overflow-hidden relative" style={{ margin: '0', padding: '0' }}>
+        <main className="flex-1 overflow-hidden relative">
           <VirtualBibleTable
             ref={tableRef}
             verses={verses}
