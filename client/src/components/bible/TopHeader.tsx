@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book, Bookmark } from 'lucide-react';
+import { BookmarkButton } from '@/components/user/BookmarkButton';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfileDropdown } from '@/components/auth/UserProfileDropdown';
@@ -176,6 +177,7 @@ export function TopHeader({
             >
               <Search className="w-4 h-4" />
             </Button>
+            <BookmarkButton className="w-8 h-8 p-0" />
           </div>
 
           {/* Right: Auth + Menu */}

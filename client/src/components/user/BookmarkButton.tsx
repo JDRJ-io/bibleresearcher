@@ -1,159 +1,135 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Bookmark, BookmarkPlus, BookmarkCheck } from 'lucide-react';
-import { useCreateBookmark, useDeleteBookmark, useUserBookmarks } from '@/hooks/useUserData';
-import { useAuth } from '@/hooks/useAuth';
+import { Bookmark, BookmarkPlus } from 'lucide-react';
+import { useBookmarks } from '@/hooks/useBookmarks';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import type { Bookmark as BookmarkType } from '@shared/schema';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface BookmarkButtonProps {
-  verseRef: string;
-  indexValue: number;
   className?: string;
 }
 
-export function BookmarkButton({ verseRef, indexValue, className }: BookmarkButtonProps) {
-  const { isLoggedIn } = useAuth();
-  const { data: bookmarks = [] } = useUserBookmarks();
-  const createBookmark = useCreateBookmark();
-  const deleteBookmark = useDeleteBookmark();
+export function BookmarkButton({ className }: BookmarkButtonProps) {
+  const { user } = useAuth();
+  const { addBookmark, loading } = useBookmarks();
   const { toast } = useToast();
-  
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [bookmarkName, setBookmarkName] = useState('');
+  const [color, setColor] = useState('#ef4444');
 
-  // Check if this verse is already bookmarked
-  const existingBookmark = bookmarks.find(b => b.indexValue === indexValue);
-
-  if (!isLoggedIn) {
+  if (!user) {
     return null;
   }
 
-  const handleCreateBookmark = async () => {
+  const handleSaveBookmark = async () => {
     if (!bookmarkName.trim()) {
       toast({
-        title: "Missing title",
-        description: "Please enter a title for your bookmark",
+        title: "Error",
+        description: "Please enter a bookmark name",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      await createBookmark.mutateAsync({
-        name: bookmarkName,
-        indexValue,
-        color: '#ef4444', // Default red color
-        pending: false
+      await addBookmark(bookmarkName, color);
+      toast({
+        title: "Bookmark saved",
+        description: `"${bookmarkName}" has been bookmarked`
       });
-      
-      toast({ title: "Bookmark saved" });
-      setIsDialogOpen(false);
+      setIsOpen(false);
       setBookmarkName('');
+      setColor('#ef4444');
     } catch (error) {
-      toast({ 
+      toast({
         title: "Error", 
-        description: "Failed to save bookmark", 
-        variant: "destructive" 
+        description: "Failed to save bookmark",
+        variant: "destructive"
       });
     }
   };
 
-  const handleRemoveBookmark = async () => {
-    if (!existingBookmark) return;
-    
-    try {
-      await deleteBookmark.mutateAsync(existingBookmark.id);
-      toast({ title: "Bookmark removed" });
-    } catch (error) {
-      toast({ 
-        title: "Error", 
-        description: "Failed to remove bookmark", 
-        variant: "destructive" 
-      });
-    }
-  };
-
-  // Generate default bookmark name
-  const generateDefaultName = () => {
-    return `${verseRef} - ${new Date().toLocaleDateString()}`;
-  };
-
-  if (existingBookmark) {
-    return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleRemoveBookmark}
-        className={`p-1 h-auto text-amber-500 hover:text-amber-600 ${className}`}
-        disabled={deleteBookmark.isPending}
-        title={`Remove bookmark: ${existingBookmark.name}`}
-      >
-        <BookmarkCheck className="w-4 h-4" />
-      </Button>
-    );
-  }
+  const colorOptions = [
+    '#ef4444', // red
+    '#f59e0b', // amber
+    '#10b981', // emerald
+    '#3b82f6', // blue
+    '#8b5cf6', // violet
+    '#ec4899', // pink
+  ];
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
-          className={`p-1 h-auto text-muted-foreground hover:text-amber-500 ${className}`}
-          title="Add bookmark"
-          onClick={() => {
-            setBookmarkName(generateDefaultName());
-            setIsDialogOpen(true);
-          }}
+          className={`text-muted-foreground hover:text-foreground ${className}`}
         >
           <BookmarkPlus className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Bookmark className="w-5 h-5 text-amber-500" />
-            Save Bookmark
-          </DialogTitle>
+          <DialogTitle>Save Bookmark</DialogTitle>
+          <DialogDescription>
+            Save your current reading position for quick access later.
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="bookmark-name">Bookmark Title</Label>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <label htmlFor="bookmark-name" className="text-sm font-medium">
+              Bookmark Name
+            </label>
             <Input
               id="bookmark-name"
               value={bookmarkName}
               onChange={(e) => setBookmarkName(e.target.value)}
-              placeholder="Enter a title for this bookmark"
-              autoFocus
+              placeholder="Enter bookmark name..."
+              className="w-full"
             />
           </div>
-          
-          <div className="text-sm text-muted-foreground">
-            <strong>Location:</strong> {verseRef}
-          </div>
-          
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setIsDialogOpen(false)}
-              disabled={createBookmark.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateBookmark}
-              disabled={createBookmark.isPending}
-            >
-              {createBookmark.isPending ? 'Saving...' : 'Save Bookmark'}
-            </Button>
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Color</label>
+            <div className="flex gap-2">
+              {colorOptions.map((colorOption) => (
+                <button
+                  key={colorOption}
+                  onClick={() => setColor(colorOption)}
+                  className={`w-8 h-8 rounded-full border-2 ${
+                    color === colorOption ? 'border-foreground' : 'border-muted'
+                  }`}
+                  style={{ backgroundColor: colorOption }}
+                />
+              ))}
+            </div>
           </div>
         </div>
+        <DialogFooter>
+          <Button 
+            variant="outline" 
+            onClick={() => setIsOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveBookmark}
+            disabled={loading || !bookmarkName.trim()}
+          >
+            <Bookmark className="w-4 h-4 mr-2" />
+            Save Bookmark
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

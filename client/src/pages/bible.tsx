@@ -18,6 +18,7 @@ import { useLoadingDetection } from '@/hooks/useLoadingDetection';
 import { ThemeProvider } from '@/components/bible/ThemeProvider';
 import { useVerseNav } from '@/hooks/useVerseNav';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { useReadingState } from '@/hooks/useReadingState';
 import type { VirtualBibleTableHandle } from '@/components/bible/VirtualBibleTable';
 
 import type { BibleVerse } from '@/types/bible';
@@ -74,6 +75,9 @@ export default function BiblePage() {
   }, []);
   
   const { goTo, goBack, goForward, canGoBack, canGoForward } = useVerseNav(scrollToVerse);
+  
+  // Initialize reading state management
+  useReadingState();
 
   // Handle URL parameters
   const { hashParams, updateHashParams } = useHashParams();
