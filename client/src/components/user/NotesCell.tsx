@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Save, Edit3, X } from 'lucide-react';
-import { useCreateNote, useUpdateNote, useDeleteNote, useUserNotes } from '@/hooks/useUserData';
-import { useAuth } from '@/hooks/useAuth';
+import { useNotes } from '@/hooks/useNotes';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import type { UserNote } from '@shared/schema';
+import type { Note } from '@shared/schema';
 
 interface NotesCellProps {
   verseRef: string;
@@ -13,25 +13,22 @@ interface NotesCellProps {
 }
 
 export function NotesCell({ verseRef, className }: NotesCellProps) {
-  const { isLoggedIn } = useAuth();
-  const { data: notes = [], isLoading } = useUserNotes();
-  const createNote = useCreateNote();
-  const updateNote = useUpdateNote();
-  const deleteNote = useDeleteNote();
+  const { user } = useAuth();
+  const { notes, loading, addNote, updateNote, deleteNote } = useNotes(verseRef);
   const { toast } = useToast();
   
   const [noteText, setNoteText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [existingNote, setExistingNote] = useState<UserNote | null>(null);
+  const [existingNote, setExistingNote] = useState<Note | null>(null);
 
   // Find existing note for this verse
   useEffect(() => {
-    const note = notes.find(n => n.verseRef === verseRef);
-    setExistingNote(note || null);
-    setNoteText(note?.note || '');
-  }, [notes, verseRef]);
+    const note = notes[0] || null; // First note since we're filtering by verse
+    setExistingNote(note);
+    setNoteText(note?.text || '');
+  }, [notes]);
 
-  if (!isLoggedIn) {
+  if (!user) {
     return (
       <div className={`p-2 text-sm text-muted-foreground ${className}`}>
         Sign in to add notes
@@ -39,7 +36,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
     );
   }
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className={`p-2 ${className}`}>
         <div className="animate-pulse bg-muted rounded h-8"></div>
@@ -52,7 +49,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
       if (existingNote) {
         // Delete empty note
         try {
-          await deleteNote.mutateAsync(existingNote.id);
+          await deleteNote(existingNote.id);
           toast({ title: "Note deleted" });
         } catch (error) {
           toast({ 
@@ -68,10 +65,10 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
 
     try {
       if (existingNote) {
-        await updateNote.mutateAsync({ id: existingNote.id, note: noteText });
+        await updateNote(existingNote.id, noteText);
         toast({ title: "Note updated" });
       } else {
-        await createNote.mutateAsync({ verseRef, note: noteText });
+        await addNote(noteText);
         toast({ title: "Note saved" });
       }
       setIsEditing(false);
@@ -85,7 +82,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
   };
 
   const handleCancel = () => {
-    setNoteText(existingNote?.note || '');
+    setNoteText(existingNote?.text || '');
     setIsEditing(false);
   };
 
@@ -93,7 +90,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
     if (!existingNote) return;
     
     try {
-      await deleteNote.mutateAsync(existingNote.id);
+      await deleteNote(existingNote.id);
       toast({ title: "Note deleted" });
     } catch (error) {
       toast({ 
@@ -127,7 +124,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
           className="text-sm cursor-pointer p-2 rounded hover:bg-muted"
           onClick={() => setIsEditing(true)}
         >
-          {existingNote?.note}
+          {existingNote?.text}
         </div>
       </div>
     );
@@ -147,7 +144,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
           size="sm"
           variant="ghost"
           onClick={handleCancel}
-          disabled={createNote.isPending || updateNote.isPending}
+          disabled={loading}
         >
           <X className="w-3 h-3" />
         </Button>
@@ -156,7 +153,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
             size="sm"
             variant="ghost"
             onClick={handleDelete}
-            disabled={deleteNote.isPending}
+            disabled={loading}
             className="text-destructive hover:text-destructive"
           >
             Delete
@@ -165,7 +162,7 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
         <Button
           size="sm"
           onClick={handleSave}
-          disabled={createNote.isPending || updateNote.isPending}
+          disabled={loading}
         >
           <Save className="w-3 h-3" />
         </Button>

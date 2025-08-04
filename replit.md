@@ -31,6 +31,12 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - AuthContext with full session management and profile synchronization
   - Sign-in button disappears when authenticated, replaced with profile avatar
   - **Critical Fix (Aug 2025)**: Resolved circular dependency in useMyProfile hook by passing user/authLoading as parameters instead of calling useAuth() inside the hook, enabling proper profile loading and form functionality
+- **Notes System Optimization (Aug 2025)**:
+  - Migrated from global notes loading to verse-specific filtering
+  - Updated schema from `user_notes` table to `notes` table with better structure
+  - Implemented new `useNotes(verseRef)` hook for efficient verse-specific note management
+  - Real-time local state updates after CRUD operations
+  - Improved performance by loading only relevant notes per verse
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.
