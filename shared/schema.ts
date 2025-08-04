@@ -40,10 +40,11 @@ export const highlights = pgTable("highlights", {
   id: serial("id").primaryKey(),
   user_id: uuid("user_id").references(() => users.id).notNull(),
   verse_ref: text("verse_ref").notNull(),
-  start_idx: smallint("start_idx").notNull(),
-  end_idx: smallint("end_idx").notNull(),
-  color: text("color").notNull(),
-  pending: boolean("pending").default(true), // Enables conflict-free sync
+  translation: text("translation").notNull(),
+  start_pos: smallint("start_pos").notNull(),
+  end_pos: smallint("end_pos").notNull(),
+  color_hsl: text("color_hsl").notNull(),
+  pending: boolean("pending").default(false), // Enables conflict-free sync
 });
 
 export const forumPosts = pgTable("forum_posts", {

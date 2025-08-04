@@ -24,10 +24,10 @@ export function useHighlights(verseRef?: string) {
     try {
       const { data, error } = await supabase
         .from('highlights')
-        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending')
+        .select('id, user_id, verse_ref, translation, start_pos, end_pos, color_hsl, pending')
         .eq('user_id', user.id)
         .eq('verse_ref', verseRef)
-        .order('start_idx', { ascending: true });
+        .order('start_pos', { ascending: true });
 
       if (error) throw error;
       setHighlights((data as Highlight[]) || []);
@@ -38,28 +38,29 @@ export function useHighlights(verseRef?: string) {
     }
   };
 
-  const addHighlight = async (startIdx: number, endIdx: number, color: string) => {
+  const addHighlight = async (translation: string, startPos: number, endPos: number, colorHsl: string) => {
     if (!user || !verseRef) return;
 
     try {
       const newHighlight = {
         user_id: user.id,
         verse_ref: verseRef,
-        start_idx: startIdx,
-        end_idx: endIdx,
-        color,
+        translation,
+        start_pos: startPos,
+        end_pos: endPos,
+        color_hsl: colorHsl,
         pending: false
       };
 
       const { data, error } = await supabase
         .from('highlights')
         .insert(newHighlight)
-        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending')
+        .select('id, user_id, verse_ref, translation, start_pos, end_pos, color_hsl, pending')
         .single();
 
       if (error) throw error;
 
-      setHighlights(prev => [...prev, data as Highlight].sort((a, b) => a.startIdx - b.startIdx));
+      setHighlights(prev => [...prev, data as Highlight].sort((a, b) => a.start_pos - b.start_pos));
       return data;
     } catch (error) {
       console.error('Error adding highlight:', error);
@@ -86,16 +87,16 @@ export function useHighlights(verseRef?: string) {
     }
   };
 
-  const updateHighlightColor = async (id: number, color: string) => {
+  const updateHighlightColor = async (id: number, colorHsl: string) => {
     if (!user) return;
 
     try {
       const { data, error } = await supabase
         .from('highlights')
-        .update({ color })
+        .update({ color_hsl: colorHsl })
         .eq('id', id)
         .eq('user_id', user.id)
-        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending')
+        .select('id, user_id, verse_ref, translation, start_pos, end_pos, color_hsl, pending')
         .single();
 
       if (error) throw error;

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { HighlightProvider } from "@/contexts/HighlightContext";
 import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
 import LoaderDemo from "@/pages/LoaderDemo";
@@ -680,11 +681,12 @@ function App() {
           enablePerformanceMode={enablePerformanceMode()}
           defaultTheme="light"
         >
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-
-          </TooltipProvider>
+          <HighlightProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </HighlightProvider>
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>

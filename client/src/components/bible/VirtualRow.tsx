@@ -11,6 +11,7 @@ import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
 import { NotesCell } from '@/components/user/NotesCell';
+import { VerseText } from '@/components/highlights/VerseText';
 
 
 
@@ -366,17 +367,31 @@ function MainTranslationCell({
   return (
     <div className={`px-2 py-1 text-sm leading-tight cell-content h-full max-h-full ${contextClasses}`}>
       {shouldUseLabeledText ? (
-        <LabeledText
-          text={verseText}
-          labelData={verseLabels}
-          activeLabels={activeLabels}
-          verseKey={verse.reference}
-          translationCode={mainTranslation}
-        />
+        <span
+          data-verse-ref={verse.reference}
+          data-translation={mainTranslation}
+          className="verse-text"
+        >
+          <LabeledText
+            text={verseText}
+            labelData={verseLabels}
+            activeLabels={activeLabels}
+            verseKey={verse.reference}
+            translationCode={mainTranslation}
+          />
+        </span>
       ) : (
-        <div className="h-full">
-          {verseText}
-        </div>
+        <span
+          data-verse-ref={verse.reference}
+          data-translation={mainTranslation}
+          className="verse-text h-full"
+        >
+          <VerseText
+            verseRef={verse.reference}
+            translation={mainTranslation}
+            text={verseText}
+          />
+        </span>
       )}
     </div>
   );
