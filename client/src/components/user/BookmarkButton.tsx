@@ -86,7 +86,7 @@ export function BookmarkButton({ className }: BookmarkButtonProps) {
         <Button
           variant="ghost"
           size="sm"
-          className={`text-muted-foreground hover:text-foreground ${className}`}
+          className={`text-muted-foreground hover:text-foreground ${className || ''}`}
           onClick={handleOpenDialog}
         >
           <BookmarkPlus className="w-4 h-4" />

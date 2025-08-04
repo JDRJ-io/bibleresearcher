@@ -178,6 +178,12 @@ export function TopHeader({
               <Search className="w-4 h-4" />
             </Button>
             <BookmarkButton className="w-8 h-8 p-0" />
+            {/* Debug: Check if user is available for bookmark */}
+            {!user && (
+              <span className="text-xs text-muted-foreground ml-1" title="Sign in to save bookmarks">
+                (Sign in)
+              </span>
+            )}
           </div>
 
           {/* Right: Auth + Menu */}

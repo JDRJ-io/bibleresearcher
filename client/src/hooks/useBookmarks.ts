@@ -8,10 +8,17 @@ export function useBookmarks() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  // Get current position from URL or localStorage
+  // Get current position from reading state or fallback to 0
   const getCurrentIndex = () => {
-    const saved = JSON.parse(localStorage.getItem('readingState') ?? 'null');
-    return saved?.anchorIndex || 0;
+    try {
+      const saved = JSON.parse(localStorage.getItem('readingState') ?? 'null');
+      const anchorIndex = saved?.anchorIndex || 0;
+      console.log('useBookmarks: getCurrentIndex returning:', anchorIndex, 'from readingState:', saved);
+      return anchorIndex;
+    } catch (error) {
+      console.error('useBookmarks: Error reading readingState:', error);
+      return 0;
+    }
   };
 
   useEffect(() => {
@@ -50,16 +57,24 @@ export function useBookmarks() {
   };
 
   const addBookmark = async (name: string, color = '#ef4444') => {
-    if (!user) return;
+    if (!user) {
+      console.error('useBookmarks: No user available for bookmark save');
+      return;
+    }
+
+    const currentIndex = getCurrentIndex();
+    console.log('useBookmarks: Creating bookmark with index:', currentIndex);
 
     try {
       const newBookmark = {
         user_id: user.id,
         name,
-        index_value: getCurrentIndex(),
+        index_value: currentIndex,
         color,
         pending: false
       };
+
+      console.log('useBookmarks: Inserting bookmark:', newBookmark);
 
       const { data, error } = await supabase
         .from('bookmarks')
