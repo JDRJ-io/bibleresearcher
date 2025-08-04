@@ -42,6 +42,12 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Seamless Notes**: Auto-save notes with 500ms debounce, no manual save buttons, vertical scrollbar for overflow
   - **Bookmark System**: BookmarkButton integrated in TopHeader, save with custom names and colors
   - **Text Highlighting**: HighlightedText component with color wheel overlay on text selection, theme-adaptive colors
+- **Bookmark System Unified (Aug 2025)**:
+  - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
+  - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes
+  - **Schema Consistency**: Fixed field name mismatches (index_value vs indexValue) ensuring proper data access
+  - **Query Cache Unification**: Both components use same TanStack Query cache keys for real-time synchronization
+  - **Full CRUD Operations**: Create, read, update, delete bookmarks with proper user authentication and error handling
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.
