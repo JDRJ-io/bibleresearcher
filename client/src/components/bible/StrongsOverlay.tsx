@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { Separator } from '@/components/ui/separator';
 import { BibleDataAPI } from '@/data/BibleDataAPI';
 import { BibleVerse, StrongsWord } from '@/types/bible';
@@ -245,6 +245,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                     exit={{ y: "100%" }}
                     transition={{ type: "spring", damping: 30, stiffness: 300 }}
                     className="absolute inset-x-0 bottom-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-2xl border-t flex flex-col max-h-[70vh] z-10"
+                    style={{ touchAction: 'pan-y' }}
                   >
                     {/* Handle bar */}
                     <div className="flex justify-center py-2">
@@ -287,39 +288,44 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       />
                     </div>
 
-                    {/* Scrollable results */}
-                    <div className="flex-1 overflow-hidden">
-                      <ScrollArea className="h-full">
-                        <div className="p-4 space-y-3">
-                          {filteredOccurrences.length > 0 ? (
-                            filteredOccurrences.map((occurrence, index) => (
-                              <button
-                                key={`${occurrence.reference}-${index}`}
-                                onClick={() => goTo(occurrence.reference)}
-                                className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
-                              >
-                                <div className="flex items-center justify-between mb-3">
-                                  <Badge variant="outline" className="font-mono text-sm px-3 py-1">
-                                    {occurrence.reference}
-                                  </Badge>
-                                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                                </div>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
-                                  {occurrence.context}
-                                </p>
-                              </button>
-                            ))
-                          ) : searchQuery ? (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                              No occurrences match "{searchQuery}"
-                            </p>
-                          ) : (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                              Loading occurrences...
-                            </p>
-                          )}
-                        </div>
-                      </ScrollArea>
+                    {/* Scrollable results - Native mobile scrolling */}
+                    <div 
+                      className="flex-1 overflow-y-auto overscroll-contain" 
+                      style={{ 
+                        WebkitOverflowScrolling: 'touch',
+                        WebkitScrollBehavior: 'smooth',
+                        scrollBehavior: 'smooth'
+                      }}
+                    >
+                      <div className="p-4 space-y-3">
+                        {filteredOccurrences.length > 0 ? (
+                          filteredOccurrences.map((occurrence, index) => (
+                            <button
+                              key={`${occurrence.reference}-${index}`}
+                              onClick={() => goTo(occurrence.reference)}
+                              className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
+                            >
+                              <div className="flex items-center justify-between mb-3">
+                                <Badge variant="outline" className="font-mono text-sm px-3 py-1">
+                                  {occurrence.reference}
+                                </Badge>
+                                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                                {occurrence.context}
+                              </p>
+                            </button>
+                          ))
+                        ) : searchQuery ? (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
+                            No occurrences match "{searchQuery}"
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
+                            Loading occurrences...
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 )}
