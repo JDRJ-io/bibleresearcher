@@ -205,7 +205,16 @@ export function TopHeader({
             >
               <Search className="w-4 h-4" />
             </Button>
-            <BookmarkButton className="w-8 h-8 p-0" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-8 h-8 p-0"
+              onClick={handleSaveBookmark}
+              disabled={createBookmarkMutation.isPending}
+              title="Save current reading position"
+            >
+              <Bookmark className="w-3 h-3" />
+            </Button>
             {/* Debug: Check if user is available for bookmark */}
             {!user && (
               <span className="text-xs text-muted-foreground ml-1" title="Sign in to save bookmarks">
