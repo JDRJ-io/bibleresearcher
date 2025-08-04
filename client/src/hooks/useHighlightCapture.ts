@@ -9,12 +9,20 @@ export function useHighlightCapture(onSelect: (info: SelectionInfo) => void) {
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !user) return; // Don't show for non-logged users
 
-      // Ensure selection starts *inside* a verse-text span
-      const anchorEl = sel.anchorNode?.parentElement;
-      if (!anchorEl?.classList.contains('verse-text')) return;
+      // Ensure selection is inside a verse-text span (check both anchor node and parent)
+      let verseTextEl = sel.anchorNode?.parentElement;
+      if (!verseTextEl?.classList.contains('verse-text')) {
+        // Try checking if the anchor node itself has the class
+        verseTextEl = sel.anchorNode as HTMLElement;
+        if (!verseTextEl?.classList?.contains('verse-text')) {
+          // Try finding the closest verse-text parent
+          verseTextEl = (sel.anchorNode as HTMLElement)?.closest?.('.verse-text') as HTMLElement;
+          if (!verseTextEl) return;
+        }
+      }
 
-      const verseRef = anchorEl.dataset.verseRef!;
-      const translation = anchorEl.dataset.translation!;
+      const verseRef = verseTextEl.dataset.verseRef!;
+      const translation = verseTextEl.dataset.translation!;
       const start = sel.anchorOffset;
       const end = sel.focusOffset;
 

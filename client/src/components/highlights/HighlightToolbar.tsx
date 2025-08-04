@@ -13,6 +13,50 @@ export function HighlightToolbar({ sel, onClose }: {
   const { user } = useAuth();
   if (!sel) return null;
 
+  async function removeHighlight() {
+    if (!user || !sel) return;
+    
+    try {
+      console.log('🗑️ Removing highlights for selection:', {
+        verse_ref: sel.verseRef,
+        translation: sel.translation,
+        start_pos: sel.startPos,
+        end_pos: sel.endPos,
+      });
+
+      // Find and delete any overlapping highlights
+      const { error } = await supabase
+        .from('highlights')
+        .delete()
+        .eq('verse_ref', sel.verseRef)
+        .eq('translation', sel.translation)
+        .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`);
+
+      if (error) {
+        console.error('❌ Error removing highlight:', error);
+        throw error;
+      }
+
+      console.log('✅ Highlight removed successfully');
+      
+      // Invalidate and refetch highlights for this verse
+      queryClient.invalidateQueries({ 
+        queryKey: ['highlights', sel.verseRef, sel.translation] 
+      });
+      
+      // Clear the text selection after removing
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('💥 Failed to remove highlight:', error);
+      onClose();
+    }
+  }
+
   async function save(col: string) {
     if (!user || !sel) return;
     
@@ -26,6 +70,15 @@ export function HighlightToolbar({ sel, onClose }: {
         auth_user: user.id
       });
 
+      // First remove any overlapping highlights to prevent conflicts
+      await supabase
+        .from('highlights')
+        .delete()
+        .eq('verse_ref', sel.verseRef)
+        .eq('translation', sel.translation)
+        .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`);
+
+      // Then insert the new highlight
       const { data, error } = await supabase.from('highlights').insert({
         verse_ref: sel.verseRef,
         translation: sel.translation,
@@ -63,7 +116,7 @@ export function HighlightToolbar({ sel, onClose }: {
   return (
     <motion.div
       className="fixed z-50 flex gap-2 p-2 rounded-xl bg-zinc-800 shadow"
-      style={{ left: sel.pos.x, top: sel.pos.y }}
+      style={{ left: sel.pos.x - 60, top: sel.pos.y }}
       initial={{ opacity: 0, scale: .8 }} 
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: .8 }}
@@ -76,6 +129,14 @@ export function HighlightToolbar({ sel, onClose }: {
           onClick={() => save(c)}
         />
       ))}
+      {/* Remove/Clear button */}
+      <button
+        onClick={removeHighlight}
+        className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center hover:scale-110 transition-transform"
+        title="Remove highlight"
+      >
+        <span className="text-gray-600 dark:text-gray-300 text-xs font-bold">×</span>
+      </button>
     </motion.div>
   );
 }
