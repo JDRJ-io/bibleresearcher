@@ -9,7 +9,6 @@ interface NewColumnHeadersProps {
   showNotes: boolean;
   showProphecy: boolean;
   showCrossRefs?: boolean;
-  showContext: boolean;
   showDates?: boolean;
   scrollLeft: number;
   preferences: any;
@@ -29,7 +28,6 @@ export function NewColumnHeaders({
   showNotes: propShowNotes, 
   showProphecy, 
   showCrossRefs = false,
-  showContext, 
   showDates = false,
   scrollLeft, 
   preferences, 
@@ -100,16 +98,7 @@ export function NewColumnHeaders({
       });
     }
 
-    // 3. Context/Boundaries column (showContext controls context boundaries)
-    if (showContext) {
-      cols.push({
-        id: 'context-boundaries',
-        name: '🏛️',
-        type: 'context',
-        visible: true,
-        width: getResponsiveWidth('context')
-      });
-    }
+    // Context boundaries is not a visual column - it's background data processing
 
     // 4. Notes column
     if (showNotes) {
@@ -183,10 +172,10 @@ export function NewColumnHeaders({
       });
 
     return cols.filter(col => col.visible);
-  }, [main, alternates, showNotes, showContext, showDates, showCrossRefs, showProphecy, adaptiveWidths]);
+  }, [main, alternates, showNotes, showDates, showCrossRefs, showProphecy, adaptiveWidths]);
 
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
-  console.log('📋 NewColumnHeaders showContext prop:', showContext, 'showDates prop:', showDates);
+  console.log('📋 NewColumnHeaders showDates prop:', showDates);
 
   const isPortrait = window.innerHeight > window.innerWidth;
 
