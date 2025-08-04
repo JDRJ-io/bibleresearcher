@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Bookmark, Edit3, Trash2, ExternalLink } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
@@ -38,7 +39,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
         console.error('BookmarksList: Error loading bookmarks:', error);
         throw error;
       }
-      return data || [];
+      return (data || []) as BookmarkType[];
     },
     enabled: !!user,
   });
@@ -76,11 +77,23 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
+      toast({ title: "Bookmark deleted successfully" });
+      setDeletingBookmark(null);
+    },
+    onError: (error) => {
+      console.error('BookmarksList: Delete error:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete bookmark", 
+        variant: "destructive" 
+      });
     },
   });
   
+  // Local state for editing and deleting bookmarks
   const [editingBookmark, setEditingBookmark] = useState<BookmarkType | null>(null);
   const [editName, setEditName] = useState('');
+  const [deletingBookmark, setDeletingBookmark] = useState<BookmarkType | null>(null);
 
   if (!user) {
     return (
@@ -136,17 +149,13 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
     }
   };
 
-  const handleDelete = async (bookmark: BookmarkType) => {
-    try {
-      await deleteBookmark.mutateAsync(bookmark.name);
-      toast({ title: "Bookmark deleted" });
-    } catch (error) {
-      toast({ 
-        title: "Error", 
-        description: "Failed to delete bookmark", 
-        variant: "destructive" 
-      });
-    }
+  const handleDelete = (bookmark: BookmarkType) => {
+    setDeletingBookmark(bookmark);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingBookmark) return;
+    await deleteBookmark.mutateAsync(deletingBookmark.name);
   };
 
   const handleNavigate = (bookmark: BookmarkType) => {
@@ -200,7 +209,10 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleNavigate(bookmark)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNavigate(bookmark);
+                    }}
                     title="Go to verse"
                     className="h-8 w-8 p-0"
                   >
@@ -211,7 +223,10 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => handleEdit(bookmark)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(bookmark);
+                  }}
                   title="Edit bookmark"
                   className="h-8 w-8 p-0"
                 >
@@ -221,7 +236,10 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => handleDelete(bookmark)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(bookmark);
+                  }}
                   title="Delete bookmark"
                   className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                   disabled={deleteBookmark.isPending}
@@ -273,6 +291,31 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingBookmark} onOpenChange={() => setDeletingBookmark(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Bookmark</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the bookmark "{deletingBookmark?.name}"?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBookmark.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteBookmark.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteBookmark.isPending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
