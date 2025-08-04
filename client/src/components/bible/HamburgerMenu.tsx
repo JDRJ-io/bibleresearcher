@@ -21,9 +21,10 @@ import { ManualSizeController } from "@/components/ui/ManualSizeController";
 interface HorizontalMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onNavigateToVerse?: (reference: string) => void;
 }
 
-export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
+export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: HorizontalMenuProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -351,10 +352,12 @@ export function HamburgerMenu({ isOpen, onClose }: HorizontalMenuProps) {
         return (
           <div className="space-y-2 h-full flex flex-col">
             <BookmarksList 
-              onNavigateToVerse={(indexValue) => {
-                // Handle verse navigation here
-                console.log('Navigate to verse:', indexValue);
-                onClose();
+              onNavigateToVerse={(reference) => {
+                console.log('🔖 HamburgerMenu: Navigate to verse:', reference);
+                if (onNavigateToVerse) {
+                  onNavigateToVerse(reference);
+                  onClose();
+                }
               }}
               className="flex-1"
             />

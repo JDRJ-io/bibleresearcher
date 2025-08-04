@@ -403,6 +403,7 @@ export default function BiblePage() {
         <HamburgerMenu 
           isOpen={isMenuOpen}
           onClose={handleMenuClose}
+          onNavigateToVerse={scrollToVerse}
         />
 
         {/* Welcome Modal for Profile Completion */}

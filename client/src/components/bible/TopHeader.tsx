@@ -92,6 +92,7 @@ export function TopHeader({
           user_id: user.id,        // Part of composite primary key
           name: payload.name,      // Part of composite primary key
           index_value: centralVerse.index,
+          verse_ref: centralVerse.reference,
           color: payload.color,
         }, {
           onConflict: 'user_id,name'  // Handle conflicts on composite PK

@@ -29,6 +29,7 @@ export const bookmarks = pgTable("bookmarks", {
   user_id: uuid("user_id").references(() => users.id).notNull(),
   name: text("name").notNull(),
   index_value: integer("index_value").notNull(),
+  verse_ref: text("verse_ref"),
   color: text("color").default("#f00"),
   created_at: timestamp("created_at").defaultNow(),
 }, (table) => ({
@@ -78,7 +79,7 @@ export const userPreferences = pgTable("user_preferences", {
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertProfileSchema = createInsertSchema(profiles).omit({ createdAt: true, updatedAt: true });
 export const insertNoteSchema = createInsertSchema(notes).omit({ id: true });
-export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({ id: true });
+export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({ created_at: true });
 export const insertHighlightSchema = createInsertSchema(highlights).omit({ id: true });
 export const insertForumPostSchema = createInsertSchema(forumPosts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({ id: true });

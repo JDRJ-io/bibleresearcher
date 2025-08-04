@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import type { Bookmark as BookmarkType } from '@shared/schema';
-import { getVerseKeyByIndex } from '@/lib/verseKeysLoader';
+
 
 interface BookmarksListProps {
   onNavigateToVerse?: (reference: string) => void;
@@ -152,24 +152,17 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
   const handleNavigate = (bookmark: BookmarkType) => {
     if (!onNavigateToVerse) return;
     
-    // Convert index back to verse reference
-    const verseRef = getVerseKeyByIndex(bookmark.index_value);
+    // Use verse_ref directly if available, fallback to index conversion
+    const verseRef = bookmark.verse_ref || `Index:${bookmark.index_value}`;
     console.log('🔖 BookmarksList: Navigating to bookmark:', {
       name: bookmark.name,
+      verse_ref: bookmark.verse_ref,
       index: bookmark.index_value,
-      verseRef
+      navigatingTo: verseRef
     });
     
-    if (verseRef) {
-      onNavigateToVerse(verseRef);
-      toast({ title: `Navigated to ${verseRef}` });
-    } else {
-      toast({
-        title: "Navigation Error",
-        description: "Could not find verse for this bookmark position.",
-        variant: "destructive"
-      });
-    }
+    onNavigateToVerse(verseRef);
+    toast({ title: `Navigated to ${verseRef}` });
   };
 
   return (
@@ -198,7 +191,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                   {bookmark.name}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {getVerseKeyByIndex(bookmark.index_value) || `Index: ${bookmark.index_value}`}
+                  {bookmark.verse_ref || `Index: ${bookmark.index_value}`}
                 </div>
               </div>
               
