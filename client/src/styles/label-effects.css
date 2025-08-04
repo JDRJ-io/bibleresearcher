@@ -3,11 +3,13 @@
 /* who → normal cursive font (not blue) */
 .fx-hand {
   font-family: cursive;
+  color: currentColor;
 }
 
 /* what → simple drop shadow (not double box outline) */  
 .fx-shadow {
   text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+  color: currentColor;
 }
 
 /* when → text-matching underline (not green) */
@@ -18,36 +20,44 @@
 }
 
 /* where → square brackets (not curly braces) */
+.fx-bracket {
+  color: currentColor;
+}
 .fx-bracket::before {
   content: '[';
   opacity: 0.6;
+  color: currentColor;
 }
 .fx-bracket::after {
   content: ']';
   opacity: 0.6;
+  color: currentColor;
 }
 
 /* command → simple bold (no glow) */
 .fx-bold {
   font-weight: 700;
+  color: currentColor;
 }
 
 /* action → normal italic (not blue) */
 .fx-ital {
   font-style: italic;
+  color: currentColor;
 }
 
 /* why → thin outline around individual characters (like double-struck) */
 .fx-outline {
   text-shadow: 
-    -0.1px -0.1px 0 currentColor,
-    0.1px -0.1px 0 currentColor,
-    -0.1px 0.1px 0 currentColor,
-    0.1px 0.1px 0 currentColor,
-    -0.1px 0 0 currentColor,
-    0.1px 0 0 currentColor,
-    0 -0.1px 0 currentColor,
-    0 0.1px 0 currentColor;
+    -0.025px -0.025px 0 currentColor,
+    0.025px -0.025px 0 currentColor,
+    -0.025px 0.025px 0 currentColor,
+    0.025px 0.025px 0 currentColor,
+    -0.025px 0 0 currentColor,
+    0.025px 0 0 currentColor,
+    0 -0.025px 0 currentColor,
+    0 0.025px 0 currentColor;
+  color: currentColor;
 }
 
 /* seed → text-matching color superscript * */
@@ -74,4 +84,5 @@
   vertical-align: super;
   font-size: 0.7em;
   margin-right: 2px;
+  color: currentColor;
 }
