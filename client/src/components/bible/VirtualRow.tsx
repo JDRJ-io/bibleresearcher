@@ -56,6 +56,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
   const crossRefs = crossRefsStore[verse.reference] || [];
 
+
+
   const handleCrossRefClick = (ref: string, e: React.MouseEvent | React.TouchEvent) => {
     console.log('🔗 Cross-reference clicked:', ref, 'Handler:', !!onVerseClick);
 
@@ -98,6 +100,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
         labelData={labelData}
         activeLabels={activeLabels}
         verseKey={reference}
+        translationCode={mainTranslation}
       />
     );
   };
@@ -210,6 +213,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
         labelData={labelData}
         activeLabels={activeLabels}
         verseKey={reference}
+        translationCode={mainTranslation}
       />
     );
   };
@@ -763,6 +767,7 @@ export function VirtualRow({
                     labelData={verseLabels}
                     activeLabels={activeLabels}
                     verseKey={`${verse.reference}-${config.translationCode}`}
+                    translationCode={config.translationCode}
                   />
                 ) : (
                   verseText
