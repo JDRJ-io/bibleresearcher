@@ -27,14 +27,14 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<{ name?: string; bio?: string; tier?: string } | null>(null);
+  // const [profile, setProfile] = useState<{ name?: string; bio?: string; tier?: string } | null>(null); // 🔥 commented out - using useMyProfile instead
   const [loading, setLoading] = useState(true);
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setProfile(null);
+    // setProfile(null); // 🔥 commented out - using useMyProfile instead
   };
 
   const refreshProfile = async () => {
@@ -119,17 +119,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load profile when user changes
-  useEffect(() => {
-    if (user) {
-      refreshProfile();
-    } else {
-      setProfile(null);
-    }
-  }, [user, refreshProfile]);
+  // 🔥 Load profile when user changes - commented out, using useMyProfile instead
+  // useEffect(() => {
+  //   if (user) {
+  //     refreshProfile();
+  //   } else {
+  //     setProfile(null);
+  //   }
+  // }, [user, refreshProfile]);
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile, updateProfile }}>
+    <AuthContext.Provider value={{ user, session, profile: null, loading, signOut, refreshProfile, updateProfile }}> {/* profile: null - using useMyProfile instead */}
       {children}
     </AuthContext.Provider>
   );

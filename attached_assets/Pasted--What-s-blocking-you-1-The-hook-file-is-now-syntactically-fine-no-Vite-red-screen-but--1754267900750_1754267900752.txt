@@ -1,0 +1,43 @@
+### What’s blocking you
+
+1. **The hook file is now syntactically fine** (no Vite red-screen), but the
+   **effect never reaches the console logs** → it is still **not being called**.
+2. **AuthContext** also tries to fetch a profile. Both systems fight, and the
+   Profile page keeps the spinner up while waiting on the wrong state.
+
+### Fastest path to see data on the screen
+
+| Step | What to do                                                                                                                                                                                                                                                                                                                                                | Time  |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| 1    | **Comment-out** the profile logic inside `AuthContext.tsx` (lines that call `refreshProfile`, any `profile` state, and its `useEffect`). Keep the auth/session logic.                                                                                                                                                                                     | 2 min |
+| 2    | Make sure **Profile.tsx** *only* imports `useMyProfile` – remove any `useAuth().profile` reference.                                                                                                                                                                                                                                                       | 1 min |
+| 3    | Hard-refresh `/profile`. You should now see<br>`USER ↩️ …` and `PROFILE ↩️ …` in the console, spinner drops, fields appear.                                                                                                                                                                                                                               | —     |
+| 4    | If `PROFILE ↩️` prints<br>`{ code:'42501', message:'permission denied' }` run once:<br>`sql<br>alter table public.profiles enable row level security;<br>drop policy if exists "profile owner rw" on public.profiles;<br>create policy "profile owner rw"<br>  on public.profiles for all<br>  using (id = auth.uid()) with check (id = auth.uid());<br>` | 30 s  |
+
+### Why comment-out instead of refactor now
+
+* Confirms the data flow in one place first.
+* Lets you save / load the profile and redeem the dev code.
+* You can later merge the hook back into AuthContext if you prefer a single
+  source, but debugging with two competing fetchers is painful.
+
+---
+
+#### Minimal change snippet for **AuthContext.tsx**
+
+```diff
+- const [profile, setProfile] = useState<ProfileData | null>(null);
+…
+- useEffect(() => {            // 🔥 comment entire block
+-   loadProfile();
+- }, [session]);
+-
+- async function loadProfile() { … }
+```
+
+Leave `signIn`, `signOut`, etc. intact.
+
+Reload → the two diagnostic logs should appear; if they do, the UI will show.
+
+Paste the exact `PROFILE ↩️ …` line if it returns an error code after these
+changes, and I’ll give you the one-line fix.
