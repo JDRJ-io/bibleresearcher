@@ -187,15 +187,17 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
           {bookmarks.map((bookmark) => (
             <div
               key={`${bookmark.user_id}-${bookmark.name}`}
-              className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted group cursor-pointer"
-              onClick={() => handleNavigate(bookmark)}
+              className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted group"
             >
               <div 
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: bookmark.color || '#ef4444' }}
               />
               
-              <div className="flex-1 min-w-0">
+              <div 
+                className="flex-1 min-w-0 cursor-pointer" 
+                onClick={() => handleNavigate(bookmark)}
+              >
                 <div className="font-medium text-sm truncate">
                   {bookmark.name}
                 </div>
@@ -204,7 +206,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                 </div>
               </div>
               
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 {onNavigateToVerse && (
                   <Button
                     size="sm"
