@@ -30,6 +30,7 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - Direct Supabase integration for profile updates (bypassing custom backend)
   - AuthContext with full session management and profile synchronization
   - Sign-in button disappears when authenticated, replaced with profile avatar
+  - **Critical Fix (Aug 2025)**: Resolved circular dependency in useMyProfile hook by passing user/authLoading as parameters instead of calling useAuth() inside the hook, enabling proper profile loading and form functionality
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.

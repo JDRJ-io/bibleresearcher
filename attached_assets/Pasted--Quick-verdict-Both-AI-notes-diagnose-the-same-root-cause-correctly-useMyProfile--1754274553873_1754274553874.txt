@@ -1,0 +1,57 @@
+### Quick verdict
+
+Both AI notes **diagnose the same root-cause correctly**:
+
+> *`useMyProfile` runs **inside** `AuthProvider` before the
+> context is ready, so it always receives `user =null` & `loading =true`
+> and bails out → endless spinner.*
+
+Either proposal (they’re practically identical) will break the circular
+dependency and let the profile query run.
+You only need **one** of them.
+
+---
+
+## What will actually fix the loop (5-minute refactor)
+
+| Step                                                                                                           | Why                                                        | Code snippet                                                                                                                                                                                 |   |                                                                 |
+| -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | - | --------------------------------------------------------------- |
+| **1. Pass user into the hook instead of calling `useAuth()` inside it**                                        | Removes the self-reference that blocks.                    | `ts // hooks/useMyProfile.ts export function useMyProfile(user: User \| null, authLoading: boolean) { /* delete useAuth(); keep the rest */ }`                                               |   |                                                                 |
+| **2. Call the hook *after* the context has user**                                                              | Ensures hook runs with real `user` & `authLoading=false`.  | \`\`\`tsx // contexts/AuthContext.tsx const { profile, profileLoading, error, save } = useMyProfile(user, loading); return ( \<AuthContext.Provider value={{ user, session, loading: loading |   | profileLoading, profile, saveProfile: save, signOut }}> …\`\`\` |
+| **3. Remove the old stub values** (`profile:null`, `refreshProfile`, `updateProfile`) from the provider value. | So components get live data, not ❌ `null`.                 | *(delete those props)*                                                                                                                                                                       |   |                                                                 |
+| **4. Keep the trigger + RLS policy** you already added.                                                        | Guarantees every user has a row and permission to read it. | *(no change needed)*                                                                                                                                                                         |   |                                                                 |
+
+That’s it.  No other component rewiring is required; any place that already
+does:
+
+```ts
+const { user, profile } = useAuth();
+```
+
+will now get a real `profile` object once the hook resolves.
+
+---
+
+### Why this ends the 4-hour loop
+
+* **No more duplicate loaders.** One hook, one context.
+* **No more hanging auth call.** We reuse the `user` that `AuthProvider`
+  fetched.
+* **No more missing row / 42501.** Trigger and policy already cover that.
+
+After these edits:
+
+1. Reload → Console shows
+
+   ```
+   HOOK FILE LOADED
+   EFFECT TRIGGERED  { hasUser:true }
+   PROFILE ↩️ { name:null, bio:null, tier:'free' } null
+   ```
+2. Spinner disappears; form fields populate.
+3. “Save Changes” persists and reflects in the header dropdown.
+4. Redeeming `DEV-ALPHA-2025` flips tier to **premium** and UI updates.
+
+Apply those four edits and you’re out of the loop. If something still stalls,
+paste the exact console error or SQL message and we can target that single
+remaining issue.
