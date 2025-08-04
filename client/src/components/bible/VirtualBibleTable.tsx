@@ -544,41 +544,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       container.scrollTop += dy;
     };
 
-    let lastScrollLeft = container.scrollLeft;
-    let lastScrollTop = container.scrollTop;
-
-    // Simple scroll correction - redirect diagonal movement to dominant axis
-    const onScrollCorrect = () => {
-      const currentLeft = container.scrollLeft;
-      const currentTop = container.scrollTop;
-      
-      const deltaX = currentLeft - lastScrollLeft;
-      const deltaY = currentTop - lastScrollTop;
-      
-      // If both axes moved, keep only the dominant one
-      if (Math.abs(deltaX) > 0 && Math.abs(deltaY) > 0) {
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          // Horizontal wins - reset vertical
-          container.scrollTop = lastScrollTop;
-          lastScrollLeft = currentLeft;
-        } else {
-          // Vertical wins - reset horizontal  
-          container.scrollLeft = lastScrollLeft;
-          lastScrollTop = currentTop;
-        }
-      } else {
-        // Single axis movement is fine
-        lastScrollLeft = currentLeft;
-        lastScrollTop = currentTop;
-      }
-    };
-
-    container.addEventListener('scroll', onScroll);
-    container.addEventListener('scroll', onScrollCorrect, { passive: true });
+    container.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       container.removeEventListener('scroll', onScroll);
-      container.removeEventListener('scroll', onScrollCorrect);
     };
   }, []);
 

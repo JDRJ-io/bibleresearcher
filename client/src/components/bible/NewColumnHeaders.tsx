@@ -180,7 +180,7 @@ export function NewColumnHeaders({
     <div 
       className="column-headers-wrapper sticky top-0 z-20 bg-background border-b"
       style={{ 
-        left: -scrollLeft,
+        transform: `translateX(${-scrollLeft}px)`,
         width: '100%'
       }}
     >
