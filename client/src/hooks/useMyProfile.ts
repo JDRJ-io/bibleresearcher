@@ -10,26 +10,29 @@ export function useMyProfile() {
 
   useEffect(() => {
     (async () => {
+      /* 1️⃣ who is signed in? */
       const { data: { user }, error: uErr } = await supabase.auth.getUser();
-      console.log('USER ↩️', user, uErr);          // ★ must print
+      console.log('USER ↩️', user, uErr);
 
-      if (!user) {                     // not logged-in tab
+      if (!user) {             // not logged-in tab
         setLoading(false);
         return;
       }
 
+      /* 2️⃣ fetch the profile row */
       const { data, error } = await supabase
         .from('profiles')
         .select('name, bio, tier')
         .eq('id', user.id)
         .single();
 
-      console.log('PROFILE ↩️', data, error);      // ★ must print
+      console.log('PROFILE ↩️', data, error);
 
       if (error) setError(error);
       else       setProfile(data);
 
-      setLoading(false);               // always flip the flag
+      /* 3️⃣ always drop the spinner */
+      setLoading(false);
     })();
   }, []);
 
