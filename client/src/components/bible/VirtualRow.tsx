@@ -89,12 +89,57 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
       });
     }
 
-    // Process text with labels
-    const segments = useLabeledText(
-      text,
-      labelData,
-      (activeLabels || []) as LabelName[]
-    );
+    // Manual text processing to avoid hook in conditional logic
+    if (!text || activeLabels.length === 0) {
+      return text;
+    }
+
+    // Process text segments manually
+    type Ev = { pos: number; bit: number; add: boolean };
+    const evs: Ev[] = [];
+    
+    // Import LabelBits inline to avoid dependency issues
+    const LabelBits = {
+      who: 1,
+      what: 2,
+      when: 4,
+      where: 8,
+      command: 16,
+      action: 32,
+      why: 64,
+      seed: 128,
+      harvest: 256,
+      prediction: 512
+    };
+
+    activeLabels.forEach(lbl => {
+      const bit = LabelBits[lbl as keyof typeof LabelBits];
+      (labelData?.[lbl as LabelName] || []).forEach(ph => {
+        const re = new RegExp(
+          ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
+          'gi'
+        );
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text))) {
+          evs.push({ pos: m.index, add: true, bit });
+          evs.push({ pos: m.index + m[0].length, add: false, bit });
+        }
+      });
+    });
+
+    if (!evs.length) return text;
+
+    evs.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
+
+    const segments: { start: number; end: number; mask: number }[] = [];
+    let mask = 0, last = 0;
+
+    for (const { pos, bit, add } of evs) {
+      if (pos > last) segments.push({ start: last, end: pos, mask });
+      mask = add ? (mask | bit) : (mask & ~bit);
+      last = pos;
+    }
+    if (last < text.length) segments.push({ start: last, end: text.length, mask });
 
     return segments.map((segment, index) => {
       const content = text.slice(segment.start, segment.end);
@@ -208,12 +253,57 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
       });
     }
 
-    // Process text with labels
-    const segments = useLabeledText(
-      text,
-      labelData,
-      (activeLabels || []) as LabelName[]
-    );
+    // Manual text processing to avoid hook in conditional logic
+    if (!text || activeLabels.length === 0) {
+      return text;
+    }
+
+    // Process text segments manually
+    type Ev = { pos: number; bit: number; add: boolean };
+    const evs: Ev[] = [];
+    
+    // Import LabelBits inline to avoid dependency issues
+    const LabelBits = {
+      who: 1,
+      what: 2,
+      when: 4,
+      where: 8,
+      command: 16,
+      action: 32,
+      why: 64,
+      seed: 128,
+      harvest: 256,
+      prediction: 512
+    };
+
+    activeLabels.forEach(lbl => {
+      const bit = LabelBits[lbl as keyof typeof LabelBits];
+      (labelData?.[lbl as LabelName] || []).forEach(ph => {
+        const re = new RegExp(
+          ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
+          'gi'
+        );
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text))) {
+          evs.push({ pos: m.index, add: true, bit });
+          evs.push({ pos: m.index + m[0].length, add: false, bit });
+        }
+      });
+    });
+
+    if (!evs.length) return text;
+
+    evs.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
+
+    const segments: { start: number; end: number; mask: number }[] = [];
+    let mask = 0, last = 0;
+
+    for (const { pos, bit, add } of evs) {
+      if (pos > last) segments.push({ start: last, end: pos, mask });
+      mask = add ? (mask | bit) : (mask & ~bit);
+      last = pos;
+    }
+    if (last < text.length) segments.push({ start: last, end: text.length, mask });
 
     return segments.map((segment, index) => {
       const content = text.slice(segment.start, segment.end);
