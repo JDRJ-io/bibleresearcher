@@ -6,9 +6,10 @@ import { queryClient } from '@/lib/queryClient';
 
 const colors = ['210 80% 60%', '10 90% 60%', '120 70% 45%', '280 70% 65%'];
 
-export function HighlightToolbar({ sel, onClose }: {
+export function HighlightToolbar({ sel, onClose, onHighlightSaved }: {
   sel: SelectionInfo | null;
   onClose: () => void;
+  onHighlightSaved?: (highlight: { id: string; verse_ref: string; translation: string; user_id: string }) => void;
 }) {
   const { user } = useAuth();
   if (!sel) return null;
@@ -74,16 +75,19 @@ export function HighlightToolbar({ sel, onClose }: {
       });
 
       // First remove any overlapping highlights to prevent conflicts
-      const { error: deleteError } = await supabase
+      const { data: overlappingData, error: deleteError } = await supabase
         .from('highlights')
         .delete()
         .eq('user_id', user.id)
         .eq('verse_ref', sel.verseRef)
         .eq('translation', sel.translation)
-        .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`);
+        .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`)
+        .select();
       
       if (deleteError) {
         console.log('🔄 No overlapping highlights to delete (or delete failed):', deleteError);
+      } else if (overlappingData && overlappingData.length > 0) {
+        console.log('🗑️ Removed overlapping highlights:', overlappingData.length);
       }
 
       // Then insert the new highlight with explicit user_id
@@ -102,6 +106,16 @@ export function HighlightToolbar({ sel, onClose }: {
       }
 
       console.log('✅ Highlight saved successfully:', data);
+      
+      // Track this as the last highlight for Ctrl+Z
+      if (data && data[0] && onHighlightSaved) {
+        onHighlightSaved({
+          id: data[0].id,
+          verse_ref: sel.verseRef,
+          translation: sel.translation,
+          user_id: user.id
+        });
+      }
       
       // Invalidate and refetch highlights for this verse
       queryClient.invalidateQueries({ 

@@ -9,17 +9,30 @@ export function useHighlightCapture(onSelect: (info: SelectionInfo) => void) {
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !user) return; // Don't show for non-logged users
 
-      // Ensure selection is inside a verse-text span (check both anchor node and parent)
-      let verseTextEl = sel.anchorNode?.parentElement;
-      if (!verseTextEl?.classList.contains('verse-text')) {
-        // Try checking if the anchor node itself has the class
+      // Find the verse-text element - works even with highlighted text
+      let verseTextEl: HTMLElement | null = null;
+      
+      // First try the anchor node's parent
+      if (sel.anchorNode?.parentElement?.classList.contains('verse-text')) {
+        verseTextEl = sel.anchorNode.parentElement;
+      }
+      // Then try the anchor node itself
+      else if ((sel.anchorNode as HTMLElement)?.classList?.contains('verse-text')) {
         verseTextEl = sel.anchorNode as HTMLElement;
-        if (!verseTextEl?.classList?.contains('verse-text')) {
-          // Try finding the closest verse-text parent
-          verseTextEl = (sel.anchorNode as HTMLElement)?.closest?.('.verse-text') as HTMLElement;
-          if (!verseTextEl) return;
+      }
+      // Finally, traverse up to find verse-text parent (works with highlighted spans)
+      else {
+        let current = sel.anchorNode;
+        while (current && current !== document.body) {
+          if ((current as HTMLElement)?.classList?.contains('verse-text')) {
+            verseTextEl = current as HTMLElement;
+            break;
+          }
+          current = current.parentNode;
         }
       }
+      
+      if (!verseTextEl) return;
 
       const verseRef = verseTextEl.dataset.verseRef!;
       const translation = verseTextEl.dataset.translation!;
