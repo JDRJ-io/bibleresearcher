@@ -29,6 +29,7 @@ export function HighlightToolbar({ sel, onClose }: {
       const { error } = await supabase
         .from('highlights')
         .delete()
+        .eq('user_id', user.id)
         .eq('verse_ref', sel.verseRef)
         .eq('translation', sel.translation)
         .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`);
@@ -42,7 +43,7 @@ export function HighlightToolbar({ sel, onClose }: {
       
       // Invalidate and refetch highlights for this verse
       queryClient.invalidateQueries({ 
-        queryKey: ['highlights', sel.verseRef, sel.translation] 
+        queryKey: ['highlights', sel.verseRef, sel.translation, user.id] 
       });
       
       // Clear the text selection after removing
@@ -76,6 +77,7 @@ export function HighlightToolbar({ sel, onClose }: {
       const { error: deleteError } = await supabase
         .from('highlights')
         .delete()
+        .eq('user_id', user.id)
         .eq('verse_ref', sel.verseRef)
         .eq('translation', sel.translation)
         .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`);
@@ -84,8 +86,9 @@ export function HighlightToolbar({ sel, onClose }: {
         console.log('🔄 No overlapping highlights to delete (or delete failed):', deleteError);
       }
 
-      // Then insert the new highlight
+      // Then insert the new highlight with explicit user_id
       const { data, error } = await supabase.from('highlights').insert({
+        user_id: user.id,
         verse_ref: sel.verseRef,
         translation: sel.translation,
         start_pos: sel.startPos,
@@ -102,7 +105,7 @@ export function HighlightToolbar({ sel, onClose }: {
       
       // Invalidate and refetch highlights for this verse
       queryClient.invalidateQueries({ 
-        queryKey: ['highlights', sel.verseRef, sel.translation] 
+        queryKey: ['highlights', sel.verseRef, sel.translation, user.id] 
       });
       
       // Clear the text selection after saving

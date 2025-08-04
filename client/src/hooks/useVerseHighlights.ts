@@ -17,7 +17,7 @@ export function useVerseHighlights(verseRef: string, translation: string) {
   const { user } = useAuth();
 
   return useQuery<DatabaseHighlight[]>({
-    queryKey: ['highlights', verseRef, translation],
+    queryKey: ['highlights', verseRef, translation, user?.id],
     queryFn: async () => {
       if (!user) return [];
       
@@ -31,6 +31,7 @@ export function useVerseHighlights(verseRef: string, translation: string) {
       const { data, error } = await supabase
         .from('highlights')
         .select('id, user_id, verse_ref, translation, start_pos, end_pos, color_hsl, created_at')
+        .eq('user_id', user.id)
         .eq('verse_ref', verseRef)
         .eq('translation', translation)
         .order('start_pos', { ascending: true });
