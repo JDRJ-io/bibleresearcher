@@ -65,7 +65,7 @@ export function useBookmarks() {
       setBookmarks(prev => [data as Bookmark, ...prev]);
       return data;
     } catch (error) {
-      console.error('Error adding bookmark:', error);
+      console.error('Error adding bookmark - raw database error:', error);
       throw error;
     }
   };

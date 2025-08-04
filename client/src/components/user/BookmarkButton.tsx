@@ -51,6 +51,7 @@ export function BookmarkButton({ className }: BookmarkButtonProps) {
       setBookmarkName('');
       setColor('#ef4444');
     } catch (error) {
+      console.error('Bookmark insert failed:', error);
       toast({
         title: "Error", 
         description: "Failed to save bookmark",
