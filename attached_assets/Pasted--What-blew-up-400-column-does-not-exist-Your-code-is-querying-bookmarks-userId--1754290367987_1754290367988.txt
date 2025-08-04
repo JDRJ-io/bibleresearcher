@@ -1,0 +1,113 @@
+### What blew up
+
+* **400 “column … does not exist”**
+  Your code is querying `bookmarks.userId` and `order=createdAt`, but the table columns are `user_id` and `created_at`. PostgREST rejects the camel-case names → 400.
+
+* **Bookmark hover buttons on every row**
+  That temp UI renders a Supabase call in **each** row mount → hundreds of failing requests and an icon flood.
+
+Below is a **two-step fix**:
+
+---
+
+## 1 - Clean bookmark loader (snake\_case)
+
+`src/hooks/useBookmarks.ts`
+
+```ts
+export async function loadBookmarks(uid: string) {
+  const { data, error } = await supabase
+    .from('bookmarks')
+    .select('id, name, index_value, color, created_at')
+    .eq('user_id', uid)                          // 🟢 snake_case
+    .order('created_at', { ascending: false });  // 🟢 snake_case
+
+  if (error) throw error;
+  return data ?? [];
+}
+```
+
+*(if you kept `.single()` earlier, drop it or swap to `.maybeSingle()`)*
+
+---
+
+## 2 - Replace row-hover buttons with **one** “Save position” button
+
+### A.  Remove the per-row component
+
+```tsx
+// in VirtualRow.tsx or similar
+{/* 🔴 delete or comment out BookmarkHoverButton */}
+```
+
+### B.  Add a centered-anchor bookmark button in the top header
+
+```tsx
+// TopHeader.tsx  (or AppBar)
+import { useBookmarkActions } from '@/hooks/useBookmarkActions';
+import { useVerseNav } from '@/hooks/useVerseNav';
+
+export function SavePositionButton() {
+  const { saveBookmark } = useBookmarkActions();
+  const { anchorKey } = useVerseNav();   // e.g. 'Gen.21:6'
+
+  return (
+    <button
+      className="btn-bookmark"
+      title={`Bookmark ${anchorKey}`}
+      onClick={async () => {
+        const name = window.prompt('Bookmark name:', anchorKey);
+        if (!name) return;
+        const { error } = await saveBookmark(name);
+        if (error) alert(error.message);
+      }}
+    >
+      🔖 Save position
+    </button>
+  );
+}
+```
+
+Add `<SavePositionButton />` beside your “Save scroll” button; hide it on mobile if you like.
+
+### C.   `useBookmarkActions()` helper (already partly shown earlier)
+
+```ts
+export function useBookmarkActions() {
+  const { anchorIndex } = useVerseNav();
+  const { user }       = useAuth();
+
+  async function saveBookmark(name: string, color = '#FFD700') {
+    if (!user) return { error: new Error('Not signed in') };
+    return supabase.from('bookmarks').insert({
+      user_id: user.id,
+      name,
+      index_value: anchorIndex,
+      color,
+    }).single();
+  }
+
+  return { saveBookmark };
+}
+```
+
+---
+
+## 3 - (Optional) tiny bookmark icon in the **Ref** column
+
+If you still want visual feedback per verse **without** extra queries:
+
+* After the initial `loadBookmarks(uid)` call, keep the list in Zustand.
+* In `VirtualRow`, read that list and render a small 🔖 inside the “Gen.21:6” ref cell **only if** its `index_value` matches the row’s index.
+
+This uses *zero* extra REST calls during scrolling.
+
+---
+
+### Sanity check
+
+1. Reload → Network tab shows **one** `GET /bookmarks … 200 OK` (no 400s).
+2. Click **🔖 Save position** → `POST /bookmarks … 201 Created`.
+3. Bookmark appears in the side menu; the ref cell shows 🔖 (if you added step 3).
+
+That removes the hover icons, stops the request storm, and fixes the snake\_case column errors. Ping back if you hit anything else!
