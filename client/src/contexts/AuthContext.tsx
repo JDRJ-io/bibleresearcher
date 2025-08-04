@@ -1,144 +1,75 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabaseClient';
-import { useMyProfile } from '@/hooks/useMyProfile';
+// contexts/AuthContext.tsx
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useMyProfile } from "@/hooks/useMyProfile";
+import type { Session, User } from "@supabase/supabase-js";
 
-interface AuthContextType {
+interface AuthCtx {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  profile: { name?: string | null; bio?: string | null; tier?: string } | null;
-  saveProfile: (data: any) => Promise<void>;
+  profile: ReturnType<typeof useMyProfile>["profile"];
+  saveProfile: ReturnType<typeof useMyProfile>["save"];
   signOut: () => Promise<void>;
 }
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  session: null,
-  loading: true,
-  profile: null,
-  saveProfile: async () => {},
-  signOut: async () => {},
-});
-
+export const AuthContext = createContext<AuthCtx>(null as never);
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  /* ---------- session & user ---------- */
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  const { profile, profileLoading, error, save } = useMyProfile(user, loading);
+  const [user, setUser] = useState<User | null>(null);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    // setProfile(null); // 🔥 commented out - using useMyProfile instead
-  };
+  /* ---------- auth phase flag ---------- */
+  const [authReady, setAuthReady] = useState(false);
 
-  // 🔥 refreshProfile commented out - using useMyProfile instead
-  // const refreshProfile = async () => {
-  //   if (!user) {
-  //     setProfile(null);
-  //     return;
-  //   }
-
-  //   try {
-  //     // Fetch profile directly from Supabase
-  //     const { data: profileData, error } = await supabase
-  //       .from('profiles')
-  //       .select('*')
-  //       .eq('id', user.id)
-  //       .single();
-
-  //     if (error && error.code !== 'PGRST116') { // Ignore "not found" errors
-  //       console.error('Profile fetch error:', error);
-  //       return;
-  //     }
-
-  //     setProfile(profileData || { tier: 'free' });
-  //   } catch (error) {
-  //     console.error('Failed to fetch profile:', error);
-  //   }
-  // };
-
-  // 🔥 updateProfile commented out - using useMyProfile instead
-  // const updateProfile = async (data: { name: string; bio: string }) => {
-  //   if (!user) throw new Error('No authenticated user');
-
-  //   try {
-  //     // Update profile directly with Supabase
-  //     const { data: updatedProfile, error } = await supabase
-  //       .from('profiles')
-  //       .update({
-  //         name: data.name,
-  //         bio: data.bio,
-  //         updated_at: new Date().toISOString()
-  //       })
-  //       .eq('id', user.id)
-  //       .select()
-  //       .single();
-
-  //     if (error) throw error;
-
-  //     setProfile(updatedProfile);
-  //     return updatedProfile;
-  //   } catch (error) {
-  //     console.error('Profile update error:', error);
-  //     throw new Error('Failed to update profile');
-  //   }
-  // };
-
+  /* 1️⃣  get any existing session once */
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
-    };
+      setAuthReady(true); // 🔑 flip when done
+    });
 
-    getInitialSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Persist for hard refresh **inside Supabase**
-        if (session) {
-          await supabase.auth.setSession({
-            access_token: session.access_token,
-            refresh_token: session.refresh_token,
-          });
-        }
-      }
+    /*  keep in sync on token refresh / sign-in / sign-out  */
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      (_evt, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+      },
     );
-
-    return () => subscription.unsubscribe();
+    return () => sub.subscription.unsubscribe();
   }, []);
 
-  // 🔥 Load profile when user changes - commented out, using useMyProfile instead
-  // useEffect(() => {
-  //   if (user) {
-  //     refreshProfile();
-  //   } else {
-  //     setProfile(null);
-  //   }
-  // }, [user, refreshProfile]);
+  /* 2️⃣  load profile only after auth is ready */
+  const { profile, profileLoading, save } = useMyProfile(
+    authReady ? user : null,
+    !authReady,
+  );
+
+  /* 3️⃣  single loading flag for the whole app */
+  const loading = !authReady || profileLoading;
+
+  /* ---------- sign-out helper ---------- */
+  async function signOut() {
+    await supabase.auth.signOut();
+    setSession(null);
+    setUser(null);
+  }
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      session, 
-      loading: loading || profileLoading, 
-      profile,
-      saveProfile: save,
-      signOut 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        profile,
+        saveProfile: save,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
