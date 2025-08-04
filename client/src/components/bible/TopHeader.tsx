@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useWindowSize } from 'react-use';
 import { useBibleStore } from '@/App';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 
 
@@ -64,18 +64,36 @@ export function TopHeader({
     }
   };
 
-  // Bookmark creation mutation
+  // Bookmark creation mutation using direct Supabase
   const createBookmarkMutation = useMutation({
-    mutationFn: async (bookmark: {
-      name: string;
-      index_value: number;
-      color: string;
-    }) => {
-      console.log('🔖 TopHeader: Creating bookmark with data:', bookmark);
-      return await apiRequest("/api/users/bookmarks", "POST", bookmark, user?.id);
+    mutationFn: async (payload: { name: string; color: string }) => {
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      const centralVerse = getCurrentCentralVerse();
+      console.log('🔖 TopHeader: Creating bookmark with Supabase:', {
+        user_id: user.id,
+        name: payload.name,
+        index_value: centralVerse.index,
+        color: payload.color
+      });
+
+      const { error } = await supabase
+        .from('bookmarks')
+        .insert({
+          user_id: user.id,        // snake_case as required by schema
+          name: payload.name,
+          index_value: centralVerse.index,
+          color: payload.color,
+        });
+
+      if (error) {
+        console.error('🔖 TopHeader: Supabase error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users/bookmarks"] });
       toast({
         title: "Bookmark saved",
         description: "Current position has been bookmarked successfully.",
@@ -84,7 +102,7 @@ export function TopHeader({
     onError: (error) => {
       console.error('🔖 TopHeader: Bookmark creation failed:', error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to save bookmark. Please try again.",
         variant: "destructive",
       });
@@ -107,14 +125,13 @@ export function TopHeader({
     const centralVerse = getCurrentCentralVerse();
     console.log('🔖 TopHeader: Central verse obtained:', centralVerse);
     
-    const bookmarkData = {
+    const bookmarkPayload = {
       name: `Reading position - ${centralVerse.reference}`,
-      index_value: centralVerse.index,
       color: '#3b82f6', // Default blue color
     };
     
-    console.log('🔖 TopHeader: About to create bookmark with:', bookmarkData);
-    createBookmarkMutation.mutate(bookmarkData);
+    console.log('🔖 TopHeader: About to create bookmark with payload:', bookmarkPayload);
+    createBookmarkMutation.mutate(bookmarkPayload);
   };
 
 
