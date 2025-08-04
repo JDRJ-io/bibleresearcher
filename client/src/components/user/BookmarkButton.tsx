@@ -21,15 +21,26 @@ interface BookmarkButtonProps {
 
 export function BookmarkButton({ className }: BookmarkButtonProps) {
   const { user } = useAuth();
-  const { addBookmark, loading } = useBookmarks();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [bookmarkName, setBookmarkName] = useState('');
   const [color, setColor] = useState('#ef4444');
 
+  // Only initialize useBookmarks when user is available to avoid errors
+  const bookmarksHook = useBookmarks();
+  const { addBookmark, loading } = bookmarksHook || { addBookmark: async () => {}, loading: false };
+
   if (!user) {
     return null;
   }
+
+  console.log('BookmarkButton render - user:', user?.id, 'loading:', loading);
+
+  // Add debugging for when button is clicked
+  const handleOpenDialog = () => {
+    console.log('BookmarkButton: Dialog open requested');
+    setIsOpen(true);
+  };
 
   const handleSaveBookmark = async () => {
     if (!bookmarkName.trim()) {
@@ -76,6 +87,7 @@ export function BookmarkButton({ className }: BookmarkButtonProps) {
           variant="ghost"
           size="sm"
           className={`text-muted-foreground hover:text-foreground ${className}`}
+          onClick={handleOpenDialog}
         >
           <BookmarkPlus className="w-4 h-4" />
         </Button>

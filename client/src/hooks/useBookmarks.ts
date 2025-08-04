@@ -15,7 +15,9 @@ export function useBookmarks() {
   };
 
   useEffect(() => {
+    console.log('useBookmarks: useEffect triggered, user:', user?.id);
     if (!user) {
+      console.log('useBookmarks: No user, setting empty bookmarks');
       setBookmarks([]);
       setLoading(false);
       return;
@@ -27,16 +29,21 @@ export function useBookmarks() {
   const loadBookmarks = async () => {
     if (!user) return;
 
+    console.log('useBookmarks: Starting to load bookmarks for user:', user.id);
     try {
       const { data, error } = await supabase
         .from('bookmarks')
         .select('id, name, index_value, color, user_id, pending')
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('useBookmarks: Database error during load:', error);
+        throw error;
+      }
+      console.log('useBookmarks: Successfully loaded', data?.length || 0, 'bookmarks');
       setBookmarks((data as Bookmark[]) || []);
     } catch (error) {
-      console.error('Error loading bookmarks:', error);
+      console.error('useBookmarks: Error loading bookmarks:', error);
     } finally {
       setLoading(false);
     }
