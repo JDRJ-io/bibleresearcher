@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { BibleDataAPI } from '@/data/BibleDataAPI';
 import { BibleVerse, StrongsWord } from '@/types/bible';
 import { useVerseNav } from '@/hooks/useVerseNav';
+import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
 interface StrongsOverlayProps {
   verse: BibleVerse;
@@ -30,6 +31,9 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
   const [selectedOccurrences, setSelectedOccurrences] = useState<WordOccurrence[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  
+  // Get main translation from hooks
+  const { mainTranslation, getMainVerseText } = useTranslationMaps();
   // Simple navigation function without the full useVerseNav hook
   const goTo = (reference: string) => {
     // Close the overlay and let the parent handle navigation
@@ -169,198 +173,157 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                   </span>
                 </div>
                 <div className="text-sm md:text-base leading-tight text-gray-800 dark:text-gray-200 line-clamp-2">
-                  {currentVerse.text?.KJV || currentVerse.text?.[Object.keys(currentVerse.text)[0]] || 'Loading verse text...'}
+                  {getMainVerseText(currentVerse.reference) || currentVerse.text?.[mainTranslation] || currentVerse.text?.[Object.keys(currentVerse.text)[0]] || 'Loading verse text...'}
                 </div>
               </div>
 
-              {/* Mobile-first layout */}
-              <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-                {/* Main content area */}
-                <div className="flex-1 p-3 md:p-4 overflow-y-auto">
-                  {showSearch ? (
-                    /* Mobile search results - full screen */
-                    <div className="lg:hidden h-full">
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge className="font-mono">{selectedWord?.strongs}</Badge>
-                          <span className="font-semibold text-lg">{selectedWord?.original}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setShowSearch(false)}
-                            className="ml-auto"
-                          >
-                            ← Back
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                            Found {selectedOccurrences.length} occurrences
-                          </span>
-                        </div>
-                        <Input
-                          placeholder="Filter verses..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="text-sm h-10 mb-3"
-                        />
-                      </div>
-                      
-                      {/* Scrollable search results */}
-                      <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                        {filteredOccurrences.length > 0 ? (
-                          filteredOccurrences.map((occurrence, index) => (
-                            <button
-                              key={`${occurrence.reference}-${index}`}
-                              onClick={() => goTo(occurrence.reference)}
-                              className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
-                            >
-                              <div className="flex items-center justify-between mb-2">
-                                <Badge variant="outline" className="font-mono text-sm">
-                                  {occurrence.reference}
-                                </Badge>
-                                <ChevronRight className="w-4 h-4 text-gray-400" />
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                                {occurrence.context}
-                              </p>
-                            </button>
-                          ))
-                        ) : (
-                          <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                            {searchQuery ? `No occurrences match "${searchQuery}"` : 'Loading occurrences...'}
-                          </p>
-                        )}
-                      </div>
+              {/* Main content area - unified mobile/desktop */}
+              <div className="flex-1 p-3 md:p-4 overflow-y-auto">
+                {/* Word selection interface */}
+                {loading ? (
+                  <div className="flex items-center justify-center h-32">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Loading...</p>
                     </div>
-                  ) : (
-                    /* Word selection interface */
-                    loading ? (
-                      <div className="flex items-center justify-center h-32">
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">Loading...</p>
-                        </div>
-                      </div>
-                    ) : interlinearCells.length > 0 ? (
-                      <div>
-                        <h3 className="text-base md:text-lg font-semibold mb-4">Select a word to analyze</h3>
-                        {/* Box-style grid layout instead of horizontal scrolling */}
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                          {interlinearCells.map((cell, index) => (
-                            <div
-                              key={index}
-                              className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                                selectedWord?.strongs === cell.strongsKey
-                                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
-                              }`}
-                              onClick={async () => {
-                                const word: StrongsWord = {
-                                  original: cell.original,
-                                  strongs: cell.strongsKey,
-                                  transliteration: cell.transliteration,
-                                  definition: cell.gloss || 'No definition available',
-                                  instances: []
-                                };
-                                await handleWordClick(word);
-                              }}
-                            >
-                              <div className="text-center">
-                                <div className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
-                                  {cell.original || '—'}
-                                </div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400 italic mb-1">
-                                  {cell.transliteration}
-                                </div>
-                                <Badge variant="outline" className="text-xs font-mono mb-2">
-                                  {cell.strongsKey}
-                                </Badge>
-                                <div className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
-                                  {cell.gloss || 'No definition'}
-                                </div>
-                              </div>
+                  </div>
+                ) : interlinearCells.length > 0 ? (
+                  <div>
+                    <h3 className="text-base md:text-lg font-semibold mb-4">Select a word to analyze</h3>
+                    {/* Box-style grid layout */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      {interlinearCells.map((cell, index) => (
+                        <div
+                          key={index}
+                          className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                            selectedWord?.strongs === cell.strongsKey
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                          }`}
+                          onClick={async () => {
+                            const word: StrongsWord = {
+                              original: cell.original,
+                              strongs: cell.strongsKey,
+                              transliteration: cell.transliteration,
+                              definition: cell.gloss || 'No definition available',
+                              instances: []
+                            };
+                            await handleWordClick(word);
+                          }}
+                        >
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-1">
+                              {cell.original || '—'}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500 dark:text-gray-400">No Strong's data available for this verse.</p>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                {/* Desktop sidebar for search results */}
-                {showSearch && selectedWord && (
-                  <>
-                    <Separator orientation="vertical" className="hidden lg:block" />
-                    <div className="hidden lg:block w-96 flex flex-col max-h-full overflow-hidden">
-                      <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge className="font-mono">{selectedWord.strongs}</Badge>
-                          <span className="font-semibold text-lg">{selectedWord.original}</span>
-                        </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-2">
-                          {selectedWord.transliteration}
-                        </p>
-                        <p className="text-sm leading-relaxed">{selectedWord.definition}</p>
-                      </div>
-
-                      <div className="p-4 border-b flex-shrink-0 bg-gray-50 dark:bg-gray-800/50">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                            Found {selectedOccurrences.length} occurrences
-                          </span>
-                        </div>
-                        <Input
-                          placeholder="Filter verses..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="text-sm h-10"
-                        />
-                      </div>
-
-                      <div className="flex-1 overflow-hidden">
-                        <ScrollArea className="h-full">
-                          <div className="p-4 space-y-3">
-                            {filteredOccurrences.length > 0 ? (
-                              filteredOccurrences.map((occurrence, index) => (
-                                <button
-                                  key={`${occurrence.reference}-${index}`}
-                                  onClick={() => goTo(occurrence.reference)}
-                                  className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
-                                >
-                                  <div className="flex items-center justify-between mb-3">
-                                    <Badge variant="outline" className="font-mono text-sm px-3 py-1">
-                                      {occurrence.reference}
-                                    </Badge>
-                                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                                  </div>
-                                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
-                                    {occurrence.context}
-                                  </p>
-                                </button>
-                              ))
-                            ) : searchQuery ? (
-                              <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                                No occurrences match "{searchQuery}"
-                              </p>
-                            ) : (
-                              <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                                Loading occurrences...
-                              </p>
-                            )}
+                            <div className="text-xs text-gray-600 dark:text-gray-400 italic mb-1">
+                              {cell.transliteration}
+                            </div>
+                            <Badge variant="outline" className="text-xs font-mono mb-2">
+                              {cell.strongsKey}
+                            </Badge>
+                            <div className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
+                              {cell.gloss || 'No definition'}
+                            </div>
                           </div>
-                        </ScrollArea>
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  </>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">No Strong's data available for this verse.</p>
+                  </div>
                 )}
               </div>
+
+              {/* Bottom sheet search modal - unified for mobile and desktop */}
+              <AnimatePresence>
+                {showSearch && selectedWord && (
+                  <motion.div
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "100%" }}
+                    transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                    className="absolute inset-x-0 bottom-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-2xl border-t flex flex-col max-h-[70vh] z-10"
+                  >
+                    {/* Handle bar */}
+                    <div className="flex justify-center py-2">
+                      <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                    </div>
+
+                    {/* Header */}
+                    <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Badge className="font-mono">{selectedWord.strongs}</Badge>
+                        <span className="font-semibold text-lg">{selectedWord.original}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setShowSearch(false)}
+                          className="ml-auto"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-2">
+                        {selectedWord.transliteration}
+                      </p>
+                      <p className="text-sm leading-relaxed">{selectedWord.definition}</p>
+                    </div>
+
+                    {/* Search section */}
+                    <div className="p-4 border-b flex-shrink-0 bg-gray-50 dark:bg-gray-800/50">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                          Found {selectedOccurrences.length} occurrences
+                        </span>
+                      </div>
+                      <Input
+                        placeholder="Filter verses..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="text-sm h-10"
+                      />
+                    </div>
+
+                    {/* Scrollable results */}
+                    <div className="flex-1 overflow-hidden">
+                      <ScrollArea className="h-full">
+                        <div className="p-4 space-y-3">
+                          {filteredOccurrences.length > 0 ? (
+                            filteredOccurrences.map((occurrence, index) => (
+                              <button
+                                key={`${occurrence.reference}-${index}`}
+                                onClick={() => goTo(occurrence.reference)}
+                                className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
+                              >
+                                <div className="flex items-center justify-between mb-3">
+                                  <Badge variant="outline" className="font-mono text-sm px-3 py-1">
+                                    {occurrence.reference}
+                                  </Badge>
+                                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                                  {occurrence.context}
+                                </p>
+                              </button>
+                            ))
+                          ) : searchQuery ? (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
+                              No occurrences match "{searchQuery}"
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
+                              Loading occurrences...
+                            </p>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </>
           )}
         </motion.div>
