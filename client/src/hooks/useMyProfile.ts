@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { User } from '@supabase/supabase-js';
 import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@/contexts/AuthContext";
 
 console.log("HOOK FILE LOADED");
 
@@ -12,8 +12,7 @@ export interface ProfileData {
 }
 
 /* ------------ hook -------------- */
-export function useMyProfile() {
-  const { user, loading: authLoading } = useAuth(); // ← use user from context
+export function useMyProfile(user: User | null, authLoading: boolean) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [profileLoading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

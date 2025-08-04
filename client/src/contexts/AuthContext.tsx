@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   
-  const { profile, profileLoading, error, save } = useMyProfile();
+  const { profile, profileLoading, error, save } = useMyProfile(user, loading);
 
   const signOut = async () => {
     await supabase.auth.signOut();
