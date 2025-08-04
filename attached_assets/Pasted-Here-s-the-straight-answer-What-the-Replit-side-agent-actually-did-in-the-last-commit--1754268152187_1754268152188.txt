@@ -1,0 +1,58 @@
+Here’s the straight answer:
+
+* **What the Replit-side agent actually did in the last “commit”**
+  From the diff you showed he only **commented-out code in `AuthContext.tsx`** (green lines beginning with `//`).
+  He did **not** change anything else that matters to `useMyProfile` or `Profile.tsx`.
+
+* **Did that satisfy the steps I asked for?**
+  Partly.  Commenting-out the old profile loader in `AuthContext` was the right first move, **but**:
+
+  1. The agent left a reference to the (now-disabled) state in the context’s `return` statement.
+     That means `Profile.tsx` is still reading `profileLoading` from the context instead of from our hook, so the spinner never clears.
+  2. He did not touch `Profile.tsx` to remove the old context props.
+
+So yes—he mostly inserted comments; he didn’t wire the page to the new hook all the way.
+
+---
+
+### One decisive fix
+
+1. **Open `Profile.tsx`.**
+   Change the import:
+
+   ```diff
+   - import { useAuth } from '@/contexts/AuthContext';
+   + import { useAuth } from '@/contexts/AuthContext';   // keep for user/session
+   + import { useMyProfile } from '@/hooks/useMyProfile';
+   ```
+
+2. **Replace the line that pulls `profileLoading` and `profile` from
+   context** with the ones from our hook:
+
+   ```diff
+   - const { user, loading: authLoading, profile, profileLoading } = useAuth();
+   + const { user, loading: authLoading } = useAuth();
+   + const { profile, profileLoading, error, save } = useMyProfile();
+   ```
+
+3. Remove any leftover `error`, `save`, etc. that came from the context
+   (they’re now provided by the hook).
+
+4. Leave the commented-out block in **`AuthContext.tsx`** as is; it no longer
+   exports `profile` or `profileLoading`, so there’s no conflict.
+
+5. Save → restart → hard-refresh `/profile`.
+
+You should finally see the three console lines:
+
+```
+HOOK FILE LOADED
+USER ↩️ { id:'…' … } null
+PROFILE ↩️ { … } null
+```
+
+and the spinner will disappear.
+
+If those logs show up and you still get a permission error (`code: 42501`)
+paste that exact line and we’ll apply the SQL policy once—otherwise the page
+is fixed.

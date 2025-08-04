@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';   // keep for user/session
 import { useMyProfile } from '@/hooks/useMyProfile';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { useLocation } from 'wouter';
 
 export default function Profile() {
   const { user, loading: authLoading } = useAuth();
-  const { profile, profileLoading, save, error } = useMyProfile();
+  const { profile, profileLoading, error, save } = useMyProfile();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   

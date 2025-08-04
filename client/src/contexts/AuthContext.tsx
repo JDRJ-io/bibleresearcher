@@ -37,56 +37,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // setProfile(null); // 🔥 commented out - using useMyProfile instead
   };
 
-  const refreshProfile = async () => {
-    if (!user) {
-      setProfile(null);
-      return;
-    }
+  // 🔥 refreshProfile commented out - using useMyProfile instead
+  // const refreshProfile = async () => {
+  //   if (!user) {
+  //     setProfile(null);
+  //     return;
+  //   }
 
-    try {
-      // Fetch profile directly from Supabase
-      const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+  //   try {
+  //     // Fetch profile directly from Supabase
+  //     const { data: profileData, error } = await supabase
+  //       .from('profiles')
+  //       .select('*')
+  //       .eq('id', user.id)
+  //       .single();
 
-      if (error && error.code !== 'PGRST116') { // Ignore "not found" errors
-        console.error('Profile fetch error:', error);
-        return;
-      }
+  //     if (error && error.code !== 'PGRST116') { // Ignore "not found" errors
+  //       console.error('Profile fetch error:', error);
+  //       return;
+  //     }
 
-      setProfile(profileData || { tier: 'free' });
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
-    }
-  };
+  //     setProfile(profileData || { tier: 'free' });
+  //   } catch (error) {
+  //     console.error('Failed to fetch profile:', error);
+  //   }
+  // };
 
-  const updateProfile = async (data: { name: string; bio: string }) => {
-    if (!user) throw new Error('No authenticated user');
+  // 🔥 updateProfile commented out - using useMyProfile instead
+  // const updateProfile = async (data: { name: string; bio: string }) => {
+  //   if (!user) throw new Error('No authenticated user');
 
-    try {
-      // Update profile directly with Supabase
-      const { data: updatedProfile, error } = await supabase
-        .from('profiles')
-        .update({
-          name: data.name,
-          bio: data.bio,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id)
-        .select()
-        .single();
+  //   try {
+  //     // Update profile directly with Supabase
+  //     const { data: updatedProfile, error } = await supabase
+  //       .from('profiles')
+  //       .update({
+  //         name: data.name,
+  //         bio: data.bio,
+  //         updated_at: new Date().toISOString()
+  //       })
+  //       .eq('id', user.id)
+  //       .select()
+  //       .single();
 
-      if (error) throw error;
+  //     if (error) throw error;
 
-      setProfile(updatedProfile);
-      return updatedProfile;
-    } catch (error) {
-      console.error('Profile update error:', error);
-      throw new Error('Failed to update profile');
-    }
-  };
+  //     setProfile(updatedProfile);
+  //     return updatedProfile;
+  //   } catch (error) {
+  //     console.error('Profile update error:', error);
+  //     throw new Error('Failed to update profile');
+  //   }
+  // };
 
   useEffect(() => {
     // Get initial session
@@ -129,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // }, [user, refreshProfile]);
 
   return (
-    <AuthContext.Provider value={{ user, session, profile: null, loading, signOut, refreshProfile, updateProfile }}> {/* profile: null - using useMyProfile instead */}
+    <AuthContext.Provider value={{ user, session, profile: null, loading, signOut, refreshProfile: async () => {}, updateProfile: async () => {} }}> {/* using useMyProfile instead */}
       {children}
     </AuthContext.Provider>
   );
