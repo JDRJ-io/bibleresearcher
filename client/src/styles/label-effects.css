@@ -46,36 +46,23 @@
   color: currentColor;
 }
 
-/* why → hollow outline that adapts to theme with space between text and outline */
+/* why → true hollow outline text (transparent fill with visible border) */
 .fx-outline {
-  font-weight: 300; /* Use thinner font for better outline visibility */
-  color: currentColor;
+  font-weight: 400; /* Standard weight for better outline visibility */
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
-/* Light theme - dark hollow outline */
+/* Light theme - dark outline */
 :root.light .fx-outline {
-  text-shadow: 
-    -1px -1px 0 rgba(0,0,0,0.8),
-    1px -1px 0 rgba(0,0,0,0.8),
-    -1px 1px 0 rgba(0,0,0,0.8),
-    1px 1px 0 rgba(0,0,0,0.8),
-    -1px 0 0 rgba(0,0,0,0.8),
-    1px 0 0 rgba(0,0,0,0.8),
-    0 -1px 0 rgba(0,0,0,0.8),
-    0 1px 0 rgba(0,0,0,0.8);
+  -webkit-text-stroke: 1px rgba(0,0,0,0.8);
+  text-stroke: 1px rgba(0,0,0,0.8);
 }
 
-/* Dark theme - white hollow outline */
+/* Dark theme - white outline */
 :root.dark .fx-outline {
-  text-shadow: 
-    -1px -1px 0 rgba(255,255,255,0.9),
-    1px -1px 0 rgba(255,255,255,0.9),
-    -1px 1px 0 rgba(255,255,255,0.9),
-    1px 1px 0 rgba(255,255,255,0.9),
-    -1px 0 0 rgba(255,255,255,0.9),
-    1px 0 0 rgba(255,255,255,0.9),
-    0 -1px 0 rgba(255,255,255,0.9),
-    0 1px 0 rgba(255,255,255,0.9);
+  -webkit-text-stroke: 1px rgba(255,255,255,0.9);
+  text-stroke: 1px rgba(255,255,255,0.9);
 }
 
 /* seed → text-matching color superscript * */
