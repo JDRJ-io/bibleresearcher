@@ -20,21 +20,28 @@ interface BookmarkButtonProps {
 }
 
 export function BookmarkButton({ className }: BookmarkButtonProps) {
+  console.log('🔖 BookmarkButton: Component mounting/rendering');
+  
   const { user } = useAuth();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [bookmarkName, setBookmarkName] = useState('');
   const [color, setColor] = useState('#ef4444');
 
+  console.log('🔖 BookmarkButton: Auth state - user:', user?.id || 'NO USER');
+
   // Only initialize useBookmarks when user is available to avoid errors
   const bookmarksHook = useBookmarks();
   const { addBookmark, loading } = bookmarksHook || { addBookmark: async () => {}, loading: false };
 
+  console.log('🔖 BookmarkButton: Hooks initialized - loading:', loading);
+
   if (!user) {
+    console.log('🔖 BookmarkButton: No user, returning null');
     return null;
   }
 
-  console.log('BookmarkButton render - user:', user?.id, 'loading:', loading);
+  console.log('🔖 BookmarkButton: Rendering with user:', user.id);
 
   // Add debugging for when button is clicked
   const handleOpenDialog = () => {
