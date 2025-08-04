@@ -20,18 +20,18 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     [verses]
   );
 
-  // Also collect cross-reference and prophecy verse keys that appear in the viewport
+  // Dynamically collect ALL verse references from cross-refs and prophecies in viewport
   const allRequiredVerseKeys = useMemo(() => {
     const store = useBibleStore.getState();
     const allKeys = new Set(verseKeys);
 
-    // Add cross-reference verses
+    // Add cross-reference verses from ALL viewport verses
     verseKeys.forEach((verseKey: string) => {
       const crossRefs = store.crossRefs[verseKey] || [];
       crossRefs.forEach((ref: string) => allKeys.add(ref));
     });
 
-    // Add prophecy verses
+    // Add prophecy verses from ALL viewport verses
     verseKeys.forEach((verseKey: string) => {
       const verseRoles = store.prophecyData[verseKey];
       if (verseRoles) {
@@ -53,7 +53,15 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     });
 
     const result = Array.from(allKeys);
-    console.log(`🔄 VIEWPORT: Expanded verse list from ${verseKeys.length} to ${result.length} verses (includes cross-refs and prophecies)`);
+    const additionalVersesCount = result.length - verseKeys.length;
+    console.log(`🔄 VIEWPORT: Expanded verse list from ${verseKeys.length} to ${result.length} verses (+${additionalVersesCount} from cross-refs and prophecies)`);
+    
+    // Debug: Show some example additional verses
+    const additionalVerses = result.filter(v => !verseKeys.includes(v)).slice(0, 5);
+    if (additionalVerses.length > 0) {
+      console.log(`🔄 VIEWPORT: Example additional verses for labeling:`, additionalVerses);
+    }
+    
     return result;
   }, [verseKeys.join('|')]);
 
@@ -83,7 +91,8 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
         // Normalize active labels before passing to worker
         const normActive = activeLabels.map(lbl => lbl.toLowerCase() as LabelName);
         console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded with normalized labels:`, normActive);
-        await ensureLabelCacheLoaded(mainTranslation, normActive);
+        console.log(`🔄 WORKER: Including ${allRequiredVerseKeys.length} specific verses for dynamic loading`);
+        await ensureLabelCacheLoaded(mainTranslation, normActive, allRequiredVerseKeys);
         console.log(`✅ WORKER: Cache loaded, getting labels for ${allRequiredVerseKeys.length} verses`);
 
         // Get labels for ALL required verses (viewport + cross-refs + prophecies)
@@ -91,6 +100,16 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
         setLabelsData(viewportLabels);
 
         console.log(`🏷️ WORKER: Final viewport labels:`, Object.keys(viewportLabels).length, 'verses with labels out of', allRequiredVerseKeys.length, 'requested');
+        
+        // Debug: Show some specific examples of loaded labels
+        const labeledVerses = Object.keys(viewportLabels).filter(v => Object.keys(viewportLabels[v]).length > 0).slice(0, 3);
+        if (labeledVerses.length > 0) {
+          console.log(`🏷️ WORKER: Example labeled verses:`, labeledVerses.map(v => ({ 
+            verse: v, 
+            labelCount: Object.keys(viewportLabels[v]).length,
+            labels: Object.keys(viewportLabels[v])
+          })));
+        }
       } catch (error) {
         console.error('❌ WORKER: Failed to load viewport labels:', error);
         setLabelsData({});

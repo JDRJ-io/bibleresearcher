@@ -6,7 +6,11 @@ const fileCache: Record<string, Record<string, any>> = {};  // {KJV:{Gen.1:1:{�
 
 self.onmessage = async (e: MessageEvent) => {
   console.log(`📨 Worker: Received message:`, e.data);
-  const { tCode, active } = e.data as { tCode: string; active: (keyof typeof LabelBits)[] };
+  const { tCode, active, requiredVerses } = e.data as { 
+    tCode: string; 
+    active: (keyof typeof LabelBits)[]; 
+    requiredVerses?: string[];
+  };
 
   if (!fileCache[tCode]) {
     try {
@@ -63,15 +67,36 @@ self.onmessage = async (e: MessageEvent) => {
   
   console.log(`🔍 Worker: Filtering for active labels:`, active, 'normalized to:', Array.from(wanted), 'from', Object.keys(src).length, 'verses');
   
-  for (const [vKey, entry] of Object.entries(src)) {
-    const slim: Record<string, string[]> = {};
-    wanted.forEach(lbl => {
-      if (entry[lbl]?.length) {
-        slim[lbl] = entry[lbl];
+  if (requiredVerses && requiredVerses.length > 0) {
+    console.log(`🎯 Worker: Focusing on specific ${requiredVerses.length} required verses (including cross-refs/prophecies)`);
+    
+    // Only process required verses for efficiency 
+    const requiredSet = new Set(requiredVerses.map(v => v.trim()));
+    for (const [vKey, entry] of Object.entries(src)) {
+      if (!requiredSet.has(vKey)) continue; // Skip verses not in required list
+      
+      const slim: Record<string, string[]> = {};
+      wanted.forEach(lbl => {
+        if (entry[lbl]?.length) {
+          slim[lbl] = entry[lbl];
+        }
+      });
+      if (Object.keys(slim).length) {
+        filtered[vKey] = slim;
       }
-    });
-    if (Object.keys(slim).length) {
-      filtered[vKey] = slim;
+    }
+  } else {
+    // Process all verses (original behavior)
+    for (const [vKey, entry] of Object.entries(src)) {
+      const slim: Record<string, string[]> = {};
+      wanted.forEach(lbl => {
+        if (entry[lbl]?.length) {
+          slim[lbl] = entry[lbl];
+        }
+      });
+      if (Object.keys(slim).length) {
+        filtered[vKey] = slim;
+      }
     }
   }
 

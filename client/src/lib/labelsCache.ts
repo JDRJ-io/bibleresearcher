@@ -25,11 +25,16 @@ function normaliseTCode(tc: string): string {
 
 export function ensureLabelCacheLoaded(
   tCode: string,
-  activeLabels: LabelName[]
+  activeLabels: LabelName[],
+  requiredVerses?: string[]
 ): Promise<void> {
   const normTCode = normaliseTCode(tCode);
   console.log(`🔄 WORKER: ensureLabelCacheLoaded called for ${tCode} (norm: ${normTCode}) with labels:`, activeLabels);
   console.log(`🔄 WORKER: Current cache status for ${normTCode}:`, !!cache[normTCode]);
+  
+  if (requiredVerses) {
+    console.log(`🔄 WORKER: Specific verses requested: ${requiredVerses.length} verses`);
+  }
 
   // Check if we already have all needed labels cached
   if (cache[normTCode] && activeLabels.every(l => someVerseHasLabel(cache[normTCode]!, l))) {
@@ -38,7 +43,7 @@ export function ensureLabelCacheLoaded(
   }
 
   // De-duplicate concurrent requests
-  const key = `${normTCode}|${activeLabels.sort().join()}`;
+  const key = `${normTCode}|${activeLabels.sort().join()}${requiredVerses ? `|${requiredVerses.length}` : ''}`;
   if (pending.has(key)) {
     console.log(`🔄 WORKER: Request already pending for ${key}`);
     return pending.get(key)!;
@@ -77,8 +82,16 @@ export function ensureLabelCacheLoaded(
     };
 
     worker.addEventListener('message', handle);
-    console.log(`📤 WORKER: Posting message to worker:`, { tCode: normTCode, active: activeLabels });
-    worker.postMessage({ tCode: normTCode, active: activeLabels });
+    console.log(`📤 WORKER: Posting message to worker:`, { 
+      tCode: normTCode, 
+      active: activeLabels, 
+      requiredVerses: requiredVerses 
+    });
+    worker.postMessage({ 
+      tCode: normTCode, 
+      active: activeLabels, 
+      requiredVerses: requiredVerses 
+    });
   });
 
   pending.set(key, p);
@@ -93,12 +106,16 @@ export function getLabelsForVerses(
   const tCode = normaliseTCode(tCodeIn);
   const map = cache[tCode] || {};
 
-  console.debug('GLFV input', {
-    tCode,
-    verseKeys: verseKeys.slice(0, 3),
-    active
-  });
-  console.debug('GLFV cache slice', Object.keys(map).slice(0, 3));
+  console.log(`🔍 LABELS: getLabelsForVerses called for ${tCode} with ${verseKeys.length} verses and ${active.length} active labels`);
+  console.log(`🔍 LABELS: Cache status for ${tCode}:`, !!cache[tCode]);
+  
+  const foundCount = verseKeys.filter(vk => !!map[normaliseVerseKey(vk)]).length;
+  const missingVerses = verseKeys.filter(vk => !map[normaliseVerseKey(vk)]);
+  
+  console.log(`🔍 LABELS: Found ${foundCount}/${verseKeys.length} verses in cache`);
+  if (missingVerses.length > 0) {
+    console.log(`🔍 LABELS: Missing verses from cache:`, missingVerses.slice(0, 10), missingVerses.length > 10 ? `... and ${missingVerses.length - 10} more` : '');
+  }
 
   const out: SlimMap = {};
   verseKeys.forEach(vk => {
