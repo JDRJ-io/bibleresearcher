@@ -23,8 +23,6 @@ export const notes = pgTable("notes", {
   user_id: uuid("user_id").references(() => users.id).notNull(),
   verse_ref: text("verse_ref").notNull(),
   text: text("text").notNull(),
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const bookmarks = pgTable("bookmarks", {
@@ -34,7 +32,6 @@ export const bookmarks = pgTable("bookmarks", {
   index_value: integer("index_value").notNull(),
   color: text("color").default("#ef4444"),
   pending: boolean("pending").default(true), // Enables conflict-free sync
-  created_at: timestamp("created_at").defaultNow(),
 });
 
 export const highlights = pgTable("highlights", {
@@ -45,7 +42,6 @@ export const highlights = pgTable("highlights", {
   end_idx: smallint("end_idx").notNull(),
   color: text("color").notNull(),
   pending: boolean("pending").default(true), // Enables conflict-free sync
-  created_at: timestamp("created_at").defaultNow(),
 });
 
 export const forumPosts = pgTable("forum_posts", {
@@ -80,9 +76,9 @@ export const userPreferences = pgTable("user_preferences", {
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertProfileSchema = createInsertSchema(profiles).omit({ createdAt: true, updatedAt: true });
-export const insertNoteSchema = createInsertSchema(notes).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({ id: true, createdAt: true });
-export const insertHighlightSchema = createInsertSchema(highlights).omit({ id: true, createdAt: true });
+export const insertNoteSchema = createInsertSchema(notes).omit({ id: true });
+export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({ id: true });
+export const insertHighlightSchema = createInsertSchema(highlights).omit({ id: true });
 export const insertForumPostSchema = createInsertSchema(forumPosts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({ id: true });
 export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({ id: true, updatedAt: true });

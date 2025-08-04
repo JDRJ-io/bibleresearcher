@@ -14,10 +14,9 @@ export function useNotes(verseRef?: string) {
     setLoading(true);
     supabase
       .from('notes')
-      .select('*')
+      .select('id, user_id, verse_ref, text')
       .eq('user_id', user.id)
       .eq('verse_ref', verseRef)
-      .order('updated_at', { ascending: false })
       .then(({ data }) => {
         setNotes((data as Note[]) ?? []);
         setLoading(false);
@@ -39,9 +38,9 @@ export function useNotes(verseRef?: string) {
   const updateNote = useCallback(async (id: number, text: string) => {
     const { data, error } = await supabase
       .from('notes')
-      .update({ text, updated_at: new Date().toISOString() })
+      .update({ text })
       .eq('id', id)
-      .select()
+      .select('id, user_id, verse_ref, text')
       .single();
     if (!error && data) setNotes((n) => n.map((x) => (x.id === id ? data as Note : x)));
   }, []);

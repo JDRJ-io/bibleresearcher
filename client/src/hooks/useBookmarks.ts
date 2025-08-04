@@ -30,9 +30,8 @@ export function useBookmarks() {
     try {
       const { data, error } = await supabase
         .from('bookmarks')
-        .select('id, name, index_value, color, created_at, user_id, pending')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('id, name, index_value, color, user_id, pending')
+        .eq('user_id', user.id);
 
       if (error) throw error;
       setBookmarks((data as Bookmark[]) || []);
@@ -58,7 +57,7 @@ export function useBookmarks() {
       const { data, error } = await supabase
         .from('bookmarks')
         .insert(newBookmark)
-        .select('id, name, index_value, color, created_at, user_id, pending')
+        .select('id, name, index_value, color, user_id, pending')
         .single();
 
       if (error) throw error;
@@ -99,7 +98,7 @@ export function useBookmarks() {
         .update(updates)
         .eq('id', id)
         .eq('user_id', user.id)
-        .select('id, name, index_value, color, created_at, user_id, pending')
+        .select('id, name, index_value, color, user_id, pending')
         .single();
 
       if (error) throw error;

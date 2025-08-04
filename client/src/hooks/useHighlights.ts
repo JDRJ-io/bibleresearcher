@@ -24,7 +24,7 @@ export function useHighlights(verseRef?: string) {
     try {
       const { data, error } = await supabase
         .from('highlights')
-        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending, created_at')
+        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending')
         .eq('user_id', user.id)
         .eq('verse_ref', verseRef)
         .order('start_idx', { ascending: true });
@@ -54,7 +54,7 @@ export function useHighlights(verseRef?: string) {
       const { data, error } = await supabase
         .from('highlights')
         .insert(newHighlight)
-        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending, created_at')
+        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending')
         .single();
 
       if (error) throw error;
@@ -95,7 +95,7 @@ export function useHighlights(verseRef?: string) {
         .update({ color })
         .eq('id', id)
         .eq('user_id', user.id)
-        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending, created_at')
+        .select('id, user_id, verse_ref, start_idx, end_idx, color, pending')
         .single();
 
       if (error) throw error;
