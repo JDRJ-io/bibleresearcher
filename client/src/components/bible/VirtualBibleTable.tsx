@@ -691,16 +691,16 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         </div>
       </div>
 
-      {/* Custom Vertical Scrollbar Overlay */}
+      {/* Elegant Vertical Scrollbar */}
       <div 
-        className="absolute right-1 top-0 w-4 z-30 bg-background/20 backdrop-blur-sm rounded-full"
-        style={{ height: "calc(100vh - 85px)" }}
+        className="absolute right-2 top-2 w-1 z-30 opacity-40 hover:opacity-80 transition-opacity duration-300"
+        style={{ height: "calc(100vh - 89px)" }}
       >
         <div 
-          className="absolute right-0 top-0 w-3 bg-blue-500/60 rounded-full shadow-md transition-all duration-200 hover:bg-blue-600/80 hover:w-4"
+          className="absolute right-0 top-0 w-1 bg-foreground/50 rounded-full transition-all duration-150 hover:w-1.5 hover:bg-foreground/70"
           style={{
-            height: `${Math.max(20, Math.min(95, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
-            top: `${Math.min(95, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(20, Math.min(95, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
+            height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
+            top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
             cursor: 'pointer'
           }}
           onMouseDown={(e) => {
@@ -716,7 +716,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               const deltaY = e.clientY - startY;
               const scrollRatio = deltaY / (window.innerHeight - 85);
               const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
-              scrollContainer.scrollTop = newScrollTop;
+              scrollContainer.scrollTo({
+                top: newScrollTop,
+                behavior: 'instant'
+              });
             };
             
             const handleMouseUp = () => {
