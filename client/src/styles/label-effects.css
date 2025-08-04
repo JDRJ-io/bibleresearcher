@@ -6,10 +6,19 @@
   color: currentColor;
 }
 
-/* what → simple drop shadow (not double box outline) */  
+/* what → drop shadow that adapts to theme */  
 .fx-shadow {
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
   color: currentColor;
+}
+
+/* Light theme - dark shadow */
+:root.light .fx-shadow {
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Dark theme - lighter shadow for better visibility */
+:root.dark .fx-shadow {
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
 
 /* when → text-matching underline (not green) */
@@ -46,18 +55,36 @@
   color: currentColor;
 }
 
-/* why → thin outline around individual characters (like double-struck) */
+/* why → outline that adapts to theme (white outline on dark, dark outline on light) */
 .fx-outline {
-  text-shadow: 
-    -0.025px -0.025px 0 currentColor,
-    0.025px -0.025px 0 currentColor,
-    -0.025px 0.025px 0 currentColor,
-    0.025px 0.025px 0 currentColor,
-    -0.025px 0 0 currentColor,
-    0.025px 0 0 currentColor,
-    0 -0.025px 0 currentColor,
-    0 0.025px 0 currentColor;
+  font-weight: 300; /* Use thinner font for better outline visibility */
   color: currentColor;
+}
+
+/* Light theme - dark outline */
+:root.light .fx-outline {
+  text-shadow: 
+    -0.5px -0.5px 0 rgba(0,0,0,0.8),
+    0.5px -0.5px 0 rgba(0,0,0,0.8),
+    -0.5px 0.5px 0 rgba(0,0,0,0.8),
+    0.5px 0.5px 0 rgba(0,0,0,0.8),
+    -0.5px 0 0 rgba(0,0,0,0.8),
+    0.5px 0 0 rgba(0,0,0,0.8),
+    0 -0.5px 0 rgba(0,0,0,0.8),
+    0 0.5px 0 rgba(0,0,0,0.8);
+}
+
+/* Dark theme - white outline */
+:root.dark .fx-outline {
+  text-shadow: 
+    -0.5px -0.5px 0 rgba(255,255,255,0.9),
+    0.5px -0.5px 0 rgba(255,255,255,0.9),
+    -0.5px 0.5px 0 rgba(255,255,255,0.9),
+    0.5px 0.5px 0 rgba(255,255,255,0.9),
+    -0.5px 0 0 rgba(255,255,255,0.9),
+    0.5px 0 0 rgba(255,255,255,0.9),
+    0 -0.5px 0 rgba(255,255,255,0.9),
+    0 0.5px 0 rgba(255,255,255,0.9);
 }
 
 /* seed → text-matching color superscript * */
