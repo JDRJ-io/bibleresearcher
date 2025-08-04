@@ -44,35 +44,45 @@ export function TopHeader({
   const { width } = useWindowSize();
   const isMobile = width < 640;
 
-  // Get the current central verse from the Bible store
+  // Get the current central verse from reading state
   const getCurrentCentralVerse = () => {
-    // This should get the current verse that's in the center of the viewport
-    // For now, we'll use the currentVerseKeys from the store or a fallback
-    const currentKeys = bibleStore?.currentVerseKeys;
-    const currentRef = currentKeys?.[0] || 'Gen.1:1';
-    const currentIndex = 0; // We'll use 0 as default index
-    return { reference: currentRef, index: currentIndex };
+    try {
+      // Get current anchor index from reading state (same logic as useBookmarks)
+      const saved = JSON.parse(localStorage.getItem('readingState') ?? 'null');
+      const anchorIndex = saved?.anchorIndex || 0;
+      
+      // Get current verse keys from store
+      const currentKeys = bibleStore?.currentVerseKeys || [];
+      const currentRef = currentKeys[anchorIndex] || currentKeys[0] || 'Gen.1:1';
+      
+      console.log('🔖 TopHeader getCurrentCentralVerse:', { anchorIndex, currentRef, totalVerses: currentKeys.length });
+      
+      return { reference: currentRef, index: anchorIndex };
+    } catch (error) {
+      console.error('🔖 TopHeader Error getting central verse:', error);
+      return { reference: 'Gen.1:1', index: 0 };
+    }
   };
 
   // Bookmark creation mutation
   const createBookmarkMutation = useMutation({
     mutationFn: async (bookmark: {
-      userId: string;
-      verseRef: string;
-      indexValue: number;
       name: string;
+      index_value: number;
       color: string;
     }) => {
-      return await apiRequest("/api/bookmarks", "POST", bookmark);
+      console.log('🔖 TopHeader: Creating bookmark with data:', bookmark);
+      return await apiRequest("/api/users/bookmarks", "POST", bookmark, user?.id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/bookmarks"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users/bookmarks"] });
       toast({
         title: "Bookmark saved",
         description: "Current position has been bookmarked successfully.",
       });
     },
     onError: (error) => {
+      console.error('🔖 TopHeader: Bookmark creation failed:', error);
       toast({
         title: "Error",
         description: "Failed to save bookmark. Please try again.",
@@ -82,7 +92,10 @@ export function TopHeader({
   });
 
   const handleSaveBookmark = () => {
+    console.log('🔖 TopHeader: Save bookmark button clicked');
+    
     if (!user) {
+      console.log('🔖 TopHeader: No user found, showing sign-in message');
       toast({
         title: "Sign in required",
         description: "Please sign in to save bookmarks.",
@@ -92,15 +105,16 @@ export function TopHeader({
     }
 
     const centralVerse = getCurrentCentralVerse();
-    const timestamp = new Date().toLocaleString();
+    console.log('🔖 TopHeader: Central verse obtained:', centralVerse);
     
-    createBookmarkMutation.mutate({
-      userId: user.id,
-      verseRef: centralVerse.reference,
-      indexValue: centralVerse.index,
+    const bookmarkData = {
       name: `Reading position - ${centralVerse.reference}`,
+      index_value: centralVerse.index,
       color: '#3b82f6', // Default blue color
-    });
+    };
+    
+    console.log('🔖 TopHeader: About to create bookmark with:', bookmarkData);
+    createBookmarkMutation.mutate(bookmarkData);
   };
 
 

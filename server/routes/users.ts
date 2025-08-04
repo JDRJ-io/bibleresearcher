@@ -156,7 +156,7 @@ router.get('/highlights', requireAuth, async (req: any, res) => {
     const userHighlights = await db
       .select()
       .from(highlights)
-      .where(eq(highlights.userId, req.userId));
+      .where(eq(highlights.user_id, req.userId));
     res.json(userHighlights);
   } catch (error) {
     console.error('Error fetching highlights:', error);
@@ -168,7 +168,7 @@ router.post('/highlights', requireAuth, async (req: any, res) => {
   try {
     const validatedData = insertHighlightSchema.parse({
       ...req.body,
-      userId: req.userId
+      user_id: req.userId
     });
     
     const [highlight] = await db
@@ -189,7 +189,7 @@ router.delete('/highlights/:id', requireAuth, async (req: any, res) => {
     
     const [highlight] = await db
       .delete(highlights)
-      .where(and(eq(highlights.id, highlightId), eq(highlights.userId, req.userId)))
+      .where(and(eq(highlights.id, highlightId), eq(highlights.user_id, req.userId)))
       .returning();
     
     if (!highlight) {
@@ -209,8 +209,7 @@ router.get('/bookmarks', requireAuth, async (req: any, res) => {
     const userBookmarks = await db
       .select()
       .from(bookmarks)
-      .where(eq(bookmarks.userId, req.userId))
-      .orderBy(bookmarks.createdAt);
+      .where(eq(bookmarks.user_id, req.userId));
     res.json(userBookmarks);
   } catch (error) {
     console.error('Error fetching bookmarks:', error);
@@ -222,8 +221,10 @@ router.post('/bookmarks', requireAuth, async (req: any, res) => {
   try {
     const validatedData = insertBookmarkSchema.parse({
       ...req.body,
-      userId: req.userId
+      user_id: req.userId
     });
+    
+    console.log('Creating bookmark with validated data:', validatedData);
     
     const [bookmark] = await db
       .insert(bookmarks)
@@ -245,7 +246,7 @@ router.put('/bookmarks/:id', requireAuth, async (req: any, res) => {
     const [bookmark] = await db
       .update(bookmarks)
       .set({ name, color })
-      .where(and(eq(bookmarks.id, bookmarkId), eq(bookmarks.userId, req.userId)))
+      .where(and(eq(bookmarks.id, bookmarkId), eq(bookmarks.user_id, req.userId)))
       .returning();
     
     if (!bookmark) {
@@ -265,7 +266,7 @@ router.delete('/bookmarks/:id', requireAuth, async (req: any, res) => {
     
     const [bookmark] = await db
       .delete(bookmarks)
-      .where(and(eq(bookmarks.id, bookmarkId), eq(bookmarks.userId, req.userId)))
+      .where(and(eq(bookmarks.id, bookmarkId), eq(bookmarks.user_id, req.userId)))
       .returning();
     
     if (!bookmark) {
