@@ -1,0 +1,55 @@
+queryClient.ts:26  POST https://b5a59dfe-123c-4bf8-be2f-a0f11519d56d-00-17yiegmsu8rtl.riker.replit.dev/api/users/bookmarks 404 (Not Found)
+apiRequest @ queryClient.ts:26
+mutationFn @ TopHeader.tsx:75
+fn @ @tanstack_react-query.js?v=786f3566:1189
+run @ @tanstack_react-query.js?v=786f3566:494
+start @ @tanstack_react-query.js?v=786f3566:536
+execute @ @tanstack_react-query.js?v=786f3566:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=786f3566:2630
+(anonymous) @ @tanstack_react-query.js?v=786f3566:3295
+handleSaveBookmark @ TopHeader.tsx:117
+callCallback2 @ chunk-276SZO74.js?v=786f3566:3674
+invokeGuardedCallbackDev @ chunk-276SZO74.js?v=786f3566:3699
+invokeGuardedCallback @ chunk-276SZO74.js?v=786f3566:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-276SZO74.js?v=786f3566:3736
+executeDispatch @ chunk-276SZO74.js?v=786f3566:7014
+processDispatchQueueItemsInOrder @ chunk-276SZO74.js?v=786f3566:7034
+processDispatchQueue @ chunk-276SZO74.js?v=786f3566:7043
+dispatchEventsForPlugins @ chunk-276SZO74.js?v=786f3566:7051
+(anonymous) @ chunk-276SZO74.js?v=786f3566:7174
+batchedUpdates$1 @ chunk-276SZO74.js?v=786f3566:18913
+batchedUpdates @ chunk-276SZO74.js?v=786f3566:3579
+dispatchEventForPluginEventSystem @ chunk-276SZO74.js?v=786f3566:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-276SZO74.js?v=786f3566:5478
+dispatchEvent @ chunk-276SZO74.js?v=786f3566:5472
+dispatchDiscreteEvent @ chunk-276SZO74.js?v=786f3566:5449
+TopHeader.tsx:85 🔖 TopHeader: Bookmark creation failed: Error: 404: Not Found
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async apiRequest (queryClient.ts:33:3)
+    at async Object.mutationFn (TopHeader.tsx:75:14)
+onError @ TopHeader.tsx:85
+execute @ @tanstack_react-query.js?v=786f3566:1254
+await in execute
+mutate @ @tanstack_react-query.js?v=786f3566:2630
+(anonymous) @ @tanstack_react-query.js?v=786f3566:3295
+handleSaveBookmark @ TopHeader.tsx:117
+callCallback2 @ chunk-276SZO74.js?v=786f3566:3674
+invokeGuardedCallbackDev @ chunk-276SZO74.js?v=786f3566:3699
+invokeGuardedCallback @ chunk-276SZO74.js?v=786f3566:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-276SZO74.js?v=786f3566:3736
+executeDispatch @ chunk-276SZO74.js?v=786f3566:7014
+processDispatchQueueItemsInOrder @ chunk-276SZO74.js?v=786f3566:7034
+processDispatchQueue @ chunk-276SZO74.js?v=786f3566:7043
+dispatchEventsForPlugins @ chunk-276SZO74.js?v=786f3566:7051
+(anonymous) @ chunk-276SZO74.js?v=786f3566:7174
+batchedUpdates$1 @ chunk-276SZO74.js?v=786f3566:18913
+batchedUpdates @ chunk-276SZO74.js?v=786f3566:3579
+dispatchEventForPluginEventSystem @ chunk-276SZO74.js?v=786f3566:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-276SZO74.js?v=786f3566:5478
+dispatchEvent @ chunk-276SZO74.js?v=786f3566:5472
+dispatchDiscreteEvent @ chunk-276SZO74.js?v=786f3566:5449
+VirtualBibleTable.tsx:105 🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels: [] type: object length: 0
+VirtualBibleTable.tsx:106 🔍🔍🔍 IMMEDIATE - Full store check: {hasStore: true, storeActiveLabels: Array(0), directActiveLabels: Array(0)}
+VirtualBibleTable.tsx:297 🎯 VirtualBibleTable anchor-centered render: 614 (Gen.24:23)
+VirtualBibleTable.tsx:299 📊 CHUNK DATA: start=514, end=714, verseIDs=201, rowData keys=201
