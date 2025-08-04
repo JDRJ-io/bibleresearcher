@@ -94,6 +94,7 @@ export function TopHeader({
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
       toast({
         title: "Bookmark saved",
         description: "Current position has been bookmarked successfully.",

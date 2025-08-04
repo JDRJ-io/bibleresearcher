@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Bookmark, Edit3, Trash2, ExternalLink } from 'lucide-react';
-import { useUserBookmarks, useUpdateBookmark, useDeleteBookmark } from '@/hooks/useUserData';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -16,16 +17,71 @@ interface BookmarksListProps {
 }
 
 export function BookmarksList({ onNavigateToVerse, className }: BookmarksListProps) {
-  const { isLoggedIn } = useAuth();
-  const { data: bookmarks = [], isLoading } = useUserBookmarks();
-  const updateBookmark = useUpdateBookmark();
-  const deleteBookmark = useDeleteBookmark();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+  
+  // Direct Supabase query for bookmarks
+  const { data: bookmarks = [], isLoading } = useQuery({
+    queryKey: ['user-bookmarks'],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('bookmarks')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('id', { ascending: false });
+
+      if (error) {
+        console.error('BookmarksList: Error loading bookmarks:', error);
+        throw error;
+      }
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  // Update bookmark mutation
+  const updateBookmark = useMutation({
+    mutationFn: async ({ id, name }: { id: number; name: string }) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('bookmarks')
+        .update({ name })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
+    },
+  });
+
+  // Delete bookmark mutation
+  const deleteBookmark = useMutation({
+    mutationFn: async (id: number) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('bookmarks')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
+    },
+  });
   
   const [editingBookmark, setEditingBookmark] = useState<BookmarkType | null>(null);
   const [editName, setEditName] = useState('');
 
-  if (!isLoggedIn) {
+  if (!user) {
     return (
       <div className={`text-center p-4 text-muted-foreground ${className}`}>
         Sign in to view your bookmarks
@@ -94,7 +150,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
 
   const handleNavigate = (bookmark: BookmarkType) => {
     if (onNavigateToVerse) {
-      onNavigateToVerse(bookmark.indexValue);
+      onNavigateToVerse(bookmark.index_value);
       toast({ title: `Navigated to bookmark: ${bookmark.name}` });
     }
   };
@@ -124,7 +180,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                   {bookmark.name}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(bookmark.createdAt!), { addSuffix: true })}
+                  Index: {bookmark.index_value}
                 </div>
               </div>
               
