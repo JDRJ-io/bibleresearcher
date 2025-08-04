@@ -682,6 +682,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                     mainTranslation={mainTranslation}
                     onVerseClick={columnData.onVerseClick}
                     onExpandVerse={onExpandVerse}
+                    getVerseLabels={getVerseLabels}
                   />
                 );
             })}
