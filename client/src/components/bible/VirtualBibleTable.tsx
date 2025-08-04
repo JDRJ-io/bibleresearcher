@@ -573,6 +573,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         showProphecy={showProphecies}
         showCrossRefs={showCrossRefs}
         showContext={store.showContext}
+        showDates={store.showDates}
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}

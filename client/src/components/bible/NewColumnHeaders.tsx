@@ -10,6 +10,7 @@ interface NewColumnHeadersProps {
   showProphecy: boolean;
   showCrossRefs?: boolean;
   showContext: boolean;
+  showDates?: boolean;
   scrollLeft: number;
   preferences: any;
   isGuest?: boolean;
@@ -29,6 +30,7 @@ export function NewColumnHeaders({
   showProphecy, 
   showCrossRefs = false,
   showContext, 
+  showDates = false,
   scrollLeft, 
   preferences, 
   isGuest = true 
@@ -87,10 +89,10 @@ export function NewColumnHeaders({
       width: getResponsiveWidth('reference')
     });
 
-    // 2. Context/Dates column
-    if (showContext) {
+    // 2. Dates column (showDates controls the dates column)
+    if (showDates) {
       cols.push({
-        id: 'context',
+        id: 'dates',
         name: '📅',
         type: 'context',
         visible: true,
@@ -98,7 +100,18 @@ export function NewColumnHeaders({
       });
     }
 
-    // 3. Notes column
+    // 3. Context/Boundaries column (showContext controls context boundaries)
+    if (showContext) {
+      cols.push({
+        id: 'context-boundaries',
+        name: '🏛️',
+        type: 'context',
+        visible: true,
+        width: getResponsiveWidth('context')
+      });
+    }
+
+    // 4. Notes column
     if (showNotes) {
       cols.push({
         id: 'notes',
@@ -109,7 +122,7 @@ export function NewColumnHeaders({
       });
     }
 
-    // 4. Main translation (always visible)
+    // 5. Main translation (always visible)
     cols.push({
       id: 'main-translation',
       name: main || 'KJV',
@@ -118,7 +131,7 @@ export function NewColumnHeaders({
       width: getResponsiveWidth('main-translation')
     });
 
-    // 5. Cross references (should come before alternate translations)
+    // 6. Cross references (should come before alternate translations)
     if (showCrossRefs) {
       cols.push({
         id: 'cross-refs',
@@ -129,7 +142,7 @@ export function NewColumnHeaders({
       });
     }
 
-    // 6. Prophecy columns (should come before alternate translations)
+    // 7. Prophecy columns (should come before alternate translations)
     if (showProphecy) {
       cols.push(
         {
@@ -156,7 +169,7 @@ export function NewColumnHeaders({
       );
     }
 
-    // 7. Alternate translations (filter out main to avoid duplication)
+    // 8. Alternate translations (filter out main to avoid duplication)
     alternates
       .filter(code => code !== main)
       .forEach((code, index) => {
@@ -170,9 +183,10 @@ export function NewColumnHeaders({
       });
 
     return cols.filter(col => col.visible);
-  }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy, adaptiveWidths]);
+  }, [main, alternates, showNotes, showContext, showDates, showCrossRefs, showProphecy, adaptiveWidths]);
 
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
+  console.log('📋 NewColumnHeaders showContext prop:', showContext, 'showDates prop:', showDates);
 
   const isPortrait = window.innerHeight > window.innerWidth;
 
