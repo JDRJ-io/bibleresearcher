@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyProfile } from '@/hooks/useMyProfile';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -14,7 +15,8 @@ import { User, Settings, LogOut, Crown } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export function UserProfileDropdown() {
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const { profile } = useMyProfile();
   const [, setLocation] = useLocation();
   
   if (!user) return null;
