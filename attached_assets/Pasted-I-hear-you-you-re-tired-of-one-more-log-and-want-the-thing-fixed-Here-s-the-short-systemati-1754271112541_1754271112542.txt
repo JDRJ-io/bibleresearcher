@@ -1,0 +1,106 @@
+I hear you — you’re tired of “one-more-log” and want the thing fixed.
+Here’s the **short, systematic path** that will either finish the profile
+load or show the only two remaining blockers, in under five minutes.
+
+---
+
+## 1. Switch to **Option A** (single context)
+
+No more dual wiring, no more component edits. Replace the body of
+`AuthContext.tsx` with **exactly** this and delete the extra functions:
+
+```tsx
+/* AuthContext.tsx – inside <AuthContext.Provider> */
+const { profile, profileLoading, error, save } = useMyProfile();
+
+<AuthContext.Provider
+  value={{
+    user,
+    session,
+    loading: authLoading || profileLoading,
+    profile,            // real data now
+    saveProfile: save,  // expose if you need it
+    signOut
+  }}>
+  {children}
+</AuthContext.Provider>
+```
+
+Now **every component that already uses `useAuth()`** will get the real
+profile once it loads — you don’t have to touch dropdowns, headers, etc.
+
+---
+
+## 2. Make sure Supabase will actually return that row
+
+Run this once in the SQL editor (copy/paste):
+
+```sql
+alter table public.profiles enable row level security;
+drop policy if exists "profile owner rw" on public.profiles;
+create policy "profile owner rw"
+  on public.profiles
+  for all using (id = auth.uid()) with check (id = auth.uid());
+```
+
+That removes every 42501 / 403 “not allowed” surprise.
+
+---
+
+## 3. Guarantee a row exists on first sign-in
+
+Add or confirm the trigger (run once):
+
+```sql
+create or replace function public.handle_new_user()
+returns trigger language plpgsql as $$
+begin
+  insert into public.profiles (id) values (new.id) on conflict do nothing;
+  return new;
+end $$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+
+create trigger on_auth_user_created
+after insert on auth.users for each row
+execute function public.handle_new_user();
+```
+
+Now every new account has an empty profile row automatically.
+
+---
+
+## 4. Reload **once**
+
+1. Hard-refresh `/`
+2. Click **Sign in** → get the magic link, open it **in the same browser tab**
+3. Visit `/profile`
+
+You should immediately see in the console:
+
+```
+HOOK FILE LOADED
+EFFECT TRIGGERED  { hasUser:true }
+PROFILE ↩️ { name:null, bio:null, tier:'free' } null
+```
+
+…and on the page the form is displayed (empty fields because it’s a new row).
+
+---
+
+### If you *don’t* see that flow
+
+There are only two remaining possibilities:
+
+| What you see                          | Fix                                                                                         |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `hasUser:false`                       | The magic-link opened in another browser / cleared cookies → sign in again in the same tab. |
+| `PROFILE ↩️ null { code:'42501', … }` | Run the RLS block in **Step 2** again (typo or wrong DB).                                   |
+
+No other branches remain; once the log above appears, every component hooked
+to `useAuth()` shows the user’s name/tier and saving works.
+
+---
+
+That’s the whole path—no further debug breadcrumbs.
+Apply steps 1 - 3, reload once, and the spinner is gone.

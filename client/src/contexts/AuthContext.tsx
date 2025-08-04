@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
+import { useMyProfile } from '@/hooks/useMyProfile';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  profile: { name?: string; bio?: string; tier?: string } | null;
+  saveProfile: (data: any) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -13,6 +16,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: true,
+  profile: null,
+  saveProfile: async () => {},
   signOut: async () => {},
 });
 
@@ -21,8 +26,9 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  // const [profile, setProfile] = useState<{ name?: string; bio?: string; tier?: string } | null>(null); // 🔥 commented out - using useMyProfile instead
   const [loading, setLoading] = useState(true);
+  
+  const { profile, profileLoading, error, save } = useMyProfile();
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -125,7 +131,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // }, [user, refreshProfile]);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      loading: loading || profileLoading, 
+      profile,
+      saveProfile: save,
+      signOut 
+    }}>
       {children}
     </AuthContext.Provider>
   );
