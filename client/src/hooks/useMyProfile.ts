@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
+console.log('HOOK FILE LOADED'); // Fast test to verify this file is being imported
+
 export function useMyProfile() {
   const [profile, setProfile] = useState<any>(null);
   const [profileLoading, setLoading] = useState(true);
