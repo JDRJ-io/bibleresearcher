@@ -335,7 +335,7 @@ export default function BiblePage() {
           getCurrentVerse={getCurrentVerseFromTable}
         />
 
-        <main className="flex-1 overflow-hidden relative">
+        <main className="flex-1 overflow-hidden relative pb-[60px]"> {/* Add padding for footer */}
           <VirtualBibleTable
             ref={tableRef}
             verses={verses}
