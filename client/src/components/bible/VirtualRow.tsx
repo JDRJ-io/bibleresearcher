@@ -72,8 +72,10 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     }
   };
 
-  // Helper function to render text with labels
+  // Helper function to render text with labels using proper LabeledText component
   const renderTextWithLabels = (text: string, reference: string) => {
+    if (!text) return '—';
+    
     if (!activeLabels || activeLabels.length === 0) {
       return text;
     }
@@ -89,69 +91,15 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
       });
     }
 
-    // Manual text processing to avoid hook in conditional logic
-    if (!text || activeLabels.length === 0) {
-      return text;
-    }
-
-    // Process text segments manually
-    type Ev = { pos: number; bit: number; add: boolean };
-    const evs: Ev[] = [];
-    
-    // Import LabelBits inline to avoid dependency issues
-    const LabelBits = {
-      who: 1,
-      what: 2,
-      when: 4,
-      where: 8,
-      command: 16,
-      action: 32,
-      why: 64,
-      seed: 128,
-      harvest: 256,
-      prediction: 512
-    };
-
-    activeLabels.forEach(lbl => {
-      const bit = LabelBits[lbl as keyof typeof LabelBits];
-      (labelData?.[lbl as LabelName] || []).forEach(ph => {
-        const re = new RegExp(
-          ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
-          'gi'
-        );
-        let m: RegExpExecArray | null;
-        while ((m = re.exec(text))) {
-          evs.push({ pos: m.index, add: true, bit });
-          evs.push({ pos: m.index + m[0].length, add: false, bit });
-        }
-      });
-    });
-
-    if (!evs.length) return text;
-
-    evs.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
-
-    const segments: { start: number; end: number; mask: number }[] = [];
-    let mask = 0, last = 0;
-
-    for (const { pos, bit, add } of evs) {
-      if (pos > last) segments.push({ start: last, end: pos, mask });
-      mask = add ? (mask | bit) : (mask & ~bit);
-      last = pos;
-    }
-    if (last < text.length) segments.push({ start: last, end: text.length, mask });
-
-    return segments.map((segment, index) => {
-      const content = text.slice(segment.start, segment.end);
-      const cls = classesForMask(segment.mask);
-      return cls ? (
-        <span key={index} className={cls}>
-          {content}
-        </span>
-      ) : (
-        <span key={index}>{content}</span>
-      );
-    });
+    // Use the proper LabeledText component
+    return (
+      <LabeledText
+        text={text}
+        labelData={labelData}
+        activeLabels={activeLabels}
+        verseKey={reference}
+      />
+    );
   };
 
   // Debug: Log cross-reference rendering for Gen.1:1
@@ -236,8 +184,10 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   // Remove duplicates
   const uniqueProphecyIds = Array.from(new Set(allProphecyIds));
 
-  // Helper function to render text with labels
+  // Helper function to render text with labels using proper LabeledText component
   const renderTextWithLabels = (text: string, reference: string) => {
+    if (!text) return 'Loading...';
+    
     if (!activeLabels || activeLabels.length === 0) {
       return text;
     }
@@ -253,69 +203,15 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
       });
     }
 
-    // Manual text processing to avoid hook in conditional logic
-    if (!text || activeLabels.length === 0) {
-      return text;
-    }
-
-    // Process text segments manually
-    type Ev = { pos: number; bit: number; add: boolean };
-    const evs: Ev[] = [];
-    
-    // Import LabelBits inline to avoid dependency issues
-    const LabelBits = {
-      who: 1,
-      what: 2,
-      when: 4,
-      where: 8,
-      command: 16,
-      action: 32,
-      why: 64,
-      seed: 128,
-      harvest: 256,
-      prediction: 512
-    };
-
-    activeLabels.forEach(lbl => {
-      const bit = LabelBits[lbl as keyof typeof LabelBits];
-      (labelData?.[lbl as LabelName] || []).forEach(ph => {
-        const re = new RegExp(
-          ph.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\W+'),
-          'gi'
-        );
-        let m: RegExpExecArray | null;
-        while ((m = re.exec(text))) {
-          evs.push({ pos: m.index, add: true, bit });
-          evs.push({ pos: m.index + m[0].length, add: false, bit });
-        }
-      });
-    });
-
-    if (!evs.length) return text;
-
-    evs.sort((a, b) => a.pos - b.pos || (a.add ? -1 : 1));
-
-    const segments: { start: number; end: number; mask: number }[] = [];
-    let mask = 0, last = 0;
-
-    for (const { pos, bit, add } of evs) {
-      if (pos > last) segments.push({ start: last, end: pos, mask });
-      mask = add ? (mask | bit) : (mask & ~bit);
-      last = pos;
-    }
-    if (last < text.length) segments.push({ start: last, end: text.length, mask });
-
-    return segments.map((segment, index) => {
-      const content = text.slice(segment.start, segment.end);
-      const cls = classesForMask(segment.mask);
-      return cls ? (
-        <span key={index} className={cls}>
-          {content}
-        </span>
-      ) : (
-        <span key={index}>{content}</span>
-      );
-    });
+    // Use the proper LabeledText component
+    return (
+      <LabeledText
+        text={text}
+        labelData={labelData}
+        activeLabels={activeLabels}
+        verseKey={reference}
+      />
+    );
   };
 
   return (
@@ -849,14 +745,31 @@ export function VirtualRow({
           });
         }
 
-        // Simple fallback to hook functions for alternate translations (no labels)
+        // Alternate translations with labels support
         let verseText = getVerseText(verse.reference, config.translationCode) || 
                         getMainVerseText(verse.reference);
+
+        // Get labels for this verse if we have active labels
+        const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
+        const verseLabels = shouldUseLabeledText && getVerseLabels ? getVerseLabels(verse.reference) : {};
 
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
             <div className="px-2 py-1 text-sm cell-content h-full max-h-full">
-              {verseText || `[${config.translationCode} loading...]`}
+              {verseText ? (
+                shouldUseLabeledText ? (
+                  <LabeledText
+                    text={verseText}
+                    labelData={verseLabels}
+                    activeLabels={activeLabels}
+                    verseKey={`${verse.reference}-${config.translationCode}`}
+                  />
+                ) : (
+                  verseText
+                )
+              ) : (
+                `[${config.translationCode} loading...]`
+              )}
             </div>
           </div>
         );
