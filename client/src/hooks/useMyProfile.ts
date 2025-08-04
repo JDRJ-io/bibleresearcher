@@ -18,6 +18,7 @@ export function useMyProfile() {
 
   /* fetch once on mount */
   useEffect(() => {
+    console.log('EFFECT TRIGGERED');          // 🆕 1
     (async () => {
       console.log('EFFECT TRIGGERED');          // 🆕 1
       try {

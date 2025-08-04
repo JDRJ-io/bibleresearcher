@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyProfile } from '@/hooks/useMyProfile';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -14,10 +15,20 @@ import { User, Settings, LogOut, Crown } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export function UserProfileDropdown() {
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const { profile, profileLoading } = useMyProfile();
   const [, setLocation] = useLocation();
   
   if (!user) return null;
+
+  // Show loading state while profile loads
+  if (profileLoading) {
+    return (
+      <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <div className="h-10 w-10 rounded-full bg-purple-200 dark:bg-purple-800 animate-pulse" />
+      </Button>
+    );
+  }
 
   const userInitials = profile?.name 
     ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase()
