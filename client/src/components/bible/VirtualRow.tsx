@@ -10,6 +10,8 @@ import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import LabeledText from './LabeledText';
 import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
+import { classesForMask } from '@/lib/labelRenderer';
+import { LabelName } from '@/lib/labelBits';
 import { NotesCell } from '@/components/user/NotesCell';
 import { VerseText } from '@/components/highlights/VerseText';
 
@@ -48,8 +50,8 @@ function ReferenceCell({ verse }: CellProps) {
   );
 }
 
-function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick }: CellProps) {
-  const { crossRefs: crossRefsStore } = useBibleStore();
+function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClick, getVerseLabels }: CellProps) {
+  const { crossRefs: crossRefsStore, activeLabels } = useBibleStore();
 
   // OPTIMIZATION: verse.reference is now dot format "Gen.1:1" - matches crossRefs store keys
   const crossRefs = crossRefsStore[verse.reference] || [];
@@ -68,6 +70,43 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     } else {
       console.warn('⚠️ No onVerseClick handler available');
     }
+  };
+
+  // Helper function to render text with labels
+  const renderTextWithLabels = (text: string, reference: string) => {
+    if (!activeLabels || activeLabels.length === 0) {
+      return text;
+    }
+
+    // Get labels for this cross-reference verse
+    const labelData: Partial<Record<LabelName, string[]>> = {};
+    if (getVerseLabels) {
+      const verseLabels = getVerseLabels(reference);
+      activeLabels.forEach((labelName) => {
+        if (verseLabels[labelName]) {
+          labelData[labelName as LabelName] = verseLabels[labelName];
+        }
+      });
+    }
+
+    // Process text with labels
+    const segments = useLabeledText(
+      text,
+      labelData,
+      (activeLabels || []) as LabelName[]
+    );
+
+    return segments.map((segment, index) => {
+      const content = text.slice(segment.start, segment.end);
+      const cls = classesForMask(segment.mask);
+      return cls ? (
+        <span key={index} className={cls}>
+          {content}
+        </span>
+      ) : (
+        <span key={index}>{content}</span>
+      );
+    });
   };
 
   // Debug: Log cross-reference rendering for Gen.1:1
@@ -107,7 +146,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   {ref}
                 </button>
                 <div className="text-gray-700 dark:text-gray-300 text-sm leading-tight whitespace-normal break-words">
-                  {refText || '—'}
+                  {refText ? renderTextWithLabels(refText, ref) : '—'}
                 </div>
               </div>
             );
@@ -125,11 +164,11 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   );
 }
 
-function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick }: CellProps & { 
+function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick, getVerseLabels }: CellProps & { 
   type: 'P' | 'F' | 'V';
   onProphecyClick?: (prophecyIds: string[], type: 'P' | 'F' | 'V', verseRef: string) => void;
 }) {
-  const { prophecyData, prophecyIndex, collapsedProphecies, toggleProphecyCollapse } = useBibleStore();
+  const { prophecyData, prophecyIndex, collapsedProphecies, toggleProphecyCollapse, activeLabels } = useBibleStore();
 
   // OPTIMIZATION: verse.reference uses dot format - direct lookup
   const verseRoles = prophecyData[verse.reference];
@@ -151,6 +190,43 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
   // Remove duplicates
   const uniqueProphecyIds = Array.from(new Set(allProphecyIds));
+
+  // Helper function to render text with labels
+  const renderTextWithLabels = (text: string, reference: string) => {
+    if (!activeLabels || activeLabels.length === 0) {
+      return text;
+    }
+
+    // Get labels for this prophecy verse
+    const labelData: Partial<Record<LabelName, string[]>> = {};
+    if (getVerseLabels) {
+      const verseLabels = getVerseLabels(reference);
+      activeLabels.forEach((labelName) => {
+        if (verseLabels[labelName]) {
+          labelData[labelName as LabelName] = verseLabels[labelName];
+        }
+      });
+    }
+
+    // Process text with labels
+    const segments = useLabeledText(
+      text,
+      labelData,
+      (activeLabels || []) as LabelName[]
+    );
+
+    return segments.map((segment, index) => {
+      const content = text.slice(segment.start, segment.end);
+      const cls = classesForMask(segment.mask);
+      return cls ? (
+        <span key={index} className={cls}>
+          {content}
+        </span>
+      ) : (
+        <span key={index}>{content}</span>
+      );
+    });
+  };
 
   return (
     <div className="px-2 py-1 text-sm cell-content">
@@ -207,7 +283,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                             {verseRef}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400 text-sm leading-tight whitespace-normal break-words -mt-0.5">
-                            {fullVerseText || 'Loading...'}
+                            {fullVerseText ? renderTextWithLabels(fullVerseText, verseRef) : 'Loading...'}
                           </div>
                         </button>
                       );
@@ -711,7 +787,8 @@ export function VirtualRow({
               verse={verse} 
               getVerseText={getVerseText} 
               mainTranslation={mainTranslation} 
-              onVerseClick={onVerseClick} 
+              onVerseClick={onVerseClick}
+              getVerseLabels={getVerseLabels}
             />
           </div>
         );
@@ -734,6 +811,7 @@ export function VirtualRow({
               getVerseText={getVerseText}
               mainTranslation={mainTranslation}
               onVerseClick={onVerseClick}
+              getVerseLabels={getVerseLabels}
             />
           </div>
         );
