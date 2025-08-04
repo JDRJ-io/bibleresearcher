@@ -129,20 +129,7 @@ export function NewColumnHeaders({
       });
     }
 
-    // 6. Alternate translations (filter out main to avoid duplication)
-    alternates
-      .filter(code => code !== main)
-      .forEach((code, index) => {
-        cols.push({
-          id: `alt-translation-${code}`,
-          name: code,
-          type: 'alt-translation',
-          visible: true,
-          width: getResponsiveWidth('alt-translation')
-        });
-      });
-
-    // 7. Prophecy columns
+    // 6. Prophecy columns (should come before alternate translations)
     if (showProphecy) {
       cols.push(
         {
@@ -168,6 +155,19 @@ export function NewColumnHeaders({
         }
       );
     }
+
+    // 7. Alternate translations (filter out main to avoid duplication)
+    alternates
+      .filter(code => code !== main)
+      .forEach((code, index) => {
+        cols.push({
+          id: `alt-translation-${code}`,
+          name: code,
+          type: 'alt-translation',
+          visible: true,
+          width: getResponsiveWidth('alt-translation')
+        });
+      });
 
     return cols.filter(col => col.visible);
   }, [main, alternates, showNotes, showContext, showCrossRefs, showProphecy, adaptiveWidths]);
