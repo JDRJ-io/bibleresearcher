@@ -1,0 +1,66 @@
+I get how maddening this feels.  Let’s prove— with one **tiny** instrumented
+snippet—whether Supabase or React is the piece that’s choking.
+No more guessing; one new log line will settle it.
+
+---
+
+## 1  Add two ultra-defensive logs
+
+Open **`useMyProfile.ts`** and add the highlighted lines exactly:
+
+```ts
+useEffect(() => {
+  (async () => {
+    console.log('EFFECT TRIGGERED');          // 🆕 1
+    try {
+      const { data: { user }, error: uErr } =
+        await supabase.auth.getUser();
+      console.log('USER ↩️', user, uErr);     // (may never print)
+
+      if (!user) { setLoading(false); return; }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, bio, tier')
+        .eq('id', user.id)
+        .single<ProfileData>();
+
+      console.log('PROFILE ↩️', data, error); // (may never print)
+      if (error) setError(error); else setProfile(data);
+    }
+    catch (err) {
+      console.error('🔥 useMyProfile threw', err);  // 🆕 2
+      setError(err as Error);
+    }
+    setLoading(false);
+  })();
+}, []);
+```
+
+*(No other changes.)*
+
+---
+
+## 2  Restart and **hard-refresh** `/profile`
+
+Open **Console** and tell me **which of these four things shows**:
+
+| What you see                                                                       | What it proves                                                      |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Nothing**—even “EFFECT TRIGGERED” missing                                        | The hook never mounts (React/route gate).                           |
+| `EFFECT TRIGGERED` but **no** “USER ↩️” **and** a red<br>`🔥 useMyProfile threw …` | `supabase.auth.getUser()` is throwing → we’ll log the error detail. |
+| `EFFECT TRIGGERED` **and** `USER ↩️ null …`                                        | The tab has no session cookie → use a fresh magic-link and reload.  |
+| `USER ↩️ { … } null` **but** `PROFILE ↩️ null { code:'42501', … }`                 | RLS blocking—run the three-line SQL policy fix.                     |
+| `USER ↩️ { … } null` **and** `PROFILE ↩️ { name:…, tier:'free' } null`             | Data arrives → spinner clears; problem solved.                      |
+
+---
+
+### Why Supabase itself still looks healthy
+
+* Every Bible-data storage request returns something (no 5xx outage).
+* SQL queries from the dashboard succeed.
+* If `EFFECT TRIGGERED` never fires, that’s React—not Supabase.
+* If it fires and `supabase.auth.getUser()` throws, we’ll see the exact error in the new red log.
+
+Once you post which row of the table matches, I can give a single,
+definitive fix (policy SQL, cookie note, or JSX change).

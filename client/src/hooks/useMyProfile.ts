@@ -19,27 +19,33 @@ export function useMyProfile() {
   /* fetch once on mount */
   useEffect(() => {
     (async () => {
-      /* 1️⃣ who is signed-in? */
-      const { data: { user }, error: uErr } = await supabase.auth.getUser();
-      console.log('USER ↩️', user, uErr);
+      console.log('EFFECT TRIGGERED');          // 🆕 1
+      try {
+        /* 1️⃣ who is signed-in? */
+        const { data: { user }, error: uErr } = await supabase.auth.getUser();
+        console.log('USER ↩️', user, uErr);
 
-      if (!user) {                     // not logged-in tab
-        setLoading(false);
-        return;
+        if (!user) {                     // not logged-in tab
+          setLoading(false);
+          return;
+        }
+
+        /* 2️⃣ fetch the profile row */
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('name, bio, tier')
+          .eq('id', user.id)
+          .single<ProfileData>();
+
+        console.log('PROFILE ↩️', data, error);
+
+        if (error) setError(error);
+        else       setProfile(data);
       }
-
-      /* 2️⃣ fetch the profile row */
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('name, bio, tier')
-        .eq('id', user.id)
-        .single<ProfileData>();
-
-      console.log('PROFILE ↩️', data, error);
-
-      if (error) setError(error);
-      else       setProfile(data);
-
+      catch (err) {
+        console.error('🔥 useMyProfile threw', err);  // 🆕 2
+        setError(err as Error);
+      }
       /* 3️⃣ always drop spinner */
       setLoading(false);
     })();                               // 🟢 invoke the async IIFE
