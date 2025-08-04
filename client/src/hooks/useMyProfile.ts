@@ -8,26 +8,26 @@ export function useMyProfile() {
 
   useEffect(() => {
     (async () => {
-      const { data: { user }, error: userErr } = await supabase.auth.getUser();
-      console.log('USER ↩️', user, userErr);
+      const { data: { user }, error: uErr } = await supabase.auth.getUser();
+      console.log('USER ↩️', user, uErr);          // ★ must print
 
-      if (!user) {
+      if (!user) {                     // not logged-in tab
         setLoading(false);
         return;
       }
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('name,bio,tier')
+        .select('name, bio, tier')
         .eq('id', user.id)
         .single();
 
-      console.log('PROFILE ↩️', data, error);
+      console.log('PROFILE ↩️', data, error);      // ★ must print
 
       if (error) setError(error);
       else       setProfile(data);
 
-      setLoading(false);
+      setLoading(false);               // always flip the flag
     })();
   }, []);
 
