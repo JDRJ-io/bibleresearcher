@@ -24,12 +24,11 @@ export default function Profile() {
   });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Temporarily comment out redirect to debug
+  // Keep redirect disabled for debugging authentication flow
   useEffect(() => {
-    // if (!loading && !user) {
-    //   setLocation('/');
-    //   return;
-    // }
+    if (!authLoading && !user) {
+      console.log('🚫 No user authenticated, showing auth required message');
+    }
     
     if (profile) {
       setFormData({
