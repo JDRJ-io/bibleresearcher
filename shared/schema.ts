@@ -20,32 +20,32 @@ export const profiles = pgTable("profiles", {
 
 export const notes = pgTable("notes", {
   id: serial("id").primaryKey(),
-  userId: uuid("user_id").references(() => users.id).notNull(),
-  verseRef: text("verse_ref").notNull(),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
+  verse_ref: text("verse_ref").notNull(),
   text: text("text").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 export const bookmarks = pgTable("bookmarks", {
   id: serial("id").primaryKey(),
-  userId: uuid("user_id").references(() => users.id).notNull(),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
   name: text("name").notNull(),
-  indexValue: integer("index_value").notNull(),
+  index_value: integer("index_value").notNull(),
   color: text("color").default("#ef4444"),
   pending: boolean("pending").default(true), // Enables conflict-free sync
-  createdAt: timestamp("created_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 export const highlights = pgTable("highlights", {
   id: serial("id").primaryKey(),
-  userId: uuid("user_id").references(() => users.id).notNull(),
-  verseRef: text("verse_ref").notNull(),
-  startIdx: smallint("start_idx").notNull(),
-  endIdx: smallint("end_idx").notNull(),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
+  verse_ref: text("verse_ref").notNull(),
+  start_idx: smallint("start_idx").notNull(),
+  end_idx: smallint("end_idx").notNull(),
   color: text("color").notNull(),
   pending: boolean("pending").default(true), // Enables conflict-free sync
-  createdAt: timestamp("created_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
 export const forumPosts = pgTable("forum_posts", {

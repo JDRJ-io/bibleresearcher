@@ -12,7 +12,7 @@ import { useLabeledText } from '@/hooks/useLabeledText';
 import { useViewportLabels } from '@/hooks/useViewportLabels';
 import { NotesCell } from '@/components/user/NotesCell';
 
-import { BookmarkButton } from '@/components/user/BookmarkButton';
+
 
 interface VirtualRowProps {
   verseID: string;
@@ -646,23 +646,14 @@ export function VirtualRow({
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 group h-full" style={columnStyle}>
-            <div className="relative h-full">
-              <MainTranslationCell 
-                key={`${verse.reference}-${mainTranslation}`}
-                verse={verse} 
-                getVerseText={getVerseText} 
-                mainTranslation={mainTranslation}
-                getVerseLabels={getVerseLabels}
-              />
-              <div className="absolute top-1 right-1">
-                <BookmarkButton 
-                  verseRef={verse.reference} 
-                  indexValue={verse.index ?? 0} 
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                />
-              </div>
-            </div>
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+            <MainTranslationCell 
+              key={`${verse.reference}-${mainTranslation}`}
+              verse={verse} 
+              getVerseText={getVerseText} 
+              mainTranslation={mainTranslation}
+              getVerseLabels={getVerseLabels}
+            />
           </div>
         );
 
