@@ -693,15 +693,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
       {/* Custom Vertical Scrollbar Overlay */}
       <div 
-        className="absolute right-0 top-0 bottom-0 w-3 z-30 pointer-events-none"
+        className="absolute right-1 top-0 w-4 z-30 bg-background/20 backdrop-blur-sm rounded-full"
         style={{ height: "calc(100vh - 85px)" }}
       >
         <div 
-          className="absolute right-0 top-0 w-2 bg-muted-foreground/30 rounded-full transition-opacity duration-200 hover:bg-muted-foreground/50"
+          className="absolute right-0 top-0 w-3 bg-blue-500/60 rounded-full shadow-md transition-all duration-200 hover:bg-blue-600/80 hover:w-4"
           style={{
-            height: `${Math.min(100, (window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT) * 100)}%`,
-            top: `${(scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85)) * 100}%`,
-            pointerEvents: 'auto',
+            height: `${Math.max(20, Math.min(95, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
+            top: `${Math.min(95, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(20, Math.min(95, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
             cursor: 'pointer'
           }}
           onMouseDown={(e) => {
