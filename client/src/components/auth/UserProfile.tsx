@@ -3,7 +3,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useAuth } from '@/contexts/AuthContext'
-import { useMyProfile } from '@/hooks/useMyProfile'
 import { User, LogOut, Heart, MessageSquare, Vote } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useLocation } from 'wouter'
@@ -13,8 +12,7 @@ interface UserProfileProps {
 }
 
 export function UserProfile({ className }: UserProfileProps) {
-  const { user, signOut } = useAuth()
-  const { profile, profileLoading } = useMyProfile()
+  const { user, profile, signOut } = useAuth()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [, setLocation] = useLocation()
@@ -47,17 +45,6 @@ export function UserProfile({ className }: UserProfileProps) {
   }
 
   if (!user) return null
-  
-  if (profileLoading) {
-    return (
-      <Button variant="ghost" className={`h-auto p-2 gap-2 hover:bg-amber-50 dark:hover:bg-amber-950/20 ${className}`}>
-        <div className="h-8 w-8 rounded-full bg-amber-200 dark:bg-amber-800 animate-pulse" />
-        <span className="hidden sm:inline text-amber-900 dark:text-amber-100 font-medium">
-          Loading...
-        </span>
-      </Button>
-    )
-  }
 
   return (
     <DropdownMenu>

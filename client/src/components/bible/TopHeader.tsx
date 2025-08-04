@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book, B
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfileDropdown } from '@/components/auth/UserProfileDropdown';
-import { useMyProfile } from '@/hooks/useMyProfile';
 import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
@@ -36,7 +35,6 @@ export function TopHeader({
 }: TopHeaderProps) {
   const { theme, setTheme, themes } = useTheme();
   const { user, loading } = useAuth();
-  const { profile } = useMyProfile(); // Available for future profile-based features
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
