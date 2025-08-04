@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, uuid, timestamp, smallint, bigint } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, uuid, timestamp, smallint, bigint, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -26,13 +26,14 @@ export const notes = pgTable("notes", {
 });
 
 export const bookmarks = pgTable("bookmarks", {
-  id: serial("id").primaryKey(),
   user_id: uuid("user_id").references(() => users.id).notNull(),
   name: text("name").notNull(),
   index_value: integer("index_value").notNull(),
-  color: text("color").default("#ef4444"),
-  pending: boolean("pending").default(true), // Enables conflict-free sync
-});
+  color: text("color").default("#f00"),
+  created_at: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.user_id, table.name] }),
+}));
 
 export const highlights = pgTable("highlights", {
   id: serial("id").primaryKey(),

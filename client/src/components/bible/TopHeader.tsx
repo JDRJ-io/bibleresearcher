@@ -81,12 +81,13 @@ export function TopHeader({
 
       const { error } = await supabase
         .from('bookmarks')
-        .insert({
-          user_id: user.id,        // snake_case as required by schema
-          name: payload.name,
+        .upsert({
+          user_id: user.id,        // Part of composite primary key
+          name: payload.name,      // Part of composite primary key
           index_value: centralVerse.index,
           color: payload.color,
-          pending: false,          // Set to false since it's being saved directly
+        }, {
+          onConflict: 'user_id,name'  // Handle conflicts on composite PK
         });
 
       if (error) {

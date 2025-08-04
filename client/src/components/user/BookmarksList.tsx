@@ -31,7 +31,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
         .from('bookmarks')
         .select('*')
         .eq('user_id', user.id)
-        .order('id', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('BookmarksList: Error loading bookmarks:', error);
@@ -42,16 +42,16 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
     enabled: !!user,
   });
 
-  // Update bookmark mutation
+  // Update bookmark mutation (using composite key: user_id + name)
   const updateBookmark = useMutation({
-    mutationFn: async ({ id, name }: { id: number; name: string }) => {
+    mutationFn: async ({ oldName, newName }: { oldName: string; newName: string }) => {
       if (!user) throw new Error('User not authenticated');
       
       const { error } = await supabase
         .from('bookmarks')
-        .update({ name })
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .update({ name: newName })
+        .eq('user_id', user.id)
+        .eq('name', oldName);
 
       if (error) throw error;
     },
@@ -60,16 +60,16 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
     },
   });
 
-  // Delete bookmark mutation
+  // Delete bookmark mutation (using composite key: user_id + name)
   const deleteBookmark = useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (name: string) => {
       if (!user) throw new Error('User not authenticated');
       
       const { error } = await supabase
         .from('bookmarks')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('name', name);
 
       if (error) throw error;
     },
@@ -119,8 +119,8 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
 
     try {
       await updateBookmark.mutateAsync({
-        id: editingBookmark.id,
-        name: editName.trim()
+        oldName: editingBookmark.name,
+        newName: editName.trim()
       });
       
       toast({ title: "Bookmark updated" });
@@ -137,7 +137,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
 
   const handleDelete = async (bookmark: BookmarkType) => {
     try {
-      await deleteBookmark.mutateAsync(bookmark.id);
+      await deleteBookmark.mutateAsync(bookmark.name);
       toast({ title: "Bookmark deleted" });
     } catch (error) {
       toast({ 
@@ -167,7 +167,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
         <div className="p-2 space-y-1">
           {bookmarks.map((bookmark) => (
             <div
-              key={bookmark.id}
+              key={`${bookmark.user_id}-${bookmark.name}`}
               className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted group"
             >
               <div 
