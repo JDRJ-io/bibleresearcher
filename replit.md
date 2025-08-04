@@ -42,6 +42,11 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Seamless Notes**: Auto-save notes with 500ms debounce, no manual save buttons, vertical scrollbar for overflow
   - **Bookmark System**: BookmarkButton integrated in TopHeader, save with custom names and colors
   - **Text Highlighting**: Complete highlighting system with color wheel overlay on text selection, per-translation and per-verse accuracy, authentication-gated for logged users only
+- **Universal Semantic Label System (Aug 2025)**:
+  - **Dynamic Cross-Reference Labels**: Enhanced useViewportLabels to load labels for ALL cross-reference and prophecy verses from any book or chapter
+  - **Comprehensive Coverage**: Semantic highlighting (who, what, where, when, etc.) now works across main translation, alternate translations, cross-references, and prophecy columns
+  - **Optimized Worker**: Web worker handles targeted verse loading for improved performance while maintaining complete semantic coverage
+  - **Unified Label Architecture**: Eliminated duplicate hook calls and established single-source label loading at VirtualBibleTable level
 - **Bookmark System Unified (Aug 2025)**:
   - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
   - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes
