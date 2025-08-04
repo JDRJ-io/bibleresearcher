@@ -590,7 +590,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         className="unified-scroll-container scroll-area"
         style={{ 
           position: 'relative',
-          height: "calc(100vh - 85px - 60px)", // Subtract header (85px) and footer (60px)
+          height: "calc(100vh - 85px)",
           overflow: 'auto', // Allow both directions naturally
           overscrollBehavior: 'contain',
           contain: 'layout paint style',
