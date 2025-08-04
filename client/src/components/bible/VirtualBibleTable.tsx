@@ -693,11 +693,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
       {/* Elegant Vertical Scrollbar */}
       <div 
-        className="absolute right-2 top-2 w-1 z-30 opacity-40 hover:opacity-80 transition-opacity duration-300"
+        className="absolute right-2 top-2 w-2 z-30 bg-black/10 dark:bg-white/10 rounded-full"
         style={{ height: "calc(100vh - 89px)" }}
       >
         <div 
-          className="absolute right-0 top-0 w-1 bg-foreground/50 rounded-full transition-all duration-150 hover:w-1.5 hover:bg-foreground/70"
+          className="absolute right-0 top-0 w-2 bg-gray-400 dark:bg-gray-300 rounded-full transition-all duration-150 hover:w-2.5 hover:bg-gray-600 dark:hover:bg-gray-100"
           style={{
             height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
             top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
