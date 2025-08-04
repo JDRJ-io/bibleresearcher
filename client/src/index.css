@@ -8,6 +8,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide default scrollbars but keep scrolling functionality */
+.unified-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.unified-scroll-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* Mobile touch event fixes for cross-reference cells only */
 .cross-ref-item {
   touch-action: manipulation;

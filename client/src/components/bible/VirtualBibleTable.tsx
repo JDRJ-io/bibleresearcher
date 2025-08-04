@@ -364,6 +364,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const hScrollRef = useRef<HTMLDivElement>(null); // Horizontal scroller
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [scrollTop, setScrollTop] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
   // Handle runtime error overlay that blocks navigation
@@ -530,10 +531,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const container = containerRef.current;
     if (!container) return;
 
-    // Track scroll position for column headers
+    // Track scroll position for column headers and custom scrollbar
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       setScrollLeft(target.scrollLeft);
+      setScrollTop(target.scrollTop);
     };
 
     // Apply the minimal axis clamp
@@ -595,7 +597,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           overscrollBehavior: 'contain',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'auto' // Allow natural scrolling, we'll redirect it
+          touchAction: 'auto', // Allow natural scrolling, we'll redirect it
+          // Hide default scrollbars since we'll show custom ones
+          scrollbarWidth: 'none', // Firefox
+          msOverflowStyle: 'none' // IE/Edge
         }}
         data-testid="bible-table"
       >
@@ -684,6 +689,46 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Custom Vertical Scrollbar Overlay */}
+      <div 
+        className="absolute right-0 top-0 bottom-0 w-3 z-30 pointer-events-none"
+        style={{ height: "calc(100vh - 85px)" }}
+      >
+        <div 
+          className="absolute right-0 top-0 w-2 bg-muted-foreground/30 rounded-full transition-opacity duration-200 hover:bg-muted-foreground/50"
+          style={{
+            height: `${Math.min(100, (window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT) * 100)}%`,
+            top: `${(scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85)) * 100}%`,
+            pointerEvents: 'auto',
+            cursor: 'pointer'
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            const startY = e.clientY;
+            const scrollContainer = containerRef.current;
+            if (!scrollContainer) return;
+            
+            const startScrollTop = scrollContainer.scrollTop;
+            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
+            
+            const handleMouseMove = (e: MouseEvent) => {
+              const deltaY = e.clientY - startY;
+              const scrollRatio = deltaY / (window.innerHeight - 85);
+              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
+              scrollContainer.scrollTop = newScrollTop;
+            };
+            
+            const handleMouseUp = () => {
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+          }}
+        />
       </div>
     </div>
   );
