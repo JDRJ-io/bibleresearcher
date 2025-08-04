@@ -11,7 +11,7 @@ import { Crown, Code, Sparkles } from 'lucide-react';
 export function DevUnlock() {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { user, refreshProfile } = useAuth();
+  const { user, upgradeToPremium } = useAuth();
   const { toast } = useToast();
 
   const handleRedeem = async () => {
@@ -43,8 +43,8 @@ export function DevUnlock() {
           description: "Your premium access has been activated.",
         });
         
-        // Refresh the user's profile to get updated tier
-        await refreshProfile();
+        // Call the upgradeToPremium function to update local state
+        await upgradeToPremium(code.trim());
         setCode('');
         
         // Optional: Reload page to apply premium features

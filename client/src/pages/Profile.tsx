@@ -10,7 +10,7 @@ import { Crown, User, Mail, Calendar, Save } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export default function Profile() {
-  const { user, profile, loading, saveProfile } = useAuth();
+  const { user, profile, loading, saveProfile, upgradeToPremium } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -220,10 +220,25 @@ export default function Profile() {
                   <Button 
                     variant="outline" 
                     className="w-full"
-                    onClick={() => setLocation('/dev')}
+                    disabled={loading}
+                    onClick={async () => {
+                      const { ok, msg } = await upgradeToPremium();
+                      if (ok) {
+                        toast({
+                          title: "Upgraded!",
+                          description: msg,
+                        });
+                      } else {
+                        toast({
+                          title: "Upgrade failed",
+                          description: msg,
+                          variant: "destructive",
+                        });
+                      }
+                    }}
                   >
                     <Crown className="h-4 w-4 mr-2" />
-                    Get Premium Access
+                    Upgrade to Premium
                   </Button>
                 </div>
               )}

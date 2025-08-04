@@ -58,5 +58,28 @@ export function useMyProfile(user: User | null, authLoading: boolean) {
     setProfile((prev) => (prev ? { ...prev, ...update } : prev));
   };
 
-  return { profile, profileLoading, error, save };
+  /* helper to upgrade to premium */
+  const upgradeToPremium = async (code?: string) => {
+    if (!user) return { ok: false, msg: "No user logged in" };
+    
+    // optional code check
+    if (code && code !== "DEV-ALPHA-2025") {
+      return { ok: false, msg: "Invalid code" };
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ tier: "premium", updated_at: new Date().toISOString() })
+      .eq("id", user.id);
+
+    if (error) {
+      return { ok: false, msg: error.message };
+    }
+
+    // Update local state
+    setProfile((prev) => (prev ? { ...prev, tier: "premium" } : prev));
+    return { ok: true, msg: "Upgraded to premium!" };
+  };
+
+  return { profile, profileLoading, error, save, upgradeToPremium };
 }

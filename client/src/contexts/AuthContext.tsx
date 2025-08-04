@@ -10,6 +10,7 @@ interface AuthCtx {
   loading: boolean;
   profile: ReturnType<typeof useMyProfile>["profile"];
   saveProfile: ReturnType<typeof useMyProfile>["save"];
+  upgradeToPremium: ReturnType<typeof useMyProfile>["upgradeToPremium"];
   signOut: () => Promise<void>;
 }
 export const AuthContext = createContext<AuthCtx>(null as never);
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   /* 2️⃣  load profile only after auth is ready */
-  const { profile, profileLoading, save } = useMyProfile(
+  const { profile, profileLoading, save, upgradeToPremium } = useMyProfile(
     authReady ? user : null,
     !authReady,
   );
@@ -67,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         loading,
         profile,
         saveProfile: save,
+        upgradeToPremium,
         signOut,
       }}
     >
