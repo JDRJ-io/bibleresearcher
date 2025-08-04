@@ -18,16 +18,15 @@ export function HighlightToolbar({ sel, onClose }: {
     
     try {
       console.log('💾 Saving highlight:', {
-        user_id: user.id,
         verse_ref: sel.verseRef,
         translation: sel.translation,
         start_pos: sel.startPos,
         end_pos: sel.endPos,
         color_hsl: col,
+        auth_user: user.id
       });
 
       const { data, error } = await supabase.from('highlights').insert({
-        user_id: user.id,
         verse_ref: sel.verseRef,
         translation: sel.translation,
         start_pos: sel.startPos,
@@ -44,7 +43,7 @@ export function HighlightToolbar({ sel, onClose }: {
       
       // Invalidate and refetch highlights for this verse
       queryClient.invalidateQueries({ 
-        queryKey: ['highlights', sel.verseRef, sel.translation, user.id] 
+        queryKey: ['highlights', sel.verseRef, sel.translation] 
       });
       
       // Clear the text selection after saving
