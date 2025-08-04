@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  profile: { name?: string; bio?: string; tier?: string } | null;
+  profile: { name?: string | null; bio?: string | null; tier?: string } | null;
   saveProfile: (data: any) => Promise<void>;
   signOut: () => Promise<void>;
 }

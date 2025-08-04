@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';   // keep for user/session
-import { useMyProfile } from '@/hooks/useMyProfile';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +10,11 @@ import { Crown, User, Mail, Calendar, Save } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export default function Profile() {
-  const { user, loading: authLoading } = useAuth();
-  const { profile, profileLoading, error, save } = useMyProfile();
+  const { user, profile, loading, saveProfile } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  const loading = authLoading || profileLoading;
+  // loading comes from AuthContext now
   
   const [formData, setFormData] = useState({
     name: '',
@@ -26,7 +24,7 @@ export default function Profile() {
 
   // Keep redirect disabled for debugging authentication flow
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!loading && !user) {
       console.log('🚫 No user authenticated, showing auth required message');
     }
     
@@ -44,7 +42,7 @@ export default function Profile() {
     
     setIsSaving(true);
     try {
-      await save(formData);
+      await saveProfile(formData);
       toast({
         title: "Profile updated",
         description: "Your profile has been saved successfully.",
@@ -63,13 +61,11 @@ export default function Profile() {
   // Debug render - show what's happening
   console.log('🔍 Profile page render state:', { 
     user: !!user, 
-    authLoading, 
-    profileLoading, 
-    profile: !!profile,
-    error 
+    loading, 
+    profile: !!profile
   });
 
-  if (profileLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
