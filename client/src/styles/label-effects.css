@@ -53,16 +53,16 @@
   color: transparent;
 }
 
-/* Light theme - dark outline */
+/* Light theme - thin dark outline */
 :root.light .fx-outline {
-  -webkit-text-stroke: 1px rgba(0,0,0,0.8);
-  text-stroke: 1px rgba(0,0,0,0.8);
+  -webkit-text-stroke: 0.5px rgba(0,0,0,0.8);
+  text-stroke: 0.5px rgba(0,0,0,0.8);
 }
 
-/* Dark theme - white outline */
+/* Dark theme - thin white outline */
 :root.dark .fx-outline {
-  -webkit-text-stroke: 1px rgba(255,255,255,0.9);
-  text-stroke: 1px rgba(255,255,255,0.9);
+  -webkit-text-stroke: 0.5px rgba(255,255,255,0.9);
+  text-stroke: 0.5px rgba(255,255,255,0.9);
 }
 
 /* seed → text-matching color superscript * */
