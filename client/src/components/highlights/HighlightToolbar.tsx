@@ -22,6 +22,7 @@ export function HighlightToolbar({ sel, onClose }: {
         translation: sel.translation,
         start_pos: sel.startPos,
         end_pos: sel.endPos,
+        supabase_user: user.id
       });
 
       // Find and delete any overlapping highlights
@@ -67,16 +68,21 @@ export function HighlightToolbar({ sel, onClose }: {
         start_pos: sel.startPos,
         end_pos: sel.endPos,
         color_hsl: col,
-        auth_user: user.id
+        supabase_user: user.id,
+        user_email: user.email
       });
 
       // First remove any overlapping highlights to prevent conflicts
-      await supabase
+      const { error: deleteError } = await supabase
         .from('highlights')
         .delete()
         .eq('verse_ref', sel.verseRef)
         .eq('translation', sel.translation)
         .or(`and(start_pos.lte.${sel.endPos},end_pos.gte.${sel.startPos})`);
+      
+      if (deleteError) {
+        console.log('🔄 No overlapping highlights to delete (or delete failed):', deleteError);
+      }
 
       // Then insert the new highlight
       const { data, error } = await supabase.from('highlights').insert({

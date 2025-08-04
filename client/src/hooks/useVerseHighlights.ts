@@ -21,7 +21,12 @@ export function useVerseHighlights(verseRef: string, translation: string) {
     queryFn: async () => {
       if (!user) return [];
       
-      console.log('🔍 Loading highlights for:', { verseRef, translation, authUserId: user.id });
+      console.log('🔍 Loading highlights for:', { 
+        verseRef, 
+        translation, 
+        supabaseUserId: user.id,
+        userEmail: user.email 
+      });
       
       const { data, error } = await supabase
         .from('highlights')
