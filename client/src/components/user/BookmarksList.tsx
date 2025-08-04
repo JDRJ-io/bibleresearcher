@@ -207,21 +207,6 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
               </div>
               
               <div className="flex gap-1 ml-auto">
-                {onNavigateToVerse && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNavigate(bookmark);
-                    }}
-                    title="Go to verse"
-                    className="h-8 w-8 p-0"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                  </Button>
-                )}
-                
                 <Button
                   size="sm"
                   variant="ghost"
@@ -230,9 +215,9 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                     handleEdit(bookmark);
                   }}
                   title="Edit bookmark"
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 hover:bg-muted-foreground/20"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-4 h-4" />
                 </Button>
                 
                 <Button
@@ -243,10 +228,10 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                     handleDelete(bookmark);
                   }}
                   title="Delete bookmark"
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                   disabled={deleteBookmark.isPending}
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>
