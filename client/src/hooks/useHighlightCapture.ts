@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function useHighlightCapture(onSelect: (info: SelectionInfo) => void) {
+  const { user } = useAuth();
+  
   useEffect(() => {
     function handleMouseUp() {
       const sel = window.getSelection();
-      if (!sel || sel.isCollapsed) return;
+      if (!sel || sel.isCollapsed || !user) return; // Don't show for non-logged users
 
       // Ensure selection starts *inside* a verse-text span
       const anchorEl = sel.anchorNode?.parentElement;
@@ -23,11 +26,11 @@ export function useHighlightCapture(onSelect: (info: SelectionInfo) => void) {
       const pos = { x: rect.left + rect.width / 2, y: rect.top - 8 };
 
       onSelect({ verseRef, translation, startPos: s, endPos: e, pos });
-      sel.removeAllRanges(); // collapse selection
+      // DON'T clear selection immediately - let user see what they selected
     }
     document.addEventListener('mouseup', handleMouseUp);
     return () => document.removeEventListener('mouseup', handleMouseUp);
-  }, [onSelect]);
+  }, [onSelect, user]);
 }
 
 export interface SelectionInfo {

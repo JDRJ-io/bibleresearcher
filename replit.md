@@ -41,7 +41,7 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Auto-save State Management**: useReadingState hook saves position every 60 seconds and on page unload
   - **Seamless Notes**: Auto-save notes with 500ms debounce, no manual save buttons, vertical scrollbar for overflow
   - **Bookmark System**: BookmarkButton integrated in TopHeader, save with custom names and colors
-  - **Text Highlighting**: HighlightedText component with color wheel overlay on text selection, theme-adaptive colors
+  - **Text Highlighting**: Complete highlighting system with color wheel overlay on text selection, per-translation and per-verse accuracy, authentication-gated for logged users only
 - **Bookmark System Unified (Aug 2025)**:
   - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
   - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes

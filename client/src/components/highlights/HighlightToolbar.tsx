@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { SelectionInfo } from '@/hooks/useHighlightCapture';
+import { queryClient } from '@/lib/queryClient';
 
 const colors = ['210 80% 60%', '10 90% 60%', '120 70% 45%', '280 70% 65%'];
 
@@ -15,15 +16,49 @@ export function HighlightToolbar({ sel, onClose }: {
   async function save(col: string) {
     if (!user || !sel) return;
     
-    await supabase.from('highlights').insert({
-      user_id: user.id,
-      verse_ref: sel.verseRef,
-      translation: sel.translation,
-      start_pos: sel.startPos,
-      end_pos: sel.endPos,
-      color_hsl: col,
-    });
-    onClose();
+    try {
+      console.log('💾 Saving highlight:', {
+        user_id: user.id,
+        verse_ref: sel.verseRef,
+        translation: sel.translation,
+        start_pos: sel.startPos,
+        end_pos: sel.endPos,
+        color_hsl: col,
+      });
+
+      const { data, error } = await supabase.from('highlights').insert({
+        user_id: user.id,
+        verse_ref: sel.verseRef,
+        translation: sel.translation,
+        start_pos: sel.startPos,
+        end_pos: sel.endPos,
+        color_hsl: col,
+      });
+
+      if (error) {
+        console.error('❌ Error saving highlight:', error);
+        throw error;
+      }
+
+      console.log('✅ Highlight saved successfully:', data);
+      
+      // Invalidate and refetch highlights for this verse
+      queryClient.invalidateQueries({ 
+        queryKey: ['highlights', sel.verseRef, sel.translation, user.id] 
+      });
+      
+      // Clear the text selection after saving
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('💥 Failed to save highlight:', error);
+      // Still close the toolbar even if save failed
+      onClose();
+    }
   }
 
   return (

@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import React, { createContext, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useHighlightCapture, SelectionInfo } from '@/hooks/useHighlightCapture';
 import { HighlightToolbar } from '@/components/highlights/HighlightToolbar';
