@@ -86,6 +86,7 @@ export function TopHeader({
           name: payload.name,
           index_value: centralVerse.index,
           color: payload.color,
+          pending: false,          // Set to false since it's being saved directly
         });
 
       if (error) {
