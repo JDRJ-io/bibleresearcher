@@ -13,6 +13,7 @@ import { useBibleStore } from '@/App';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
+import { BookmarkModal } from './BookmarkModal';
 
 
 interface TopHeaderProps {
@@ -23,6 +24,7 @@ interface TopHeaderProps {
   canGoBack: boolean;
   canGoForward: boolean;
   onMenuToggle: () => void;
+  getCurrentVerse?: () => { reference: string; index: number };
 }
 
 export function TopHeader({
@@ -33,10 +35,12 @@ export function TopHeader({
   canGoBack,
   canGoForward,
   onMenuToggle,
+  getCurrentVerse,
 }: TopHeaderProps) {
   const { theme, setTheme, themes } = useTheme();
   const { user, loading } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const bibleStore = useBibleStore();
@@ -44,19 +48,22 @@ export function TopHeader({
   const { width } = useWindowSize();
   const isMobile = width < 640;
 
-  // Get the current central verse from reading state
+  // Get the current central verse from table ref or fallback
   const getCurrentCentralVerse = () => {
     try {
-      // Get current anchor index from reading state (same logic as useBookmarks)
+      if (getCurrentVerse) {
+        const verseInfo = getCurrentVerse();
+        console.log('🔖 TopHeader getCurrentCentralVerse from table:', verseInfo);
+        return verseInfo;
+      }
+      
+      // Fallback to reading state
       const saved = JSON.parse(localStorage.getItem('readingState') ?? 'null');
       const anchorIndex = saved?.anchorIndex || 0;
-      
-      // Get current verse keys from store
       const currentKeys = bibleStore?.currentVerseKeys || [];
       const currentRef = currentKeys[anchorIndex] || currentKeys[0] || 'Gen.1:1';
       
-      console.log('🔖 TopHeader getCurrentCentralVerse:', { anchorIndex, currentRef, totalVerses: currentKeys.length });
-      
+      console.log('🔖 TopHeader getCurrentCentralVerse fallback:', { anchorIndex, currentRef, totalVerses: currentKeys.length });
       return { reference: currentRef, index: anchorIndex };
     } catch (error) {
       console.error('🔖 TopHeader Error getting central verse:', error);
@@ -125,16 +132,12 @@ export function TopHeader({
       return;
     }
 
-    const centralVerse = getCurrentCentralVerse();
-    console.log('🔖 TopHeader: Central verse obtained:', centralVerse);
-    
-    const bookmarkPayload = {
-      name: `Reading position - ${centralVerse.reference}`,
-      color: '#3b82f6', // Default blue color
-    };
-    
-    console.log('🔖 TopHeader: About to create bookmark with payload:', bookmarkPayload);
-    createBookmarkMutation.mutate(bookmarkPayload);
+    console.log('🔖 TopHeader: Opening bookmark modal');
+    setIsBookmarkModalOpen(true);
+  };
+
+  const handleBookmarkSave = (name: string, color: string) => {
+    createBookmarkMutation.mutate({ name, color });
   };
 
 
@@ -354,6 +357,15 @@ export function TopHeader({
       <CombinedAuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+      />
+
+      {/* Bookmark Modal */}
+      <BookmarkModal
+        isOpen={isBookmarkModalOpen}
+        onClose={() => setIsBookmarkModalOpen(false)}
+        onSave={handleBookmarkSave}
+        verseReference={getCurrentCentralVerse().reference}
+        isLoading={createBookmarkMutation.isPending}
       />
     </header>
   );

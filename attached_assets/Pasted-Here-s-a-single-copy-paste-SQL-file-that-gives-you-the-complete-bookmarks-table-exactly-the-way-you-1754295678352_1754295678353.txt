@@ -1,0 +1,91 @@
+Here’s a single, copy-paste SQL file that gives you the complete bookmarks table exactly the way you described:
+
+keeps your composite primary key (user_id,name)
+
+stores both index_value and the canonical verse_ref
+
+adds a timestamp created_at (handy for sorting, optional in UI)
+
+turns on Row-Level-Security so each user can see and edit only their own rows
+
+is idempotent — you can run it over an existing table and it will just fill in anything that’s missing.
+
+sql
+Copy
+Edit
+/* ------------------------------------------------------------------
+   0)  (Optional) enable pgcrypto so gen_random_uuid() works elsewhere
+------------------------------------------------------------------ */
+create extension if not exists "pgcrypto";
+
+/* ------------------------------------------------------------------
+   1)  BOOKMARKS TABLE  (center index + verse key + color)
+------------------------------------------------------------------ */
+create table if not exists public.bookmarks (
+  user_id      uuid references auth.users(id) on delete cascade,
+  name         text,                  -- “Morning Study”, etc.
+  index_value  integer,               -- center verse numeric index
+  verse_ref    text,                  -- “Gen.15:14”
+  color        text default '#f00',   -- UI tag color
+  created_at   timestamptz default now(),
+  primary key  (user_id, name)        -- one name per user
+);
+
+/* ---- make sure any NEW columns exist even if table predates this ---- */
+alter table public.bookmarks
+  add column if not exists verse_ref   text,
+  add column if not exists created_at timestamptz not null default now();
+
+/* ------------------------------------------------------------------
+   2)  Helpful indexes
+------------------------------------------------------------------ */
+-- quick fetch for recent bookmarks
+create index if not exists bookmarks_user_created_idx
+  on public.bookmarks (user_id, created_at desc);
+
+-- jump-to-verse look-up
+create index if not exists bookmarks_user_verse_idx
+  on public.bookmarks (user_id, verse_ref);
+
+/* ------------------------------------------------------------------
+   3)  ROW-LEVEL SECURITY  — owner can read & write only their rows
+------------------------------------------------------------------ */
+alter table public.bookmarks enable row level security;
+
+drop policy if exists bms_select on public.bookmarks;
+drop policy if exists bms_crud   on public.bookmarks;
+
+create policy bms_select
+  on public.bookmarks
+  for select
+  using (user_id = auth.uid());
+
+create policy bms_crud
+  on public.bookmarks
+  for all
+  using      (user_id = auth.uid())
+  with check (user_id = auth.uid());
+Run it once in the Supabase SQL editor → you’ll get COMMIT; at the bottom.
+After that the front-end insert should look like:
+
+ts
+Copy
+Edit
+await supabase.from('bookmarks').insert({
+  user_id:     user.id,
+  name,                     // from modal
+  index_value: anchorIndex, // int from useVerseNav
+  verse_ref:   anchorKey,   // "Gen.15:14"
+  color,                    // hex or tailwind color string
+});
+…and your GET query:
+
+ts
+Copy
+Edit
+supabase
+  .from('bookmarks')
+  .select('name,index_value,verse_ref,color,created_at')
+  .eq('user_id', user.id)
+  .order('created_at', { ascending: false });
+No 400s, no 404s—each user sees only their own bookmarks.

@@ -31,6 +31,7 @@ export default function BiblePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+  const [currentVerse, setCurrentVerse] = useState<{ reference: string; index: number }>({ reference: 'Gen.1:1', index: 0 });
   const tableRef = useRef<VirtualBibleTableHandle>(null);
 
   // Show welcome modal for users without completed profiles
@@ -73,6 +74,20 @@ export default function BiblePage() {
     console.log('📜 BiblePage scrollToVerse called with:', ref, 'tableRef.current exists:', !!tableRef.current);
     tableRef.current?.scrollToVerse(ref);
   }, []);
+
+  // Handle current verse changes from VirtualBibleTable
+  const handleCurrentVerseChange = useCallback((verseInfo: { reference: string; index: number }) => {
+    console.log('📍 BiblePage: Current verse changed to:', verseInfo);
+    setCurrentVerse(verseInfo);
+  }, []);
+
+  // Get current verse helper for TopHeader
+  const getCurrentVerseFromTable = useCallback(() => {
+    if (tableRef.current?.getCurrentVerse) {
+      return tableRef.current.getCurrentVerse();
+    }
+    return currentVerse;
+  }, [currentVerse]);
   
   const { goTo, goBack, goForward, canGoBack, canGoForward } = useVerseNav(scrollToVerse);
   
@@ -281,6 +296,7 @@ export default function BiblePage() {
           canGoBack={canGoBack}
           canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
+          getCurrentVerse={getCurrentVerseFromTable}
         />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
@@ -316,6 +332,7 @@ export default function BiblePage() {
           canGoBack={canGoBack}
           canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
+          getCurrentVerse={getCurrentVerseFromTable}
         />
 
         <main className="flex-1 overflow-hidden relative">
@@ -336,6 +353,7 @@ export default function BiblePage() {
             onExpandVerse={handleExpandVerse}
             getGlobalVerseText={getGlobalVerseText}
             onVerseClick={goTo}
+            onCurrentVerseChange={handleCurrentVerseChange}
           />
           
           {/* Smart Loading Overlay */}

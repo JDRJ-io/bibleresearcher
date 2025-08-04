@@ -10,9 +10,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import type { Bookmark as BookmarkType } from '@shared/schema';
+import { getVerseKeyByIndex } from '@/lib/verseKeysLoader';
 
 interface BookmarksListProps {
-  onNavigateToVerse?: (indexValue: number) => void;
+  onNavigateToVerse?: (reference: string) => void;
   className?: string;
 }
 
@@ -149,9 +150,25 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
   };
 
   const handleNavigate = (bookmark: BookmarkType) => {
-    if (onNavigateToVerse) {
-      onNavigateToVerse(bookmark.index_value);
-      toast({ title: `Navigated to bookmark: ${bookmark.name}` });
+    if (!onNavigateToVerse) return;
+    
+    // Convert index back to verse reference
+    const verseRef = getVerseKeyByIndex(bookmark.index_value);
+    console.log('🔖 BookmarksList: Navigating to bookmark:', {
+      name: bookmark.name,
+      index: bookmark.index_value,
+      verseRef
+    });
+    
+    if (verseRef) {
+      onNavigateToVerse(verseRef);
+      toast({ title: `Navigated to ${verseRef}` });
+    } else {
+      toast({
+        title: "Navigation Error",
+        description: "Could not find verse for this bookmark position.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -168,7 +185,8 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
           {bookmarks.map((bookmark) => (
             <div
               key={`${bookmark.user_id}-${bookmark.name}`}
-              className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted group"
+              className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted group cursor-pointer"
+              onClick={() => handleNavigate(bookmark)}
             >
               <div 
                 className="w-3 h-3 rounded-full flex-shrink-0"
@@ -180,7 +198,7 @@ export function BookmarksList({ onNavigateToVerse, className }: BookmarksListPro
                   {bookmark.name}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Index: {bookmark.index_value}
+                  {getVerseKeyByIndex(bookmark.index_value) || `Index: ${bookmark.index_value}`}
                 </div>
               </div>
               

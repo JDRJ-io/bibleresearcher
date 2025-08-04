@@ -36,6 +36,7 @@ import type { LabelName } from '@/lib/labelBits';
 export interface VirtualBibleTableHandle {
   scrollToVerse: (ref: string) => void;
   get node(): HTMLDivElement | null;
+  getCurrentVerse: () => { reference: string; index: number };
 }
 
 interface VirtualBibleTableProps {
@@ -53,6 +54,7 @@ interface VirtualBibleTableProps {
   centerVerseIndex?: number;
   onPreserveAnchor?: (callback: any) => void;
   onVerseClick?: (ref: string) => void;
+  onCurrentVerseChange?: (verseInfo: { reference: string; index: number }) => void;
 }
 
 const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableProps>((props, ref) => {
@@ -70,6 +72,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     centerVerseIndex = 0,
     onPreserveAnchor,
     onVerseClick,
+    onCurrentVerseChange,
   } = props;
   // All hooks must be called at the top level of the component
   const { user } = useAuth();
@@ -93,6 +96,20 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
   
   const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys);
+  
+  // Get current verse reference from anchor index
+  const getCurrentVerse = useCallback(() => {
+    const currentRef = verseKeys[anchorIndex] || verseKeys[0] || 'Gen.1:1';
+    return { reference: currentRef, index: anchorIndex };
+  }, [anchorIndex, verseKeys]);
+  
+  // Notify parent of current verse changes
+  useEffect(() => {
+    if (onCurrentVerseChange) {
+      const verseInfo = getCurrentVerse();
+      onCurrentVerseChange(verseInfo);
+    }
+  }, [anchorIndex, verseKeys, onCurrentVerseChange, getCurrentVerse]);
 
   // NEW: fetch hydrated verses for the current slice
   const { data: rowData } = useRowData(slice.verseIDs, mainTranslation);
@@ -417,6 +434,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Expose the scroll function and container to parent via ref
   useImperativeHandle(ref, () => ({
     scrollToVerse,
+    getCurrentVerse,
     get node() {
       return containerRef.current;
     },
