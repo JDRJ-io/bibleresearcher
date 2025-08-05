@@ -13,14 +13,22 @@ interface HighlightableTextProps {
   className?: string;
 }
 
+interface HighlightColor {
+  name: string;
+  light: string;
+  dark: string;
+  isInvisible?: boolean;
+}
+
 // Color palette for highlights - adaptive colors for light/dark themes
-const HIGHLIGHT_COLORS = [
+const HIGHLIGHT_COLORS: HighlightColor[] = [
   { name: 'Yellow', light: '#fef3c7', dark: '#451a03' },
   { name: 'Blue', light: '#dbeafe', dark: '#1e3a8a' },
   { name: 'Green', light: '#d1fae5', dark: '#064e3b' },
   { name: 'Pink', light: '#fce7f3', dark: '#831843' },
   { name: 'Purple', light: '#e9d5ff', dark: '#581c87' },
   { name: 'Orange', light: '#fed7aa', dark: '#9a3412' },
+  { name: 'Clear', light: 'transparent', dark: 'transparent', isInvisible: true },
 ];
 
 interface Selection {
@@ -46,7 +54,7 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
   // Get highlights for this verse
-  const verseHighlights = highlights.filter(h => h.verseRef === verseRef);
+  const verseHighlights = highlights.filter(h => h.verse_ref === verseRef);
 
   // Handle text selection - with mobile scroll prevention
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -128,10 +136,12 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
     
     try {
       await createHighlight.mutateAsync({
-        verseRef,
-        startIdx: selection.startIdx,
-        endIdx: selection.endIdx,
-        color
+        verse_ref: verseRef,
+        translation: 'KJV', // Default translation - should be passed as prop ideally
+        start_pos: selection.startIdx,
+        end_pos: selection.endIdx,
+        color_hsl: color,
+        user_id: user?.id || ''
       });
       
       console.log('🎨 Highlight created successfully');
@@ -165,6 +175,31 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
     }
   };
 
+  // Handle clearing all highlights from a verse
+  const handleClearAllHighlights = async () => {
+    try {
+      // Remove all highlights for this verse
+      const deletePromises = verseHighlights.map(highlight => 
+        deleteHighlight.mutateAsync(highlight.id)
+      );
+      
+      await Promise.all(deletePromises);
+      toast({ title: "All highlights cleared from verse" });
+      setShowColorPicker(false);
+      setSelection(null);
+      
+      // Clear text selection
+      window.getSelection()?.removeAllRanges();
+    } catch (error) {
+      console.error('🎨 Failed to clear all highlights:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to clear highlights", 
+        variant: "destructive" 
+      });
+    }
+  };
+
   // Render text with highlights
   const renderHighlightedText = () => {
     if (!verseHighlights.length) {
@@ -172,25 +207,25 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
     }
 
     // Sort highlights by start position
-    const sortedHighlights = [...verseHighlights].sort((a, b) => a.startIdx - b.startIdx);
+    const sortedHighlights = [...verseHighlights].sort((a, b) => a.start_pos - b.start_pos);
     
     const elements: React.ReactNode[] = [];
     let lastIdx = 0;
 
     sortedHighlights.forEach((highlight, index) => {
       // Add text before highlight
-      if (highlight.startIdx > lastIdx) {
-        elements.push(text.slice(lastIdx, highlight.startIdx));
+      if (highlight.start_pos > lastIdx) {
+        elements.push(text.slice(lastIdx, highlight.start_pos));
       }
 
       // Add highlighted text
-      const highlightedText = text.slice(highlight.startIdx, highlight.endIdx);
+      const highlightedText = text.slice(highlight.start_pos, highlight.end_pos);
       elements.push(
         <span
           key={`highlight-${highlight.id}`}
           className="rounded px-1 cursor-pointer transition-opacity hover:opacity-75"
           style={{ 
-            backgroundColor: getColorForTheme(highlight.color, document.documentElement.classList.contains('dark'))
+            backgroundColor: getColorForTheme(highlight.color_hsl, document.documentElement.classList.contains('dark'))
           }}
           onClick={(e) => {
             e.stopPropagation();
@@ -202,7 +237,7 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
         </span>
       );
 
-      lastIdx = highlight.endIdx;
+      lastIdx = highlight.end_pos;
     });
 
     // Add remaining text
@@ -282,12 +317,18 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
                       size="sm"
                       variant="outline"
                       className="h-12 flex flex-col gap-1 p-2"
-                      onClick={() => handleCreateHighlight(color.name.toLowerCase())}
+                      onClick={() => {
+                        if (color.isInvisible) {
+                          handleClearAllHighlights();
+                        } else {
+                          handleCreateHighlight(color.name.toLowerCase());
+                        }
+                      }}
                     >
                       <div 
-                        className="w-6 h-6 rounded-full border"
+                        className={`w-6 h-6 rounded-full border ${color.isInvisible ? 'border-2 border-dashed border-muted-foreground bg-background' : ''}`}
                         style={{ 
-                          backgroundColor: getColorForTheme(color.name, document.documentElement.classList.contains('dark'))
+                          backgroundColor: color.isInvisible ? 'transparent' : getColorForTheme(color.name, document.documentElement.classList.contains('dark'))
                         }}
                       />
                       <span className="text-xs">{color.name}</span>
@@ -338,12 +379,18 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
                       key={color.name}
                       size="sm"
                       variant="ghost"
-                      className="w-8 h-8 p-0 rounded-full border-2 border-transparent hover:border-foreground/20 hover:scale-110 transition-all"
+                      className={`w-8 h-8 p-0 rounded-full border-2 border-transparent hover:border-foreground/20 hover:scale-110 transition-all ${color.isInvisible ? 'border-dashed border-muted-foreground' : ''}`}
                       style={{ 
-                        backgroundColor: getColorForTheme(color.name, document.documentElement.classList.contains('dark'))
+                        backgroundColor: color.isInvisible ? 'transparent' : getColorForTheme(color.name, document.documentElement.classList.contains('dark'))
                       }}
-                      onClick={() => handleCreateHighlight(color.name.toLowerCase())}
-                      title={`Highlight with ${color.name}`}
+                      onClick={() => {
+                        if (color.isInvisible) {
+                          handleClearAllHighlights();
+                        } else {
+                          handleCreateHighlight(color.name.toLowerCase());
+                        }
+                      }}
+                      title={color.isInvisible ? "Clear all highlights from verse" : `Highlight with ${color.name}`}
                     />
                   ))}
                 </div>
