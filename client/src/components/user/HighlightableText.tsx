@@ -249,9 +249,20 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
   };
 
   // Get color based on theme
-  const getColorForTheme = (colorName: string, isDark: boolean) => {
-    const color = HIGHLIGHT_COLORS.find(c => c.name.toLowerCase() === colorName.toLowerCase());
-    return color ? (isDark ? color.dark : color.light) : (isDark ? '#374151' : '#f3f4f6');
+  const getColorForTheme = (colorValue: string, isDark: boolean) => {
+    console.log('🎨 getColorForTheme called with:', { colorValue, isDark, availableColors: HIGHLIGHT_COLORS.map(c => c.name) });
+    
+    // If it's already an HSL/hex color value, return it directly
+    if (colorValue.startsWith('#') || colorValue.startsWith('hsl') || colorValue.startsWith('rgb')) {
+      console.log('🎨 getColorForTheme result: Using direct color value:', colorValue);
+      return colorValue;
+    }
+    
+    // Otherwise, try to match it as a color name
+    const color = HIGHLIGHT_COLORS.find(c => c.name.toLowerCase() === colorValue.toLowerCase());
+    const result = color ? (isDark ? color.dark : color.light) : (isDark ? '#374151' : '#f3f4f6');
+    console.log('🎨 getColorForTheme result:', { foundColor: !!color, result });
+    return result;
   };
 
   // Close color picker when clicking outside
@@ -272,7 +283,7 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
       <div
         ref={textRef}
         onMouseUp={handleMouseUp}
-        className="select-text cursor-text"
+        className="select-text cursor-text fx-hand"
         style={{ 
           userSelect: (isLoggedIn && !isMobile) ? 'text' : 'none',
           touchAction: 'manipulation' // Prevent text selection on mobile
