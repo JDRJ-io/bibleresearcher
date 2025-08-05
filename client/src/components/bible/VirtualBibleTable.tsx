@@ -88,6 +88,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   
   // Remove ref handling for now
   
@@ -95,7 +96,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { currentVerseKeys, isChronological } = useBibleStore();
   const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
   
-  const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys);
+  // PAUSE virtual loading during scrollbar dragging for smooth performance
+  const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
+    disabled: isScrollbarDragging 
+  });
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {
@@ -711,6 +715,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           }}
           onMouseDown={(e) => {
             e.preventDefault();
+            console.log('🎯 SCROLLBAR: Starting drag - PAUSING virtual loading');
+            setIsScrollbarDragging(true);
+            
             const startY = e.clientY;
             const scrollContainer = containerRef.current;
             if (!scrollContainer) return;
@@ -729,6 +736,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             };
             
             const handleMouseUp = () => {
+              console.log('🎯 SCROLLBAR: Drag ended - RESUMING virtual loading');
+              setIsScrollbarDragging(false);
               document.removeEventListener('mousemove', handleMouseMove);
               document.removeEventListener('mouseup', handleMouseUp);
             };
@@ -738,6 +747,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           }}
           onTouchStart={(e) => {
             e.preventDefault();
+            console.log('🎯 SCROLLBAR: Starting touch drag - PAUSING virtual loading');
+            setIsScrollbarDragging(true);
+            
             const touch = e.touches[0];
             const startY = touch.clientY;
             const scrollContainer = containerRef.current;
@@ -760,6 +772,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             
             const handleTouchEnd = (e: TouchEvent) => {
               e.preventDefault();
+              console.log('🎯 SCROLLBAR: Touch drag ended - RESUMING virtual loading');
+              setIsScrollbarDragging(false);
               document.removeEventListener('touchmove', handleTouchMove);
               document.removeEventListener('touchend', handleTouchEnd);
             };

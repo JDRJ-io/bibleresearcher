@@ -29,7 +29,11 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
 
 const THRESH = 15;  // FIXED: Balanced threshold - instant loading with position preservation
 
-export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, verseKeys: string[] = []) {
+export function useAnchorSlice(
+  containerRef: React.RefObject<HTMLDivElement>, 
+  verseKeys: string[] = [], 
+  options?: { disabled?: boolean }
+) {
   const anchorIndexRef = useRef(0);
   const [anchorIndex, setAnchorIndex] = useState(0);
   const [slice, setSlice] = useState(() => loadChunk(0, verseKeys));
@@ -45,6 +49,11 @@ export function useAnchorSlice(containerRef: React.RefObject<HTMLDivElement>, ve
     const el = containerRef.current;
     
     const onScroll = () => {
+      // PAUSE LOADING: Skip all processing during scrollbar dragging
+      if (options?.disabled) {
+        return;
+      }
+      
       // FIXED: Instant loading with better position preservation
       const scrollCenter = el.scrollTop + el.clientHeight / 2;
       const anchor = Math.round(scrollCenter / ROW_HEIGHT);

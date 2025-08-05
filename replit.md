@@ -52,6 +52,7 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Better Space Utilization**: Eliminates horizontal overflow caused by fixed minWidth reserving space for larger screens
   - **Flexible Column Layout**: Maintains exact widths on desktop while allowing more efficient space usage on mobile portrait mode
   - **Mobile-Optimized Scrollbar**: Enhanced custom scrollbar with proper touch event support, 24px mobile width (vs 8px), minimum 44px touch targets, edge positioning, and touch-action CSS properties for native mobile interaction
+  - **Smooth Scrollbar Dragging**: Implemented pause-loading mechanism that stops all virtual scrolling operations during scrollbar drag, eliminating lag and providing fluid, instant navigation throughout the entire Bible
 - **Bookmark System Unified (Aug 2025)**:
   - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
   - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes
