@@ -1,10 +1,14 @@
 -- ENABLE RLS
-alter table community.posts,       community.comments,
-            community.post_votes,  community.comment_votes,
-            community.follows,     community.dm_threads,
-            community.dm_messages, community.group_chats,
-            community.group_members, community.group_messages
-enable row level security;
+alter table community.posts enable row level security;
+alter table community.comments enable row level security;
+alter table community.post_votes enable row level security;
+alter table community.comment_votes enable row level security;
+alter table community.follows enable row level security;
+alter table community.dm_threads enable row level security;
+alter table community.dm_messages enable row level security;
+alter table community.group_chats enable row level security;
+alter table community.group_members enable row level security;
+alter table community.group_messages enable row level security;
 
 -- 🟢 Public read
 create policy posts_read    on community.posts    for select using (true);
