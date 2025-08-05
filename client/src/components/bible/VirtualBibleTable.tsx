@@ -708,7 +708,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
       >
         <div 
-          className="absolute right-0 top-0 w-6 md:w-3 bg-gray-400 dark:bg-gray-300 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-gray-600 dark:md:hover:bg-gray-100 active:bg-gray-600 dark:active:bg-gray-100"
+          className="absolute right-0 top-0 w-6 md:w-3 bg-blue-500 dark:bg-blue-400 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-blue-600 dark:md:hover:bg-blue-300 active:bg-blue-600 dark:active:bg-blue-300"
           style={{
             height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
             top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
@@ -743,6 +743,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             const handleMouseUp = () => {
               console.log('🎯 SCROLLBAR: Drag ended - RESUMING virtual loading');
               setIsScrollbarDragging(false);
+              
+              // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
+              requestAnimationFrame(() => {
+                if (scrollContainer) {
+                  scrollContainer.dispatchEvent(new Event('scroll'));
+                }
+              });
+              
               document.removeEventListener('mousemove', handleMouseMove);
               document.removeEventListener('mouseup', handleMouseUp);
             };
@@ -781,6 +789,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               e.preventDefault();
               console.log('🎯 SCROLLBAR: Touch drag ended - RESUMING virtual loading');
               setIsScrollbarDragging(false);
+              
+              // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
+              requestAnimationFrame(() => {
+                if (scrollContainer) {
+                  scrollContainer.dispatchEvent(new Event('scroll'));
+                }
+              });
+              
               document.removeEventListener('touchmove', handleTouchMove);
               document.removeEventListener('touchend', handleTouchEnd);
             };
