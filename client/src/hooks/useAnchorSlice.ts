@@ -81,7 +81,7 @@ export function useAnchorSlice(
 
     el.addEventListener("scroll", onScroll);
     return () => el.removeEventListener("scroll", onScroll);
-  }, [containerRef, verseKeys]);
+  }, [containerRef, verseKeys, options]);
 
   return {
     anchorIndex,

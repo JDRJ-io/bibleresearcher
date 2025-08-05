@@ -539,7 +539,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       setScrollLeft(target.scrollLeft);
-      setScrollTop(target.scrollTop);
+      // SYNC SCROLLBAR: Only update scrollTop state if not currently dragging scrollbar
+      if (!isScrollbarDragging) {
+        setScrollTop(target.scrollTop);
+      }
     };
 
     // Apply the minimal axis clamp
@@ -555,7 +558,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return () => {
       container.removeEventListener('scroll', onScroll);
     };
-  }, []);
+  }, [isScrollbarDragging]);
 
   // CSS handles centering automatically with margin-inline: auto
 
@@ -733,6 +736,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 top: newScrollTop,
                 behavior: 'instant'
               });
+              // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
+              setScrollTop(newScrollTop);
             };
             
             const handleMouseUp = () => {
@@ -768,6 +773,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 top: newScrollTop,
                 behavior: 'instant'
               });
+              // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
+              setScrollTop(newScrollTop);
             };
             
             const handleTouchEnd = (e: TouchEvent) => {
