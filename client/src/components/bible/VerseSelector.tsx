@@ -147,7 +147,7 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
           <div className="flex gap-1">
             {loading ? (
               <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
-                <HolyBookLoader size="sm" />
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-amber-500 border-t-transparent"></div>
                 <span className="text-xs">Loading...</span>
               </div>
             ) : user ? (

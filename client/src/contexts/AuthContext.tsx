@@ -39,6 +39,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       (_evt, newSession) => {
         setSession(newSession);
         setUser(newSession?.user ?? null);
+        
+        // Share auth cookie with *.anointed.io domain for forum integration
+        if (newSession?.access_token) {
+          try {
+            // Set auth token for domain sharing
+            supabase.auth.setAuth(newSession.access_token, {
+              cookieOptions: {
+                domain: '.anointed.io',   // Share across all anointed.io subdomains
+                sameSite: 'lax',
+                secure: true
+              }
+            });
+            console.log('🔗 Auth cookie shared with *.anointed.io domain');
+          } catch (error) {
+            console.warn('⚠️ Failed to share auth cookie:', error);
+          }
+        }
       },
     );
     return () => sub.subscription.unsubscribe();

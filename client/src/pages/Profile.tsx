@@ -71,7 +71,7 @@ export default function Profile() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <HolyBookLoader size="md" />
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
           </div>
           <p>Loading profile...</p>
         </div>

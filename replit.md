@@ -60,6 +60,11 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Schema Consistency**: Fixed field name mismatches (index_value vs indexValue) ensuring proper data access
   - **Query Cache Unification**: Both components use same TanStack Query cache keys for real-time synchronization
   - **Full CRUD Operations**: Create, read, update, delete bookmarks with proper user authentication and error handling
+- **Cross-Domain Authentication Integration (Aug 2025)**:
+  - **Forum Integration**: Added auth cookie sharing with *.anointed.io domain for seamless forum website connection
+  - **Domain Cookie Sharing**: Implemented onAuthStateChange listener to automatically share access tokens across subdomains
+  - **Secure Configuration**: Uses lax sameSite policy with secure flag for production deployment
+  - **Error Handling**: Graceful fallback with console warnings if cookie sharing fails
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.
