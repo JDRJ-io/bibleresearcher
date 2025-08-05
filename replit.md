@@ -47,6 +47,10 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Comprehensive Coverage**: Semantic highlighting (who, what, where, when, etc.) now works across main translation, alternate translations, cross-references, and prophecy columns
   - **Optimized Worker**: Web worker handles targeted verse loading for improved performance while maintaining complete semantic coverage
   - **Unified Label Architecture**: Eliminated duplicate hook calls and established single-source label loading at VirtualBibleTable level
+- **Responsive Mobile Optimization (Aug 2025)**:
+  - **Adaptive MinWidth**: VirtualRow now uses responsive minWidth that constrains to 95% of viewport width on mobile devices (≤768px)
+  - **Better Space Utilization**: Eliminates horizontal overflow caused by fixed minWidth reserving space for larger screens
+  - **Flexible Column Layout**: Maintains exact widths on desktop while allowing more efficient space usage on mobile portrait mode
 - **Bookmark System Unified (Aug 2025)**:
   - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
   - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes

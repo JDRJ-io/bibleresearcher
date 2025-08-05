@@ -844,14 +844,25 @@ export function VirtualRow({
   const shouldCenter = actualTotalWidth <= viewportWidth * 0.95;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // FIXED COLUMN WIDTHS - No compression, maintain exact pixel widths
+  // RESPONSIVE MIN-WIDTH: Use viewport-constrained width on smaller screens
+  const responsiveMinWidth = useMemo(() => {
+    // On mobile/tablet, allow more flexible width utilization
+    if (viewportWidth <= 768) {
+      // Use 95% of viewport width or actual width, whichever is smaller
+      return Math.min(actualTotalWidth, viewportWidth * 0.95);
+    }
+    // On desktop, maintain full calculated width
+    return actualTotalWidth;
+  }, [actualTotalWidth, viewportWidth]);
+
+  // RESPONSIVE COLUMN WIDTHS - Optimize space utilization
   return (
     <div 
       className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
       style={{ 
         height: rowHeight,
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
-        minWidth: `${actualTotalWidth}px`,
+        minWidth: `${responsiveMinWidth}px`,
         display: 'flex'
       }}
       data-verse-ref={verse.reference}
