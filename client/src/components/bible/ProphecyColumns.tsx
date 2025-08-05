@@ -37,22 +37,22 @@ function ProphecyBlock({ prophecyData, type, onVerseClick, getVerseText }: Proph
   if (verses.length === 0) return null;
 
   return (
-    <div className="prophecy-block mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded text-xs">
-      <div className={`prophecy-header font-medium ${typeColors[type]} mb-2 border-b pb-1 text-xs`}>
+    <div className="prophecy-block mb-4 p-3 border border-gray-200 dark:border-gray-700 rounded text-sm">
+      <div className={`prophecy-header font-medium ${typeColors[type]} mb-3 border-b pb-2 text-sm`}>
         {prophecyData.id}. {prophecyData.summary}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-3">
         {verses.map((ref, idx) => (
-          <div key={idx} className="mb-1">
+          <div key={idx} className="mb-2">
             <button
               onClick={() => onVerseClick(ref)}
-              className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium"
+              className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer font-medium text-sm mb-1 block"
             >
               {ref}
             </button>
             {getVerseText && (
-              <div className="text-gray-600 dark:text-gray-400 text-xs mt-0.5 leading-tight whitespace-pre-wrap">
+              <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap px-2 py-1.5 bg-gray-50 dark:bg-gray-800 rounded">
                 {(() => {
                   const text = getVerseText(ref);
                   return text || '';
@@ -93,7 +93,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         const foundKey = verseKey;
 
         if (!verseRoles || (!verseRoles.P?.length && !verseRoles.F?.length && !verseRoles.V?.length)) {
-          console.log(`❌ No prophecy data found for ${verseKey} (tried keys: ${possibleKeys.join(', ')})`);
+          console.log(`❌ No prophecy data found for ${verseKey}`);
           console.log('Available prophecy data keys sample:', Object.keys(prophecyData).slice(0, 10));
           setProphecies([]);
           setIsLoading(false);
