@@ -692,17 +692,22 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         </div>
       </div>
 
-      {/* Elegant Vertical Scrollbar */}
+      {/* Mobile-Optimized Vertical Scrollbar */}
       <div 
-        className="absolute right-2 top-2 w-2 z-30 bg-black/10 dark:bg-white/10 rounded-full"
-        style={{ height: "calc(100vh - 89px)" }}
+        className="absolute right-0 top-2 w-6 md:w-3 z-30 bg-black/5 dark:bg-white/5 rounded-l-full"
+        style={{ 
+          height: "calc(100vh - 89px)",
+          touchAction: 'none' // Prevent default touch behavior
+        }}
       >
         <div 
-          className="absolute right-0 top-0 w-2 bg-gray-400 dark:bg-gray-300 rounded-full transition-all duration-150 hover:w-2.5 hover:bg-gray-600 dark:hover:bg-gray-100"
+          className="absolute right-0 top-0 w-6 md:w-3 bg-gray-400 dark:bg-gray-300 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-gray-600 dark:md:hover:bg-gray-100 active:bg-gray-600 dark:active:bg-gray-100"
           style={{
             height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
             top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
-            cursor: 'pointer'
+            cursor: 'pointer',
+            touchAction: 'none',
+            minHeight: '44px' // Ensure minimum touch target size
           }}
           onMouseDown={(e) => {
             e.preventDefault();
@@ -730,6 +735,37 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
+          }}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const startY = touch.clientY;
+            const scrollContainer = containerRef.current;
+            if (!scrollContainer) return;
+            
+            const startScrollTop = scrollContainer.scrollTop;
+            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
+            
+            const handleTouchMove = (e: TouchEvent) => {
+              e.preventDefault();
+              const touch = e.touches[0];
+              const deltaY = touch.clientY - startY;
+              const scrollRatio = deltaY / (window.innerHeight - 85);
+              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
+              scrollContainer.scrollTo({
+                top: newScrollTop,
+                behavior: 'instant'
+              });
+            };
+            
+            const handleTouchEnd = (e: TouchEvent) => {
+              e.preventDefault();
+              document.removeEventListener('touchmove', handleTouchMove);
+              document.removeEventListener('touchend', handleTouchEnd);
+            };
+            
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
           }}
         />
       </div>

@@ -51,6 +51,7 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Adaptive MinWidth**: VirtualRow now uses responsive minWidth that constrains to 95% of viewport width on mobile devices (≤768px)
   - **Better Space Utilization**: Eliminates horizontal overflow caused by fixed minWidth reserving space for larger screens
   - **Flexible Column Layout**: Maintains exact widths on desktop while allowing more efficient space usage on mobile portrait mode
+  - **Mobile-Optimized Scrollbar**: Enhanced custom scrollbar with proper touch event support, 24px mobile width (vs 8px), minimum 44px touch targets, edge positioning, and touch-action CSS properties for native mobile interaction
 - **Bookmark System Unified (Aug 2025)**:
   - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
   - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes
