@@ -1,11 +1,11 @@
 import { segmentTextWithReferences } from '@/lib/verseReferenceParser';
-import { useVerseNav } from '@/hooks/useVerseNav';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
 interface NotesTextWithLinksProps {
   text: string;
   className?: string;
+  onVerseClick?: (reference: string) => void;
 }
 
 /**
@@ -13,8 +13,7 @@ interface NotesTextWithLinksProps {
  * When users type references like "Gen.1:1" or "John 3:16" in their notes,
  * they become clickable links that navigate to those verses
  */
-export function NotesTextWithLinks({ text, className }: NotesTextWithLinksProps) {
-  const { goTo } = useVerseNav();
+export function NotesTextWithLinks({ text, className, onVerseClick }: NotesTextWithLinksProps) {
   
   if (!text.trim()) {
     return null;
@@ -26,7 +25,9 @@ export function NotesTextWithLinks({ text, className }: NotesTextWithLinksProps)
     e.preventDefault();
     e.stopPropagation();
     console.log('📝 Notes reference clicked:', reference);
-    goTo(reference);
+    if (onVerseClick) {
+      onVerseClick(reference);
+    }
   };
   
   return (

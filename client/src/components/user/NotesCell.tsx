@@ -12,21 +12,25 @@ import type { Note } from '@shared/schema';
 interface NotesCellProps {
   verseRef: string;
   className?: string;
+  onVerseClick?: (reference: string) => void;
 }
 
-export function NotesCell({ verseRef, className }: NotesCellProps) {
+export function NotesCell({ verseRef, className, onVerseClick }: NotesCellProps) {
   const { user } = useAuth();
   const { notes, loading, addNote, updateNote, deleteNote } = useNotes(verseRef);
   const { toast } = useToast();
   
   const [noteText, setNoteText] = useState('');
   const [existingNote, setExistingNote] = useState<Note | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Find existing note for this verse
   useEffect(() => {
     const note = notes[0] || null; // First note since we're filtering by verse
     setExistingNote(note);
     setNoteText(note?.text || '');
+    // Auto-start editing mode if there's no note yet
+    setIsEditing(!note);
   }, [notes]);
 
   // Auto-save with debounce
@@ -66,19 +70,68 @@ export function NotesCell({ verseRef, className }: NotesCellProps) {
     );
   }
 
-  // Always show the notes area for seamless editing
+  const handleToggleMode = () => {
+    setIsEditing(!isEditing);
+  };
+
+  // Show editing interface
+  if (isEditing) {
+    return (
+      <div className={`p-1 ${className}`}>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-muted-foreground">Editing note</span>
+          {existingNote && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleToggleMode}
+              className="h-6 px-2 text-xs"
+            >
+              <Eye className="w-3 h-3 mr-1" />
+              View
+            </Button>
+          )}
+        </div>
+        <Textarea
+          value={noteText}
+          onChange={(e) => setNoteText(e.target.value)}
+          placeholder="Add your note here... (Type verse references like Gen.1:1 to create hyperlinks)"
+          className="min-h-[80px] text-sm resize-none border-0 focus:ring-0 focus:border-0 p-2 bg-transparent"
+          style={{
+            overflow: 'auto',
+            maxHeight: '200px'
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Show view mode with hyperlinks
   return (
     <div className={`p-1 ${className}`}>
-      <Textarea
-        value={noteText}
-        onChange={(e) => setNoteText(e.target.value)}
-        placeholder="Add your note here..."
-        className="min-h-[80px] text-sm resize-none border-0 focus:ring-0 focus:border-0 p-2 bg-transparent"
-        style={{
-          overflow: 'auto',
-          maxHeight: '200px'
-        }}
-      />
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-muted-foreground">Note</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleToggleMode}
+          className="h-6 px-2 text-xs"
+        >
+          <Edit3 className="w-3 h-3 mr-1" />
+          Edit
+        </Button>
+      </div>
+      <div className="min-h-[80px] p-2 text-sm">
+        {noteText.trim() ? (
+          <NotesTextWithLinks 
+            text={noteText} 
+            onVerseClick={onVerseClick}
+            className="text-sm leading-relaxed"
+          />
+        ) : (
+          <span className="text-muted-foreground italic">No note added yet</span>
+        )}
+      </div>
     </div>
   );
 }

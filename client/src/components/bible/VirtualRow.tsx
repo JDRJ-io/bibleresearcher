@@ -731,7 +731,7 @@ export function VirtualRow({
       case 'notes':
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <NotesCell verseRef={verse.reference} className="h-full" />
+            <NotesCell verseRef={verse.reference} className="h-full" onVerseClick={onVerseClick} />
           </div>
         );
 
