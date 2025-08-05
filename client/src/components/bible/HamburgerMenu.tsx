@@ -33,6 +33,9 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   const bibleStore = useBibleStore();
   const showCrossRefs = bibleStore?.showCrossRefs ?? false;
   const showProphecies = bibleStore?.showProphecies ?? false;
+  const showPrediction = bibleStore?.showPrediction ?? false;
+  const showFulfillment = bibleStore?.showFulfillment ?? false;
+  const showVerification = bibleStore?.showVerification ?? false;
   const showNotes = bibleStore?.showNotes ?? false;
   const showDates = bibleStore?.showDates ?? false;
   const showContext = bibleStore?.showContext ?? false;
@@ -40,6 +43,9 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   const unlockMode = bibleStore?.unlockMode ?? false;
   const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
   const toggleProphecies = bibleStore?.toggleProphecies ?? (() => {});
+  const togglePrediction = bibleStore?.togglePrediction ?? (() => {});
+  const toggleFulfillment = bibleStore?.toggleFulfillment ?? (() => {});
+  const toggleVerification = bibleStore?.toggleVerification ?? (() => {});
   const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
   const toggleContext = bibleStore?.toggleContext ?? (() => {});
@@ -198,6 +204,39 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                 <Label htmlFor="prophecy-tracking" className="text-xs font-medium">Prophecy Tracking</Label>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Shows P|F|V columns for prophecy analysis</p>
+              
+              {/* Individual Prophecy Column Toggles - only show when main prophecy is on */}
+              {showProphecies && (
+                <div className="ml-5 space-y-1 border-l border-gray-200 dark:border-gray-700 pl-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="prediction-column" 
+                      className="w-3 h-3"
+                      checked={showPrediction}
+                      onCheckedChange={() => togglePrediction()}
+                    />
+                    <Label htmlFor="prediction-column" className="text-xs">Prediction (P)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="fulfillment-column" 
+                      className="w-3 h-3"
+                      checked={showFulfillment}
+                      onCheckedChange={() => toggleFulfillment()}
+                    />
+                    <Label htmlFor="fulfillment-column" className="text-xs">Fulfillment (F)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="verification-column" 
+                      className="w-3 h-3"
+                      checked={showVerification}
+                      onCheckedChange={() => toggleVerification()}
+                    />
+                    <Label htmlFor="verification-column" className="text-xs">Verification (V)</Label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Other Study Tools */}

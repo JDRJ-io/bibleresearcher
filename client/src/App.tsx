@@ -83,6 +83,9 @@ export const useBibleStore = create<{
   store: any;
   showCrossRefs: boolean;
   showProphecies: boolean;
+  showPrediction: boolean;
+  showFulfillment: boolean;
+  showVerification: boolean;
   showNotes: boolean;
   showDates: boolean;
   isSearchOpen: boolean;
@@ -92,6 +95,9 @@ export const useBibleStore = create<{
   loadCrossRefsData: (verseIds?: string[]) => Promise<void>;
   toggleCrossRefs: () => void;
   toggleProphecies: () => void;
+  togglePrediction: () => void;
+  toggleFulfillment: () => void;
+  toggleVerification: () => void;
   toggleNotes: () => void;
   toggleDates: () => void;
 
@@ -146,6 +152,9 @@ export const useBibleStore = create<{
   store: { crossRefs: {}, prophecies: {} },
   showCrossRefs: true,  // Default ON for free users (optimal mobile display)
   showProphecies: false, // Default OFF for free users (cleaner mobile)
+  showPrediction: false, // Individual Prediction column toggle
+  showFulfillment: false, // Individual Fulfillment column toggle
+  showVerification: false, // Individual Verification column toggle
   showNotes: false,     // Notes column toggle
   showDates: false,      // Dates column toggle
   showContext: false,   // Context boundaries toggle
@@ -258,6 +267,10 @@ export const useBibleStore = create<{
 
     const newState = {
       showProphecies: newValue,
+      // When toggling main prophecy, toggle all individual columns together
+      showPrediction: newValue,
+      showFulfillment: newValue,
+      showVerification: newValue,
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
@@ -266,6 +279,54 @@ export const useBibleStore = create<{
       }
     };
     console.log('🔄 TOGGLE PROPHECIES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
+  }),
+
+  togglePrediction: () => set(state => {
+    console.log('🔄 TOGGLE PREDICTION - Current:', state.showPrediction, '→ New:', !state.showPrediction);
+    const newValue = !state.showPrediction;
+    const newState = {
+      showPrediction: newValue,
+      columnState: {
+        ...state.columnState,
+        columns: state.columnState.columns.map(col => 
+          col.slot === 8 ? { ...col, visible: newValue } : col // Slot 8 = Prediction
+        )
+      }
+    };
+    console.log('🔄 TOGGLE PREDICTION - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
+  }),
+
+  toggleFulfillment: () => set(state => {
+    console.log('🔄 TOGGLE FULFILLMENT - Current:', state.showFulfillment, '→ New:', !state.showFulfillment);
+    const newValue = !state.showFulfillment;
+    const newState = {
+      showFulfillment: newValue,
+      columnState: {
+        ...state.columnState,
+        columns: state.columnState.columns.map(col => 
+          col.slot === 9 ? { ...col, visible: newValue } : col // Slot 9 = Fulfillment
+        )
+      }
+    };
+    console.log('🔄 TOGGLE FULFILLMENT - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
+  }),
+
+  toggleVerification: () => set(state => {
+    console.log('🔄 TOGGLE VERIFICATION - Current:', state.showVerification, '→ New:', !state.showVerification);
+    const newValue = !state.showVerification;
+    const newState = {
+      showVerification: newValue,
+      columnState: {
+        ...state.columnState,
+        columns: state.columnState.columns.map(col => 
+          col.slot === 10 ? { ...col, visible: newValue } : col // Slot 10 = Verification
+        )
+      }
+    };
+    console.log('🔄 TOGGLE VERIFICATION - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
     return newState;
   }),
 
