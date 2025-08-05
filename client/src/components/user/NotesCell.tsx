@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Edit3, X } from 'lucide-react';
+import { Edit3, Eye } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDebouncedEffect } from '@/hooks/useDebouncedEffect';
 import { useToast } from '@/hooks/use-toast';
+import { NotesTextWithLinks } from './NotesTextWithLinks';
 import type { Note } from '@shared/schema';
 
 interface NotesCellProps {
