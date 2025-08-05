@@ -11,6 +11,7 @@ import { BibleDataAPI } from '@/data/BibleDataAPI';
 import { BibleVerse, StrongsWord } from '@/types/bible';
 import { useVerseNav } from '@/hooks/useVerseNav';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
 
 interface StrongsOverlayProps {
   verse: BibleVerse;
@@ -183,7 +184,9 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                 {loading ? (
                   <div className="flex items-center justify-center h-32">
                     <div className="text-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      <div className="flex justify-center mb-2">
+                        <HolyBookLoader size="sm" />
+                      </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Loading...</p>
                     </div>
                   </div>
@@ -293,7 +296,6 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       className="flex-1 overflow-y-auto overscroll-contain" 
                       style={{ 
                         WebkitOverflowScrolling: 'touch',
-                        WebkitScrollBehavior: 'smooth',
                         scrollBehavior: 'smooth'
                       }}
                     >

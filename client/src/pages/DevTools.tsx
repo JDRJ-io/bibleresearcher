@@ -14,6 +14,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
+import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
 
 export default function DevTools() {
   // Hide DevTools in production unless explicitly enabled
@@ -35,7 +36,9 @@ export default function DevTools() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="flex justify-center mb-4">
+            <HolyBookLoader size="md" />
+          </div>
           <p>Loading developer tools...</p>
         </div>
       </div>

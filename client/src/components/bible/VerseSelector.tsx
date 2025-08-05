@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWindowSize } from 'react-use';
+import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
 
 interface VerseSelectorProps {
   onNavigate: (reference: string) => void;
@@ -146,7 +147,7 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
           <div className="flex gap-1">
             {loading ? (
               <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
-                <div className="w-3 h-3 border-2 border-amber-300 border-t-transparent rounded-full animate-spin"></div>
+                <HolyBookLoader size="sm" />
                 <span className="text-xs">Loading...</span>
               </div>
             ) : user ? (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useBibleStore } from '@/App';
+import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
 import './ProphecyColumns.css';
 
 interface ProphecyData {
@@ -158,15 +159,21 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         {/* Separate P, F, V columns with loading - much wider columns */}
         <div className="w-[1600px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
+          <div className="flex justify-center py-4">
+            <HolyBookLoader size="sm" />
+          </div>
         </div>
         <div className="w-[1600px] flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
+          <div className="flex justify-center py-4">
+            <HolyBookLoader size="sm" />
+          </div>
         </div>
         <div className="w-[1600px] flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-4 w-full rounded"></div>
+          <div className="flex justify-center py-4">
+            <HolyBookLoader size="sm" />
+          </div>
         </div>
       </div>
     );
