@@ -65,6 +65,11 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Domain Cookie Sharing**: Implemented onAuthStateChange listener to automatically share access tokens across subdomains
   - **Secure Configuration**: Uses lax sameSite policy with secure flag for production deployment
   - **Error Handling**: Graceful fallback with console warnings if cookie sharing fails
+- **Enhanced Magic Link UX (Aug 2025)**:
+  - **Popup-Like Confirmation**: Eliminates jarring redirect pages by redirecting to same path with ?fromEmail=yes parameter
+  - **Seamless Integration**: Magic links redirect back to exact location where user requested sign-in
+  - **Success Toast**: Shows "✅ You're in!" confirmation toast after successful email authentication
+  - **URL Cleanup**: Automatically removes ?fromEmail=yes parameter after processing for clean URLs
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.

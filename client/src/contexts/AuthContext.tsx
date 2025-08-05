@@ -28,11 +28,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   /* 1️⃣  get any existing session once */
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const initializeAuth = async () => {
+      // Check if we're coming from email magic link
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromEmail = urlParams.get('fromEmail');
+      
+      // Get existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Check if we're coming from email magic link and have a session
+      if (fromEmail === 'yes' && session) {
+        console.log('✅ Magic link authentication successful');
+        
+        // Clean up URL parameters
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+        
+        // Show success toast after a brief delay
+        setTimeout(() => {
+          const event = new CustomEvent('magic-link-success');
+          window.dispatchEvent(event);
+        }, 500);
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       setAuthReady(true); // 🔑 flip when done
-    });
+    };
+    
+    initializeAuth();
 
     /*  keep in sync on token refresh / sign-in / sign-out  */
     const { data: sub } = supabase.auth.onAuthStateChange(
@@ -43,14 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         // Share auth cookie with *.anointed.io domain for forum integration
         if (newSession?.access_token) {
           try {
-            // Set auth token for domain sharing
-            supabase.auth.setAuth(newSession.access_token, {
-              cookieOptions: {
-                domain: '.anointed.io',   // Share across all anointed.io subdomains
-                sameSite: 'lax',
-                secure: true
-              }
-            });
+            // Create a manual cookie for cross-domain sharing
+            document.cookie = `supabase-auth-token=${newSession.access_token}; domain=.anointed.io; path=/; sameSite=lax; secure`;
             console.log('🔗 Auth cookie shared with *.anointed.io domain');
           } catch (error) {
             console.warn('⚠️ Failed to share auth cookie:', error);

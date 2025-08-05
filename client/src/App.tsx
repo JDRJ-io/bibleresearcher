@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { MagicLinkToast } from "@/components/auth/MagicLinkToast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -775,6 +776,7 @@ function App() {
           <HighlightProvider>
             <TooltipProvider>
               <Toaster />
+              <MagicLinkToast />
               <Router />
             </TooltipProvider>
           </HighlightProvider>
