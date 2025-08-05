@@ -536,22 +536,30 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       if (isPortrait) {
         // In portrait mode, use fewer columns due to narrow width
         if (viewportWidth <= 430) { // Small phones
-          setMaxVisibleColumns(2); // Reference + 1 other column
+          setMaxVisibleColumns(3); // Reference + 2 other columns (KJV + Cross Refs)
         } else if (viewportWidth <= 768) { // Larger phones/tablets
-          setMaxVisibleColumns(3); // Reference + 2 other columns  
+          setMaxVisibleColumns(4); // Reference + 3 other columns  
         } else { // Portrait tablets
-          setMaxVisibleColumns(4); // Reference + 3 other columns
+          setMaxVisibleColumns(5); // Reference + 4 other columns
         }
       } else {
         // In landscape mode, can fit more columns
         if (viewportWidth <= 768) { // Small landscape screens
-          setMaxVisibleColumns(3); // Reference + 2 other columns
-        } else if (viewportWidth <= 1024) { // Medium landscape screens
           setMaxVisibleColumns(4); // Reference + 3 other columns
-        } else { // Large landscape screens
+        } else if (viewportWidth <= 1024) { // Medium landscape screens
           setMaxVisibleColumns(5); // Reference + 4 other columns
+        } else { // Large landscape screens
+          setMaxVisibleColumns(6); // Reference + 5 other columns
         }
       }
+      
+      console.log('🔄 Column navigation: Set maxVisibleColumns to', 
+        isPortrait 
+          ? (viewportWidth <= 430 ? 3 : viewportWidth <= 768 ? 4 : 5)
+          : (viewportWidth <= 768 ? 4 : viewportWidth <= 1024 ? 5 : 6),
+        'for viewport', viewportWidth, 'x', window.innerHeight, 
+        '(', isPortrait ? 'portrait' : 'landscape', ')'
+      );
     };
 
     calculateMaxVisibleColumns();

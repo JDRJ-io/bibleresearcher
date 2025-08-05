@@ -198,6 +198,13 @@ export function NewColumnHeaders({
 
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
   console.log('📋 NewColumnHeaders showDates prop:', showDates);
+  console.log('📋 NewColumnHeaders navigation state:', { 
+    columnOffset, 
+    maxVisibleColumns, 
+    totalColumns: columns.length,
+    visibleColumnsCount: visibleColumns.length,
+    visibleColumnNames: visibleColumns.map(c => c.name)
+  });
 
   const isPortrait = window.innerHeight > window.innerWidth;
 
