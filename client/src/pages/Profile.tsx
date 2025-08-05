@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Crown, User, Mail, Calendar, Save } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { RecoveryPasskeySection } from '@/components/auth/RecoveryPasskeySection';
 
 
 export default function Profile() {
@@ -247,6 +248,9 @@ export default function Profile() {
               )}
             </CardContent>
           </Card>
+
+          {/* Recovery Passkey Section */}
+          <RecoveryPasskeySection />
         </div>
       </div>
     </div>

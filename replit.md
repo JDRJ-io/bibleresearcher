@@ -70,6 +70,12 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Seamless Integration**: Magic links redirect back to exact location where user requested sign-in
   - **Success Toast**: Shows "✅ You're in!" confirmation toast after successful email authentication
   - **URL Cleanup**: Automatically removes ?fromEmail=yes parameter after processing for clean URLs
+- **Enhanced Sign-Up Features (Aug 2025)**:
+  - **Recovery Passkey System**: Complete bcryptjs-based backup authentication with secure hash storage
+  - **Marketing Opt-In**: User-controlled newsletter subscription with onAuthStateChange listener integration
+  - **Profile Security Section**: Recovery passkey management in Settings with add/remove/update functionality
+  - **Supabase Edge Function**: recover-with-passkey serverless function for secure passkey verification and magic link generation
+  - **Database Schema Updates**: Added recovery_passkey_hash and marketing_opt_in fields to profiles table
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.

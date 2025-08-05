@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { sendMagicLink } from '@/lib/auth'
 import { Loader2, Mail, Sparkles } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { supabase } from '@/lib/supabaseClient'
 
 
 interface AuthModalsProps {
@@ -16,7 +18,7 @@ interface AuthModalsProps {
 }
 
 export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseSignIn }: AuthModalsProps) {
-  const [signUpData, setSignUpData] = useState({ displayName: '', email: '' })
+  const [signUpData, setSignUpData] = useState({ displayName: '', email: '', marketingOptIn: false })
   const [signInEmail, setSignInEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
@@ -43,12 +45,31 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           variant: "destructive"
         })
       } else {
+        // Set up marketing opt-in listener for when user signs in
+        if (signUpData.marketingOptIn) {
+          const unsubscribe = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session?.user) {
+              try {
+                await supabase
+                  .from('profiles')
+                  .update({ marketing_opt_in: true })
+                  .eq('id', session.user.id);
+                console.log('✅ Marketing opt-in saved for user');
+              } catch (error) {
+                console.warn('Failed to save marketing opt-in:', error);
+              }
+              // Clean up listener after first sign-in
+              unsubscribe.data.subscription.unsubscribe();
+            }
+          });
+        }
+        
         toast({
           title: "Magic Link Sent! ✨",
           description: `Check your email (${signUpData.email}) for your sign-in link.`,
         })
         onCloseSignUp()
-        setSignUpData({ displayName: '', email: '' })
+        setSignUpData({ displayName: '', email: '', marketingOptIn: false })
       }
     } catch (error) {
       toast({
@@ -162,6 +183,23 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   disabled={isLoading}
                 />
               </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="marketing-opt-in"
+                  checked={signUpData.marketingOptIn}
+                  onCheckedChange={(checked) => 
+                    setSignUpData(prev => ({ ...prev, marketingOptIn: checked === true }))
+                  }
+                />
+                <Label 
+                  htmlFor="marketing-opt-in" 
+                  className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed"
+                >
+                  Send me product updates & promos (1-2 × month)
+                </Label>
+              </div>
+              
               <Button 
                 type="submit" 
                 className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-lg transition-all duration-300 hover:shadow-amber-300/50 hover:scale-105"

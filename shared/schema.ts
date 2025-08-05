@@ -14,6 +14,8 @@ export const profiles = pgTable("profiles", {
   name: text("name"), // Nullable for incomplete profiles
   bio: text("bio"),
   tier: text("tier").default("free"), // 'free' or 'premium'
+  recovery_passkey_hash: text("recovery_passkey_hash"),
+  marketing_opt_in: boolean("marketing_opt_in").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
