@@ -3,6 +3,7 @@ import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
+import { ColumnNavigationArrows } from './ColumnNavigationArrows';
 
 interface NewColumnHeadersProps {
   selectedTranslations: Translation[];
@@ -34,7 +35,12 @@ export function NewColumnHeaders({
   isGuest = true 
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
-  const { isInitialized, showNotes: storeShowNotes } = useBibleStore();
+  const { 
+    isInitialized, 
+    showNotes: storeShowNotes, 
+    columnOffset, 
+    maxVisibleColumns 
+  } = useBibleStore();
 
   // Use the live store state instead of preferences for notes visibility
   const showNotes = storeShowNotes;
@@ -174,6 +180,22 @@ export function NewColumnHeaders({
     return cols.filter(col => col.visible);
   }, [main, alternates, showNotes, showDates, showCrossRefs, showProphecy, adaptiveWidths]);
 
+  // Apply horizontal navigation filtering - always keep reference and dates columns visible
+  const visibleColumns = useMemo(() => {
+    // Define which columns are always fixed (not affected by horizontal navigation)
+    const fixedColumnTypes = ['reference'];
+    
+    // Separate fixed and navigable columns
+    const fixedColumns = columns.filter(col => fixedColumnTypes.includes(col.type));
+    const navigableColumns = columns.filter(col => !fixedColumnTypes.includes(col.type));
+    
+    // Apply offset to navigable columns
+    const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
+    
+    // Combine fixed columns (always first) with offset navigable columns
+    return [...fixedColumns, ...offsetNavigableColumns];
+  }, [columns, columnOffset, maxVisibleColumns]);
+
   console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
   console.log('📋 NewColumnHeaders showDates prop:', showDates);
 
@@ -183,19 +205,27 @@ export function NewColumnHeaders({
     <div 
       className="column-headers-wrapper sticky top-0 z-20 bg-background border-b"
       style={{ 
-        transform: `translateX(${-scrollLeft}px)`,
         width: '100%'
       }}
     >
+      {/* Navigation arrows positioned above the headers */}
+      <div className="flex justify-between items-center px-4 py-1 bg-gray-50 dark:bg-gray-900 border-b">
+        <div className="flex-1" />
+        <ColumnNavigationArrows />
+        <div className="flex-1" />
+      </div>
+      
+      {/* Column headers - no horizontal scroll, only showing offset columns */}
       <div 
         className="column-headers-inner flex"
         style={{ 
           minWidth: 'max-content',
           width: 'max-content',
-          margin: isPortrait ? '0' : '0 auto' // Match the tableInner margin
+          margin: isPortrait ? '0' : '0 auto', // Match the tableInner margin
+          overflowX: 'hidden' // Prevent horizontal scroll - navigation arrows control visibility
         }}
       >
-        {columns.map((column) => (
+        {visibleColumns.map((column) => (
           <div
             key={column.id}
             className={`

@@ -592,9 +592,9 @@ export function VirtualRow({
       }
     });
 
-  // Get visible columns: combine store state with translation state
+  // Get all available columns: combine store state with translation state
   // The authoritative source is the slotConfig based on current translation state
-  let visibleColumns = Object.entries(slotConfig)
+  let allColumns = Object.entries(slotConfig)
     .map(([slotStr, config]) => ({
       slot: parseInt(slotStr),
       config,
@@ -613,15 +613,28 @@ export function VirtualRow({
     });
 
     // Add displayOrder to each column and sort
-    visibleColumns.forEach((col: any) => {
+    allColumns.forEach((col: any) => {
       col.displayOrder = slotToDisplayOrder.get(col.slot) ?? col.slot;
     });
 
-    visibleColumns.sort((a: any, b: any) => (a.displayOrder ?? a.slot) - (b.displayOrder ?? b.slot));
+    allColumns.sort((a: any, b: any) => (a.displayOrder ?? a.slot) - (b.displayOrder ?? b.slot));
   } else {
     // Fallback to slot-based sorting
-    visibleColumns.sort((a, b) => a.slot - b.slot);
+    allColumns.sort((a, b) => a.slot - b.slot);
   }
+
+  // Apply horizontal navigation filtering - keep reference column always visible
+  const { columnOffset, maxVisibleColumns } = useBibleStore();
+  const fixedColumnTypes = ['reference']; // Always show reference column
+  
+  const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
+  const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
+  
+  // Apply offset to navigable columns
+  const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
+  
+  // Combine fixed columns (always first) with offset navigable columns
+  const visibleColumns = [...fixedColumns, ...offsetNavigableColumns];
 
   // Helper function to get default widths per UI Layout Spec
   function getDefaultWidth(slot: number): number {

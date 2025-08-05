@@ -526,31 +526,62 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
   }, [isPortrait, showCrossRefs, toggleCrossRefs]);
 
+  // Automatically set maxVisibleColumns based on viewport size
+  const { setMaxVisibleColumns } = useBibleStore();
+  React.useEffect(() => {
+    const calculateMaxVisibleColumns = () => {
+      const viewportWidth = window.innerWidth;
+      
+      // Calculate how many columns can fit based on adaptive column widths
+      if (isPortrait) {
+        // In portrait mode, use fewer columns due to narrow width
+        if (viewportWidth <= 430) { // Small phones
+          setMaxVisibleColumns(2); // Reference + 1 other column
+        } else if (viewportWidth <= 768) { // Larger phones/tablets
+          setMaxVisibleColumns(3); // Reference + 2 other columns  
+        } else { // Portrait tablets
+          setMaxVisibleColumns(4); // Reference + 3 other columns
+        }
+      } else {
+        // In landscape mode, can fit more columns
+        if (viewportWidth <= 768) { // Small landscape screens
+          setMaxVisibleColumns(3); // Reference + 2 other columns
+        } else if (viewportWidth <= 1024) { // Medium landscape screens
+          setMaxVisibleColumns(4); // Reference + 3 other columns
+        } else { // Large landscape screens
+          setMaxVisibleColumns(5); // Reference + 4 other columns
+        }
+      }
+    };
+
+    calculateMaxVisibleColumns();
+    
+    // Recalculate on window resize
+    const handleResize = () => calculateMaxVisibleColumns();
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isPortrait, setMaxVisibleColumns]);
+
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Minimal axis-clamped scrolling system
+  // Simplified vertical-only scrolling system
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Track scroll position for column headers and custom scrollbar
+    // Track scroll position for custom scrollbar (vertical only)
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
-      setScrollLeft(target.scrollLeft);
-      // SYNC SCROLLBAR: Only update scrollTop state if not currently dragging scrollbar
+      // No longer track scrollLeft since horizontal scrolling is disabled
+      setScrollLeft(0); // Always keep at 0
+      
+      // Update scrollTop state if not currently dragging scrollbar
       if (!isScrollbarDragging) {
         setScrollTop(target.scrollTop);
       }
-    };
-
-    // Apply the minimal axis clamp
-    let startX = 0, startY = 0, dragging = false;
-
-    const apply = (dx: number, dy: number) => {
-      container.scrollLeft += dx;
-      container.scrollTop += dy;
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
@@ -600,11 +631,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         style={{ 
           position: 'relative',
           height: "calc(100vh - 85px)",
-          overflow: 'auto', // Allow both directions naturally
+          overflowX: 'hidden', // Disable horizontal scrolling - navigation arrows control column visibility
+          overflowY: 'auto', // Allow vertical scrolling only
           overscrollBehavior: 'contain',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'auto', // Allow natural scrolling, we'll redirect it
+          touchAction: 'pan-y', // Only allow vertical panning
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none' // IE/Edge

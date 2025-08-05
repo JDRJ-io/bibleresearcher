@@ -107,6 +107,14 @@ export const useBibleStore = create<{
   setCurrentVerseKeys: (keys: string[]) => void;
   unlockMode: boolean;
   toggleUnlockMode: () => void;
+  
+  // Horizontal column navigation state
+  columnOffset: number;
+  maxVisibleColumns: number;
+  setColumnOffset: (offset: number) => void;
+  navigateColumnLeft: () => void;
+  navigateColumnRight: () => void;
+  setMaxVisibleColumns: (count: number) => void;
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -642,7 +650,29 @@ export const useBibleStore = create<{
       }
     })),
     columnKeys: []
-  }
+  },
+
+  // Horizontal column navigation implementation
+  columnOffset: 0,
+  maxVisibleColumns: 3, // Default to showing 3 columns in viewport
+  setColumnOffset: (offset: number) => set({ columnOffset: Math.max(0, offset) }),
+  navigateColumnLeft: () => set(state => ({ 
+    columnOffset: Math.max(0, state.columnOffset - 1) 
+  })),
+  navigateColumnRight: () => set(state => {
+    // Calculate total available columns that can be navigated
+    const { columnState, showCrossRefs, showProphecies, showNotes, showDates } = state;
+    const visibleColumns = columnState.columns.filter(col => col.visible).length;
+    const additionalColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
+    const totalNavigableColumns = visibleColumns + additionalColumns;
+    
+    // Don't go beyond available columns
+    const maxOffset = Math.max(0, totalNavigableColumns - state.maxVisibleColumns);
+    return { 
+      columnOffset: Math.min(state.columnOffset + 1, maxOffset) 
+    };
+  }),
+  setMaxVisibleColumns: (count: number) => set({ maxVisibleColumns: Math.max(1, count) })
 }));
 
 function Router() {
