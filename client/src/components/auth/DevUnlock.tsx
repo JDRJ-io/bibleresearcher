@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Crown, Code, Sparkles } from 'lucide-react';
-import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
+
 
 export function DevUnlock() {
   const [code, setCode] = useState('');
@@ -116,9 +116,7 @@ export function DevUnlock() {
         >
           {isLoading ? (
             <>
-              <div className="mr-2">
-                <HolyBookLoader size="sm" />
-              </div>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
               Redeeming...
             </>
           ) : (

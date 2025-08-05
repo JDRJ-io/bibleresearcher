@@ -1,5 +1,4 @@
 import React from 'react';
-import { HolyBookLoader } from './ui/HolyBookLoader';
 
 interface LoadingWheelProps {
   message?: string;
@@ -12,15 +11,15 @@ export function LoadingWheel({
   size = 'medium',
   className = '' 
 }: LoadingWheelProps) {
-  const bookSizeMap = {
-    small: 'sm' as const,
-    medium: 'md' as const,
-    large: 'lg' as const
+  const sizeClasses = {
+    small: 'h-4 w-4',
+    medium: 'h-6 w-6', 
+    large: 'h-8 w-8'
   };
 
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
-      <HolyBookLoader size={bookSizeMap[size]} />
+      <div className={`animate-spin rounded-full border-2 border-blue-500 border-t-transparent ${sizeClasses[size]}`} />
       {message && (
         <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
           {message}

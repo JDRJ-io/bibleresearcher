@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Crown, User, Mail, Calendar, Save } from 'lucide-react';
 import { useLocation } from 'wouter';
-import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
+
 
 export default function Profile() {
   const { user, profile, loading, saveProfile, upgradeToPremium } = useAuth();
@@ -160,9 +160,7 @@ export default function Profile() {
                 >
                   {isSaving ? (
                     <>
-                      <div className="mr-2">
-                        <HolyBookLoader size="sm" />
-                      </div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
                       Saving...
                     </>
                   ) : (

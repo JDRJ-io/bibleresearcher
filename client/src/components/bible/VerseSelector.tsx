@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWindowSize } from 'react-use';
-import { HolyBookLoader } from '@/components/ui/HolyBookLoader';
+
 
 interface VerseSelectorProps {
   onNavigate: (reference: string) => void;

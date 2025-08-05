@@ -185,7 +185,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                   <div className="flex items-center justify-center h-32">
                     <div className="text-center">
                       <div className="flex justify-center mb-2">
-                        <HolyBookLoader size="sm" />
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Loading...</p>
                     </div>

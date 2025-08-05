@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { sendMagicLink } from '@/lib/auth'
 import { Loader2, Mail, Sparkles } from 'lucide-react'
-import { HolyBookLoader } from '@/components/ui/HolyBookLoader'
+
 
 interface AuthModalsProps {
   isSignUpOpen: boolean
@@ -169,9 +169,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               >
                 {isLoading ? (
                   <>
-                    <div className="mr-2">
-                      <HolyBookLoader size="sm" />
-                    </div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
                     Sending Magic Link...
                   </>
                 ) : (
@@ -228,9 +226,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               >
                 {isLoading ? (
                   <>
-                    <div className="mr-2">
-                      <HolyBookLoader size="sm" />
-                    </div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
                     Sending Magic Link...
                   </>
                 ) : (
