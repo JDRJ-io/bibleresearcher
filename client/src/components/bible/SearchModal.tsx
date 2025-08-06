@@ -643,57 +643,34 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                 </div>
               </div>
               
-              {/* Multi-Translation Search Toggle */}
+              {/* Translation Selection */}
               <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="searchAllTranslations"
-                    checked={searchAllTranslations}
-                    onChange={(e) => setSearchAllTranslations(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <label htmlFor="searchAllTranslations" className="text-sm font-medium">
-                    Search across multiple translations
-                  </label>
+                <div className="text-sm font-medium">Search Translations</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  Select translations to search (click results to switch main translation):
                 </div>
-                
-                {/* Translation Selection */}
-                {searchAllTranslations && (
-                  <div className="space-y-2">
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Select translations to search (click results to switch main translation):
-                    </div>
-                    <div className="grid grid-cols-3 gap-2">
-                      {['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'].map(translation => (
-                        <label key={translation} className="flex items-center space-x-1 text-xs">
-                          <input
-                            type="checkbox"
-                            checked={selectedTranslations.includes(translation)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedTranslations(prev => [...prev, translation]);
-                              } else {
-                                setSelectedTranslations(prev => prev.filter(t => t !== translation));
-                              }
-                            }}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className={translation === activeTranslation ? 'font-bold text-blue-600' : ''}>
-                            {translation}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="grid grid-cols-3 gap-2">
+                  {['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'].map(translation => (
+                    <label key={translation} className="flex items-center space-x-1 text-xs">
+                      <input
+                        type="checkbox"
+                        checked={selectedTranslations.includes(translation)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedTranslations(prev => [...prev, translation]);
+                          } else {
+                            setSelectedTranslations(prev => prev.filter(t => t !== translation));
+                          }
+                        }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className={translation === activeTranslation ? 'font-bold text-blue-600' : ''}>
+                        {translation}
+                      </span>
+                    </label>
+                  ))}
+                </div>
               </div>
-              
-              {searchAllTranslations && (
-                <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
-                  <strong>Inter-translation search enabled:</strong> Results will show the same verse from different translations when they match your search terms differently. Perfect for finding unique translation-specific phrases.
-                </div>
-              )}
             </div>
           )}
 
