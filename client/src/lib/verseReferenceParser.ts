@@ -1,4 +1,4 @@
-import { parseVerseReference } from './bibleSearchEngine';
+import { parseVerseReference, canonicalToReference } from './bibleSearchEngine';
 
 export interface VerseReferenceMatch {
   originalText: string;
@@ -26,8 +26,7 @@ export function findVerseReferencesInText(text: string): VerseReferenceMatch[] {
     
     // Only include if parsing was successful with reasonable confidence
     if (parsed && parsed.confidence > 0.7) {
-      // Use the exact same format as the reference column - import canonicalToReference
-      const { canonicalToReference } = await import('./bibleSearchEngine');
+      // Use the exact same format as the reference column
       const bookRef = canonicalToReference(parsed.book);
       const standardFormat = `${bookRef}.${parsed.chapter}:${parsed.verse}${
         parsed.endVerse ? `-${parsed.endVerse}` : ''
