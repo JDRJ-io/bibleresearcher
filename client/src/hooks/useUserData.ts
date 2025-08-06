@@ -90,6 +90,7 @@ export const useDeleteHighlight = () => {
     mutationFn: (id: number) => highlightsApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
+      queryClient.invalidateQueries({ queryKey: ['highlights'] }); // Also refresh verse-specific highlights
     },
   });
 };
@@ -102,6 +103,7 @@ export const useDeleteAllHighlights = () => {
       highlightsApi.deleteAllForVerse(verseRef, translation),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
+      queryClient.invalidateQueries({ queryKey: ['highlights'] }); // Also refresh verse-specific highlights
     },
   });
 };

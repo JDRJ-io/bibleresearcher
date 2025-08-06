@@ -29,8 +29,10 @@ export function NotesCell({ verseRef, className, onVerseClick }: NotesCellProps)
     const note = notes[0] || null; // First note since we're filtering by verse
     setExistingNote(note);
     setNoteText(note?.text || '');
-    // Auto-start editing mode if there's no note yet
-    setIsEditing(!note);
+    // Auto-start editing mode if there's no note yet, but don't switch back to view mode automatically
+    if (!note && !isEditing) {
+      setIsEditing(true);
+    }
   }, [notes]);
 
   // Auto-save with debounce
