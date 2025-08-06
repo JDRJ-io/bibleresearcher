@@ -4,7 +4,7 @@ import { useMobileDetection } from './useMobileDetection';
 
 type ScrollToFn = (ref: string) => void;
 
-const MAX_HISTORY_SIZE = 20;
+const MAX_HISTORY_SIZE = 10;
 
 export function useVerseNav(scrollToVerse: ScrollToFn) {
   const verseKeys = getVerseKeys();
@@ -15,10 +15,13 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
   const [mobileHistory, setMobileHistory] = useState<string[]>([]);
   const [mobileHistoryIndex, setMobileHistoryIndex] = useState(-1);
 
-  // Call this when a link is clicked
+  // Call this when a link is clicked or scroll wheel navigation is used
   const goTo = (ref: string) => {
     const norm = ref.trim();
     console.log('🚀 useVerseNav goTo called with:', ref, 'normalized:', norm, 'mobile:', isMobile);
+    console.log('📚 Current history state:', isMobile ? 
+      { mobileHistory: mobileHistory.length, index: mobileHistoryIndex } : 
+      { browserHistory: window.history.length });
     
     // Trigger loading detection for navigation (smart loading system)
     const loadingEvent = new CustomEvent('navigationStarted', { 
@@ -72,36 +75,44 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
 
   // Mobile: Handle internal back/forward
   const goBack = () => {
+    console.log('🔙 goBack called - mobile:', isMobile, 'canGoBack:', canGoBack);
     if (isMobile) {
       if (mobileHistoryIndex > 0) {
         const newIndex = mobileHistoryIndex - 1;
         const targetRef = mobileHistory[newIndex];
-        console.log('📱 Mobile back to:', targetRef, 'index:', newIndex);
+        console.log('📱 Mobile back to:', targetRef, 'index:', newIndex, 'history length:', mobileHistory.length);
         setMobileHistoryIndex(newIndex);
         scrollToVerse(targetRef);
         return true;
+      } else {
+        console.log('📱 Cannot go back - at beginning of history');
+        return false;
       }
-      return false;
     } else {
       // Desktop: Use browser back
+      console.log('🖥️ Desktop browser back');
       window.history.back();
       return true;
     }
   };
 
   const goForward = () => {
+    console.log('🔜 goForward called - mobile:', isMobile, 'canGoForward:', canGoForward);
     if (isMobile) {
       if (mobileHistoryIndex < mobileHistory.length - 1) {
         const newIndex = mobileHistoryIndex + 1;
         const targetRef = mobileHistory[newIndex];
-        console.log('📱 Mobile forward to:', targetRef, 'index:', newIndex);
+        console.log('📱 Mobile forward to:', targetRef, 'index:', newIndex, 'history length:', mobileHistory.length);
         setMobileHistoryIndex(newIndex);
         scrollToVerse(targetRef);
         return true;
+      } else {
+        console.log('📱 Cannot go forward - at end of history');
+        return false;
       }
-      return false;
     } else {
       // Desktop: Use browser forward
+      console.log('🖥️ Desktop browser forward');
       window.history.forward();
       return true;
     }
