@@ -14,6 +14,7 @@ import { classesForMask } from '@/lib/labelRenderer';
 import { LabelName } from '@/lib/labelBits';
 import { NotesCell } from '@/components/user/NotesCell';
 import { VerseText } from '@/components/highlights/VerseText';
+import { HoverVerseBar } from './HoverVerseBar';
 
 
 
@@ -431,36 +432,65 @@ function MainTranslationCell({
     contextClasses += ' bg-blue-50/30 dark:bg-blue-900/10';
   }
 
+  const handleCopy = () => {
+    const text = `${verse.reference} - ${verseText}`;
+    navigator.clipboard.writeText(text);
+  };
+
+  const handleBookmark = () => {
+    // Would trigger bookmark creation with the verse reference
+    console.log('Bookmark verse:', verse.reference);
+  };
+
+  const handleShare = () => {
+    const text = `${verse.reference} - ${verseText}`;
+    if (navigator.share) {
+      navigator.share({
+        title: verse.reference,
+        text: text,
+      });
+    } else {
+      handleCopy();
+    }
+  };
+
   return (
-    <div className={`px-2 py-1 text-sm leading-tight cell-content h-full max-h-full ${contextClasses}`}>
-      {shouldUseLabeledText ? (
-        <span
-          data-verse-ref={verse.reference}
-          data-translation={mainTranslation}
-          className="verse-text"
-        >
-          <LabeledText
-            text={verseText}
-            labelData={verseLabels}
-            activeLabels={activeLabels}
-            verseKey={verse.reference}
-            translationCode={mainTranslation}
-          />
-        </span>
-      ) : (
-        <span
-          data-verse-ref={verse.reference}
-          data-translation={mainTranslation}
-          className="verse-text h-full"
-        >
-          <VerseText
-            verseRef={verse.reference}
-            translation={mainTranslation}
-            text={verseText}
-          />
-        </span>
-      )}
-    </div>
+    <HoverVerseBar
+      verse={verse}
+      onCopy={handleCopy}
+      onBookmark={handleBookmark}
+      onShare={handleShare}
+    >
+      <div className={`px-2 py-1 text-sm leading-tight cell-content h-full max-h-full ${contextClasses}`}>
+        {shouldUseLabeledText ? (
+          <span
+            data-verse-ref={verse.reference}
+            data-translation={mainTranslation}
+            className="verse-text"
+          >
+            <LabeledText
+              text={verseText}
+              labelData={verseLabels}
+              activeLabels={activeLabels}
+              verseKey={verse.reference}
+              translationCode={mainTranslation}
+            />
+          </span>
+        ) : (
+          <span
+            data-verse-ref={verse.reference}
+            data-translation={mainTranslation}
+            className="verse-text h-full"
+          >
+            <VerseText
+              verseRef={verse.reference}
+              translation={mainTranslation}
+              text={verseText}
+            />
+          </span>
+        )}
+      </div>
+    </HoverVerseBar>
   );
 }
 
