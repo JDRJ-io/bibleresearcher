@@ -165,9 +165,19 @@ export function HighlightableText({ text, verseRef, translation = 'KJV', classNa
   // Handle highlight removal
   const handleRemoveHighlight = async (highlight: Highlight) => {
     try {
+      console.log('🎨 Removing individual highlight:', { 
+        id: highlight.id, 
+        verseRef, 
+        translation,
+        startPos: highlight.start_pos,
+        endPos: highlight.end_pos 
+      });
+      
       await deleteHighlight.mutateAsync(highlight.id);
+      console.log('🎨 Individual highlight deleted successfully');
       toast({ title: "Highlight removed" });
     } catch (error) {
+      console.error('🎨 Failed to remove individual highlight:', error);
       toast({ 
         title: "Error", 
         description: "Failed to remove highlight", 
@@ -229,7 +239,11 @@ export function HighlightableText({ text, verseRef, translation = 'KJV', classNa
           }}
           onClick={(e) => {
             e.stopPropagation();
-            handleRemoveHighlight(highlight);
+            e.preventDefault();
+            // Prevent multiple rapid clicks
+            if (!deleteHighlight.isPending) {
+              handleRemoveHighlight(highlight);
+            }
           }}
           title="Click to remove highlight"
         >
