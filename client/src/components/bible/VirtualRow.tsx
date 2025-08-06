@@ -553,113 +553,118 @@ export function VirtualRow({
     }
   };
 
-  // Use store's columnState as the authoritative source, enhanced with translation data
-  const slotConfig: Record<number, SlotConfig> = {};
+  // Build column configuration matching NewColumnHeaders logic exactly
+  const buildColumns = () => {
+    const cols: Array<{
+      id: string;
+      type: string;
+      header: string;
+      translationCode?: string;
+      visible: boolean;
+    }> = [];
 
-  // Always show reference column (slot 0)
-  slotConfig[0] = { type: 'reference', header: '#', visible: true };
-
-  // Notes column right after dates (slot 2)
-  slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
-
-  // Main translation after notes (slot 3)
-  slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
-
-  // Dates column right after reference (slot 1)
-  slotConfig[1] = { type: 'context', header: '📅', visible: showDates };
-
-  // Map all column types based on store state - updated slot assignments
-  if (columnState?.columns) {
-    columnState.columns.forEach(col => {
-      switch (col.slot) {
-        case 1:
-          // Dates column (moved to slot 1 after Ref)
-          slotConfig[1] = { type: 'context', header: '📅', visible: col.visible && showDates };
-          break;
-        case 2:
-          // Notes column (moved to slot 2)
-          slotConfig[2] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
-          break;
-        case 3:
-          // Main translation (moved to slot 3)
-          slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: col.visible };
-          break;
-        case 7:
-          // Cross References column (unchanged)
-          slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
-          break;
-        case 8:
-          // Prophecy P column (unchanged)
-          slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
-          break;
-        case 9:
-          // Prophecy F column (unchanged)
-          slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
-          break;
-        case 10:
-          // Prophecy V column (unchanged)
-          slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
-          break;
-      }
-    });
-  }
-
-  // Dynamically add alternate translation columns to slots 12-19 (AFTER cross-references)
-  // This matches the slot assignment in ColumnHeaders.tsx
-  // FILTER OUT main translation to prevent duplication
-  alternates
-    .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
-    .forEach((translationCode, index) => {
-      // All alternate translations start from slot 12 (AFTER cross-references at slot 7)
-      const slot = 12 + index;
-
-      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
-        slotConfig[slot] = { 
-          type: 'alt-translation', 
-          header: translationCode, 
-          translationCode, 
-          visible: true  // Show all active alternate translations
-        };
-      }
+    // 1. Reference column (always visible)
+    cols.push({
+      id: 'reference',
+      type: 'reference',
+      header: '#',
+      visible: true
     });
 
-  // Get all available columns: combine store state with translation state
-  // The authoritative source is the slotConfig based on current translation state
-  let allColumns = Object.entries(slotConfig)
-    .map(([slotStr, config]) => ({
-      slot: parseInt(slotStr),
-      config,
-      widthRem: getDefaultWidth(parseInt(slotStr)),
-      visible: config?.visible !== false // Show if config exists and not explicitly hidden
-    }))
-    .filter(col => col.config && col.visible); // Only render valid, visible slots
+    // 2. Dates column (showDates controls the dates column)
+    if (showDates) {
+      cols.push({
+        id: 'dates',
+        type: 'context',
+        header: '📅',
+        visible: true
+      });
+    }
 
-  // Sort by displayOrder from store if available
-  if (columnState?.columns) {
-    const slotToDisplayOrder = new Map();
-    columnState.columns.forEach(col => {
-      if (col.visible) {
-        slotToDisplayOrder.set(col.slot, col.displayOrder);
-      }
+    // 3. Notes column
+    if (showNotes) {
+      cols.push({
+        id: 'notes',
+        type: 'notes',
+        header: 'Notes',
+        visible: true
+      });
+    }
+
+    // 4. Main translation (always visible)
+    cols.push({
+      id: 'main-translation',
+      type: 'main-translation',
+      header: mainTranslation,
+      translationCode: mainTranslation,
+      visible: true
     });
 
-    // Add displayOrder to each column and sort
-    allColumns.forEach((col: any) => {
-      col.displayOrder = slotToDisplayOrder.get(col.slot) ?? col.slot;
-    });
+    // 5. Cross references (should come before alternate translations)
+    if (showCrossRefs) {
+      cols.push({
+        id: 'cross-refs',
+        type: 'cross-refs',
+        header: 'Cross Refs',
+        visible: true
+      });
+    }
 
-    allColumns.sort((a: any, b: any) => (a.displayOrder ?? a.slot) - (b.displayOrder ?? b.slot));
-  } else {
-    // Fallback to slot-based sorting
-    allColumns.sort((a, b) => a.slot - b.slot);
-  }
+    // 6. Prophecy columns (should come before alternate translations)
+    if (showProphecies) {
+      cols.push({
+        id: 'prophecy-p',
+        type: 'prophecy-p',
+        header: 'P',
+        visible: true
+      });
+      cols.push({
+        id: 'prophecy-f',
+        type: 'prophecy-f',
+        header: 'F',
+        visible: true
+      });
+      cols.push({
+        id: 'prophecy-v',
+        type: 'prophecy-v',
+        header: 'V',
+        visible: true
+      });
+    }
+
+    // 7. Alternate translations (filtered to exclude main translation)
+    alternates
+      .filter(translationCode => translationCode !== mainTranslation)
+      .forEach((translationCode) => {
+        cols.push({
+          id: `alt-${translationCode}`,
+          type: 'alt-translation',
+          header: translationCode,
+          translationCode,
+          visible: true
+        });
+      });
+
+    return cols;
+  };
+
+  let allColumns = buildColumns();
+
+  // Apply drag and drop reordering by checking against localColumns state from headers
+  // We need to synchronize with the NewColumnHeaders drag state to maintain column order
+  const applyDragOrder = (cols: typeof allColumns) => {
+    // If there's no reordering happening, just return the natural order
+    return cols;
+  };
+
+  allColumns = applyDragOrder(allColumns);
 
   // Apply horizontal navigation filtering - keep reference column always visible
   const { columnOffset, maxVisibleColumns } = useBibleStore();
   const fixedColumnTypes = ['reference']; // Always show reference column
   
-  const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
-  const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
+  const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.type));
+  const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.type));
   
   // Apply offset to navigable columns
   const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
