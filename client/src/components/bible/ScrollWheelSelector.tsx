@@ -65,27 +65,42 @@ interface WheelSelectorProps {
 
 function WheelSelector({ items, selectedIndex, onSelectionChange, label }: WheelSelectorProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  const scrollToIndex = (index: number) => {
+  const scrollToIndex = (index: number, smooth = true) => {
     if (scrollRef.current) {
       const itemHeight = 40; // Height of each item
-      scrollRef.current.scrollTop = index * itemHeight;
+      scrollRef.current.scrollTo({
+        top: index * itemHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
     }
   };
 
   useEffect(() => {
-    scrollToIndex(selectedIndex);
+    scrollToIndex(selectedIndex, false);
   }, [selectedIndex]);
 
   const handleScroll = () => {
-    if (scrollRef.current) {
-      const scrollTop = scrollRef.current.scrollTop;
-      const itemHeight = 40;
-      const newIndex = Math.round(scrollTop / itemHeight);
-      if (newIndex !== selectedIndex && newIndex >= 0 && newIndex < items.length) {
-        onSelectionChange(newIndex);
-      }
+    if (!scrollRef.current || isScrollingRef.current) return;
+    
+    // Clear any existing timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
     }
+    
+    // Debounce the scroll handling to avoid rapid updates
+    scrollTimeoutRef.current = setTimeout(() => {
+      if (scrollRef.current) {
+        const scrollTop = scrollRef.current.scrollTop;
+        const itemHeight = 40;
+        const newIndex = Math.round(scrollTop / itemHeight);
+        if (newIndex !== selectedIndex && newIndex >= 0 && newIndex < items.length) {
+          onSelectionChange(newIndex);
+        }
+      }
+    }, 100);
   };
 
   return (
@@ -98,23 +113,27 @@ function WheelSelector({ items, selectedIndex, onSelectionChange, label }: Wheel
         <Button
           variant="ghost"
           size="sm"
-          className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10"
-          onClick={() => onSelectionChange(Math.max(0, selectedIndex - 1))}
+          className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10 touch-none"
+          onClick={() => {
+            isScrollingRef.current = true;
+            onSelectionChange(Math.max(0, selectedIndex - 1));
+            setTimeout(() => { isScrollingRef.current = false; }, 200);
+          }}
         >
           <ChevronUp className="w-4 h-4" />
         </Button>
         
         <div 
           ref={scrollRef}
-          className="h-[120px] w-24 overflow-y-auto scroll-smooth bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-blue-200 dark:border-blue-700 relative scrollbar-hide"
+          className="h-[120px] w-28 overflow-y-auto scroll-smooth bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-blue-200 dark:border-blue-700 relative scrollbar-hide"
           onScroll={handleScroll}
           style={{
             scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            msOverflowStyle: 'none',
+            touchAction: 'pan-y', // Only allow vertical scrolling
+            overscrollBehavior: 'contain' // Prevent scroll chaining
           }}
         >
-
-          
           {/* Selection indicator */}
           <div 
             className="absolute left-0 right-0 h-[40px] bg-blue-500/20 border-y-2 border-blue-500 pointer-events-none z-10"
@@ -130,14 +149,20 @@ function WheelSelector({ items, selectedIndex, onSelectionChange, label }: Wheel
           {items.map((item, index) => (
             <div
               key={`${label}-${index}`}
-              className={`h-[40px] flex items-center justify-center text-sm font-medium cursor-pointer transition-colors ${
+              className={`h-[40px] flex items-center justify-center text-sm font-medium cursor-pointer transition-colors touch-none ${
                 index === selectedIndex 
                   ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30' 
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
-              onClick={() => onSelectionChange(index)}
+              onClick={() => {
+                isScrollingRef.current = true;
+                onSelectionChange(index);
+                setTimeout(() => { isScrollingRef.current = false; }, 200);
+              }}
             >
-              {item}
+              <span className="text-center px-1 break-words leading-tight">
+                {item}
+              </span>
             </div>
           ))}
           
@@ -149,8 +174,12 @@ function WheelSelector({ items, selectedIndex, onSelectionChange, label }: Wheel
         <Button
           variant="ghost"
           size="sm"
-          className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-10"
-          onClick={() => onSelectionChange(Math.min(items.length - 1, selectedIndex + 1))}
+          className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-10 touch-none"
+          onClick={() => {
+            isScrollingRef.current = true;
+            onSelectionChange(Math.min(items.length - 1, selectedIndex + 1));
+            setTimeout(() => { isScrollingRef.current = false; }, 200);
+          }}
         >
           <ChevronDown className="w-4 h-4" />
         </Button>
@@ -163,6 +192,17 @@ export function ScrollWheelSelector({ onNavigate, className }: ScrollWheelSelect
   const [selectedBookIndex, setSelectedBookIndex] = useState(0); // Genesis
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVerse, setSelectedVerse] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const selectedBook = BIBLE_BOOKS[selectedBookIndex];
   const maxChapters = CHAPTER_COUNTS[selectedBook] || 1;
@@ -196,37 +236,84 @@ export function ScrollWheelSelector({ onNavigate, className }: ScrollWheelSelect
   };
 
   return (
-    <Card className={`p-6 ${className}`}>
-      <div className="flex flex-col items-center space-y-6">
+    <Card className={`p-4 md:p-6 ${className}`}>
+      <div className="flex flex-col items-center space-y-4 md:space-y-6">
         <div className="text-center">
           <h3 className="text-lg font-semibold mb-2">Navigate to Verse</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Use the scroll wheels to select book, chapter, and verse
+            Scroll or tap to select book, chapter, and verse
           </p>
         </div>
 
-        <div className="flex justify-center items-start space-x-8">
-          <WheelSelector
-            items={BIBLE_BOOKS}
-            selectedIndex={selectedBookIndex}
-            onSelectionChange={setSelectedBookIndex}
-            label="Book"
-          />
-          
-          <WheelSelector
-            items={chapters}
-            selectedIndex={selectedChapter - 1}
-            onSelectionChange={(index) => setSelectedChapter(index + 1)}
-            label="Chapter"
-          />
-          
-          <WheelSelector
-            items={verses}
-            selectedIndex={selectedVerse - 1}
-            onSelectionChange={(index) => setSelectedVerse(index + 1)}
-            label="Verse"
-          />
-        </div>
+        {isMobile ? (
+          // Mobile-optimized version with larger touch targets
+          <div className="w-full space-y-6">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">Book</label>
+                <select
+                  value={selectedBookIndex}
+                  onChange={(e) => setSelectedBookIndex(Number(e.target.value))}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
+                >
+                  {BIBLE_BOOKS.map((book, index) => (
+                    <option key={book} value={index}>{book}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="text-center">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">Chapter</label>
+                <select
+                  value={selectedChapter}
+                  onChange={(e) => setSelectedChapter(Number(e.target.value))}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
+                >
+                  {chapters.map((chapter) => (
+                    <option key={chapter} value={chapter}>{chapter}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="text-center">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">Verse</label>
+                <select
+                  value={selectedVerse}
+                  onChange={(e) => setSelectedVerse(Number(e.target.value))}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
+                >
+                  {verses.map((verse) => (
+                    <option key={verse} value={verse}>{verse}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Desktop scroll wheel version
+          <div className="flex justify-center items-start space-x-4 md:space-x-8 px-2">
+            <WheelSelector
+              items={BIBLE_BOOKS}
+              selectedIndex={selectedBookIndex}
+              onSelectionChange={setSelectedBookIndex}
+              label="Book"
+            />
+            
+            <WheelSelector
+              items={chapters}
+              selectedIndex={selectedChapter - 1}
+              onSelectionChange={(index) => setSelectedChapter(index + 1)}
+              label="Chapter"
+            />
+            
+            <WheelSelector
+              items={verses}
+              selectedIndex={selectedVerse - 1}
+              onSelectionChange={(index) => setSelectedVerse(index + 1)}
+              label="Verse"
+            />
+          </div>
+        )}
 
         <div className="text-center space-y-4">
           <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
