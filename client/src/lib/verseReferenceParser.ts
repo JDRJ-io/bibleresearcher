@@ -26,8 +26,10 @@ export function findVerseReferencesInText(text: string): VerseReferenceMatch[] {
     
     // Only include if parsing was successful with reasonable confidence
     if (parsed && parsed.confidence > 0.7) {
-      // Create standardized reference format (Book.Chapter:Verse)
-      const standardFormat = `${parsed.book}.${parsed.chapter}:${parsed.verse}${
+      // Use the exact same format as the reference column - import canonicalToReference
+      const { canonicalToReference } = await import('./bibleSearchEngine');
+      const bookRef = canonicalToReference(parsed.book);
+      const standardFormat = `${bookRef}.${parsed.chapter}:${parsed.verse}${
         parsed.endVerse ? `-${parsed.endVerse}` : ''
       }`;
       
