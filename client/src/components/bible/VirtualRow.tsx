@@ -433,7 +433,7 @@ function MainTranslationCell({
   }
 
   const handleCopy = () => {
-    const text = `${verse.reference} - ${verseText}`;
+    const text = `${verse.reference} (${mainTranslation}) - ${verseText}`;
     navigator.clipboard.writeText(text);
   };
 
@@ -443,10 +443,10 @@ function MainTranslationCell({
   };
 
   const handleShare = () => {
-    const text = `${verse.reference} - ${verseText}`;
+    const text = `${verse.reference} (${mainTranslation}) - ${verseText}`;
     if (navigator.share) {
       navigator.share({
-        title: verse.reference,
+        title: `${verse.reference} (${mainTranslation})`,
         text: text,
       });
     } else {
@@ -457,6 +457,7 @@ function MainTranslationCell({
   return (
     <HoverVerseBar
       verse={verse}
+      translation={mainTranslation}
       onCopy={handleCopy}
       onBookmark={handleBookmark}
       onShare={handleShare}

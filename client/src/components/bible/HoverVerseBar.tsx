@@ -7,6 +7,7 @@ import { BibleVerse } from '@/types/bible';
 interface HoverVerseBarProps {
   verse: BibleVerse;
   children: React.ReactNode;
+  translation?: string;
   onBookmark?: () => void;
   onCopy?: () => void;
   onShare?: () => void;
@@ -15,6 +16,7 @@ interface HoverVerseBarProps {
 export function HoverVerseBar({ 
   verse, 
   children, 
+  translation = 'KJV',
   onBookmark, 
   onCopy, 
   onShare 
@@ -25,8 +27,9 @@ export function HoverVerseBar({
     if (onCopy) {
       onCopy();
     } else {
-      // Default copy behavior
-      const text = `${verse.reference} - ${Object.values(verse.text)[0]}`;
+      // Default copy behavior with translation
+      const verseText = Object.values(verse.text)[0];
+      const text = `${verse.reference} (${translation}) - ${verseText}`;
       navigator.clipboard.writeText(text);
     }
   };
@@ -41,11 +44,12 @@ export function HoverVerseBar({
     if (onShare) {
       onShare();
     } else {
-      // Default share behavior
-      const text = `${verse.reference} - ${Object.values(verse.text)[0]}`;
+      // Default share behavior with translation
+      const verseText = Object.values(verse.text)[0];
+      const text = `${verse.reference} (${translation}) - ${verseText}`;
       if (navigator.share) {
         navigator.share({
-          title: verse.reference,
+          title: `${verse.reference} (${translation})`,
           text: text,
         });
       } else {
