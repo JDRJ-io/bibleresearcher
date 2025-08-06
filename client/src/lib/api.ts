@@ -117,28 +117,74 @@ export const highlightsApi = {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
+    console.log('🎯 Deleting individual highlight:', { id, userId });
+
     const { error } = await supabase
       .from('highlights')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('🎯 Individual delete error:', error);
+      throw error;
+    } else {
+      console.log('🎯 Successfully deleted individual highlight:', id);
+    }
   },
 
-  // New function to delete all highlights for a specific verse, user, and translation
+  // Bulletproof function to delete all highlights for a specific verse, user, and translation
   async deleteAllForVerse(verseRef: string, translation: string): Promise<void> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
-    const { error } = await supabase
+    // Normalize verse reference to avoid hidden differences
+    const normalizedVerseRef = verseRef.trim();
+    const normalizedTranslation = translation.trim();
+
+    console.log('🎯 Bulletproof delete - Step 1: Fetching highlights to delete:', {
+      userId,
+      verseRef: normalizedVerseRef,
+      translation: normalizedTranslation
+    });
+
+    // Step 1: Fetch all matching highlight IDs
+    const { data: highlights, error: selectError } = await supabase
+      .from('highlights')
+      .select('id, verse_ref, translation, start_pos, end_pos, color_hsl')
+      .eq('user_id', userId)
+      .eq('verse_ref', normalizedVerseRef)
+      .eq('translation', normalizedTranslation);
+
+    if (selectError) {
+      console.error('🎯 Error fetching highlights for delete:', selectError);
+      throw selectError;
+    }
+
+    if (!highlights?.length) {
+      console.log('🎯 No highlights found to delete for:', { verseRef: normalizedVerseRef, translation: normalizedTranslation });
+      return;
+    }
+
+    const ids = highlights.map(h => h.id);
+    console.log('🎯 Bulletproof delete - Step 2: Deleting highlights by IDs:', { 
+      highlightCount: highlights.length,
+      ids,
+      highlights 
+    });
+
+    // Step 2: Delete using IDs (bypasses any RLS or verse_ref ambiguity)
+    const { error: deleteError } = await supabase
       .from('highlights')
       .delete()
-      .eq('user_id', userId)
-      .eq('verse_ref', verseRef)
-      .eq('translation', translation);
+      .in('id', ids);
 
-    if (error) throw error;
+    if (deleteError) {
+      console.error('🎯 Delete error:', deleteError);
+      throw deleteError;
+    } else {
+      console.log(`🎯 Successfully deleted ${ids.length} highlight(s) for ${normalizedVerseRef}`);
+    }
   }
 };
 
