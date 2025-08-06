@@ -195,7 +195,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         if (!translationMap) {
           // Load the translation dynamically
           console.log(`🔍 Loading additional translation: ${translationCode}`);
-          translationMap = await loadTranslationForSearch(translationCode);
+          translationMap = await loadTranslationForSearch(translationCode) || undefined;
         }
         
         if (translationMap) {
@@ -216,7 +216,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           let verseText = '';
           
           // First try to get from currently loaded system
-          verseText = getVerseText(verse.reference, translation);
+          verseText = getVerseText(verse.reference, translation) || '';
           
           // If not available, try from newly loaded translation maps
           if (!verseText || !verseText.trim()) {

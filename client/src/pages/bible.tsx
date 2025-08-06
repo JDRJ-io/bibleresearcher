@@ -158,11 +158,10 @@ export default function BiblePage() {
     }
     
     if (targetVerse) {
-      console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id})`);
-      setSelectedVerse(targetVerse);
+      console.log(`✅ Found target verse: ${targetVerse.reference} (ID: ${targetVerse.id}) - navigating to position`);
       
-      // Removed automatic scrolling - this was causing unwanted auto-scroll behavior
-      // The VirtualBibleTable scrollToVerse function should be used instead for navigation
+      // Use proper navigation to center the verse instead of opening Strong's overlay
+      goTo(targetVerse.reference);
     } else {
       console.warn(`❌ Could not find verse for reference: ${reference}`);
       console.log(`🔍 Normalized search: ${normalizedRef}`);
