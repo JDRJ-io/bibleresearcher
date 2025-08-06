@@ -553,118 +553,113 @@ export function VirtualRow({
     }
   };
 
-  // Build column configuration matching NewColumnHeaders logic exactly
-  const buildColumns = () => {
-    const cols: Array<{
-      id: string;
-      type: string;
-      header: string;
-      translationCode?: string;
-      visible: boolean;
-    }> = [];
+  // Use store's columnState as the authoritative source, enhanced with translation data
+  const slotConfig: Record<number, SlotConfig> = {};
 
-    // 1. Reference column (always visible)
-    cols.push({
-      id: 'reference',
-      type: 'reference',
-      header: '#',
-      visible: true
+  // Always show reference column (slot 0)
+  slotConfig[0] = { type: 'reference', header: '#', visible: true };
+
+  // Notes column right after dates (slot 2)
+  slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
+
+  // Main translation after notes (slot 3)
+  slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
+
+  // Dates column right after reference (slot 1)
+  slotConfig[1] = { type: 'context', header: '📅', visible: showDates };
+
+  // Map all column types based on store state - updated slot assignments
+  if (columnState?.columns) {
+    columnState.columns.forEach(col => {
+      switch (col.slot) {
+        case 1:
+          // Dates column (moved to slot 1 after Ref)
+          slotConfig[1] = { type: 'context', header: '📅', visible: col.visible && showDates };
+          break;
+        case 2:
+          // Notes column (moved to slot 2)
+          slotConfig[2] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
+          break;
+        case 3:
+          // Main translation (moved to slot 3)
+          slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: col.visible };
+          break;
+        case 7:
+          // Cross References column (unchanged)
+          slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
+          break;
+        case 8:
+          // Prophecy P column (unchanged)
+          slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+          break;
+        case 9:
+          // Prophecy F column (unchanged)
+          slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+          break;
+        case 10:
+          // Prophecy V column (unchanged)
+          slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+          break;
+      }
+    });
+  }
+
+  // Dynamically add alternate translation columns to slots 12-19 (AFTER cross-references)
+  // This matches the slot assignment in ColumnHeaders.tsx
+  // FILTER OUT main translation to prevent duplication
+  alternates
+    .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
+    .forEach((translationCode, index) => {
+      // All alternate translations start from slot 12 (AFTER cross-references at slot 7)
+      const slot = 12 + index;
+
+      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
+        slotConfig[slot] = { 
+          type: 'alt-translation', 
+          header: translationCode, 
+          translationCode, 
+          visible: true  // Show all active alternate translations
+        };
+      }
     });
 
-    // 2. Dates column (showDates controls the dates column)
-    if (showDates) {
-      cols.push({
-        id: 'dates',
-        type: 'context',
-        header: '📅',
-        visible: true
-      });
-    }
+  // Get all available columns: combine store state with translation state
+  // The authoritative source is the slotConfig based on current translation state
+  let allColumns = Object.entries(slotConfig)
+    .map(([slotStr, config]) => ({
+      slot: parseInt(slotStr),
+      config,
+      widthRem: getDefaultWidth(parseInt(slotStr)),
+      visible: config?.visible !== false // Show if config exists and not explicitly hidden
+    }))
+    .filter(col => col.config && col.visible); // Only render valid, visible slots
 
-    // 3. Notes column
-    if (showNotes) {
-      cols.push({
-        id: 'notes',
-        type: 'notes',
-        header: 'Notes',
-        visible: true
-      });
-    }
-
-    // 4. Main translation (always visible)
-    cols.push({
-      id: 'main-translation',
-      type: 'main-translation',
-      header: mainTranslation,
-      translationCode: mainTranslation,
-      visible: true
+  // Sort by displayOrder from store if available
+  if (columnState?.columns) {
+    const slotToDisplayOrder = new Map();
+    columnState.columns.forEach(col => {
+      if (col.visible) {
+        slotToDisplayOrder.set(col.slot, col.displayOrder);
+      }
     });
 
-    // 5. Cross references (should come before alternate translations)
-    if (showCrossRefs) {
-      cols.push({
-        id: 'cross-refs',
-        type: 'cross-refs',
-        header: 'Cross Refs',
-        visible: true
-      });
-    }
+    // Add displayOrder to each column and sort
+    allColumns.forEach((col: any) => {
+      col.displayOrder = slotToDisplayOrder.get(col.slot) ?? col.slot;
+    });
 
-    // 6. Prophecy columns (should come before alternate translations)
-    if (showProphecies) {
-      cols.push({
-        id: 'prophecy-p',
-        type: 'prophecy-p',
-        header: 'P',
-        visible: true
-      });
-      cols.push({
-        id: 'prophecy-f',
-        type: 'prophecy-f',
-        header: 'F',
-        visible: true
-      });
-      cols.push({
-        id: 'prophecy-v',
-        type: 'prophecy-v',
-        header: 'V',
-        visible: true
-      });
-    }
-
-    // 7. Alternate translations (filtered to exclude main translation)
-    alternates
-      .filter(translationCode => translationCode !== mainTranslation)
-      .forEach((translationCode) => {
-        cols.push({
-          id: `alt-${translationCode}`,
-          type: 'alt-translation',
-          header: translationCode,
-          translationCode,
-          visible: true
-        });
-      });
-
-    return cols;
-  };
-
-  let allColumns = buildColumns();
-
-  // Apply drag and drop reordering by checking against localColumns state from headers
-  // We need to synchronize with the NewColumnHeaders drag state to maintain column order
-  const applyDragOrder = (cols: typeof allColumns) => {
-    // If there's no reordering happening, just return the natural order
-    return cols;
-  };
-
-  allColumns = applyDragOrder(allColumns);
+    allColumns.sort((a: any, b: any) => (a.displayOrder ?? a.slot) - (b.displayOrder ?? b.slot));
+  } else {
+    // Fallback to slot-based sorting
+    allColumns.sort((a, b) => a.slot - b.slot);
+  }
 
   // Apply horizontal navigation filtering - keep reference column always visible
   const { columnOffset, maxVisibleColumns } = useBibleStore();
   const fixedColumnTypes = ['reference']; // Always show reference column
   
-  const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.type));
-  const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.type));
+  const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
+  const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
   
   // Apply offset to navigable columns
   const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
@@ -692,7 +687,7 @@ export function VirtualRow({
   if (verse.reference === "Gen 1:1") {
     console.log('🔍 VirtualRow Debug - Translation state:', { mainTranslation, alternates });
     console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
-    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `${c.id} (${c.type}: ${c.header})`));
+    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
     console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
@@ -705,33 +700,40 @@ export function VirtualRow({
   }
 
   const renderSlot = (column: any) => {
-    const isMain = column.translationCode === mainTranslation;
+    const { slot, config } = column;
+    const isMain = config.translationCode === mainTranslation;
 
-    // Get responsive pixel width for portrait/landscape modes  
-    const getResponsiveColumnPixelWidth = () => {
+    // Get responsive pixel width for portrait/landscape modes
+    const getResponsiveColumnPixelWidth = (slotNumber: number) => {
+      const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
+      if (!columnInfo) {
+        console.warn(`No column info found for slot ${slotNumber}`);
+        return '160px'; // fallback
+      }
+
       // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
       const isPortrait = window.innerHeight > window.innerWidth;
 
       if (isPortrait) {
         // Portrait mode - use adaptive CSS variables (IDENTICAL to ColumnHeaders)
-        if (column.type === 'reference') return 'var(--adaptive-ref-width)';
-        if (column.type === 'main-translation') return 'var(--adaptive-main-width)';
-        if (column.type === 'cross-refs') return 'var(--adaptive-cross-width)';
-        if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (column.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (column.type === 'context') return 'var(--adaptive-context-width)';
+        if (slotNumber === 0) return 'var(--adaptive-ref-width)';
+        if (slotNumber === 3 && config.type === 'main-translation') return 'var(--adaptive-main-width)';
+        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)';
+        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
+        if (config.type === 'context') return 'var(--adaptive-context-width)';
         return 'var(--adaptive-alt-width)';
       } else {
         // Landscape mode - use unified variables (IDENTICAL to ColumnHeaders)
-        if (column.type === 'reference') return 'var(--adaptive-ref-width)';
-        if (column.type === 'main-translation') return 'var(--adaptive-main-width)';
-        if (column.type === 'cross-refs') return 'var(--adaptive-cross-width)';
-        if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (column.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (column.type === 'context') return 'var(--adaptive-context-width)';
-        return 'var(--adaptive-alt-width)';
+        if (slotNumber === 0) return 'var(--adaptive-ref-width)'; // Use adaptive even in landscape for consistency
+        if (slotNumber === 3) return 'var(--adaptive-main-width)';
+        if (slotNumber === 7) return 'var(--adaptive-cross-width)';
+        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
+        if (config.type === 'context') return 'var(--adaptive-context-width)'; 'calc(12rem * var(--column-width-mult))';
+        return 'var(--alt-col-width)';
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
@@ -741,16 +743,16 @@ export function VirtualRow({
 
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
-      width: getResponsiveColumnPixelWidth(), // Unified variables already include multiplier
+      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
       flexShrink: 0
     };
 
     const bgClass = "";
 
-    switch (column.type) {
+    switch (config.type) {
       case 'reference':
         return (
-          <div key={column.id} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex items-center justify-center h-full m-0 p-0">
               <span className="truncate leading-none m-0 p-0">{verse.reference}</span>
             </div>
@@ -759,14 +761,14 @@ export function VirtualRow({
 
       case 'notes':
         return (
-          <div key={column.id} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <NotesCell verseRef={verse.reference} className="h-full" onVerseClick={onVerseClick} />
           </div>
         );
 
       case 'main-translation':
         return (
-          <div key={column.id} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -782,14 +784,14 @@ export function VirtualRow({
         if (verse.reference === "Gen 1:1") {
           console.log('🔍 Translation Debug:', {
             verseRef: verse.reference,
-            translationCode: column.translationCode,
-            getVerseTextResult: getVerseText(verse.reference, column.translationCode),
+            translationCode: config.translationCode,
+            getVerseTextResult: getVerseText(verse.reference, config.translationCode),
             getMainVerseTextResult: getMainVerseText(verse.reference)
           });
         }
 
         // Alternate translations with labels support
-        let verseText = getVerseText(verse.reference, column.translationCode) || 
+        let verseText = getVerseText(verse.reference, config.translationCode) || 
                         getMainVerseText(verse.reference);
 
         // Get labels for this verse if we have active labels

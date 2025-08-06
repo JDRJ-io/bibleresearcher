@@ -72,9 +72,6 @@ export const useBibleStore = create<{
   prophecyData: Record<string, { P: number[], F: number[], V: number[] }>;
   prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>;
   collapsedProphecies: Set<string>;
-  // Column order synchronization for drag/drop
-  columnOrder: string[];
-  setColumnOrder: (order: string[]) => void;
   setProphecyData: (data: Record<string, { P: number[], F: number[], V: number[] }>) => void;
   setProphecyIndex: (data: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>) => void;
   toggleProphecyCollapse: (prophecyId: string) => void;
