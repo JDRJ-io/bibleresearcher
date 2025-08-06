@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Palette, X } from 'lucide-react';
-import { useCreateHighlight, useDeleteHighlight, useUserHighlights } from '@/hooks/useUserData';
+import { useCreateHighlight, useDeleteHighlight, useDeleteAllHighlights, useUserHighlights } from '@/hooks/useUserData';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import type { Highlight } from '@shared/schema';
@@ -10,6 +10,7 @@ import { useWindowSize } from 'react-use';
 interface HighlightableTextProps {
   text: string;
   verseRef: string;
+  translation?: string;
   className?: string;
 }
 
@@ -37,12 +38,13 @@ interface Selection {
   selectedText: string;
 }
 
-export function HighlightableText({ text, verseRef, className }: HighlightableTextProps) {
+export function HighlightableText({ text, verseRef, translation = 'KJV', className }: HighlightableTextProps) {
   const { user } = useAuth();
   const isLoggedIn = !!user;
   const { data: highlights = [] } = useUserHighlights();
   const createHighlight = useCreateHighlight();
   const deleteHighlight = useDeleteHighlight();
+  const deleteAllHighlights = useDeleteAllHighlights();
   const { toast } = useToast();
   const { width } = useWindowSize();
   const isMobile = width < 640;
@@ -137,11 +139,10 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
     try {
       await createHighlight.mutateAsync({
         verse_ref: verseRef,
-        translation: 'KJV', // Default translation - should be passed as prop ideally
+        translation: translation,
         start_pos: selection.startIdx,
         end_pos: selection.endIdx,
-        color_hsl: color,
-        user_id: user?.id || ''
+        color_hsl: color
       });
       
       console.log('🎨 Highlight created successfully');
@@ -175,15 +176,14 @@ export function HighlightableText({ text, verseRef, className }: HighlightableTe
     }
   };
 
-  // Handle clearing all highlights from a verse
+  // Handle clearing all highlights from a verse - now uses the new bulk delete API
   const handleClearAllHighlights = async () => {
     try {
-      // Remove all highlights for this verse
-      const deletePromises = verseHighlights.map(highlight => 
-        deleteHighlight.mutateAsync(highlight.id)
-      );
+      console.log('🎨 Clearing all highlights for verse:', { verseRef, translation });
       
-      await Promise.all(deletePromises);
+      // Use the new bulk delete API which matches the SQL provided by the expert
+      await deleteAllHighlights.mutateAsync({ verseRef, translation });
+      
       toast({ title: "All highlights cleared from verse" });
       setShowColorPicker(false);
       setSelection(null);

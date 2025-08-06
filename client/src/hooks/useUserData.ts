@@ -2,8 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notesApi, highlightsApi, bookmarksApi, preferencesApi } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { 
-  UserNote, 
-  InsertUserNote, 
+  Note, 
+  InsertNote, 
   Highlight, 
   InsertHighlight, 
   Bookmark, 
@@ -29,7 +29,7 @@ export const useCreateNote = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (noteData: Omit<InsertUserNote, 'userId'>) => notesApi.create(noteData),
+    mutationFn: (noteData: Omit<InsertNote, 'user_id'>) => notesApi.create(noteData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-notes'] });
     },
@@ -88,6 +88,18 @@ export const useDeleteHighlight = () => {
   
   return useMutation({
     mutationFn: (id: number) => highlightsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
+    },
+  });
+};
+
+export const useDeleteAllHighlights = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ verseRef, translation }: { verseRef: string; translation: string }) => 
+      highlightsApi.deleteAllForVerse(verseRef, translation),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
     },

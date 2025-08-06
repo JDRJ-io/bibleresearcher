@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import type { 
-  UserNote, 
-  InsertUserNote, 
+  Note, 
+  InsertNote, 
   Highlight, 
   InsertHighlight, 
   Bookmark, 
@@ -18,48 +18,48 @@ const getCurrentUserId = async (): Promise<string | null> => {
 
 // Notes API
 export const notesApi = {
-  async getAll(): Promise<UserNote[]> {
+  async getAll(): Promise<Note[]> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-      .from('user_notes')
+      .from('notes')
       .select('*')
       .eq('user_id', userId)
-      .order('updated_at', { ascending: false });
+      .order('id', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as Note[]) || [];
   },
 
-  async create(noteData: Omit<InsertUserNote, 'userId'>): Promise<UserNote> {
+  async create(noteData: Omit<InsertNote, 'user_id'>): Promise<Note> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-      .from('user_notes')
+      .from('notes')
       .insert({ ...noteData, user_id: userId })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Note;
   },
 
-  async update(id: number, noteData: Partial<Omit<InsertUserNote, 'userId'>>): Promise<UserNote> {
+  async update(id: number, noteData: Partial<Omit<InsertNote, 'user_id'>>): Promise<Note> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
-      .from('user_notes')
-      .update({ ...noteData, updated_at: new Date().toISOString() })
+      .from('notes')
+      .update({ ...noteData })
       .eq('id', id)
       .eq('user_id', userId)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Note;
   },
 
   async delete(id: number): Promise<void> {
@@ -67,7 +67,7 @@ export const notesApi = {
     if (!userId) throw new Error('User not authenticated');
 
     const { error } = await supabase
-      .from('user_notes')
+      .from('notes')
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
@@ -86,30 +86,31 @@ export const highlightsApi = {
       .from('highlights')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('id', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as Highlight[]) || [];
   },
 
-  async create(highlightData: Omit<InsertHighlight, 'userId'>): Promise<Highlight> {
+  async create(highlightData: Omit<InsertHighlight, 'user_id'>): Promise<Highlight> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
       .from('highlights')
       .insert({ 
-        verse_ref: highlightData.verseRef,
-        start_idx: highlightData.startIdx,
-        end_idx: highlightData.endIdx,
-        color: highlightData.color,
+        verse_ref: highlightData.verse_ref,
+        translation: highlightData.translation,
+        start_pos: highlightData.start_pos,
+        end_pos: highlightData.end_pos,
+        color_hsl: highlightData.color_hsl,
         user_id: userId 
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Highlight;
   },
 
   async delete(id: number): Promise<void> {
@@ -121,6 +122,21 @@ export const highlightsApi = {
       .delete()
       .eq('id', id)
       .eq('user_id', userId);
+
+    if (error) throw error;
+  },
+
+  // New function to delete all highlights for a specific verse, user, and translation
+  async deleteAllForVerse(verseRef: string, translation: string): Promise<void> {
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('highlights')
+      .delete()
+      .eq('user_id', userId)
+      .eq('verse_ref', verseRef)
+      .eq('translation', translation);
 
     if (error) throw error;
   }
@@ -139,10 +155,10 @@ export const bookmarksApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data as Bookmark[]) || [];
   },
 
-  async create(bookmarkData: Omit<InsertBookmark, 'userId'>): Promise<Bookmark> {
+  async create(bookmarkData: Omit<InsertBookmark, 'user_id'>): Promise<Bookmark> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
@@ -153,33 +169,33 @@ export const bookmarksApi = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Bookmark;
   },
 
-  async update(id: number, bookmarkData: Partial<Pick<Bookmark, 'name' | 'color'>>): Promise<Bookmark> {
+  async update(name: string, bookmarkData: Partial<Pick<Bookmark, 'verse_ref' | 'color' | 'index_value'>>): Promise<Bookmark> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     const { data, error } = await supabase
       .from('bookmarks')
       .update(bookmarkData)
-      .eq('id', id)
+      .eq('name', name)
       .eq('user_id', userId)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as Bookmark;
   },
 
-  async delete(id: number): Promise<void> {
+  async delete(name: string): Promise<void> {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     const { error } = await supabase
       .from('bookmarks')
       .delete()
-      .eq('id', id)
+      .eq('name', name)
       .eq('user_id', userId);
 
     if (error) throw error;
@@ -199,7 +215,7 @@ export const preferencesApi = {
       .single();
 
     if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
-    return data;
+    return data as UserPreferences | null;
   },
 
   async upsert(preferencesData: Omit<InsertUserPreferences, 'userId'>): Promise<UserPreferences> {
@@ -208,11 +224,11 @@ export const preferencesApi = {
 
     const { data, error } = await supabase
       .from('user_preferences')
-      .upsert({ ...preferencesData, user_id: userId, updated_at: new Date().toISOString() })
+      .upsert({ ...preferencesData, userId: userId, updatedAt: new Date().toISOString() })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as UserPreferences;
   }
 };
