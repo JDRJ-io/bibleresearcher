@@ -715,25 +715,25 @@ export function VirtualRow({
       const isPortrait = window.innerHeight > window.innerWidth;
 
       if (isPortrait) {
-        // Portrait mode - use adaptive CSS variables (IDENTICAL to ColumnHeaders)
-        if (slotNumber === 0) return 'var(--adaptive-ref-width)';
-        if (slotNumber === 3 && config.type === 'main-translation') return 'var(--adaptive-main-width)';
-        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)';
-        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (config.type === 'context') return 'var(--adaptive-context-width)';
-        return 'var(--adaptive-alt-width)';
+        // Portrait mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
+        if (slotNumber === 0) return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 3 && config.type === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 7 && config.type === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+        if (config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+        if (config.type === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
+        if (config.type === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
+        return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
       } else {
-        // Landscape mode - use unified variables (IDENTICAL to ColumnHeaders)
-        if (slotNumber === 0) return 'var(--adaptive-ref-width)'; // Use adaptive even in landscape for consistency
-        if (slotNumber === 3) return 'var(--adaptive-main-width)';
-        if (slotNumber === 7) return 'var(--adaptive-cross-width)';
-        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (config.type === 'context') return 'var(--adaptive-context-width)'; 'calc(12rem * var(--column-width-mult))';
-        return 'var(--alt-col-width)';
+        // Landscape mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
+        if (slotNumber === 0) return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 3) return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 7) return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+        if (config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+        if (config.type === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
+        if (config.type === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
+        return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
