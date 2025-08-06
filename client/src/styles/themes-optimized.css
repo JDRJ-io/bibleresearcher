@@ -22,6 +22,11 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Rainbow theme body override */
+body.rainbow {
+  background: var(--column-bg) !important;
+}
+
 /* Essential theme classes - managed by ThemeManager */
 .light {
   color-scheme: light;
@@ -29,6 +34,12 @@ body {
 
 .dark {
   color-scheme: dark;
+}
+
+.rainbow {
+  color-scheme: dark;
+  /* Ensure rainbow background is visible */
+  background: var(--column-bg) !important;
 }
 
 /* Optimized component styling using CSS variables */
@@ -121,6 +132,17 @@ body {
 .bg-secondary { background-color: var(--bg-secondary); }
 .border-color { border-color: var(--border-color); }
 .accent-color { color: var(--accent-color); }
+
+/* Rainbow theme overrides for better transparency */
+.rainbow .bg-primary {
+  background-color: rgba(34, 39, 54, 0.6) !important;
+  backdrop-filter: blur(12px) saturate(150%);
+}
+
+.rainbow .bg-secondary {
+  background-color: rgba(34, 39, 54, 0.4) !important;
+  backdrop-filter: blur(10px) saturate(130%);
+}
 
 /* Clean theme classes - only light and dark supported */
 .light-mode,

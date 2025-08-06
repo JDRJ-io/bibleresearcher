@@ -90,6 +90,36 @@
   background: var(--column-bg) !important;
 }
 
+/* Target the specific Tailwind background classes that override theme variables */
+.rainbow .bg-white {
+  background: rgba(34, 39, 54, 0.3) !important;
+  backdrop-filter: blur(12px) saturate(150%);
+}
+
+/* Force body and html background to show rainbow theme */
+html.rainbow,
+body.rainbow {
+  background: var(--column-bg) !important;
+}
+
+/* Any remaining white containers */
+.rainbow div[class*="bg-white"],
+.rainbow section[class*="bg-white"],
+.rainbow main[class*="bg-white"] {
+  background: rgba(34, 39, 54, 0.4) !important;
+  backdrop-filter: blur(10px) saturate(130%);
+}
+
+.rainbow .bg-gray-50 {
+  background: rgba(34, 39, 54, 0.2) !important;
+  backdrop-filter: blur(8px) saturate(120%);
+}
+
+.rainbow .bg-gray-100 {
+  background: rgba(34, 39, 54, 0.4) !important;
+  backdrop-filter: blur(10px) saturate(130%);
+}
+
 .rainbow .bg-white {
   background: rgba(34, 39, 54, 0.7) !important;
   backdrop-filter: blur(10px) saturate(150%);
