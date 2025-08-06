@@ -692,7 +692,7 @@ export function VirtualRow({
   if (verse.reference === "Gen 1:1") {
     console.log('🔍 VirtualRow Debug - Translation state:', { mainTranslation, alternates });
     console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
-    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
+    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `${c.id} (${c.type}: ${c.header})`));
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
     console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
@@ -705,40 +705,33 @@ export function VirtualRow({
   }
 
   const renderSlot = (column: any) => {
-    const { slot, config } = column;
-    const isMain = config.translationCode === mainTranslation;
+    const isMain = column.translationCode === mainTranslation;
 
-    // Get responsive pixel width for portrait/landscape modes
-    const getResponsiveColumnPixelWidth = (slotNumber: number) => {
-      const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
-      if (!columnInfo) {
-        console.warn(`No column info found for slot ${slotNumber}`);
-        return '160px'; // fallback
-      }
-
+    // Get responsive pixel width for portrait/landscape modes  
+    const getResponsiveColumnPixelWidth = () => {
       // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
       const isPortrait = window.innerHeight > window.innerWidth;
 
       if (isPortrait) {
         // Portrait mode - use adaptive CSS variables (IDENTICAL to ColumnHeaders)
-        if (slotNumber === 0) return 'var(--adaptive-ref-width)';
-        if (slotNumber === 3 && config.type === 'main-translation') return 'var(--adaptive-main-width)';
-        if (slotNumber === 7 && config.type === 'cross-refs') return 'var(--adaptive-cross-width)';
-        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (config.type === 'context') return 'var(--adaptive-context-width)';
+        if (column.type === 'reference') return 'var(--adaptive-ref-width)';
+        if (column.type === 'main-translation') return 'var(--adaptive-main-width)';
+        if (column.type === 'cross-refs') return 'var(--adaptive-cross-width)';
+        if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+        if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+        if (column.type === 'notes') return 'var(--adaptive-notes-width)';
+        if (column.type === 'context') return 'var(--adaptive-context-width)';
         return 'var(--adaptive-alt-width)';
       } else {
         // Landscape mode - use unified variables (IDENTICAL to ColumnHeaders)
-        if (slotNumber === 0) return 'var(--adaptive-ref-width)'; // Use adaptive even in landscape for consistency
-        if (slotNumber === 3) return 'var(--adaptive-main-width)';
-        if (slotNumber === 7) return 'var(--adaptive-cross-width)';
-        if (config.type === 'alt-translation') return 'var(--adaptive-alt-width)';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
-        if (config.type === 'notes') return 'var(--adaptive-notes-width)';
-        if (config.type === 'context') return 'var(--adaptive-context-width)'; 'calc(12rem * var(--column-width-mult))';
-        return 'var(--alt-col-width)';
+        if (column.type === 'reference') return 'var(--adaptive-ref-width)';
+        if (column.type === 'main-translation') return 'var(--adaptive-main-width)';
+        if (column.type === 'cross-refs') return 'var(--adaptive-cross-width)';
+        if (column.type === 'alt-translation') return 'var(--adaptive-alt-width)';
+        if (column.type === 'prophecy-p' || column.type === 'prophecy-f' || column.type === 'prophecy-v') return 'var(--adaptive-prophecy-width)';
+        if (column.type === 'notes') return 'var(--adaptive-notes-width)';
+        if (column.type === 'context') return 'var(--adaptive-context-width)';
+        return 'var(--adaptive-alt-width)';
       }
 
       // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
@@ -748,16 +741,16 @@ export function VirtualRow({
 
     // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
-      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
+      width: getResponsiveColumnPixelWidth(), // Unified variables already include multiplier
       flexShrink: 0
     };
 
     const bgClass = "";
 
-    switch (config.type) {
+    switch (column.type) {
       case 'reference':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={column.id} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex items-center justify-center h-full m-0 p-0">
               <span className="truncate leading-none m-0 p-0">{verse.reference}</span>
             </div>
@@ -766,14 +759,14 @@ export function VirtualRow({
 
       case 'notes':
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={column.id} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <NotesCell verseRef={verse.reference} className="h-full" onVerseClick={onVerseClick} />
           </div>
         );
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+          <div key={column.id} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -789,14 +782,14 @@ export function VirtualRow({
         if (verse.reference === "Gen 1:1") {
           console.log('🔍 Translation Debug:', {
             verseRef: verse.reference,
-            translationCode: config.translationCode,
-            getVerseTextResult: getVerseText(verse.reference, config.translationCode),
+            translationCode: column.translationCode,
+            getVerseTextResult: getVerseText(verse.reference, column.translationCode),
             getMainVerseTextResult: getMainVerseText(verse.reference)
           });
         }
 
         // Alternate translations with labels support
-        let verseText = getVerseText(verse.reference, config.translationCode) || 
+        let verseText = getVerseText(verse.reference, column.translationCode) || 
                         getMainVerseText(verse.reference);
 
         // Get labels for this verse if we have active labels
