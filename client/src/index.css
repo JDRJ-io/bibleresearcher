@@ -1411,3 +1411,12 @@ body.overlay-open {
 .verse-text { visibility: visible; }
 .verse-text.loading { visibility: hidden; }
 .verse-text.loaded { visibility: visible; }
+/* Hide scrollbars for scroll wheel selector */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* WebKit */
+}

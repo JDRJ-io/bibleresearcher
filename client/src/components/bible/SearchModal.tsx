@@ -3,11 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, Book, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, X, Book, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard, Navigation } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+import { ScrollWheelSelector } from './ScrollWheelSelector';
 
 // Mobile detection hook
 const useIsMobile = () => {
@@ -419,40 +421,52 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
-          {/* Search Input */}
-          <div className="flex gap-2">
-            <Input
-              placeholder={isMobile ? "Search verses or references..." : "Try: 'John 3:16', 'love', 'Gen 1', 'Psalm 23:1-3', or any book/verse..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="flex-1"
-              autoFocus
-            />
-            <Button onClick={performSearch} disabled={isSearching}>
-              {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
-            </Button>
-            {!isMobile && (
-              <>
-                <Button 
-                  variant="outline" 
-                  onClick={getRandomVerse}
-                  title="Random Verse (Ctrl+R)"
-                >
-                  <Book className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={showHistory ? 'default' : 'outline'}
-                  onClick={() => setShowHistory(!showHistory)}
-                  title="Search History (Ctrl+H)"
-                  disabled={searchHistory.length === 0}
-                >
-                  <History className="w-4 h-4" />
-                </Button>
-              </>
-            )}
-          </div>
+        <Tabs defaultValue="search" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="search" className="flex items-center gap-2">
+              <Search className="w-4 h-4" />
+              {isMobile ? 'Search' : 'Text Search'}
+            </TabsTrigger>
+            <TabsTrigger value="navigate" className="flex items-center gap-2">
+              <Navigation className="w-4 h-4" />
+              {isMobile ? 'Navigate' : 'Navigate to Verse'}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="search" className="space-y-4 mt-4">
+            {/* Search Input */}
+            <div className="flex gap-2">
+              <Input
+                placeholder={isMobile ? "Search verses or references..." : "Try: 'John 3:16', 'love', 'Gen 1', 'Psalm 23:1-3', or any book/verse..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1"
+                autoFocus
+              />
+              <Button onClick={performSearch} disabled={isSearching}>
+                {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
+              </Button>
+              {!isMobile && (
+                <>
+                  <Button 
+                    variant="outline" 
+                    onClick={getRandomVerse}
+                    title="Random Verse (Ctrl+R)"
+                  >
+                    <Book className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={showHistory ? 'default' : 'outline'}
+                    onClick={() => setShowHistory(!showHistory)}
+                    title="Search History (Ctrl+H)"
+                    disabled={searchHistory.length === 0}
+                  >
+                    <History className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
+            </div>
 
           {/* Translation Selection */}
           {!isMobile && (
@@ -851,7 +865,19 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               </div>
             )}
           </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="navigate" className="mt-4">
+            <ScrollWheelSelector 
+              onNavigate={(reference) => {
+                console.log(`📍 Navigating to verse from scroll wheel: ${reference}`);
+                onNavigateToVerse(reference);
+                onClose();
+              }}
+              className="w-full"
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
