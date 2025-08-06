@@ -194,10 +194,12 @@ export function ScrollWheelSelector({ onNavigate, className }: ScrollWheelSelect
   const [selectedVerse, setSelectedVerse] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile device
+  // Detect mobile device - force immediate detection
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      console.log('📱 Mobile detection:', { windowWidth: window.innerWidth, isMobile: mobile });
+      setIsMobile(mobile);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -267,8 +269,11 @@ export function ScrollWheelSelector({ onNavigate, className }: ScrollWheelSelect
         </div>
 
         {isMobile ? (
-          // Mobile-optimized version with larger touch targets
+          // Mobile-optimized version with dropdown selects (NO SCROLL WHEELS)
           <div className="w-full space-y-6">
+            <div className="text-xs text-blue-600 dark:text-blue-400 text-center mb-4">
+              Mobile Mode: Using dropdown selects
+            </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="text-center">
                 <label className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 block">Book</label>
@@ -311,8 +316,11 @@ export function ScrollWheelSelector({ onNavigate, className }: ScrollWheelSelect
             </div>
           </div>
         ) : (
-          // Desktop scroll wheel version
+          // Desktop scroll wheel version (SCROLL WHEELS ENABLED)
           <div className="flex justify-center items-start space-x-4 md:space-x-8 px-2">
+            <div className="text-xs text-green-600 dark:text-green-400 text-center mb-4 w-full absolute -top-8">
+              Desktop Mode: Using scroll wheels
+            </div>
             <WheelSelector
               items={BIBLE_BOOKS}
               selectedIndex={selectedBookIndex}
