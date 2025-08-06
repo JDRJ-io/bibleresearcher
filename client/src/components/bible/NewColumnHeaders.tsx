@@ -57,13 +57,14 @@ export function NewColumnHeaders({
   isGuest = true 
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
+  const store = useBibleStore();
   const { 
     isInitialized, 
     showNotes: storeShowNotes, 
     columnOffset, 
     maxVisibleColumns,
     unlockMode 
-  } = useBibleStore();
+  } = store;
 
   // Use the live store state instead of preferences for notes visibility
   const showNotes = storeShowNotes;
@@ -252,7 +253,34 @@ export function NewColumnHeaders({
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over?.id);
 
-        return arrayMove(items, oldIndex, newIndex);
+        const reorderedItems = arrayMove(items, oldIndex, newIndex);
+        
+        // Update the store's column order to sync with header order
+        // Map column types to their corresponding slots for the store
+        const typeToSlotMap: Record<string, number> = {
+          'reference': 0,
+          'context': 1,  // dates
+          'notes': 2,
+          'main-translation': 3,
+          'cross-refs': 7,
+          'prophecy-p': 8,
+          'prophecy-f': 9,
+          'prophecy-v': 10,
+          'alt-translation': 12, // base slot for alternates
+        };
+
+        // Update displayOrder in store to match new header order
+        reorderedItems.forEach((column, index) => {
+          const slot = typeToSlotMap[column.type];
+          if (slot !== undefined && store.columnState?.columns) {
+            const columnInfo = store.columnState.columns.find(col => col.slot === slot);
+            if (columnInfo) {
+              columnInfo.displayOrder = index;
+            }
+          }
+        });
+
+        return reorderedItems;
       });
     }
 
