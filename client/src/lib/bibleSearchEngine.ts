@@ -115,11 +115,11 @@ export function parseVerseReference(input: string): {
   if (match) {
     const [, bookPart, chapterStr, verseStr, endVerseStr] = match;
     
-    // Try multiple ways to match the book
+    // Try multiple ways to match the book (case-insensitive)
     const bookVariants = [
-      bookPart.trim(),
-      bookPart.replace(/\s/g, ''),
-      bookPart.replace(/\s+/g, ' ').trim()
+      bookPart.trim().toLowerCase(),
+      bookPart.replace(/\s/g, '').toLowerCase(),
+      bookPart.replace(/\s+/g, ' ').trim().toLowerCase()
     ];
     
     let book = null;
@@ -143,7 +143,7 @@ export function parseVerseReference(input: string): {
   match = cleaned.match(/^(\d?\s*\w+(?:\s+\w+)?)\.(\d+):(\d+)(?:[-–](\d+))?$/);
   if (match) {
     const [, bookPart, chapterStr, verseStr, endVerseStr] = match;
-    const book = ABBREVIATION_TO_BOOK[bookPart.replace(/\s/g, '')] || ABBREVIATION_TO_BOOK[bookPart.trim()];
+    const book = ABBREVIATION_TO_BOOK[bookPart.replace(/\s/g, '').toLowerCase()] || ABBREVIATION_TO_BOOK[bookPart.trim().toLowerCase()];
     if (book) {
       return {
         book,
@@ -160,9 +160,9 @@ export function parseVerseReference(input: string): {
   if (match) {
     const [, bookPart, chapterStr] = match;
     const bookVariants = [
-      bookPart.trim(),
-      bookPart.replace(/\s/g, ''),
-      bookPart.replace(/\s+/g, ' ').trim()
+      bookPart.trim().toLowerCase(),
+      bookPart.replace(/\s/g, '').toLowerCase(),
+      bookPart.replace(/\s+/g, ' ').trim().toLowerCase()
     ];
     
     let book = null;
@@ -182,9 +182,9 @@ export function parseVerseReference(input: string): {
   
   // Pattern 4: Book name only - "Genesis", "Gen", "1 Samuel", etc.
   const bookVariants = [
-    cleaned.trim(),
-    cleaned.replace(/\s/g, ''),
-    cleaned.replace(/\s+/g, ' ').trim()
+    cleaned.trim().toLowerCase(),
+    cleaned.replace(/\s/g, '').toLowerCase(),
+    cleaned.replace(/\s+/g, ' ').trim().toLowerCase()
   ];
   
   for (const variant of bookVariants) {

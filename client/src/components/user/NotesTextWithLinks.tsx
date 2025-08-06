@@ -24,9 +24,15 @@ export function NotesTextWithLinks({ text, className, onVerseClick }: NotesTextW
   const handleReferenceClick = (reference: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('📝 Notes reference clicked:', reference);
+    console.log('📝 Notes reference clicked:', { 
+      reference, 
+      originalText: text,
+      parsedReference: reference 
+    });
     if (onVerseClick) {
       onVerseClick(reference);
+    } else {
+      console.warn('📝 No onVerseClick handler provided');
     }
   };
   
