@@ -86,146 +86,51 @@
 
 /* Rainbow theme specific styles */
 .rainbow {
-  /* Override all white backgrounds to be transparent or themed */
-  background: var(--column-bg) !important;
-}
-
-/* Target the specific Tailwind background classes that override theme variables */
-.rainbow .bg-white {
-  background: rgba(34, 39, 54, 0.3) !important;
-  backdrop-filter: blur(12px) saturate(150%);
-}
-
-/* Force body and html background to show rainbow theme */
-html.rainbow,
-body.rainbow {
-  background: var(--column-bg) !important;
-}
-
-/* Any remaining white containers */
-.rainbow div[class*="bg-white"],
-.rainbow section[class*="bg-white"],
-.rainbow main[class*="bg-white"] {
-  background: rgba(34, 39, 54, 0.4) !important;
-  backdrop-filter: blur(10px) saturate(130%);
-}
-
-.rainbow .bg-gray-50 {
-  background: rgba(34, 39, 54, 0.2) !important;
-  backdrop-filter: blur(8px) saturate(120%);
-}
-
-.rainbow .bg-gray-100 {
-  background: rgba(34, 39, 54, 0.4) !important;
-  backdrop-filter: blur(10px) saturate(130%);
-}
-
-.rainbow .bg-white {
-  background: rgba(34, 39, 54, 0.7) !important;
-  backdrop-filter: blur(10px) saturate(150%);
-  border: 1px solid var(--rainbow-primary);
-}
-
-.rainbow .dark\:bg-gray-900 {
-  background: rgba(34, 39, 54, 0.8) !important;
-  backdrop-filter: blur(15px) saturate(180%);
-}
-
-.rainbow .bg-gray-50 {
-  background: rgba(34, 39, 54, 0.5) !important;
-  backdrop-filter: blur(8px);
-}
-
-/* Main content area styling for rainbow theme */
-.rainbow .virtual-bible-table,
-.rainbow .table-container,
-.rainbow .bible-content {
-  background: rgba(34, 39, 54, 0.6) !important;
-  backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-}
-
-/* Table cells with smoked mirror effect */
-.rainbow .virtual-row,
-.rainbow .bible-row {
-  background: rgba(34, 39, 54, 0.4) !important;
-  backdrop-filter: blur(8px) saturate(120%);
-  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
-}
-
-.rainbow .virtual-row:hover,
-.rainbow .bible-row:hover {
-  background: rgba(168, 85, 247, 0.2) !important;
-  backdrop-filter: blur(10px) saturate(140%);
-  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3);
-}
-
-/* Enhanced button styling with rainbow gradients */
-.rainbow button:not(.disabled):hover {
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
-  transform: translateY(-1px);
-  transition: all 0.2s ease-in-out;
-}
-
-/* Rainbow border animations for active elements */
-.rainbow .rainbow-border {
-  border: 2px solid transparent;
-  background: linear-gradient(45deg, var(--rainbow-primary), var(--rainbow-secondary), var(--rainbow-tertiary), var(--rainbow-success)) border-box;
-  animation: rainbow-shift 3s ease-in-out infinite;
-}
-
-/* Progress indicators with rainbow gradients */
-.rainbow .rainbow-progress {
-  background: linear-gradient(90deg, 
-    var(--rainbow-success) 0%, 
-    var(--rainbow-warning) 33%, 
-    var(--rainbow-info) 66%, 
-    var(--rainbow-primary) 100%);
-}
-
-/* Glowing text effects for important elements */
-.rainbow .rainbow-glow {
-  text-shadow: 0 0 10px var(--rainbow-secondary), 0 0 20px var(--rainbow-secondary), 0 0 30px var(--rainbow-secondary);
-}
-
-/* Cross-reference cells with rainbow accents */
-.rainbow .cross-ref-item:hover {
-  background: linear-gradient(135deg, 
-    hsl(280, 40%, 20%) 0%, 
-    hsl(195, 40%, 20%) 50%, 
-    hsl(340, 40%, 20%) 100%);
-  border-left: 3px solid var(--rainbow-primary);
-}
-
-/* Verse numbers with rainbow gradient */
-.rainbow .verse-number.rainbow-theme {
-  background: linear-gradient(45deg, var(--rainbow-primary), var(--rainbow-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 600;
-}
-
-/* Column headers with smoked mirror effect */
-.rainbow .column-header {
-  background: rgba(34, 39, 54, 0.9) !important;
-  backdrop-filter: blur(15px) saturate(180%);
-  border-bottom: 2px solid var(--rainbow-primary);
-  box-shadow: 0 1px 4px rgba(168, 85, 247, 0.3);
-}
-
-/* Scrollbars with rainbow accents */
-.rainbow ::-webkit-scrollbar-track {
-  background: rgba(34, 39, 54, 0.5);
-}
-
-.rainbow ::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, var(--rainbow-primary), var(--rainbow-secondary));
-  border-radius: 4px;
-}
-
-.rainbow ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, var(--rainbow-secondary), var(--rainbow-tertiary));
+  /* Enhanced button styling with rainbow gradients */
+  button:not(.disabled):hover {
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+    transform: translateY(-1px);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Rainbow border animations for active elements */
+  .rainbow-border {
+    border: 2px solid transparent;
+    background: linear-gradient(45deg, var(--rainbow-primary), var(--rainbow-secondary), var(--rainbow-tertiary), var(--rainbow-success)) border-box;
+    animation: rainbow-shift 3s ease-in-out infinite;
+  }
+  
+  /* Progress indicators with rainbow gradients */
+  .rainbow-progress {
+    background: linear-gradient(90deg, 
+      var(--rainbow-success) 0%, 
+      var(--rainbow-warning) 33%, 
+      var(--rainbow-info) 66%, 
+      var(--rainbow-primary) 100%);
+  }
+  
+  /* Glowing text effects for important elements */
+  .rainbow-glow {
+    text-shadow: 0 0 10px var(--rainbow-secondary), 0 0 20px var(--rainbow-secondary), 0 0 30px var(--rainbow-secondary);
+  }
+  
+  /* Cross-reference cells with rainbow accents */
+  .cross-ref-item:hover {
+    background: linear-gradient(135deg, 
+      hsl(280, 40%, 20%) 0%, 
+      hsl(195, 40%, 20%) 50%, 
+      hsl(340, 40%, 20%) 100%);
+    border-left: 3px solid var(--rainbow-primary);
+  }
+  
+  /* Verse numbers with rainbow gradient */
+  .verse-number.rainbow-theme {
+    background: linear-gradient(45deg, var(--rainbow-primary), var(--rainbow-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
 }
 
 @keyframes rainbow-shift {

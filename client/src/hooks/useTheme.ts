@@ -11,24 +11,20 @@ export function useTheme() {
     const initialTheme = savedTheme || 'light';
     setThemeState(initialTheme);
     
-    // Apply theme to document and body
+    // Apply theme to document
     document.documentElement.classList.remove('light', 'dark', 'rainbow');
-    document.body.classList.remove('light', 'dark', 'rainbow');
     document.documentElement.classList.add(initialTheme);
-    document.body.classList.add(initialTheme);
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
     
-    // Remove all theme classes first from both html and body
+    // Remove all theme classes first
     document.documentElement.classList.remove('light', 'dark', 'rainbow');
-    document.body.classList.remove('light', 'dark', 'rainbow');
     
-    // Add the new theme class to both html and body
+    // Add the new theme class
     document.documentElement.classList.add(newTheme);
-    document.body.classList.add(newTheme);
   };
 
   return { theme, setTheme };
