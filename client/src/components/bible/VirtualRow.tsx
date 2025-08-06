@@ -462,7 +462,7 @@ function MainTranslationCell({
       onBookmark={handleBookmark}
       onShare={handleShare}
     >
-      <div className={`px-2 py-1 text-sm leading-tight cell-content h-full max-h-full ${contextClasses}`}>
+      <div className={`px-2 py-1 text-sm leading-tight cell-content h-full max-h-full overflow-y-auto ${contextClasses}`}>
         {shouldUseLabeledText ? (
           <span
             data-verse-ref={verse.reference}
@@ -800,7 +800,7 @@ export function VirtualRow({
 
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
-            <div className="px-2 py-1 text-sm cell-content h-full max-h-full">
+            <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
               {verseText ? (
                 shouldUseLabeledText ? (
                   <LabeledText
