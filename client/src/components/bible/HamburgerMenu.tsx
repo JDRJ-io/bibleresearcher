@@ -369,39 +369,20 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
             <div className="space-y-1">
-              {themes.map((themeOption) => {
-                // Theme-specific indicator styles
-                const getThemeIndicator = (themeId: string) => {
-                  switch (themeId) {
-                    case 'light':
-                      return "bg-gradient-to-r from-gray-100 to-white border-gray-300";
-                    case 'dark':
-                      return "bg-gradient-to-r from-gray-700 to-gray-900 border-gray-600";
-                    case 'rainbow':
-                      return "bg-gradient-to-r from-purple-500 via-cyan-500 to-pink-500 border-purple-400 animate-pulse";
-                    default:
-                      return "bg-gradient-to-r from-blue-500 to-purple-500 border-gray-300";
-                  }
-                };
-
-                return (
-                  <button
-                    key={themeOption.id}
-                    onClick={() => setTheme(themeOption.id as any)}
-                    className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
-                      theme === themeOption.id 
-                        ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                    }`}
-                  >
-                    <div className={`w-3 h-3 rounded-full border flex-shrink-0 ${getThemeIndicator(themeOption.id)}`} />
-                    <span className="text-xs">{themeOption.name}</span>
-                    {themeOption.id === 'rainbow' && (
-                      <span className="text-xs text-purple-500 ml-auto">✨</span>
-                    )}
-                  </button>
-                );
-              })}
+              {themes.map((themeOption) => (
+                <button
+                  key={themeOption.id}
+                  onClick={() => setTheme(themeOption.id as any)}
+                  className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
+                    theme === themeOption.id 
+                      ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
+                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" />
+                  <span className="text-xs">{themeOption.name}</span>
+                </button>
+              ))}
             </div>
           </div>
         );

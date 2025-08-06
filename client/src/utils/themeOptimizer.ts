@@ -55,28 +55,6 @@ export class ThemeManager {
         '--accent-color': 'hsl(217, 91%, 65%)',
         '--highlight-bg': 'hsl(215, 27%, 32%)'
       }
-    },
-    {
-      id: 'rainbow',
-      name: 'Rainbow Gamification',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(220, 26%, 14%)',
-        '--bg-secondary': 'hsl(220, 26%, 12%)',
-        '--text-primary': 'hsl(0, 0%, 95%)',
-        '--text-secondary': 'hsl(215, 20%, 80%)',
-        '--border-color': 'hsl(280, 40%, 40%)',
-        '--accent-color': 'hsl(280, 70%, 60%)',
-        '--highlight-bg': 'hsl(280, 50%, 25%)',
-        '--rainbow-primary': 'hsl(280, 70%, 60%)',
-        '--rainbow-secondary': 'hsl(195, 70%, 60%)',
-        '--rainbow-tertiary': 'hsl(340, 70%, 60%)',
-        '--rainbow-success': 'hsl(120, 70%, 60%)',
-        '--rainbow-warning': 'hsl(45, 70%, 60%)',
-        '--rainbow-info': 'hsl(200, 70%, 60%)'
-      }
     }
   ];
 
