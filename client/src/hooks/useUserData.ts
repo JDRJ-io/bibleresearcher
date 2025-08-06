@@ -76,7 +76,7 @@ export const useCreateHighlight = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (highlightData: Omit<InsertHighlight, 'userId'>) => highlightsApi.create(highlightData),
+    mutationFn: (highlightData: Omit<InsertHighlight, 'user_id'>) => highlightsApi.create(highlightData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
     },
