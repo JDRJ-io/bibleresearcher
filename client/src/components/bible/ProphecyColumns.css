@@ -1,12 +1,7 @@
 
 /* Prophecy column styling */
 .prophecy-block {
-  transition: all 0.2s ease-in-out;
-}
-
-.prophecy-block.anchor {
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
-  transform: scale(1.02);
+  /* Remove transition effects */
 }
 
 .prophecy-body {
@@ -21,10 +16,7 @@
   margin-bottom: 8px;
 }
 
-/* Dark mode adjustments */
-.dark .prophecy-block.anchor {
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
-}
+/* Dark mode adjustments - removed anchor effects */
 
 .dark .prophecy-header {
   border-bottom-color: rgba(255, 255, 255, 0.1);

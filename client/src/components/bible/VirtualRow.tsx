@@ -903,31 +903,12 @@ export function VirtualRow({
     return actualTotalWidth;
   }, [actualTotalWidth, viewportWidth]);
 
-  // MYSTICAL EFFECTS: Determine prophecy status for this verse
-  const { prophecyData } = useBibleStore();
-  const verseRef = verse.reference;
-  const prophecyInfo = prophecyData[verseRef];
-  
-  // Determine mystical effect classes
-  let mysticalClasses = '';
-  if (!showProphecies && prophecyInfo) {
-    // When prophecy columns are not visible, show subtle mystical effects
-    mysticalClasses = 'mystical-verse-border';
-  } else if (prophecyInfo) {
-    // When prophecy columns are visible or toggled, show specific prophecy effects
-    if (prophecyInfo.P && prophecyInfo.P.length > 0) {
-      mysticalClasses = 'prophecy-prediction-verse';
-    } else if (prophecyInfo.F && prophecyInfo.F.length > 0) {
-      mysticalClasses = 'prophecy-fulfillment-verse';
-    } else if (prophecyInfo.V && prophecyInfo.V.length > 0) {
-      mysticalClasses = 'prophecy-verification-verse';
-    }
-  }
+  // Remove mystical/prophecy effects from rows
 
   // RESPONSIVE COLUMN WIDTHS - Optimize space utilization
   return (
     <div 
-      className={`border-b border-gray-200 dark:border-gray-700 bible-verse-row ${mysticalClasses}`}
+      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
       style={{ 
         height: rowHeight,
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
