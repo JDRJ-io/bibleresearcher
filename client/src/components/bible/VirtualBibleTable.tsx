@@ -31,6 +31,7 @@ import type {
   AppPreferences,
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
+import { useNotesCache } from "@/hooks/useNotesCache";
 import type { LabelName } from '@/lib/labelBits';
 
 export interface VirtualBibleTableHandle {
@@ -78,6 +79,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Initialize notes caching system for batch loading
+  const { batchLoadNotes } = useNotesCache();
 
   // Get verse text retrieval function from useBibleData - MUST BE EARLY
   const { getVerseText: getBibleVerseText } = useBibleData();
@@ -211,7 +215,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   useColumnData();
 
   // Get store state for column toggles
-  const { showCrossRefs, showProphecies, toggleCrossRefs } = useBibleStore();
+  const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes } = useBibleStore();
+
+  // PERFORMANCE FIX: Preload notes for visible verses when notes column is enabled
+  useEffect(() => {
+    if (showNotes && user && slice.verseIDs.length > 0) {
+      console.log(`📝 Preloading notes for ${slice.verseIDs.length} visible verses...`);
+      batchLoadNotes(slice.verseIDs);
+    }
+  }, [showNotes, user?.id, slice.verseIDs, batchLoadNotes]);
 
   // Create getVerseText wrapper for VirtualRow (any translation) - USE TRANSLATION MAPS SYSTEM
   const getVerseTextForRow = useCallback((verseID: string, translationCode: string): string => {

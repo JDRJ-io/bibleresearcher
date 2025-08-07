@@ -1,30 +1,33 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotesCache } from './useNotesCache';
 import type { Note } from '@shared/schema';
 
 export function useNotes(verseRef?: string) {
   const { user } = useAuth();
+  const { getCachedNotes, isLoading, updateCache } = useNotesCache();
   const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  /* fetch on mount / verse change */
+  /* Use cached notes instead of individual database queries */
   useEffect(() => {
-    if (!user || !verseRef) return;
-    setLoading(true);
-    supabase
-      .from('notes')
-      .select('id, user_id, verse_ref, text')
-      .eq('user_id', user.id)
-      .eq('verse_ref', verseRef)
-      .then(({ data }) => {
-        setNotes((data as Note[]) ?? []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [user?.id, verseRef]);
+    if (!user || !verseRef) {
+      setNotes([]);
+      return;
+    }
 
-  /* helpers */
+    const cachedNotes = getCachedNotes(verseRef);
+    if (cachedNotes !== null) {
+      setNotes(cachedNotes);
+    } else {
+      setNotes([]);
+    }
+  }, [user?.id, verseRef, getCachedNotes]);
+
+  // Check if this specific verse is loading
+  const loading = verseRef ? isLoading(verseRef) : false;
+
+  /* helpers - now update both local state and global cache */
   const addNote = useCallback(async (text: string) => {
     if (!user || !verseRef) return;
     const { data, error } = await supabase.from('notes').insert({
@@ -32,8 +35,15 @@ export function useNotes(verseRef?: string) {
       verse_ref: verseRef,
       text,
     }).select().single();
-    if (!error && data) setNotes((n) => [data as Note, ...n]);
-  }, [user?.id, verseRef]);
+    
+    if (!error && data) {
+      const newNote = data as Note;
+      // Update local state
+      setNotes((n) => [newNote, ...n]);
+      // Update global cache
+      updateCache(verseRef, (n) => [newNote, ...n]);
+    }
+  }, [user?.id, verseRef, updateCache]);
 
   const updateNote = useCallback(async (id: number, text: string) => {
     const { data, error } = await supabase
@@ -42,13 +52,29 @@ export function useNotes(verseRef?: string) {
       .eq('id', id)
       .select('id, user_id, verse_ref, text')
       .single();
-    if (!error && data) setNotes((n) => n.map((x) => (x.id === id ? data as Note : x)));
-  }, []);
+      
+    if (!error && data) {
+      const updatedNote = data as Note;
+      // Update local state
+      setNotes((n) => n.map((x) => (x.id === id ? updatedNote : x)));
+      // Update global cache
+      if (verseRef) {
+        updateCache(verseRef, (n) => n.map((x) => (x.id === id ? updatedNote : x)));
+      }
+    }
+  }, [verseRef, updateCache]);
 
   const deleteNote = useCallback(async (id: number) => {
     const { error } = await supabase.from('notes').delete().eq('id', id);
-    if (!error) setNotes((n) => n.filter((x) => x.id !== id));
-  }, []);
+    if (!error) {
+      // Update local state
+      setNotes((n) => n.filter((x) => x.id !== id));
+      // Update global cache
+      if (verseRef) {
+        updateCache(verseRef, (n) => n.filter((x) => x.id !== id));
+      }
+    }
+  }, [verseRef, updateCache]);
 
   return { notes, loading, addNote, updateNote, deleteNote };
 }
