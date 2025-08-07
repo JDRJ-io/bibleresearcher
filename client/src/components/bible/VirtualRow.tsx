@@ -144,7 +144,9 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                   {ref}
                 </button>
                 <div className="text-gray-700 dark:text-gray-300 text-sm leading-tight whitespace-normal break-words">
-                  {refText ? renderTextWithLabels(refText, ref) : '—'}
+                  <div className="px-2 py-1 text-sm leading-tight cell-content h-full overflow-y-auto" style={{ maxHeight: '100%', boxSizing: 'border-box' }}>
+                    {refText ? renderTextWithLabels(refText, ref) : '—'}
+                  </div>
                 </div>
               </div>
             );
@@ -275,7 +277,9 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
                             {verseRef}
                           </div>
                           <div className="text-gray-600 dark:text-gray-400 text-sm leading-tight whitespace-normal break-words -mt-0.5">
-                            {fullVerseText ? renderTextWithLabels(fullVerseText, verseRef) : 'Loading...'}
+                            <div className="px-2 py-1 text-sm leading-tight cell-content h-full overflow-y-auto" style={{ maxHeight: '100%', boxSizing: 'border-box' }}>
+                              {fullVerseText ? renderTextWithLabels(fullVerseText, verseRef) : 'Loading...'}
+                            </div>
                           </div>
                         </button>
                       );
@@ -711,7 +715,7 @@ export function VirtualRow({
         return '160px'; // fallback
       }
 
-      // Use adaptive CSS variables for portrait mode, fallback to clamp() for landscape
+      // Use adaptive CSS variables for portrait/landscape modes
       const isPortrait = window.innerHeight > window.innerWidth;
 
       if (isPortrait) {
@@ -735,10 +739,6 @@ export function VirtualRow({
         if (config.type === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
         return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
       }
-
-      // Convert rem to pixels for other columns (same as headers - 1rem = 16px)
-      const pixelWidth = (columnInfo?.widthRem || 10) * 16;
-      return `${pixelWidth}px`;
     };
 
     // Use inline styles for exact width matching with responsive column width scaling
@@ -936,7 +936,7 @@ function TranslationCell({ verse, translation, getVerseText, isMain }: Translati
         <div className="whitespace-pre-wrap break-words leading-relaxed">
           {verseText || (
             <span className="text-muted-foreground italic">
-              [{verse.reference} - {translation} loading...]
+              [{verse.reference} - {verse.translationCode} loading...]
             </span>
           )}
         </div>

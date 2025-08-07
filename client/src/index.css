@@ -111,7 +111,7 @@
   --text-size-mult: 1.0; /* Text size in Bible content */
   --row-height-mult: 1.0; /* Row spacing in Bible table */
   --column-width-mult: 1.0; /* Universal column width expansion */
-  
+
   /* Automatic adaptive sizing - screen resolution based */
   --adaptive-header-scale: 1.0; /* Top header auto-sizing */
   --adaptive-menu-scale: 1.0; /* Menu and UI chrome auto-sizing */
@@ -122,7 +122,7 @@
   --text-lg: calc(var(--base-font-size) * 1.125 * var(--text-size-mult));
   --row-height-base: 36px; /* Reduced base row height for tighter spacing */
   --row-height: calc(var(--row-height-base) * var(--row-height-mult));
-  
+
   /* UI Chrome elements stay at fixed sizes */
   --header-height-desktop: 52px;
   --header-height-mobile: 48px;
@@ -296,12 +296,14 @@
 }
 
 .virtual-row > div > div {
-  height: 120px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  word-wrap: break-word;
-  hyphens: auto;
-}
+    height: calc(var(--row-height-base) * var(--row-height-mult));
+    max-height: calc(var(--row-height-base) * var(--row-height-mult));
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    hyphens: auto;
+    box-sizing: border-box;
+  }
 
 .cell-content::-webkit-scrollbar {
   width: 4px;
@@ -409,7 +411,7 @@ body {
 :root {
   --ref-w: 72px;          /* Reference column - fixed width */
   --col-w: auto;          /* Default for desktop columns */
-  
+
   /* Dynamic CSS variables set by useAdaptivePortraitColumns hook */
   --adaptive-ref-width: 72px;          /* Reference column - will be dynamically updated */
   --adaptive-main-width: 320px;        /* Main translation - will be dynamically updated */
@@ -418,14 +420,14 @@ body {
   --adaptive-prophecy-width: 320px;    /* Prophecy columns - will be dynamically updated */
   --adaptive-notes-width: 300px;       /* Notes column - will be dynamically updated */
   --adaptive-context-width: 180px;     /* Context/dates - will be dynamically updated */
-  
+
   /* Fallback baseline widths - expert's clamp() approach for landscape */
   --w-ref: 4.5rem;                              /* reference # column */
   --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */  
   --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
   --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
   --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
-  
+
   /* UNIFIED COLUMN WIDTHS - Final calculated values used everywhere */
   --ref-col-width: calc(var(--w-ref) * var(--column-width-mult));
   --main-col-width: calc(var(--w-main) * var(--column-width-mult));
@@ -478,13 +480,13 @@ body {
       var(--main-xref-w)    /* Cross reference – flex     */
       repeat(auto-fill, max-content); /* any other columns */
     overflow-x: auto;       /* scrollbar for "extra" cols */
-    
+
     /* Expert's scroll enhancements */
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  
+
   .bibleTable > * {
     scroll-snap-align: start; /* Snap to column boundaries */
   }
@@ -524,7 +526,7 @@ body {
   overflow-x: auto;                             /* scrollbar only if needed */
   overflow-y: auto;                             /* enable vertical scrolling */
   scrollbar-gutter: stable;                     /* prevents width-jump when bar appears */
-  
+
   /* Expert's smooth scrolling enhancements */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain; /* Prevent scroll bounce bubbling */
@@ -541,7 +543,7 @@ body {
   .tableWrapper { 
     justify-content: flex-start;                 /* hug the left */
   }
-  
+
   :root {
     --w-ref: 2rem;
     --w-main: clamp(45vw, 60vw, 80vw);          /* main fills most of the width */
@@ -683,7 +685,7 @@ body {
 
   /* UNIFIED COLUMN ALIGNMENT - Headers and data cells use identical CSS variables */
   /* Fix for rotation mismatch between horizontal headers and vertical-rl data cells */
-  
+
   /* Force both header and data cells to reference the SAME physical dimension */
   .column-header-cell,
   .row .cell {
@@ -692,7 +694,7 @@ body {
     margin: 0 !important;
     border-right: 1px solid #e5e7eb !important;
   }
-  
+
   /* Reference column - unified width for header and rotated data */
   .column-header-cell[data-column="reference"],
   .cell[data-column="reference"],
@@ -702,7 +704,7 @@ body {
     max-width: var(--adaptive-ref-width) !important;
     min-width: var(--adaptive-ref-width) !important;
   }
-  
+
   /* Main translation column - unified width */
   .column-header-cell[data-column="main-translation"],
   .cell[data-column="main-translation"],
@@ -712,7 +714,7 @@ body {
     max-width: var(--adaptive-main-width) !important;
     min-width: var(--adaptive-main-width) !important;
   }
-  
+
   /* Cross reference column - unified width */
   .column-header-cell[data-column="cross-refs"],
   .cell[data-column="cross-refs"],
