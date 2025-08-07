@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Search, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ interface StrongsOverlayProps {
   verse: BibleVerse;
   onClose: () => void;
   allVerses: BibleVerse[];
+  onNavigateToVerse?: (reference: string) => void;
 }
 
 interface WordOccurrence {
@@ -25,7 +26,13 @@ interface WordOccurrence {
   morphology?: string;
 }
 
-export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProps) {
+interface NavigationHistoryEntry {
+  reference: string;
+  verseIndex: number;
+  timestamp: number;
+}
+
+export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }: StrongsOverlayProps) {
   const [loading, setLoading] = useState(true);
   const [interlinearCells, setInterlinearCells] = useState<any[]>([]);
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
@@ -35,16 +42,60 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
   const [showSearch, setShowSearch] = useState(false);
   const [morphologyLoading, setMorphologyLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [navigationHistory, setNavigationHistory] = useState<NavigationHistoryEntry[]>([]);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
   
   // Get main translation from hooks
   const { mainTranslation, getMainVerseText } = useTranslationMaps();
-  // Simple navigation function without the full useVerseNav hook
-  const goTo = (reference: string) => {
-    // Close the overlay and let the parent handle navigation
-    onClose();
-    // You can add navigation logic here or let the parent component handle it
-    window.location.hash = reference;
-  };
+  // Enhanced navigation function with history tracking
+  const goTo = useCallback((reference: string) => {
+    console.log(`🔍 Strong's navigating to: ${reference}`);
+    
+    // Find target verse in allVerses
+    const targetVerseIndex = allVerses.findIndex(v => 
+      v.reference === reference || 
+      v.reference === reference.replace(/\s+/g, '.') ||
+      (v.reference.toLowerCase() === reference.toLowerCase())
+    );
+    
+    if (targetVerseIndex === -1) {
+      console.warn(`❌ Could not find verse ${reference} in allVerses`);
+      return;
+    }
+    
+    const targetVerse = allVerses[targetVerseIndex];
+    
+    // Add current position to navigation history before navigating
+    const currentEntry: NavigationHistoryEntry = {
+      reference: allVerses[currentVerseIndex]?.reference || '',
+      verseIndex: currentVerseIndex,
+      timestamp: Date.now()
+    };
+    
+    setNavigationHistory(prev => {
+      const newHistory = [...prev];
+      // If we're in the middle of history, truncate future entries
+      if (currentHistoryIndex >= 0 && currentHistoryIndex < newHistory.length - 1) {
+        newHistory.splice(currentHistoryIndex + 1);
+      }
+      newHistory.push(currentEntry);
+      return newHistory;
+    });
+    
+    setCurrentHistoryIndex(prev => prev + 1);
+    
+    // Navigate to the new verse in the background (center it in main Bible)
+    if (onNavigateToVerse) {
+      onNavigateToVerse(reference);
+    }
+    
+    // Update the overlay to show the new verse (keep overlay open)
+    setCurrentVerseIndex(targetVerseIndex);
+    setShowSearch(false);
+    setSelectedWord(null);
+    setMorphologyLoading(false);
+    setLoadingProgress(0);
+  }, [allVerses, currentVerseIndex, onNavigateToVerse, currentHistoryIndex]);
 
   // Find current verse in the array
   useEffect(() => {
@@ -200,6 +251,31 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
     }
   }, []);
 
+  // Navigation history back function
+  const goBack = useCallback(() => {
+    if (currentHistoryIndex > 0) {
+      const targetIndex = currentHistoryIndex - 1;
+      const historyEntry = navigationHistory[targetIndex];
+      
+      console.log(`🔙 Going back in Strong's history to: ${historyEntry.reference}`);
+      
+      // Navigate to the verse in the background
+      if (onNavigateToVerse) {
+        onNavigateToVerse(historyEntry.reference);
+      }
+      
+      // Update overlay to show the historical verse
+      setCurrentVerseIndex(historyEntry.verseIndex);
+      setCurrentHistoryIndex(targetIndex);
+      setShowSearch(false);
+      setSelectedWord(null);
+      setMorphologyLoading(false);
+      setLoadingProgress(0);
+    }
+  }, [currentHistoryIndex, navigationHistory, onNavigateToVerse]);
+
+  const canGoBack = currentHistoryIndex > 0;
+
   const goToPreviousVerse = useCallback(() => {
     if (currentVerseIndex > 0) {
       const newIndex = currentVerseIndex - 1;
@@ -250,11 +326,22 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
               <h2 className="text-xl font-bold">Strong's Analysis</h2>
             </div>
             <div className="flex items-center gap-2">
+              {/* Back button for navigation history */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goBack}
+                disabled={!canGoBack}
+                title="Go back to previous verse"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={goToPreviousVerse}
                 disabled={currentVerseIndex === 0}
+                title="Previous verse in sequence"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -263,6 +350,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                 size="sm"
                 onClick={goToNextVerse}
                 disabled={currentVerseIndex >= allVerses.length - 1}
+                title="Next verse in sequence"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
