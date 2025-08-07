@@ -140,7 +140,7 @@ export function parseVerseReference(input: string): {
   }
   
   // Pattern 2: Dot notation - "Gen.1:1", "John.3:16"
-  match = cleaned.match(/^(\d?\s*\w+(?:\s+\w+)?)\.(\d+):(\d+)(?:[-–](\d+))?$/);
+  match = normalized.match(/^(\d?\s*\w+(?:\s+\w+)?)\.(\d+):(\d+)(?:[-–](\d+))?$/);
   if (match) {
     const [, bookPart, chapterStr, verseStr, endVerseStr] = match;
     const book = ABBREVIATION_TO_BOOK[bookPart.replace(/\s/g, '').toLowerCase()] || ABBREVIATION_TO_BOOK[bookPart.trim().toLowerCase()];
