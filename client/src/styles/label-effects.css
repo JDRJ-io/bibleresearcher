@@ -1,10 +1,10 @@
 /* Label Effects CSS - Semantic highlighting visual styles */
 
-/* who → normal cursive font (not blue) - consistent across all devices */
+/* who → consistent handwritten font across all devices */
 .fx-hand {
-  font-family: cursive;
+  font-family: 'Crimson Text', 'Apple Chancery', 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-style: italic;
   color: currentColor;
-  font-size: 1rem; /* Fixed size to prevent mobile/desktop differences */
 }
 
 /* what → drop shadow using current text color */  
@@ -41,11 +41,10 @@
   color: currentColor;
 }
 
-/* action → normal italic (not blue) - consistent across all devices */
+/* action → normal italic (not blue) */
 .fx-ital {
   font-style: italic;
   color: currentColor;
-  font-size: 1rem; /* Fixed size to prevent mobile/desktop differences */
 }
 
 /* why → true hollow outline text (transparent fill with visible border) */
