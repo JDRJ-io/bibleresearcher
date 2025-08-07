@@ -131,18 +131,56 @@
   }
 }
 
-/* Mobile reference column - match data cell rotation exactly */
-@media (max-width: 767px) {
+/* Mobile reference column headers - match data cell styling exactly */
+
+/* Small mobile phones - vertical text to save space */
+@media (max-width: 640px) {
   .column-header-cell[data-column="reference"] {
     writing-mode: vertical-rl !important;
     transform: rotate(180deg) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 0.65rem !important;
+    font-size: 0.6rem !important;
     line-height: 1 !important;
     overflow: hidden !important;
     white-space: nowrap !important;
+    /* Width now handled by unified system in index.css */
+  }
+}
+
+/* Tablet portrait and larger - horizontal text with adequate width */
+@media (min-width: 641px) and (max-width: 767px) {
+  .column-header-cell[data-column="reference"] {
+    writing-mode: horizontal-tb !important;  /* Horizontal for larger screens */
+    transform: none !important;              /* No rotation for horizontal text */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    padding: 0 2px !important;
+    /* Width now handled by unified system in index.css */
+  }
+}
+
+/* Tablet portrait - ensure adequate space for horizontal references */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .column-header-cell[data-column="reference"] {
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    padding: 0 3px !important;
     /* Width now handled by unified system in index.css */
   }
 }

@@ -47,17 +47,17 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   // STEP 1: Reference column gets fixed optimal width - SYNC WITH CSS BREAKPOINTS
   let refWidth: number;
   if (viewportWidth >= 768 && viewportWidth <= 1024) {
-    // Tablet portrait - match CSS breakpoint exactly
-    refWidth = 56; // Matches tablet CSS breakpoint
+    // Tablet portrait - wider width for horizontal text references
+    refWidth = 70; // Increased from 56 to accommodate horizontal text like "Gen.1:1"
   } else if (viewportWidth <= 640) {
-    // Mobile portrait - ultra-compact for reference column
-    refWidth = 32; // Compact but readable for "#" header
+    // Mobile portrait - ultra-compact for reference column (vertical text)
+    refWidth = 32; // Compact but readable for vertical "#" text
   } else if (viewportWidth > 640 && viewportWidth < 768) {
-    // Large mobile/small tablet transition - make reference column more compact
-    refWidth = Math.max(20, Math.min(28, Math.floor(safeViewportWidth * 0.05)));
+    // Large mobile/small tablet transition - medium width for horizontal text
+    refWidth = Math.max(50, Math.min(60, Math.floor(safeViewportWidth * 0.08)));
   } else {
     // Desktop portrait (rare) - use comfortable width
-    refWidth = 60;
+    refWidth = 75;
   }
 
   // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
