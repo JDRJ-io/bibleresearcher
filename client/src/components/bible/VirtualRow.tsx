@@ -465,6 +465,7 @@ function MainTranslationCell({
       onCopy={handleCopy}
       onBookmark={handleBookmark}
       onShare={handleShare}
+      wrapperClassName="h-full max-h-full"
     >
       <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto ${contextClasses}`}>
         <div className="whitespace-pre-wrap break-words leading-relaxed">

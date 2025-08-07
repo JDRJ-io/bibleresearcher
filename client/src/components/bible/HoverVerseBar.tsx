@@ -11,6 +11,7 @@ interface HoverVerseBarProps {
   onBookmark?: () => void;
   onCopy?: () => void;
   onShare?: () => void;
+  wrapperClassName?: string;
 }
 
 export function HoverVerseBar({ 
@@ -19,7 +20,8 @@ export function HoverVerseBar({
   translation = 'KJV',
   onBookmark, 
   onCopy, 
-  onShare 
+  onShare,
+  wrapperClassName = ''
 }: HoverVerseBarProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -64,7 +66,7 @@ export function HoverVerseBar({
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="relative"
+          className={`relative ${wrapperClassName}`}
         >
           {children}
         </div>
