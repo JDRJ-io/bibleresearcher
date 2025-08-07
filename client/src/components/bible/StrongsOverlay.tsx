@@ -106,13 +106,14 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
       
       setSelectedOccurrences(basicOccurrences);
 
-      // Step 3: Enhance with morphology data progressively
+      // Step 3: Enhance with morphology data progressively (without reordering until complete)
       const clickedMorphology = word.morphology || '';
-      const enhancedOccurrences: WordOccurrence[] = [];
+      const workingResults = [...basicOccurrences]; // Create working copy to update in-place
       
       // Smaller batch size for smoother progress updates
       const batchSize = 5;
       const totalBatches = Math.ceil(rawOccurrences.length / batchSize);
+      let processedCount = 0;
       
       for (let i = 0; i < rawOccurrences.length; i += batchSize) {
         const batch = rawOccurrences.slice(i, i + batchSize);
@@ -136,7 +137,6 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
               morphology: matchingWord?.morphology || ''
             };
           } catch (error) {
-            // Don't log individual failures - just return without morphology
             return {
               reference: occurrence.reference,
               context: occurrence.context,
@@ -147,33 +147,50 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
         
         try {
           const batchResults = await Promise.all(batchPromises);
-          enhancedOccurrences.push(...batchResults);
+          
+          // Update items in-place without reordering
+          batchResults.forEach((result, index) => {
+            const globalIndex = i + index;
+            if (globalIndex < workingResults.length) {
+              workingResults[globalIndex] = result;
+            }
+          });
+          
+          processedCount += batchResults.length;
           
           // Update progress
           const currentBatch = Math.floor(i / batchSize) + 1;
           setLoadingProgress(Math.round((currentBatch / totalBatches) * 100));
           
-          // Update results progressively - sort and display what we have so far
-          const sortedSoFar = enhancedOccurrences.sort((a, b) => {
-            const aExactMatch = a.morphology === clickedMorphology;
-            const bExactMatch = b.morphology === clickedMorphology;
-            
-            if (aExactMatch && !bExactMatch) return -1;
-            if (!aExactMatch && bExactMatch) return 1;
-            
-            return a.reference.localeCompare(b.reference);
-          });
-          
-          // Combine sorted enhanced results with remaining basic results
-          const remainingBasic = basicOccurrences.slice(enhancedOccurrences.length);
-          setSelectedOccurrences([...sortedSoFar, ...remainingBasic]);
+          // Update display with enhanced items in original positions (no reordering yet)
+          setSelectedOccurrences([...workingResults]);
           
         } catch (batchError) {
           // If entire batch fails, continue with next batch
+          processedCount += batch.length;
           continue;
         }
       }
       
+      // Final step: Sort everything once at the end
+      const finalSorted = workingResults.sort((a, b) => {
+        const aExactMatch = a.morphology === clickedMorphology && a.morphology;
+        const bExactMatch = b.morphology === clickedMorphology && b.morphology;
+        
+        if (aExactMatch && !bExactMatch) return -1;
+        if (!aExactMatch && bExactMatch) return 1;
+        
+        // Secondary sort: verses with morphology come before those without
+        const aHasMorphology = Boolean(a.morphology);
+        const bHasMorphology = Boolean(b.morphology);
+        
+        if (aHasMorphology && !bHasMorphology) return -1;
+        if (!aHasMorphology && bHasMorphology) return 1;
+        
+        return a.reference.localeCompare(b.reference);
+      });
+      
+      setSelectedOccurrences(finalSorted);
       setMorphologyLoading(false);
       
     } catch (error) {
