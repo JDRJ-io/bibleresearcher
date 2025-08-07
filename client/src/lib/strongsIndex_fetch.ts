@@ -74,6 +74,7 @@ export interface StrongsOccurrence {
   gloss: string;
   reference: string;
   context: string;
+  morphology?: string; // Added for morphology-based sorting
 }
 
 export function parseStrongsOccurrence(line: string): StrongsOccurrence | null {

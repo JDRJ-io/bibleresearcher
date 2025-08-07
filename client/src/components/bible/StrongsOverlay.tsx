@@ -84,9 +84,63 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
     setSearchQuery('');
 
     try {
+      console.log(`🔍 Loading occurrences for ${word.strongs} with morphology: ${word.morphology}`);
+      
       // Get word occurrences from API
-      const occurrences = await BibleDataAPI.getStrongsOccurrences(word.strongs);
-      setSelectedOccurrences(occurrences || []);
+      const rawOccurrences = await BibleDataAPI.getStrongsOccurrences(word.strongs);
+      
+      if (!rawOccurrences || rawOccurrences.length === 0) {
+        setSelectedOccurrences([]);
+        return;
+      }
+
+      // Enhance occurrences with morphology data and sort by morphology match
+      const enhancedOccurrences = [];
+      const clickedMorphology = word.morphology || '';
+      
+      // Process occurrences in batches to avoid overwhelming the API
+      const batchSize = 10;
+      for (let i = 0; i < rawOccurrences.length; i += batchSize) {
+        const batch = rawOccurrences.slice(i, i + batchSize);
+        const batchPromises = batch.map(async (occurrence) => {
+          try {
+            // Get verse data to extract morphology for this specific Strong's number
+            const verseData = await BibleDataAPI.getInterlinearData(occurrence.reference);
+            
+            // Find the matching Strong's word in this verse
+            const matchingWord = verseData?.find(cell => 
+              cell.strongsKey === word.strongs && cell.original === occurrence.original
+            );
+            
+            return {
+              ...occurrence,
+              morphology: matchingWord?.morphology || ''
+            };
+          } catch (error) {
+            console.warn(`Failed to get morphology for ${occurrence.reference}:`, error);
+            return { ...occurrence, morphology: '' };
+          }
+        });
+        
+        const batchResults = await Promise.all(batchPromises);
+        enhancedOccurrences.push(...batchResults);
+      }
+      
+      // Sort by morphology match: exact matches first, then others
+      const sortedOccurrences = enhancedOccurrences.sort((a, b) => {
+        const aExactMatch = a.morphology === clickedMorphology;
+        const bExactMatch = b.morphology === clickedMorphology;
+        
+        if (aExactMatch && !bExactMatch) return -1;
+        if (!aExactMatch && bExactMatch) return 1;
+        
+        // For non-exact matches, sort alphabetically by reference
+        return a.reference.localeCompare(b.reference);
+      });
+      
+      console.log(`✅ Sorted ${sortedOccurrences.length} occurrences by morphology match`);
+      setSelectedOccurrences(sortedOccurrences);
+      
     } catch (error) {
       console.error('Error loading word occurrences:', error);
       setSelectedOccurrences([]);
@@ -228,7 +282,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                             </Badge>
                             {/* Morphology - Full grammatical analysis */}
                             {cell.morphology && (
-                              <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
                                 {cell.morphology}
                               </div>
                             )}
@@ -282,9 +336,9 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       </p>
                       {/* Full Morphology - Grammatical Analysis */}
                       {selectedWord.morphology && (
-                        <div className="mb-3">
-                          <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Morphology:</div>
-                          <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                        <div className="mb-2">
+                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Morphology:</div>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
                             {selectedWord.morphology}
                           </p>
                         </div>
@@ -331,23 +385,43 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                     >
                       <div className="p-4 space-y-3">
                         {filteredOccurrences.length > 0 ? (
-                          filteredOccurrences.map((occurrence, index) => (
-                            <button
-                              key={`${occurrence.reference}-${index}`}
-                              onClick={() => goTo(occurrence.reference)}
-                              className="w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 group"
-                            >
-                              <div className="flex items-center justify-between mb-3">
-                                <Badge variant="outline" className="font-mono text-sm px-3 py-1">
-                                  {occurrence.reference}
-                                </Badge>
-                                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
-                                {occurrence.context}
-                              </p>
-                            </button>
-                          ))
+                          filteredOccurrences.map((occurrence, index) => {
+                            const isExactMorphologyMatch = occurrence.morphology === selectedWord.morphology;
+                            return (
+                              <button
+                                key={`${occurrence.reference}-${index}`}
+                                onClick={() => goTo(occurrence.reference)}
+                                className={`w-full text-left p-4 rounded-lg border transition-all duration-200 group ${
+                                  isExactMorphologyMatch
+                                    ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:border-blue-500'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="font-mono text-sm px-3 py-1">
+                                      {occurrence.reference}
+                                    </Badge>
+                                    {isExactMorphologyMatch && (
+                                      <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 text-xs px-2 py-1">
+                                        Exact Match
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                                </div>
+                                {/* Show morphology if available */}
+                                {occurrence.morphology && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-mono">
+                                    {occurrence.morphology}
+                                  </div>
+                                )}
+                                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                                  {occurrence.context}
+                                </p>
+                              </button>
+                            );
+                          })
                         ) : searchQuery ? (
                           <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
                             No occurrences match "{searchQuery}"
