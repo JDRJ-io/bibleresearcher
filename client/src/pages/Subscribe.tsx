@@ -79,7 +79,10 @@ export default function Subscribe() {
     }
 
     // Create subscription intent
-    apiRequest('POST', '/api/get-or-create-subscription')
+    apiRequest('POST', '/api/get-or-create-subscription', { 
+      email: 'community@anointed.io',
+      name: 'Community Member' 
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
