@@ -32,6 +32,7 @@ import type {
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import { useNotesCache } from "@/hooks/useNotesCache";
+import { ScrollbarTooltip } from "@/components/ui/ScrollbarTooltip";
 import type { LabelName } from '@/lib/labelBits';
 
 export interface VirtualBibleTableHandle {
@@ -93,6 +94,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
+  const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   
   // Remove ref handling for now
   
@@ -104,6 +106,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
     disabled: isScrollbarDragging 
   });
+  
+  // Handle scrollbar dragging state changes
+  const handleScrollbarDragChange = useCallback((dragging: boolean) => {
+    setIsScrollbarDragging(dragging);
+    setShowScrollTooltip(dragging);
+  }, []);
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {
@@ -771,7 +779,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           onMouseDown={(e) => {
             e.preventDefault();
             console.log('🎯 SCROLLBAR: Starting drag - PAUSING virtual loading');
-            setIsScrollbarDragging(true);
+            handleScrollbarDragChange(true);
             
             const startY = e.clientY;
             const scrollContainer = containerRef.current;
@@ -794,7 +802,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             
             const handleMouseUp = () => {
               console.log('🎯 SCROLLBAR: Drag ended - RESUMING virtual loading');
-              setIsScrollbarDragging(false);
+              handleScrollbarDragChange(false);
               
               // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
               requestAnimationFrame(() => {
@@ -813,7 +821,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           onTouchStart={(e) => {
             e.preventDefault();
             console.log('🎯 SCROLLBAR: Starting touch drag - PAUSING virtual loading');
-            setIsScrollbarDragging(true);
+            handleScrollbarDragChange(true);
             
             const touch = e.touches[0];
             const startY = touch.clientY;
@@ -840,7 +848,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             const handleTouchEnd = (e: TouchEvent) => {
               e.preventDefault();
               console.log('🎯 SCROLLBAR: Touch drag ended - RESUMING virtual loading');
-              setIsScrollbarDragging(false);
+              handleScrollbarDragChange(false);
               
               // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
               requestAnimationFrame(() => {
@@ -858,6 +866,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           }}
         />
       </div>
+      
+      {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
+      <ScrollbarTooltip
+        containerRef={containerRef}
+        totalVerses={verseKeys.length}
+        isVisible={showScrollTooltip}
+        onVisibilityChange={setShowScrollTooltip}
+      />
     </div>
   );
 });
