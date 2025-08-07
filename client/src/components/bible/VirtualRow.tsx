@@ -79,7 +79,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Helper function to render text with labels using proper LabeledText component
   const renderTextWithLabels = (text: string, reference: string) => {
     if (!text) return '—';
-    
+
     if (!activeLabels || activeLabels.length === 0) {
       return text;
     }
@@ -192,7 +192,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   // Helper function to render text with labels using proper LabeledText component
   const renderTextWithLabels = (text: string, reference: string) => {
     if (!text) return 'Loading...';
-    
+
     if (!activeLabels || activeLabels.length === 0) {
       return text;
     }
@@ -657,13 +657,13 @@ export function VirtualRow({
   // Apply horizontal navigation filtering - keep reference column always visible
   const { columnOffset, maxVisibleColumns } = useBibleStore();
   const fixedColumnTypes = ['reference']; // Always show reference column
-  
+
   const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
   const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
-  
+
   // Apply offset to navigable columns
   const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
-  
+
   // Combine fixed columns (always first) with offset navigable columns
   const visibleColumns = [...fixedColumns, ...offsetNavigableColumns];
 
@@ -931,9 +931,15 @@ function TranslationCell({ verse, translation, getVerseText, isMain }: Translati
   const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
 
   return (
-    <div className="w-80 px-2 py-1 text-sm flex-shrink-0">
-      <div className="overflow-auto h-full verse-text">
-        {verseText || "Loading..."}
+    <div className="w-80 px-2 py-1 text-sm flex-shrink-0 overflow-hidden">
+      <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
+        <div className="whitespace-pre-wrap break-words leading-relaxed">
+          {verseText || (
+            <span className="text-muted-foreground italic">
+              [{verse.reference} - {translation} loading...]
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

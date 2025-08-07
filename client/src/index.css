@@ -289,6 +289,20 @@
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
+/* Specific overflow handling for translation cells */
+.virtual-row > div {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.virtual-row > div > div {
+  height: 120px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
 .cell-content::-webkit-scrollbar {
   width: 4px;
 }
