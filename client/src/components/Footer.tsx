@@ -29,7 +29,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="text-center sm:text-right">
-            © 2025 Scripture Study. All rights reserved.
+            © 2025 Anointed.io
           </div>
         </div>
       </div>
