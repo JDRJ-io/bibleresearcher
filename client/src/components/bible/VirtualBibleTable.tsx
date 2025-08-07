@@ -95,6 +95,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const containerRef = useRef<HTMLDivElement>(null);
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
   
   // Remove ref handling for now
   
@@ -108,9 +109,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   });
   
   // Handle scrollbar dragging state changes
-  const handleScrollbarDragChange = useCallback((dragging: boolean) => {
+  const handleScrollbarDragChange = useCallback((dragging: boolean, clientX?: number, clientY?: number) => {
     setIsScrollbarDragging(dragging);
     setShowScrollTooltip(dragging);
+    if (dragging && clientX !== undefined && clientY !== undefined) {
+      setMousePosition({ x: clientX, y: clientY });
+    } else {
+      setMousePosition(undefined);
+    }
   }, []);
   
   // Get current verse reference from anchor index
@@ -779,7 +785,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           onMouseDown={(e) => {
             e.preventDefault();
             console.log('🎯 SCROLLBAR: Starting drag - PAUSING virtual loading');
-            handleScrollbarDragChange(true);
+            handleScrollbarDragChange(true, e.clientX, e.clientY);
             
             const startY = e.clientY;
             const scrollContainer = containerRef.current;
@@ -798,6 +804,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               });
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
               setScrollTop(newScrollTop);
+              // Update mouse position for tooltip
+              setMousePosition({ x: e.clientX, y: e.clientY });
             };
             
             const handleMouseUp = () => {
@@ -821,9 +829,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           onTouchStart={(e) => {
             e.preventDefault();
             console.log('🎯 SCROLLBAR: Starting touch drag - PAUSING virtual loading');
-            handleScrollbarDragChange(true);
-            
             const touch = e.touches[0];
+            handleScrollbarDragChange(true, touch.clientX, touch.clientY);
+            
             const startY = touch.clientY;
             const scrollContainer = containerRef.current;
             if (!scrollContainer) return;
@@ -843,6 +851,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               });
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
               setScrollTop(newScrollTop);
+              // Update touch position for tooltip
+              setMousePosition({ x: touch.clientX, y: touch.clientY });
             };
             
             const handleTouchEnd = (e: TouchEvent) => {
@@ -873,6 +883,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         totalVerses={verseKeys.length}
         isVisible={showScrollTooltip}
         onVisibilityChange={setShowScrollTooltip}
+        mousePosition={mousePosition}
       />
     </div>
   );

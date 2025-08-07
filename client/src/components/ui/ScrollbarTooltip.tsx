@@ -6,17 +6,25 @@ interface ScrollbarTooltipProps {
   totalVerses: number;
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
+  mousePosition?: { x: number; y: number }; // Position from VirtualBibleTable
 }
 
 export function ScrollbarTooltip({ 
   containerRef, 
   totalVerses, 
   isVisible, 
-  onVisibilityChange 
+  onVisibilityChange,
+  mousePosition 
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
+
+  // Update tooltip when mouse position changes during dragging
+  useEffect(() => {
+    if (!isVisible || !mousePosition || !containerRef.current) return;
+    
+    updateTooltip(mousePosition.y);
+  }, [isVisible, mousePosition, containerRef, totalVerses]);
 
   const updateTooltip = useCallback((clientY: number) => {
     if (!containerRef.current) return;
@@ -45,102 +53,30 @@ export function ScrollbarTooltip({
     });
   }, [containerRef, totalVerses]);
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const container = containerRef.current;
-
-    const handleMouseDown = (e: MouseEvent) => {
-      // Check if click is on or near the scrollbar
-      const rect = container.getBoundingClientRect();
-      const scrollbarWidth = 24; // Match mobile scrollbar width
-      const isOnScrollbar = e.clientX >= rect.right - scrollbarWidth;
-      
-      if (isOnScrollbar) {
-        setIsDragging(true);
-        onVisibilityChange(true);
-        updateTooltip(e.clientY);
-      }
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        updateTooltip(e.clientY);
-      }
-    };
-
-    const handleMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        onVisibilityChange(false);
-      }
-    };
-
-    // Touch events for mobile
-    const handleTouchStart = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      const rect = container.getBoundingClientRect();
-      const scrollbarWidth = 24;
-      const isOnScrollbar = touch.clientX >= rect.right - scrollbarWidth;
-      
-      if (isOnScrollbar) {
-        setIsDragging(true);
-        onVisibilityChange(true);
-        updateTooltip(touch.clientY);
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (isDragging) {
-        const touch = e.touches[0];
-        updateTooltip(touch.clientY);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        onVisibilityChange(false);
-      }
-    };
-
-    // Add event listeners
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd);
-
-    return () => {
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [containerRef, isDragging, onVisibilityChange, updateTooltip]);
+  // No need for separate event listeners - this will be controlled by VirtualBibleTable's scrollbar events
 
   if (!isVisible || !verseRef) return null;
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1 rounded-md shadow-lg text-sm font-medium transform -translate-y-1/2 whitespace-nowrap"
+      className="fixed z-[9999] pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-2 py-1 rounded shadow-lg text-xs font-medium transform -translate-y-1/2 whitespace-nowrap"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        fontSize: '12px',
-        fontWeight: '600',
+        fontSize: '11px',
+        fontWeight: '500',
+        fontFamily: 'Dancing Script, cursive',
         border: '1px solid rgba(255, 255, 255, 0.2)',
         backdropFilter: 'blur(4px)',
-        animation: 'fadeIn 0.1s ease-out'
+        animation: 'fadeIn 0.1s ease-out',
+        maxHeight: '24px',
+        lineHeight: '1.2'
       }}
     >
       {verseRef}
       {/* Small arrow pointing to scrollbar */}
       <div 
-        className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-100"
+        className="absolute right-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-r-gray-900 dark:border-r-gray-100"
         style={{ marginRight: '-1px' }}
       />
     </div>
