@@ -22,6 +22,7 @@ interface StrongsOverlayProps {
 interface WordOccurrence {
   reference: string;
   context: string;
+  morphology?: string;
 }
 
 export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProps) {
@@ -32,6 +33,8 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
   const [selectedOccurrences, setSelectedOccurrences] = useState<WordOccurrence[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [morphologyLoading, setMorphologyLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   
   // Get main translation from hooks
   const { mainTranslation, getMainVerseText } = useTranslationMaps();
@@ -82,68 +85,101 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
     setSelectedWord(word);
     setShowSearch(true);
     setSearchQuery('');
+    setMorphologyLoading(true);
+    setLoadingProgress(0);
 
     try {
-      console.log(`🔍 Loading occurrences for ${word.strongs} with morphology: ${word.morphology}`);
-      
-      // Get word occurrences from API
+      // Step 1: Get basic occurrences quickly and show them immediately
       const rawOccurrences = await BibleDataAPI.getStrongsOccurrences(word.strongs);
       
       if (!rawOccurrences || rawOccurrences.length === 0) {
         setSelectedOccurrences([]);
+        setMorphologyLoading(false);
         return;
       }
 
-      // Enhance occurrences with morphology data and sort by morphology match
-      const enhancedOccurrences = [];
-      const clickedMorphology = word.morphology || '';
+      // Step 2: Show basic results immediately (without morphology)
+      const basicOccurrences: WordOccurrence[] = rawOccurrences.map(occ => ({
+        reference: occ.reference,
+        context: occ.context
+      }));
       
-      // Process occurrences in batches to avoid overwhelming the API
-      const batchSize = 10;
+      setSelectedOccurrences(basicOccurrences);
+
+      // Step 3: Enhance with morphology data progressively
+      const clickedMorphology = word.morphology || '';
+      const enhancedOccurrences: WordOccurrence[] = [];
+      
+      // Smaller batch size for smoother progress updates
+      const batchSize = 5;
+      const totalBatches = Math.ceil(rawOccurrences.length / batchSize);
+      
       for (let i = 0; i < rawOccurrences.length; i += batchSize) {
         const batch = rawOccurrences.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (occurrence) => {
+        
+        const batchPromises = batch.map(async (occurrence, index) => {
           try {
-            // Get verse data to extract morphology for this specific Strong's number
+            // Add small delay between requests to avoid overwhelming
+            if (index > 0) {
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
             const verseData = await BibleDataAPI.getInterlinearData(occurrence.reference);
             
-            // Find the matching Strong's word in this verse
             const matchingWord = verseData?.find(cell => 
               cell.strongsKey === word.strongs && cell.original === occurrence.original
             );
             
             return {
-              ...occurrence,
+              reference: occurrence.reference,
+              context: occurrence.context,
               morphology: matchingWord?.morphology || ''
             };
           } catch (error) {
-            console.warn(`Failed to get morphology for ${occurrence.reference}:`, error);
-            return { ...occurrence, morphology: '' };
+            // Don't log individual failures - just return without morphology
+            return {
+              reference: occurrence.reference,
+              context: occurrence.context,
+              morphology: ''
+            };
           }
         });
         
-        const batchResults = await Promise.all(batchPromises);
-        enhancedOccurrences.push(...batchResults);
+        try {
+          const batchResults = await Promise.all(batchPromises);
+          enhancedOccurrences.push(...batchResults);
+          
+          // Update progress
+          const currentBatch = Math.floor(i / batchSize) + 1;
+          setLoadingProgress(Math.round((currentBatch / totalBatches) * 100));
+          
+          // Update results progressively - sort and display what we have so far
+          const sortedSoFar = enhancedOccurrences.sort((a, b) => {
+            const aExactMatch = a.morphology === clickedMorphology;
+            const bExactMatch = b.morphology === clickedMorphology;
+            
+            if (aExactMatch && !bExactMatch) return -1;
+            if (!aExactMatch && bExactMatch) return 1;
+            
+            return a.reference.localeCompare(b.reference);
+          });
+          
+          // Combine sorted enhanced results with remaining basic results
+          const remainingBasic = basicOccurrences.slice(enhancedOccurrences.length);
+          setSelectedOccurrences([...sortedSoFar, ...remainingBasic]);
+          
+        } catch (batchError) {
+          // If entire batch fails, continue with next batch
+          continue;
+        }
       }
       
-      // Sort by morphology match: exact matches first, then others
-      const sortedOccurrences = enhancedOccurrences.sort((a, b) => {
-        const aExactMatch = a.morphology === clickedMorphology;
-        const bExactMatch = b.morphology === clickedMorphology;
-        
-        if (aExactMatch && !bExactMatch) return -1;
-        if (!aExactMatch && bExactMatch) return 1;
-        
-        // For non-exact matches, sort alphabetically by reference
-        return a.reference.localeCompare(b.reference);
-      });
-      
-      console.log(`✅ Sorted ${sortedOccurrences.length} occurrences by morphology match`);
-      setSelectedOccurrences(sortedOccurrences);
+      setMorphologyLoading(false);
       
     } catch (error) {
       console.error('Error loading word occurrences:', error);
       setSelectedOccurrences([]);
+      setMorphologyLoading(false);
     }
   }, []);
 
@@ -153,6 +189,8 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
       setCurrentVerseIndex(newIndex);
       setShowSearch(false);
       setSelectedWord(null);
+      setMorphologyLoading(false);
+      setLoadingProgress(0);
     }
   }, [currentVerseIndex]);
 
@@ -162,6 +200,8 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
       setCurrentVerseIndex(newIndex);
       setShowSearch(false);
       setSelectedWord(null);
+      setMorphologyLoading(false);
+      setLoadingProgress(0);
     }
   }, [currentVerseIndex, allVerses.length]);
 
@@ -361,11 +401,19 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
 
                     {/* Search section */}
                     <div className="p-4 border-b flex-shrink-0 bg-gray-50 dark:bg-gray-800/50">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                          Found {selectedOccurrences.length} occurrences
-                        </span>
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            Found {selectedOccurrences.length} occurrences
+                          </span>
+                        </div>
+                        {morphologyLoading && (
+                          <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+                            <div className="animate-spin rounded-full h-3 w-3 border border-blue-500 border-t-transparent"></div>
+                            <span>Analyzing morphology... {loadingProgress}%</span>
+                          </div>
+                        )}
                       </div>
                       <Input
                         placeholder="Filter verses..."
@@ -386,17 +434,28 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       <div className="p-4 space-y-3">
                         {filteredOccurrences.length > 0 ? (
                           filteredOccurrences.map((occurrence, index) => {
-                            const isExactMorphologyMatch = occurrence.morphology === selectedWord.morphology;
+                            const isExactMorphologyMatch = occurrence.morphology === selectedWord.morphology && occurrence.morphology;
+                            const hasMorphology = Boolean(occurrence.morphology);
+                            
                             return (
                               <button
                                 key={`${occurrence.reference}-${index}`}
                                 onClick={() => goTo(occurrence.reference)}
-                                className={`w-full text-left p-4 rounded-lg border transition-all duration-200 group ${
+                                className={`w-full text-left p-4 rounded-lg border transition-all duration-200 group relative ${
                                   isExactMorphologyMatch
                                     ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:border-blue-500'
-                                    : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                    : hasMorphology
+                                    ? 'border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 bg-gray-50/50 dark:bg-gray-800/30'
                                 }`}
                               >
+                                {/* Show loading indicator for entries without morphology */}
+                                {!hasMorphology && morphologyLoading && (
+                                  <div className="absolute top-2 right-2">
+                                    <div className="animate-spin rounded-full h-3 w-3 border border-gray-400 border-t-transparent opacity-50"></div>
+                                  </div>
+                                )}
+                                
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-2">
                                     <Badge variant="outline" className="font-mono text-sm px-3 py-1">
@@ -426,9 +485,18 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                           <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
                             No occurrences match "{searchQuery}"
                           </p>
+                        ) : selectedOccurrences.length === 0 ? (
+                          <div className="text-center py-8">
+                            <div className="flex justify-center mb-3">
+                              <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-500 border-t-transparent"></div>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                              Loading occurrences...
+                            </p>
+                          </div>
                         ) : (
                           <p className="text-sm text-gray-500 dark:text-gray-400 italic text-center py-8">
-                            Loading occurrences...
+                            No occurrences found
                           </p>
                         )}
                       </div>
