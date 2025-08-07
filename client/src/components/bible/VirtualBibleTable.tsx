@@ -627,7 +627,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         isGuest={true}
       />
 
-      {/* Unified scroll container with momentary axis commitment */}
+      {/* Unified scroll container with subtle header overlap for blur effect */}
       <div 
         ref={(node) => {
           (wrapperRef as any).current = node;
@@ -638,7 +638,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         className="unified-scroll-container scroll-area"
         style={{ 
           position: 'relative',
-          height: "calc(100vh - 85px)",
+          height: "calc(100vh - 65px)", // Slightly taller to allow content above header
+          marginTop: '-20px', // Allow content to peek above header
+          paddingTop: '20px', // Compensate with padding to maintain scroll position
           overflowX: 'hidden', // Disable horizontal scrolling - navigation arrows control column visibility
           overflowY: 'auto', // Allow vertical scrolling only
           overscrollBehavior: 'contain',
