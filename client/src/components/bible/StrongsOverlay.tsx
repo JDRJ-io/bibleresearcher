@@ -366,7 +366,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                     animate={{ y: 0 }}
                     exit={{ y: "100%" }}
                     transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                    className="absolute inset-x-0 bottom-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-2xl border-t flex flex-col max-h-[70vh] z-10"
+                    className="absolute inset-x-0 bottom-0 bg-white dark:bg-gray-900 rounded-t-xl shadow-2xl border-t flex flex-col max-h-[85vh] z-10"
                     style={{ touchAction: 'pan-y' }}
                   >
                     {/* Handle bar */}
@@ -374,11 +374,14 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                     </div>
 
-                    {/* Header */}
-                    <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge className="font-mono">{selectedWord.strongs}</Badge>
-                        <span className="font-semibold text-lg">{selectedWord.original}</span>
+                    {/* Compact Header */}
+                    <div className="p-3 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 flex-shrink-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="font-mono text-xs">{selectedWord.strongs}</Badge>
+                        <span className="font-semibold">{selectedWord.original}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400 italic">
+                          {selectedWord.transliteration}
+                        </span>
                         <Button 
                           variant="ghost" 
                           size="sm" 
@@ -388,47 +391,34 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-2">
-                        {selectedWord.transliteration}
-                      </p>
-                      {/* Full Morphology - Grammatical Analysis */}
-                      {selectedWord.morphology && (
-                        <div className="mb-2">
-                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Morphology:</div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
-                            {selectedWord.morphology}
-                          </p>
-                        </div>
-                      )}
-                      {/* Short Definition */}
-                      <div className="mb-2">
-                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Gloss:</div>
-                        <p className="text-sm">{selectedWord.definition}</p>
+                      {/* Compact definition on single line */}
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                        <span className="font-medium">{selectedWord.definition}</span>
+                        {selectedWord.morphology && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({selectedWord.morphology})</span>
+                        )}
                       </div>
-                      {/* Full Strong's Definition */}
-                      {selectedWord.fullDefinition && selectedWord.fullDefinition !== selectedWord.definition && (
-                        <div>
-                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Complete Definition:</div>
-                          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
-                            {selectedWord.fullDefinition}
-                          </p>
+                      {/* Show full definition only if significantly different */}
+                      {selectedWord.fullDefinition && selectedWord.fullDefinition !== selectedWord.definition && selectedWord.fullDefinition.length > selectedWord.definition.length + 10 && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                          {selectedWord.fullDefinition}
                         </div>
                       )}
                     </div>
 
-                    {/* Search section */}
-                    <div className="p-4 border-b flex-shrink-0 bg-gray-50 dark:bg-gray-800/50">
-                      <div className="flex items-center justify-between gap-2 mb-3">
+                    {/* Compact Search section */}
+                    <div className="p-3 border-b flex-shrink-0 bg-gray-50 dark:bg-gray-800/50">
+                      <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                           <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                            Found {selectedOccurrences.length} occurrences
+                            {selectedOccurrences.length} occurrences
                           </span>
                         </div>
                         {morphologyLoading && (
                           <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
                             <div className="animate-spin rounded-full h-3 w-3 border border-blue-500 border-t-transparent"></div>
-                            <span>Analyzing morphology... {loadingProgress}%</span>
+                            <span>{loadingProgress}%</span>
                           </div>
                         )}
                       </div>
@@ -436,7 +426,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                         placeholder="Filter verses..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="text-sm h-10"
+                        className="text-sm h-8"
                       />
                     </div>
 
@@ -448,7 +438,7 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                         scrollBehavior: 'smooth'
                       }}
                     >
-                      <div className="p-4 space-y-3">
+                      <div className="p-3 space-y-2">
                         {filteredOccurrences.length > 0 ? (
                           filteredOccurrences.map((occurrence, index) => {
                             const isExactMorphologyMatch = occurrence.morphology === selectedWord.morphology && occurrence.morphology;
