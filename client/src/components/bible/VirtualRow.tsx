@@ -801,25 +801,56 @@ export function VirtualRow({
         const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
         const verseLabels = shouldUseLabeledText && getVerseLabels ? getVerseLabels(verse.reference) : {};
 
+        // Copy/bookmark/share handlers for alternate translations
+        const handleAltCopy = () => {
+          const text = `${verse.reference} (${config.translationCode}) - ${verseText}`;
+          navigator.clipboard.writeText(text);
+        };
+
+        const handleAltBookmark = () => {
+          console.log('Bookmark verse:', verse.reference, 'from', config.translationCode);
+        };
+
+        const handleAltShare = () => {
+          const text = `${verse.reference} (${config.translationCode}) - ${verseText}`;
+          if (navigator.share) {
+            navigator.share({
+              title: `${verse.reference} (${config.translationCode})`,
+              text: text,
+            });
+          } else {
+            handleAltCopy();
+          }
+        };
+
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
-            <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
-              {verseText ? (
-                shouldUseLabeledText ? (
-                  <LabeledText
-                    text={verseText}
-                    labelData={verseLabels}
-                    activeLabels={activeLabels}
-                    verseKey={`${verse.reference}-${config.translationCode}`}
-                    translationCode={config.translationCode}
-                  />
+            <HoverVerseBar
+              verse={verse}
+              translation={config.translationCode}
+              onCopy={handleAltCopy}
+              onBookmark={handleAltBookmark}
+              onShare={handleAltShare}
+              wrapperClassName="h-full max-h-full"
+            >
+              <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
+                {verseText ? (
+                  shouldUseLabeledText ? (
+                    <LabeledText
+                      text={verseText}
+                      labelData={verseLabels}
+                      activeLabels={activeLabels}
+                      verseKey={`${verse.reference}-${config.translationCode}`}
+                      translationCode={config.translationCode}
+                    />
+                  ) : (
+                    verseText
+                  )
                 ) : (
-                  verseText
-                )
-              ) : (
-                `[${config.translationCode} loading...]`
-              )}
-            </div>
+                  `[${config.translationCode} loading...]`
+                )}
+              </div>
+            </HoverVerseBar>
           </div>
         );
 
