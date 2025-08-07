@@ -466,37 +466,35 @@ function MainTranslationCell({
       onBookmark={handleBookmark}
       onShare={handleShare}
     >
-      <div className={`px-2 py-1 text-sm flex-shrink-0 overflow-hidden ${contextClasses}`}>
-        <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
-          <div className="whitespace-pre-wrap break-words leading-relaxed">
-            {shouldUseLabeledText ? (
-              <span
-                data-verse-ref={verse.reference}
-                data-translation={mainTranslation}
-                className="verse-text"
-              >
-                <LabeledText
-                  text={verseText}
-                  labelData={verseLabels}
-                  activeLabels={activeLabels}
-                  verseKey={verse.reference}
-                  translationCode={mainTranslation}
-                />
-              </span>
-            ) : (
-              <span
-                data-verse-ref={verse.reference}
-                data-translation={mainTranslation}
-                className="verse-text"
-              >
-                <VerseText
-                  verseRef={verse.reference}
-                  translation={mainTranslation}
-                  text={verseText}
-                />
-              </span>
-            )}
-          </div>
+      <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto ${contextClasses}`}>
+        <div className="whitespace-pre-wrap break-words leading-relaxed">
+          {shouldUseLabeledText ? (
+            <span
+              data-verse-ref={verse.reference}
+              data-translation={mainTranslation}
+              className="verse-text"
+            >
+              <LabeledText
+                text={verseText}
+                labelData={verseLabels}
+                activeLabels={activeLabels}
+                verseKey={verse.reference}
+                translationCode={mainTranslation}
+              />
+            </span>
+          ) : (
+            <span
+              data-verse-ref={verse.reference}
+              data-translation={mainTranslation}
+              className="verse-text"
+            >
+              <VerseText
+                verseRef={verse.reference}
+                translation={mainTranslation}
+                text={verseText}
+              />
+            </span>
+          )}
         </div>
       </div>
     </HoverVerseBar>
