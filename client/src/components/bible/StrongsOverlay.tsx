@@ -209,7 +209,9 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                               strongs: cell.strongsKey,
                               transliteration: cell.transliteration,
                               definition: cell.gloss || 'No definition available',
-                              instances: []
+                              instances: [],
+                              morphology: cell.morphology, // Full grammatical analysis
+                              fullDefinition: cell.fullDefinition // Complete Strong's definition
                             };
                             await handleWordClick(word);
                           }}
@@ -224,6 +226,12 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                             <Badge variant="outline" className="text-xs font-mono mb-2">
                               {cell.strongsKey}
                             </Badge>
+                            {/* Morphology - Full grammatical analysis */}
+                            {cell.morphology && (
+                              <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">
+                                {cell.morphology}
+                              </div>
+                            )}
                             <div className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2">
                               {cell.gloss || 'No definition'}
                             </div>
@@ -272,7 +280,29 @@ export function StrongsOverlay({ verse, onClose, allVerses }: StrongsOverlayProp
                       <p className="text-sm text-gray-600 dark:text-gray-400 italic mb-2">
                         {selectedWord.transliteration}
                       </p>
-                      <p className="text-sm leading-relaxed">{selectedWord.definition}</p>
+                      {/* Full Morphology - Grammatical Analysis */}
+                      {selectedWord.morphology && (
+                        <div className="mb-3">
+                          <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Morphology:</div>
+                          <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                            {selectedWord.morphology}
+                          </p>
+                        </div>
+                      )}
+                      {/* Short Definition */}
+                      <div className="mb-2">
+                        <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Gloss:</div>
+                        <p className="text-sm">{selectedWord.definition}</p>
+                      </div>
+                      {/* Full Strong's Definition */}
+                      {selectedWord.fullDefinition && selectedWord.fullDefinition !== selectedWord.definition && (
+                        <div>
+                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Complete Definition:</div>
+                          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                            {selectedWord.fullDefinition}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Search section */}

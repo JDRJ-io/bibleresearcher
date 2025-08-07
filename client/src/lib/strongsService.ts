@@ -8,7 +8,8 @@ export interface StrongsWord {
   transliteration: string;
   definition: string;
   instances: string[];
-  morphology?: string;
+  morphology?: string; // Full grammatical analysis (e.g., "Preposition-b | Noun - feminine singular")
+  fullDefinition?: string; // Complete Strong's definition (e.g., "The first, in place, time, order, rank")
 }
 
 export interface StrongsVerseData {
@@ -110,7 +111,8 @@ class StrongsService {
         transliteration: cell.transliteration,
         definition: cell.gloss,
         instances: [], // Will be populated when needed
-        morphology: cell.morphology
+        morphology: cell.morphology, // Full grammatical analysis
+        fullDefinition: cell.fullDefinition // Complete Strong's definition
       }));
 
       const result: StrongsVerseData = {

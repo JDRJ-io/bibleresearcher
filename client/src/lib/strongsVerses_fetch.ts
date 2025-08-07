@@ -95,7 +95,8 @@ export interface InterlinearCell {
   gloss: string;
   strongsNumber: string;
   strongsKey: string; // G#### or H####
-  morphology?: string;
+  morphology?: string; // Full grammatical analysis (e.g., "Preposition-b | Noun - feminine singular")
+  fullDefinition?: string; // Complete Strong's definition (e.g., "The first, in place, time, order, rank")
 }
 
 export function parseInterlinearVerse(raw: string): {
@@ -162,7 +163,8 @@ export function parseInterlinearVerse(raw: string): {
       }
 
       // Extract morphology (text between transliteration and Strong's)
-      const morphologyMatch = beforeStrongs.match(/\)\s+([^Strong's]+?)(?=\s*$)/);
+      // Pattern: ") Preposition-b | Noun - feminine singular Strong's"
+      const morphologyMatch = beforeStrongs.match(/\)\s+(.+?)(?=\s+Strong's)/);
       if (morphologyMatch) {
         morphology = morphologyMatch[1].trim();
       }
@@ -173,7 +175,8 @@ export function parseInterlinearVerse(raw: string): {
         gloss: englishWord || definition.split(',')[0] || '', // Use English word or first part of definition
         strongsNumber,
         strongsKey,
-        morphology: morphology
+        morphology: morphology, // Full grammatical analysis: "Preposition-b | Noun - feminine singular"
+        fullDefinition: definition // Complete Strong's definition: "The first, in place, time, order, rank"
       });
     }
 

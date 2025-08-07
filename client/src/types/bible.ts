@@ -28,6 +28,8 @@ export interface StrongsWord {
   transliteration: string;
   definition: string;
   instances: string[];
+  morphology?: string; // Full grammatical analysis (e.g., "Preposition-b | Noun - feminine singular")
+  fullDefinition?: string; // Complete Strong's definition (e.g., "The first, in place, time, order, rank")
 }
 
 export interface ProphecyData {
