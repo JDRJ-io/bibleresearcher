@@ -17,6 +17,7 @@ import AuthHelp from "@/pages/auth/help";
 import Profile from "@/pages/Profile";
 import DevTools from "@/pages/DevTools";
 import NotFound from "@/pages/not-found";
+import Subscribe from "@/pages/Subscribe";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
 import '@/lib/preloader';
@@ -749,6 +750,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/dev" component={DevTools} />
       <Route path="/loader-demo" component={LoaderDemo} />
+      <Route path="/subscribe" component={Subscribe} />
 
       <Route component={NotFound} />
     </Switch>

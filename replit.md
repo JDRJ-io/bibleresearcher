@@ -85,6 +85,20 @@ A sophisticated web application for biblical research, providing an Excel-like i
   - **Profile Security Section**: Recovery passkey management in Settings with add/remove/update functionality
   - **Supabase Edge Function**: recover-with-passkey serverless function for secure passkey verification and magic link generation
   - **Database Schema Updates**: Added recovery_passkey_hash and marketing_opt_in fields to profiles table
+- **Mystical & Divine UI Effects (Aug 2025)**:
+  - **Prophecy-Based Verse Animations**: Dynamic border effects based on prophecy status
+    - Yellow glow for prediction prophecies (top, right, bottom borders)
+    - Red glow for fulfillment prophecies (top, right, bottom borders)  
+    - Blue glow for verification prophecies (main translation cell content)
+  - **Subtle Mystical Effects**: Purple glowing borders on verses when prophecy columns are not toggled
+  - **Holy Button Animations**: Divine shimmer and glow effects on button interactions
+  - **Enhanced Authentication Modals**: Already featured divine-themed sign-in/sign-up with golden gradients and sparkle effects
+- **Community Membership System (Aug 2025)**:
+  - **Stripe Payment Integration**: Ready for community subscription setup ($12/month)
+  - **Community Membership Modal**: Divine-themed upgrade interface with benefits showcase
+  - **Subscribe Page**: Complete payment flow with mystical backgrounds and effects
+  - **Voice in Vision**: Framework for community members to influence Bible connection project direction
+  - **Forum Integration Ready**: Structure prepared for enhanced community forum participation
 
 ### Frontend
 - **Framework**: React 18 with TypeScript.
