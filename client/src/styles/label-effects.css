@@ -1,9 +1,8 @@
 /* Label Effects CSS - Semantic highlighting visual styles */
 
-/* who → consistent handwritten font across all devices */
+/* who → elegant cursive font (mobile-style) */
 .fx-hand {
-  font-family: 'Crimson Text', 'Apple Chancery', 'Brush Script MT', 'Lucida Handwriting', cursive;
-  font-style: italic;
+  font-family: 'Dancing Script', 'Brush Script MT', 'Lucida Calligraphy', 'Lucida Handwriting', 'Apple Chancery', cursive;
   color: currentColor;
 }
 
