@@ -167,9 +167,12 @@ export function parseInterlinearVerse(raw: string): {
       const morphologyMatch = beforeStrongs.match(/\)\s+(.+?)(?=\s+Strong's)/);
       if (morphologyMatch) {
         morphology = morphologyMatch[1].trim();
+        console.log(`🏷️ MORPHOLOGY CAPTURED for ${strongsKey}:`, morphology);
+      } else {
+        console.log(`❌ MORPHOLOGY FAILED for ${strongsKey}, beforeStrongs:`, beforeStrongs);
       }
 
-      cells.push({
+      const cellData = {
         original: originalWord,
         transliteration: transliteration,
         gloss: englishWord || definition.split(',')[0] || '', // Use English word or first part of definition
@@ -177,7 +180,10 @@ export function parseInterlinearVerse(raw: string): {
         strongsKey,
         morphology: morphology, // Full grammatical analysis: "Preposition-b | Noun - feminine singular"
         fullDefinition: definition // Complete Strong's definition: "The first, in place, time, order, rank"
-      });
+      };
+
+      console.log(`📊 CELL DATA for ${strongsKey}:`, cellData);
+      cells.push(cellData);
     }
 
     return { reference: reference || '', cells };
