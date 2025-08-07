@@ -162,9 +162,9 @@ export function parseInterlinearVerse(raw: string): {
         englishWord = englishMatch[1].trim();
       }
 
-      // Extract morphology (text between transliteration and Strong's)
-      // Pattern: ") Preposition-b | Noun - feminine singular Strong's"
-      const morphologyMatch = beforeStrongs.match(/\)\s+(.+?)(?=\s+Strong's)/);
+      // Extract morphology (text after transliteration closing parenthesis)
+      // Pattern: ") Preposition-b | Noun - feminine singular" (everything after the closing parenthesis)
+      const morphologyMatch = beforeStrongs.match(/\)\s+(.+)$/);
       if (morphologyMatch) {
         morphology = morphologyMatch[1].trim();
         console.log(`🏷️ MORPHOLOGY CAPTURED for ${strongsKey}:`, morphology);

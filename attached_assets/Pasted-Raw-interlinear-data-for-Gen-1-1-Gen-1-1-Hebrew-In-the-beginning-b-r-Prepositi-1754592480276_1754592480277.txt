@@ -1,0 +1,15 @@
+Raw interlinear data for Gen.1:1: Gen.1:1#Hebrew In the beginning בְּרֵאשִׁ֖ית (bə·rê·šîṯ) Preposition-b | Noun - feminine singular Strong's 7225: The first, in place, time, order, rank$God אֱלֹהִ֑ים (’ĕ·lō·hîm) Noun - masculine plura...
+Console.js:61 ❌ MORPHOLOGY FAILED for H7225, beforeStrongs: In the beginning בְּרֵאשִׁ֖ית (bə·rê·šîṯ) Preposition-b | Noun - feminine singular
+Console.js:61 📊 CELL DATA for H7225: {original: 'בְּרֵאשִׁ֖ית', transliteration: 'bə·rê·šîṯ', gloss: 'In the beginning', strongsNumber: '7225', strongsKey: 'H7225', …}
+Console.js:61 ❌ MORPHOLOGY FAILED for H430, beforeStrongs: God אֱלֹהִ֑ים (’ĕ·lō·hîm) Noun - masculine plural
+Console.js:61 📊 CELL DATA for H430: {original: 'אֱלֹהִ֑ים', transliteration: '’ĕ·lō·hîm', gloss: 'God', strongsNumber: '430', strongsKey: 'H430', …}
+Console.js:61 ❌ MORPHOLOGY FAILED for H1254, beforeStrongs: created בָּרָ֣א (bā·rā) Verb - Qal - Perfect - third person masculine singular
+Console.js:61 📊 CELL DATA for H1254: {original: 'בָּרָ֣א', transliteration: 'bā·rā', gloss: 'created', strongsNumber: '1254', strongsKey: 'H1254', …}
+Console.js:61 ❌ MORPHOLOGY FAILED for H8064, beforeStrongs: the heavens הַשָּׁמַ֖יִם (haš·šā·ma·yim) Article | Noun - masculine plural
+Console.js:61 📊 CELL DATA for H8064: {original: 'הַשָּׁמַ֖יִם', transliteration: 'haš·šā·ma·yim', gloss: 'the heavens', strongsNumber: '8064', strongsKey: 'H8064', …}
+Console.js:61 ❌ MORPHOLOGY FAILED for H853, beforeStrongs: and וְאֵ֥ת (wə·’êṯ) Conjunctive waw | Direct object marker
+Console.js:61 📊 CELL DATA for H853: {original: 'וְאֵ֥ת', transliteration: 'wə·’êṯ', gloss: 'and', strongsNumber: '853', strongsKey: 'H853', …}
+Console.js:61 ❌ MORPHOLOGY FAILED for H776, beforeStrongs: the earth. הָאָֽרֶץ׃ (hā·’ā·reṣ) Article | Noun - feminine singular
+Console.js:61 📊 CELL DATA for H776: {original: 'הָאָֽרֶץ׃', transliteration: 'hā·’ā·reṣ', gloss: 'Earth', strongsNumber: '776', strongsKey: 'H776', …}
+Console.js:61 📋 Parsed 6 interlinear cells for Gen.1:1
+Console.js:61 ✅ Cached Strong's data for Gen.1:1: 6 words
