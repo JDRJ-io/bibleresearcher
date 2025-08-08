@@ -468,7 +468,7 @@ body {
 /* Specific font applications for themed content */
 .verse-text {
   font-family: inherit;
-  /* line-height removed - inherits from parent .cell-content for consistency */
+  line-height: 1.6;
 }
 
 /* Verse text styling for remaining themes only */
