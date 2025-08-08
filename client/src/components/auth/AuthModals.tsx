@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +22,25 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   const [signInEmail, setSignInEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+
+  // Prevent body scrolling when modal is open
+  useEffect(() => {
+    if (isSignInOpen || isSignUpOpen) {
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+    } else {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+  }, [isSignInOpen, isSignUpOpen])
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -259,10 +278,21 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* MASSIVE Divine Sign In Modal - Mobile Responsive Glory */}
       <Dialog open={isSignInOpen} onOpenChange={onCloseSignIn}>
-        <DialogContent className="fixed inset-0 max-w-none w-screen h-screen m-0 p-0 border-0 rounded-none
+        <DialogContent className="fixed inset-0 max-w-none border-0 rounded-none
                                 bg-gradient-to-br from-black via-blue-900/95 to-purple-900/95 
                                 shadow-none overflow-y-auto flex items-center justify-center"
-          style={{ zIndex: 9999 }}
+          style={{ 
+            zIndex: 9999, 
+            width: '100vw', 
+            height: '100vh',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            margin: 0,
+            padding: 0
+          }}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={onCloseSignIn}
         >
           {/* MASSIVE Divine Background Effects - FULL SCREEN GLORY */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-purple-400/15 to-blue-400/20" />
@@ -291,6 +321,17 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
             <div className="absolute bottom-20 right-1/4 w-1 h-1 bg-blue-300 rounded-full animate-pulse delay-800" />
           </div>
           
+          {/* Mobile Close Button - Top Right */}
+          <button
+            onClick={onCloseSignIn}
+            className="fixed top-4 right-4 z-50 p-3 rounded-full bg-black/50 border border-white/20 text-white hover:bg-black/70 transition-colors"
+            aria-label="Close modal"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
           {/* MASSIVE CENTERED DIVINE INTERFACE - Mobile Responsive */}
           <div className="relative z-10 w-full max-w-sm md:max-w-4xl mx-auto p-6 md:p-12">
             <DialogHeader className="text-center space-y-4 md:space-y-8">
