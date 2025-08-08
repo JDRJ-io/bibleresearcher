@@ -131,7 +131,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   // Sign Up Modal - Divine Glory (Intro Overlay Style)
   if (isSignUpOpen) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center 
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center 
                       bg-gradient-to-br from-black/80 via-purple-900/50 to-black/80
                       backdrop-blur-sm overflow-hidden"
            onClick={onCloseSignUp}>
@@ -286,7 +286,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
     console.log('Sign In modal should be visible now!');
     
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center 
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center 
                       bg-gradient-to-br from-black/80 via-blue-900/50 to-purple-900/50
                       backdrop-blur-sm overflow-hidden"
            onClick={onCloseSignIn}>
