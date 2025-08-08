@@ -257,22 +257,22 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
         </DialogContent>
       </Dialog>
 
-      {/* MASSIVE Divine Sign In Modal - Full Screen Glory */}
+      {/* MASSIVE Divine Sign In Modal - Mobile Responsive Glory */}
       <Dialog open={isSignInOpen} onOpenChange={onCloseSignIn}>
         <DialogContent className="fixed inset-0 max-w-none w-screen h-screen m-0 p-0 border-0 rounded-none
                                 bg-gradient-to-br from-black via-blue-900/95 to-purple-900/95 
-                                shadow-none overflow-hidden flex items-center justify-center"
+                                shadow-none overflow-y-auto flex items-center justify-center"
           style={{ zIndex: 9999 }}
         >
           {/* MASSIVE Divine Background Effects - FULL SCREEN GLORY */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-purple-400/15 to-blue-400/20" />
           
-          {/* Giant Floating Orbs of Divine Light */}
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-400/30 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/20 rounded-full blur-2xl animate-pulse delay-500" />
-          <div className="absolute top-10 left-10 w-48 h-48 bg-blue-300/25 rounded-full blur-3xl animate-pulse delay-700" />
-          <div className="absolute bottom-10 right-10 w-52 h-52 bg-purple-300/25 rounded-full blur-3xl animate-pulse delay-300" />
+          {/* Mobile-Responsive Floating Orbs of Divine Light */}
+          <div className="absolute top-1/4 left-1/4 w-48 h-48 md:w-96 md:h-96 bg-blue-400/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 md:w-80 md:h-80 bg-purple-400/30 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 md:w-64 md:h-64 bg-white/20 rounded-full blur-2xl animate-pulse delay-500" />
+          <div className="absolute top-10 left-10 w-24 h-24 md:w-48 md:h-48 bg-blue-300/25 rounded-full blur-3xl animate-pulse delay-700" />
+          <div className="absolute bottom-10 right-10 w-28 h-28 md:w-52 md:h-52 bg-purple-300/25 rounded-full blur-3xl animate-pulse delay-300" />
           
           {/* Massive Holy Light Rays Across Screen */}
           <div className="absolute inset-0 overflow-hidden">
@@ -291,38 +291,38 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
             <div className="absolute bottom-20 right-1/4 w-1 h-1 bg-blue-300 rounded-full animate-pulse delay-800" />
           </div>
           
-          {/* MASSIVE CENTERED DIVINE INTERFACE */}
-          <div className="relative z-10 w-full max-w-4xl mx-auto p-12">
-            <DialogHeader className="text-center space-y-8">
-              {/* GIANT Divine Key Icon */}
-              <div className="mx-auto p-8 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30 border-2 border-blue-400/50 w-fit shadow-2xl shadow-blue-400/30">
-                <div className="w-24 h-24 text-blue-400">
+          {/* MASSIVE CENTERED DIVINE INTERFACE - Mobile Responsive */}
+          <div className="relative z-10 w-full max-w-sm md:max-w-4xl mx-auto p-6 md:p-12">
+            <DialogHeader className="text-center space-y-4 md:space-y-8">
+              {/* Mobile-Responsive Divine Key Icon */}
+              <div className="mx-auto p-4 md:p-8 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30 border-2 border-blue-400/50 w-fit shadow-2xl shadow-blue-400/30">
+                <div className="w-12 h-12 md:w-24 md:h-24 text-blue-400">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full drop-shadow-lg">
                     <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.4 7 14.8 8.6 14.8 10.2V11.7C15.4 12 16 12.4 16 13V16C16 16.6 15.6 17 15 17H9C8.4 17 8 16.6 8 16V13C8 12.4 8.4 12 9 12H9.2V10.2C9.2 8.6 10.6 7 12 7M12 8.2C11.2 8.2 10.4 8.7 10.4 10.2V11.7H13.6V10.2C13.6 8.7 12.8 8.2 12 8.2Z"/>
                   </svg>
                 </div>
               </div>
               
-              <DialogTitle className="text-6xl font-bold bg-gradient-to-r from-blue-400 via-white to-purple-400 bg-clip-text text-transparent leading-tight">
+              <DialogTitle className="text-3xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-white to-purple-400 bg-clip-text text-transparent leading-tight">
                 Return to the Sacred Library
               </DialogTitle>
-              <DialogDescription className="text-white/90 text-2xl leading-relaxed max-w-2xl mx-auto">
+              <DialogDescription className="text-white/90 text-lg md:text-2xl leading-relaxed max-w-2xl mx-auto">
                 Welcome back, faithful seeker. Let us unlock the gates to your divine studies once more
               </DialogDescription>
               
-              {/* MASSIVE Call to Action Placeholder */}
-              <div className="mt-12 p-12 rounded-2xl bg-gradient-to-r from-blue-400/20 to-purple-400/20 border-2 border-blue-400/40 shadow-2xl shadow-blue-400/20">
-                <h3 className="text-3xl font-bold text-blue-400 mb-6">
+              {/* Mobile-Responsive Call to Action Placeholder */}
+              <div className="mt-6 md:mt-12 p-6 md:p-12 rounded-2xl bg-gradient-to-r from-blue-400/20 to-purple-400/20 border-2 border-blue-400/40 shadow-2xl shadow-blue-400/20">
+                <h3 className="text-xl md:text-3xl font-bold text-blue-400 mb-3 md:mb-6">
                   [DIVINE WELCOME BACK MESSAGE PLACEHOLDER]
                 </h3>
-                <p className="text-white/80 text-xl leading-relaxed">
+                <p className="text-white/80 text-base md:text-xl leading-relaxed">
                   Special returning user message, progress update, or divine blessing will be placed here with much more space and divine prominence
                 </p>
               </div>
             </DialogHeader>
-            <form onSubmit={handleSignIn} className="space-y-10 mt-16">
-              <div className="space-y-6">
-                <Label htmlFor="signInEmail" className="text-white/95 font-bold text-2xl block text-center">
+            <form onSubmit={handleSignIn} className="space-y-6 md:space-y-10 mt-8 md:mt-16">
+              <div className="space-y-3 md:space-y-6">
+                <Label htmlFor="signInEmail" className="text-white/95 font-bold text-lg md:text-2xl block text-center">
                   Sacred Correspondence Address
                 </Label>
                 <Input
@@ -332,14 +332,14 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   value={signInEmail}
                   onChange={(e) => setSignInEmail(e.target.value)}
                   className="border-2 border-blue-400/60 focus:border-blue-400 bg-black/30 backdrop-blur-sm text-white placeholder:text-white/60 
-                           h-16 text-xl rounded-xl shadow-2xl shadow-blue-400/30 focus:shadow-blue-400/50 transition-all duration-300
-                           focus:ring-4 focus:ring-blue-400/20 px-6"
+                           h-12 md:h-16 text-base md:text-xl rounded-xl shadow-2xl shadow-blue-400/30 focus:shadow-blue-400/50 transition-all duration-300
+                           focus:ring-4 focus:ring-blue-400/20 px-4 md:px-6"
                   disabled={isLoading}
                 />
               </div>
               <Button 
                 type="submit" 
-                className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 
+                className="w-full h-14 md:h-20 text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 
                          hover:from-blue-500 hover:via-purple-400 hover:to-purple-600 text-black 
                          shadow-2xl shadow-blue-400/40 hover:shadow-blue-400/60 
                          transform hover:scale-105 transition-all duration-300 rounded-xl
@@ -349,12 +349,12 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-8 w-8 border-4 border-black border-t-transparent mr-4"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 md:h-8 md:w-8 border-2 md:border-4 border-black border-t-transparent mr-2 md:mr-4"></div>
                     Summoning Divine Access...
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-4 h-8 w-8" />
+                    <Mail className="mr-2 md:mr-4 h-5 w-5 md:h-8 md:w-8" />
                     Send Sacred Magic Link ✨
                   </>
                 )}
