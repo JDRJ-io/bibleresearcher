@@ -1,0 +1,46 @@
+/**
+ * Deep Blue Theme - Based on prototype design
+ * Rich navy blue background with bright yellow cross-references
+ */
+
+:root.deep-blue {
+  /* Background colors - deep navy blue */
+  --bg-primary: hsl(230, 45%, 15%);
+  --bg-secondary: hsl(230, 50%, 12%);
+  --bg-tertiary: hsl(230, 55%, 10%);
+
+  /* Text colors - bright white and light gray */
+  --text-primary: hsl(0, 0%, 95%);
+  --text-secondary: hsl(0, 0%, 85%);
+  --text-muted: hsl(0, 0%, 70%);
+
+  /* Border colors - subtle blue */
+  --border-color: hsl(230, 30%, 25%);
+  --border-subtle: hsl(230, 25%, 20%);
+
+  /* Accent colors - bright yellow for cross-refs */
+  --accent-color: hsl(52, 95%, 65%);
+  --accent-hover: hsl(52, 100%, 70%);
+  --accent-light: hsl(52, 90%, 75%);
+
+  /* Interactive elements */
+  --button-bg: hsl(230, 40%, 20%);
+  --button-hover: hsl(230, 45%, 25%);
+  --button-text: hsl(0, 0%, 95%);
+
+  /* Cross-reference styling - bright yellow */
+  --crossref-bg: hsl(230, 50%, 12%);
+  --crossref-border: hsl(52, 80%, 55%);
+  --crossref-text: hsl(52, 95%, 70%);
+
+  /* Notes and highlights */
+  --notes-bg: hsl(230, 45%, 18%);
+  --highlight-yellow: hsla(52, 95%, 65%, 0.4);
+  --highlight-blue: hsla(210, 80%, 70%, 0.4);
+  --highlight-green: hsla(120, 60%, 70%, 0.4);
+  --highlight-pink: hsla(320, 70%, 75%, 0.4);
+
+  /* Special navigation circles */
+  --nav-circle-bg: hsl(230, 60%, 25%);
+  --nav-circle-border: hsl(230, 50%, 35%);
+}

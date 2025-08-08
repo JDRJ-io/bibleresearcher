@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { themeManager, OptimizedTheme } from '@/utils/themeOptimizer';
 
-type ThemeId = 'light' | 'dark' | 'sepia' | 'voodoo-blue';
+type ThemeId = 'light' | 'dark' | 'deep-blue' | 'royal-purple' | 'warm-cream';
 
 type ThemeProviderProps = {
   children: React.ReactNode;

@@ -2,8 +2,9 @@
 @import './styles/themes-optimized.css';
 
 /* Import new theme variants */
-@import './styles/theme-sepia.css';
-@import './styles/theme-voodoo-blue.css';
+@import './styles/theme-deep-blue.css';
+@import './styles/theme-royal-purple.css';
+@import './styles/theme-warm-cream.css';
 
 /* Import glass morphism effects */
 @import './styles/glass-morphism.css';

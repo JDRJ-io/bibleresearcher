@@ -1,0 +1,46 @@
+/**
+ * Warm Cream Theme - Based on prototype design
+ * Light cream background with red/pink cross-reference accents
+ */
+
+:root.warm-cream {
+  /* Background colors - warm cream/beige */
+  --bg-primary: hsl(45, 30%, 92%);
+  --bg-secondary: hsl(42, 25%, 88%);
+  --bg-tertiary: hsl(40, 20%, 84%);
+
+  /* Text colors - dark brown */
+  --text-primary: hsl(25, 30%, 25%);
+  --text-secondary: hsl(30, 25%, 35%);
+  --text-muted: hsl(35, 20%, 45%);
+
+  /* Border colors - light brown */
+  --border-color: hsl(40, 20%, 75%);
+  --border-subtle: hsl(42, 15%, 80%);
+
+  /* Accent colors - red/pink for cross-refs */
+  --accent-color: hsl(350, 75%, 55%);
+  --accent-hover: hsl(350, 80%, 60%);
+  --accent-light: hsl(350, 70%, 75%);
+
+  /* Interactive elements */
+  --button-bg: hsl(42, 25%, 85%);
+  --button-hover: hsl(40, 30%, 80%);
+  --button-text: hsl(25, 30%, 25%);
+
+  /* Cross-reference styling - red/pink */
+  --crossref-bg: hsl(42, 25%, 88%);
+  --crossref-border: hsl(350, 60%, 65%);
+  --crossref-text: hsl(350, 75%, 45%);
+
+  /* Notes and highlights */
+  --notes-bg: hsl(45, 25%, 90%);
+  --highlight-yellow: hsla(45, 80%, 70%, 0.6);
+  --highlight-blue: hsla(200, 60%, 70%, 0.6);
+  --highlight-green: hsla(120, 50%, 65%, 0.6);
+  --highlight-pink: hsla(350, 75%, 75%, 0.6);
+
+  /* Special navigation circles */
+  --nav-circle-bg: hsl(42, 30%, 80%);
+  --nav-circle-border: hsl(40, 25%, 70%);
+}
