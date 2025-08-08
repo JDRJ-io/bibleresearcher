@@ -332,7 +332,7 @@ export function NewColumnHeaders({
           text-xs 
           leading-none
           ${column.type === 'main-translation' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-background'}
-          ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2 py-1'}
+          ${column.type === 'reference' ? 'p-0' : 'px-2 py-1'}
           ${isDragging ? 'opacity-50' : ''}
           ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}
         `}
