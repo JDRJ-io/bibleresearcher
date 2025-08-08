@@ -18,18 +18,30 @@ export function IntroOverlay({ isVisible, onClose }: IntroOverlayProps) {
   useEffect(() => {
     if (isVisible) {
       setIsAnimating(true);
+    } else if (isAnimating) {
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 1000); // Wait for animation to complete
+      return () => clearTimeout(timer);
     }
-  }, [isVisible]);
+  }, [isVisible, isAnimating]);
+
+  const handleClose = () => {
+    onClose();
+  };
 
   if (!isVisible && !isAnimating) return null;
 
   return (
-    <div className={`
-      fixed inset-0 z-50 flex items-center justify-center
-      bg-gradient-to-br from-black/80 via-purple-900/50 to-black/80
-      backdrop-blur-sm transition-all duration-1000
-      ${isVisible ? 'opacity-100' : 'opacity-0'}
-    `}>
+    <div 
+      className={`
+        fixed inset-0 z-50 flex items-center justify-center
+        bg-gradient-to-br from-black/80 via-purple-900/50 to-black/80
+        backdrop-blur-sm transition-all duration-1000
+        ${isVisible ? 'opacity-100' : 'opacity-0'}
+      `}
+      onClick={handleClose}
+    >
       {/* Divine Light Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl animate-pulse" />
@@ -38,19 +50,22 @@ export function IntroOverlay({ isVisible, onClose }: IntroOverlayProps) {
       </div>
 
       {/* Main Content Container */}
-      <div className={`
-        relative max-w-2xl mx-4 p-8 rounded-2xl border
-        bg-gradient-to-br from-white/10 via-white/5 to-transparent
-        border-gradient-to-r border-yellow-400/30 border-purple-400/30
-        backdrop-blur-lg shadow-2xl transform transition-all duration-1000
-        ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}
-      `}>
+      <div 
+        className={`
+          relative max-w-2xl mx-4 p-8 rounded-2xl border
+          bg-gradient-to-br from-white/10 via-white/5 to-transparent
+          border-gradient-to-r border-yellow-400/30 border-purple-400/30
+          backdrop-blur-lg shadow-2xl transform transition-all duration-1000
+          ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}
+        `}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 p-2 rounded-full 
                    bg-white/10 hover:bg-white/20 transition-colors
-                   text-white/70 hover:text-white"
+                   text-white/70 hover:text-white z-10"
         >
           <X className="h-5 w-5" />
         </button>

@@ -45,25 +45,27 @@ export default function BiblePage() {
     }
   }, [user, profile]);
 
-  // Show intro overlay for first-time visitors (temporarily always show for testing)
+  // Show intro overlay for first-time visitors (within 10 minutes)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const lastVisit = localStorage.getItem('lastVisit');
+    const now = Date.now();
+    const tenMinutes = 10 * 60 * 1000;
+    
+    if (!lastVisit || (now - parseInt(lastVisit)) > tenMinutes) {
       setIsIntroOverlayOpen(true);
-    }, 3000); // Show after 3 seconds
-    return () => clearTimeout(timer);
+      localStorage.setItem('lastVisit', now.toString());
+    }
   }, []);
 
   // Auto-close patch notes banner on scroll
   useEffect(() => {
     const handleScroll = () => {
-      if (isPatchNotesBannerVisible) {
-        setIsPatchNotesBannerVisible(false);
-      }
+      setIsPatchNotesBannerVisible(false);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isPatchNotesBannerVisible]);
+  }, []);
 
   const handleCloseIntroOverlay = () => {
     setIsIntroOverlayOpen(false);
