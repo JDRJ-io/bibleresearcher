@@ -313,6 +313,11 @@
   line-height: 1 !important;
 }
 
+/* Ensure column headers specifically inherit both width and text scaling */
+.column-header-cell {
+  font-size: calc(0.75rem * var(--text-size-mult, 1)) !important;
+}
+
 /* Dark mode border color */
 .dark .column-header-cell,
 .dark .virtual-row > div,

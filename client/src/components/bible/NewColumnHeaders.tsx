@@ -90,30 +90,30 @@ export function NewColumnHeaders({
   }
 
   // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
-  // NOW CONNECTED TO --column-width-mult from ManualSizeController
+  // NOW PROPERLY CONNECTED TO --column-width-mult from ManualSizeController
   const getResponsiveWidth = (columnType: string): string => {
     const isPortrait = window.innerHeight > window.innerWidth;
 
     if (isPortrait) {
-      // Portrait mode - use CSS variables with column-width-mult scaling
-      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-      return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+      // Portrait mode - use adaptive CSS variables with proper column-width-mult scaling
+      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width, 72px) * var(--column-width-mult, 1))';
+      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width, 320px) * var(--column-width-mult, 1))';
+      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width, 280px) * var(--column-width-mult, 1))';
+      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width, 300px) * var(--column-width-mult, 1))';
+      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width, 320px) * var(--column-width-mult, 1))';
+      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width, 300px) * var(--column-width-mult, 1))';
+      if (columnType === 'context') return 'calc(var(--adaptive-context-width, 180px) * var(--column-width-mult, 1))';
+      return 'calc(var(--adaptive-alt-width, 300px) * var(--column-width-mult, 1))';
     } else {
-      // Landscape mode - use adaptive CSS variables with scaling
-      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-      return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+      // Landscape mode - use landscape-specific variables with proper scaling
+      if (columnType === 'reference') return 'calc(var(--w-ref, 4.5rem) * var(--column-width-mult, 1))';
+      if (columnType === 'main-translation') return 'calc(var(--w-main, 20rem) * var(--column-width-mult, 1))';
+      if (columnType === 'cross-refs') return 'calc(var(--w-xref, 18rem) * var(--column-width-mult, 1))';
+      if (columnType === 'alt-translation') return 'calc(var(--w-alt, 18rem) * var(--column-width-mult, 1))';
+      if (columnType === 'prophecy') return 'calc(var(--w-prophecy, 20rem) * var(--column-width-mult, 1))';
+      if (columnType === 'notes') return 'calc(var(--w-alt, 18rem) * var(--column-width-mult, 1))';
+      if (columnType === 'context') return 'calc(var(--w-ref, 4.5rem) * var(--column-width-mult, 1))';
+      return 'calc(var(--w-alt, 18rem) * var(--column-width-mult, 1))';
     }
   };
 
