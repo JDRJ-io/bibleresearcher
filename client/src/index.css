@@ -55,8 +55,8 @@
 }
 
 @keyframes holy-glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(147, 51, 234, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.8), 0 0 30px rgba(147, 51, 234, 0.4); }
+  0%, 100% { box-shadow: 0 0 3px rgba(59, 130, 246, 0.2); }
+  50% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
 }
 
 .holy-button {
