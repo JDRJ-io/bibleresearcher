@@ -8,6 +8,7 @@
   --bg-primary: hsl(45, 30%, 92%);
   --bg-secondary: hsl(42, 25%, 88%);
   --bg-tertiary: hsl(40, 20%, 84%);
+  --bg-gradient: linear-gradient(180deg, hsl(45, 30%, 92%) 0%, hsl(40, 20%, 84%) 100%);
 
   /* Text colors - dark brown */
   --text-primary: hsl(25, 30%, 25%);
