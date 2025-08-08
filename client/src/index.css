@@ -309,13 +309,8 @@
   padding: 0 !important;
   margin: 0 !important;
   border-right: 1px solid #e5e7eb !important;
-  font-size: calc(var(--table-font-size, 0.75rem) * var(--text-size-mult, 1)) !important;
+  font-size: var(--table-font-size, 0.75rem) !important;
   line-height: 1 !important;
-}
-
-/* Ensure column headers specifically inherit both width and text scaling */
-.column-header-cell {
-  font-size: calc(0.75rem * var(--text-size-mult, 1)) !important;
 }
 
 /* Dark mode border color */
