@@ -48,6 +48,18 @@
   border: 1px solid var(--glass-border-dark);
 }
 
+/* Sepia theme glass styling - warm parchment */
+:root.sepia .glass-morphism {
+  background: rgba(245, 235, 220, 0.90);
+  border: 1px solid rgba(222, 184, 135, 0.4);
+}
+
+/* Voodoo Blue theme glass styling - deep mystical blue */
+:root.voodoo-blue .glass-morphism {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
 /* Simple verse cell - just a touch more prominence */
 .glass-verse-cell {
   /* No additional effects - keep it simple */

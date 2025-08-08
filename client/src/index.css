@@ -1,6 +1,10 @@
 /* Import optimized theme system first */
 @import './styles/themes-optimized.css';
 
+/* Import new theme variants */
+@import './styles/theme-sepia.css';
+@import './styles/theme-voodoo-blue.css';
+
 /* Import glass morphism effects */
 @import './styles/glass-morphism.css';
 

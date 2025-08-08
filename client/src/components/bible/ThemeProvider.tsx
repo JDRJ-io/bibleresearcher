@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { themeManager, OptimizedTheme } from '@/utils/themeOptimizer';
 
-type ThemeId = 'light' | 'dark';
+type ThemeId = 'light' | 'dark' | 'sepia' | 'voodoo-blue';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -41,39 +41,28 @@ export function ThemeProvider({
   useEffect(() => {
     themeManager.preloadEssentialThemes();
     
-    // Apply stored theme on mount
-    if (enablePerformanceMode) {
-      themeManager.applyMinimalTheme(theme);
-    } else {
-      themeManager.applyTheme(theme);
-    }
+    // Apply stored theme on mount - direct CSS class application for performance
+    document.documentElement.className = theme;
   }, []);
 
-  // Handle theme changes with memory optimization
+  // Handle theme changes with direct CSS class application
   const setTheme = useCallback((newTheme: ThemeId) => {
     try {
-      // Performance-conscious theme switching
-      if (enablePerformanceMode) {
-        themeManager.applyMinimalTheme(newTheme);
-      } else {
-        themeManager.applyTheme(newTheme);
-      }
+      // Direct CSS class application for maximum performance
+      document.documentElement.className = newTheme;
       
       // Update state and storage
       setThemeState(newTheme);
       localStorage.setItem(storageKey, newTheme);
       
-      // Update performance metrics
-      setPerformanceMetrics(themeManager.getPerformanceMetrics());
-      
-      console.log(`🎨 Theme optimized: ${newTheme}`);
+      console.log(`🎨 Theme applied: ${newTheme}`);
     } catch (error) {
       console.error('Failed to apply theme:', error);
       // Fallback to light theme
-      themeManager.applyTheme('light');
+      document.documentElement.className = 'light';
       setThemeState('light');
     }
-  }, [enablePerformanceMode, storageKey]);
+  }, [storageKey]);
 
   // Memory cleanup on unmount
   useEffect(() => {

@@ -22,7 +22,7 @@ export class ThemeManager {
     memoryUsage: 0
   };
 
-  // Simplified theme definitions - only light and dark
+  // All available theme definitions
   private themes: OptimizedTheme[] = [
     {
       id: 'light',
@@ -54,6 +54,38 @@ export class ThemeManager {
         '--border-color': 'hsl(217, 33%, 17%)',
         '--accent-color': 'hsl(217, 91%, 65%)',
         '--highlight-bg': 'hsl(215, 27%, 32%)'
+      }
+    },
+    {
+      id: 'sepia',
+      name: 'Sepia',
+      priority: 'enhanced',
+      memoryFootprint: 'low',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+      variables: {
+        '--bg-primary': 'hsl(45, 25%, 95%)',
+        '--bg-secondary': 'hsl(40, 20%, 92%)',
+        '--text-primary': 'hsl(25, 40%, 25%)',
+        '--text-secondary': 'hsl(30, 35%, 35%)',
+        '--border-color': 'hsl(40, 25%, 80%)',
+        '--accent-color': 'hsl(35, 65%, 55%)',
+        '--highlight-bg': 'hsl(45, 35%, 90%)'
+      }
+    },
+    {
+      id: 'voodoo-blue',
+      name: 'Voodoo Blue',
+      priority: 'enhanced',
+      memoryFootprint: 'low',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+      variables: {
+        '--bg-primary': 'hsl(220, 80%, 8%)',
+        '--bg-secondary': 'hsl(215, 75%, 10%)',
+        '--text-primary': 'hsl(50, 100%, 95%)',
+        '--text-secondary': 'hsl(45, 90%, 85%)',
+        '--border-color': 'hsl(210, 60%, 20%)',
+        '--accent-color': 'hsl(50, 100%, 65%)',
+        '--highlight-bg': 'hsl(220, 60%, 15%)'
       }
     }
   ];

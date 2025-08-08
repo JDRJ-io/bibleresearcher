@@ -1,0 +1,42 @@
+/**
+ * Sepia Theme - Warm Aged Parchment
+ * Perfect for peaceful Bible study with warm, easy-on-the-eyes colors
+ */
+
+:root.sepia {
+  /* Background colors - warm parchment tones */
+  --bg-primary: hsl(45, 25%, 95%);
+  --bg-secondary: hsl(40, 20%, 92%);
+  --bg-tertiary: hsl(35, 15%, 88%);
+
+  /* Text colors - warm brown tones */
+  --text-primary: hsl(25, 40%, 25%);
+  --text-secondary: hsl(30, 35%, 35%);
+  --text-muted: hsl(35, 30%, 45%);
+
+  /* Border colors */
+  --border-color: hsl(40, 25%, 80%);
+  --border-subtle: hsl(45, 20%, 85%);
+
+  /* Accent colors - warm gold/amber */
+  --accent-color: hsl(35, 65%, 55%);
+  --accent-hover: hsl(30, 70%, 50%);
+  --accent-light: hsl(40, 60%, 85%);
+
+  /* Interactive elements */
+  --button-bg: hsl(35, 50%, 85%);
+  --button-hover: hsl(30, 55%, 80%);
+  --button-text: hsl(25, 40%, 30%);
+
+  /* Cross-reference styling */
+  --crossref-bg: hsl(40, 30%, 88%);
+  --crossref-border: hsl(35, 25%, 75%);
+  --crossref-text: hsl(25, 45%, 35%);
+
+  /* Notes and highlights */
+  --notes-bg: hsl(45, 35%, 90%);
+  --highlight-yellow: hsla(45, 80%, 75%, 0.6);
+  --highlight-blue: hsla(200, 60%, 80%, 0.6);
+  --highlight-green: hsla(120, 50%, 80%, 0.6);
+  --highlight-pink: hsla(320, 60%, 85%, 0.6);
+}
