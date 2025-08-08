@@ -4,7 +4,7 @@
  * Positioned between column headers and top header
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Scroll, ChevronRight, X } from 'lucide-react';
 
 interface PatchNotesBannerProps {
@@ -14,31 +14,12 @@ interface PatchNotesBannerProps {
 
 export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBannerProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isScrolledAway, setIsScrolledAway] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolledAway(true);
-        if (onDismiss) {
-          onDismiss();
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [onDismiss]);
-
-  if (!isVisible || isScrolledAway) return null;
+  if (!isVisible) return null;
 
   return (
-    <div className={`
-      relative w-full bg-gradient-to-r from-purple-900/20 via-yellow-400/10 to-purple-900/20 
-      border-y border-yellow-400/20 backdrop-blur-sm
-      transform transition-all duration-500 ease-in-out
-      ${isScrolledAway ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}
-    `}>
+    <div className="relative w-full bg-gradient-to-r from-purple-900/20 via-yellow-400/10 to-purple-900/20 
+                    border-y border-yellow-400/20 backdrop-blur-sm">
       {/* Divine Glow Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/5 to-transparent" />
       
