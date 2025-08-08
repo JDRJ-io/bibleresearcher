@@ -37,31 +37,4 @@ html {
   );
 }
 
-/* Deep Blue theme - navy blue background to match prototype */
-:root.deep-blue .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(230, 45%, 15%) 0%,
-    hsl(230, 55%, 10%) 100%
-  );
-}
-
-/* Royal Purple theme - deep purple-blue background to match prototype */
-:root.royal-purple .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(245, 55%, 12%) 0%,
-    hsl(245, 65%, 8%) 100%
-  );
-}
-
-/* Warm Cream theme - light cream background to match prototype */
-:root.warm-cream .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(45, 30%, 92%) 0%,
-    hsl(40, 20%, 84%) 100%
-  );
-}
-
 /* Clean and simple - no heavy processing, perfect for peaceful Bible study */

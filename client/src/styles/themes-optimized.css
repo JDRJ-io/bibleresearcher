@@ -12,15 +12,15 @@
 body {
   margin: 0;
   font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
-  /* Use theme-aware background with gradient */
-  background: var(--bg-gradient, var(--bg-primary));
+  /* Allow transparent background for dynamic theme effects */
+  background: transparent;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* Optimized transitions - only essential properties */
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s ease;
   /* Support for dynamic backgrounds */
   min-height: 100vh;
 }
@@ -28,30 +28,10 @@ body {
 /* Essential theme classes - managed by ThemeManager */
 .light {
   color-scheme: light;
-  /* Light theme variables */
-  --bg-primary: hsl(0, 0%, 100%);
-  --bg-secondary: hsl(0, 0%, 96%);
-  --bg-tertiary: hsl(0, 0%, 94%);
-  --bg-gradient: linear-gradient(180deg, hsl(210, 40%, 99%) 0%, hsl(200, 30%, 97%) 100%);
-  --text-primary: hsl(224, 71%, 4%);
-  --text-secondary: hsl(215, 20%, 25%);
-  --text-muted: hsl(215, 13%, 65%);
-  --border-color: hsl(214, 32%, 91%);
-  --accent-color: hsl(221, 83%, 53%);
 }
 
 .dark {
   color-scheme: dark;
-  /* Dark theme variables */
-  --bg-primary: hsl(224, 71%, 4%);
-  --bg-secondary: hsl(215, 28%, 17%);
-  --bg-tertiary: hsl(217, 33%, 17%);
-  --bg-gradient: linear-gradient(180deg, hsl(220, 20%, 10%) 0%, hsl(210, 25%, 8%) 100%);
-  --text-primary: hsl(210, 20%, 98%);
-  --text-secondary: hsl(215, 20%, 65%);
-  --text-muted: hsl(215, 13%, 45%);
-  --border-color: hsl(217, 33%, 17%);
-  --accent-color: hsl(217, 91%, 60%);
 }
 
 /* Optimized component styling using CSS variables */

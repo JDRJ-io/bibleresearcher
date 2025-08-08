@@ -776,7 +776,7 @@ function App() {
           enablePerformanceMode={enablePerformanceMode()}
           defaultTheme="light"
         >
-
+          <DynamicBackground />
           <HighlightProvider>
             <TooltipProvider>
               <Toaster />

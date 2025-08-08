@@ -22,7 +22,7 @@ export class ThemeManager {
     memoryUsage: 0
   };
 
-  // All available theme definitions
+  // Simplified theme definitions - only light and dark
   private themes: OptimizedTheme[] = [
     {
       id: 'light',
@@ -54,54 +54,6 @@ export class ThemeManager {
         '--border-color': 'hsl(217, 33%, 17%)',
         '--accent-color': 'hsl(217, 91%, 65%)',
         '--highlight-bg': 'hsl(215, 27%, 32%)'
-      }
-    },
-    {
-      id: 'deep-blue',
-      name: 'Deep Blue',
-      priority: 'enhanced',
-      memoryFootprint: 'low',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(230, 45%, 15%)',
-        '--bg-secondary': 'hsl(230, 50%, 12%)',
-        '--text-primary': 'hsl(0, 0%, 95%)',
-        '--text-secondary': 'hsl(0, 0%, 85%)',
-        '--border-color': 'hsl(230, 30%, 25%)',
-        '--accent-color': 'hsl(52, 95%, 65%)',
-        '--highlight-bg': 'hsl(230, 45%, 18%)'
-      }
-    },
-    {
-      id: 'royal-purple',
-      name: 'Royal Purple',
-      priority: 'enhanced',
-      memoryFootprint: 'low',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(245, 55%, 12%)',
-        '--bg-secondary': 'hsl(245, 60%, 10%)',
-        '--text-primary': 'hsl(0, 0%, 96%)',
-        '--text-secondary': 'hsl(0, 0%, 86%)',
-        '--border-color': 'hsl(245, 40%, 22%)',
-        '--accent-color': 'hsl(195, 95%, 65%)',
-        '--highlight-bg': 'hsl(245, 55%, 15%)'
-      }
-    },
-    {
-      id: 'warm-cream',
-      name: 'Warm Cream',
-      priority: 'enhanced',
-      memoryFootprint: 'low',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(45, 30%, 92%)',
-        '--bg-secondary': 'hsl(42, 25%, 88%)',
-        '--text-primary': 'hsl(25, 30%, 25%)',
-        '--text-secondary': 'hsl(30, 25%, 35%)',
-        '--border-color': 'hsl(40, 20%, 75%)',
-        '--accent-color': 'hsl(350, 75%, 55%)',
-        '--highlight-bg': 'hsl(45, 25%, 90%)'
       }
     }
   ];

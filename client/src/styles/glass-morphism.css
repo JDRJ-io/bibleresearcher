@@ -48,24 +48,6 @@
   border: 1px solid var(--glass-border-dark);
 }
 
-/* Deep Blue theme glass styling */
-:root.deep-blue .glass-morphism {
-  background: rgba(40, 55, 95, 0.85);
-  border: 1px solid rgba(220, 205, 80, 0.3);
-}
-
-/* Royal Purple theme glass styling */
-:root.royal-purple .glass-morphism {
-  background: rgba(35, 40, 80, 0.85);
-  border: 1px solid rgba(80, 195, 220, 0.3);
-}
-
-/* Warm Cream theme glass styling */
-:root.warm-cream .glass-morphism {
-  background: rgba(235, 225, 210, 0.90);
-  border: 1px solid rgba(200, 100, 120, 0.4);
-}
-
 /* Simple verse cell - just a touch more prominence */
 .glass-verse-cell {
   /* No additional effects - keep it simple */
