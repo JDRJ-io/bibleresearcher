@@ -45,16 +45,25 @@ export default function BiblePage() {
     }
   }, [user, profile]);
 
-  // Show intro overlay for first-time visitors
+  // Show intro overlay for first-time visitors (temporarily always show for testing)
   useEffect(() => {
-    const hasSeenIntro = localStorage.getItem('hasSeenIntro');
-    if (!hasSeenIntro) {
-      const timer = setTimeout(() => {
-        setIsIntroOverlayOpen(true);
-      }, 1000); // Show after 1 second
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setIsIntroOverlayOpen(true);
+    }, 3000); // Show after 3 seconds
+    return () => clearTimeout(timer);
   }, []);
+
+  // Auto-close patch notes banner on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isPatchNotesBannerVisible) {
+        setIsPatchNotesBannerVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isPatchNotesBannerVisible]);
 
   const handleCloseIntroOverlay = () => {
     setIsIntroOverlayOpen(false);
@@ -438,7 +447,7 @@ export default function BiblePage() {
 
         {/* Mystical Intro Overlay for First-Time Visitors */}
         <IntroOverlay 
-          isOpen={isIntroOverlayOpen} 
+          isVisible={isIntroOverlayOpen} 
           onClose={handleCloseIntroOverlay} 
         />
 
