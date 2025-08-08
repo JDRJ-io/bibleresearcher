@@ -20,6 +20,8 @@ import { useVerseNav } from '@/hooks/useVerseNav';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 import { useReadingState } from '@/hooks/useReadingState';
 import type { VirtualBibleTableHandle } from '@/components/bible/VirtualBibleTable';
+import { PatchNotesBanner } from '@/components/ui/PatchNotesBanner';
+import { IntroOverlay } from '@/components/ui/IntroOverlay';
 
 import type { BibleVerse } from '@/types/bible';
 
@@ -31,6 +33,8 @@ export default function BiblePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+  const [isIntroOverlayOpen, setIsIntroOverlayOpen] = useState(false);
+  const [isPatchNotesBannerVisible, setIsPatchNotesBannerVisible] = useState(true);
   const [currentVerse, setCurrentVerse] = useState<{ reference: string; index: number }>({ reference: 'Gen.1:1', index: 0 });
   const tableRef = useRef<VirtualBibleTableHandle>(null);
 
@@ -40,6 +44,22 @@ export default function BiblePage() {
       setIsWelcomeOpen(true);
     }
   }, [user, profile]);
+
+  // Show intro overlay for first-time visitors
+  useEffect(() => {
+    const hasSeenIntro = localStorage.getItem('hasSeenIntro');
+    if (!hasSeenIntro) {
+      const timer = setTimeout(() => {
+        setIsIntroOverlayOpen(true);
+      }, 1000); // Show after 1 second
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleCloseIntroOverlay = () => {
+    setIsIntroOverlayOpen(false);
+    localStorage.setItem('hasSeenIntro', 'true');
+  };
 
   // Initialize body class and adaptive scaling
   useBodyClass('bible-page');
@@ -334,6 +354,12 @@ export default function BiblePage() {
           getCurrentVerse={getCurrentVerseFromTable}
         />
 
+        {/* Divine Patch Notes Banner */}
+        <PatchNotesBanner 
+          isVisible={isPatchNotesBannerVisible}
+          onDismiss={() => setIsPatchNotesBannerVisible(false)}
+        />
+
         <main className="flex-1 overflow-hidden relative">
           <VirtualBibleTable
             ref={tableRef}
@@ -408,6 +434,12 @@ export default function BiblePage() {
         <Welcome 
           isOpen={isWelcomeOpen}
           onClose={() => setIsWelcomeOpen(false)}
+        />
+
+        {/* Mystical Intro Overlay for First-Time Visitors */}
+        <IntroOverlay 
+          isOpen={isIntroOverlayOpen} 
+          onClose={handleCloseIntroOverlay} 
         />
 
         {/* Subtle Footer */}
