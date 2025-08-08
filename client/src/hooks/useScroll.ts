@@ -17,6 +17,11 @@ export function useScroll() {
         scrollTop: elem.scrollTop,
         viewportHeight: elem.clientHeight
       });
+      
+      // Dispatch custom event for patch notes banner scroll detection
+      window.dispatchEvent(new CustomEvent('virtualTableScroll', {
+        detail: { scrollTop: elem.scrollTop, viewportHeight: elem.clientHeight }
+      }));
     };
     
     elem.addEventListener('scroll', handleScroll);

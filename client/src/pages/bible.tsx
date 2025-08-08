@@ -57,14 +57,15 @@ export default function BiblePage() {
     }
   }, []);
 
-  // Auto-close patch notes banner on scroll
+  // Auto-close patch notes banner on virtual table scroll
   useEffect(() => {
-    const handleScroll = () => {
+    const handleVirtualTableScroll = () => {
       setIsPatchNotesBannerVisible(false);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Listen for virtual table scroll events
+    window.addEventListener('virtualTableScroll', handleVirtualTableScroll);
+    return () => window.removeEventListener('virtualTableScroll', handleVirtualTableScroll);
   }, []);
 
   const handleCloseIntroOverlay = () => {
