@@ -6,7 +6,7 @@ import { BookmarkButton } from '@/components/user/BookmarkButton';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserProfileDropdown } from '@/components/auth/UserProfileDropdown';
-import { CombinedAuthModal } from '@/components/auth/CombinedAuthModal';
+import { AuthModals } from '@/components/auth/AuthModals';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
 import { useBibleStore } from '@/App';
@@ -40,6 +40,7 @@ export function TopHeader({
   const { theme, setTheme, themes } = useTheme();
   const { user, loading } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isBookmarkModalOpen, setIsBookmarkModalOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -232,7 +233,7 @@ export function TopHeader({
                 variant="default"
                 size="sm"
                 className="h-8 px-3 text-xs"
-                onClick={() => setIsAuthModalOpen(true)}
+                onClick={() => setIsSignInModalOpen(true)}
               >
                 <KeyRound className="w-3 h-3 mr-1" />
                 Sign In
@@ -333,7 +334,7 @@ export function TopHeader({
                 variant="default"
                 size="sm"
                 className="px-4 h-9"
-                onClick={() => setIsAuthModalOpen(true)}
+                onClick={() => setIsSignInModalOpen(true)}
               >
                 <KeyRound className="w-4 h-4 mr-2" />
                 Sign In
@@ -353,10 +354,12 @@ export function TopHeader({
         </>
       )}
 
-      {/* Combined Auth Modal */}
-      <CombinedAuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+      {/* Massive Divine Auth Modals */}
+      <AuthModals
+        isSignUpOpen={isAuthModalOpen}
+        isSignInOpen={isSignInModalOpen}
+        onCloseSignUp={() => setIsAuthModalOpen(false)}
+        onCloseSignIn={() => setIsSignInModalOpen(false)}
       />
 
       {/* Bookmark Modal */}
