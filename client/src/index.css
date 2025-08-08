@@ -704,17 +704,11 @@ body {
 }
 
 /* Apply font size scaling to verse content AND row height */
-.verse-text {
-  font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
-}
+/* .verse-text font-size now inherited from parent .cell-content to avoid double scaling */
 
-.verse-text.text-sm {
-  font-size: calc(var(--text-sm) * var(--font-size-multiplier, 1));
-}
+/* Remove double scaling - .verse-text inherits size from parent .cell-content */
 
-.verse-text.text-lg {
-  font-size: calc(var(--text-lg) * var(--font-size-multiplier, 1));
-}
+/* .verse-text.text-lg also removed to prevent double scaling */
 
 /* Scale the entire verse row based on font size */
 .bible-verse-row {
@@ -742,10 +736,7 @@ body {
 
 /* Mobile-first responsive design */
 @media (max-width: 768px) {
-  .verse-text {
-    font-size: calc(var(--text-sm) * var(--font-size-multiplier, 1));
-    line-height: 1.4;
-  }
+  /* Mobile .verse-text sizing also removed to prevent double scaling */
 
   .bible-verse-row {
     padding: 0.5rem 0.25rem;
