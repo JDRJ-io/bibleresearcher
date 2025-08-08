@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
@@ -71,6 +71,41 @@ export function NewColumnHeaders({
 
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
+
+  // Custom hook to track CSS variable changes for column width multiplier
+  const [columnWidthMult, setColumnWidthMult] = useState(1);
+  
+  useEffect(() => {
+    // Function to get current column width multiplier
+    const updateColumnWidthMult = () => {
+      const mult = getComputedStyle(document.documentElement)
+        .getPropertyValue('--column-width-mult')
+        .trim();
+      const numericMult = parseFloat(mult) || 1;
+      setColumnWidthMult(numericMult);
+    };
+    
+    // Set initial value
+    updateColumnWidthMult();
+    
+    // Create a MutationObserver to watch for style changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          updateColumnWidthMult();
+        }
+      });
+    });
+    
+    // Start observing the document.documentElement for style changes
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+    
+    // Cleanup
+    return () => observer.disconnect();
+  }, []);
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -215,7 +250,7 @@ export function NewColumnHeaders({
       });
 
     return cols.filter(col => col.visible);
-  }, [main, alternates, showNotes, showDates, showCrossRefs, showProphecy, adaptiveWidths]);
+  }, [main, alternates, showNotes, showDates, showCrossRefs, showProphecy, adaptiveWidths, columnWidthMult]);
 
   // Sync columns with localColumns for drag and drop
   useMemo(() => {
@@ -288,7 +323,7 @@ export function NewColumnHeaders({
     setActiveId(null);
   }
 
-  console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible })));
+  console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible, width: c.width })));
   console.log('📋 NewColumnHeaders showDates prop:', showDates);
   console.log('📋 NewColumnHeaders navigation state:', { 
     columnOffset, 
@@ -297,6 +332,7 @@ export function NewColumnHeaders({
     visibleColumnsCount: visibleColumns.length,
     visibleColumnNames: visibleColumns.map(c => c.name)
   });
+  console.log('🎛️ Column Width Multiplier:', columnWidthMult);
 
   const isPortrait = window.innerHeight > window.innerWidth;
 
