@@ -46,7 +46,7 @@ function ReferenceCell({ verse }: CellProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+    <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-gray-700 dark:text-gray-300 glass-morphism glass-reference-cell flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
       {verse.reference}
     </div>
   );
@@ -117,7 +117,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   }
 
   return (
-    <div className="px-2 py-1 text-sm cell-content cross-ref-cell">
+    <div className="px-2 py-1 text-sm cell-content cross-ref-cell glass-morphism glass-cross-ref-cell">
       {crossRefs.length > 0 ? (
         <div className="space-y-0">
           {crossRefs.map((ref, i) => {
@@ -223,7 +223,7 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
   };
 
   return (
-    <div className="px-2 py-1 text-sm cell-content">
+    <div className="px-2 py-1 text-sm cell-content glass-morphism">
       {uniqueProphecyIds.length > 0 ? (
         <div className="space-y-1">
           {uniqueProphecyIds.map((prophecyId) => {
@@ -317,7 +317,7 @@ function DatesCell({ verse, getVerseText, mainTranslation, onVerseClick, isMobil
   const shouldRotate = isMobile || isPortrait;
 
   return (
-    <div className="flex items-center justify-center h-full w-full">
+    <div className="flex items-center justify-center h-full w-full glass-morphism">
         <div className="text-xs text-gray-700 dark:text-gray-300 text-center leading-tight"
              style={{ 
                fontSize: '10px',
@@ -467,7 +467,7 @@ function MainTranslationCell({
       onShare={handleShare}
       wrapperClassName="h-full max-h-full"
     >
-      <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto whitespace-pre-wrap break-words leading-tight ${contextClasses}`}>
+      <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto whitespace-pre-wrap break-words leading-tight glass-morphism glass-verse-cell ${contextClasses}`}>
         {shouldUseLabeledText ? (
           <span
             data-verse-ref={verse.reference}

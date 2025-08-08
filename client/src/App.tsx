@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/bible/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { HighlightProvider } from "@/contexts/HighlightContext";
+import DynamicBackground from "@/components/ui/DynamicBackground";
 import BiblePage from "@/pages/bible";
 import AuthCallback from "@/pages/auth/callback";
 import LoaderDemo from "@/pages/LoaderDemo";
@@ -775,6 +776,7 @@ function App() {
           enablePerformanceMode={enablePerformanceMode()}
           defaultTheme="light"
         >
+          <DynamicBackground />
           <HighlightProvider>
             <TooltipProvider>
               <Toaster />

@@ -1,6 +1,12 @@
 /* Import optimized theme system first */
 @import './styles/themes-optimized.css';
 
+/* Import glass morphism effects */
+@import './styles/glass-morphism.css';
+
+/* Import dynamic backgrounds */
+@import './styles/dynamic-backgrounds.css';
+
 /* Import label effects first */
 @import './styles/label-effects.css';
 

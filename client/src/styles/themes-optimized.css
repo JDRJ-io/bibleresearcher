@@ -12,14 +12,17 @@
 body {
   margin: 0;
   font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
-  background-color: var(--bg-primary);
+  /* Allow transparent background for dynamic theme effects */
+  background: transparent;
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* Optimized transitions - only essential properties */
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: color 0.2s ease;
+  /* Support for dynamic backgrounds */
+  min-height: 100vh;
 }
 
 /* Essential theme classes - managed by ThemeManager */

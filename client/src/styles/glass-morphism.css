@@ -1,0 +1,277 @@
+/**
+ * Glass Morphism Effect System
+ * Creates translucent verse cells with smoked glass effect
+ * Allows dynamic backgrounds to show through while maintaining readability
+ */
+
+/* Core glass morphism variables */
+:root {
+  /* Glass effect intensities for different themes */
+  --glass-blur: 12px;
+  --glass-opacity: 0.85;
+  --glass-border-opacity: 0.2;
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  
+  /* Light theme glass variables */
+  --glass-bg-light: rgba(255, 255, 255, 0.75);
+  --glass-border-light: rgba(255, 255, 255, 0.3);
+  --glass-text-shadow-light: 0 1px 2px rgba(0, 0, 0, 0.1);
+  
+  /* Dark theme glass variables */
+  --glass-bg-dark: rgba(0, 0, 0, 0.4);
+  --glass-border-dark: rgba(255, 255, 255, 0.1);
+  --glass-text-shadow-dark: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Base glass morphism class for all cells */
+.glass-morphism {
+  /* Backdrop blur for the glass effect */
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  
+  /* Smooth border radius for modern look */
+  border-radius: 8px;
+  
+  /* Subtle border for definition */
+  border: 1px solid transparent;
+  
+  /* Shadow for depth */
+  box-shadow: var(--glass-shadow);
+  
+  /* Smooth transitions for hover effects */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Ensure content is above backdrop */
+  position: relative;
+  z-index: 1;
+}
+
+/* Light theme glass styling */
+:root.light .glass-morphism {
+  background: var(--glass-bg-light);
+  border-color: var(--glass-border-light);
+}
+
+:root.light .glass-morphism .verse-text,
+:root.light .glass-morphism .cell-content {
+  text-shadow: var(--glass-text-shadow-light);
+  color: hsl(210, 24%, 16%);
+}
+
+/* Dark theme glass styling */
+:root.dark .glass-morphism {
+  background: var(--glass-bg-dark);
+  border-color: var(--glass-border-dark);
+}
+
+:root.dark .glass-morphism .verse-text,
+:root.dark .glass-morphism .cell-content {
+  text-shadow: var(--glass-text-shadow-dark);
+  color: hsl(213, 31%, 91%);
+}
+
+/* Enhanced glass effect for main verse cells */
+.glass-verse-cell {
+  /* More prominent glass effect for verse text */
+  backdrop-filter: blur(calc(var(--glass-blur) + 2px)) saturate(180%);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 2px)) saturate(180%);
+  
+  /* Slightly more defined border */
+  border-width: 1.5px;
+  
+  /* Enhanced shadow for main content */
+  box-shadow: 
+    var(--glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme verse cell enhancement */
+:root.light .glass-verse-cell {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Dark theme verse cell enhancement */
+:root.dark .glass-verse-cell {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Subtle glass effect for reference cells */
+.glass-reference-cell {
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border-radius: 6px;
+}
+
+:root.light .glass-reference-cell {
+  background: rgba(248, 250, 252, 0.85);
+  border-color: rgba(203, 213, 225, 0.3);
+}
+
+:root.dark .glass-reference-cell {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(71, 85, 105, 0.3);
+}
+
+/* Glass effect for cross-reference cells */
+.glass-cross-ref-cell {
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border-radius: 6px;
+}
+
+:root.light .glass-cross-ref-cell {
+  background: rgba(241, 245, 249, 0.8);
+  border-color: rgba(203, 213, 225, 0.3);
+}
+
+:root.dark .glass-cross-ref-cell {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(71, 85, 105, 0.3);
+}
+
+/* Hover effects for interactive glass elements */
+.glass-morphism:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+:root.light .glass-morphism:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+:root.dark .glass-morphism:hover {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Focus states for accessibility */
+.glass-morphism:focus-within {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 
+    var(--glass-shadow),
+    0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive adjustments for glass effect */
+@media (max-width: 768px) {
+  :root {
+    /* Reduce blur intensity on mobile for performance */
+    --glass-blur: 8px;
+    --glass-opacity: 0.9;
+  }
+  
+  .glass-morphism {
+    border-radius: 6px;
+  }
+  
+  .glass-verse-cell {
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-opacity: 0.95;
+  }
+  
+  .glass-morphism {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  
+  :root.light .glass-morphism {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  :root.dark .glass-morphism {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .glass-morphism {
+    transition: none;
+  }
+  
+  .glass-morphism:hover {
+    transform: none;
+  }
+}
+
+/* Animation for glass effect appearance */
+@keyframes glass-appear {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    transform: translateY(0);
+  }
+}
+
+.glass-morphism-animate {
+  animation: glass-appear 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Ensure text remains readable with enhanced contrast */
+.glass-morphism .verse-text,
+.glass-morphism .cell-content {
+  /* Enhance text readability on glass background */
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* Strong contrast text for labels on glass */
+.glass-morphism .labeled-text-segment {
+  font-weight: 500;
+  text-shadow: inherit;
+}
+
+/* Ensure cross-reference links remain visible */
+.glass-morphism .cross-ref-item button {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.glass-morphism .cross-ref-item button:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-morphism {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+  }
+  
+  :root.light .glass-morphism {
+    background: rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  :root.dark .glass-morphism {
+    background: rgba(30, 41, 59, 0.95) !important;
+  }
+}
