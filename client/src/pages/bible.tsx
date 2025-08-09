@@ -22,6 +22,7 @@ import { useReadingState } from '@/hooks/useReadingState';
 import type { VirtualBibleTableHandle } from '@/components/bible/VirtualBibleTable';
 import { PatchNotesBanner } from '@/components/ui/PatchNotesBanner';
 import { IntroOverlay } from '@/components/ui/IntroOverlay';
+import { LoadModeProvider } from '@/contexts/LoadModeContext';
 
 import type { BibleVerse } from '@/types/bible';
 
@@ -318,8 +319,9 @@ export default function BiblePage() {
   if (shouldShowLoading) {
     return (
       <ThemeProvider>
-        <div className="bible-content-area min-h-screen bg-background">
-          <TopHeader
+        <LoadModeProvider>
+          <div className="bible-content-area min-h-screen bg-background">
+            <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
           onBack={goBack}
@@ -328,18 +330,19 @@ export default function BiblePage() {
           canGoForward={canGoForward}
           onMenuToggle={handleMenuToggle}
           getCurrentVerse={getCurrentVerseFromTable}
-        />
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center space-y-4">
+            />
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <div className="text-center space-y-4">
               <LoadingWheel size="large" message="Loading Scripture..." />
               {connectionSpeed !== 'unknown' && (
                 <div className="text-xs text-muted-foreground/60">
                   Connection: {connectionSpeed}
                 </div>
               )}
+              </div>
             </div>
           </div>
-        </div>
+        </LoadModeProvider>
       </ThemeProvider>
     );
   }
@@ -354,7 +357,8 @@ export default function BiblePage() {
 
   return (
     <ThemeProvider>
-      <div className="bible-content-area min-h-screen bg-background">
+      <LoadModeProvider>
+        <div className="bible-content-area min-h-screen bg-background">
         <TopHeader
           searchQuery=""
           onSearchChange={handleSearchTrigger}
@@ -459,7 +463,8 @@ export default function BiblePage() {
         
         {/* Development logging widget */}
 
-      </div>
+        </div>
+      </LoadModeProvider>
     </ThemeProvider>
   );
 }

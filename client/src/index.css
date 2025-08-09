@@ -65,17 +65,6 @@
   50% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
 }
 
-@keyframes slideInRight {
-  0% { 
-    opacity: 0; 
-    transform: translateX(20px) translateY(-50%); 
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateX(0) translateY(-50%); 
-  }
-}
-
 .holy-button {
   position: relative;
   overflow: hidden;

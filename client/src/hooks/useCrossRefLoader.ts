@@ -1,15 +1,23 @@
 
 import { useEffect, useRef } from 'react';
 import { getCrossRefsBatch } from '@/data/BibleDataAPI';
+import { useLoadMode } from '@/contexts/LoadModeContext';
 import { useBibleStore } from '@/App';
 
 export function useCrossRefLoader(verseKeys: string[], cfSet: 'cf1' | 'cf2' = 'cf1') {
+  const { mode } = useLoadMode();
   const { crossRefs: crossRefsStore, setCrossRefs } = useBibleStore();
   const loadingRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const loadCrossRefs = async () => {
       if (verseKeys.length === 0) return;
+
+      // PERFORMANCE: Skip cross-refs loading during scroll drag for smooth performance
+      if (mode === 'KeysOnly') {
+        console.log('🎯 CROSS-REFS: Skipping cross-refs loading - KeysOnly mode active for smooth scrolling');
+        return;
+      }
 
       // CENTER-ANCHORED: Only load cross-refs for verses we don't already have
       const neededVerses = verseKeys.filter(verseId => {

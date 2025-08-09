@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useLoadMode } from '@/contexts/LoadModeContext';
 import { ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
 import type { LabelName } from '@/lib/labelBits';
 import type { BibleVerse } from '@/types/bible';
@@ -11,6 +12,7 @@ interface UseViewportLabelsProps {
 }
 
 export function useViewportLabels({ verses, activeLabels, mainTranslation }: UseViewportLabelsProps) {
+  const { mode } = useLoadMode();
   const [isLoading, setIsLoading] = useState(false);
   const [labelsData, setLabelsData] = useState<Record<string, Partial<Record<LabelName, string[]>>>>({});
 
@@ -84,6 +86,12 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     }
 
     const loadLabels = async () => {
+      // PERFORMANCE: Skip labels loading during scroll drag for smooth performance
+      if (mode === 'KeysOnly') {
+        console.log('🎯 LABELS: Skipping labels loading - KeysOnly mode active for smooth scrolling');
+        return;
+      }
+
       setIsLoading(true);
       console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
       console.log(`🔄 WORKER: Including ${allRequiredVerseKeys.length} total verses (viewport + cross-refs + prophecies)`);
