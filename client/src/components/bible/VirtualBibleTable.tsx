@@ -34,6 +34,7 @@ import type {
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import { useNotesCache } from "@/hooks/useNotesCache";
 import { ScrollbarTooltip } from "@/components/ui/ScrollbarTooltip";
+import { useLoadMode } from '@/contexts/LoadModeContext';
 import type { LabelName } from '@/lib/labelBits';
 
 export interface VirtualBibleTableHandle {
@@ -78,6 +79,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     onCurrentVerseChange,
   } = props;
   // All hooks must be called at the top level of the component
+  const { mode, setMode } = useLoadMode();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -118,7 +120,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     } else {
       setMousePosition(undefined);
     }
-  }, []);
+    
+    // SMART SCROLL: Switch load modes for performance optimization
+    setMode(dragging ? 'KeysOnly' : 'Full');
+  }, [setMode]);
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {

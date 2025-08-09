@@ -1,0 +1,291 @@
+love that. here’s a clean way to implement it so dragging = “keys-only mode,” and the tooltip always shows the **center anchor verse** in real time.
+
+# What we’re doing
+
+* When the user grabs the scrollbar (or starts a fast scroll), we flip to **KeysOnly** loading and **pause everything else** (labels, cross-refs, prophecy, notes, etc.).
+* While dragging, we **compute the center anchor index** from scroll position and display a **tooltip** with that verse key.
+* On release (or after a short idle), we flip back to **Full** loading and resume.
+
+---
+
+# 1) A tiny global “load mode” switch
+
+Expose a context so the rest of your data hooks can check whether to fetch heavy stuff.
+
+```ts
+// loadMode.ts
+import React from 'react';
+
+export type LoadMode = 'Full' | 'KeysOnly';
+
+export const LoadModeContext = React.createContext<{
+  mode: LoadMode;
+  setMode: (m: LoadMode) => void;
+}>({ mode: 'Full', setMode: () => {} });
+
+export function LoadModeProvider({ children }: { children: React.ReactNode }) {
+  const [mode, setMode] = React.useState<LoadMode>('Full');
+  return (
+    <LoadModeContext.Provider value={{ mode, setMode }}>
+      {children}
+    </LoadModeContext.Provider>
+  );
+}
+```
+
+In your data loaders:
+
+```ts
+// example useVerseData.ts (pseudo)
+const { mode } = React.useContext(LoadModeContext);
+if (mode === 'KeysOnly') {
+  // fetch only verse keys/refs for visible window
+} else {
+  // fetch keys + labels + cross refs + notes + prophecy, etc.
+}
+```
+
+---
+
+# 2) Compute the **center anchor verse** from scroll
+
+Assuming fixed row heights (your design goal). If any cell can grow, see the note after this block.
+
+```ts
+// centerAnchor.ts
+export function centerIndexFromScroll({
+  scrollTop,
+  viewportHeight,
+  rowHeight,
+  totalRows,
+}: {
+  scrollTop: number;
+  viewportHeight: number;
+  rowHeight: number;
+  totalRows: number;
+}) {
+  const centerY = scrollTop + viewportHeight / 2;
+  const idx = Math.round(centerY / rowHeight);
+  return Math.max(0, Math.min(totalRows - 1, idx));
+}
+```
+
+If some rows can be taller (until you fully lock them), you’ll want a **prefix height array** and a binary search:
+
+```ts
+// prefixHeights[i] = pixel offset at start of row i
+// find largest i where prefixHeights[i] <= centerY
+```
+
+But if you enforce fixed heights with overflow inside cells, the simple formula above is perfect and fast.
+
+---
+
+# 3) Smart scroll/drag controller with tooltip
+
+* Detect **pointer down** on the track/thumb or start of fast scrolling → switch to `KeysOnly`.
+* While in `KeysOnly`, update the **center key tooltip** on every rAF (not every event).
+* On **pointer up** or after **idle 150–250ms**, switch back to `Full`.
+
+```tsx
+// SmartScroll.tsx
+import React from 'react';
+import { LoadModeContext } from './loadMode';
+import { centerIndexFromScroll } from './centerAnchor';
+
+type Props = {
+  scrollRef: React.RefObject<HTMLDivElement>;
+  trackRef: React.RefObject<HTMLDivElement>;       // your custom scrollbar track
+  thumbRef: React.RefObject<HTMLDivElement>;       // your thumb element
+  rowHeight: number;
+  totalRows: number;
+  indexToKey: (i: number) => string;               // e.g., i → "John.3:16"
+};
+
+export function useSmartScroll({
+  scrollRef, trackRef, thumbRef, rowHeight, totalRows, indexToKey,
+}: Props) {
+  const { setMode } = React.useContext(LoadModeContext);
+  const [dragging, setDragging] = React.useState(false);
+  const [centerKey, setCenterKey] = React.useState<string>('');
+  const [tooltipY, setTooltipY] = React.useState<number>(0); // for positioning near viewport center or thumb
+  const idleTimer = React.useRef<number | null>(null);
+  const raf = React.useRef<number | null>(null);
+
+  // helper: switch to KeysOnly while user is actively scrolling/dragging
+  const enterKeysOnly = React.useCallback(() => {
+    setMode('KeysOnly');
+    setDragging(true);
+    if (idleTimer.current) { window.clearTimeout(idleTimer.current); idleTimer.current = null; }
+  }, [setMode]);
+
+  const scheduleExit = React.useCallback(() => {
+    if (idleTimer.current) window.clearTimeout(idleTimer.current);
+    idleTimer.current = window.setTimeout(() => {
+      setDragging(false);
+      setMode('Full');
+    }, 180); // small grace to avoid flapping
+  }, [setMode]);
+
+  // pointer hooks for the custom track/thumb
+  React.useEffect(() => {
+    const track = trackRef.current;
+    const thumb = thumbRef.current;
+    if (!track || !thumb) return;
+
+    const onPointerDown = () => enterKeysOnly();
+    const onPointerUp = () => scheduleExit();
+
+    track.addEventListener('pointerdown', onPointerDown);
+    thumb.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointerup', onPointerUp);
+
+    return () => {
+      track.removeEventListener('pointerdown', onPointerDown);
+      thumb.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+  }, [trackRef, thumbRef, enterKeysOnly, scheduleExit]);
+
+  // scroll listener → compute center index & tooltip position
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      enterKeysOnly(); // any active scroll kicks into keys-only briefly
+      if (raf.current) cancelAnimationFrame(raf.current);
+      raf.current = requestAnimationFrame(() => {
+        const i = centerIndexFromScroll({
+          scrollTop: el.scrollTop,
+          viewportHeight: el.clientHeight,
+          rowHeight,
+          totalRows,
+        });
+        setCenterKey(indexToKey(i));
+        // place tooltip near viewport center (or attach to thumb; see below)
+        const mid = el.getBoundingClientRect().top + el.clientHeight / 2;
+        setTooltipY(mid);
+        scheduleExit();
+      });
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, [scrollRef, rowHeight, totalRows, indexToKey, enterKeysOnly, scheduleExit]);
+
+  return { dragging, centerKey, tooltipY };
+}
+```
+
+A simple tooltip that appears only in KeysOnly (i.e., while dragging/scrolling):
+
+```tsx
+// CenterAnchorTooltip.tsx
+import React from 'react';
+
+export function CenterAnchorTooltip({
+  visible, y, text,
+}: { visible: boolean; y: number; text: string }) {
+  if (!visible) return null;
+  return (
+    <div
+      className="fixed left-1/2 -translate-x-1/2 z-40 pointer-events-none select-none
+                 rounded-2xl px-3 py-1.5 text-sm font-medium glass-morphism shadow"
+      style={{ top: y }}
+      role="status"
+      aria-live="polite"
+    >
+      {text}
+    </div>
+  );
+}
+```
+
+Wire it in your page shell:
+
+```tsx
+// VersePage.tsx
+import React from 'react';
+import { LoadModeProvider } from './loadMode';
+import { useSmartScroll } from './SmartScroll';
+import { CenterAnchorTooltip } from './CenterAnchorTooltip';
+
+export default function VersePage() {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const trackRef = React.useRef<HTMLDivElement>(null);
+  const thumbRef  = React.useRef<HTMLDivElement>(null);
+
+  // your config
+  const rowHeight = 40;          // px (fixed)
+  const totalRows = /* total verse rows in current view */ 31102; // or current book/window
+  const indexToKey = (i: number) => /* map i → 'Book.Ch:Vs' */ '';
+
+  const { dragging, centerKey, tooltipY } = useSmartScroll({
+    scrollRef, trackRef, thumbRef, rowHeight, totalRows, indexToKey,
+  });
+
+  return (
+    <LoadModeProvider>
+      <div className="relative h-screen">
+        {/* your custom track/thumb */}
+        <aside className="fixed right-2 top-12 bottom-12 w-2 rounded-full bg-black/10" ref={trackRef}>
+          <div className="absolute left-0 w-2 h-12 rounded-full bg-black/35" ref={thumbRef} />
+        </aside>
+
+        {/* scroll container */}
+        <div ref={scrollRef} className="h-full overflow-y-auto will-change-scroll">
+          {/* ... your verse table ... */}
+        </div>
+
+        <CenterAnchorTooltip visible={dragging} y={tooltipY} text={centerKey || '—'} />
+      </div>
+    </LoadModeProvider>
+  );
+}
+```
+
+---
+
+# 4) Pausing “everything else” while dragging
+
+Because your loaders check `LoadMode`, the scroll handler above already gates the heavy queries. A couple extra tips to make it snappy:
+
+* In hooks that *preload* cross-refs/labels, bail early:
+
+  ```ts
+  if (mode === 'KeysOnly') return; // do not enqueue heavy fetches
+  ```
+* If you use React Query / SWR, you can pause invalidations:
+
+  * Wrap heavy keys with `enabled: mode === 'Full'`.
+* For components that still render, use skeletons that don’t measure (no reflow) during KeysOnly.
+* If you have any long-running fetch in flight when drag starts, optionally `abortController.abort()` and re-request after returning to Full.
+
+---
+
+# 5) (Optional) Attach tooltip to the **thumb** instead of center
+
+Change the tooltip anchor to the thumb’s rect:
+
+```ts
+const thumbRect = thumbRef.current?.getBoundingClientRect();
+if (thumbRect) setTooltipY(thumbRect.top + thumbRect.height / 2);
+```
+
+This feels very “game-UI”: the label rides with the handle.
+
+---
+
+# 6) Edge cases to lock down
+
+* **Fixed heights**: ensure verse cells never grow; overflow scrolls **inside the cell**.
+* **Zoom/transform**: keep all measurements in the same coordinate space (use `clientHeight`, not mixed with CSS transforms).
+* **Mobile fling**: inertia scrolling will keep firing `scroll`; the idle timer returns you to `Full` once the fling settles.
+
+---
+
+If you want, I can adapt this to your exact component/file names and your current verse index math (canonical vs chronological). Just drop me your rowHeight, container class, and your `indexToKey` function signature and I’ll paste in the final wired version.
