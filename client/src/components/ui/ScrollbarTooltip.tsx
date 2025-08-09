@@ -109,7 +109,10 @@ export function ScrollbarTooltip({
     containerExists: !!containerRef.current
   });
   
-  if (!isVisible || !verseRef) return null;
+  if (!isVisible || !verseRef) {
+    console.log('🎯 TOOLTIP NOT RENDERING:', { isVisible, verseRef });
+    return null;
+  }
 
   return (
     <div

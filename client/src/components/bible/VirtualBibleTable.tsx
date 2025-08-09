@@ -954,6 +954,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       </div>
       
       {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
+      {console.log('🎯 RENDERING TOOLTIP WITH PROPS:', {
+        totalVerses: verseKeys.length,
+        isVisible: showScrollTooltip,
+        mousePosition,
+        verseKeysLength: verseKeys.length,
+        containerExists: !!containerRef.current
+      })}
       <ScrollbarTooltip
         containerRef={containerRef}
         totalVerses={verseKeys.length}
