@@ -37,8 +37,9 @@ export function ScrollbarTooltip({
     const verse = verseKeys[clampedIndex] || 'Gen.1:1';
     
     setVerseRef(verse);
+    // Position tooltip to the LEFT of the scrollbar with some padding
     setPosition({
-      x: rect.right + 20,
+      x: rect.right - 180, // Move tooltip LEFT of scrollbar
       y: mousePosition.y
     });
   }, [isVisible, mousePosition, containerRef, totalVerses, verseKeys]);
@@ -49,15 +50,15 @@ export function ScrollbarTooltip({
 
   return (
     <div
-      className="fixed pointer-events-none bg-red-600 text-white px-4 py-3 rounded-lg font-bold text-lg shadow-2xl border-2 border-red-400"
+      className="fixed pointer-events-none bg-blue-600 text-white px-3 py-2 rounded-lg font-bold text-sm shadow-lg border border-blue-400"
       style={{
-        left: `${mousePosition?.x ? mousePosition.x + 20 : 100}px`,
-        top: `${mousePosition?.y ? mousePosition.y : 100}px`,
+        left: `${position.x}px`,
+        top: `${position.y}px`,
         transform: 'translateY(-50%)',
         zIndex: 999999,
       }}
     >
-      TOOLTIP TEST: {verseRef} - DRAG: {isVisible ? 'YES' : 'NO'}
+      {verseRef}
     </div>
   );
 }
