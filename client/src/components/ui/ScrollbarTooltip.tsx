@@ -28,18 +28,29 @@ export function ScrollbarTooltip({
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
+    const ROW_HEIGHT = 40;
     
-    // Calculate which verse based on mouse Y position
-    const relativeY = Math.max(0, Math.min(rect.height, mousePosition.y - rect.top));
-    const scrollPercentage = relativeY / rect.height;
-    const centerVerseIndex = Math.floor(scrollPercentage * (totalVerses - 1));
+    // Get current scroll position from container
+    const currentScrollTop = container.scrollTop;
+    const maxScroll = Math.max(0, totalVerses * ROW_HEIGHT - window.innerHeight + 85);
+    
+    // Calculate where mouse drag would scroll to (same logic as scrollbar drag)
+    const startY = rect.top + (currentScrollTop / maxScroll) * rect.height;
+    const deltaY = mousePosition.y - startY;
+    const scrollRatio = deltaY / (window.innerHeight - 85);
+    const newScrollTop = Math.max(0, Math.min(maxScroll, currentScrollTop + (scrollRatio * maxScroll)));
+    
+    // Calculate which verse will be at center after this scroll position
+    const viewportCenter = (window.innerHeight - 85) / 2;
+    const centerScrollPosition = newScrollTop + viewportCenter;
+    const centerVerseIndex = Math.floor(centerScrollPosition / ROW_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(centerVerseIndex, totalVerses - 1));
     const verse = verseKeys[clampedIndex] || 'Gen.1:1';
     
     setVerseRef(verse);
-    // Position tooltip to the LEFT of the scrollbar with some padding
+    // Position tooltip to the LEFT of the scrollbar at mouse Y position
     setPosition({
-      x: rect.right - 180, // Move tooltip LEFT of scrollbar
+      x: rect.right - 180,
       y: mousePosition.y
     });
   }, [isVisible, mousePosition, containerRef, totalVerses, verseKeys]);
