@@ -960,7 +960,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       <ScrollbarTooltip
         containerRef={containerRef}
         totalVerses={verseKeys.length}
-        isVisible={showScrollTooltip || isScrollbarDragging}
+        isVisible={isScrollbarDragging}
         onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
         verseKeys={verseKeys}
