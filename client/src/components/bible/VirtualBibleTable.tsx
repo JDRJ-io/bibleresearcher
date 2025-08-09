@@ -99,14 +99,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
   const [scrollTop, setScrollTop] = useState(0);
 
-  // Debug state changes
-  useEffect(() => {
-    console.log('🎯 STATE UPDATE:', { 
-      isScrollbarDragging, 
-      showScrollTooltip, 
-      hasMousePosition: !!mousePosition 
-    });
-  }, [isScrollbarDragging, showScrollTooltip, mousePosition]);
+
   const [scrollLeft, setScrollLeft] = useState(0);
 
   

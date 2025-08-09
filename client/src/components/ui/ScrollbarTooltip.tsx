@@ -66,28 +66,30 @@ export function ScrollbarTooltip({
     return () => cancelAnimationFrame(rafId);
   }, [isVisible, mousePosition, updateTooltip]);
 
-  if (!isVisible || !verseRef) {
+  // Force visibility during drag and show default verse if no verseRef yet
+  if (!isVisible) {
     return null;
   }
+  
+  const displayRef = verseRef || 'Loading...';
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none"
+      className="fixed pointer-events-none"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
         transform: 'translateY(-50%)',
+        zIndex: 10000,
       }}
     >
-      {/* Modern glass morphism tooltip with blue theme */}
-      <div className="relative bg-blue-600/95 backdrop-blur-sm text-white px-4 py-3 rounded-xl shadow-2xl border border-blue-400/30">
-        <div className="text-xs font-medium opacity-90 tracking-wide uppercase">Center Verse</div>
-        <div className="text-lg font-bold tracking-tight">{verseRef}</div>
+      {/* Bold tooltip with high visibility */}
+      <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-xl border-2 border-blue-400 font-bold text-lg">
+        {displayRef}
         
-        {/* Smooth animated arrow pointing to scrollbar */}
+        {/* Arrow pointing left to scrollbar */}
         <div 
-          className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[10px] border-b-[10px] border-r-[12px] border-t-transparent border-b-transparent border-r-blue-600/95"
-          style={{ marginRight: '-1px' }}
+          className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[8px] border-b-[8px] border-r-[8px] border-t-transparent border-b-transparent border-r-blue-600"
         />
       </div>
     </div>
