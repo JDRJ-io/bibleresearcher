@@ -98,6 +98,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
   const [scrollTop, setScrollTop] = useState(0);
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('🎯 STATE UPDATE:', { 
+      isScrollbarDragging, 
+      showScrollTooltip, 
+      hasMousePosition: !!mousePosition 
+    });
+  }, [isScrollbarDragging, showScrollTooltip, mousePosition]);
   const [scrollLeft, setScrollLeft] = useState(0);
 
   
@@ -885,7 +894,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             };
             
             const handleMouseUp = () => {
-              console.log('🎯 SCROLLBAR: Drag ended - RESUMING virtual loading');
+              console.log('🎯 SCROLLBAR MOUSEUP: Drag ended - RESUMING virtual loading');
               handleScrollbarDragChange(false);
               
               // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
@@ -954,17 +963,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       </div>
       
       {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
-      {console.log('🎯 RENDERING TOOLTIP WITH PROPS:', {
-        totalVerses: verseKeys.length,
-        isVisible: showScrollTooltip,
-        mousePosition,
-        verseKeysLength: verseKeys.length,
-        containerExists: !!containerRef.current
-      })}
+
       <ScrollbarTooltip
         containerRef={containerRef}
         totalVerses={verseKeys.length}
-        isVisible={showScrollTooltip}
+        isVisible={showScrollTooltip || isScrollbarDragging}
         onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
         verseKeys={verseKeys}
