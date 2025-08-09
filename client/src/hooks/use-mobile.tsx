@@ -8,10 +8,10 @@ export function useIsMobile() {
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
     const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+      setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT)
     }
     mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT)
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
@@ -25,7 +25,7 @@ export function useScreenSize() {
   React.useEffect(() => {
     const updateScreenSize = () => {
       const width = window.innerWidth
-      if (width < 640) {
+      if (width <= 640) {
         setScreenSize('mobile')
       } else if (width < 1024) {
         setScreenSize('tablet')

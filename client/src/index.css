@@ -159,14 +159,14 @@
 }
 
 /* UI Layout Spec CSS Foundation - Device-responsive sizing */
-@media (max-width: 639px) { 
+@media (max-width: 640px) { 
   :root { 
     --baseRem: 0.875rem; 
     --baseColW: 420px; 
   } 
 }
 
-@media (min-width: 640px) and (max-width: 1023px) { 
+@media (min-width: 641px) and (max-width: 1023px) { 
   :root { 
     --baseRem: 1rem; 
     --baseColW: 480px; 

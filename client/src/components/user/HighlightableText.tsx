@@ -47,7 +47,7 @@ export function HighlightableText({ text, verseRef, translation = 'KJV', classNa
   const deleteAllHighlights = useDeleteAllHighlights();
   const { toast } = useToast();
   const { width } = useWindowSize();
-  const isMobile = width < 640;
+  const isMobile = width <= 640;
   
   const [selection, setSelection] = useState<Selection | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);

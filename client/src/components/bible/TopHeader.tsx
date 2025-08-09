@@ -48,7 +48,7 @@ export function TopHeader({
   const bibleStore = useBibleStore();
 
   const { width, height } = useWindowSize();
-  const isMobile = width < 640;
+  const isMobile = width <= 640;
   const isPortrait = height > width;
   
   // Apply adaptive scaling for responsive header sizing

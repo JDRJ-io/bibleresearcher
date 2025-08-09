@@ -54,7 +54,7 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     refWidth = 32; // Compact but readable for "#" header
   } else if (viewportWidth > 640 && viewportWidth < 768) {
     // Large mobile/small tablet transition - make reference column more compact
-    refWidth = Math.max(20, Math.min(28, Math.floor(safeViewportWidth * 0.05)));
+    refWidth = Math.max(24, Math.min(32, Math.floor(safeViewportWidth * 0.06)));
   } else {
     // Desktop portrait (rare) - use comfortable width
     refWidth = 60;

@@ -96,7 +96,7 @@ export function VerseSelector({ onNavigate }: VerseSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { user, loading } = useAuth();
   const { width } = useWindowSize();
-  const isMobile = width < 640;
+  const isMobile = width <= 640;
 
   const selectedBookData = BIBLE_BOOKS.find(book => book.abbrev === selectedBook);
   const maxChapter = selectedBookData?.chapters || 1;

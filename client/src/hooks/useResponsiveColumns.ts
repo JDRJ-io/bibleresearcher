@@ -57,8 +57,8 @@ export function useResponsiveColumns(): ResponsiveColumnConfig {
     const calculateOptimalWidths = () => {
       if (isPortrait) {
         // Portrait mode: Maximize available width utilization
-        const isSmallScreen = width <= 480;
-        const isMediumScreen = width > 480 && width <= 768;
+        const isSmallScreen = width <= 640;
+        const isMediumScreen = width > 640 && width <= 768;
         
         if (isSmallScreen) {
           // Ultra-compact for small screens - use 95% of available width
