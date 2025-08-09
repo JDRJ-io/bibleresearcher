@@ -1,0 +1,92 @@
+Yep — here’s exactly why that “dragger” (thumb) gets more and more wrong the farther you scroll, plus the precise fix formulas.
+
+# Why the error grows with distance
+
+There are three common math slips that *all* create a **progressively larger** offset:
+
+1. **Wrong denominator**
+
+* What you used (typical bug):
+  `thumbTop = (scrollTop / scrollHeight) * trackHeight`
+* Correct mapping is **from available scroll to available track**:
+  `thumbTop = (scrollTop / (scrollHeight - clientHeight)) * (trackHeight - thumbHeight)`
+* If you forget either subtraction, your denominator is too big, so the ratio is slightly too small.
+  Error grows linearly with `scrollTop`:
+
+  ```
+  error(scrollTop) = scrollTop * ( (1/D_wrong) - (1/D_right) ) * (trackSpan)
+  ```
+
+  where `trackSpan = trackHeight - thumbHeight` and `D_right = scrollHeight - clientHeight`.
+  → Near the top it looks “fine”; halfway down it’s off more; at the bottom it’s the worst.
+
+2. **Forgetting the thumb’s size**
+
+* Mapping to the **full** track instead of the **track minus thumbHeight** compresses the motion.
+* The visual effect: the thumb is increasingly behind your finger as you drag; at the very bottom it can be off by almost a full `thumbHeight`.
+
+3. **Assuming fixed rowHeight when rows actually grew**
+
+* If your scroll position ↔ verse index math uses `N * rowHeight`, but some rows overflowed (even by 1–2px), the cumulative error after `N` rows is:
+
+  ```
+  cumulativeError(N) = Σ (actualRowHeight[i] - expectedRowHeight)
+  ```
+* That’s why it feels “okay” at first and gets obviously wrong deep down the chapter — the tiny per-row deltas add up.
+
+# The bulletproof formulas
+
+Always compute with **live** values, and always map **available → available**:
+
+**From scroll to dragger:**
+
+```ts
+const maxScroll   = scrollEl.scrollHeight - scrollEl.clientHeight;   // content span
+const trackSpan   = trackEl.clientHeight - thumbEl.clientHeight;     // track span
+const ratio       = maxScroll > 0 ? scrollEl.scrollTop / maxScroll : 0;
+thumbEl.style.transform = `translateY(${ratio * trackSpan}px)`;
+```
+
+**From dragger to scroll (during drag):**
+
+```ts
+const trackSpan = trackEl.clientHeight - thumbEl.clientHeight;
+const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
+const ratio     = clamp(dragY / trackSpan, 0, 1);
+scrollEl.scrollTop = ratio * maxScroll;
+```
+
+**From verse index to scrollTop (virtualized table):**
+
+```ts
+// If row heights are truly fixed:
+const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
+const ratio     = index / (totalRows - 1);
+scrollEl.scrollTop = ratio * maxScroll;
+```
+
+If any cell can grow (labels, cross-refs, hover content, etc.), then either:
+
+* **Enforce fixed heights** (your plan: wrap + `overflow-y:auto` inside cells), **or**
+* **Measure real heights** and keep a prefix-sum (map index → actual pixel offset). Otherwise cumulativeError(N) grows with N.
+
+# Quick checks that catch 99% of drift
+
+* Use **`scrollHeight - clientHeight`**, not `scrollHeight` alone.
+* Use **`trackHeight - thumbHeight`**, not `trackHeight` alone.
+* Don’t cache these numbers — recompute when content or size changes (use a `ResizeObserver` on the scroll container and on the track).
+* If you scale/zoom the UI (CSS `transform: scale`), read sizes from **the same coordinate space** you render in (prefer `clientHeight` for layout space; avoid mixing with `getBoundingClientRect().height` if the other values aren’t rect-based).
+* Keep everything **float**; don’t `Math.floor` intermediate ratios (rounding each step creates visible drift at distance).
+
+# Why your recent overflow bug made it worse
+
+You mentioned verse text spilling outside its cell after the hover effect. That means your “fixed-height grid” quietly wasn’t fixed. Each overflow added a few pixels, so by verse 500 your `Σ delta` might be hundreds of pixels — hence the big miss. Once you clamp/wrap inside the cell (vertical scrollbar **inside** the cell), your row heights become truly constant again and the dragger lines up.
+
+---
+
+If you want, I can drop in a tiny **debug overlay** that shows:
+
+* live `scrollTop`, `maxScroll`,
+* computed `thumbY` vs actual thumb `getBoundingClientRect().top`,
+* and cumulative row-height error (if you keep a quick sampler).
+  That makes it obvious where the drift comes from in seconds.

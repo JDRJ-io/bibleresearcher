@@ -843,7 +843,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           className="absolute right-0 top-0 w-6 md:w-3 bg-blue-500 dark:bg-blue-400 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-blue-600 dark:md:hover:bg-blue-300 active:bg-blue-600 dark:active:bg-blue-300"
           style={{
             height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
-            top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
+            top: `${(() => {
+              const container = containerRef.current;
+              if (!container) return 0;
+              const maxScroll = Math.max(1, container.scrollHeight - container.clientHeight);
+              const scrollRatio = scrollTop / maxScroll;
+              const thumbHeightPercent = Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100));
+              const availableTrackPercent = 100 - thumbHeightPercent;
+              return Math.min(90, scrollRatio * availableTrackPercent);
+            })()}%`,
             cursor: 'pointer',
             touchAction: 'none',
             minHeight: '44px' // Ensure minimum touch target size
@@ -863,26 +871,36 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             if (!scrollContainer) return;
             
             const startScrollTop = scrollContainer.scrollTop;
-            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
+            // CORRECT FORMULA: Use scrollHeight - clientHeight for available scroll range
+            const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+            const trackHeight = window.innerHeight - 85;
+            const thumbHeight = 44; // Minimum thumb height from CSS
+            const trackSpan = trackHeight - thumbHeight; // Available track movement
             
             const handleMouseMove = (e: MouseEvent) => {
               const deltaY = e.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
-              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
+              // CORRECT FORMULA: Map drag distance to available track span, then to available scroll
+              const dragRatio = Math.max(0, Math.min(1, deltaY / trackSpan));
+              const newScrollTop = startScrollTop + (dragRatio * maxScroll);
+              const clampedScrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+              
               scrollContainer.scrollTo({
-                top: newScrollTop,
+                top: clampedScrollTop,
                 behavior: 'instant'
               });
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
-              setScrollTop(newScrollTop);
+              setScrollTop(clampedScrollTop);
               // Update mouse position for tooltip
               const newMousePos = { x: e.clientX, y: e.clientY };
               setMousePosition(newMousePos);
-              console.log('🎯 MOUSEMOVE UPDATE:', { 
+              console.log('🎯 MOUSEMOVE UPDATE FIXED:', { 
                 deltaY, 
-                newScrollTop, 
-                mousePos: newMousePos,
-                showTooltip: showScrollTooltip
+                dragRatio,
+                maxScroll,
+                trackSpan,
+                startScrollTop,
+                clampedScrollTop,
+                mousePos: newMousePos
               });
             };
             
@@ -915,20 +933,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             if (!scrollContainer) return;
             
             const startScrollTop = scrollContainer.scrollTop;
-            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
+            // CORRECT FORMULA: Use scrollHeight - clientHeight for available scroll range
+            const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+            const trackHeight = window.innerHeight - 85;
+            const thumbHeight = 44; // Minimum thumb height from CSS
+            const trackSpan = trackHeight - thumbHeight; // Available track movement
             
             const handleTouchMove = (e: TouchEvent) => {
               e.preventDefault();
               const touch = e.touches[0];
               const deltaY = touch.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
-              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
+              // CORRECT FORMULA: Map drag distance to available track span, then to available scroll
+              const dragRatio = Math.max(0, Math.min(1, deltaY / trackSpan));
+              const newScrollTop = startScrollTop + (dragRatio * maxScroll);
+              const clampedScrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+              
               scrollContainer.scrollTo({
-                top: newScrollTop,
+                top: clampedScrollTop,
                 behavior: 'instant'
               });
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
-              setScrollTop(newScrollTop);
+              setScrollTop(clampedScrollTop);
               // Update touch position for tooltip
               setMousePosition({ x: touch.clientX, y: touch.clientY });
             };
