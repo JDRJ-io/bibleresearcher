@@ -40,6 +40,22 @@ export function ScrollbarTooltip({
     const clampedIndex = Math.max(0, Math.min(currentCenterVerseIndex, totalVerses - 1));
     const currentCenterVerse = verseKeys[clampedIndex] || 'Gen.1:1';
     
+    // DEBUG: Log the calculation details
+    console.log('🐛 TOOLTIP DEBUG:', {
+      currentScrollTop,
+      viewportCenter,
+      currentCenterScrollPosition,
+      currentCenterVerseIndex,
+      clampedIndex,
+      currentCenterVerse,
+      totalVerses,
+      ROW_HEIGHT,
+      windowHeight: window.innerHeight,
+      verseKeysLength: verseKeys.length,
+      firstVerse: verseKeys[0],
+      lastVerse: verseKeys[verseKeys.length - 1]
+    });
+    
     setVerseRef(currentCenterVerse);
     
     // Position tooltip to the LEFT of the scrollbar at mouse Y position
