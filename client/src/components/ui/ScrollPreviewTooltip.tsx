@@ -25,7 +25,7 @@ export function ScrollPreviewTooltip({
 
       const container = containerRef.current;
       const scrollTop = container.scrollTop;
-      const rowHeight = 32; // ROW_HEIGHT constant from layout
+      const rowHeight = 40; // ROW_HEIGHT constant from VirtualRow
       
       // Calculate current verse index based on scroll position
       const currentIndex = Math.floor(scrollTop / rowHeight);

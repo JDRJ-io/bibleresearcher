@@ -704,9 +704,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           contain: 'layout paint style',
           willChange: 'scroll-position',
           touchAction: 'pan-y', // Only allow vertical panning
-          // Hide default scrollbars since we'll show custom ones
-          scrollbarWidth: 'none', // Firefox
-          msOverflowStyle: 'none', // IE/Edge
+          // Show blue custom scrollbars
+          scrollbarWidth: 'thin', // Firefox
+          scrollbarColor: 'rgb(59 130 246) transparent', // Blue scrollbar for Firefox
           // Ensure content width doesn't exceed viewport to prevent horizontal scrolling
           maxWidth: '100vw',
           // On mobile, ensure strict vertical-only scrolling
