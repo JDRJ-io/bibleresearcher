@@ -19,13 +19,6 @@ export function ScrollbarTooltip({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('');
 
-  // Update tooltip when mouse position changes during dragging
-  useEffect(() => {
-    if (!isVisible || !mousePosition || !containerRef.current) return;
-    
-    updateTooltip(mousePosition.y);
-  }, [isVisible, mousePosition, containerRef, totalVerses]);
-
   const updateTooltip = useCallback((clientY: number) => {
     if (!containerRef.current) return;
 
@@ -54,6 +47,17 @@ export function ScrollbarTooltip({
       y: clientY // Center vertically on cursor
     });
   }, [containerRef, totalVerses]);
+
+  // Update tooltip when mouse position changes during dragging
+  useEffect(() => {
+    if (!isVisible || !mousePosition || !containerRef.current) return;
+    
+    try {
+      updateTooltip(mousePosition.y);
+    } catch (error) {
+      console.warn('ScrollbarTooltip updateTooltip error:', error);
+    }
+  }, [isVisible, mousePosition, containerRef, totalVerses, updateTooltip]);
 
   // No need for separate event listeners - this will be controlled by VirtualBibleTable's scrollbar events
 

@@ -47,10 +47,11 @@ export function useAnchorSlice(
     if (!containerRef.current) return;
 
     const el = containerRef.current;
+    let isUpdating = false; // Prevent infinite loops
     
     const onScroll = () => {
-      // PAUSE LOADING: Skip all processing during scrollbar dragging
-      if (options?.disabled) {
+      // PAUSE LOADING: Skip all processing during scrollbar dragging or updates
+      if (options?.disabled || isUpdating) {
         return;
       }
       
@@ -65,21 +66,26 @@ export function useAnchorSlice(
       if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
         // Store current scroll position before slice change
         const currentScrollTop = el.scrollTop;
+        isUpdating = true;
         
         anchorIndexRef.current = clampedAnchor;
         setAnchorIndex(clampedAnchor);
         setSlice(loadChunk(clampedAnchor, verseKeys));
         
-        // Restore exact scroll position after slice loads
+        // Restore exact scroll position after slice loads with debounce protection
         requestAnimationFrame(() => {
-          if (el.scrollTop !== currentScrollTop) {
+          if (el && Math.abs(el.scrollTop - currentScrollTop) > 1) {
             el.scrollTop = currentScrollTop;
           }
+          // Reset updating flag after a brief delay
+          setTimeout(() => {
+            isUpdating = false;
+          }, 50);
         });
       }
     };
 
-    el.addEventListener("scroll", onScroll);
+    el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, [containerRef, verseKeys, options]);
 
