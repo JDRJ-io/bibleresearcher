@@ -141,7 +141,8 @@
 }
 
 /* Mobile reference column - match data cell rotation exactly */
-@media (max-width: 767px) {
+/* Only rotate on very narrow screens (mobile portrait), not tablet portrait */
+@media (max-width: 640px) {
   .column-header-cell[data-column="reference"] {
     writing-mode: vertical-rl !important;
     transform: rotate(180deg) !important;
@@ -153,6 +154,21 @@
     overflow: hidden !important;
     white-space: nowrap !important;
     /* Width now handled by unified system in index.css */
+  }
+}
+
+/* Tablet portrait and wider - keep horizontal verse references */
+@media (min-width: 641px) {
+  .column-header-cell[data-column="reference"] {
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
   }
 }
 

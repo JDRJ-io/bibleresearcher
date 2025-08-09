@@ -1496,7 +1496,7 @@ body.overlay-open {
 }
 
 /* Mobile Optimizations */
-@media (max-width: 639px) {
+@media (max-width: 640px) {
   .bible-table-wrapper.dual-col {
     justify-content: flex-start;
     width: calc(var(--colW) * 2.2); /* Slightly wider for better proportions */
@@ -1524,6 +1524,18 @@ body.overlay-open {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     font-size: 0.75rem;
+  }
+}
+
+/* Tablet portrait and wider - keep horizontal verse references */
+@media (min-width: 641px) {
+  .dual-col .cell-ref span,
+  .cell-ref span {
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+    font-size: 0.8rem;
+    display: block;
+    text-align: center;
   }
 }
 
