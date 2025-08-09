@@ -34,7 +34,6 @@ import type {
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import { useNotesCache } from "@/hooks/useNotesCache";
 import { ScrollbarTooltip } from "@/components/ui/ScrollbarTooltip";
-import { useLoadMode } from '@/contexts/LoadModeContext';
 import type { LabelName } from '@/lib/labelBits';
 
 export interface VirtualBibleTableHandle {
@@ -79,7 +78,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     onCurrentVerseChange,
   } = props;
   // All hooks must be called at the top level of the component
-  const { mode, setMode } = useLoadMode();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -99,6 +97,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
+  const [scrollTop, setScrollTop] = useState(0);
+
+
+  const [scrollLeft, setScrollLeft] = useState(0);
+
   
   // Remove ref handling for now
   
@@ -106,24 +109,52 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { currentVerseKeys, isChronological } = useBibleStore();
   const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
   
-  // PAUSE virtual loading during scrollbar dragging for smooth performance
+  // Keep anchor slice active during scrollbar dragging - tooltip reads from anchorIndex
   const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
-    disabled: isScrollbarDragging 
+    disabled: false // Keep anchor tracking active for tooltip
   });
+
+  // Efficient scroll position synchronization with throttling for performance
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking && !isScrollbarDragging) {
+        requestAnimationFrame(() => {
+          setScrollTop(container.scrollTop);
+          setScrollLeft(container.scrollLeft);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [isScrollbarDragging]);
   
   // Handle scrollbar dragging state changes
   const handleScrollbarDragChange = useCallback((dragging: boolean, clientX?: number, clientY?: number) => {
+    console.log('🎯 DRAG STATE CHANGE:', { 
+      dragging, 
+      clientX, 
+      clientY,
+      previousDragging: isScrollbarDragging,
+      previousTooltip: showScrollTooltip 
+    });
     setIsScrollbarDragging(dragging);
     setShowScrollTooltip(dragging);
     if (dragging && clientX !== undefined && clientY !== undefined) {
-      setMousePosition({ x: clientX, y: clientY });
+      const mousePos = { x: clientX, y: clientY };
+      setMousePosition(mousePos);
+      console.log('🎯 MOUSE POSITION SET:', mousePos);
     } else {
       setMousePosition(undefined);
+      console.log('🎯 MOUSE POSITION CLEARED');
     }
-    
-    // SMART SCROLL: Switch load modes for performance optimization
-    setMode(dragging ? 'KeysOnly' : 'Full');
-  }, [setMode]);
+  }, [isScrollbarDragging, showScrollTooltip]);
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {
@@ -399,8 +430,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const vScrollRef = useRef<HTMLDivElement>(null); // Vertical scroller
   const hScrollRef = useRef<HTMLDivElement>(null); // Horizontal scroller
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [scrollTop, setScrollTop] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
   // Handle runtime error overlay that blocks navigation
@@ -814,14 +843,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           className="absolute right-0 top-0 w-6 md:w-3 bg-blue-500 dark:bg-blue-400 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-blue-600 dark:md:hover:bg-blue-300 active:bg-blue-600 dark:active:bg-blue-300"
           style={{
             height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
-            top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
+            top: `${(() => {
+              const container = containerRef.current;
+              if (!container) return 0;
+              const maxScroll = Math.max(1, container.scrollHeight - container.clientHeight);
+              const scrollRatio = scrollTop / maxScroll;
+              const thumbHeightPercent = Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100));
+              const availableTrackPercent = 100 - thumbHeightPercent;
+              return Math.min(90, scrollRatio * availableTrackPercent);
+            })()}%`,
             cursor: 'pointer',
             touchAction: 'none',
             minHeight: '44px' // Ensure minimum touch target size
           }}
           onMouseDown={(e) => {
             e.preventDefault();
-            console.log('🎯 SCROLLBAR: Starting drag - PAUSING virtual loading');
+            console.log('🎯 SCROLLBAR MOUSEDOWN:', { 
+              clientX: e.clientX, 
+              clientY: e.clientY,
+              target: e.target,
+              currentTarget: e.currentTarget
+            });
             handleScrollbarDragChange(true, e.clientX, e.clientY);
             
             const startY = e.clientY;
@@ -829,24 +871,41 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             if (!scrollContainer) return;
             
             const startScrollTop = scrollContainer.scrollTop;
-            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
+            // CORRECT FORMULA: Use scrollHeight - clientHeight for available scroll range
+            const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+            const trackHeight = window.innerHeight - 85;
+            const thumbHeight = 44; // Minimum thumb height from CSS
+            const trackSpan = trackHeight - thumbHeight; // Available track movement
             
             const handleMouseMove = (e: MouseEvent) => {
               const deltaY = e.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
-              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
+              // CORRECT FORMULA: Map drag distance to available track span, then to available scroll
+              const dragRatio = Math.max(0, Math.min(1, deltaY / trackSpan));
+              const newScrollTop = startScrollTop + (dragRatio * maxScroll);
+              const clampedScrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+              
               scrollContainer.scrollTo({
-                top: newScrollTop,
+                top: clampedScrollTop,
                 behavior: 'instant'
               });
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
-              setScrollTop(newScrollTop);
+              setScrollTop(clampedScrollTop);
               // Update mouse position for tooltip
-              setMousePosition({ x: e.clientX, y: e.clientY });
+              const newMousePos = { x: e.clientX, y: e.clientY };
+              setMousePosition(newMousePos);
+              console.log('🎯 MOUSEMOVE UPDATE FIXED:', { 
+                deltaY, 
+                dragRatio,
+                maxScroll,
+                trackSpan,
+                startScrollTop,
+                clampedScrollTop,
+                mousePos: newMousePos
+              });
             };
             
             const handleMouseUp = () => {
-              console.log('🎯 SCROLLBAR: Drag ended - RESUMING virtual loading');
+              console.log('🎯 SCROLLBAR MOUSEUP: Drag ended - RESUMING virtual loading');
               handleScrollbarDragChange(false);
               
               // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
@@ -874,20 +933,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             if (!scrollContainer) return;
             
             const startScrollTop = scrollContainer.scrollTop;
-            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
+            // CORRECT FORMULA: Use scrollHeight - clientHeight for available scroll range
+            const maxScroll = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+            const trackHeight = window.innerHeight - 85;
+            const thumbHeight = 44; // Minimum thumb height from CSS
+            const trackSpan = trackHeight - thumbHeight; // Available track movement
             
             const handleTouchMove = (e: TouchEvent) => {
               e.preventDefault();
               const touch = e.touches[0];
               const deltaY = touch.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
-              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
+              // CORRECT FORMULA: Map drag distance to available track span, then to available scroll
+              const dragRatio = Math.max(0, Math.min(1, deltaY / trackSpan));
+              const newScrollTop = startScrollTop + (dragRatio * maxScroll);
+              const clampedScrollTop = Math.max(0, Math.min(maxScroll, newScrollTop));
+              
               scrollContainer.scrollTo({
-                top: newScrollTop,
+                top: clampedScrollTop,
                 behavior: 'instant'
               });
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
-              setScrollTop(newScrollTop);
+              setScrollTop(clampedScrollTop);
               // Update touch position for tooltip
               setMousePosition({ x: touch.clientX, y: touch.clientY });
             };
@@ -915,12 +981,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       </div>
       
       {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
+
       <ScrollbarTooltip
         containerRef={containerRef}
-        totalVerses={verseKeys.length}
-        isVisible={showScrollTooltip}
+        isVisible={isScrollbarDragging}
         onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
+        verseKeys={verseKeys}
+        anchorIndex={anchorIndex}
       />
     </div>
   );
