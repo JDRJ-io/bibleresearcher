@@ -1,149 +1,84 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getVerseKeyByIndex } from '@/lib/verseKeysLoader';
-import { ROW_HEIGHT } from '@/constants/layout';
 
 interface ScrollbarTooltipProps {
-  verseKeys?: string[];
   containerRef: React.RefObject<HTMLDivElement>;
   totalVerses: number;
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
-  mousePosition?: { x: number; y: number } | null;
-  isDragging?: boolean;
+  mousePosition?: { x: number; y: number }; // Position from VirtualBibleTable
 }
 
 export function ScrollbarTooltip({ 
-  verseKeys,
   containerRef, 
   totalVerses, 
   isVisible, 
   onVisibilityChange,
-  mousePosition,
-  isDragging = false
+  mousePosition 
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const updateTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastUpdateTimeRef = useRef(0);
 
-  // Throttled update for performance during scrollbar dragging
+  // Update tooltip when mouse position changes during dragging
+  useEffect(() => {
+    if (!isVisible || !mousePosition || !containerRef.current) return;
+    
+    updateTooltip(mousePosition.y);
+  }, [isVisible, mousePosition, containerRef, totalVerses]);
+
   const updateTooltip = useCallback((clientY: number) => {
-    const now = Date.now();
-    const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
-    
-    // Throttle updates to 60fps max (16ms interval)
-    if (timeSinceLastUpdate < 16 && !isDragging) {
-      if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
-      updateTimeoutRef.current = setTimeout(() => updateTooltip(clientY), 16 - timeSinceLastUpdate);
-      return;
-    }
-    
-    lastUpdateTimeRef.current = now;
-
     if (!containerRef.current) return;
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     
     // Calculate which verse this scroll position would show
-    const relativeY = Math.max(0, Math.min(rect.height, clientY - rect.top));
-    const scrollPercentage = relativeY / rect.height;
+    const relativeY = clientY - rect.top;
+    const scrollPercentage = Math.max(0, Math.min(1, relativeY / rect.height));
     const maxScroll = container.scrollHeight - container.clientHeight;
     const targetScroll = scrollPercentage * maxScroll;
     
-    // Convert scroll position to verse index using actual ROW_HEIGHT
+    // Convert scroll position to verse index
+    const ROW_HEIGHT = 60; // Match the row height from layout constants
     const verseIndex = Math.round(targetScroll / ROW_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(verseIndex, totalVerses - 1));
     
-    // Get verse reference - use provided verseKeys if available, otherwise fallback to loader
-    const verse = verseKeys?.[clampedIndex] || getVerseKeyByIndex(clampedIndex) || 'Gen.1:1';
+    // Get verse reference
+    const verse = getVerseKeyByIndex(clampedIndex) || 'Gen.1:1';
     
     setVerseRef(verse);
-    
-    // Position tooltip to the right of scrollbar area, with smart positioning
-    const tooltipWidth = 80; // Estimated tooltip width
-    const tooltipX = rect.right + 12;
-    const tooltipY = Math.max(20, Math.min(window.innerHeight - 40, clientY));
-    
     setPosition({
-      x: tooltipX + tooltipWidth > window.innerWidth ? rect.left - tooltipWidth - 12 : tooltipX,
-      y: tooltipY
+      x: rect.right + 10, // Position to the right of the scrollbar
+      y: clientY - 15 // Center vertically on cursor
     });
-  }, [containerRef, totalVerses, isDragging]);
+  }, [containerRef, totalVerses]);
 
-  // Update tooltip when mouse position changes
-  useEffect(() => {
-    if (!isVisible || !mousePosition) return;
-    
-    setIsAnimating(true);
-    updateTooltip(mousePosition.y);
-    
-    // Clear animation state after transition
-    const animationTimer = setTimeout(() => setIsAnimating(false), 150);
-    return () => clearTimeout(animationTimer);
-  }, [isVisible, mousePosition, updateTooltip]);
-
-  // Cleanup timeouts
-  useEffect(() => {
-    return () => {
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-    };
-  }, []);
+  // No need for separate event listeners - this will be controlled by VirtualBibleTable's scrollbar events
 
   if (!isVisible || !verseRef) return null;
 
   return (
     <div
-      className={`fixed z-[9999] pointer-events-none transition-all duration-150 ease-out transform ${
-        isAnimating ? 'scale-105' : 'scale-100'
-      }`}
+      className="fixed z-[9999] pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-2 py-1 rounded shadow-lg text-xs font-medium transform -translate-y-1/2 whitespace-nowrap"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        transform: 'translateY(-50%)',
+        fontSize: '11px',
+        fontWeight: '500',
+        fontFamily: 'Dancing Script, cursive',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        backdropFilter: 'blur(4px)',
+        animation: 'fadeIn 0.1s ease-out',
+        maxHeight: '24px',
+        lineHeight: '1.2'
       }}
     >
-      {/* Glass morphism tooltip */}
-      <div
-        className="relative bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-lg px-3 py-2 shadow-xl border border-white/20 dark:border-white/10"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
-          backdropFilter: 'blur(12px) saturate(1.2)',
-          WebkitBackdropFilter: 'blur(12px) saturate(1.2)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
-        }}
-      >
-        <div 
-          className="text-gray-900 dark:text-white font-medium whitespace-nowrap"
-          style={{
-            fontSize: '12px',
-            fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-            letterSpacing: '0.025em',
-            lineHeight: '1.3'
-          }}
-        >
-          {verseRef}
-        </div>
-        
-        {/* Elegant arrow indicator */}
-        <div 
-          className="absolute top-1/2 -translate-y-1/2"
-          style={{
-            left: position.x > window.innerWidth / 2 ? 'calc(100% - 2px)' : '-6px',
-            width: '6px',
-            height: '6px',
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '1px',
-            transform: 'rotate(45deg) translateY(-50%)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-          }}
-        />
-      </div>
+      {verseRef}
+      {/* Small arrow pointing to scrollbar */}
+      <div 
+        className="absolute right-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-r-gray-900 dark:border-r-gray-100"
+        style={{ marginRight: '-1px' }}
+      />
     </div>
   );
 }

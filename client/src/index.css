@@ -14,49 +14,17 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-/* Blue scrollbar implementation for main scroll container */
+/* Hide default scrollbars but keep scrolling functionality */
 .unified-scroll-container::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  display: none;
 }
 
-.unified-scroll-container::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 8px;
+.unified-scroll-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-.unified-scroll-container::-webkit-scrollbar-thumb {
-  background: rgb(59 130 246); /* blue-500 */
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-.unified-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: rgb(37 99 235); /* blue-600 */
-  background-clip: content-box;
-}
-
-.unified-scroll-container::-webkit-scrollbar-thumb:active {
-  background: rgb(29 78 216); /* blue-700 */
-  background-clip: content-box;
-}
-
-/* Mobile scrollbar adjustments */
-@media (max-width: 768px) {
-  .unified-scroll-container::-webkit-scrollbar {
-    width: 24px; /* Larger touch target */
-  }
-  
-  .unified-scroll-container::-webkit-scrollbar-thumb {
-    min-height: 44px; /* Minimum touch target */
-    border: 4px solid transparent;
-  }
-}
-
-/* Cell content scrollbars (smaller, gray) */
+/* EXCEPTION: Show scrollbars specifically for cell content */
 .unified-scroll-container .cell-content::-webkit-scrollbar {
   display: block !important;
   width: 8px;
