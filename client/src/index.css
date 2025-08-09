@@ -14,75 +14,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Enhanced modern scrollbar styling for verse preview */
-.unified-scroll-container {
-  position: relative;
-  z-index: 50; /* Ensure container is above other elements */
-}
 
-.unified-scroll-container::-webkit-scrollbar {
-  width: 14px;
-  z-index: 9999; /* Highest z-index for scrollbar */
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.unified-scroll-container::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, 
-    rgba(59, 130, 246, 0.15) 0%, 
-    rgba(59, 130, 246, 0.08) 50%, 
-    rgba(59, 130, 246, 0.15) 100%);
-  border-radius: 7px;
-  margin: 2px 0;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.unified-scroll-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, 
-    rgba(59, 130, 246, 0.9) 0%, 
-    rgba(59, 130, 246, 0.7) 50%, 
-    rgba(59, 130, 246, 0.9) 100%);
-  border-radius: 7px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background-clip: content-box;
-  transition: all 0.2s ease;
-  min-height: 40px;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.unified-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, 
-    rgba(59, 130, 246, 1) 0%, 
-    rgba(59, 130, 246, 0.9) 50%, 
-    rgba(59, 130, 246, 1) 100%);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
-}
-
-.unified-scroll-container::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(to bottom, 
-    rgba(37, 99, 235, 1) 0%, 
-    rgba(37, 99, 235, 0.95) 50%, 
-    rgba(37, 99, 235, 1) 100%);
-  transform: scale(1.02);
-}
-
-/* Firefox scrollbar styling */
-.unified-scroll-container {
-  scrollbar-width: auto;
-  scrollbar-color: rgba(59, 130, 246, 0.9) rgba(59, 130, 246, 0.15);
-}
-
-/* Mobile optimization - make scrollbar more prominent on mobile */
-@media (max-width: 768px) {
-  .unified-scroll-container::-webkit-scrollbar {
-    width: 16px; /* Wider on mobile for easier touch interaction */
-  }
-  
-  .unified-scroll-container::-webkit-scrollbar-thumb {
-    border: 3px solid rgba(255, 255, 255, 0.4);
-    min-height: 50px; /* Larger touch target */
-  }
-}
 
 /* EXCEPTION: Show scrollbars specifically for cell content */
 .unified-scroll-container .cell-content::-webkit-scrollbar {

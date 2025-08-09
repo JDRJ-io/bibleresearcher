@@ -3,6 +3,7 @@ import { getVerseKeyByIndex } from '@/lib/verseKeysLoader';
 import { ROW_HEIGHT } from '@/constants/layout';
 
 interface ScrollbarTooltipProps {
+  verseKeys?: string[];
   containerRef: React.RefObject<HTMLDivElement>;
   totalVerses: number;
   isVisible: boolean;
@@ -12,6 +13,7 @@ interface ScrollbarTooltipProps {
 }
 
 export function ScrollbarTooltip({ 
+  verseKeys,
   containerRef, 
   totalVerses, 
   isVisible, 
@@ -54,8 +56,8 @@ export function ScrollbarTooltip({
     const verseIndex = Math.round(targetScroll / ROW_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(verseIndex, totalVerses - 1));
     
-    // Get verse reference
-    const verse = getVerseKeyByIndex(clampedIndex) || 'Gen.1:1';
+    // Get verse reference - use provided verseKeys if available, otherwise fallback to loader
+    const verse = verseKeys?.[clampedIndex] || getVerseKeyByIndex(clampedIndex) || 'Gen.1:1';
     
     setVerseRef(verse);
     

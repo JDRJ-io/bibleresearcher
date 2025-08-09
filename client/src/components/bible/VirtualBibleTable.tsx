@@ -33,8 +33,7 @@ import type {
 } from "@/types/bible";
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import { useNotesCache } from "@/hooks/useNotesCache";
-import { ScrollbarTooltip } from "@/components/ui/ScrollbarTooltip";
-import { useScrollbarInteraction } from "@/hooks/useScrollbarInteraction";
+import { ScrollPreviewTooltip } from "@/components/ui/ScrollPreviewTooltip";
 import type { LabelName } from '@/lib/labelBits';
 
 export interface VirtualBibleTableHandle {
@@ -96,9 +95,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Enhanced scrollbar interaction system
-  const scrollbarInteraction = useScrollbarInteraction(containerRef);
-  const isScrollbarDragging = scrollbarInteraction.isDragging;
+  // Simple scroll state for verse preview tooltip
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   
   // Remove ref handling for now
   
@@ -106,13 +105,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { currentVerseKeys, isChronological } = useBibleStore();
   const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
   
-  // PAUSE virtual loading during scrollbar dragging for smooth performance
-  const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
-    disabled: isScrollbarDragging 
-  });
-  
-  // Performance optimization: pause non-critical updates during scrollbar interaction
-  const shouldPauseUpdates = scrollbarInteraction.isDragging;
+  // Anchor slice system for virtual scrolling
+  const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys);
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {
@@ -615,10 +609,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       // No longer track scrollLeft since horizontal scrolling is disabled
       setScrollLeft(0); // Always keep at 0
       
-      // Update scrollTop state if not currently dragging scrollbar
-      if (!isScrollbarDragging) {
-        setScrollTop(currentScrollTop);
-      }
+      // Update scrollTop state
+      setScrollTop(currentScrollTop);
 
       // Banner rollup logic - hide PatchNotesBanner on scroll down
       if (isMobile && currentScrollTop > lastScrollTop && currentScrollTop > 30) {
@@ -637,7 +629,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       container.removeEventListener('scroll', onScroll);
       if (scrollTimeout) clearTimeout(scrollTimeout);
     };
-  }, [isScrollbarDragging, isMobile]);
+  }, [isMobile]);
 
   // CSS handles centering automatically with margin-inline: auto
 
@@ -651,7 +643,34 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     );
   }, [preferences.fontSize]);
 
-  // Expert's CSS Grid handles overflow naturally - no manual scroll interference needed
+  // Set up scroll detection for verse preview tooltip
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setIsScrolling(true);
+      
+      // Clear existing timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      // Hide tooltip after scroll stops
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsScrolling(false);
+      }, 1000);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className={`virtual-bible-table ${className}`} style={{ paddingTop: '0px', marginTop: '0px' }}>
@@ -681,12 +700,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",
           overflowX: 'hidden', // Disable horizontal scrolling - navigation arrows control column visibility
           overflowY: 'auto', // Allow vertical scrolling only
-          zIndex: 10, // Ensure scroll container is above other content
           overscrollBehavior: 'contain',
           contain: 'layout paint style',
           willChange: 'scroll-position',
           touchAction: 'pan-y', // Only allow vertical panning
-          // Enhanced scrollbar will be visible for verse preview
+          // Hide default scrollbars since we'll show custom ones
+          scrollbarWidth: 'none', // Firefox
+          msOverflowStyle: 'none', // IE/Edge
+          // Ensure content width doesn't exceed viewport to prevent horizontal scrolling
           maxWidth: '100vw',
           // On mobile, ensure strict vertical-only scrolling
           ...(isMobile && {
@@ -791,15 +812,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
 
       
-      {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
-      {/* Enhanced Scrollbar Tooltip - Shows verse reference during scrollbar interaction */}
-      <ScrollbarTooltip
+      {/* Verse Preview Tooltip - Shows current verse during scrolling */}
+      <ScrollPreviewTooltip
+        verseKeys={verseKeys}
         containerRef={containerRef}
-        totalVerses={verseKeys.length}
-        isVisible={scrollbarInteraction.isVisible}
-        onVisibilityChange={scrollbarInteraction.setVisible}
-        mousePosition={scrollbarInteraction.mousePosition}
-        isDragging={scrollbarInteraction.isDragging}
+        isScrolling={isScrolling || false}
       />
     </div>
   );
