@@ -168,10 +168,7 @@ export function TopHeader({
         padding: isPortrait && isMobile ? '0 6px' : isMobile ? '0 8px' : '0 16px',
         pointerEvents: 'auto' // Ensure events are contained
       }}
-      onWheel={(e) => {
-        // Prevent wheel events from bubbling and affecting column headers
-        e.stopPropagation();
-      }}
+      // Remove onWheel interference - let VirtualBibleTable handle all scrolling
     >
       {/* Mobile Layout */}
       {isMobile ? (

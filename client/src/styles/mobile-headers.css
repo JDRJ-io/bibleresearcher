@@ -9,10 +9,10 @@
 
 /* Mobile-specific header positioning */
 @media (max-width: 640px) {
-  /* Leave the header sticky, but flush to the top of the scroll area */
+  /* Position column headers below TopHeader, not overlapping */
   .column-headers-container {
     position: sticky !important;
-    top: 0 !important;               /* key change */
+    top: var(--top-header-height-mobile) !important; /* Stay below TopHeader */
     z-index: 40 !important;
     background: white !important;
     border-bottom: 1px solid #e5e7eb !important;
@@ -26,10 +26,10 @@
     border-bottom-color: #374151 !important;
   }
 
-  /* The scroll area - prevent horizontal scrolling in mobile */
+  /* The scroll area - prevent horizontal scrolling and account for headers */
   .bible-content-container {
-    margin-top: 0 !important;
-    height: 100vh !important;
+    margin-top: calc(var(--top-header-height-mobile) + var(--column-header-height)) !important;
+    height: calc(100vh - var(--top-header-height-mobile) - var(--column-header-height)) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;  /* Prevent horizontal scrolling */
     touch-action: pan-y !important; /* Only allow vertical touch scrolling */

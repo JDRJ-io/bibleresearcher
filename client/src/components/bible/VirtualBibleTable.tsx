@@ -701,26 +701,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
         data-testid="bible-table"
       >
-        {/* Content container - constrained to viewport width on mobile */}
+        {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            width: '100%', // Always use full container width
-            maxWidth: '100%', // Never exceed container
+            minWidth: isMobile ? `${viewportWidth}px` : `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            maxWidth: isMobile ? `${viewportWidth * 0.98}px` : undefined, // Slight constraint on mobile to prevent edge overflow
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: 'hidden' // Always prevent overflow
+            overflow: isMobile ? 'hidden' : 'visible'
           }}
         >
           <div className="tableInner flex"
             style={{ 
-              width: '100%', // Always use full width 
-              maxWidth: '100%', // Never exceed container
-              margin: '0', // No margin for mobile
-              overflow: 'hidden' // Always prevent overflow
+              minWidth: isMobile ? '100%' : 'max-content', // Keep original adaptive logic
+              width: isMobile ? '100%' : 'max-content',
+              maxWidth: isMobile ? '98%' : undefined, // Small safety margin on mobile
+              margin: isPortrait ? '0' : '0 auto',
+              overflow: isMobile ? 'hidden' : 'visible'
             }}>
             <div style={{ 
-              width: '100%', // Use full width instead of max-content
-              maxWidth: '100%' // Constrain to prevent horizontal overflow
+              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
