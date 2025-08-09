@@ -32,24 +32,26 @@ export function ScrollbarTooltip({
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     
-    // Calculate which verse this scroll position would show
+    // Calculate scroll position based on mouse Y position relative to the scroll container
     const relativeY = clientY - rect.top;
     const scrollPercentage = Math.max(0, Math.min(1, relativeY / rect.height));
-    const maxScroll = container.scrollHeight - container.clientHeight;
-    const targetScroll = scrollPercentage * maxScroll;
+    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
+    const targetScrollTop = scrollPercentage * maxScroll;
     
-    // Convert scroll position to verse index
+    // Calculate which verse would be at the CENTER of the viewport at this scroll position
     const ROW_HEIGHT = 60; // Match the row height from layout constants
-    const verseIndex = Math.round(targetScroll / ROW_HEIGHT);
-    const clampedIndex = Math.max(0, Math.min(verseIndex, totalVerses - 1));
+    const viewportCenter = container.clientHeight / 2;
+    const centerScrollPosition = targetScrollTop + viewportCenter;
+    const centerVerseIndex = Math.floor(centerScrollPosition / ROW_HEIGHT);
+    const clampedIndex = Math.max(0, Math.min(centerVerseIndex, totalVerses - 1));
     
-    // Get verse reference
+    // Get verse reference that will be at center when scroll ends
     const verse = getVerseKeyByIndex(clampedIndex) || 'Gen.1:1';
     
     setVerseRef(verse);
     setPosition({
-      x: rect.right + 10, // Position to the right of the scrollbar
-      y: clientY - 15 // Center vertically on cursor
+      x: rect.right + 15, // Position to the right of the scrollbar with some spacing
+      y: clientY // Center vertically on cursor
     });
   }, [containerRef, totalVerses]);
 
@@ -59,26 +61,32 @@ export function ScrollbarTooltip({
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-2 py-1 rounded shadow-lg text-xs font-medium transform -translate-y-1/2 whitespace-nowrap"
+      className="fixed z-[9999] pointer-events-none bg-blue-600 dark:bg-blue-500 text-white px-3 py-2 rounded-lg shadow-2xl text-sm font-semibold transform -translate-y-1/2 whitespace-nowrap border-2 border-blue-400 dark:border-blue-300"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        fontSize: '11px',
-        fontWeight: '500',
-        fontFamily: 'Dancing Script, cursive',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        backdropFilter: 'blur(4px)',
-        animation: 'fadeIn 0.1s ease-out',
-        maxHeight: '24px',
-        lineHeight: '1.2'
+        fontSize: '13px',
+        fontWeight: '600',
+        fontFamily: 'Inter, system-ui, sans-serif',
+        backdropFilter: 'blur(8px)',
+        animation: 'slideInRight 0.15s ease-out',
+        minHeight: '40px',
+        lineHeight: '1.3',
+        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
       }}
     >
-      {verseRef}
-      {/* Small arrow pointing to scrollbar */}
+      <div className="flex flex-col items-center">
+        <div className="text-xs opacity-90 font-medium tracking-wide">CENTER VERSE</div>
+        <div className="text-base font-bold tracking-tight">{verseRef}</div>
+      </div>
+      {/* Enhanced arrow pointing to scrollbar */}
       <div 
-        className="absolute right-full top-1/2 transform -translate-y-1/2 border-2 border-transparent border-r-gray-900 dark:border-r-gray-100"
+        className="absolute right-full top-1/2 transform -translate-y-1/2"
         style={{ marginRight: '-1px' }}
-      />
+      >
+        <div className="w-0 h-0 border-t-[8px] border-b-[8px] border-r-[8px] border-t-transparent border-b-transparent border-r-blue-600 dark:border-r-blue-500" />
+        <div className="absolute top-1/2 transform -translate-y-1/2 right-[6px] w-0 h-0 border-t-[6px] border-b-[6px] border-r-[6px] border-t-transparent border-b-transparent border-r-blue-400 dark:border-r-blue-300" />
+      </div>
     </div>
   );
 }
