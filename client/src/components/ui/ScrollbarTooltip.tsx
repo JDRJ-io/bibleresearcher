@@ -49,15 +49,15 @@ export function ScrollbarTooltip({
 
   return (
     <div
-      className="fixed pointer-events-none bg-blue-600 text-white px-3 py-2 rounded font-bold text-sm shadow-lg border border-blue-400"
+      className="fixed pointer-events-none bg-red-600 text-white px-4 py-3 rounded-lg font-bold text-lg shadow-2xl border-2 border-red-400"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
+        left: `${mousePosition?.x ? mousePosition.x + 20 : 100}px`,
+        top: `${mousePosition?.y ? mousePosition.y : 100}px`,
         transform: 'translateY(-50%)',
-        zIndex: 50000,
+        zIndex: 999999,
       }}
     >
-      {verseRef}
+      TOOLTIP TEST: {verseRef} - DRAG: {isVisible ? 'YES' : 'NO'}
     </div>
   );
 }
