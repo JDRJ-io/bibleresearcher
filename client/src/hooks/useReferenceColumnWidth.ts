@@ -6,6 +6,8 @@ import { useEffect } from 'react';
  */
 export function useReferenceColumnWidth() {
   useEffect(() => {
+    let lastWidthValue = -1; // Track previous width to avoid unnecessary work
+    
     const monitorReferenceWidth = () => {
       // Get the current adaptive reference width from CSS variable
       const adaptiveRefWidth = getComputedStyle(document.documentElement)
@@ -14,11 +16,20 @@ export function useReferenceColumnWidth() {
 
       if (adaptiveRefWidth) {
         const widthValue = parseInt(adaptiveRefWidth.replace('px', ''));
-        console.log('📐 Reference column width monitoring:', { 
-          adaptiveRefWidth, 
-          widthValue, 
-          isThin: widthValue <= 40 
-        });
+        
+        // Only process if width actually changed to prevent rapid firing
+        if (widthValue === lastWidthValue) {
+          return;
+        }
+        
+        lastWidthValue = widthValue;
+        
+        // Remove excessive logging that was causing performance issues
+        // console.log('📐 Reference column width monitoring:', { 
+        //   adaptiveRefWidth, 
+        //   widthValue, 
+        //   isThin: widthValue <= 40 
+        // });
 
         // Apply thin column class to body when reference column is ≤40px
         if (widthValue <= 40) {
@@ -44,12 +55,12 @@ export function useReferenceColumnWidth() {
     // Monitor width changes - initial check
     monitorReferenceWidth();
 
-    // Check for width changes periodically since CSS variables don't trigger events
-    const intervalId = setInterval(monitorReferenceWidth, 250); // Check every 250ms
+    // Reduce frequency to improve performance during scrolling
+    const intervalId = setInterval(monitorReferenceWidth, 500); // Check every 500ms instead of 250ms
 
     // Also monitor window resize for immediate updates
     const handleResize = () => {
-      setTimeout(monitorReferenceWidth, 50); // Small delay for CSS variable updates
+      setTimeout(monitorReferenceWidth, 100); // Increased delay for better performance
     };
     
     window.addEventListener('resize', handleResize);
