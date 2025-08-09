@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getVerseKeyByIndex } from '@/lib/verseKeysLoader';
 
 interface ScrollbarTooltipProps {
   containerRef: React.RefObject<HTMLDivElement>;
   totalVerses: number;
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
-  mousePosition?: { x: number; y: number }; // Position from VirtualBibleTable
+  mousePosition?: { x: number; y: number };
+  verseKeys: string[];
 }
 
 export function ScrollbarTooltip({ 
@@ -14,52 +14,53 @@ export function ScrollbarTooltip({
   totalVerses, 
   isVisible, 
   onVisibilityChange,
-  mousePosition 
+  mousePosition,
+  verseKeys
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('');
 
+  // High-performance tooltip update with modern optimizations
   const updateTooltip = useCallback((clientY: number) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !verseKeys.length) return;
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     
     // Calculate scroll position based on mouse Y position relative to the scroll container
-    const relativeY = clientY - rect.top;
-    const scrollPercentage = Math.max(0, Math.min(1, relativeY / rect.height));
-    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
-    const targetScrollTop = scrollPercentage * maxScroll;
+    const relativeY = Math.max(0, Math.min(rect.height, clientY - rect.top));
+    const scrollPercentage = relativeY / rect.height;
     
-    // Calculate which verse would be at the CENTER of the viewport at this scroll position
-    const ROW_HEIGHT = 60; // Match the row height from layout constants
-    const viewportCenter = container.clientHeight / 2;
-    const centerScrollPosition = targetScrollTop + viewportCenter;
-    const centerVerseIndex = Math.floor(centerScrollPosition / ROW_HEIGHT);
+    // Calculate which verse would be at the CENTER based on scroll percentage
+    const centerVerseIndex = Math.floor(scrollPercentage * (totalVerses - 1));
     const clampedIndex = Math.max(0, Math.min(centerVerseIndex, totalVerses - 1));
     
-    // Get verse reference that will be at center when scroll ends
-    const verse = getVerseKeyByIndex(clampedIndex) || 'Gen.1:1';
+    // Get verse reference efficiently
+    const verse = verseKeys[clampedIndex] || verseKeys[0] || 'Gen.1:1';
     
     setVerseRef(verse);
     setPosition({
       x: rect.right + 15, // Position to the right of the scrollbar with some spacing
       y: clientY // Center vertically on cursor
     });
-  }, [containerRef, totalVerses]);
+  }, [containerRef, totalVerses, verseKeys]);
 
-  // Update tooltip when mouse position changes during dragging
+  // Update tooltip when mouse position changes during dragging - optimized with requestAnimationFrame
   useEffect(() => {
     if (!isVisible || !mousePosition || !containerRef.current) return;
     
-    try {
-      updateTooltip(mousePosition.y);
-    } catch (error) {
-      console.warn('ScrollbarTooltip updateTooltip error:', error);
-    }
-  }, [isVisible, mousePosition, containerRef, totalVerses, updateTooltip]);
-
-  // No need for separate event listeners - this will be controlled by VirtualBibleTable's scrollbar events
+    let rafId: number;
+    const updateFrame = () => {
+      try {
+        updateTooltip(mousePosition.y);
+      } catch (error) {
+        console.warn('ScrollbarTooltip updateTooltip error:', error);
+      }
+    };
+    
+    rafId = requestAnimationFrame(updateFrame);
+    return () => cancelAnimationFrame(rafId);
+  }, [isVisible, mousePosition, updateTooltip]);
 
   console.log('🎯 ScrollbarTooltip render:', { isVisible, verseRef, mousePosition, position });
   
@@ -67,26 +68,24 @@ export function ScrollbarTooltip({
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none bg-blue-600 text-white px-4 py-3 rounded-lg shadow-2xl text-sm font-bold whitespace-nowrap"
+      className="fixed z-[9999] pointer-events-none"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
         transform: 'translateY(-50%)',
-        fontSize: '14px',
-        fontWeight: '700',
-        minWidth: '120px',
-        textAlign: 'center',
-        border: '2px solid #3b82f6',
-        boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)'
       }}
     >
-      <div>CENTER VERSE</div>
-      <div className="text-lg">{verseRef}</div>
-      {/* Simple arrow pointing to scrollbar */}
-      <div 
-        className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[10px] border-b-[10px] border-r-[10px] border-t-transparent border-b-transparent border-r-blue-600"
-        style={{ marginRight: '-1px' }}
-      />
+      {/* Modern glass morphism tooltip with blue theme */}
+      <div className="relative bg-blue-600/95 backdrop-blur-sm text-white px-4 py-3 rounded-xl shadow-2xl border border-blue-400/30">
+        <div className="text-xs font-medium opacity-90 tracking-wide uppercase">Center Verse</div>
+        <div className="text-lg font-bold tracking-tight">{verseRef}</div>
+        
+        {/* Smooth animated arrow pointing to scrollbar */}
+        <div 
+          className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[10px] border-b-[10px] border-r-[12px] border-t-transparent border-b-transparent border-r-blue-600/95"
+          style={{ marginRight: '-1px' }}
+        />
+      </div>
     </div>
   );
 }

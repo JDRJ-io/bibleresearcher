@@ -111,6 +111,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
     disabled: isScrollbarDragging 
   });
+
+  // Efficient scroll position synchronization with throttling for performance
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking && !isScrollbarDragging) {
+        requestAnimationFrame(() => {
+          setScrollTop(container.scrollTop);
+          setScrollLeft(container.scrollLeft);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [isScrollbarDragging]);
   
   // Handle scrollbar dragging state changes
   const handleScrollbarDragChange = useCallback((dragging: boolean, clientX?: number, clientY?: number) => {
@@ -919,6 +940,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         isVisible={showScrollTooltip}
         onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
+        verseKeys={verseKeys}
       />
     </div>
   );
