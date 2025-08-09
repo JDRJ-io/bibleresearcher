@@ -11,6 +11,7 @@ import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
 import { useAdaptiveWidths } from '@/hooks/useAdaptiveWidths';
 import { useOrientation } from '@/hooks/useOrientation';
+import { useReferenceColumnWidth } from '@/hooks/useReferenceColumnWidth';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
 import { useAnchorSlice } from "@/hooks/useAnchorSlice";
@@ -541,6 +542,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       });
     }
   }, [adaptiveConfig]);
+
+  // ADAPTIVE VERSE REFERENCE ROTATION: Monitor reference column width and rotate when thin
+  useReferenceColumnWidth();
 
   // FORCE show cross-references in portrait mode for three-column layout
   // Note: useBibleStore is already called earlier in the component, use existing values

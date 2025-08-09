@@ -1518,25 +1518,32 @@ body.overlay-open {
   .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
   .dual-col .w-14 { width: calc(var(--colW) * 0.175) !important; }
   .dual-col .w-12 { width: calc(var(--colW) * 0.15) !important; }
-
-  /* Rotated reference column for mobile */
-  .dual-col .cell-ref span {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 0.75rem;
-  }
 }
 
-/* Tablet portrait and wider - keep horizontal verse references */
-@media (min-width: 641px) {
-  .dual-col .cell-ref span,
-  .cell-ref span {
-    writing-mode: horizontal-tb !important;
-    transform: none !important;
-    font-size: 0.8rem;
-    display: block;
-    text-align: center;
-  }
+/* ADAPTIVE VERSE REFERENCE ROTATION - Based on Column Width, Not Screen Size */
+/* When reference column becomes very thin (≤40px), rotate verse references vertically */
+.cell-ref span {
+  /* Default: horizontal display for wide reference columns */
+  writing-mode: horizontal-tb;
+  transform: none;
+  font-size: 0.8rem;
+  display: block;
+  text-align: center;
+  transition: none; /* No animation for immediate response */
+}
+
+/* Inject thin column detection via CSS custom property set by JavaScript */
+.reference-column-thin .cell-ref span,
+.cell-ref[data-width-thin] span {
+  /* Rotate vertically when column is thin */
+  writing-mode: vertical-rl !important;
+  transform: rotate(180deg) !important;
+  font-size: 0.75rem !important;
+  text-align: center !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* Conflicting styles removed - using label-effects.css instead */
