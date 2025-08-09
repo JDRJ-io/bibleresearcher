@@ -61,36 +61,32 @@ export function ScrollbarTooltip({
 
   // No need for separate event listeners - this will be controlled by VirtualBibleTable's scrollbar events
 
+  console.log('🎯 ScrollbarTooltip render:', { isVisible, verseRef, mousePosition, position });
+  
   if (!isVisible || !verseRef) return null;
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none bg-blue-600 dark:bg-blue-500 text-white px-3 py-2 rounded-lg shadow-2xl text-sm font-semibold transform -translate-y-1/2 whitespace-nowrap border-2 border-blue-400 dark:border-blue-300"
+      className="fixed z-[9999] pointer-events-none bg-blue-600 text-white px-4 py-3 rounded-lg shadow-2xl text-sm font-bold whitespace-nowrap"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        fontSize: '13px',
-        fontWeight: '600',
-        fontFamily: 'Inter, system-ui, sans-serif',
-        backdropFilter: 'blur(8px)',
-        animation: 'slideInRight 0.15s ease-out',
-        minHeight: '40px',
-        lineHeight: '1.3',
-        boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+        transform: 'translateY(-50%)',
+        fontSize: '14px',
+        fontWeight: '700',
+        minWidth: '120px',
+        textAlign: 'center',
+        border: '2px solid #3b82f6',
+        boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)'
       }}
     >
-      <div className="flex flex-col items-center">
-        <div className="text-xs opacity-90 font-medium tracking-wide">CENTER VERSE</div>
-        <div className="text-base font-bold tracking-tight">{verseRef}</div>
-      </div>
-      {/* Enhanced arrow pointing to scrollbar */}
+      <div>CENTER VERSE</div>
+      <div className="text-lg">{verseRef}</div>
+      {/* Simple arrow pointing to scrollbar */}
       <div 
-        className="absolute right-full top-1/2 transform -translate-y-1/2"
+        className="absolute right-full top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[10px] border-b-[10px] border-r-[10px] border-t-transparent border-b-transparent border-r-blue-600"
         style={{ marginRight: '-1px' }}
-      >
-        <div className="w-0 h-0 border-t-[8px] border-b-[8px] border-r-[8px] border-t-transparent border-b-transparent border-r-blue-600 dark:border-r-blue-500" />
-        <div className="absolute top-1/2 transform -translate-y-1/2 right-[6px] w-0 h-0 border-t-[6px] border-b-[6px] border-r-[6px] border-t-transparent border-b-transparent border-r-blue-400 dark:border-r-blue-300" />
-      </div>
+      />
     </div>
   );
 }

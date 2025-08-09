@@ -97,6 +97,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
+  const [scrollTop, setScrollTop] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
   
   // Remove ref handling for now
   
@@ -111,10 +114,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   // Handle scrollbar dragging state changes
   const handleScrollbarDragChange = useCallback((dragging: boolean, clientX?: number, clientY?: number) => {
+    console.log('🎯 handleScrollbarDragChange:', { dragging, clientX, clientY });
     setIsScrollbarDragging(dragging);
     setShowScrollTooltip(dragging);
     if (dragging && clientX !== undefined && clientY !== undefined) {
       setMousePosition({ x: clientX, y: clientY });
+      console.log('🎯 Mouse position set:', { x: clientX, y: clientY });
     } else {
       setMousePosition(undefined);
     }
@@ -394,8 +399,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const vScrollRef = useRef<HTMLDivElement>(null); // Vertical scroller
   const hScrollRef = useRef<HTMLDivElement>(null); // Horizontal scroller
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [scrollTop, setScrollTop] = useState(0);
   const [scrollDirection, setScrollDirection] = useState<'vertical' | 'horizontal' | null>(null);
   
   // Handle runtime error overlay that blocks navigation
