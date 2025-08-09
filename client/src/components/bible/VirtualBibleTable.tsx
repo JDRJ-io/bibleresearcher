@@ -681,14 +681,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",
           overflowX: 'hidden', // Disable horizontal scrolling - navigation arrows control column visibility
           overflowY: 'auto', // Allow vertical scrolling only
+          zIndex: 10, // Ensure scroll container is above other content
           overscrollBehavior: 'contain',
           contain: 'layout paint style',
           willChange: 'scroll-position',
           touchAction: 'pan-y', // Only allow vertical panning
-          // Hide default scrollbars since we'll show custom ones
-          scrollbarWidth: 'none', // Firefox
-          msOverflowStyle: 'none', // IE/Edge
-          // Ensure content width doesn't exceed viewport to prevent horizontal scrolling
+          // Enhanced scrollbar will be visible for verse preview
           maxWidth: '100vw',
           // On mobile, ensure strict vertical-only scrolling
           ...(isMobile && {

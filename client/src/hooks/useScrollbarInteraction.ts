@@ -20,15 +20,19 @@ export function useScrollbarInteraction(containerRef: React.RefObject<HTMLDivEle
   // Detect if mouse is over scrollbar area
   const isOverScrollbar = useCallback((e: MouseEvent, container: HTMLElement) => {
     const rect = container.getBoundingClientRect();
-    const scrollbarWidth = container.offsetWidth - container.clientWidth;
+    const scrollbarWidth = Math.max(14, container.offsetWidth - container.clientWidth); // Minimum 14px for styled scrollbar
     
-    // Check if mouse is in the scrollbar area (right side)
-    const isInScrollbarZone = e.clientX >= rect.right - scrollbarWidth - 5 && 
+    // Enhanced detection zone - include area near scrollbar for easier interaction
+    const detectionZone = 20; // 20px zone for easier interaction
+    const isInScrollbarZone = e.clientX >= rect.right - scrollbarWidth - detectionZone && 
                               e.clientX <= rect.right + 5 &&
                               e.clientY >= rect.top && 
                               e.clientY <= rect.bottom;
     
-    return isInScrollbarZone && scrollbarWidth > 0;
+    // Also check if content is actually scrollable
+    const isScrollable = container.scrollHeight > container.clientHeight;
+    
+    return isInScrollbarZone && isScrollable;
   }, []);
 
   // Throttled state update for smooth performance
