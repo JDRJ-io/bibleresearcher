@@ -2,27 +2,25 @@ import { useState, useEffect, useCallback } from 'react';
 
 interface ScrollbarTooltipProps {
   containerRef: React.RefObject<HTMLDivElement>;
-  totalVerses: number;
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
   mousePosition?: { x: number; y: number };
   verseKeys: string[];
-  scrollTop: number;
+  anchorIndex: number;
 }
 
 export function ScrollbarTooltip({ 
   containerRef, 
-  totalVerses, 
   isVisible, 
   onVisibilityChange,
   mousePosition,
   verseKeys,
-  scrollTop
+  anchorIndex
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('Gen.1:1');
 
-  // Update tooltip position and verse based on current scrollTop state
+  // Update tooltip position and verse based on loaded verse keys
   useEffect(() => {
     if (!isVisible || !mousePosition || !containerRef.current || !verseKeys.length) {
       return;
@@ -30,29 +28,16 @@ export function ScrollbarTooltip({
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
-    const ROW_HEIGHT = 40;
     
-    // Use the scrollTop state that gets updated during drag (from VirtualBibleTable)
-    const currentScrollTop = scrollTop;
+    // Simply read the current center verse from the loaded verse keys
+    // The anchorIndex represents what's currently centered in the viewport
+    const currentCenterVerse = verseKeys[anchorIndex] || verseKeys[0] || 'Gen.1:1';
     
-    // Calculate which verse is at the center based on this scroll position
-    const viewportCenter = (window.innerHeight - 85) / 2;
-    const currentCenterScrollPosition = currentScrollTop + viewportCenter;
-    const currentCenterVerseIndex = Math.floor(currentCenterScrollPosition / ROW_HEIGHT);
-    const clampedIndex = Math.max(0, Math.min(currentCenterVerseIndex, totalVerses - 1));
-    const currentCenterVerse = verseKeys[clampedIndex] || 'Gen.1:1';
-    
-    // DEBUG: Log the calculation details
-    console.log('🐛 TOOLTIP DEBUG FIXED:', {
-      scrollTopState: scrollTop,
-      containerScrollTop: container.scrollTop,
-      viewportCenter,
-      currentCenterScrollPosition,
-      currentCenterVerseIndex,
-      clampedIndex,
+    console.log('🎯 TOOLTIP SIMPLE:', {
+      anchorIndex,
       currentCenterVerse,
-      totalVerses,
-      ROW_HEIGHT
+      verseKeysLength: verseKeys.length,
+      mouseY: mousePosition.y
     });
     
     setVerseRef(currentCenterVerse);
@@ -62,7 +47,7 @@ export function ScrollbarTooltip({
       x: rect.right - 180,
       y: mousePosition.y
     });
-  }, [isVisible, mousePosition, containerRef, totalVerses, verseKeys, scrollTop]);
+  }, [isVisible, mousePosition, containerRef, verseKeys, anchorIndex]);
 
   if (!isVisible) {
     return null;

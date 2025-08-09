@@ -109,9 +109,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { currentVerseKeys, isChronological } = useBibleStore();
   const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
   
-  // PAUSE virtual loading during scrollbar dragging for smooth performance
+  // Keep anchor slice active during scrollbar dragging - tooltip reads from anchorIndex
   const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
-    disabled: isScrollbarDragging 
+    disabled: false // Keep anchor tracking active for tooltip
   });
 
   // Efficient scroll position synchronization with throttling for performance
@@ -984,12 +984,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
       <ScrollbarTooltip
         containerRef={containerRef}
-        totalVerses={verseKeys.length}
         isVisible={isScrollbarDragging}
         onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
         verseKeys={verseKeys}
-        scrollTop={scrollTop}
+        anchorIndex={anchorIndex}
       />
     </div>
   );
