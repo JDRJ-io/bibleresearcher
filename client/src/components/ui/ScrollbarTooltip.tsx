@@ -7,6 +7,7 @@ interface ScrollbarTooltipProps {
   onVisibilityChange: (visible: boolean) => void;
   mousePosition?: { x: number; y: number };
   verseKeys: string[];
+  scrollTop: number;
 }
 
 export function ScrollbarTooltip({ 
@@ -15,12 +16,13 @@ export function ScrollbarTooltip({
   isVisible, 
   onVisibilityChange,
   mousePosition,
-  verseKeys
+  verseKeys,
+  scrollTop
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('Gen.1:1');
 
-  // Update tooltip position and verse based on current scrollbar dragger position
+  // Update tooltip position and verse based on current scrollTop state
   useEffect(() => {
     if (!isVisible || !mousePosition || !containerRef.current || !verseKeys.length) {
       return;
@@ -30,10 +32,10 @@ export function ScrollbarTooltip({
     const rect = container.getBoundingClientRect();
     const ROW_HEIGHT = 40;
     
-    // Get CURRENT scroll position (what's already centered)
-    const currentScrollTop = container.scrollTop;
+    // Use the scrollTop state that gets updated during drag (from VirtualBibleTable)
+    const currentScrollTop = scrollTop;
     
-    // Calculate which verse is CURRENTLY at the center based on scrollbar dragger position
+    // Calculate which verse is at the center based on this scroll position
     const viewportCenter = (window.innerHeight - 85) / 2;
     const currentCenterScrollPosition = currentScrollTop + viewportCenter;
     const currentCenterVerseIndex = Math.floor(currentCenterScrollPosition / ROW_HEIGHT);
@@ -41,19 +43,16 @@ export function ScrollbarTooltip({
     const currentCenterVerse = verseKeys[clampedIndex] || 'Gen.1:1';
     
     // DEBUG: Log the calculation details
-    console.log('🐛 TOOLTIP DEBUG:', {
-      currentScrollTop,
+    console.log('🐛 TOOLTIP DEBUG FIXED:', {
+      scrollTopState: scrollTop,
+      containerScrollTop: container.scrollTop,
       viewportCenter,
       currentCenterScrollPosition,
       currentCenterVerseIndex,
       clampedIndex,
       currentCenterVerse,
       totalVerses,
-      ROW_HEIGHT,
-      windowHeight: window.innerHeight,
-      verseKeysLength: verseKeys.length,
-      firstVerse: verseKeys[0],
-      lastVerse: verseKeys[verseKeys.length - 1]
+      ROW_HEIGHT
     });
     
     setVerseRef(currentCenterVerse);
@@ -63,7 +62,7 @@ export function ScrollbarTooltip({
       x: rect.right - 180,
       y: mousePosition.y
     });
-  }, [isVisible, mousePosition, containerRef, totalVerses, verseKeys]);
+  }, [isVisible, mousePosition, containerRef, totalVerses, verseKeys, scrollTop]);
 
   if (!isVisible) {
     return null;
