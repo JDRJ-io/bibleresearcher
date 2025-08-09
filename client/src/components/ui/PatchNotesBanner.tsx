@@ -19,7 +19,10 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
 
   return (
     <div className="relative w-full bg-gradient-to-r from-purple-900/20 via-yellow-400/10 to-purple-900/20 
-                    border-y border-yellow-400/20 backdrop-blur-sm">
+                    border-y border-yellow-400/20 backdrop-blur-sm
+                    transition-all duration-300 ease-out
+                    max-w-full overflow-hidden
+                    px-2 sm:px-6">
       {/* Divine Glow Background */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/5 to-transparent" />
       
@@ -30,49 +33,51 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         <div className="absolute left-3/4 top-1/2 w-1.5 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse delay-1000" />
       </div>
 
-      <div className="relative px-6 py-3 flex items-center justify-between">
-        {/* Left Side - Divine Icon and Message */}
-        <div className="flex items-center space-x-4">
-          <div className="p-2 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
-                         border border-yellow-400/30">
-            <Scroll className="h-5 w-5 text-yellow-400" />
+      <div className="relative px-3 sm:px-6 py-2 sm:py-3 flex items-center justify-between 
+                      min-h-[40px] sm:min-h-[48px]">
+        {/* Mobile-Optimized Left Side */}
+        <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
+          <div className="p-1.5 sm:p-2 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
+                         border border-yellow-400/30 flex-shrink-0">
+            <Scroll className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400" />
           </div>
           
-          <div className="flex items-center space-x-3">
-            <h3 className="text-sm font-semibold bg-gradient-to-r from-yellow-400 to-purple-400 
-                          bg-clip-text text-transparent">
-              Divine Updates Unveiled
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 flex-1 min-w-0">
+            <h3 className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-yellow-400 to-purple-400 
+                          bg-clip-text text-transparent truncate">
+              Divine Updates
             </h3>
-            <span className="text-xs text-white/60">•</span>
-            <p className="text-sm text-white/70">
-              Discover the latest sacred enhancements to your Scripture journey
+            <span className="hidden sm:inline text-xs text-white/60">•</span>
+            <p className="text-xs sm:text-sm text-white/70 truncate">
+              Latest sacred enhancements
             </p>
           </div>
         </div>
 
-        {/* Center - Call to Action */}
-        <div className="flex items-center space-x-4">
+        {/* Mobile-Optimized Call to Action */}
+        <div className="flex items-center ml-2 sm:ml-4 flex-shrink-0">
           <button
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             className={`
-              px-6 py-2 rounded-full border transition-all duration-300
+              px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all duration-300
               bg-gradient-to-r from-yellow-400/10 to-purple-400/10
               border-yellow-400/30 hover:border-yellow-400/50
-              text-white/90 hover:text-white font-medium text-sm
+              text-white/90 hover:text-white font-medium text-xs sm:text-sm
               hover:shadow-lg hover:shadow-yellow-400/20
               transform hover:scale-105
               ${isHovered ? 'from-yellow-400/20 to-purple-400/20' : ''}
             `}
           >
-            <div className="flex items-center space-x-2">
-              <span>[PATCH NOTES LINK PLACEHOLDER]</span>
-              <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="hidden sm:inline">View Updates</span>
+              <span className="sm:hidden">Updates</span>
+              <ChevronRight className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
             </div>
           </button>
         </div>
 
-        {/* Right Side - Dismiss Button */}
+        {/* Mobile-Optimized Dismiss Button */}
         {onDismiss && (
           <button
             onClick={onDismiss}

@@ -622,27 +622,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         setScrollTop(currentScrollTop);
       }
 
-      // Header rollup logic - only on mobile when scrolling down
-      if (isMobile && currentScrollTop > lastScrollTop && currentScrollTop > 50) {
-        // User is scrolling down and has scrolled past threshold
-        document.documentElement.style.setProperty('--header-rollup-transform', 'translateY(-100%)');
-        document.documentElement.style.setProperty('--header-rollup-transition', 'transform 0.3s ease-out');
-      } else if (isMobile && currentScrollTop < lastScrollTop) {
-        // User is scrolling up - show header
-        document.documentElement.style.setProperty('--header-rollup-transform', 'translateY(0)');
-        document.documentElement.style.setProperty('--header-rollup-transition', 'transform 0.3s ease-out');
+      // Banner rollup logic - hide PatchNotesBanner on scroll down
+      if (isMobile && currentScrollTop > lastScrollTop && currentScrollTop > 30) {
+        // User is scrolling down - hide banner via event system
+        window.dispatchEvent(new CustomEvent('virtualTableScroll', { 
+          detail: { scrollDirection: 'down', scrollTop: currentScrollTop } 
+        }));
       }
 
       lastScrollTop = currentScrollTop;
-
-      // Clear timeout and reset header after scroll stops
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        if (isMobile) {
-          // Show header when scroll stops
-          document.documentElement.style.setProperty('--header-rollup-transform', 'translateY(0)');
-        }
-      }, 1000);
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
@@ -716,24 +704,23 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         {/* Content container - constrained to viewport width on mobile */}
         <div 
           style={{ 
-            minWidth: isMobile ? `${viewportWidth}px` : `${Math.max(actualTotalWidth, viewportWidth)}px`,
-            maxWidth: isMobile ? `${viewportWidth}px` : undefined, // Constrain to viewport on mobile
+            width: '100%', // Always use full container width
+            maxWidth: '100%', // Never exceed container
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: isMobile ? 'hidden' : 'visible' // No overflow on mobile
+            overflow: 'hidden' // Always prevent overflow
           }}
         >
           <div className="tableInner flex"
             style={{ 
-              minWidth: isMobile ? '100%' : 'max-content', // Fit width on mobile, natural width otherwise
-              width: isMobile ? '100%' : 'max-content',    // Fit width on mobile, shrink-wrap otherwise
-              maxWidth: isMobile ? '100%' : undefined,     // Constrain on mobile
-              margin: isPortrait ? '0' : '0 auto', // Center in landscape, left-align in portrait
-              overflow: isMobile ? 'hidden' : 'visible'    // No overflow on mobile
+              width: '100%', // Always use full width 
+              maxWidth: '100%', // Never exceed container
+              margin: '0', // No margin for mobile
+              overflow: 'hidden' // Always prevent overflow
             }}>
             <div style={{ 
-              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
+              width: '100%', // Use full width instead of max-content
+              maxWidth: '100%' // Constrain to prevent horizontal overflow
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
