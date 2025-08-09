@@ -43,12 +43,13 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 flex-1 min-w-0">
-            <h3 className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-yellow-400 to-purple-400 
+            <h3 className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 
+                          dark:from-yellow-400 dark:to-purple-400 
                           bg-clip-text text-transparent truncate">
               Divine Updates
             </h3>
-            <span className="hidden sm:inline text-xs text-white/60">•</span>
-            <p className="text-xs sm:text-sm text-white/70 truncate">
+            <span className="hidden sm:inline text-xs text-gray-600 dark:text-white/60">•</span>
+            <p className="text-xs sm:text-sm text-gray-700 dark:text-white/70 truncate">
               Latest sacred enhancements
             </p>
           </div>
@@ -63,7 +64,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
               px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border transition-all duration-300
               bg-gradient-to-r from-yellow-400/10 to-purple-400/10
               border-yellow-400/30 hover:border-yellow-400/50
-              text-white/90 hover:text-white font-medium text-xs sm:text-sm
+              text-gray-800 dark:text-white/90 hover:text-gray-900 dark:hover:text-white font-medium text-xs sm:text-sm
               hover:shadow-lg hover:shadow-yellow-400/20
               transform hover:scale-105
               ${isHovered ? 'from-yellow-400/20 to-purple-400/20' : ''}
