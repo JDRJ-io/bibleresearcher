@@ -601,29 +601,57 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
-  // Simplified vertical-only scrolling system
+  // Simplified vertical-only scrolling system with header rollup detection
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    let lastScrollTop = 0;
+    let scrollTimeout: NodeJS.Timeout | null = null;
+
     // Track scroll position for custom scrollbar (vertical only)
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
+      const currentScrollTop = target.scrollTop;
+      
       // No longer track scrollLeft since horizontal scrolling is disabled
       setScrollLeft(0); // Always keep at 0
       
       // Update scrollTop state if not currently dragging scrollbar
       if (!isScrollbarDragging) {
-        setScrollTop(target.scrollTop);
+        setScrollTop(currentScrollTop);
       }
+
+      // Header rollup logic - only on mobile when scrolling down
+      if (isMobile && currentScrollTop > lastScrollTop && currentScrollTop > 50) {
+        // User is scrolling down and has scrolled past threshold
+        document.documentElement.style.setProperty('--header-rollup-transform', 'translateY(-100%)');
+        document.documentElement.style.setProperty('--header-rollup-transition', 'transform 0.3s ease-out');
+      } else if (isMobile && currentScrollTop < lastScrollTop) {
+        // User is scrolling up - show header
+        document.documentElement.style.setProperty('--header-rollup-transform', 'translateY(0)');
+        document.documentElement.style.setProperty('--header-rollup-transition', 'transform 0.3s ease-out');
+      }
+
+      lastScrollTop = currentScrollTop;
+
+      // Clear timeout and reset header after scroll stops
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (isMobile) {
+          // Show header when scroll stops
+          document.documentElement.style.setProperty('--header-rollup-transform', 'translateY(0)');
+        }
+      }, 1000);
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       container.removeEventListener('scroll', onScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
     };
-  }, [isScrollbarDragging]);
+  }, [isScrollbarDragging, isMobile]);
 
   // CSS handles centering automatically with margin-inline: auto
 
@@ -664,7 +692,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         className="unified-scroll-container scroll-area"
         style={{ 
           position: 'relative',
-          height: "calc(100vh - 85px)",
+          height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",
           overflowX: 'hidden', // Disable horizontal scrolling - navigation arrows control column visibility
           overflowY: 'auto', // Allow vertical scrolling only
           overscrollBehavior: 'contain',
@@ -673,23 +701,35 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           touchAction: 'pan-y', // Only allow vertical panning
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
-          msOverflowStyle: 'none' // IE/Edge
+          msOverflowStyle: 'none', // IE/Edge
+          // Ensure content width doesn't exceed viewport to prevent horizontal scrolling
+          maxWidth: '100vw',
+          // On mobile, ensure strict vertical-only scrolling
+          ...(isMobile && {
+            touchAction: 'pan-y manipulation',
+            overscrollBehaviorX: 'none',
+            overscrollBehaviorY: 'contain'
+          })
         }}
         data-testid="bible-table"
       >
-        {/* Content container that can be larger than viewport in both dimensions */}
+        {/* Content container - constrained to viewport width on mobile */}
         <div 
           style={{ 
-            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            minWidth: isMobile ? `${viewportWidth}px` : `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            maxWidth: isMobile ? `${viewportWidth}px` : undefined, // Constrain to viewport on mobile
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
-            position: 'relative'
+            position: 'relative',
+            overflow: isMobile ? 'hidden' : 'visible' // No overflow on mobile
           }}
         >
           <div className="tableInner flex"
             style={{ 
-              minWidth: 'max-content', // Natural content width for expert's system
-              width: 'max-content',    // Shrink-wrap to content
-              margin: isPortrait ? '0' : '0 auto' // Center in landscape, left-align in portrait
+              minWidth: isMobile ? '100%' : 'max-content', // Fit width on mobile, natural width otherwise
+              width: isMobile ? '100%' : 'max-content',    // Fit width on mobile, shrink-wrap otherwise
+              maxWidth: isMobile ? '100%' : undefined,     // Constrain on mobile
+              margin: isPortrait ? '0' : '0 auto', // Center in landscape, left-align in portrait
+              overflow: isMobile ? 'hidden' : 'visible'    // No overflow on mobile
             }}>
             <div style={{ 
               minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,

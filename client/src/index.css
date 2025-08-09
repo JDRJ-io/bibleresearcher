@@ -197,9 +197,16 @@
   --row-height-base: 36px; /* Reduced base row height for tighter spacing */
   --row-height: calc(var(--row-height-base) * var(--row-height-mult));
 
-  /* UI Chrome elements stay at fixed sizes */
+  /* UI Chrome elements - will be dynamically updated by useAdaptiveScaling */
   --header-height-desktop: 52px;
   --header-height-mobile: 48px;
+  --top-header-height-desktop: 52px;
+  --top-header-height-mobile: 48px;
+  --column-header-height: 40px;
+  
+  /* Header rollup animation variables */
+  --header-rollup-transform: translateY(0);
+  --header-rollup-transition: transform 0.3s ease-out;
 }
 
 /* Highlight color picker animations */
@@ -227,6 +234,8 @@
 .top-header {
   font-size: calc(var(--base-font-size) * var(--adaptive-header-scale)) !important;
   height: calc(var(--header-height-desktop) * var(--adaptive-header-scale)) !important;
+  transform: var(--header-rollup-transform);
+  transition: var(--header-rollup-transition);
 }
 
 .top-header * {
@@ -236,6 +245,9 @@
 @media (max-width: 640px) {
   .top-header {
     height: calc(var(--header-height-mobile) * var(--adaptive-header-scale)) !important;
+    /* Enable header rollup animation on mobile */
+    transform: var(--header-rollup-transform);
+    transition: var(--header-rollup-transition);
   }
 }
 

@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { BookmarkModal } from './BookmarkModal';
+import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 
 
 interface TopHeaderProps {
@@ -46,8 +47,12 @@ export function TopHeader({
   const queryClient = useQueryClient();
   const bibleStore = useBibleStore();
 
-  const { width } = useWindowSize();
+  const { width, height } = useWindowSize();
   const isMobile = width < 640;
+  const isPortrait = height > width;
+  
+  // Apply adaptive scaling for responsive header sizing
+  useAdaptiveScaling();
 
   // Get the current central verse from table ref or fallback
   const getCurrentCentralVerse = () => {
@@ -146,12 +151,21 @@ export function TopHeader({
 
   return (
     <header 
-      className="top-header sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between max-w-full shadow-sm"
+      className={`top-header sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between max-w-full shadow-sm ${
+        isMobile ? 'top-header-mobile' : ''
+      }`}
       style={{ 
-        height: isMobile ? '48px' : '64px',
-        minHeight: isMobile ? '48px' : '64px',
-        maxHeight: isMobile ? '48px' : '64px',
-        padding: isMobile ? '0 8px' : '0 16px',
+        // Apply dynamic height based on adaptive scaling
+        height: isMobile 
+          ? 'var(--top-header-height-mobile)' 
+          : 'var(--top-header-height-desktop)',
+        minHeight: isMobile 
+          ? 'var(--top-header-height-mobile)' 
+          : 'var(--top-header-height-desktop)',
+        maxHeight: isMobile 
+          ? 'var(--top-header-height-mobile)' 
+          : 'var(--top-header-height-desktop)',
+        padding: isPortrait && isMobile ? '0 6px' : isMobile ? '0 8px' : '0 16px',
         pointerEvents: 'auto' // Ensure events are contained
       }}
       onWheel={(e) => {
@@ -360,6 +374,8 @@ export function TopHeader({
         isSignInOpen={isSignInOpen}
         onCloseSignUp={() => setIsSignUpOpen(false)}
         onCloseSignIn={() => setIsSignInOpen(false)}
+        onSignUpOpen={() => setIsSignUpOpen(true)}
+        onSignInOpen={() => setIsSignInOpen(true)}
       />
 
       {/* Bookmark Modal */}

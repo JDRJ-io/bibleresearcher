@@ -20,9 +20,11 @@ interface AuthModalsProps {
   isSignInOpen: boolean
   onCloseSignUp: () => void
   onCloseSignIn: () => void
+  onSignUpOpen?: () => void
+  onSignInOpen?: () => void
 }
 
-export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseSignIn }: AuthModalsProps) {
+export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseSignIn, onSignUpOpen, onSignInOpen }: AuthModalsProps) {
   // Only render if we have a DOM to portal to
   if (typeof document === 'undefined') return null;
   
@@ -153,12 +155,12 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
         <div className="absolute bottom-4 left-1/3 w-1 h-12 bg-gradient-to-t from-yellow-400/40 to-transparent rotate-45 blur-sm" />
       </div>
 
-      {/* Main Content Container - Moderately Sized */}
-      <div className="relative z-10 w-full max-w-3xl mx-4 p-8 
+      {/* Main Content Container - Mobile Optimized */}
+      <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
                       rounded-2xl border border-yellow-400/30 
                       bg-gradient-to-br from-white/10 via-white/5 to-transparent
                       backdrop-blur-lg shadow-2xl shadow-yellow-400/20
-                      max-h-[90vh] overflow-y-auto"
+                      max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
         
         {/* Close Button */}
@@ -244,6 +246,23 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               </>
             )}
           </Button>
+          
+          {/* Sign In Link */}
+          <div className="text-center">
+            <p className="text-white/70 text-sm">
+              Already blessed?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  onCloseSignUp();
+                  onSignInOpen?.();
+                }}
+                className="text-blue-400 hover:text-blue-300 underline font-medium"
+              >
+                Return to your sacred studies
+              </button>
+            </p>
+          </div>
         </form>
       </div>
     </div>,
@@ -270,12 +289,12 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
         <div className="absolute bottom-4 left-1/3 w-1 h-12 bg-gradient-to-t from-blue-400/40 to-transparent rotate-45 blur-sm" />
       </div>
 
-      {/* Main Content Container - Moderately Sized */}
-      <div className="relative z-10 w-full max-w-2xl mx-4 p-8 
+      {/* Main Content Container - Mobile Optimized */}
+      <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
                       rounded-2xl border border-blue-400/30 
                       bg-gradient-to-br from-white/10 via-white/5 to-transparent
                       backdrop-blur-lg shadow-2xl shadow-blue-400/20
-                      max-h-[90vh] overflow-y-auto"
+                      max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
         
         {/* Close Button */}
@@ -331,6 +350,23 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               </>
             )}
           </Button>
+          
+          {/* Sign Up Link */}
+          <div className="text-center">
+            <p className="text-white/70 text-sm">
+              New to the faith?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  onCloseSignIn();
+                  onSignUpOpen?.();
+                }}
+                className="text-yellow-400 hover:text-yellow-300 underline font-medium"
+              >
+                Join the Anointed
+              </button>
+            </p>
+          </div>
         </form>
       </div>
     </div>,

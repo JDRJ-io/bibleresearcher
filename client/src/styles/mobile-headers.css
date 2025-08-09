@@ -26,11 +26,14 @@
     border-bottom-color: #374151 !important;
   }
 
-  /* The scroll area no longer needs a margin-top */
+  /* The scroll area - prevent horizontal scrolling in mobile */
   .bible-content-container {
     margin-top: 0 !important;
-    height: 100vh !important;        /* or whatever you need */
+    height: 100vh !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;  /* Prevent horizontal scrolling */
+    touch-action: pan-y !important; /* Only allow vertical touch scrolling */
+    overscroll-behavior: contain !important; /* Prevent scroll chaining */
   }
 
   /* Ensure no gap between headers */
@@ -41,6 +44,9 @@
     left: 0 !important;
     right: 0 !important;
     z-index: 50 !important;
+    /* Prevent touch scrolling between header and content */
+    touch-action: manipulation !important;
+    overflow: hidden !important;
   }
 
   /* Column header cells responsive sizing - inherit universal alignment */
@@ -52,6 +58,9 @@
     font-weight: 600 !important;
     height: var(--column-header-height) !important;
     /* box-sizing, padding, margin, border inherited from universal alignment in index.css */
+    /* Prevent horizontal overflow on mobile */
+    overflow: hidden !important;
+    max-width: 100% !important;
   }
 
   /* Mobile column headers must use adaptive CSS variables for perfect sync */

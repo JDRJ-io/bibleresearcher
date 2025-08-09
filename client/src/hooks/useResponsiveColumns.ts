@@ -133,7 +133,7 @@ export function useResponsiveColumns(): ResponsiveColumnConfig {
       referenceWidth: `${pixelWidths.reference}px`,
       mainTranslationWidth: `${pixelWidths.mainTranslation}px`,
       crossRefWidth: `${pixelWidths.crossReference}px`,
-      containerClass: isPortrait ? 'overflow-x-auto flex-nowrap' : 'overflow-x-auto justify-start',
+      containerClass: isPortrait ? 'overflow-x-hidden flex-nowrap' : 'overflow-x-auto justify-start',
       // Enhanced properties
       screenWidth: width,
       availableWidth,
