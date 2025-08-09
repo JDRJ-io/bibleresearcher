@@ -135,16 +135,24 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   // Handle scrollbar dragging state changes
   const handleScrollbarDragChange = useCallback((dragging: boolean, clientX?: number, clientY?: number) => {
-    console.log('🎯 handleScrollbarDragChange:', { dragging, clientX, clientY });
+    console.log('🎯 DRAG STATE CHANGE:', { 
+      dragging, 
+      clientX, 
+      clientY,
+      previousDragging: isScrollbarDragging,
+      previousTooltip: showScrollTooltip 
+    });
     setIsScrollbarDragging(dragging);
     setShowScrollTooltip(dragging);
     if (dragging && clientX !== undefined && clientY !== undefined) {
-      setMousePosition({ x: clientX, y: clientY });
-      console.log('🎯 Mouse position set:', { x: clientX, y: clientY });
+      const mousePos = { x: clientX, y: clientY };
+      setMousePosition(mousePos);
+      console.log('🎯 MOUSE POSITION SET:', mousePos);
     } else {
       setMousePosition(undefined);
+      console.log('🎯 MOUSE POSITION CLEARED');
     }
-  }, []);
+  }, [isScrollbarDragging, showScrollTooltip]);
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {
@@ -840,7 +848,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           }}
           onMouseDown={(e) => {
             e.preventDefault();
-            console.log('🎯 SCROLLBAR: Starting drag - PAUSING virtual loading');
+            console.log('🎯 SCROLLBAR MOUSEDOWN:', { 
+              clientX: e.clientX, 
+              clientY: e.clientY,
+              target: e.target,
+              currentTarget: e.currentTarget
+            });
             handleScrollbarDragChange(true, e.clientX, e.clientY);
             
             const startY = e.clientY;
@@ -861,7 +874,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
               setScrollTop(newScrollTop);
               // Update mouse position for tooltip
-              setMousePosition({ x: e.clientX, y: e.clientY });
+              const newMousePos = { x: e.clientX, y: e.clientY };
+              setMousePosition(newMousePos);
+              console.log('🎯 MOUSEMOVE UPDATE:', { 
+                deltaY, 
+                newScrollTop, 
+                mousePos: newMousePos,
+                showTooltip: showScrollTooltip
+              });
             };
             
             const handleMouseUp = () => {

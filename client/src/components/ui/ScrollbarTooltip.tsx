@@ -22,7 +22,19 @@ export function ScrollbarTooltip({
 
   // High-performance tooltip update with modern optimizations
   const updateTooltip = useCallback((clientY: number) => {
-    if (!containerRef.current || !verseKeys.length) return;
+    console.log('🎯 UPDATE TOOLTIP CALLED:', { 
+      clientY, 
+      hasContainer: !!containerRef.current, 
+      verseKeysLength: verseKeys.length 
+    });
+    
+    if (!containerRef.current || !verseKeys.length) {
+      console.log('🎯 UPDATE TOOLTIP EARLY RETURN:', { 
+        hasContainer: !!containerRef.current, 
+        verseKeysLength: verseKeys.length 
+      });
+      return;
+    }
 
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
@@ -38,6 +50,16 @@ export function ScrollbarTooltip({
     // Get verse reference efficiently
     const verse = verseKeys[clampedIndex] || verseKeys[0] || 'Gen.1:1';
     
+    console.log('🎯 TOOLTIP CALCULATION:', {
+      rect: { width: rect.width, height: rect.height, top: rect.top, right: rect.right },
+      relativeY,
+      scrollPercentage,
+      centerVerseIndex,
+      clampedIndex,
+      verse,
+      totalVerses
+    });
+    
     setVerseRef(verse);
     setPosition({
       x: rect.right + 15, // Position to the right of the scrollbar with some spacing
@@ -47,11 +69,26 @@ export function ScrollbarTooltip({
 
   // Update tooltip when mouse position changes during dragging - optimized with requestAnimationFrame
   useEffect(() => {
-    if (!isVisible || !mousePosition || !containerRef.current) return;
+    console.log('🎯 TOOLTIP EFFECT TRIGGERED:', {
+      isVisible,
+      hasMousePosition: !!mousePosition,
+      mousePosition,
+      hasContainer: !!containerRef.current
+    });
+    
+    if (!isVisible || !mousePosition || !containerRef.current) {
+      console.log('🎯 TOOLTIP EFFECT EARLY RETURN:', {
+        isVisible,
+        hasMousePosition: !!mousePosition,
+        hasContainer: !!containerRef.current
+      });
+      return;
+    }
     
     let rafId: number;
     const updateFrame = () => {
       try {
+        console.log('🎯 TOOLTIP RAF FRAME EXECUTING with mouseY:', mousePosition.y);
         updateTooltip(mousePosition.y);
       } catch (error) {
         console.warn('ScrollbarTooltip updateTooltip error:', error);
@@ -62,7 +99,15 @@ export function ScrollbarTooltip({
     return () => cancelAnimationFrame(rafId);
   }, [isVisible, mousePosition, updateTooltip]);
 
-  console.log('🎯 ScrollbarTooltip render:', { isVisible, verseRef, mousePosition, position });
+  console.log('🎯 TOOLTIP RENDER:', { 
+    isVisible, 
+    verseRef, 
+    mousePosition,
+    position,
+    verseKeysLength: verseKeys.length,
+    totalVerses,
+    containerExists: !!containerRef.current
+  });
   
   if (!isVisible || !verseRef) return null;
 
