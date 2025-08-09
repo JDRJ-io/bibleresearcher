@@ -34,6 +34,7 @@ import type {
 import { useViewportLabels } from "@/hooks/useViewportLabels";
 import { useNotesCache } from "@/hooks/useNotesCache";
 import { ScrollbarTooltip } from "@/components/ui/ScrollbarTooltip";
+import { useScrollbarInteraction } from "@/hooks/useScrollbarInteraction";
 import type { LabelName } from '@/lib/labelBits';
 
 export interface VirtualBibleTableHandle {
@@ -94,9 +95,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   // PURE ANCHOR-CENTERED IMPLEMENTATION: Single source of truth
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
-  const [showScrollTooltip, setShowScrollTooltip] = useState(false);
-  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
+  
+  // Enhanced scrollbar interaction system
+  const scrollbarInteraction = useScrollbarInteraction(containerRef);
+  const isScrollbarDragging = scrollbarInteraction.isDragging;
   
   // Remove ref handling for now
   
@@ -109,16 +111,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     disabled: isScrollbarDragging 
   });
   
-  // Handle scrollbar dragging state changes
-  const handleScrollbarDragChange = useCallback((dragging: boolean, clientX?: number, clientY?: number) => {
-    setIsScrollbarDragging(dragging);
-    setShowScrollTooltip(dragging);
-    if (dragging && clientX !== undefined && clientY !== undefined) {
-      setMousePosition({ x: clientX, y: clientY });
-    } else {
-      setMousePosition(undefined);
-    }
-  }, []);
+  // Performance optimization: pause non-critical updates during scrollbar interaction
+  const shouldPauseUpdates = scrollbarInteraction.isDragging;
   
   // Get current verse reference from anchor index
   const getCurrentVerse = useCallback(() => {
@@ -797,125 +791,17 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         </div>
       </div>
 
-      {/* Mobile-Optimized Vertical Scrollbar */}
-      <div 
-        className="absolute right-0 top-2 w-6 md:w-3 z-30 bg-black/5 dark:bg-white/5 rounded-l-full"
-        style={{ 
-          height: "calc(100vh - 89px)",
-          touchAction: 'none' // Prevent default touch behavior
-        }}
-      >
-        <div 
-          className="absolute right-0 top-0 w-6 md:w-3 bg-blue-500 dark:bg-blue-400 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-blue-600 dark:md:hover:bg-blue-300 active:bg-blue-600 dark:active:bg-blue-300"
-          style={{
-            height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
-            top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
-            cursor: 'pointer',
-            touchAction: 'none',
-            minHeight: '44px' // Ensure minimum touch target size
-          }}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            console.log('🎯 SCROLLBAR: Starting drag - PAUSING virtual loading');
-            handleScrollbarDragChange(true, e.clientX, e.clientY);
-            
-            const startY = e.clientY;
-            const scrollContainer = containerRef.current;
-            if (!scrollContainer) return;
-            
-            const startScrollTop = scrollContainer.scrollTop;
-            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
-            
-            const handleMouseMove = (e: MouseEvent) => {
-              const deltaY = e.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
-              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
-              scrollContainer.scrollTo({
-                top: newScrollTop,
-                behavior: 'instant'
-              });
-              // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
-              setScrollTop(newScrollTop);
-              // Update mouse position for tooltip
-              setMousePosition({ x: e.clientX, y: e.clientY });
-            };
-            
-            const handleMouseUp = () => {
-              console.log('🎯 SCROLLBAR: Drag ended - RESUMING virtual loading');
-              handleScrollbarDragChange(false);
-              
-              // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
-              requestAnimationFrame(() => {
-                if (scrollContainer) {
-                  scrollContainer.dispatchEvent(new Event('scroll'));
-                }
-              });
-              
-              document.removeEventListener('mousemove', handleMouseMove);
-              document.removeEventListener('mouseup', handleMouseUp);
-            };
-            
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-          }}
-          onTouchStart={(e) => {
-            e.preventDefault();
-            console.log('🎯 SCROLLBAR: Starting touch drag - PAUSING virtual loading');
-            const touch = e.touches[0];
-            handleScrollbarDragChange(true, touch.clientX, touch.clientY);
-            
-            const startY = touch.clientY;
-            const scrollContainer = containerRef.current;
-            if (!scrollContainer) return;
-            
-            const startScrollTop = scrollContainer.scrollTop;
-            const maxScroll = Math.max(0, verseKeys.length * ROW_HEIGHT - window.innerHeight + 85);
-            
-            const handleTouchMove = (e: TouchEvent) => {
-              e.preventDefault();
-              const touch = e.touches[0];
-              const deltaY = touch.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
-              const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
-              scrollContainer.scrollTo({
-                top: newScrollTop,
-                behavior: 'instant'
-              });
-              // SYNC STATE: Update scrollTop state during drag for scrollbar positioning
-              setScrollTop(newScrollTop);
-              // Update touch position for tooltip
-              setMousePosition({ x: touch.clientX, y: touch.clientY });
-            };
-            
-            const handleTouchEnd = (e: TouchEvent) => {
-              e.preventDefault();
-              console.log('🎯 SCROLLBAR: Touch drag ended - RESUMING virtual loading');
-              handleScrollbarDragChange(false);
-              
-              // FORCE REFRESH: Trigger a scroll event to ensure virtual loading catches up
-              requestAnimationFrame(() => {
-                if (scrollContainer) {
-                  scrollContainer.dispatchEvent(new Event('scroll'));
-                }
-              });
-              
-              document.removeEventListener('touchmove', handleTouchMove);
-              document.removeEventListener('touchend', handleTouchEnd);
-            };
-            
-            document.addEventListener('touchmove', handleTouchMove, { passive: false });
-            document.addEventListener('touchend', handleTouchEnd);
-          }}
-        />
-      </div>
+
       
       {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
+      {/* Enhanced Scrollbar Tooltip - Shows verse reference during scrollbar interaction */}
       <ScrollbarTooltip
         containerRef={containerRef}
         totalVerses={verseKeys.length}
-        isVisible={showScrollTooltip}
-        onVisibilityChange={setShowScrollTooltip}
-        mousePosition={mousePosition}
+        isVisible={scrollbarInteraction.isVisible}
+        onVisibilityChange={scrollbarInteraction.setVisible}
+        mousePosition={scrollbarInteraction.mousePosition}
+        isDragging={scrollbarInteraction.isDragging}
       />
     </div>
   );
