@@ -912,12 +912,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       {/* Scrollbar Tooltip - Shows verse reference during scrollbar dragging */}
       <ScrollbarTooltip
         containerRef={containerRef}
-        totalVerses={verseKeys.length}
         isVisible={showScrollTooltip}
-        onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
-        currentScrollTop={scrollTop}
-        verseKeys={verseKeys}
+        currentCenterVerse={verseKeys[anchorIndex] || 'Gen.1:1'}
       />
     </div>
   );
