@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getVerseKeyByIndex } from '@/lib/verseKeysLoader';
+import { ROW_HEIGHT } from '@/constants/layout';
 
 interface ScrollbarTooltipProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -7,6 +8,8 @@ interface ScrollbarTooltipProps {
   isVisible: boolean;
   onVisibilityChange: (visible: boolean) => void;
   mousePosition?: { x: number; y: number }; // Position from VirtualBibleTable
+  currentScrollTop?: number; // Current scroll position during dragging
+  verseKeys: string[]; // Verse keys array for direct access
 }
 
 export function ScrollbarTooltip({ 
@@ -14,17 +17,19 @@ export function ScrollbarTooltip({
   totalVerses, 
   isVisible, 
   onVisibilityChange,
-  mousePosition 
+  mousePosition,
+  currentScrollTop,
+  verseKeys
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [verseRef, setVerseRef] = useState('');
 
-  // Update tooltip when mouse position changes during dragging
+  // Update tooltip when scroll position changes during dragging
   useEffect(() => {
-    if (!isVisible || !mousePosition || !containerRef.current) return;
+    if (!isVisible || !mousePosition || !containerRef.current || currentScrollTop === undefined) return;
     
-    updateTooltip(mousePosition.y);
-  }, [isVisible, mousePosition, containerRef, totalVerses]);
+    updateTooltip();
+  }, [isVisible, mousePosition, containerRef, totalVerses, currentScrollTop, verseKeys]);
 
   const updateTooltip = useCallback((clientY: number) => {
     if (!containerRef.current) return;
