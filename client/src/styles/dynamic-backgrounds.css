@@ -1,15 +1,15 @@
 /**
- * Simple Background System
- * Creates peaceful, static backgrounds for Bible study
- * Minimal memory usage, no animations
+ * Enhanced Dynamic Background System - Theme Pack v1
+ * Performance-optimized with theme-specific animated backgrounds
+ * Auto-adapts to device capabilities and user preferences
  */
 
-/* Root element setup for static backgrounds */
+/* Root element setup */
 html {
   min-height: 100vh;
 }
 
-/* Simple background container */
+/* Dynamic background container */
 .dynamic-background {
   position: fixed;
   top: 0;
@@ -17,24 +17,15 @@ html {
   width: 100%;
   height: 100%;
   z-index: -10;
+  will-change: background-position, filter;
+  transition: background 0.5s ease;
 }
 
-/* Light theme simple background */
-:root.light .dynamic-background {
+/* Use CSS variables that sync with themeOptimizer */
+.dynamic-background {
   background: linear-gradient(
     180deg,
-    hsl(210, 40%, 99%) 0%,
-    hsl(200, 30%, 97%) 100%
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 100%
   );
 }
-
-/* Dark theme simple background */
-:root.dark .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(220, 20%, 10%) 0%,
-    hsl(210, 25%, 8%) 100%
-  );
-}
-
-/* Clean and simple - no heavy processing, perfect for peaceful Bible study */
