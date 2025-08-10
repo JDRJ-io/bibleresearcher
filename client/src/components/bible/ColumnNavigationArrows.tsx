@@ -21,20 +21,22 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   } = useBibleStore();
 
   // Calculate only visible/active content columns (excluding reference column)
-  // The columnState.columns includes all translation columns, but we need to exclude reference
+  // Don't double-count columns - just use the actual visible content columns from the viewport
   const visibleTranslationColumns = columnState.columns.filter(col => col.visible).length;
-  const additionalColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
-  // Don't count the reference column in our total since it's always visible and doesn't scroll
+  const additionalColumns = (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
+  // Count only translation columns (excluding reference) + additional columns (excluding cross-refs since it's already in columnState)
   const totalActiveColumns = (visibleTranslationColumns - 1) + additionalColumns; // -1 to exclude reference column from count
+  
+
   
 
   
   // Calculate currently visible active columns range (excluding reference column)
   // Show how many content columns are currently visible, starting from offset
   const availableContentSlots = maxVisibleColumns - 1; // -1 for reference column
-  const visibleActiveColumns = Math.min(availableContentSlots, totalActiveColumns - columnOffset);
-  const currentStartColumn = columnOffset + 1; // Start from offset + 1 for active columns
-  const currentEndColumn = columnOffset + visibleActiveColumns;
+  const actualVisibleContentColumns = Math.min(availableContentSlots, totalActiveColumns - columnOffset);
+  const currentStartColumn = 1; // Always start from 1 for simple numbering
+  const currentEndColumn = actualVisibleContentColumns;
   
   // Calculate if arrows should be enabled
   const canGoLeft = columnOffset > 0;
