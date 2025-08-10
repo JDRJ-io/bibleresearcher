@@ -145,6 +145,7 @@
   --column-bg: hsl(0, 0%, 100%);
   --border-color: hsl(214, 32%, 91%);
   --highlight-bg: hsl(214, 100%, 97%);
+  --hover-bg: hsl(210, 40%, 98%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -155,6 +156,7 @@
   --column-bg: hsl(222, 20%, 11%);
   --border-color: hsl(217, 33%, 17%);
   --highlight-bg: hsl(215, 27%, 32%);
+  --hover-bg: hsl(215, 20%, 15%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -433,6 +435,7 @@
   --text-color: hsl(210, 24%, 16%);
   --column-bg: hsl(0, 0%, 100%);
   --highlight-bg: hsl(214, 100%, 97%);
+  --hover-bg: hsl(210, 40%, 98%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -447,6 +450,7 @@
   --text-color: hsl(213, 31%, 91%);
   --column-bg: hsl(222, 20%, 11%);
   --highlight-bg: hsl(215, 27%, 32%);
+  --hover-bg: hsl(215, 20%, 15%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -907,10 +911,26 @@ body {
   background-color: rgba(59, 130, 246, 0.1) !important;
 }
 
-/* Simple verse highlight after navigation */
+/* Enhanced verse highlight after navigation with animation */
+@keyframes highlight-anim {
+  0% { 
+    background-color: gold;
+    transform: scale(1.02);
+  }
+  100% { 
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+.highlight {
+  animation: highlight-anim 2s ease-out;
+}
+
 .verse-highlight-flash {
   background-color: rgba(59, 130, 246, 0.1);
   border-left: 2px solid rgba(59, 130, 246, 0.5);
+  animation: highlight-anim 2s ease-out;
 }
 
 /* Cross-reference button enhanced aesthetics */
@@ -1026,6 +1046,17 @@ body {
   right: 0;
   height: 120px;
   box-sizing: border-box;
+  transition: background-color 0.2s ease;
+}
+
+/* Distinct hover effect for verse rows */
+.verse-row:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Distinct hover effect for verse rows */
+.verse-row:hover {
+  background-color: var(--hover-bg);
 }
 
 /* 3-C. Keep ROW_HEIGHT constant, allow inner wrapping - CSS only - inside your verse cell */
