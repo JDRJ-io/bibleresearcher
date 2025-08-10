@@ -19,25 +19,26 @@ export function ScrollbarTooltip({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [currentVerse, setCurrentVerse] = useState('');
 
-  // Calculate center verse from current scroll position during dragging
+  // Calculate center verse from current scroll position during dragging - INSTANT
   useEffect(() => {
     if (!isVisible || !mousePosition || !containerRef.current) return;
     
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     
-    // Calculate which verse would be in the center at current scroll position
+    // INSTANT calculation - no async operations
     const centerY = currentScrollTop + container.clientHeight / 2;
     const centerIndex = Math.round(centerY / ROW_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(centerIndex, verseKeys.length - 1));
     const verse = verseKeys[clampedIndex] || 'Gen.1:1';
     
+    // INSTANT updates - no setState delays
     setCurrentVerse(verse);
     setPosition({
-      x: rect.right - 80, // Position to the left of scrollbar with some padding
+      x: rect.right - 80,
       y: mousePosition.y
     });
-  }, [isVisible, mousePosition, containerRef, currentScrollTop, verseKeys]);
+  }, [isVisible, mousePosition, currentScrollTop, verseKeys]); // Removed containerRef dependency for speed
 
   if (!isVisible || !currentVerse) return null;
 
