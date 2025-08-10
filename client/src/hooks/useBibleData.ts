@@ -12,7 +12,6 @@ import { loadTranslationAsText } from "@/data/BibleDataAPI";
 import {
   loadTranslationSecure,
 } from "@/lib/supabaseClient";
-import { log } from '@/utils/logger';
 
 // Global KJV text map for dynamic verse text loading - uses master cache
 let globalKjvTextMap: Map<string, string> | null = null;
@@ -1421,11 +1420,11 @@ export function useBibleData() {
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
 
     if (!translationMap) {
-      log.debug('TranslationCacheMiss', () => ({ translationCode, hasCacheEntries: masterCache.size > 0 }));
+      console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
       return "";
     }
 
-    log.debug('TranslationCacheHit', () => ({ translationCode, verseCount: translationMap.size }));
+    console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
 
     // OPTIMIZATION: Direct lookup with dot format reference  
     const text = translationMap.get(reference);
@@ -1444,11 +1443,11 @@ export function useBibleData() {
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
 
     if (!translationMap) {
-      log.debug('VerseTextCacheMiss', () => ({ translationCode, verseReference }));
+      console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
       return undefined;
     }
 
-    log.debug('VerseTextCacheHit', () => ({ translationCode, verseReference }));
+    console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
 
     // OPTIMIZATION: Direct lookup with dot format reference
     const text = translationMap.get(verseReference);

@@ -64,7 +64,7 @@ export async function fetchInterlinearVerse(ref: string): Promise<string> {
     const [start, end] = range;
 
     // Use the uploaded flat text file directly
-    const flatUrl = `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsVerses.flat.txt`;
+    const flatUrl = `${SUPABASE_URL}/storage/v1/object/public/anointed/strongs/strongsverses.flat.txt`;
 
     const response = await fetch(flatUrl, { 
       headers: { 
@@ -97,11 +97,6 @@ export interface InterlinearCell {
   strongsKey: string; // G#### or H####
   morphology?: string; // Full grammatical analysis (e.g., "Preposition-b | Noun - feminine singular")
   fullDefinition?: string; // Complete Strong's definition (e.g., "The first, in place, time, order, rank")
-}
-
-export interface StrongsVerseData {
-  verseKey: string;
-  words: InterlinearCell[];
 }
 
 export function parseInterlinearVerse(raw: string): {
@@ -226,7 +221,7 @@ export async function fetchVerseStrongsData(verseKey: string): Promise<StrongsVe
     const stream = response.body!.pipeThrough(new DecompressionStream('gzip'));
     const rawData = await new Response(stream).text();
 
-    return parseInterlinearVerse(rawData) as unknown as StrongsVerseData;
+    return parseVerseStrongsData(verseKey, rawData);
 
   } catch (error) {
     console.error(`❌ Failed to fetch Strong's data for ${verseKey}:`, error);
