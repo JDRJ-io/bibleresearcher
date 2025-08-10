@@ -7,6 +7,9 @@
 /* Import dynamic backgrounds */
 @import './styles/dynamic-backgrounds.css';
 
+/* Import animated backgrounds */
+@import './styles/animated-backgrounds.css';
+
 /* Import label effects first */
 @import './styles/label-effects.css';
 
@@ -137,27 +140,208 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* Simple Theme System - Light and Dark only */
+/* ===== COMPREHENSIVE THEME SYSTEM v1 ===== */
+
+/* Light Theme */
 :root.light {
-  --header-bg: hsl(0, 0%, 100%);
-  --text-color: hsl(210, 24%, 16%);
-  --accent-color: hsl(221, 83%, 53%);
-  --column-bg: hsl(0, 0%, 100%);
+  --bg-primary: hsl(0, 0%, 100%);
+  --bg-secondary: hsl(210, 40%, 98%);
+  --text-primary: hsl(210, 24%, 16%);
+  --text-secondary: hsl(215, 16%, 47%);
   --border-color: hsl(214, 32%, 91%);
+  --accent-color: hsl(221, 83%, 53%);
   --highlight-bg: hsl(214, 100%, 97%);
   --hover-bg: hsl(210, 40%, 98%);
+  --header-bg: hsl(0, 0%, 100%);
+  --text-color: hsl(210, 24%, 16%);
+  --column-bg: hsl(0, 0%, 100%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --anim-speed: 20s;
 }
 
+/* Dark Theme */
 :root.dark {
-  --header-bg: hsl(222, 20%, 11%);
-  --text-color: hsl(213, 31%, 91%);
-  --accent-color: hsl(217, 91%, 65%);
-  --column-bg: hsl(222, 20%, 11%);
+  --bg-primary: hsl(222, 20%, 11%);
+  --bg-secondary: hsl(222, 15%, 8%);
+  --text-primary: hsl(213, 31%, 91%);
+  --text-secondary: hsl(215, 20%, 65%);
   --border-color: hsl(217, 33%, 17%);
+  --accent-color: hsl(217, 91%, 65%);
   --highlight-bg: hsl(215, 27%, 32%);
   --hover-bg: hsl(215, 20%, 15%);
+  --header-bg: hsl(222, 20%, 11%);
+  --text-color: hsl(213, 31%, 91%);
+  --column-bg: hsl(222, 20%, 11%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --aurora-1: #20415f;
+  --aurora-2: #1a3355;
+  --aurora-3: #0d2238;
+  --anim-speed: 28s;
+}
+
+/* 1) Voodoo Blue — deep cool blues (aurora) */
+:root.voodoo-blue {
+  --bg-primary: hsl(220, 30%, 11%);
+  --bg-secondary: hsl(220, 26%, 16%);
+  --text-primary: hsl(210, 15%, 92%);
+  --text-secondary: hsl(210, 15%, 75%);
+  --border-color: hsl(220, 26%, 20%);
+  --accent-color: hsl(195, 78%, 52%);
+  --highlight-bg: hsl(220, 26%, 20%);
+  --hover-bg: hsl(220, 26%, 18%);
+  --header-bg: hsl(220, 30%, 11%);
+  --text-color: hsl(210, 15%, 92%);
+  --column-bg: hsl(220, 30%, 11%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --aurora-1: #20415f;
+  --aurora-2: #1a3355;
+  --aurora-3: #0d2238;
+  --anim-speed: 28s;
+}
+
+/* 2) Midnight — quiet stargaze (stars) */
+:root.midnight {
+  --bg-primary: hsl(228, 28%, 10%);
+  --bg-secondary: hsl(228, 24%, 15%);
+  --text-primary: hsl(220, 14%, 90%);
+  --text-secondary: hsl(220, 14%, 70%);
+  --border-color: hsl(228, 24%, 18%);
+  --accent-color: hsl(265, 70%, 62%);
+  --highlight-bg: hsl(228, 24%, 18%);
+  --hover-bg: hsl(228, 24%, 16%);
+  --header-bg: hsl(228, 28%, 10%);
+  --text-color: hsl(220, 14%, 90%);
+  --column-bg: hsl(228, 28%, 10%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --anim-speed: 60s;
+}
+
+/* 3) Sepia — warm, devotional parchment (bokeh) */
+:root.sepia {
+  --bg-primary: hsl(34, 40%, 92%);
+  --bg-secondary: hsl(34, 35%, 86%);
+  --text-primary: hsl(28, 30%, 18%);
+  --text-secondary: hsl(28, 30%, 35%);
+  --border-color: hsl(34, 35%, 80%);
+  --accent-color: hsl(22, 70%, 44%);
+  --highlight-bg: hsl(34, 35%, 88%);
+  --hover-bg: hsl(34, 35%, 84%);
+  --header-bg: hsl(34, 40%, 92%);
+  --text-color: hsl(28, 30%, 18%);
+  --column-bg: hsl(34, 40%, 92%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --anim-speed: 34s;
+}
+
+/* 4) Sunset — gentle gradient breathe */
+:root.sunset {
+  --bg-primary: hsl(20, 80%, 90%);
+  --bg-secondary: hsl(18, 70%, 86%);
+  --text-primary: hsl(12, 25%, 18%);
+  --text-secondary: hsl(12, 25%, 35%);
+  --border-color: hsl(18, 70%, 82%);
+  --accent-color: hsl(12, 80%, 54%);
+  --highlight-bg: hsl(18, 70%, 88%);
+  --hover-bg: hsl(18, 70%, 84%);
+  --header-bg: hsl(20, 80%, 90%);
+  --text-color: hsl(12, 25%, 18%);
+  --column-bg: hsl(20, 80%, 90%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --grad-a: #ffb56b;
+  --grad-b: #f3904f;
+  --grad-c: #e16b5c;
+  --anim-speed: 24s;
+}
+
+/* 5) Eden — soft greens & waves (calming) */
+:root.eden {
+  --bg-primary: hsl(145, 30%, 94%);
+  --bg-secondary: hsl(148, 28%, 88%);
+  --text-primary: hsl(150, 20%, 18%);
+  --text-secondary: hsl(150, 20%, 35%);
+  --border-color: hsl(148, 28%, 82%);
+  --accent-color: hsl(160, 55%, 42%);
+  --highlight-bg: hsl(148, 28%, 90%);
+  --hover-bg: hsl(148, 28%, 86%);
+  --header-bg: hsl(145, 30%, 94%);
+  --text-color: hsl(150, 20%, 18%);
+  --column-bg: hsl(145, 30%, 94%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --anim-speed: 32s;
+}
+
+/* 6) Royal — rich purples (aurora) */
+:root.royal {
+  --bg-primary: hsl(262, 30%, 12%);
+  --bg-secondary: hsl(264, 26%, 18%);
+  --text-primary: hsl(280, 15%, 92%);
+  --text-secondary: hsl(280, 15%, 75%);
+  --border-color: hsl(264, 26%, 22%);
+  --accent-color: hsl(285, 70%, 58%);
+  --highlight-bg: hsl(264, 26%, 22%);
+  --hover-bg: hsl(264, 26%, 20%);
+  --header-bg: hsl(262, 30%, 12%);
+  --text-color: hsl(280, 15%, 92%);
+  --column-bg: hsl(262, 30%, 12%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --aurora-1: #3f1a5a;
+  --aurora-2: #2b1542;
+  --aurora-3: #1a0f2b;
+  --anim-speed: 30s;
+}
+
+/* 7) Hologram — iridescent, peaceful chroma */
+:root.hologram {
+  --bg-primary: hsl(210, 30%, 9%);
+  --bg-secondary: hsl(210, 28%, 14%);
+  --text-primary: hsl(0, 0%, 98%);
+  --text-secondary: hsl(0, 0%, 85%);
+  --border-color: hsl(210, 28%, 18%);
+  --accent-color: hsl(195, 100%, 70%);
+  --highlight-bg: hsl(210, 28%, 18%);
+  --hover-bg: hsl(210, 28%, 16%);
+  --header-bg: hsl(210, 30%, 9%);
+  --text-color: hsl(0, 0%, 98%);
+  --column-bg: hsl(210, 30%, 9%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* hologram gradient stops */
+  --holo-a: #b1f2ff;  /* cyan */
+  --holo-b: #ffc8f0;  /* pink */
+  --holo-c: #c3ff9e;  /* lime */
+  --holo-d: #c9c8ff;  /* violet */
+  --holo-sheen: 0.55; /* 0..1 intensity */
+  --anim-speed: 26s;
+}
+
+/* Optional glass layer defaults (apply sitewide) */
+.glass-morphism {
+  background: color-mix(in oklab, var(--bg-secondary), transparent 75%);
+  backdrop-filter: blur(8px) saturate(1.05);
+  border: 1px solid color-mix(in oklab, var(--text-primary), transparent 90%);
+}
+
+/* Per-theme glass tweaks for bespoke feel */
+:root.sepia .glass-morphism { 
+  background: rgba(255, 248, 240, 0.22); 
+}
+:root.voodoo-blue .glass-morphism { 
+  background: rgba(20, 30, 50, 0.24); 
+}
+:root.royal .glass-morphism { 
+  background: rgba(40, 20, 60, 0.25); 
+}
+:root.eden .glass-morphism { 
+  background: rgba(210, 240, 225, 0.22); 
+}
+:root.midnight .glass-morphism { 
+  background: rgba(16, 18, 28, 0.24); 
+}
+:root.sunset .glass-morphism { 
+  background: rgba(255, 210, 190, 0.18); 
+}
+:root.hologram .glass-morphism { 
+  background: rgba(255, 255, 255, 0.10); 
+  backdrop-filter: blur(10px) saturate(1.15); 
 }
 
 /* UI Layout Spec CSS Foundation - Device-responsive sizing */
