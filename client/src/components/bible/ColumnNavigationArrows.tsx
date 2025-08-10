@@ -20,17 +20,23 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     columnState
   } = useBibleStore();
 
-  // Calculate total available columns that can be navigated
-  const visibleColumns = columnState.columns.filter(col => col.visible).length;
+  // Calculate only visible/active columns (excluding reference column)
+  const visibleTranslationColumns = columnState.columns.filter(col => col.visible).length;
   const additionalColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
-  const totalNavigableColumns = visibleColumns + additionalColumns;
+  const totalActiveColumns = visibleTranslationColumns + additionalColumns;
+  
+  // Calculate currently visible active columns range (excluding reference column)
+  // Show how many content columns are currently visible, starting from offset
+  const visibleActiveColumns = Math.min(maxVisibleColumns - 1, totalActiveColumns - columnOffset); // -1 to exclude reference column
+  const currentStartColumn = columnOffset + 1; // Start from offset + 1 for active columns
+  const currentEndColumn = columnOffset + visibleActiveColumns;
   
   // Calculate if arrows should be enabled
   const canGoLeft = columnOffset > 0;
-  const canGoRight = columnOffset < Math.max(0, totalNavigableColumns - maxVisibleColumns);
+  const canGoRight = columnOffset < Math.max(0, totalActiveColumns - (maxVisibleColumns - 1));
   
   // Don't show navigation if all columns fit in viewport
-  if (totalNavigableColumns <= maxVisibleColumns) {
+  if (totalActiveColumns <= (maxVisibleColumns - 1)) {
     return null;
   }
 
@@ -54,9 +60,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
 
       {/* Column Indicator */}
       <div className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded">
-        <span>{columnOffset + 1}-{Math.min(columnOffset + maxVisibleColumns, totalNavigableColumns)}</span>
-        <span>/</span>
-        <span>{totalNavigableColumns}</span>
+        <span>{currentStartColumn}-{currentEndColumn}</span>
       </div>
 
       {/* Right Arrow */}
