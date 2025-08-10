@@ -808,11 +808,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         <div 
           className="absolute right-0 top-0 w-6 md:w-3 bg-blue-500 dark:bg-blue-400 rounded-l-full transition-all duration-150 md:hover:w-3.5 md:hover:bg-blue-600 dark:md:hover:bg-blue-300 active:bg-blue-600 dark:active:bg-blue-300"
           style={{
-            height: `${Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
-            top: `${Math.min(90, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(8, Math.min(90, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
+            height: `${Math.max(6, Math.min(40, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))}%`,
+            top: `${Math.min(94, (scrollTop / Math.max(1, verseKeys.length * ROW_HEIGHT - (window.innerHeight - 85))) * (100 - Math.max(6, Math.min(40, ((window.innerHeight - 85) / (verseKeys.length * ROW_HEIGHT)) * 100))))}%`,
             cursor: 'pointer',
             touchAction: 'none',
-            minHeight: '44px' // Ensure minimum touch target size
+            minHeight: '32px' // Smaller minimum touch target size
           }}
           onMouseDown={(e) => {
             e.preventDefault();
