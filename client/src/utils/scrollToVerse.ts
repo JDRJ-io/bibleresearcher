@@ -31,17 +31,13 @@ export function makeScrollToVerse(containerRef: React.RefObject<HTMLDivElement>)
     // Use scrollTop assignment for better compatibility
     container.scrollTop = Math.max(0, target);
 
-    // Enhanced highlight animation
+    // optional flash
     setTimeout(() => {
       const el = document.querySelector(`[data-verse-ref="${ref}"]`) as HTMLElement | null;
       if (el) {
-        // Remove any existing highlight classes first
-        el.classList.remove('highlight', 'verse-highlight-flash');
-        void el.offsetWidth; // force reflow
-        // Add the enhanced highlight class with animation
-        el.classList.add('highlight');
-        setTimeout(() => el.classList.remove('highlight'), 2000);
+        el.classList.add('verse-highlight-flash');
+        setTimeout(() => el.classList.remove('verse-highlight-flash'), 400);
       }
-    }, 300);
+    }, 25);
   };
 }
