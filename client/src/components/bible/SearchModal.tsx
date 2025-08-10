@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, X, Book, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard, Navigation } from 'lucide-react';
+import { Search, X, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard, Navigation } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
@@ -453,7 +453,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                 title={isMobile ? "Random Verse" : "Random Verse (Ctrl+R)"}
                 className={isMobile ? "px-3" : ""}
               >
-                <Book className="w-4 h-4" />
+                <Shuffle className="w-4 h-4" />
               </Button>
               {!isMobile && (
                 <Button
