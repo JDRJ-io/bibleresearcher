@@ -71,18 +71,14 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
 
   // Load labels when translation or active labels change
   useEffect(() => {
-    console.log('🔄 WORKER: useViewportLabels effect triggered', { 
-      activeLabels, 
-      activeLabelsLength: activeLabels.length,
-      mainTranslation, 
-      verseCount: verses.length,
-      allVerseCount: allRequiredVerseKeys.length,
-      verseKeysFirst3: verseKeys.slice(0, 3),
-      allKeysFirst3: allRequiredVerseKeys.slice(0, 3)
-    });
+    // PHASE 2 OPTIMIZATION: Reduced verbose logging in viewport expansion
+    log.debug('ViewportLabels', () => ({ 
+      activeLabels: activeLabels?.length, 
+      verseCount: allRequiredVerseKeys.length,
+      mode 
+    }));
 
     if (activeLabels.length === 0 || !mainTranslation) {
-      console.log('🔄 WORKER: No active labels, clearing data');
       setLabelsData({});
       return;
     }
@@ -90,38 +86,25 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     const loadLabels = async () => {
       // PERFORMANCE: Skip labels loading during scroll drag for smooth performance
       if (mode === 'KeysOnly') {
-        console.log('🎯 LABELS: Skipping labels loading - KeysOnly mode active for smooth scrolling');
         return;
       }
 
       setIsLoading(true);
-      console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
-      console.log(`🔄 WORKER: Including ${allRequiredVerseKeys.length} total verses (viewport + cross-refs + prophecies)`);
       try {
         // Normalize active labels before passing to worker
         const normActive = activeLabels.map(lbl => lbl.toLowerCase() as LabelName);
-        console.log(`🔄 WORKER: About to call ensureLabelCacheLoaded with normalized labels:`, normActive);
-        console.log(`🔄 WORKER: Including ${allRequiredVerseKeys.length} specific verses for dynamic loading`);
         await ensureLabelCacheLoaded(mainTranslation, normActive, allRequiredVerseKeys);
-        console.log(`✅ WORKER: Cache loaded, getting labels for ${allRequiredVerseKeys.length} verses`);
 
         // Get labels for ALL required verses (viewport + cross-refs + prophecies)
         const viewportLabels = getLabelsForVerses(mainTranslation, allRequiredVerseKeys, activeLabels);
         setLabelsData(viewportLabels);
 
-        console.log(`🏷️ WORKER: Final viewport labels:`, Object.keys(viewportLabels).length, 'verses with labels out of', allRequiredVerseKeys.length, 'requested');
-        
-        // Debug: Show some specific examples of loaded labels
-        const labeledVerses = Object.keys(viewportLabels).filter(v => Object.keys(viewportLabels[v]).length > 0).slice(0, 3);
-        if (labeledVerses.length > 0) {
-          console.log(`🏷️ WORKER: Example labeled verses:`, labeledVerses.map(v => ({ 
-            verse: v, 
-            labelCount: Object.keys(viewportLabels[v]).length,
-            labels: Object.keys(viewportLabels[v])
-          })));
-        }
+        log.debug('ViewportLabelsLoaded', () => ({ 
+          labeledVerses: Object.keys(viewportLabels).length,
+          totalRequested: allRequiredVerseKeys.length
+        }));
       } catch (error) {
-        console.error('❌ WORKER: Failed to load viewport labels:', error);
+        log.debug('ViewportLabelsError', () => ({ error: error instanceof Error ? error.message : 'Unknown error' }));
         setLabelsData({});
       } finally {
         setIsLoading(false);
