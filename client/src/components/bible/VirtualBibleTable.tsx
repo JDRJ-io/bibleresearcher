@@ -914,7 +914,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         containerRef={containerRef}
         isVisible={showScrollTooltip}
         mousePosition={mousePosition}
-        currentCenterVerse={verseKeys[anchorIndex] || 'Gen.1:1'}
+        verseKeys={verseKeys}
+        currentScrollTop={scrollTop}
       />
     </div>
   );

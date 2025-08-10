@@ -5,31 +5,41 @@ interface ScrollbarTooltipProps {
   containerRef: React.RefObject<HTMLDivElement>;
   isVisible: boolean;
   mousePosition?: { x: number; y: number };
-  currentCenterVerse: string; // Pass the actual center verse directly
+  verseKeys: string[];
+  currentScrollTop: number;
 }
 
 export function ScrollbarTooltip({ 
   containerRef, 
   isVisible, 
   mousePosition,
-  currentCenterVerse
+  verseKeys,
+  currentScrollTop
 }: ScrollbarTooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [currentVerse, setCurrentVerse] = useState('');
 
-  // Update tooltip position when mouse moves during dragging
+  // Calculate center verse from current scroll position during dragging
   useEffect(() => {
     if (!isVisible || !mousePosition || !containerRef.current) return;
     
     const container = containerRef.current;
     const rect = container.getBoundingClientRect();
     
+    // Calculate which verse would be in the center at current scroll position
+    const centerY = currentScrollTop + container.clientHeight / 2;
+    const centerIndex = Math.round(centerY / ROW_HEIGHT);
+    const clampedIndex = Math.max(0, Math.min(centerIndex, verseKeys.length - 1));
+    const verse = verseKeys[clampedIndex] || 'Gen.1:1';
+    
+    setCurrentVerse(verse);
     setPosition({
       x: rect.right - 80, // Position to the left of scrollbar with some padding
       y: mousePosition.y
     });
-  }, [isVisible, mousePosition, containerRef]);
+  }, [isVisible, mousePosition, containerRef, currentScrollTop, verseKeys]);
 
-  if (!isVisible || !currentCenterVerse) return null;
+  if (!isVisible || !currentVerse) return null;
 
   return (
     <div
@@ -45,7 +55,7 @@ export function ScrollbarTooltip({
         boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
       }}
     >
-      {currentCenterVerse}
+      {currentVerse}
     </div>
   );
 }
