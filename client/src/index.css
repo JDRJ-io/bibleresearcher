@@ -17,22 +17,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* THEME SYSTEM: Use data-theme attributes (expert pattern) */
-html, body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-/* Base theme variables (safe defaults) */
-:root {
-  --bg-primary: hsl(0, 0%, 100%);
-  --bg-secondary: hsl(210, 40%, 98%);
-  --text-primary: hsl(210, 24%, 16%);
-  --text-secondary: hsl(215, 16%, 47%);
-  --border-color: hsl(214, 32%, 91%);
-  --accent-color: hsl(221, 83%, 53%);
-}
-
 /* Theme-aware utility classes */
 .bg-surface { background: var(--bg-primary) !important; }
 .bg-secondary { background-color: var(--bg-secondary) !important; }
