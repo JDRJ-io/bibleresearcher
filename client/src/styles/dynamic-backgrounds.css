@@ -21,83 +21,11 @@ html {
   transition: background 0.5s ease;
 }
 
-/* Light theme - waves animation */
-:root.light .dynamic-background {
+/* All themes use CSS variables from themeOptimizer */
+.dynamic-background {
   background: linear-gradient(
     180deg,
-    hsl(210, 40%, 99%) 0%,
-    hsl(200, 30%, 97%) 100%
-  );
-}
-
-/* Dark theme - aurora animation */
-:root.dark .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(220, 20%, 10%) 0%,
-    hsl(210, 25%, 8%) 100%
-  );
-}
-
-/* Voodoo Blue - aurora animation */
-:root.voodoo-blue .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(220, 30%, 11%) 0%,
-    hsl(220, 26%, 16%) 100%
-  );
-}
-
-/* Midnight - stars animation */
-:root.midnight .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(228, 28%, 10%) 0%,
-    hsl(228, 24%, 15%) 100%
-  );
-}
-
-/* Sepia - bokeh animation */
-:root.sepia .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(34, 40%, 92%) 0%,
-    hsl(34, 35%, 86%) 100%
-  );
-}
-
-/* Sunset - gradient shift animation */
-:root.sunset .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(20, 80%, 90%) 0%,
-    hsl(18, 70%, 86%) 100%
-  );
-}
-
-/* Eden - waves animation */
-:root.eden .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(145, 30%, 94%) 0%,
-    hsl(148, 28%, 88%) 100%
-  );
-}
-
-/* Royal - aurora animation */
-:root.royal .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(262, 30%, 12%) 0%,
-    hsl(264, 26%, 18%) 100%
-  );
-}
-
-/* Hologram - holographic animation */
-:root.hologram .dynamic-background {
-  background: linear-gradient(
-    180deg,
-    hsl(210, 30%, 9%) 0%,
-    hsl(210, 28%, 14%) 100%
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 100%
   );
 }
