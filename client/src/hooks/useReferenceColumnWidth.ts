@@ -56,18 +56,21 @@ export function useReferenceColumnWidth() {
         applyWidthStyling(initialWidth);
       }
 
-      // Use ResizeObserver on document element to detect CSS variable changes
-      // This is more efficient than polling
+      // Use debounced ResizeObserver to prevent excessive triggering
+      let resizeTimeout: NodeJS.Timeout;
       observerRef.current = new ResizeObserver(() => {
-        // Re-read CSS variable when layout changes
-        const currentRefWidth = getComputedStyle(rootEl)
-          .getPropertyValue('--adaptive-ref-width')
-          .trim();
-          
-        if (currentRefWidth) {
-          const currentWidth = parseInt(currentRefWidth.replace('px', ''));
-          applyWidthStyling(currentWidth);
-        }
+        // Debounce to prevent excessive calls during scroll/resize
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          const currentRefWidth = getComputedStyle(rootEl)
+            .getPropertyValue('--adaptive-ref-width')
+            .trim();
+            
+          if (currentRefWidth) {
+            const currentWidth = parseInt(currentRefWidth.replace('px', ''));
+            applyWidthStyling(currentWidth);
+          }
+        }, 32); // Optimize for smooth scrolling by reducing frequency
       });
 
       observerRef.current.observe(rootEl);
@@ -76,9 +79,12 @@ export function useReferenceColumnWidth() {
     // Start monitoring after a brief delay to ensure DOM is ready
     const timeoutId = setTimeout(startMonitoring, 100);
 
-    // Also monitor window resize for immediate updates
+    // Optimized window resize handler with requestAnimationFrame
+    let rafId: number;
     const handleResize = () => {
-      setTimeout(() => {
+      // Cancel previous frame request to prevent stacking
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
         const adaptiveRefWidth = getComputedStyle(document.documentElement)
           .getPropertyValue('--adaptive-ref-width')
           .trim();
@@ -87,13 +93,14 @@ export function useReferenceColumnWidth() {
           const widthValue = parseInt(adaptiveRefWidth.replace('px', ''));
           applyWidthStyling(widthValue);
         }
-      }, 50); // Small delay for CSS variable updates
+      });
     };
     
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     
     return () => {
       clearTimeout(timeoutId);
+      cancelAnimationFrame(rafId);
       observerRef.current?.disconnect();
       window.removeEventListener('resize', handleResize);
       

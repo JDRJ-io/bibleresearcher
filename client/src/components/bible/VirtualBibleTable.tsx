@@ -318,15 +318,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     rowDataSize: rowData ? Object.keys(rowData).length : 0
   }));
   
-  // PHASE 2 OPTIMIZATION: Replaced heavy DOM querying with CSS variable monitoring
-  useEffect(() => {
-    log.debug('WidthCheck', () => {
-      const root = document.documentElement;
-      const refWidth = getComputedStyle(root).getPropertyValue('--adaptive-ref-width').trim();
-      const columnWidthMult = getComputedStyle(root).getPropertyValue('--column-width-mult').trim();
-      return { refWidth, columnWidthMult };
-    });
-  }, [slice.verseIDs]);
+  // PHASE 2.1 FIX: Remove unnecessary width monitoring that was causing scroll lag
+  // The useReferenceColumnWidth hook already handles width monitoring efficiently
 
   // Expert's physically separated scroll axes - one axis at a time
   const vScrollRef = useRef<HTMLDivElement>(null); // Vertical scroller
@@ -524,28 +517,28 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     let lastScrollTop = 0;
     let scrollTimeout: NodeJS.Timeout | null = null;
 
-    // Track scroll position for custom scrollbar (vertical only)
+    // Track scroll position for custom scrollbar (vertical only) - OPTIMIZED for performance
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       const currentScrollTop = target.scrollTop;
       
-      // No longer track scrollLeft since horizontal scrolling is disabled
-      setScrollLeft(0); // Always keep at 0
-      
-      // Update scrollTop state if not currently dragging scrollbar
-      if (!isScrollbarDragging) {
-        setScrollTop(currentScrollTop);
-      }
+      // PHASE 2.1 FIX: Use requestAnimationFrame to prevent scroll lag
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        // Update scrollTop state if not currently dragging scrollbar
+        if (!isScrollbarDragging) {
+          setScrollTop(currentScrollTop);
+        }
 
-      // Banner rollup logic - hide PatchNotesBanner on scroll down
-      if (isMobile && currentScrollTop > lastScrollTop && currentScrollTop > 30) {
-        // User is scrolling down - hide banner via event system
-        window.dispatchEvent(new CustomEvent('virtualTableScroll', { 
-          detail: { scrollDirection: 'down', scrollTop: currentScrollTop } 
-        }));
-      }
+        // Banner rollup logic - hide PatchNotesBanner on scroll down
+        if (isMobile && currentScrollTop > lastScrollTop && currentScrollTop > 30) {
+          window.dispatchEvent(new CustomEvent('virtualTableScroll', { 
+            detail: { scrollDirection: 'down', scrollTop: currentScrollTop } 
+          }));
+        }
 
-      lastScrollTop = currentScrollTop;
+        lastScrollTop = currentScrollTop;
+      }, 8); // Minimal delay for smooth scrolling
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
