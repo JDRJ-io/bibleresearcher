@@ -43,16 +43,20 @@ export function ScrollbarTooltip({
 
   return (
     <div
-      className="fixed z-[9999] pointer-events-none bg-blue-900 dark:bg-blue-800 text-white px-3 py-2 rounded-md shadow-lg text-sm font-bold whitespace-nowrap"
       style={{
+        position: 'fixed',
         left: `${position.x}px`,
         top: `${position.y}px`,
         transform: 'translateY(-50%)',
-        fontSize: '14px',
-        fontWeight: '700',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        border: '2px solid rgb(59, 130, 246)',
-        boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+        zIndex: 9999,
+        pointerEvents: 'none',
+        padding: '2px 6px',
+        backgroundColor: 'rgb(59, 130, 246)',
+        color: 'white',
+        borderRadius: '3px',
+        fontSize: '11px',
+        fontWeight: '500',
+        whiteSpace: 'nowrap'
       }}
     >
       {currentVerse}
