@@ -916,6 +916,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         isVisible={showScrollTooltip}
         onVisibilityChange={setShowScrollTooltip}
         mousePosition={mousePosition}
+        currentScrollTop={scrollTop}
+        verseKeys={verseKeys}
       />
     </div>
   );
