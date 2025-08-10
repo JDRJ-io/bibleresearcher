@@ -245,17 +245,27 @@ export class ThemeManager {
     const root = document.documentElement;
     const body = document.body;
     
+    console.log(`🔍 THEME TRACKER: Applying theme variables for '${theme.id}'`);
+    console.log(`🔍 THEME TRACKER: Theme variables:`, theme.variables);
+    
     // Apply theme class to document root for CSS selectors
     root.classList.add(theme.id);
     body.classList.add(`${theme.id}-mode`);
     
-    // Batch CSS variable updates
-    requestAnimationFrame(() => {
-      Object.entries(theme.variables).forEach(([property, value]) => {
-        root.style.setProperty(property, value);
-        this.cssVariableCache.set(property, value);
-      });
+    console.log(`🔍 THEME TRACKER: Added classes - HTML: '${theme.id}', Body: '${theme.id}-mode'`);
+    
+    // Apply CSS variables immediately instead of in requestAnimationFrame
+    Object.entries(theme.variables).forEach(([property, value]) => {
+      root.style.setProperty(property, value);
+      this.cssVariableCache.set(property, value);
+      console.log(`🔍 THEME TRACKER: Set ${property} = ${value}`);
     });
+    
+    // Also apply background to body directly
+    if (theme.variables['--bg-primary']) {
+      body.style.backgroundColor = theme.variables['--bg-primary'];
+      console.log(`🔍 THEME TRACKER: Set body.style.backgroundColor = ${theme.variables['--bg-primary']}`);
+    }
   }
 
   private applyFontFamily(fontFamily: string): void {
