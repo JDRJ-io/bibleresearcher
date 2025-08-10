@@ -4,6 +4,7 @@ import { ensureLabelCacheLoaded, getLabelsForVerses } from '@/lib/labelsCache';
 import type { LabelName } from '@/lib/labelBits';
 import type { BibleVerse } from '@/types/bible';
 import { useBibleStore } from '@/App';
+import { log } from '@/utils/logger';
 
 interface UseViewportLabelsProps {
   verses: BibleVerse[];
@@ -56,12 +57,13 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
 
     const result = Array.from(allKeys);
     const additionalVersesCount = result.length - verseKeys.length;
-    console.log(`🔄 VIEWPORT: Expanded verse list from ${verseKeys.length} to ${result.length} verses (+${additionalVersesCount} from cross-refs and prophecies)`);
-    
-    // Debug: Show some example additional verses
-    const additionalVerses = result.filter(v => !verseKeys.includes(v)).slice(0, 5);
-    if (additionalVerses.length > 0) {
-      console.log(`🔄 VIEWPORT: Example additional verses for labeling:`, additionalVerses);
+    // Reduced verbose logging for performance
+    if (additionalVersesCount > 0) {
+      log.debug('useViewportLabels', () => ({ 
+        originalVerses: verseKeys.length,
+        expandedVerses: result.length,
+        additionalCount: additionalVersesCount
+      }));
     }
     
     return result;

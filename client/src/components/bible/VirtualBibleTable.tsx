@@ -36,6 +36,7 @@ import { useNotesCache } from "@/hooks/useNotesCache";
 import { ScrollbarTooltip } from "@/components/ui/ScrollbarTooltip";
 import { useLoadMode } from '@/contexts/LoadModeContext';
 import type { LabelName } from '@/lib/labelBits';
+import { log } from '@/utils/logger';
 
 export interface VirtualBibleTableHandle {
   scrollToVerse: (ref: string) => void;
@@ -147,39 +148,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const activeLabels = store.activeLabels;
   
   // Immediate debug log to see current state
-  console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
-  console.log('🔍🔍🔍 IMMEDIATE - Full store check:', { 
-    hasStore: !!store,
-    storeActiveLabels: store?.activeLabels,
-    directActiveLabels: useBibleStore.getState().activeLabels 
-  });
+  // Debug logging reduced for performance
+  // Removed immediate debug logs
   
-  // Force test to ensure store updates are working
-  useEffect(() => {
-    const unsubscribe = useBibleStore.subscribe(
-      (state) => {
-        console.log('🔥🔥🔥 STORE SUBSCRIPTION - activeLabels changed to:', state.activeLabels);
-      }
-    );
-    return unsubscribe;
-  }, []);
-  
-  // DIRECT TEST: Force test Dan.7:3 with known labels
-  useEffect(() => {
-    if (activeLabels?.includes('what' as any)) {
-      console.log('🧪 DIRECT TEST: Testing Dan.7:3 with what label active');
-      const testLabels = { what: ['four huge beasts'], where: ['out of the water'], action: ['came up'] };
-      const testText = 'Then four huge beasts came up out of the water, each different from the others.';
-      console.log('🧪 Test text:', testText);
-      console.log('🧪 Test labels:', testLabels);
-    }
-  }, [activeLabels]);
-  
-  // Debug activeLabels from store - FORCE RENDER CHECK
-  useEffect(() => {
-    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels changed:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
-    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels array:', JSON.stringify(activeLabels));
-  }, [activeLabels]);
+  // Debug logging reduced for performance
   
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
@@ -205,15 +177,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     });
   }, [slice.verseIDs, rowData]);
   
-  // Force hook re-evaluation when activeLabels changes  
-  useEffect(() => {
-    console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
-      versesCount: sliceVerses.length,
-      activeLabels: activeLabels,
-      activeLabelsJSON: JSON.stringify(activeLabels),
-      mainTranslation: translationMainTranslation || mainTranslation
-    });
-  }, [activeLabels, sliceVerses.length, translationMainTranslation, mainTranslation]);
+  // Debug logging reduced for performance
   
   const { getVerseLabels } = useViewportLabels({
     verses: sliceVerses, 
