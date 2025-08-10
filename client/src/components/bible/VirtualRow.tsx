@@ -46,7 +46,7 @@ function ReferenceCell({ verse }: CellProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-gray-700 dark:text-gray-300 glass-morphism glass-reference-cell flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+    <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-secondary glass-morphism glass-reference-cell flex-shrink-0 border-r border-color`}>
       {verse.reference}
     </div>
   );
@@ -753,8 +753,8 @@ export function VirtualRow({
     switch (config.type) {
       case 'reference':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex items-center justify-center h-full m-0 p-0">
+          <div key={slot} className="bible-column columnGroup border-r border-color" style={columnStyle}>
+            <div className="text-xs font-medium text-secondary bg-secondary cell-content cell-ref flex items-center justify-center h-full m-0 p-0">
               <span className="truncate leading-none m-0 p-0">{verse.reference}</span>
             </div>
           </div>
@@ -762,14 +762,14 @@ export function VirtualRow({
 
       case 'notes':
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-color" style={columnStyle}>
             <NotesCell verseRef={verse.reference} className="h-full" onVerseClick={onVerseClick} />
           </div>
         );
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+          <div key={slot} className="bible-column columnGroup border-r border-color h-full" style={columnStyle}>
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -822,7 +822,7 @@ export function VirtualRow({
         };
 
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-color h-full" style={columnStyle}>
             <HoverVerseBar
               verse={verse}
               translation={config.translationCode}
@@ -856,7 +856,7 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
+            className="bible-column columnGroup border-r border-color" 
             style={columnStyle}
             onWheel={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
@@ -876,7 +876,7 @@ export function VirtualRow({
 
       case 'context':
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-color" style={columnStyle}>
             <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} isMobile={isMobile} />
           </div>
         );
@@ -885,7 +885,7 @@ export function VirtualRow({
       case 'prophecy-f':
       case 'prophecy-v':
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div key={slot} className="bible-column border-r border-color" style={columnStyle}>
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
@@ -936,7 +936,7 @@ export function VirtualRow({
   // RESPONSIVE COLUMN WIDTHS - Optimize space utilization
   return (
     <div 
-      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
+      className="border-b border-color bible-verse-row"
       style={{ 
         height: rowHeight,
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',

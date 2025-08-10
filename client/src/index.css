@@ -17,6 +17,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme-aware utility classes */
+.bg-secondary {
+  background-color: var(--bg-secondary) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.border-color {
+  border-color: var(--border-color) !important;
+}
+
 /* Hide default scrollbars but keep scrolling functionality */
 .unified-scroll-container::-webkit-scrollbar {
   display: none;
@@ -1321,31 +1334,18 @@ body.menu-open {
 }
 
 .bible-table-wrapper::-webkit-scrollbar-track{ 
-  background: rgb(243 244 246); /* bg-gray-100 */
+  background: var(--bg-secondary);
   border-radius:4px; 
 }
 
 .bible-table-wrapper::-webkit-scrollbar-thumb{ 
-  background: rgb(156 163 175); /* bg-gray-400 */
+  background: var(--border-color);
   border-radius:4px; 
   min-width: 40px; /* Ensure thumb is visible when scrollable */
 }
 
 .bible-table-wrapper::-webkit-scrollbar-thumb:hover{ 
-  background: rgb(107 114 128); /* bg-gray-500 */
-}
-
-/* Dark mode scrollbar */
-.dark .bible-table-wrapper::-webkit-scrollbar-track{ 
-  background: rgb(55 65 81); /* bg-gray-700 */
-}
-
-.dark .bible-table-wrapper::-webkit-scrollbar-thumb{ 
-  background: rgb(75 85 99); /* bg-gray-600 */
-}
-
-.dark .bible-table-wrapper::-webkit-scrollbar-thumb:hover{ 
-  background: rgb(156 163 175); /* bg-gray-400 */
+  background: var(--accent-color);
 }
 
 /* Reference column styling for proper layout */
