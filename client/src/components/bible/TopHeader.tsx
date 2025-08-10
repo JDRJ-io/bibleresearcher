@@ -268,14 +268,14 @@ export function TopHeader({
           {/* Left Section: Logo + Navigation */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
-                             border border-yellow-400/30 flex items-center justify-center relative overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-blue-500 dark:bg-blue-600 
+                             border border-blue-600 dark:border-blue-700 flex items-center justify-center relative overflow-hidden">
                 {/* Holy Light Particles */}
                 <div className="absolute inset-0">
                   <div className="absolute left-1/4 top-1/2 w-1 h-1 bg-yellow-400/60 rounded-full blur-sm animate-pulse" />
                   <div className="absolute right-1/3 top-1/2 w-0.5 h-0.5 bg-purple-400/80 rounded-full blur-sm animate-pulse delay-500" />
                 </div>
-                <Scroll className="w-5 h-5 text-white dark:text-blue-400 relative z-10" />
+                <Scroll className="w-5 h-5 text-white relative z-10" />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-black dark:text-white">Anointed.io</span>
