@@ -275,12 +275,10 @@ export function TopHeader({
                   <div className="absolute left-1/4 top-1/2 w-1 h-1 bg-yellow-400/60 rounded-full blur-sm animate-pulse" />
                   <div className="absolute right-1/3 top-1/2 w-0.5 h-0.5 bg-purple-400/80 rounded-full blur-sm animate-pulse delay-500" />
                 </div>
-                <Scroll className="w-5 h-5 text-yellow-400 relative z-10" />
+                <Scroll className="w-5 h-5 text-white dark:text-blue-400 relative z-10" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg bg-gradient-to-r from-yellow-500 to-purple-500 
-                              dark:from-yellow-400 dark:to-purple-400 
-                              bg-clip-text text-transparent">Anointed.io</span>
+                <span className="font-bold text-lg text-black dark:text-white">Anointed.io</span>
               </div>
             </div>
 
