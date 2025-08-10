@@ -20,23 +20,28 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     columnState
   } = useBibleStore();
 
-  // Calculate only visible/active columns (excluding reference column)
+  // Calculate only visible/active content columns (excluding reference column)
+  // The columnState.columns includes all translation columns, but we need to exclude reference
   const visibleTranslationColumns = columnState.columns.filter(col => col.visible).length;
   const additionalColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
-  const totalActiveColumns = visibleTranslationColumns + additionalColumns;
+  // Don't count the reference column in our total since it's always visible and doesn't scroll
+  const totalActiveColumns = (visibleTranslationColumns - 1) + additionalColumns; // -1 to exclude reference column from count
+  
+
   
   // Calculate currently visible active columns range (excluding reference column)
   // Show how many content columns are currently visible, starting from offset
-  const visibleActiveColumns = Math.min(maxVisibleColumns - 1, totalActiveColumns - columnOffset); // -1 to exclude reference column
+  const availableContentSlots = maxVisibleColumns - 1; // -1 for reference column
+  const visibleActiveColumns = Math.min(availableContentSlots, totalActiveColumns - columnOffset);
   const currentStartColumn = columnOffset + 1; // Start from offset + 1 for active columns
   const currentEndColumn = columnOffset + visibleActiveColumns;
   
   // Calculate if arrows should be enabled
   const canGoLeft = columnOffset > 0;
-  const canGoRight = columnOffset < Math.max(0, totalActiveColumns - (maxVisibleColumns - 1));
+  const canGoRight = columnOffset < Math.max(0, totalActiveColumns - availableContentSlots);
   
-  // Don't show navigation if all columns fit in viewport
-  if (totalActiveColumns <= (maxVisibleColumns - 1)) {
+  // Show navigation if there are more columns than can fit in viewport
+  if (totalActiveColumns <= availableContentSlots) {
     return null;
   }
 
