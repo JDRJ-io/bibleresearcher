@@ -22,7 +22,7 @@ export class ThemeManager {
     memoryUsage: 0
   };
 
-  // Comprehensive theme definitions - all themes from Theme Pack v1
+  // Simplified theme definitions - only light and dark
   private themes: OptimizedTheme[] = [
     {
       id: 'light',
@@ -34,11 +34,10 @@ export class ThemeManager {
         '--bg-primary': 'hsl(0, 0%, 100%)',
         '--bg-secondary': 'hsl(210, 40%, 98%)',
         '--text-primary': 'hsl(210, 24%, 16%)',
-        '--text-secondary': 'hsl(215, 16%, 47%)',
+        '--text-secondary': 'hsl(215, 20%, 35%)',
         '--border-color': 'hsl(214, 32%, 91%)',
         '--accent-color': 'hsl(221, 83%, 53%)',
-        '--highlight-bg': 'hsl(214, 100%, 97%)',
-        '--hover-bg': 'hsl(210, 40%, 98%)'
+        '--highlight-bg': 'hsl(214, 100%, 97%)'
       }
     },
     {
@@ -54,127 +53,7 @@ export class ThemeManager {
         '--text-secondary': 'hsl(215, 20%, 65%)',
         '--border-color': 'hsl(217, 33%, 17%)',
         '--accent-color': 'hsl(217, 91%, 65%)',
-        '--highlight-bg': 'hsl(215, 27%, 32%)',
-        '--hover-bg': 'hsl(215, 20%, 15%)'
-      }
-    },
-    {
-      id: 'voodoo-blue',
-      name: 'Voodoo Blue',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(220, 30%, 11%)',
-        '--bg-secondary': 'hsl(220, 26%, 16%)',
-        '--text-primary': 'hsl(210, 15%, 92%)',
-        '--text-secondary': 'hsl(210, 15%, 75%)',
-        '--border-color': 'hsl(220, 26%, 20%)',
-        '--accent-color': 'hsl(195, 78%, 52%)',
-        '--highlight-bg': 'hsl(220, 26%, 20%)',
-        '--hover-bg': 'hsl(220, 26%, 18%)'
-      }
-    },
-    {
-      id: 'midnight',
-      name: 'Midnight',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(228, 28%, 10%)',
-        '--bg-secondary': 'hsl(228, 24%, 15%)',
-        '--text-primary': 'hsl(220, 14%, 90%)',
-        '--text-secondary': 'hsl(220, 14%, 70%)',
-        '--border-color': 'hsl(228, 24%, 18%)',
-        '--accent-color': 'hsl(265, 70%, 62%)',
-        '--highlight-bg': 'hsl(228, 24%, 18%)',
-        '--hover-bg': 'hsl(228, 24%, 16%)'
-      }
-    },
-    {
-      id: 'sepia',
-      name: 'Sepia',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(34, 40%, 92%)',
-        '--bg-secondary': 'hsl(34, 35%, 86%)',
-        '--text-primary': 'hsl(28, 30%, 18%)',
-        '--text-secondary': 'hsl(28, 30%, 35%)',
-        '--border-color': 'hsl(34, 35%, 80%)',
-        '--accent-color': 'hsl(22, 70%, 44%)',
-        '--highlight-bg': 'hsl(34, 35%, 88%)',
-        '--hover-bg': 'hsl(34, 35%, 84%)'
-      }
-    },
-    {
-      id: 'sunset',
-      name: 'Sunset',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(20, 80%, 90%)',
-        '--bg-secondary': 'hsl(18, 70%, 86%)',
-        '--text-primary': 'hsl(12, 25%, 18%)',
-        '--text-secondary': 'hsl(12, 25%, 35%)',
-        '--border-color': 'hsl(18, 70%, 82%)',
-        '--accent-color': 'hsl(12, 80%, 54%)',
-        '--highlight-bg': 'hsl(18, 70%, 88%)',
-        '--hover-bg': 'hsl(18, 70%, 84%)'
-      }
-    },
-    {
-      id: 'eden',
-      name: 'Eden',
-      priority: 'enhanced',
-      memoryFootprint: 'medium',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(145, 30%, 94%)',
-        '--bg-secondary': 'hsl(148, 28%, 88%)',
-        '--text-primary': 'hsl(150, 20%, 18%)',
-        '--text-secondary': 'hsl(150, 20%, 35%)',
-        '--border-color': 'hsl(148, 28%, 82%)',
-        '--accent-color': 'hsl(160, 55%, 42%)',
-        '--highlight-bg': 'hsl(148, 28%, 90%)',
-        '--hover-bg': 'hsl(148, 28%, 86%)'
-      }
-    },
-    {
-      id: 'royal',
-      name: 'Royal',
-      priority: 'premium',
-      memoryFootprint: 'high',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(262, 30%, 12%)',
-        '--bg-secondary': 'hsl(264, 26%, 18%)',
-        '--text-primary': 'hsl(280, 15%, 92%)',
-        '--text-secondary': 'hsl(280, 15%, 75%)',
-        '--border-color': 'hsl(264, 26%, 22%)',
-        '--accent-color': 'hsl(285, 70%, 58%)',
-        '--highlight-bg': 'hsl(264, 26%, 22%)',
-        '--hover-bg': 'hsl(264, 26%, 20%)'
-      }
-    },
-    {
-      id: 'hologram',
-      name: 'Hologram',
-      priority: 'premium',
-      memoryFootprint: 'high',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        '--bg-primary': 'hsl(210, 30%, 9%)',
-        '--bg-secondary': 'hsl(210, 28%, 14%)',
-        '--text-primary': 'hsl(0, 0%, 98%)',
-        '--text-secondary': 'hsl(0, 0%, 85%)',
-        '--border-color': 'hsl(210, 28%, 18%)',
-        '--accent-color': 'hsl(195, 100%, 70%)',
-        '--highlight-bg': 'hsl(210, 28%, 18%)',
-        '--hover-bg': 'hsl(210, 28%, 16%)'
+        '--highlight-bg': 'hsl(215, 27%, 32%)'
       }
     }
   ];
@@ -243,22 +122,17 @@ export class ThemeManager {
 
   private applyThemeVariables(theme: OptimizedTheme): void {
     const root = document.documentElement;
-    const body = document.body;
     
-    console.log(`🔍 THEME TRACKER: Applying theme variables for '${theme.id}'`);
-    console.log(`🔍 THEME TRACKER: Theme variables:`, theme.variables);
-    
-    // Apply theme class to document root for CSS selectors (revert to original working method)
-    root.classList.add(theme.id);
-    body.classList.add(`${theme.id}-mode`);
-    
-    console.log(`🔍 THEME TRACKER: Added classes - HTML: '${theme.id}', Body: '${theme.id}-mode'`);
-    
-    // Apply CSS variables immediately
-    Object.entries(theme.variables).forEach(([property, value]) => {
-      root.style.setProperty(property, value);
-      this.cssVariableCache.set(property, value);
-      console.log(`🔍 THEME TRACKER: Set ${property} = ${value}`);
+    // Batch CSS variable updates
+    requestAnimationFrame(() => {
+      Object.entries(theme.variables).forEach(([property, value]) => {
+        root.style.setProperty(property, value);
+        this.cssVariableCache.set(property, value);
+      });
+      
+      // Add theme class for CSS selectors
+      root.classList.add(theme.id);
+      document.body.classList.add(theme.id);
     });
   }
 

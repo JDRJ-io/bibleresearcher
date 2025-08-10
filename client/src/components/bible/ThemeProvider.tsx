@@ -52,42 +52,12 @@ export function ThemeProvider({
   // Handle theme changes with memory optimization
   const setTheme = useCallback((newTheme: ThemeId) => {
     try {
-      console.log(`🔍 THEME TRACKER: Starting theme change from '${theme}' to '${newTheme}'`);
-      
-      // Track what happens in the DOM
-      const htmlElement = document.documentElement;
-      const bodyElement = document.body;
-      
-      console.log(`🔍 THEME TRACKER: Before change - HTML classes: "${htmlElement.className}"`);
-      console.log(`🔍 THEME TRACKER: Before change - Body classes: "${bodyElement.className}"`);
-      console.log(`🔍 THEME TRACKER: Before change - Body style: background="${bodyElement.style.background}", backgroundColor="${bodyElement.style.backgroundColor}"`);
-      
       // Performance-conscious theme switching
       if (enablePerformanceMode) {
-        console.log(`🔍 THEME TRACKER: Applying minimal theme for '${newTheme}'`);
         themeManager.applyMinimalTheme(newTheme);
       } else {
-        console.log(`🔍 THEME TRACKER: Applying full theme for '${newTheme}'`);
         themeManager.applyTheme(newTheme);
       }
-      
-      // Track what changed in the DOM
-      setTimeout(() => {
-        console.log(`🔍 THEME TRACKER: After change - HTML classes: "${htmlElement.className}"`);
-        console.log(`🔍 THEME TRACKER: After change - Body classes: "${bodyElement.className}"`);
-        console.log(`🔍 THEME TRACKER: After change - Body style: background="${bodyElement.style.background}", backgroundColor="${bodyElement.style.backgroundColor}"`);
-        
-        // Check CSS variables
-        const computedStyle = getComputedStyle(htmlElement);
-        console.log(`🔍 THEME TRACKER: CSS Variables after change:`, {
-          '--bg-primary': computedStyle.getPropertyValue('--bg-primary'),
-          '--bg-secondary': computedStyle.getPropertyValue('--bg-secondary'),
-          '--text-primary': computedStyle.getPropertyValue('--text-primary'),
-          '--text-secondary': computedStyle.getPropertyValue('--text-secondary'),
-          '--border-color': computedStyle.getPropertyValue('--border-color'),
-          '--accent-color': computedStyle.getPropertyValue('--accent-color')
-        });
-      }, 50);
       
       // Update state and storage
       setThemeState(newTheme);
