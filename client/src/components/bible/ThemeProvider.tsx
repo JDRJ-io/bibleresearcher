@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { themeManager, OptimizedTheme } from '@/utils/themeOptimizer';
 
-type ThemeId = 'light' | 'dark';
+type ThemeId = 'light' | 'dark' | 'blue';
 
 type ThemeProviderProps = {
   children: React.ReactNode;

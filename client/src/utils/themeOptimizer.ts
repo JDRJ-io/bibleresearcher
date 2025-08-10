@@ -22,7 +22,7 @@ export class ThemeManager {
     memoryUsage: 0
   };
 
-  // Simplified theme definitions - only light and dark
+  // Theme definitions - light, dark, and blue
   private themes: OptimizedTheme[] = [
     {
       id: 'light',
@@ -37,7 +37,8 @@ export class ThemeManager {
         '--text-secondary': 'hsl(215, 20%, 35%)',
         '--border-color': 'hsl(214, 32%, 91%)',
         '--accent-color': 'hsl(221, 83%, 53%)',
-        '--highlight-bg': 'hsl(214, 100%, 97%)'
+        '--highlight-bg': 'hsl(214, 100%, 97%)',
+        '--use-transparent-bg': 'false'
       }
     },
     {
@@ -53,7 +54,26 @@ export class ThemeManager {
         '--text-secondary': 'hsl(215, 20%, 65%)',
         '--border-color': 'hsl(217, 33%, 17%)',
         '--accent-color': 'hsl(217, 91%, 65%)',
-        '--highlight-bg': 'hsl(215, 27%, 32%)'
+        '--highlight-bg': 'hsl(215, 27%, 32%)',
+        '--use-transparent-bg': 'false'
+      }
+    },
+    {
+      id: 'blue',
+      name: 'Blue Ocean',
+      priority: 'enhanced',
+      memoryFootprint: 'medium',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+      variables: {
+        '--bg-primary': 'hsl(210, 100%, 95%)',
+        '--bg-secondary': 'hsl(210, 100%, 92%)',
+        '--text-primary': 'hsl(210, 100%, 15%)',
+        '--text-secondary': 'hsl(210, 60%, 25%)',
+        '--border-color': 'hsl(210, 80%, 85%)',
+        '--accent-color': 'hsl(210, 100%, 50%)',
+        '--highlight-bg': 'hsl(210, 100%, 88%)',
+        '--use-transparent-bg': 'true',
+        '--theme-bg-gradient': 'linear-gradient(135deg, hsl(210, 100%, 50%) 0%, hsl(220, 100%, 40%) 50%, hsl(230, 100%, 30%) 100%)'
       }
     }
   ];
@@ -122,6 +142,7 @@ export class ThemeManager {
 
   private applyThemeVariables(theme: OptimizedTheme): void {
     const root = document.documentElement;
+    const body = document.body;
     
     // Batch CSS variable updates
     requestAnimationFrame(() => {
@@ -130,9 +151,27 @@ export class ThemeManager {
         this.cssVariableCache.set(property, value);
       });
       
+      // Handle background transparency for other themes
+      const useTransparentBg = theme.variables['--use-transparent-bg'] === 'true';
+      if (useTransparentBg) {
+        // Make light/dark backgrounds invisible
+        root.classList.add('transparent-mode');
+        body.classList.add('transparent-mode');
+        
+        // Apply theme gradient if available
+        if (theme.variables['--theme-bg-gradient']) {
+          body.style.background = theme.variables['--theme-bg-gradient'];
+        }
+      } else {
+        // Remove transparent mode
+        root.classList.remove('transparent-mode');
+        body.classList.remove('transparent-mode');
+        body.style.background = '';
+      }
+      
       // Add theme class for CSS selectors
       root.classList.add(theme.id);
-      document.body.classList.add(theme.id);
+      body.classList.add(theme.id);
     });
   }
 

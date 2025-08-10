@@ -12,17 +12,64 @@
 body {
   margin: 0;
   font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
-  /* Allow transparent background for dynamic theme effects */
-  background: transparent;
+  /* Default background for light/dark themes */
+  background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* Optimized transitions - only essential properties */
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background 0.3s ease;
   /* Support for dynamic backgrounds */
   min-height: 100vh;
+}
+
+/* Transparent mode - cancels out light/dark backgrounds for other themes */
+body.transparent-mode {
+  /* Override light/dark backgrounds to be transparent */
+  background: transparent !important;
+}
+
+body.transparent-mode .theme-aware {
+  background-color: transparent !important;
+}
+
+body.transparent-mode .theme-aware-secondary {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Blue theme specific enhancements */
+.blue .theme-aware {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.blue .theme-aware-secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.blue .cross-ref-item {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+.blue .cross-ref-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Blue theme transparent mode adjustments */
+body.blue.transparent-mode .theme-aware {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+body.blue.transparent-mode .theme-aware-secondary {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
 /* Essential theme classes - managed by ThemeManager */
@@ -32,6 +79,10 @@ body {
 
 .dark {
   color-scheme: dark;
+}
+
+.blue {
+  color-scheme: light;
 }
 
 /* Optimized component styling using CSS variables */
