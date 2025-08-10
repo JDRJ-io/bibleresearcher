@@ -1,0 +1,70 @@
+Yep — if you just want “less mouse travel = more scroll,” you can keep your custom UI and change the **ratio** (speed multiplier) that maps drag distance → `scrollTop`. No observers, no timers, super light.
+
+Here’s the tiniest vanilla version:
+
+```html
+<div id="viewport" style="height:600px; overflow:auto;">
+  <!-- your tall content -->
+</div>
+
+<!-- Optional: an invisible drag area anywhere you like -->
+<div id="scroll-dragger" style="position:fixed; right:0; top:0; width:16px; height:100vh;"></div>
+
+<script>
+(() => {
+  const vp = document.getElementById('viewport');
+  const dragger = document.getElementById('scroll-dragger');
+
+  let dragging = false;
+  let startY = 0;
+  let startScroll = 0;
+
+  // Tune this to change the ratio. Bigger = less mouse travel needed.
+  // Try 3–8, or compute dynamically so a full-screen drag spans the whole content.
+  let SPEED = 5;
+
+  // Optional: make SPEED auto-fit so one screen-height drag covers the full scroll.
+  function setAutoSpeed() {
+    const maxScroll = Math.max(vp.scrollHeight - vp.clientHeight, 1);
+    const dragRange = window.innerHeight; // the height of your drag area
+    SPEED = maxScroll / dragRange;
+  }
+  // setAutoSpeed(); // uncomment to auto-scale
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  dragger.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    startY = e.pageY;
+    startScroll = vp.scrollTop;
+    dragger.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  dragger.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dy = e.pageY - startY;
+    const maxScroll = vp.scrollHeight - vp.clientHeight;
+    vp.scrollTop = clamp(startScroll + dy * SPEED, 0, maxScroll);
+  });
+
+  const stop = (e) => { dragging = false; try { dragger.releasePointerCapture(e.pointerId); } catch {} };
+  dragger.addEventListener('pointerup', stop);
+  dragger.addEventListener('pointercancel', stop);
+})();
+</script>
+```
+
+How it works (and why it’s memory-cheap):
+
+* Only a few event listeners; nothing runs when you’re not dragging.
+* `SPEED` is the **ratio**. Increase it to make the scrollbar “faster” per pixel of mouse movement.
+* If you want perfect mapping (one full-screen drag = full document), call `setAutoSpeed()` to compute `SPEED = (scrollHeight - clientHeight) / window.innerHeight`.
+
+Use this same pattern if you already have a custom thumb: on `pointermove`, set
+
+```js
+vp.scrollTop = clamp(startScroll + (e.pageY - startY) * SPEED, 0, maxScroll);
+```
+
+and you’re done.

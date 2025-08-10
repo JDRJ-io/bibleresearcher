@@ -829,7 +829,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             
             const handleMouseMove = (e: MouseEvent) => {
               const deltaY = e.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
+              // SPEED MULTIPLIER: Make drag 3x more sensitive (less mouse travel = more scroll)
+              const SPEED_MULTIPLIER = 3;
+              const scrollRatio = (deltaY * SPEED_MULTIPLIER) / (window.innerHeight - 85);
               const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
               scrollContainer.scrollTo({
                 top: newScrollTop,
@@ -876,7 +878,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               e.preventDefault();
               const touch = e.touches[0];
               const deltaY = touch.clientY - startY;
-              const scrollRatio = deltaY / (window.innerHeight - 85);
+              // SPEED MULTIPLIER: Make drag 3x more sensitive (less touch travel = more scroll)
+              const SPEED_MULTIPLIER = 3;
+              const scrollRatio = (deltaY * SPEED_MULTIPLIER) / (window.innerHeight - 85);
               const newScrollTop = Math.max(0, Math.min(maxScroll, startScrollTop + (scrollRatio * maxScroll)));
               scrollContainer.scrollTo({
                 top: newScrollTop,
