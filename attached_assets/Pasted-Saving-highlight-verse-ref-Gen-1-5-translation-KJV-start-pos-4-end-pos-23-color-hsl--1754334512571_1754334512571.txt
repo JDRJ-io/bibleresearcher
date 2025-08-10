@@ -1,0 +1,31 @@
+Saving highlight: {verse_ref: 'Gen.1:5', translation: 'KJV', start_pos: 4, end_pos: 23, color_hsl: '120 70% 45%', …}
+@supabase_supabase-js.js?v=f47bff0e:3930  POST https://ecaqvxbbscwcxbjpfrdm.supabase.co/rest/v1/highlights 403 (Forbidden)
+(anonymous) @ @supabase_supabase-js.js?v=f47bff0e:3930
+(anonymous) @ @supabase_supabase-js.js?v=f47bff0e:3951
+fulfilled @ @supabase_supabase-js.js?v=f47bff0e:3903
+Promise.then
+step @ @supabase_supabase-js.js?v=f47bff0e:3916
+(anonymous) @ @supabase_supabase-js.js?v=f47bff0e:3918
+__awaiter6 @ @supabase_supabase-js.js?v=f47bff0e:3900
+(anonymous) @ @supabase_supabase-js.js?v=f47bff0e:3941
+then @ @supabase_supabase-js.js?v=f47bff0e:89
+HighlightToolbar.tsx:97 ❌ Error saving highlight: {code: '42501', details: null, hint: null, message: 'new row violates row-level security policy for table "highlights"'}
+save @ HighlightToolbar.tsx:97
+await in save
+onClick @ HighlightToolbar.tsx:135
+callCallback2 @ chunk-276SZO74.js?v=f47bff0e:3674
+invokeGuardedCallbackDev @ chunk-276SZO74.js?v=f47bff0e:3699
+invokeGuardedCallback @ chunk-276SZO74.js?v=f47bff0e:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-276SZO74.js?v=f47bff0e:3736
+executeDispatch @ chunk-276SZO74.js?v=f47bff0e:7014
+processDispatchQueueItemsInOrder @ chunk-276SZO74.js?v=f47bff0e:7034
+processDispatchQueue @ chunk-276SZO74.js?v=f47bff0e:7043
+dispatchEventsForPlugins @ chunk-276SZO74.js?v=f47bff0e:7051
+(anonymous) @ chunk-276SZO74.js?v=f47bff0e:7174
+batchedUpdates$1 @ chunk-276SZO74.js?v=f47bff0e:18913
+batchedUpdates @ chunk-276SZO74.js?v=f47bff0e:3579
+dispatchEventForPluginEventSystem @ chunk-276SZO74.js?v=f47bff0e:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-276SZO74.js?v=f47bff0e:5478
+dispatchEvent @ chunk-276SZO74.js?v=f47bff0e:5472
+dispatchDiscreteEvent @ chunk-276SZO74.js?v=f47bff0e:5449
+HighlightToolbar.tsx:116 💥 Failed to save highlight: {code: '42501', details: null, hint: null, message: 'new row violates row-level security policy for table "highlights"'}

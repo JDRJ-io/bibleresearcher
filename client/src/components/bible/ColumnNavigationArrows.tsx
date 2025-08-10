@@ -20,30 +20,17 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     columnState
   } = useBibleStore();
 
-  // Calculate only visible/active content columns (excluding reference column)
-  // Don't double-count columns - just use the actual visible content columns from the viewport
-  const visibleTranslationColumns = columnState.columns.filter(col => col.visible).length;
-  const additionalColumns = (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
-  // Count only translation columns (excluding reference) + additional columns (excluding cross-refs since it's already in columnState)
-  const totalActiveColumns = (visibleTranslationColumns - 1) + additionalColumns; // -1 to exclude reference column from count
-  
-
-  
-
-  
-  // Calculate currently visible active columns range (excluding reference column)
-  // Show how many content columns are currently visible, starting from offset
-  const availableContentSlots = maxVisibleColumns - 1; // -1 for reference column
-  const actualVisibleContentColumns = Math.min(availableContentSlots, totalActiveColumns - columnOffset);
-  const currentStartColumn = 1; // Always start from 1 for simple numbering
-  const currentEndColumn = actualVisibleContentColumns;
+  // Calculate total available columns that can be navigated
+  const visibleColumns = columnState.columns.filter(col => col.visible).length;
+  const additionalColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
+  const totalNavigableColumns = visibleColumns + additionalColumns;
   
   // Calculate if arrows should be enabled
   const canGoLeft = columnOffset > 0;
-  const canGoRight = columnOffset < Math.max(0, totalActiveColumns - availableContentSlots);
+  const canGoRight = columnOffset < Math.max(0, totalNavigableColumns - maxVisibleColumns);
   
-  // Show navigation if there are more columns than can fit in viewport
-  if (totalActiveColumns <= availableContentSlots) {
+  // Don't show navigation if all columns fit in viewport
+  if (totalNavigableColumns <= maxVisibleColumns) {
     return null;
   }
 
@@ -65,7 +52,12 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
         <ChevronLeft size={16} />
       </button>
 
-
+      {/* Column Indicator */}
+      <div className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded">
+        <span>{columnOffset + 1}-{Math.min(columnOffset + maxVisibleColumns, totalNavigableColumns)}</span>
+        <span>/</span>
+        <span>{totalNavigableColumns}</span>
+      </div>
 
       {/* Right Arrow */}
       <button

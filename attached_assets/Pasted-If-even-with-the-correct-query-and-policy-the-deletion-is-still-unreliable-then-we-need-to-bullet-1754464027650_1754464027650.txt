@@ -1,0 +1,78 @@
+If even with the correct query and policy the deletion is still unreliable, then we need to **bulletproof the logic**. This behavior usually happens when:
+
+* **RLS blocks bulk deletes intermittently** (depending on how Supabase interprets your policy).
+* **Frontend sends multiple requests** or stale queries.
+* **`verse_ref` has hidden differences** (trailing spaces, casing, encoding).
+* **Supabase client silently ignores failed deletes** when no rows match.
+
+---
+
+## ✅ **How to Make Deletion Always Work**
+
+### 1. **Normalize the `verse_ref`**
+
+Before inserting or deleting, ensure you store and query using a consistent format:
+
+```ts
+const normalizedVerse = verseRef.trim().toLowerCase();
+```
+
+Save and delete using the normalized value.
+
+---
+
+### 2. **Force Delete via Two-Step Logic**
+
+Instead of relying on `.eq()` alone, first **fetch all matching highlight IDs**, then **delete them explicitly**:
+
+```ts
+async function deleteAllHighlightsForVerse(verseRef, translation) {
+  const userId = await getCurrentUserId();
+  if (!userId) throw new Error('User not authenticated');
+
+  // Step 1: Fetch all matching IDs
+  const { data: highlights, error: selectError } = await supabase
+    .from('highlights')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('verse_ref', verseRef)
+    .eq('translation', translation);
+
+  if (selectError) {
+    console.error("Error fetching highlights for delete:", selectError);
+    return;
+  }
+  if (!highlights?.length) {
+    console.log("No highlights found to delete.");
+    return;
+  }
+
+  const ids = highlights.map(h => h.id);
+
+  // Step 2: Delete using IDs (works even if bulk delete fails)
+  const { error: deleteError } = await supabase
+    .from('highlights')
+    .delete()
+    .in('id', ids);
+
+  if (deleteError) {
+    console.error("Delete error:", deleteError);
+  } else {
+    console.log(`Deleted ${ids.length} highlight(s) for ${verseRef}`);
+  }
+}
+```
+
+
+
+## ✅ **Why This Fix Works**
+
+* The `.in('id', ids)` bypasses any ambiguity with `verse_ref` or policy interpretation.
+* It ensures all highlights found in Step 1 are deleted in Step 2.
+* Logs give you visibility into **what’s being matched** vs **what’s being deleted**.
+
+---
+
+🔥 **I can also give you a version that deletes highlights for an entire verse across ALL translations** (useful for a true "clear all" button).
+
+👉 Want me to write **both versions (per-verse and global)** for you?
