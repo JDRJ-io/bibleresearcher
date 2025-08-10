@@ -232,21 +232,27 @@ export class ThemeManager {
     if (!this.appliedTheme) return;
     
     const root = document.documentElement;
+    const body = document.body;
     
-    // Remove data-theme attribute
-    root.removeAttribute('data-theme');
+    // Remove theme classes efficiently
+    this.themes.forEach(theme => {
+      root.classList.remove(theme.id, `${theme.id}-mode`);
+      body.classList.remove(theme.id, `${theme.id}-mode`);
+    });
   }
 
   private applyThemeVariables(theme: OptimizedTheme): void {
     const root = document.documentElement;
+    const body = document.body;
     
     console.log(`🔍 THEME TRACKER: Applying theme variables for '${theme.id}'`);
     console.log(`🔍 THEME TRACKER: Theme variables:`, theme.variables);
     
-    // Use data-theme attribute instead of classes (expert recommendation)
-    root.setAttribute('data-theme', theme.id);
+    // Apply theme class to document root for CSS selectors (revert to original working method)
+    root.classList.add(theme.id);
+    body.classList.add(`${theme.id}-mode`);
     
-    console.log(`🔍 THEME TRACKER: Set data-theme="${theme.id}" on HTML element`);
+    console.log(`🔍 THEME TRACKER: Added classes - HTML: '${theme.id}', Body: '${theme.id}-mode'`);
     
     // Apply CSS variables immediately
     Object.entries(theme.variables).forEach(([property, value]) => {
