@@ -447,24 +447,23 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <Button onClick={performSearch} disabled={isSearching}>
                 {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
               </Button>
+              <Button 
+                variant="outline" 
+                onClick={getRandomVerse}
+                title={isMobile ? "Random Verse" : "Random Verse (Ctrl+R)"}
+                className={isMobile ? "px-3" : ""}
+              >
+                <Book className="w-4 h-4" />
+              </Button>
               {!isMobile && (
-                <>
-                  <Button 
-                    variant="outline" 
-                    onClick={getRandomVerse}
-                    title="Random Verse (Ctrl+R)"
-                  >
-                    <Book className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={showHistory ? 'default' : 'outline'}
-                    onClick={() => setShowHistory(!showHistory)}
-                    title="Search History (Ctrl+H)"
-                    disabled={searchHistory.length === 0}
-                  >
-                    <History className="w-4 h-4" />
-                  </Button>
-                </>
+                <Button
+                  variant={showHistory ? 'default' : 'outline'}
+                  onClick={() => setShowHistory(!showHistory)}
+                  title="Search History (Ctrl+H)"
+                  disabled={searchHistory.length === 0}
+                >
+                  <History className="w-4 h-4" />
+                </Button>
               )}
             </div>
 

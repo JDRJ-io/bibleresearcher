@@ -1,7 +1,7 @@
 # Biblical Research Platform
 
 ## Overview
-A sophisticated web application for biblical research, providing an Excel-like interface for studying the Bible. It supports multi-translations, cross-references, Strong's concordance, prophecy tracking, and community features. The platform is designed for client-side data loading, utilizing Supabase Storage for all Bible content and PostgreSQL for user-specific data, aiming to provide a comprehensive and intuitive study experience.
+A sophisticated web application for biblical research, providing an Excel-like interface for studying the Bible. It supports multi-translations, cross-references, Strong's concordance, prophecy tracking, and community features. The platform is designed for client-side data loading, utilizing Supabase Storage for all Bible content and PostgreSQL for user-specific data, aiming to provide a comprehensive and intuitive study experience with a business vision to become the leading digital Bible study platform, enabling deep personal and community-driven insights.
 
 ## User Preferences
 - **Documentation Style**: Prefers comprehensive real implementation analysis over static docs
@@ -14,134 +14,42 @@ A sophisticated web application for biblical research, providing an Excel-like i
 - **Client-Side Centric**: No custom backend server; entirely client-side with Supabase as BaaS.
 - **Single Data API**: All data operations funnel through `BibleDataAPI.ts`.
 - **Master Cache**: Global in-memory caching for frequently accessed data (translations, cross-references).
-- **File-based Content**: All Bible content (translations, cross-references, Strong's data, metadata) is stored as text/JSON files in Supabase Storage.
-- **Anchor-centered Virtual Scrolling**: Efficient rendering of large Bible texts by loading verses centered around the current view.
+- **File-based Content**: All Bible content is stored as text/JSON files in Supabase Storage.
+- **Anchor-centered Virtual Scrolling**: Efficient rendering of large Bible texts.
 - **PWA Capabilities**: Designed for offline access and installability.
 
-### Recent Changes
-- **Database Migration Setup (Aug 2025)**:
-  - **Supabase CLI Integration**: Installed and configured Supabase CLI for professional migration management
-  - **Project Linking**: Connected to remote database (ecaqvxbbscwcxbjpfrdm) with proper authentication
-  - **Migration Structure**: Created ordered migration system with 10 migration files (00-09)
-  - **Schema Cleanup**: Removed old conflicting tables and implemented clean schema architecture
-  - **Community Features**: Added comprehensive community schema with posts, comments, DMs, group chats
-  - **Security Implementation**: Row Level Security policies for all user data and community features
-  - **Database Synchronization**: Local and remote migrations fully synchronized and applied
-  - **Email Sync Migration (Aug 2025)**: Added comprehensive email synchronization system with user notification preferences, email verification tracking, delivery status logging, and automated timestamp management
-- **Column Headers Refactor (Jan 2025)**: Replaced complex ColumnHeaders component with simplified NewColumnHeaders that uses the same responsive width system as VirtualRow, ensuring perfect alignment between headers and data cells.
-- **Complete Authentication System (Jan 2025)**: 
-  - Implemented modern PKCE authentication flow with Supabase
-  - Added visual authentication status with UserProfileDropdown component
-  - Profile management with editable name, bio, and tier display
-  - Premium subscription gating with crown icon for premium users
-  - Developer code redemption system for team access (DevUnlock component)
-  - Supabase Edge Function for redeem-code functionality
-  - Direct Supabase integration for profile updates (bypassing custom backend)
-  - AuthContext with full session management and profile synchronization
-  - Sign-in button disappears when authenticated, replaced with profile avatar
-  - **Critical Fix (Aug 2025)**: Resolved circular dependency in useMyProfile hook by passing user/authLoading as parameters instead of calling useAuth() inside the hook, enabling proper profile loading and form functionality
-- **Notes System Optimization (Aug 2025)**:
-  - Migrated from global notes loading to verse-specific filtering
-  - Updated schema from `user_notes` table to `notes` table with better structure
-  - Implemented new `useNotes(verseRef)` hook for efficient verse-specific note management
-  - Real-time local state updates after CRUD operations
-  - Improved performance by loading only relevant notes per verse
-- **Complete Study Features Implementation (Aug 2025)**:
-  - **Auto-save State Management**: useReadingState hook saves position every 60 seconds and on page unload
-  - **Seamless Notes**: Auto-save notes with 500ms debounce, no manual save buttons, vertical scrollbar for overflow
-  - **Bookmark System**: BookmarkButton integrated in TopHeader, save with custom names and colors
-  - **Text Highlighting**: Complete highlighting system with color wheel overlay on text selection, per-translation and per-verse accuracy, authentication-gated for logged users only
-- **Universal Semantic Label System (Aug 2025)**:
-  - **Dynamic Cross-Reference Labels**: Enhanced useViewportLabels to load labels for ALL cross-reference and prophecy verses from any book or chapter
-  - **Comprehensive Coverage**: Semantic highlighting (who, what, where, when, etc.) now works across main translation, alternate translations, cross-references, and prophecy columns
-  - **Optimized Worker**: Web worker handles targeted verse loading for improved performance while maintaining complete semantic coverage
-  - **Unified Label Architecture**: Eliminated duplicate hook calls and established single-source label loading at VirtualBibleTable level
-- **Responsive Mobile Optimization (Aug 2025)**:
-  - **Adaptive MinWidth**: VirtualRow now uses responsive minWidth that constrains to 95% of viewport width on mobile devices (≤768px)
-  - **Better Space Utilization**: Eliminates horizontal overflow caused by fixed minWidth reserving space for larger screens
-  - **Flexible Column Layout**: Maintains exact widths on desktop while allowing more efficient space usage on mobile portrait mode
-  - **Mobile-Optimized Scrollbar**: Enhanced custom scrollbar with proper touch event support, 24px mobile width (vs 8px), minimum 44px touch targets, edge positioning, and touch-action CSS properties for native mobile interaction
-  - **Smooth Scrollbar Dragging**: Implemented pause-loading mechanism that stops all virtual scrolling operations during scrollbar drag, eliminating lag and providing fluid, instant navigation throughout the entire Bible
-  - **Blue Scrollbar Theme**: Updated scrollbar to use blue color scheme matching other important UI elements (blue-500/blue-400) with proper hover and active states
-- **Bookmark System Unified (Aug 2025)**:
-  - **Fixed Conflicting Systems**: Eliminated dual bookmark management systems causing JSON parsing errors
-  - **Direct Supabase Integration**: Both TopHeader and BookmarksList now use direct Supabase calls instead of non-existent API routes
-  - **Schema Consistency**: Fixed field name mismatches (index_value vs indexValue) ensuring proper data access
-  - **Query Cache Unification**: Both components use same TanStack Query cache keys for real-time synchronization
-  - **Full CRUD Operations**: Create, read, update, delete bookmarks with proper user authentication and error handling
-- **Cross-Domain Authentication Integration (Aug 2025)**:
-  - **Forum Integration**: Added auth cookie sharing with *.anointed.io domain for seamless forum website connection
-  - **Domain Cookie Sharing**: Implemented onAuthStateChange listener to automatically share access tokens across subdomains
-  - **Secure Configuration**: Uses lax sameSite policy with secure flag for production deployment
-  - **Error Handling**: Graceful fallback with console warnings if cookie sharing fails
-- **Enhanced Magic Link UX (Aug 2025)**:
-  - **Popup-Like Confirmation**: Eliminates jarring redirect pages by redirecting to same path with ?fromEmail=yes parameter
-  - **Seamless Integration**: Magic links redirect back to exact location where user requested sign-in
-  - **Success Toast**: Shows "✅ You're in!" confirmation toast after successful email authentication
-  - **URL Cleanup**: Automatically removes ?fromEmail=yes parameter after processing for clean URLs
-- **Enhanced Sign-Up Features (Aug 2025)**:
-  - **Recovery Passkey System**: Complete bcryptjs-based backup authentication with secure hash storage
-  - **Marketing Opt-In**: User-controlled newsletter subscription with onAuthStateChange listener integration
-  - **Profile Security Section**: Recovery passkey management in Settings with add/remove/update functionality
-  - **Supabase Edge Function**: recover-with-passkey serverless function for secure passkey verification and magic link generation
-  - **Database Schema Updates**: Added recovery_passkey_hash and marketing_opt_in fields to profiles table
-- **Mystical & Divine UI Effects (Aug 2025)**:
-  - **Prophecy-Based Verse Animations**: Dynamic border effects based on prophecy status
-    - Yellow glow for prediction prophecies (top, right, bottom borders)
-    - Red glow for fulfillment prophecies (top, right, bottom borders)  
-    - Blue glow for verification prophecies (main translation cell content)
-  - **Subtle Mystical Effects**: Purple glowing borders on verses when prophecy columns are not toggled
-  - **Holy Button Animations**: Divine shimmer and glow effects on button interactions
-  - **Enhanced Authentication Modals**: Already featured divine-themed sign-in/sign-up with golden gradients and sparkle effects
-- **Community Membership System (Aug 2025)**:
-  - **Stripe Payment Integration**: Ready for community subscription setup ($12/month)
-  - **Community Membership Modal**: Divine-themed upgrade interface with benefits showcase
-  - **Subscribe Page**: Complete payment flow with mystical backgrounds and effects
-  - **Voice in Vision**: Framework for community members to influence Bible connection project direction
-  - **Forum Integration Ready**: Structure prepared for enhanced community forum participation
-- **Strong's Concordance Loading Optimization (Aug 2025)**:
-  - **Progressive Enhancement System**: Eliminated jarring delays and "failed to fetch" errors by implementing immediate basic results display
-  - **Stable In-Place Updates**: Individual morphology data loads without list rearrangement, preventing constant jumping and reordering
-  - **Smart Final Organization**: Single smooth sort at completion prioritizes exact morphology matches → items with morphology → basic items
-  - **Batch Processing with Progress**: Visual progress indicators (percentage and individual spinners) with optimized 5-item batches and 100ms request spacing
-  - **Error Resilience**: Graceful handling of individual fetch failures without breaking entire batch processing
-  - **Enhanced User Experience**: Instant response with progressive enhancement provides smooth, predictable Strong's word analysis workflow
-- **Performance-Optimized Glass Morphism (Aug 2025)**:
-  - **Minimal Processing Design**: Removed all heavy animations, complex transitions, and memory-intensive effects for peaceful Bible study
-  - **Static Background System**: Replaced dynamic animated backgrounds with simple, static gradients optimized for mobile performance
-  - **Lightweight Glass Effects**: Reduced backdrop blur from 12px to 4px (2px on mobile), increased opacity to 95% for maximum text readability
-  - **No Animation Policy**: Eliminated all CSS animations, transitions, and hover effects for instant response and battery optimization
-  - **Simplified Component Architecture**: Streamlined DynamicBackground component to remove useState, useEffect, and heavy processing logic
-  - **Mobile-First Optimization**: Dedicated mobile adjustments with even less blur and smaller border radius for optimal touch device performance
+### Technical Implementations & Features
+- **Database Management**: Utilizes Supabase CLI for professional migration management, including a clean schema for user data, notes, and comprehensive community features (posts, comments, DMs, group chats). Row Level Security is implemented for all user and community data.
+- **Authentication System**: Modern PKCE authentication flow with Supabase, including visual status, profile management, premium subscription gating, and developer code redemption. Supports seamless cross-domain authentication for related platforms and enhanced magic link UX with in-app confirmations. Includes a recovery passkey system and marketing opt-in functionality.
+- **Study Features**:
+    - **Notes System**: Verse-specific note management with real-time local state updates and auto-save functionality.
+    - **Bookmarks**: Integrated bookmark system with custom naming and colors, synchronized via Supabase.
+    - **Text Highlighting**: Per-translation and per-verse highlighting with color selection, authentication-gated.
+    - **Reading State**: Auto-saves reading position periodically and on page unload.
+- **Semantic Label System**: Dynamic loading of semantic labels for all cross-reference and prophecy verses across all displayed columns (main translation, alternate translations, cross-references, prophecy). Uses a web worker for optimized performance.
+- **Responsive Optimization**: Adaptive column widths for various screen sizes, especially on mobile (≤768px). Enhanced custom scrollbar with touch event support, optimized for mobile UX with reduced track height, speed multiplier for dragging, and real-time tooltip feedback.
+- **UI/UX Decisions**:
+    - **Layout**: Flexible 20-column system with toggleable sections for reference, notes, multiple translation columns, cross-references, and prophecy tracking.
+    - **Theming**: Dark/light theme switching.
+    - **Interactive Elements**: Strong's overlay for word analysis, user notes and highlights, search functionality.
+    - **Mystical & Divine UI Effects**: Prophecy-based verse animations (yellow/red/blue glows), subtle mystical effects, and holy button animations with divine shimmer/glow. Authentication modals feature divine-themed aesthetics.
+    - **Glass Morphism**: Performance-optimized with static backgrounds, lightweight blur effects (4px desktop, 2px mobile), and high opacity (95%) for readability. All heavy animations and transitions are removed for peaceful study and battery optimization.
+- **Community Features**: Integration ready for Stripe-based community subscriptions, with a divine-themed upgrade modal and subscribe page. Designed to provide community members a voice in project direction and enhanced forum participation.
+- **Search Features**: Includes random verse navigation (desktop and mobile, Ctrl+R shortcut) and integrated Strong's concordance search.
+- **Strong's Concordance**: Optimized loading with progressive enhancement, stable in-place updates, smart final organization, batch processing with progress indicators, and error resilience for a smooth word analysis workflow.
 
-### Frontend
+### Frontend Technologies
 - **Framework**: React 18 with TypeScript.
 - **Build Tool**: Vite.
 - **Styling**: Tailwind CSS with Radix UI components (shadcn/ui).
-- **Routing**: Wouter for client-side navigation.
+- **Routing**: Wouter.
 - **Data Fetching/Caching**: TanStack Query.
-- **State Management**: Zustand for global state.
-- **Offline Data**: Dexie (IndexedDB) for client-side persistence.
-
-### UI/UX Decisions
-- **Layout**: Flexible 20-column system with toggleable sections, including reference, notes, multiple translation columns, cross-references, and prophecy tracking.
-- **Theming**: Dark/light theme switching.
-- **Responsiveness**: Mobile-first design with adaptive column layouts for various screen sizes, ensuring core columns (Reference, Main Translation, Cross-References) fit in portrait mode.
-- **Interactive Elements**: Strong's overlay for word analysis, user notes and highlights, search functionality.
-- **Loading Indicators**: Uses a blue circle spinner across the platform.
-
-### Feature Specifications
-- Multi-translation Bible display with KJV as default.
-- Virtual scrolling with anchor-centered loading.
-- Cross-reference display with optimized HTTP Range Requests for efficient data fetching.
-- Strong's concordance integration with word analysis overlay.
-- Prophecy tracking system (P/F/V columns).
-- User notes and highlights.
-- Search functionality.
-- Chronological and Canonical verse ordering modes.
+- **State Management**: Zustand.
+- **Offline Data**: Dexie (IndexedDB).
 
 ## External Dependencies
 - **Supabase**:
-    - **PostgreSQL**: For user data (notes, bookmarks, highlights, forum posts).
+    - **PostgreSQL**: Used for user data (notes, bookmarks, highlights, forum posts, profiles).
     - **Storage ('anointed' bucket)**: Hosts all Bible content files (translations, cross-references, metadata, Strong's data).
-    - **Authentication**: Magic link email authentication.
+    - **Authentication**: Provides magic link email authentication and supports custom Edge Functions (e.g., `recover-with-passkey`).
+- **Stripe**: Integrated for community membership subscription payments.
