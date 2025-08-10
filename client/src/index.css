@@ -1493,36 +1493,7 @@ html {
   --ring: hsl(240, 4.9%, 83.9%);
 }
 
-/* Bible Theme Classes */
-body.light-mode {
-  --bg-color: hsl(0, 0%, 100%);
-  --text-color: hsl(0, 0%, 10%);
-  --header-bg: hsl(210, 40%, 98%);
-  --border-color: hsl(210, 16%, 93%);
-  --column-bg: hsl(210, 17%, 96%);
-  --link-color: hsl(199, 89%, 48%);
-  --hover-bg: hsla(199, 89%, 48%, 0.1);
-  --button-hover: hsl(199, 100%, 92%);
-  --accent-color: hsl(199, 89%, 48%);
-  --success-color: hsl(142, 71%, 45%);
-  --warning-color: hsl(38, 92%, 50%);
-  --error-color: hsl(0, 84%, 60%);
-}
-
-body.dark-mode {
-  --bg-color: hsl(222, 84%, 5%);
-  --text-color: hsl(210, 40%, 90%);
-  --header-bg: hsl(222, 47%, 11%);
-  --border-color: hsl(215, 28%, 17%);
-  --column-bg: hsl(222, 47%, 11%);
-  --link-color: hsl(210, 98%, 78%);
-  --hover-bg: hsla(210, 98%, 78%, 0.2);
-  --button-hover: hsl(215, 28%, 17%);
-  --accent-color: hsl(210, 98%, 78%);
-  --success-color: hsl(142, 71%, 45%);
-  --warning-color: hsl(38, 92%, 50%);
-  --error-color: hsl(0, 84%, 60%);
-}
+/* Legacy theme classes removed - using comprehensive theme system */
 
 
 
@@ -1616,10 +1587,9 @@ body.overlay-open {
 
   body {
     @apply font-sans antialiased;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: 'Roboto', sans-serif;
-    font-size: calc(var(--font-size-base) * var(--font-size-scale));
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
     line-height: 1.6;
     transition: all var(--transition-speed) ease;
     min-height: 100vh;
