@@ -272,7 +272,8 @@ export function NewColumnHeaders({
     setLocalColumns(columns);
   }, [columns]);
 
-  // Apply horizontal navigation filtering - always keep reference and dates columns visible
+  // Apply horizontal navigation filtering - NEW: Use dynamic visible count
+  const { getVisibleSlice } = useBibleStore();
   const visibleColumns = useMemo(() => {
     const activeColumns = localColumns.length > 0 ? localColumns : columns;
     
@@ -283,12 +284,13 @@ export function NewColumnHeaders({
     const fixedColumns = activeColumns.filter(col => fixedColumnTypes.includes(col.type));
     const navigableColumns = activeColumns.filter(col => !fixedColumnTypes.includes(col.type));
     
-    // Apply offset to navigable columns
-    const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
+    // NEW: Use dynamic slice instead of static maxVisibleColumns
+    const { start, end } = getVisibleSlice();
+    const offsetNavigableColumns = navigableColumns.slice(start, end);
     
     // Combine fixed columns (always first) with offset navigable columns
     return [...fixedColumns, ...offsetNavigableColumns];
-  }, [localColumns, columns, columnOffset, maxVisibleColumns]);
+  }, [localColumns, columns, columnOffset, getVisibleSlice]);
 
   // Drag and drop handlers
   function handleDragStart(event: DragStartEvent) {

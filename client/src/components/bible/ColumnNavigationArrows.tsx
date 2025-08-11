@@ -15,7 +15,11 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     showCrossRefs,
     showProphecies,
     showNotes,
-    columnState
+    columnState,
+    // NEW: Use the dynamic visible count system
+    visibleCount,
+    navigableColumns,
+    getVisibleSlice
   } = useBibleStore();
 
   const [layout, setLayout] = useState<LayoutResult | null>(null);

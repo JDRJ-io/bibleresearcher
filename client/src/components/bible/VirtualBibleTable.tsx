@@ -9,6 +9,7 @@ import { NewColumnHeaders } from "./NewColumnHeaders";
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
+import { useMeasureVisibleColumns } from '@/hooks/useMeasureVisibleColumns';
 import { useAdaptiveWidths } from '@/hooks/useAdaptiveWidths';
 import { useOrientation } from '@/hooks/useOrientation';
 import { useReferenceColumnWidth } from '@/hooks/useReferenceColumnWidth';
@@ -97,6 +98,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
+
+  // NEW: Measure actual column container for dynamic visible count calculation
+  useMeasureVisibleColumns(containerRef.current);
+
+  // NEW: Update store with current column configuration (moved below store declarations)
+  const { setFixedColumns, setNavigableColumns, setColumnWidthPx } = useBibleStore();
   
   // Remove ref handling for now
   
@@ -231,6 +238,62 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
   // Get store state for column toggles
   const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes } = useBibleStore();
+
+  // NEW: Update store with current column configuration (now that store variables are available)
+  useEffect(() => {
+    // Update fixed and navigable column lists in store
+    setFixedColumns(['reference']);
+    
+    const navigableColumnIds = [];
+    if (showCrossRefs) navigableColumnIds.push('KJV', 'CrossRefs');
+    else navigableColumnIds.push('KJV');
+    
+    if (showNotes) navigableColumnIds.push('Notes');
+    if (showProphecies) {
+      navigableColumnIds.push('Prediction', 'Fulfillment', 'Verification');
+    }
+    
+    setNavigableColumns(navigableColumnIds);
+    
+    // Measure and update column widths
+    setTimeout(() => {
+      const measureColumns = () => {
+        // Measure reference column
+        const refEl = document.querySelector('[data-column="reference"]');
+        if (refEl) {
+          setColumnWidthPx('reference', refEl.getBoundingClientRect().width);
+        }
+        
+        // Measure main translation column
+        const kjvEl = document.querySelector('[data-column="main-translation"]');
+        if (kjvEl) {
+          setColumnWidthPx('KJV', kjvEl.getBoundingClientRect().width);
+        }
+        
+        // Measure cross refs column
+        if (showCrossRefs) {
+          const crossEl = document.querySelector('[data-column="cross-refs"]');
+          if (crossEl) {
+            setColumnWidthPx('CrossRefs', crossEl.getBoundingClientRect().width);
+          }
+        }
+        
+        // Measure prophecy columns
+        if (showProphecies) {
+          const predEl = document.querySelector('[data-column="prophecy-prediction"]');
+          const fulfEl = document.querySelector('[data-column="prophecy-fulfillment"]');
+          const verifEl = document.querySelector('[data-column="prophecy-verification"]');
+          
+          if (predEl) setColumnWidthPx('Prediction', predEl.getBoundingClientRect().width);
+          if (fulfEl) setColumnWidthPx('Fulfillment', fulfEl.getBoundingClientRect().width);
+          if (verifEl) setColumnWidthPx('Verification', verifEl.getBoundingClientRect().width);
+        }
+      };
+      
+      measureColumns();
+    }, 100); // Small delay to ensure DOM is ready
+    
+  }, [showCrossRefs, showProphecies, showNotes, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
 
   // PERFORMANCE FIX: Preload notes for visible verses when notes column is enabled
   useEffect(() => {

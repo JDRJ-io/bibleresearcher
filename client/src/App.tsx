@@ -124,6 +124,19 @@ export const useBibleStore = create<{
   navigateColumnLeft: () => void;
   navigateColumnRight: () => void;
   setMaxVisibleColumns: (count: number) => void;
+  
+  // NEW: Dynamic visible count system (replaces static maxVisibleColumns)
+  visibleCount: number;
+  containerWidthPx: number;
+  columnWidthsPx: Record<string, number>;
+  fixedColumns: string[];
+  navigableColumns: string[];
+  setVisibleCount: (count: number) => void;
+  setContainerWidthPx: (width: number) => void;
+  setColumnWidthPx: (id: string, width: number) => void;
+  setFixedColumns: (columns: string[]) => void;
+  setNavigableColumns: (columns: string[]) => void;
+  getVisibleSlice: () => { start: number; end: number };
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -736,7 +749,28 @@ export const useBibleStore = create<{
       columnOffset: Math.min(state.columnOffset + 1, maxOffset) 
     };
   }),
-  setMaxVisibleColumns: (count: number) => set({ maxVisibleColumns: Math.max(1, count) })
+  setMaxVisibleColumns: (count: number) => set({ maxVisibleColumns: Math.max(1, count) }),
+
+  // NEW: Dynamic visible count system implementation
+  visibleCount: 1,
+  containerWidthPx: 0,
+  columnWidthsPx: {},
+  fixedColumns: ['reference'],
+  navigableColumns: [],
+  setVisibleCount: (count: number) => set({ visibleCount: Math.max(1, count) }),
+  setContainerWidthPx: (width: number) => set({ containerWidthPx: Math.max(0, width) }),
+  setColumnWidthPx: (id: string, width: number) => set(state => ({
+    columnWidthsPx: { ...state.columnWidthsPx, [id]: width }
+  })),
+  setFixedColumns: (columns: string[]) => set({ fixedColumns: columns }),
+  setNavigableColumns: (columns: string[]) => set({ navigableColumns: columns }),
+  getVisibleSlice: () => {
+    const state = get();
+    const take = Math.max(0, state.visibleCount - state.fixedColumns.length);
+    const start = state.columnOffset;
+    const end = Math.min(state.navigableColumns.length, start + take);
+    return { start, end };
+  }
 }));
 
 function Router() {
