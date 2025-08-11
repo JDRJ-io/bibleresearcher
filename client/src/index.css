@@ -14,6 +14,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Vertical text for portrait mode */
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
 /* Hide default scrollbars but keep scrolling functionality */
 .unified-scroll-container::-webkit-scrollbar {
   display: none;

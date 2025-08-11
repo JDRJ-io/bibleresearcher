@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
+import { loadDatesMap } from '@/data/BibleDataAPI';
 
 interface InlineDateInfoProps {
   verseId: string;
@@ -23,14 +24,27 @@ export function InlineDateInfo({ verseId, className = '' }: InlineDateInfoProps)
   const loadDateInfo = async () => {
     try {
       setIsLoading(true);
-      const sampleDate = generateSampleDate(verseId);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setDateInfo(sampleDate);
+      // Load real dates from BibleDataAPI
+      const datesMap = await loadDatesMap(false); // Use canonical dates
+      const dateText = datesMap.get(verseId);
+      
+      if (dateText) {
+        setDateInfo({
+          date: dateText,
+          era: dateText,
+          description: dateText
+        });
+      } else {
+        // Fallback to book-level sample if specific verse not found
+        const sampleDate = generateSampleDate(verseId);
+        setDateInfo(sampleDate);
+      }
     } catch (err) {
       console.error('Failed to load date info:', err);
-      setDateInfo(null);
+      // Fallback to sample data on error
+      const sampleDate = generateSampleDate(verseId);
+      setDateInfo(sampleDate);
     } finally {
       setIsLoading(false);
     }

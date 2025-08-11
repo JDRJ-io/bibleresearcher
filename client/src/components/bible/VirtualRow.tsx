@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
@@ -521,6 +521,23 @@ export function VirtualRow({
   onDoubleClick,
   getVerseLabels
 }: VirtualRowProps) {
+  // Track orientation changes for responsive date positioning
+  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
+  
+  useEffect(() => {
+    const handleOrientationChange = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleOrientationChange);
+    window.addEventListener('orientationchange', handleOrientationChange);
+    
+    return () => {
+      window.removeEventListener('resize', handleOrientationChange);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+    };
+  }, []);
+  
   // FIX #1: Use translation store as SINGLE source of truth for mainTranslation
   const store = useBibleStore();
   const { main: mainTranslation, alternates } = useTranslationMaps();
@@ -749,10 +766,19 @@ export function VirtualRow({
       case 'reference':
         return (
           <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex flex-col items-center justify-center h-full m-0 p-0">
-              <span className="truncate leading-none m-0 p-0">{verse.reference}</span>
+            <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
+              isPortrait 
+                ? 'flex flex-row items-center justify-center gap-1' 
+                : 'flex flex-col items-center justify-center'
+            }`}>
+              <span className={`leading-none m-0 p-0 ${isPortrait ? 'vertical-text' : 'truncate'}`}>
+                {verse.reference}
+              </span>
               {showDates && (
-                <InlineDateInfo verseId={verse.reference} className="mt-0.5" />
+                <InlineDateInfo 
+                  verseId={verse.reference} 
+                  className={isPortrait ? 'vertical-text' : 'mt-0.5'} 
+                />
               )}
             </div>
           </div>

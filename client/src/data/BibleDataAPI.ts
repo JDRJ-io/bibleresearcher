@@ -40,6 +40,33 @@ export async function uploadToStorage(path: string, fileContent: string | Blob):
   if (error) throw new Error(`Supabase upload failed → ${path}: ${error.message}`);
 }
 
+// Load dates data as a Map for verse lookup  
+export async function loadDatesMap(chronological: boolean = false): Promise<Map<string, string>> {
+  const cacheKey = chronological ? 'dates-map-chronological' : 'dates-map-canonical';
+  
+  return getOrFetch(cacheKey, async () => {
+    console.log(`📅 LOADING: ${chronological ? 'Chronological' : 'Canonical'} dates as map...`);
+    const path = chronological ? paths.datesChronological : paths.datesCanonical;
+    const textData = await fetchFromStorage(path);
+    const datesMap = new Map<string, string>();
+    
+    // Parse dates format: verse_reference#date_info
+    const lines = textData.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      
+      const [verseRef, dateInfo] = trimmed.split('#');
+      if (verseRef && dateInfo) {
+        datesMap.set(verseRef.trim(), dateInfo.trim());
+      }
+    }
+    
+    console.log(`📅 LOADED: ${datesMap.size} date entries as map`);
+    return datesMap;
+  });
+}
+
 function getOrFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
   if (masterCache.has(key)) {
     return Promise.resolve(masterCache.get(key) as T);
