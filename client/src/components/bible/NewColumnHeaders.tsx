@@ -165,16 +165,8 @@ export function NewColumnHeaders({
       width: getResponsiveWidth('reference')
     });
 
-    // 2. Dates column (showDates controls the dates column)
-    if (showDates) {
-      cols.push({
-        id: 'dates',
-        name: '📅',
-        type: 'context',
-        visible: true,
-        width: getResponsiveWidth('context')
-      });
-    }
+    // 2. Dates are now shown as subheaders in the reference column
+    // No separate dates column needed - saves valuable horizontal space on mobile
 
     // Context boundaries is not a visual column - it's background data processing
 

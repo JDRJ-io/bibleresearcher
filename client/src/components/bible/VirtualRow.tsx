@@ -44,10 +44,98 @@ interface CellProps {
 
 function ReferenceCell({ verse }: CellProps) {
   const isMobile = useIsMobile();
+  const { showDates } = useBibleStore();
+
+  // Get date information for this verse if dates are enabled
+  const getDateInfo = (verseId: string) => {
+    const book = verseId.split('.')[0].toLowerCase(); // Convert "Gen.1:1" to "gen"
+    const sampleDates: Record<string, { date: string; era: string }> = {
+      'gen': { date: '4004 BC', era: 'Creation' },
+      'exo': { date: '1491 BC', era: 'Exodus' },
+      'lev': { date: '1490 BC', era: 'Law' },
+      'num': { date: '1490 BC', era: 'Wilderness' },
+      'deu': { date: '1451 BC', era: 'Law' },
+      'jos': { date: '1451 BC', era: 'Conquest' },
+      'jdg': { date: '1425 BC', era: 'Judges' },
+      'rut': { date: '1322 BC', era: 'Judges' },
+      'sa1': { date: '1171 BC', era: 'Kingdom' },
+      'sa2': { date: '1056 BC', era: 'Kingdom' },
+      'kg1': { date: '1015 BC', era: 'Kingdom' },
+      'kg2': { date: '975 BC', era: 'Divided' },
+      'ch1': { date: '1056 BC', era: 'Kingdom' },
+      'ch2': { date: '1015 BC', era: 'Kingdom' },
+      'ezr': { date: '536 BC', era: 'Return' },
+      'neh': { date: '445 BC', era: 'Restoration' },
+      'est': { date: '473 BC', era: 'Exile' },
+      'job': { date: '2000 BC', era: 'Patriarchs' },
+      'psa': { date: '1023 BC', era: 'Kingdom' },
+      'pro': { date: '1000 BC', era: 'Wisdom' },
+      'ecc': { date: '977 BC', era: 'Wisdom' },
+      'son': { date: '1014 BC', era: 'Wisdom' },
+      'isa': { date: '740 BC', era: 'Prophets' },
+      'jer': { date: '627 BC', era: 'Prophets' },
+      'lam': { date: '586 BC', era: 'Exile' },
+      'eze': { date: '593 BC', era: 'Exile' },
+      'dan': { date: '605 BC', era: 'Exile' },
+      'hos': { date: '760 BC', era: 'Prophets' },
+      'joe': { date: '835 BC', era: 'Prophets' },
+      'amo': { date: '787 BC', era: 'Prophets' },
+      'oba': { date: '586 BC', era: 'Prophets' },
+      'jon': { date: '760 BC', era: 'Prophets' },
+      'mic': { date: '735 BC', era: 'Prophets' },
+      'nah': { date: '663 BC', era: 'Prophets' },
+      'hab': { date: '607 BC', era: 'Prophets' },
+      'zep': { date: '635 BC', era: 'Prophets' },
+      'hag': { date: '520 BC', era: 'Return' },
+      'zec': { date: '519 BC', era: 'Return' },
+      'mal': { date: '430 BC', era: 'Return' },
+      'mat': { date: '5 BC', era: 'Gospel' },
+      'mar': { date: '29 AD', era: 'Gospel' },
+      'luk': { date: '30 AD', era: 'Gospel' },
+      'joh': { date: '30 AD', era: 'Gospel' },
+      'act': { date: '33 AD', era: 'Church' },
+      'rom': { date: '57 AD', era: 'Epistles' },
+      'co1': { date: '55 AD', era: 'Epistles' },
+      'co2': { date: '56 AD', era: 'Epistles' },
+      'gal': { date: '49 AD', era: 'Epistles' },
+      'eph': { date: '61 AD', era: 'Prison' },
+      'phi': { date: '61 AD', era: 'Prison' },
+      'col': { date: '61 AD', era: 'Prison' },
+      'th1': { date: '51 AD', era: 'Epistles' },
+      'th2': { date: '51 AD', era: 'Epistles' },
+      'ti1': { date: '63 AD', era: 'Pastoral' },
+      'ti2': { date: '67 AD', era: 'Pastoral' },
+      'tit': { date: '63 AD', era: 'Pastoral' },
+      'phm': { date: '61 AD', era: 'Prison' },
+      'heb': { date: '68 AD', era: 'General' },
+      'jam': { date: '49 AD', era: 'General' },
+      'pe1': { date: '63 AD', era: 'General' },
+      'pe2': { date: '66 AD', era: 'General' },
+      'jo1': { date: '90 AD', era: 'Johannine' },
+      'jo2': { date: '90 AD', era: 'Johannine' },
+      'jo3': { date: '90 AD', era: 'Johannine' },
+      'jud': { date: '68 AD', era: 'General' },
+      'rev': { date: '95 AD', era: 'Prophetic' }
+    };
+
+    return sampleDates[book] || { date: '', era: '' };
+  };
+
+  const dateInfo = showDates ? getDateInfo(verse.reference) : null;
 
   return (
     <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-gray-700 dark:text-gray-300 glass-morphism glass-reference-cell flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
-      {verse.reference}
+      <div className="flex flex-col">
+        <div className="font-medium">{verse.reference}</div>
+        {dateInfo && dateInfo.date && (
+          <div className="text-xs opacity-75 font-normal leading-tight">
+            <div className="text-blue-600 dark:text-blue-400">{dateInfo.date}</div>
+            {!isMobile && (
+              <div className="text-green-600 dark:text-green-400 text-[10px]">{dateInfo.era}</div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
