@@ -28,7 +28,7 @@ const loadKJVTextMap = async (): Promise<void> => {
     const kjvPromise = loadTranslation('KJV');
     globalKjvTextMap = await kjvPromise;
 
-    console.log(`⚡ KJV READY: ${globalKjvTextMap.size} entries`);
+    console.log(`⚡ KJV READY: ${globalKjvTextMap?.size || 0} entries`);
   } catch (error) {
     console.error("Failed to load KJV:", error);
     globalKjvTextMap = new Map();

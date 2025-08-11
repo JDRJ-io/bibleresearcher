@@ -671,15 +671,16 @@ export function VirtualRow({
     allColumns.sort((a, b) => a.slot - b.slot);
   }
 
-  // Apply horizontal navigation filtering - keep reference column always visible
-  const { columnOffset, maxVisibleColumns } = useBibleStore();
+  // Apply horizontal navigation filtering - use dynamic visible count system
+  const { getVisibleSlice } = useBibleStore();
   const fixedColumnTypes = ['reference']; // Always show reference column
 
   const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
   const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
 
-  // Apply offset to navigable columns
-  const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
+  // Use dynamic slice calculation
+  const { start, end } = getVisibleSlice();
+  const offsetNavigableColumns = navigableColumns.slice(start, end);
 
   // Combine fixed columns (always first) with offset navigable columns
   const visibleColumns = [...fixedColumns, ...offsetNavigableColumns];
