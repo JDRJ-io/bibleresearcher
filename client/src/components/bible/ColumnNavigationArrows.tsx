@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import React from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { cn } from '@/lib/utils';
 
@@ -19,29 +19,6 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     showDates,
     columnState
   } = useBibleStore();
-
-  // Track current width state (normal or expanded)
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Column width control - preset presentation mode with specific multipliers
-  const toggleColumnWidth = useCallback(() => {
-    const newExpanded = !isExpanded;
-    setIsExpanded(newExpanded);
-    
-    if (newExpanded) {
-      // Presentation mode: width x2, text x1.5, row height x1.35
-      document.documentElement.style.setProperty('--column-width-mult', '2');
-      document.documentElement.style.setProperty('--text-size-mult', '1.5');
-      document.documentElement.style.setProperty('--row-height-mult', '1.35');
-      console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
-    } else {
-      // Normal mode: reset to defaults
-      document.documentElement.style.setProperty('--column-width-mult', '1');
-      document.documentElement.style.setProperty('--text-size-mult', '1');
-      document.documentElement.style.setProperty('--row-height-mult', '1');
-      console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
-    }
-  }, [isExpanded]);
 
   // Calculate total available columns that can be navigated
   const visibleColumns = columnState.columns.filter(col => col.visible).length;
@@ -98,20 +75,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
         <ChevronRight size={16} />
       </button>
 
-      {/* Column Width Toggle */}
-      <button
-        onClick={toggleColumnWidth}
-        className={cn(
-          "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-          "border border-gray-300 dark:border-gray-600",
-          "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700",
-          "text-gray-700 dark:text-gray-300 cursor-pointer",
-          isExpanded && "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600"
-        )}
-        title={isExpanded ? "Exit presentation mode (normal size)" : "Enter presentation mode (width x2, text x1.5, row x1.35)"}
-      >
-        {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-      </button>
+
     </div>
   );
 }
