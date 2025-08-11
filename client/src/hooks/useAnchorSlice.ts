@@ -11,9 +11,9 @@ function getOptimalBuffer(): number {
   const isSlowConnection = (navigator as any).connection && (navigator as any).connection.effectiveType?.includes('2g');
   
   if (isMobile || isLowMemory || isSlowConnection) {
-    return 25; // Conservative for mobile/throttled
+    return 40; // Increased mobile buffer for smoother scrolling
   }
-  return 75; // More aggressive for desktop
+  return 100; // Larger desktop buffer for seamless experience
 }
 
 // Simple loadChunk implementation to replace anchorLoader - MOBILE OPTIMIZED
@@ -38,7 +38,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
     `${Math.round(memInfo.usedJSHeapSize / 1024 / 1024)}MB/${Math.round(memInfo.jsHeapSizeLimit / 1024 / 1024)}MB` : 
     'unknown';
   
-  console.log(`📖 SMART LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer}, verses=${slice.length}, memory=${memoryPressure}`);
+  console.log(`📖 PREEMPTIVE LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer}, verses=${slice.length}, staying ahead of scroll`);
   
   return {
     start,
@@ -53,9 +53,9 @@ function getOptimalThreshold(): number {
   const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
   
   if (isMobile || isLowMemory) {
-    return 8; // More frequent but smaller loads for mobile
+    return 5; // Very frequent loads to stay ahead of scrolling
   }
-  return 12; // Less frequent loads for desktop
+  return 8; // More frequent loads for desktop too
 }
 
 export function useAnchorSlice(
@@ -92,7 +92,12 @@ export function useAnchorSlice(
       const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
       
       const optimalThresh = getOptimalThreshold();
-      if (Math.abs(clampedAnchor - lastAnchor) >= optimalThresh) {
+      
+      // INSTANT LOADING: For mobile, always load if we're within 3 verses of viewport edge
+      const isMobile = window.innerWidth <= 768;
+      const isNearEdge = isMobile && Math.abs(clampedAnchor - lastAnchor) >= 3;
+      
+      if (Math.abs(clampedAnchor - lastAnchor) >= optimalThresh || isNearEdge) {
         // Store current scroll position before slice change
         const currentScrollTop = el.scrollTop;
         
