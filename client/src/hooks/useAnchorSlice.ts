@@ -3,8 +3,22 @@ import { useRef, useState, useLayoutEffect } from "react";
 import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
-// Simple loadChunk implementation to replace anchorLoader
-function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 200) {
+// SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities
+function getOptimalBuffer(): number {
+  // Detect mobile/low-memory devices
+  const isMobile = window.innerWidth <= 768;
+  const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
+  const isSlowConnection = (navigator as any).connection && (navigator as any).connection.effectiveType?.includes('2g');
+  
+  if (isMobile || isLowMemory || isSlowConnection) {
+    return 25; // Conservative for mobile/throttled
+  }
+  return 75; // More aggressive for desktop
+}
+
+// Simple loadChunk implementation to replace anchorLoader - MOBILE OPTIMIZED
+function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
+  const optimalBuffer = buffer || getOptimalBuffer();
   const allVerseKeys = verseKeys.length > 0 ? verseKeys : getVerseKeys();
   const totalRows = allVerseKeys.length;
   
@@ -14,11 +28,17 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 20
     return { start: 0, end: 0, slice: [] };
   }
   
-  const start = Math.max(0, anchorIndex - buffer);
-  const end = Math.min(totalRows - 1, anchorIndex + buffer);
+  const start = Math.max(0, anchorIndex - optimalBuffer);
+  const end = Math.min(totalRows - 1, anchorIndex + optimalBuffer);
   const slice = allVerseKeys.slice(start, end + 1);
   
-  console.log(`📖 SEAMLESS LOADING: anchor=${anchorIndex}, buffer=${buffer}, start=${start}, end=${end}, sliceLength=${slice.length}`);
+  // Memory monitoring for crash prevention
+  const memInfo = (performance as any).memory;
+  const memoryPressure = memInfo ? 
+    `${Math.round(memInfo.usedJSHeapSize / 1024 / 1024)}MB/${Math.round(memInfo.jsHeapSizeLimit / 1024 / 1024)}MB` : 
+    'unknown';
+  
+  console.log(`📖 SMART LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer}, verses=${slice.length}, memory=${memoryPressure}`);
   
   return {
     start,
@@ -27,7 +47,16 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 20
   };
 }
 
-const THRESH = 5;  // AGGRESSIVE: Load new chunks every 5 verses for seamless navigation
+// SMART THRESHOLD: Dynamic based on device capabilities
+function getOptimalThreshold(): number {
+  const isMobile = window.innerWidth <= 768;
+  const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
+  
+  if (isMobile || isLowMemory) {
+    return 8; // More frequent but smaller loads for mobile
+  }
+  return 12; // Less frequent loads for desktop
+}
 
 export function useAnchorSlice(
   containerRef: React.RefObject<HTMLDivElement>, 
@@ -62,7 +91,8 @@ export function useAnchorSlice(
       // Ensure anchor is within valid bounds
       const clampedAnchor = Math.max(0, Math.min(anchor, verseKeys.length - 1));
       
-      if (Math.abs(clampedAnchor - lastAnchor) >= THRESH) {
+      const optimalThresh = getOptimalThreshold();
+      if (Math.abs(clampedAnchor - lastAnchor) >= optimalThresh) {
         // Store current scroll position before slice change
         const currentScrollTop = el.scrollTop;
         
