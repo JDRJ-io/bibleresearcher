@@ -272,7 +272,7 @@ export function NewColumnHeaders({
     setLocalColumns(columns);
   }, [columns]);
 
-  // Apply horizontal navigation filtering - always keep reference column visible
+  // Apply horizontal navigation filtering - always keep reference and dates columns visible
   const visibleColumns = useMemo(() => {
     const activeColumns = localColumns.length > 0 ? localColumns : columns;
     
@@ -283,21 +283,8 @@ export function NewColumnHeaders({
     const fixedColumns = activeColumns.filter(col => fixedColumnTypes.includes(col.type));
     const navigableColumns = activeColumns.filter(col => !fixedColumnTypes.includes(col.type));
     
-    // GENIUS IMPLEMENTATION: maxVisibleColumns represents content slots ALONGSIDE fixed reference
-    // Reference is always there, maxVisibleColumns = how many content columns fit beside it
-    const availableSlots = maxVisibleColumns; // Direct use - no subtraction needed!
-    const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + availableSlots);
-    
-    console.log('🔧 Visible Columns Debug:', {
-      totalActiveColumns: activeColumns.length,
-      fixedColumnsCount: fixedColumns.length,
-      navigableColumnsCount: navigableColumns.length,
-      maxVisibleColumns,
-      availableSlots,
-      columnOffset,
-      selectedNavigableColumns: offsetNavigableColumns.length,
-      finalVisibleCount: fixedColumns.length + offsetNavigableColumns.length
-    });
+    // Apply offset to navigable columns
+    const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + maxVisibleColumns - fixedColumns.length);
     
     // Combine fixed columns (always first) with offset navigable columns
     return [...fixedColumns, ...offsetNavigableColumns];
