@@ -76,12 +76,33 @@ export function computeVisibleRange(p: LayoutParams): LayoutResult {
 
   let visibleCount = fitCount(offset);
 
-  // If we're so far to the right that we can't fill visibleCount, pull offset left.
-  // (This also fixes the "thinks it's at the end too early" bug.)
-  const maxOffset = Math.max(0, totalNavigableColumns - visibleCount);
+  // Add hidden buffer column logic: if we have more than targetSlots columns,
+  // add an invisible +1 to allow reaching the last column
+  const needsBuffer = totalNavigableColumns > p.targetSlots;
+  const effectiveTargetSlots = needsBuffer ? p.targetSlots + 1 : p.targetSlots;
+
+  // Recalculate with buffer
+  const fitCountWithBuffer = (start: number): number => {
+    let count = 0;
+    let used = 0;
+    for (let i = start; i < totalNavigableColumns; i++) {
+      const w = widths[i];
+      const next = (count === 0 ? w : used + p.gapPx + w);
+      if (next > contentViewportPx && count > 0) break; // Allow at least one column
+      used = next;
+      count++;
+      if (count >= effectiveTargetSlots) break; // Use effective target with buffer
+    }
+    return Math.max(1, count);
+  };
+
+  visibleCount = fitCountWithBuffer(offset);
+
+  // Allow navigation to reach the last column by being more permissive
+  const maxOffset = Math.max(0, totalNavigableColumns - Math.min(visibleCount, p.targetSlots));
   if (offset > maxOffset) {
     offset = maxOffset;
-    visibleCount = fitCount(offset);
+    visibleCount = fitCountWithBuffer(offset);
   }
 
   const startIndex = offset;
@@ -92,12 +113,12 @@ export function computeVisibleRange(p: LayoutParams): LayoutResult {
 
   // 1-based labels, NOT including the pillar
   const labelStart = startIndex + 1;
-  const labelEnd   = endIndex + 1;
+  const labelEnd = Math.min(startIndex + p.targetSlots, totalNavigableColumns); // Cap display to targetSlots
 
   return {
     contentViewportPx,
     totalNavigableColumns,
-    visibleCount,
+    visibleCount: Math.min(visibleCount, p.targetSlots), // Don't show buffer in count
     startIndex,
     endIndex,
     labelStart,

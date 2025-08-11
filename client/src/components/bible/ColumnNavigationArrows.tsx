@@ -32,7 +32,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     Notes: 320
   };
 
-  // Build active columns list from store state
+  // Build active columns list from store state (excluding reference pillar)
   const activeColumns: ColumnId[] = [];
   
   // Always include main translation
@@ -43,6 +43,8 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   if (showProphecies) {
     activeColumns.push('Prediction', 'Fulfillment', 'Verification');
   }
+  
+  console.log('📋 Active Columns List:', { showProphecies, showCrossRefs, showNotes, activeColumns });
 
   // Determine target slots based on screen size and orientation
   const isPortrait = window.innerHeight > window.innerWidth;
@@ -51,7 +53,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   let targetSlots: number;
   if (isPortrait) {
     if (viewportWidth <= 430) targetSlots = 2; // Small phones
-    else if (viewportWidth <= 768) targetSlots = 2; // Larger phones/tablets
+    else if (viewportWidth <= 768) targetSlots = 2; // Larger phones/tablets  
     else targetSlots = 3; // Portrait tablets
   } else {
     if (viewportWidth <= 768) targetSlots = 3; // Small landscape screens
@@ -59,8 +61,14 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     else targetSlots = 5; // Large landscape screens
   }
 
-  // Recompute layout when dependencies change
-  useEffect(() => {
+  // For prophecy view in portrait, we need special handling since we have 5 total columns
+  // but can only show 2 at a time, so we need to ensure navigation reaches all columns
+  if (isPortrait && showProphecies && activeColumns.length === 5) {
+    targetSlots = 2; // Show 2 columns but allow navigation to reach all 5
+  }
+
+  // Compute layout on mount and when critical dependencies change
+  const recomputeLayout = useCallback(() => {
     // Find container and pillar elements in DOM
     const containerEl = document.querySelector('.column-headers-wrapper') || 
                        document.querySelector('.virtual-bible-table');
@@ -96,44 +104,23 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
       canGoLeft: res.canGoLeft,
       canGoRight: res.canGoRight
     });
-  }, [activeColumns, targetSlots, columnOffset]);
+  }, [activeColumns, targetSlots, columnOffset, baseWidths]);
+
+  // Recompute on mount and when dependencies change
+  useEffect(() => {
+    recomputeLayout();
+  }, [recomputeLayout]);
 
   // Listen for resize and orientation changes
   useEffect(() => {
-    const recompute = () => {
-      // Find container and pillar elements in DOM
-      const containerEl = document.querySelector('.column-headers-wrapper') || 
-                         document.querySelector('.virtual-bible-table');
-      const pillarEl = document.querySelector('[data-column="reference"]') || 
-                      document.querySelector('.column-header-cell');
-
-      if (!containerEl || !pillarEl) return;
-
-      const containerWidthPx = Math.round(containerEl.getBoundingClientRect().width);
-      const pillarWidthPx = Math.round(pillarEl.getBoundingClientRect().width);
-
-      const res = computeVisibleRange({
-        containerWidthPx,
-        pillarWidthPx,
-        gapPx: 0,
-        activeColumns,
-        baseWidths,
-        zoom: 1.0,
-        targetSlots,
-        offset: columnOffset
-      });
-      
-      setLayout(res);
-    };
-
-    const onResize = () => recompute();
+    const onResize = () => recomputeLayout();
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
     };
-  }, [activeColumns, baseWidths, targetSlots, columnOffset]);
+  }, [recomputeLayout]);
 
   if (!layout || layout.totalNavigableColumns <= layout.visibleCount) {
     return null; // All columns fit, no navigation needed
