@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { cn } from '@/lib/utils';
-import { computeVisibleRange, type ColumnId, type LayoutResult } from '@/utils/columnLayout';
+import { computeVisibleRangeDynamic, type ColumnId, type LayoutResult } from '@/utils/columnLayout';
 
 interface ColumnNavigationArrowsProps {
   className?: string;
@@ -19,6 +19,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   } = useBibleStore();
 
   const [layout, setLayout] = useState<LayoutResult | null>(null);
+  const [measuredWidths, setMeasuredWidths] = useState<number[]>([]);
   const containerRef = useRef<HTMLElement | null>(null);
   const pillarRef = useRef<HTMLElement | null>(null);
 
@@ -67,6 +68,38 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     targetSlots = 2; // Show 2 columns but allow navigation to reach all 5
   }
 
+  // Measure actual column widths from DOM
+  const measureColumnWidths = useCallback(() => {
+    const widths: number[] = [];
+    activeColumns.forEach((colId, index) => {
+      // Try multiple selectors to find the actual column element
+      const selectors = [
+        `[data-column="${colId}"]`,
+        `[data-col="${colId}"]`,
+        `.column-header-cell:nth-child(${index + 2})`, // +2 because ref column is first
+        `.column-cell:nth-child(${index + 2})`
+      ];
+      
+      let columnEl: HTMLElement | null = null;
+      for (const selector of selectors) {
+        columnEl = document.querySelector(selector);
+        if (columnEl) break;
+      }
+      
+      if (columnEl) {
+        const width = Math.round(columnEl.getBoundingClientRect().width);
+        widths.push(width);
+      } else {
+        // Fallback to base width with current zoom multiplier
+        const columnWidthMult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
+        widths.push(Math.round(baseWidths[colId] * columnWidthMult));
+      }
+    });
+    
+    setMeasuredWidths(widths);
+    return widths;
+  }, [activeColumns, baseWidths]);
+
   // Compute layout on mount and when critical dependencies change
   const recomputeLayout = useCallback(() => {
     // Find container and pillar elements in DOM
@@ -79,48 +112,86 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
 
     const containerWidthPx = Math.round(containerEl.getBoundingClientRect().width);
     const pillarWidthPx = Math.round(pillarEl.getBoundingClientRect().width);
+    
+    // Get current measured widths or measure them now
+    const currentWidths = measureColumnWidths();
 
-    const res = computeVisibleRange({
+    const res = computeVisibleRangeDynamic({
       containerWidthPx,
       pillarWidthPx,
       gapPx: 0, // No gaps between columns currently
       activeColumns,
-      baseWidths,
-      zoom: 1.0, // TODO: Connect to presentation mode multiplier
-      targetSlots,
-      offset: columnOffset
+      widthsPx: currentWidths, // Use measured widths instead of base * zoom
+      baseWidths, // fallback
+      zoom: 1.0, // Not needed when using measured widths
+      offset: columnOffset,
+      ghostSlots: 1 // Allow reaching the last column even if only one fits
     });
     
     setLayout(res);
     
-    console.log('🎯 Smart Column Layout:', {
+    console.log('🎯 Smart Column Layout (Dynamic):', {
       activeColumns,
-      targetSlots,
       containerWidthPx,
       pillarWidthPx,
       contentViewportPx: res.contentViewportPx,
+      measuredWidths: currentWidths,
       visibleRange: `${res.labelStart}-${res.labelEnd}`,
       totalNavigable: res.totalNavigableColumns,
       canGoLeft: res.canGoLeft,
       canGoRight: res.canGoRight
     });
-  }, [activeColumns, targetSlots, columnOffset, baseWidths]);
+  }, [activeColumns, columnOffset, baseWidths, measureColumnWidths]);
 
   // Recompute on mount and when dependencies change
   useEffect(() => {
     recomputeLayout();
   }, [recomputeLayout]);
 
-  // Listen for resize and orientation changes
+  // Listen for resize, orientation changes, and column width changes
   useEffect(() => {
     const onResize = () => recomputeLayout();
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
+
+    // Set up ResizeObserver to detect column width changes (e.g., from presentation mode)
+    let resizeObserver: ResizeObserver | null = null;
+    
+    const setupResizeObserver = () => {
+      const containerEl = document.querySelector('.column-headers-wrapper') || 
+                         document.querySelector('.virtual-bible-table');
+      
+      if (containerEl && 'ResizeObserver' in window) {
+        resizeObserver = new ResizeObserver(entries => {
+          // Debounce to avoid excessive recalculations
+          setTimeout(() => recomputeLayout(), 50);
+        });
+        
+        // Observe the container and any visible column elements
+        resizeObserver.observe(containerEl);
+        
+        // Also observe individual column elements if we can find them
+        activeColumns.forEach((colId, index) => {
+          const columnEl = document.querySelector(`[data-column="${colId}"]`) ||
+                          document.querySelector(`.column-header-cell:nth-child(${index + 2})`);
+          if (columnEl && resizeObserver) {
+            resizeObserver.observe(columnEl);
+          }
+        });
+      }
+    };
+    
+    // Set up observer after a brief delay to ensure DOM is ready
+    setTimeout(setupResizeObserver, 100);
+    
     return () => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
     };
-  }, [recomputeLayout]);
+  }, [recomputeLayout, activeColumns]);
 
   if (!layout || layout.totalNavigableColumns <= layout.visibleCount) {
     return null; // All columns fit, no navigation needed
