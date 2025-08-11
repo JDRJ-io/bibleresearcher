@@ -30,9 +30,10 @@ A sophisticated web application for biblical research, providing an Excel-like i
 - **Responsive Optimization**: Adaptive column widths for various screen sizes, especially on mobile (≤768px). Enhanced custom scrollbar with touch event support, optimized for mobile UX with reduced track height, speed multiplier for dragging, and real-time tooltip feedback.
 - **Smart Virtual Scrolling**: Device-aware buffer optimization that detects mobile devices, low memory conditions, and slow connections to prevent crashes while maintaining smooth navigation. Uses dynamic thresholds (5 verses mobile, 8 desktop) and adaptive buffers (40 verses mobile/throttled, 100 desktop) with preemptive loading to ensure verses appear instantly during scrolling. Mobile gets additional instant loading within 3 verses of viewport edge.
 - **UI/UX Decisions**:
-    - **Layout**: Flexible 20-column system with toggleable sections for reference, notes, multiple translation columns, cross-references, and prophecy tracking.
+    - **Layout**: Flexible 20-column system with toggleable sections for reference, notes, multiple translation columns, cross-references, and prophecy tracking. Reference column treated as foundation pillar (excluded from column counting for mobile display logic).
     - **Theming**: Dark/light theme switching.
     - **Interactive Elements**: Strong's overlay for word analysis, user notes and highlights, search functionality.
+    - **Presentation Mode**: Quick toggle in column headers for instant display scaling (width x2, text x1.5, row height x1.35) with visual preset button.
     - **Mystical & Divine UI Effects**: Prophecy-based verse animations (yellow/red/blue glows), subtle mystical effects, and holy button animations with divine shimmer/glow. Authentication modals feature divine-themed aesthetics.
     - **Glass Morphism**: Performance-optimized with static backgrounds, lightweight blur effects (4px desktop, 2px mobile), and high opacity (95%) for readability. All heavy animations and transitions are removed for peaceful study and battery optimization.
 - **Community Features**: Integration ready for Stripe-based community subscriptions, with a divine-themed upgrade modal and subscribe page. Designed to provide community members a voice in project direction and enhanced forum participation.

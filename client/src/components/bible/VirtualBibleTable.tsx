@@ -562,31 +562,34 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const calculateMaxVisibleColumns = () => {
       const viewportWidth = window.innerWidth;
       
-      // Calculate how many columns can fit based on adaptive column widths
+      // Reference column is the foundation pillar - never counted as a "column"
+      // Count only content columns (main translation, cross-refs, notes, etc.)
       if (isPortrait) {
-        // In portrait mode, use fewer columns due to narrow width
+        // In portrait mode: Reference + 2 content columns maximum
         if (viewportWidth <= 430) { // Small phones
-          setMaxVisibleColumns(3); // Reference + 2 other columns (KJV + Cross Refs)
+          setMaxVisibleColumns(3); // Reference (pillar) + 2 content columns
         } else if (viewportWidth <= 768) { // Larger phones/tablets
-          setMaxVisibleColumns(4); // Reference + 3 other columns  
+          setMaxVisibleColumns(3); // Reference (pillar) + 2 content columns (consistent mobile experience)
         } else { // Portrait tablets
-          setMaxVisibleColumns(5); // Reference + 4 other columns
+          setMaxVisibleColumns(4); // Reference (pillar) + 3 content columns
         }
       } else {
-        // In landscape mode, can fit more columns
+        // In landscape mode, can fit more content columns
         if (viewportWidth <= 768) { // Small landscape screens
-          setMaxVisibleColumns(4); // Reference + 3 other columns
+          setMaxVisibleColumns(4); // Reference (pillar) + 3 content columns
         } else if (viewportWidth <= 1024) { // Medium landscape screens
-          setMaxVisibleColumns(5); // Reference + 4 other columns
+          setMaxVisibleColumns(5); // Reference (pillar) + 4 content columns
         } else { // Large landscape screens
-          setMaxVisibleColumns(6); // Reference + 5 other columns
+          setMaxVisibleColumns(6); // Reference (pillar) + 5 content columns
         }
       }
       
-      console.log('🔄 Column navigation: Set maxVisibleColumns to', 
-        isPortrait 
-          ? (viewportWidth <= 430 ? 3 : viewportWidth <= 768 ? 4 : 5)
-          : (viewportWidth <= 768 ? 4 : viewportWidth <= 1024 ? 5 : 6),
+      const contentColumns = isPortrait 
+        ? (viewportWidth <= 768 ? 2 : 3)  // Mobile always gets 2 content columns
+        : (viewportWidth <= 768 ? 3 : viewportWidth <= 1024 ? 4 : 5);
+      
+      console.log('🔄 Column navigation: Reference pillar + ' + contentColumns + ' content columns = ' + 
+        (contentColumns + 1) + ' total visible',
         'for viewport', viewportWidth, 'x', window.innerHeight, 
         '(', isPortrait ? 'portrait' : 'landscape', ')'
       );

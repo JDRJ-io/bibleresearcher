@@ -4,6 +4,8 @@ import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
 import { ColumnNavigationArrows } from './ColumnNavigationArrows';
+import { Button } from '@/components/ui/button';
+import { Monitor, RotateCcw } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -75,6 +77,9 @@ export function NewColumnHeaders({
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
   
+  // Presentation mode state
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
+  
   useEffect(() => {
     // Function to get current column width multiplier
     const updateColumnWidthMult = () => {
@@ -106,6 +111,25 @@ export function NewColumnHeaders({
     // Cleanup
     return () => observer.disconnect();
   }, []);
+
+  // Presentation mode toggle - width x2, text x1.5, row height x1.35
+  const togglePresentationMode = () => {
+    if (!isPresentationMode) {
+      // Enter presentation mode
+      document.documentElement.style.setProperty('--column-width-mult', '2');
+      document.documentElement.style.setProperty('--text-size-mult', '1.5');
+      document.documentElement.style.setProperty('--row-height-mult', '1.35');
+      setIsPresentationMode(true);
+      console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
+    } else {
+      // Exit presentation mode - reset to defaults
+      document.documentElement.style.setProperty('--column-width-mult', '1');
+      document.documentElement.style.setProperty('--text-size-mult', '1');
+      document.documentElement.style.setProperty('--row-height-mult', '1');
+      setIsPresentationMode(false);
+      console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+    }
+  };
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -408,8 +432,23 @@ export function NewColumnHeaders({
       >
         {/* Navigation arrows positioned above the headers */}
         <div className="flex justify-between items-center px-4 py-1 bg-gray-50 dark:bg-gray-900 border-b">
-          <div className="flex-1" />
+          {/* Presentation Mode Toggle */}
+          <Button
+            onClick={togglePresentationMode}
+            variant={isPresentationMode ? "default" : "outline"}
+            size="sm"
+            className={`flex items-center gap-1 text-xs ${
+              isPresentationMode 
+                ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            }`}
+          >
+            {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
+            {isPresentationMode ? "Reset" : "Present"}
+          </Button>
+          
           <ColumnNavigationArrows />
+          
           <div className="flex-1" />
         </div>
         
