@@ -619,53 +619,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
   }, [isPortrait, showCrossRefs, toggleCrossRefs]);
 
-  // Automatically set maxVisibleColumns based on viewport size
-  const { setMaxVisibleColumns } = useBibleStore();
-  React.useEffect(() => {
-    const calculateMaxVisibleColumns = () => {
-      const viewportWidth = window.innerWidth;
-      
-      // Reference column is the foundation pillar - never counted as a "column"
-      // Count only content columns (main translation, cross-refs, notes, etc.)
-      if (isPortrait) {
-        // In portrait mode: Reference + 2 content columns maximum
-        if (viewportWidth <= 430) { // Small phones
-          setMaxVisibleColumns(3); // Reference (pillar) + 2 content columns
-        } else if (viewportWidth <= 768) { // Larger phones/tablets
-          setMaxVisibleColumns(3); // Reference (pillar) + 2 content columns (consistent mobile experience)
-        } else { // Portrait tablets
-          setMaxVisibleColumns(4); // Reference (pillar) + 3 content columns
-        }
-      } else {
-        // In landscape mode, can fit more content columns
-        if (viewportWidth <= 768) { // Small landscape screens
-          setMaxVisibleColumns(4); // Reference (pillar) + 3 content columns
-        } else if (viewportWidth <= 1024) { // Medium landscape screens
-          setMaxVisibleColumns(5); // Reference (pillar) + 4 content columns
-        } else { // Large landscape screens
-          setMaxVisibleColumns(6); // Reference (pillar) + 5 content columns
-        }
-      }
-      
-      const contentColumns = isPortrait 
-        ? (viewportWidth <= 768 ? 2 : 3)  // Mobile always gets 2 content columns
-        : (viewportWidth <= 768 ? 3 : viewportWidth <= 1024 ? 4 : 5);
-      
-      console.log('🔄 Column navigation: Reference pillar + ' + contentColumns + ' content columns = ' + 
-        (contentColumns + 1) + ' total visible',
-        'for viewport', viewportWidth, 'x', window.innerHeight, 
-        '(', isPortrait ? 'portrait' : 'landscape', ')'
-      );
-    };
-
-    calculateMaxVisibleColumns();
-    
-    // Recalculate on window resize
-    const handleResize = () => calculateMaxVisibleColumns();
-    window.addEventListener('resize', handleResize);
-    
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isPortrait, setMaxVisibleColumns]);
+  // The old static column system has been removed
+  // All column calculations now happen dynamically via useMeasureVisibleColumns
 
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;

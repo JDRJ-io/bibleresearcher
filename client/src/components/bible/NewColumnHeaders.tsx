@@ -64,7 +64,6 @@ export function NewColumnHeaders({
     isInitialized, 
     showNotes: storeShowNotes, 
     columnOffset, 
-    maxVisibleColumns,
     unlockMode 
   } = store;
 
@@ -290,7 +289,7 @@ export function NewColumnHeaders({
     
     // Combine fixed columns (always first) with offset navigable columns
     return [...fixedColumns, ...offsetNavigableColumns];
-  }, [localColumns, columns, columnOffset, getVisibleSlice]);
+  }, [localColumns, columns, getVisibleSlice]);
 
   // Drag and drop handlers
   function handleDragStart(event: DragStartEvent) {
@@ -344,7 +343,6 @@ export function NewColumnHeaders({
   console.log('📋 NewColumnHeaders showDates prop:', showDates);
   console.log('📋 NewColumnHeaders navigation state:', { 
     columnOffset, 
-    maxVisibleColumns, 
     totalColumns: columns.length,
     visibleColumnsCount: visibleColumns.length,
     visibleColumnNames: visibleColumns.map(c => c.name)
