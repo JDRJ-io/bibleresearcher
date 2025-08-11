@@ -23,25 +23,24 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   // Track current width state (normal or expanded)
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Column width control - increases non-reference/non-date columns by 200px
+  // Column width control - preset presentation mode with specific multipliers
   const toggleColumnWidth = useCallback(() => {
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
     
-    // Get current width multiplier
-    const currentMultiplier = parseFloat(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue('--column-width-mult') || '1'
-    );
-    
-    // Calculate new multiplier based on 200px increase for standard column widths
-    // Assume base column width is around 300px, so 200px increase = ~1.67x multiplier
-    const newMultiplier = newExpanded ? Math.max(currentMultiplier, 1.67) : 1;
-    
-    // Apply the new width multiplier
-    document.documentElement.style.setProperty('--column-width-mult', newMultiplier.toString());
-    
-    console.log(`🎛️ Column Width Toggled: ${newExpanded ? 'Expanded' : 'Normal'} (${newMultiplier}x)`);
+    if (newExpanded) {
+      // Presentation mode: width x2, text x1.5, row height x1.35
+      document.documentElement.style.setProperty('--column-width-mult', '2');
+      document.documentElement.style.setProperty('--text-size-mult', '1.5');
+      document.documentElement.style.setProperty('--row-height-mult', '1.35');
+      console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
+    } else {
+      // Normal mode: reset to defaults
+      document.documentElement.style.setProperty('--column-width-mult', '1');
+      document.documentElement.style.setProperty('--text-size-mult', '1');
+      document.documentElement.style.setProperty('--row-height-mult', '1');
+      console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+    }
   }, [isExpanded]);
 
   // Calculate total available columns that can be navigated
@@ -109,7 +108,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
           "text-gray-700 dark:text-gray-300 cursor-pointer",
           isExpanded && "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600"
         )}
-        title={isExpanded ? "Reduce column width (-200px)" : "Expand column width (+200px)"}
+        title={isExpanded ? "Exit presentation mode (normal size)" : "Enter presentation mode (width x2, text x1.5, row x1.35)"}
       >
         {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
       </button>
