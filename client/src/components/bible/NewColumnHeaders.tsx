@@ -283,9 +283,9 @@ export function NewColumnHeaders({
     const fixedColumns = activeColumns.filter(col => fixedColumnTypes.includes(col.type));
     const navigableColumns = activeColumns.filter(col => !fixedColumnTypes.includes(col.type));
     
-    // Apply offset to navigable columns - maxVisibleColumns should account for the space we need
-    // Since reference column is always visible, we have (maxVisibleColumns - 1) slots for content
-    const availableSlots = Math.max(1, maxVisibleColumns - fixedColumns.length);
+    // GENIUS IMPLEMENTATION: maxVisibleColumns represents content slots ALONGSIDE fixed reference
+    // Reference is always there, maxVisibleColumns = how many content columns fit beside it
+    const availableSlots = maxVisibleColumns; // Direct use - no subtraction needed!
     const offsetNavigableColumns = navigableColumns.slice(columnOffset, columnOffset + availableSlots);
     
     console.log('🔧 Visible Columns Debug:', {

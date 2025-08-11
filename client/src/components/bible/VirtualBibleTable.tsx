@@ -562,17 +562,16 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const calculateMaxVisibleColumns = () => {
       const viewportWidth = window.innerWidth;
       
-      // FIXED: maxVisibleColumns should represent the TOTAL slots available including reference
-      // Reference column always takes 1 slot, so for portrait mode showing 2 content columns,
-      // we need maxVisibleColumns = 2 (excluding reference from the count since it's fixed)
+      // GENIUS APPROACH: maxVisibleColumns = content columns that fit ALONGSIDE the fixed reference pillar
+      // Reference pillar is ALWAYS visible and takes space, but NEVER counted in navigation math
       if (isPortrait) {
-        // In portrait mode: Show only 2 content columns at a time
+        // Portrait mode: Reference pillar + N content columns that can fit in remaining space
         if (viewportWidth <= 430) { // Small phones
-          setMaxVisibleColumns(2); // Show 2 content columns (reference is separate/fixed)
-        } else if (viewportWidth <= 768) { // Larger phones/tablets
-          setMaxVisibleColumns(2); // Show 2 content columns (consistent mobile experience)
+          setMaxVisibleColumns(2); // Reference pillar + 2 content columns can fit
+        } else if (viewportWidth <= 768) { // Larger phones/tablets  
+          setMaxVisibleColumns(2); // Reference pillar + 2 content columns (optimal UX)
         } else { // Portrait tablets
-          setMaxVisibleColumns(3); // Show 3 content columns
+          setMaxVisibleColumns(3); // Reference pillar + 3 content columns
         }
       } else {
         // In landscape mode, can fit more content columns
