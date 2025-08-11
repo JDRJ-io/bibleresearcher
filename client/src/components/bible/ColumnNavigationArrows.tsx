@@ -20,10 +20,14 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     columnState
   } = useBibleStore();
 
-  // Calculate total available columns that can be navigated
-  const visibleColumns = columnState.columns.filter(col => col.visible).length;
-  const additionalColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0) + (showDates ? 1 : 0);
-  const totalNavigableColumns = visibleColumns + additionalColumns;
+  // Calculate total navigable columns (excluding reference column since it's fixed)
+  // Dates are now inline with reference column, so don't count them separately
+  const contentColumns = (showCrossRefs ? 1 : 0) + (showProphecies ? 3 : 0) + (showNotes ? 1 : 0);
+  // Count main translation as 1, plus any alternate translations from columnState
+  const translationColumns = columnState.columns.filter(col => 
+    col.visible && (col.slot === 3 || col.slot >= 12) // main translation (slot 3) + alternates (slot 12+)
+  ).length;
+  const totalNavigableColumns = contentColumns + translationColumns;
   
   // Calculate if arrows should be enabled
   const canGoLeft = columnOffset > 0;
