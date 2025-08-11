@@ -68,55 +68,12 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     targetSlots = 2; // Show 2 columns but allow navigation to reach all 5
   }
 
-  // Measure actual column widths from DOM
-  const measureColumnWidths = useCallback(() => {
-    const widths: number[] = [];
+  // Calculate column widths from CSS multipliers (event-driven, no DOM polling)
+  const calculateColumnWidths = useCallback(() => {
     const columnWidthMult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
+    const widths = activeColumns.map(colId => Math.round(baseWidths[colId] * columnWidthMult));
     
-    activeColumns.forEach((colId, index) => {
-      // Map column IDs to the actual data-column types used in the DOM
-      const columnTypeMap: Record<string, string> = {
-        'KJV': 'main-translation',
-        'CrossRefs': 'cross-refs', 
-        'Notes': 'notes',
-        'Prediction': 'prophecy',
-        'Fulfillment': 'prophecy', 
-        'Verification': 'prophecy'
-      };
-      
-      const columnType = columnTypeMap[colId] || colId.toLowerCase();
-      
-      // Try multiple selectors to find the actual column element
-      const selectors = [
-        `[data-column="${columnType}"]`,
-        `[data-column="${colId}"]`,
-        `[data-col="${colId}"]`,
-        `.column-header-cell:nth-child(${index + 2})`, // +2 because ref column is first
-      ];
-      
-      let columnEl: HTMLElement | null = null;
-      let foundSelector = '';
-      for (const selector of selectors) {
-        columnEl = document.querySelector(selector);
-        if (columnEl) {
-          foundSelector = selector;
-          break;
-        }
-      }
-      
-      if (columnEl) {
-        const width = Math.round(columnEl.getBoundingClientRect().width);
-        widths.push(width);
-        console.log(`📏 Measured ${colId}: ${width}px (found via "${foundSelector}")`);
-      } else {
-        // Fallback to base width with current zoom multiplier
-        const fallbackWidth = Math.round(baseWidths[colId] * columnWidthMult);
-        widths.push(fallbackWidth);
-        console.log(`📏 Fallback ${colId}: ${fallbackWidth}px (base: ${baseWidths[colId]} * mult: ${columnWidthMult}) - no element found`);
-      }
-    });
-    
-    console.log('📐 All measured widths:', widths, 'for columns:', activeColumns);
+    console.log('📐 Calculated widths:', widths, 'for columns:', activeColumns, 'with multiplier:', columnWidthMult);
     setMeasuredWidths(widths);
     return widths;
   }, [activeColumns, baseWidths]);
@@ -134,8 +91,8 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     const containerWidthPx = Math.round(containerEl.getBoundingClientRect().width);
     const pillarWidthPx = Math.round(pillarEl.getBoundingClientRect().width);
     
-    // Get current measured widths or measure them now
-    const currentWidths = measureColumnWidths();
+    // Get current calculated widths
+    const currentWidths = calculateColumnWidths();
 
     const res = computeVisibleRangeDynamic({
       containerWidthPx,
@@ -165,57 +122,46 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
       canGoRight: res.canGoRight,
       columnWidthMult: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1')
     });
-  }, [activeColumns, columnOffset, baseWidths, measureColumnWidths]);
+  }, [activeColumns, columnOffset, baseWidths, calculateColumnWidths]);
 
   // Recompute on mount and when dependencies change
   useEffect(() => {
     recomputeLayout();
   }, [recomputeLayout]);
 
-  // Listen for resize, orientation changes, and column width changes
+  // Event-driven: Listen for CSS variable changes (presentation mode toggle)
   useEffect(() => {
     const onResize = () => recomputeLayout();
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
 
-    // Set up ResizeObserver to detect column width changes (e.g., from presentation mode)
-    let resizeObserver: ResizeObserver | null = null;
-    
-    const setupResizeObserver = () => {
-      const containerEl = document.querySelector('.column-headers-wrapper') || 
-                         document.querySelector('.virtual-bible-table');
-      
-      if (containerEl && 'ResizeObserver' in window) {
-        resizeObserver = new ResizeObserver(entries => {
-          // Debounce to avoid excessive recalculations
-          setTimeout(() => recomputeLayout(), 50);
-        });
-        
-        // Observe the container and any visible column elements
-        resizeObserver.observe(containerEl);
-        
-        // Also observe individual column elements if we can find them
-        activeColumns.forEach((colId, index) => {
-          const columnEl = document.querySelector(`[data-column="${colId}"]`) ||
-                          document.querySelector(`.column-header-cell:nth-child(${index + 2})`);
-          if (columnEl && resizeObserver) {
-            resizeObserver.observe(columnEl);
+    // Listen for CSS custom property changes (column width multiplier)
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          const currentMult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
+          // Only recompute if the multiplier actually changed
+          const previousMult = measuredWidths.length > 0 ? measuredWidths[0] / baseWidths[activeColumns[0]] : 1;
+          if (Math.abs(currentMult - previousMult) > 0.1) {
+            console.log('📡 Column width multiplier changed, recomputing layout');
+            recomputeLayout();
           }
-        });
-      }
-    };
+        }
+      });
+    });
     
-    // Set up observer after a brief delay to ensure DOM is ready
-    setTimeout(setupResizeObserver, 100);
+    // Observe document root for style attribute changes
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
     
     return () => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
+      observer.disconnect();
     };
-  }, [recomputeLayout, activeColumns]);
+  }, [recomputeLayout, measuredWidths, baseWidths, activeColumns]);
 
   if (!layout || layout.totalNavigableColumns <= layout.visibleCount) {
     return null; // All columns fit, no navigation needed
