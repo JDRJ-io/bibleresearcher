@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { masterCache } from '@/lib/supabaseClient';
 import { preloadKJV, isKJVReady } from '@/lib/preloader';
+import { useTranslationMaps as useTranslationStore } from '@/store/translationSlice';
 
 /**
  * TRANSLATION PIPELINE - MASTER IMPLEMENTATION
@@ -29,14 +30,16 @@ export interface UseTranslationMapsReturn {
 // masterCache.get('translation-KJV') instanceof Map → true
 
 export function useTranslationMaps(): UseTranslationMapsReturn {
-  // activeTranslations array: index 0 = main translation, others are alternates
-  const [activeTranslations, setActiveTranslations] = useState<string[]>(['KJV']);
+  // Get persistent translation state from Zustand store
+  const translationStore = useTranslationStore();
   const [isLoading, setIsLoading] = useState(false);
   
-  const mainTranslation = activeTranslations[0] || 'KJV';
-  const alternates = activeTranslations.slice(1);
+  // Build activeTranslations from store state
+  const activeTranslations = [translationStore.main, ...translationStore.alternates];
+  const mainTranslation = translationStore.main;
+  const alternates = translationStore.alternates;
 
-  // INSTANT ACCESS: Use preloader for immediate display
+  // INSTANT ACCESS: Use preloader for immediate display - load user's chosen translation
   useEffect(() => {
     if (mainTranslation === 'KJV') {
       // KJV should already be preloading from module load
@@ -44,7 +47,6 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
       if (!isKJVReady()) {
         preloadKJV().then(() => {
           console.log(`⚡ INSTANT: KJV loaded, triggering re-render`);
-          setActiveTranslations(prev => [...prev]);
         });
       }
     } else {
@@ -53,15 +55,14 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         try {
           const { loadTranslation } = await import('@/data/BibleDataAPI');
           const translationMap = await loadTranslation(mainTranslation);
-          console.log(`⚡ ${mainTranslation} LOADED: ${translationMap.size} verses`);
-          setActiveTranslations(prev => [...prev]);
+          console.log(`⚡ ${mainTranslation} LOADED: ${translationMap.size} verses from user's stored preference`);
         } catch (error) {
           console.error(`❌ Failed to load ${mainTranslation}:`, error);
         }
       };
       loadOtherTranslation();
     }
-  }, []); // Only run once on mount
+  }, [mainTranslation]); // React to changes in main translation
 
   // All translation parsing is now handled by BibleDataAPI facade
 
@@ -106,31 +107,16 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
         console.log(`✅ Translation ${code} already cached, skipping duplicate load`);
       }
       
-      // Update activeTranslations array - avoid duplicates with Array.from(new Set())
-      setActiveTranslations(prev => {
-        const isActive = prev.includes(code);
-        console.log(`📋 Current translations: [${prev.join(', ')}], ${code} is active: ${isActive}`);
-        
-        if (isActive && !setAsMain) {
-          // Toggle OFF - remove from active but keep in cache
-          const newTranslations = prev.filter(t => t !== code);
-          console.log(`🔴 REMOVING ${code}: [${newTranslations.join(', ')}]`);
-          return newTranslations;
-        } else {
-          // Toggle ON or set as main
-          let newTranslations;
-          if (setAsMain) {
-            // Place at index 0 (main translation)
-            newTranslations = Array.from(new Set([code, ...prev.filter(t => t !== code)]));
-            console.log(`🎯 SETTING ${code} AS MAIN: [${newTranslations.join(', ')}]`);
-          } else {
-            // Append as alternate
-            newTranslations = Array.from(new Set([...prev, code]));
-            console.log(`➕ ADDING ${code} AS ALTERNATE: [${newTranslations.join(', ')}]`);
-          }
-          return newTranslations;
-        }
-      });
+      // Update persistent translation state using Zustand store
+      if (setAsMain) {
+        // Update the persistent store instead of local state
+        translationStore.setMain(code);
+        console.log(`🎯 SETTING ${code} AS MAIN via Zustand store`);
+      } else {
+        // Toggle alternate in the persistent store
+        translationStore.toggleAlternate(code);
+        console.log(`📋 TOGGLING ${code} AS ALTERNATE via Zustand store`);
+      }
       
     } catch (error) {
       console.error('Error toggling translation:', error);
@@ -148,8 +134,11 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
    * Keep in cache to avoid re-download in same session
    */
   const removeTranslation = useCallback((code: string) => {
-    setActiveTranslations(prev => prev.filter(t => t !== code));
-  }, []);
+    // Remove from alternates if present, can't remove main translation
+    if (code !== translationStore.main) {
+      translationStore.toggleAlternate(code); // This will remove it if it exists
+    }
+  }, [translationStore]);
 
   /**
    * Get verse text from specific translation
@@ -176,18 +165,21 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
   }, [mainTranslation]);
 
   /**
-   * Set main translation (moves to index 0)
+   * Set main translation - convenience function that uses the Zustand store
    */
   const setMain = useCallback((id: string) => {
-    setActiveTranslations(prev => [id, ...prev.filter(t => t !== id)]);
-  }, []);
+    translationStore.setMain(id);
+  }, [translationStore]);
 
   /**
-   * Set alternate translations (appends after main)
+   * Set alternates array - convenience function that uses the Zustand store
    */
   const setAlternates = useCallback((ids: string[]) => {
-    setActiveTranslations(prev => [prev[0] || 'KJV', ...ids]);
-  }, []);
+    // First clear all alternates, then add the new ones
+    const currentAlts = [...translationStore.alternates];
+    currentAlts.forEach(alt => translationStore.toggleAlternate(alt));
+    ids.forEach(id => translationStore.toggleAlternate(id));
+  }, [translationStore]);
 
   return {
     resourceCache: masterCache,
