@@ -15,6 +15,7 @@ import { LabelName } from '@/lib/labelBits';
 import { NotesCell } from '@/components/user/NotesCell';
 import { VerseText } from '@/components/highlights/VerseText';
 import { HoverVerseBar } from './HoverVerseBar';
+import { InlineDateInfo } from './InlineDateInfo';
 
 
 
@@ -564,23 +565,17 @@ export function VirtualRow({
   // Always show reference column (slot 0)
   slotConfig[0] = { type: 'reference', header: '#', visible: true };
 
-  // Notes column right after dates (slot 2)
+  // Notes column (slot 2) - dates are now inline with reference
   slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes };
 
-  // Main translation after notes (slot 3)
+  // Main translation (slot 3)
   slotConfig[3] = { type: 'main-translation', header: mainTranslation, translationCode: mainTranslation, visible: true };
-
-  // Dates column right after reference (slot 1)
-  slotConfig[1] = { type: 'context', header: '📅', visible: showDates };
 
   // Map all column types based on store state - updated slot assignments
   if (columnState?.columns) {
     columnState.columns.forEach(col => {
       switch (col.slot) {
-        case 1:
-          // Dates column (moved to slot 1 after Ref)
-          slotConfig[1] = { type: 'context', header: '📅', visible: col.visible && showDates };
-          break;
+        // case 1: removed - dates are now inline with reference column
         case 2:
           // Notes column (moved to slot 2)
           slotConfig[2] = { type: 'notes', header: 'Notes', visible: col.visible && showNotes };
@@ -754,8 +749,11 @@ export function VirtualRow({
       case 'reference':
         return (
           <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex items-center justify-center h-full m-0 p-0">
+            <div className="text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref flex flex-col items-center justify-center h-full m-0 p-0">
               <span className="truncate leading-none m-0 p-0">{verse.reference}</span>
+              {showDates && (
+                <InlineDateInfo verseId={verse.reference} className="mt-0.5" />
+              )}
             </div>
           </div>
         );
@@ -874,12 +872,7 @@ export function VirtualRow({
           </div>
         );
 
-      case 'context':
-        return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <DatesCell verse={verse} getVerseText={getVerseText} mainTranslation={mainTranslation} onVerseClick={onVerseClick} isMobile={isMobile} />
-          </div>
-        );
+      // context/dates case removed - dates are now inline with reference column
 
       case 'prophecy-p':
       case 'prophecy-f':
