@@ -35,38 +35,6 @@ class LRUCache {
   private cache = new Map<string, CacheEntry>();
   private maxSize = 12; // Max 12 translations as per PR-B requirement
   
-  // Emergency cleanup method
-  clear(): void {
-    console.log(`🗑️ LRU Cache emergency clear: ${this.cache.size} items`);
-    this.cache.clear();
-  }
-  
-  // Memory-aware cache management
-  private checkMemoryPressure(): void {
-    if ((performance as any).memory) {
-      const memory = (performance as any).memory;
-      const usageRatio = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
-      
-      // Aggressive cleanup under memory pressure
-      if (usageRatio > 0.80) {
-        const itemsToRemove = Math.floor(this.cache.size * 0.5);
-        let removed = 0;
-        const keysToRemove: string[] = [];
-        
-        // Collect keys first to avoid modification during iteration
-        this.cache.forEach((_, key) => {
-          if (removed >= itemsToRemove) return;
-          keysToRemove.push(key);
-          removed++;
-        });
-        
-        // Remove collected keys
-        keysToRemove.forEach(key => this.cache.delete(key));
-        console.log(`🧹 Memory pressure cleanup: removed ${removed} cache items`);
-      }
-    }
-  }
-  
   get(key: string): any | undefined {
     const entry = this.cache.get(key);
     if (entry) {
@@ -78,9 +46,6 @@ class LRUCache {
   }
   
   set(key: string, value: any): void {
-    // Check memory pressure before adding
-    this.checkMemoryPressure();
-    
     if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
       // Find least recently used entry
       let oldestKey = '';
