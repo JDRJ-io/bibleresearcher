@@ -71,31 +71,52 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   // Measure actual column widths from DOM
   const measureColumnWidths = useCallback(() => {
     const widths: number[] = [];
+    const columnWidthMult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
+    
     activeColumns.forEach((colId, index) => {
+      // Map column IDs to the actual data-column types used in the DOM
+      const columnTypeMap: Record<string, string> = {
+        'KJV': 'main-translation',
+        'CrossRefs': 'cross-refs', 
+        'Notes': 'notes',
+        'Prediction': 'prophecy',
+        'Fulfillment': 'prophecy', 
+        'Verification': 'prophecy'
+      };
+      
+      const columnType = columnTypeMap[colId] || colId.toLowerCase();
+      
       // Try multiple selectors to find the actual column element
       const selectors = [
+        `[data-column="${columnType}"]`,
         `[data-column="${colId}"]`,
         `[data-col="${colId}"]`,
         `.column-header-cell:nth-child(${index + 2})`, // +2 because ref column is first
-        `.column-cell:nth-child(${index + 2})`
       ];
       
       let columnEl: HTMLElement | null = null;
+      let foundSelector = '';
       for (const selector of selectors) {
         columnEl = document.querySelector(selector);
-        if (columnEl) break;
+        if (columnEl) {
+          foundSelector = selector;
+          break;
+        }
       }
       
       if (columnEl) {
         const width = Math.round(columnEl.getBoundingClientRect().width);
         widths.push(width);
+        console.log(`📏 Measured ${colId}: ${width}px (found via "${foundSelector}")`);
       } else {
         // Fallback to base width with current zoom multiplier
-        const columnWidthMult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
-        widths.push(Math.round(baseWidths[colId] * columnWidthMult));
+        const fallbackWidth = Math.round(baseWidths[colId] * columnWidthMult);
+        widths.push(fallbackWidth);
+        console.log(`📏 Fallback ${colId}: ${fallbackWidth}px (base: ${baseWidths[colId]} * mult: ${columnWidthMult}) - no element found`);
       }
     });
     
+    console.log('📐 All measured widths:', widths, 'for columns:', activeColumns);
     setMeasuredWidths(widths);
     return widths;
   }, [activeColumns, baseWidths]);
@@ -136,10 +157,13 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
       pillarWidthPx,
       contentViewportPx: res.contentViewportPx,
       measuredWidths: currentWidths,
+      totalMeasuredWidth: currentWidths.reduce((a, b) => a + b, 0),
       visibleRange: `${res.labelStart}-${res.labelEnd}`,
+      visibleCount: res.visibleCount,
       totalNavigable: res.totalNavigableColumns,
       canGoLeft: res.canGoLeft,
-      canGoRight: res.canGoRight
+      canGoRight: res.canGoRight,
+      columnWidthMult: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1')
     });
   }, [activeColumns, columnOffset, baseWidths, measureColumnWidths]);
 
