@@ -33,6 +33,17 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   const canGoLeft = columnOffset > 0;
   const canGoRight = columnOffset < Math.max(0, totalNavigableColumns - maxVisibleColumns);
   
+  console.log('📊 Column Navigation Debug:', {
+    showProphecies,
+    contentColumns,
+    translationColumns,
+    totalNavigableColumns,
+    maxVisibleColumns,
+    columnOffset,
+    canGoLeft,
+    canGoRight
+  });
+  
   // Don't show navigation if all columns fit in viewport
   if (totalNavigableColumns <= maxVisibleColumns) {
     return null;
