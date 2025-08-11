@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Monitor, RotateCcw } from 'lucide-react';
 
 interface ManualSizeControllerProps {
   className?: string;
@@ -11,6 +13,7 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
   const [textSize, setTextSize] = useState(1.0);
   const [rowHeight, setRowHeight] = useState(1.0);
   const [columnWidth, setColumnWidth] = useState(1.0);
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
 
   // Load saved preferences on mount
   useEffect(() => {
@@ -79,18 +82,55 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
     setColumnWidth(value);
   };
 
+  // Presentation mode preset - width x2, text x1.5, row height x1.35
+  const togglePresentationMode = () => {
+    if (!isPresentationMode) {
+      // Enter presentation mode
+      setTextSize(1.5);
+      setRowHeight(1.35);
+      setColumnWidth(2.0);
+      setIsPresentationMode(true);
+      setIsUnified(false); // Switch to split mode to show individual values
+      console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
+    } else {
+      // Exit presentation mode - reset to defaults
+      setTextSize(1.0);
+      setRowHeight(1.0);
+      setColumnWidth(1.0);
+      setIsPresentationMode(false);
+      console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+    }
+  };
+
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="unified-sizing"
-            checked={isUnified}
-            onCheckedChange={handleUnifiedChange}
-          />
-          <Label htmlFor="unified-sizing" className="text-sm font-medium">
-            Unified Sizing
-          </Label>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="unified-sizing"
+              checked={isUnified}
+              onCheckedChange={handleUnifiedChange}
+            />
+            <Label htmlFor="unified-sizing" className="text-sm font-medium">
+              Unified Sizing
+            </Label>
+          </div>
+          
+          {/* Presentation Mode Preset Button */}
+          <Button
+            onClick={togglePresentationMode}
+            variant={isPresentationMode ? "default" : "outline"}
+            size="sm"
+            className={`flex items-center gap-1 text-xs ${
+              isPresentationMode 
+                ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            }`}
+          >
+            {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
+            {isPresentationMode ? "Reset" : "Present"}
+          </Button>
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Manual controls for Bible content (excludes header/menu auto-sizing)
