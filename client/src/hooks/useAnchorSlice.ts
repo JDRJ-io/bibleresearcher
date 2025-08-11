@@ -4,7 +4,7 @@ import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
 // Simple loadChunk implementation to replace anchorLoader
-function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 100) {
+function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 200) {
   const allVerseKeys = verseKeys.length > 0 ? verseKeys : getVerseKeys();
   const totalRows = allVerseKeys.length;
   
@@ -18,7 +18,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
   const end = Math.min(totalRows - 1, anchorIndex + buffer);
   const slice = allVerseKeys.slice(start, end + 1);
   
-  console.log(`📖 loadChunk: anchor=${anchorIndex}, buffer=${buffer}, start=${start}, end=${end}, sliceLength=${slice.length}`);
+  console.log(`📖 SEAMLESS LOADING: anchor=${anchorIndex}, buffer=${buffer}, start=${start}, end=${end}, sliceLength=${slice.length}`);
   
   return {
     start,
@@ -27,7 +27,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer: number = 10
   };
 }
 
-const THRESH = 15;  // FIXED: Balanced threshold - instant loading with position preservation
+const THRESH = 5;  // AGGRESSIVE: Load new chunks every 5 verses for seamless navigation
 
 export function useAnchorSlice(
   containerRef: React.RefObject<HTMLDivElement>, 
