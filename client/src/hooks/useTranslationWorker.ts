@@ -21,6 +21,23 @@ export function useTranslationWorker() {
     const worker = new Worker('/translationWorker.js');
     workerRef.current = worker;
 
+    // Listen for emergency termination signals
+    const handleEmergencyTermination = () => {
+      console.log('🚨 Emergency termination: Cleaning up translation worker');
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+      setState(prev => ({
+        ...prev,
+        loadingTranslations: new Set(),
+        loadedTranslations: new Map(),
+        progress: 0
+      }));
+    };
+
+    window.addEventListener('memory-emergency-terminate-workers', handleEmergencyTermination);
+
     // Initialize with API key
     worker.postMessage({
       type: 'INIT',
@@ -79,7 +96,10 @@ export function useTranslationWorker() {
     };
 
     return () => {
-      worker.terminate();
+      window.removeEventListener('memory-emergency-terminate-workers', handleEmergencyTermination);
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
     };
   }, []);
 

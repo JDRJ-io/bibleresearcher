@@ -20,6 +20,7 @@ import DevTools from "@/pages/DevTools";
 import NotFound from "@/pages/not-found";
 import Subscribe from "@/pages/Subscribe";
 import { create } from 'zustand';
+import { useEffect } from "react";
 // Start preloading KJV immediately when app loads
 import '@/lib/preloader';
 
@@ -759,6 +760,23 @@ function Router() {
 }
 
 function App() {
+  // Initialize memory manager early
+  useEffect(() => {
+    import('@/lib/memoryManager').then(({ memoryManager }) => {
+      console.log('🧠 Memory manager initialized');
+      
+      // Log initial memory status
+      const status = memoryManager.getCurrentStatus();
+      if (status) {
+        console.log('💾 Initial memory status:', {
+          used: `${Math.round(status.usedJSHeapSize / 1024 / 1024)}MB`,
+          limit: `${Math.round(status.jsHeapSizeLimit / 1024 / 1024)}MB`,
+          usage: `${Math.round(status.usagePercentage * 100)}%`
+        });
+      }
+    });
+  }, []);
+
   // Detect if performance mode should be enabled
   const enablePerformanceMode = () => {
     // Enable performance mode on mobile devices or low-memory devices

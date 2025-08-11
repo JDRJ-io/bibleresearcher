@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
+import { useMemoryMonitor } from "@/lib/memoryManager";
 import { ROW_HEIGHT } from '@/constants/layout';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -81,6 +82,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Memory monitoring for crash prevention
+  const { memoryStatus, isLowMemory, deviceCapabilities } = useMemoryMonitor('VirtualBibleTable');
+  
+  // Adjust rendering based on memory constraints
+  const memoryOptimizedSettings = useMemo(() => {
+    return {
+      enableAnimations: !isLowMemory,
+      reducedBuffer: isLowMemory ? 20 : undefined,
+      batchSize: isLowMemory ? 5 : 10,
+      renderDelay: isLowMemory ? 50 : 0
+    };
+  }, [isLowMemory]);
   
   // Initialize notes caching system for batch loading
   const { batchLoadNotes } = useNotesCache();

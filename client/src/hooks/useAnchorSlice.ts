@@ -3,17 +3,35 @@ import { useRef, useState, useLayoutEffect } from "react";
 import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
-// SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities
+// SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities AND memory usage
 function getOptimalBuffer(): number {
   // Detect mobile/low-memory devices
   const isMobile = window.innerWidth <= 768;
   const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
   const isSlowConnection = (navigator as any).connection && (navigator as any).connection.effectiveType?.includes('2g');
   
-  if (isMobile || isLowMemory || isSlowConnection) {
-    return 40; // Increased mobile buffer for smoother scrolling
+  // Check current memory usage
+  const memInfo = (performance as any).memory;
+  let memoryPressure = 0;
+  if (memInfo) {
+    memoryPressure = memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit;
   }
-  return 100; // Larger desktop buffer for seamless experience
+  
+  // Base buffer size
+  let buffer = 100; // Desktop default
+  
+  // Device-based adjustments
+  if (isMobile) buffer = 50;
+  if (isLowMemory) buffer = Math.min(buffer, 30);
+  if (isSlowConnection) buffer = Math.min(buffer, 40);
+  
+  // Memory pressure adjustments
+  if (memoryPressure > 0.85) buffer = Math.min(buffer, 20); // Critical memory
+  else if (memoryPressure > 0.70) buffer = Math.min(buffer, 30); // High memory
+  else if (memoryPressure > 0.50) buffer = Math.min(buffer, 50); // Medium memory
+  
+  // Minimum viable buffer
+  return Math.max(10, buffer);
 }
 
 // Simple loadChunk implementation to replace anchorLoader - MOBILE OPTIMIZED
@@ -61,16 +79,16 @@ function getOptimalThreshold(): number {
 export function useAnchorSlice(
   containerRef: React.RefObject<HTMLDivElement>, 
   verseKeys: string[] = [], 
-  options?: { disabled?: boolean }
+  options?: { disabled?: boolean; bufferOverride?: number }
 ) {
   const anchorIndexRef = useRef(0);
   const [anchorIndex, setAnchorIndex] = useState(0);
-  const [slice, setSlice] = useState(() => loadChunk(0, verseKeys));
+  const [slice, setSlice] = useState(() => loadChunk(0, verseKeys, options?.bufferOverride));
 
   // Reload slice when verse keys change (canonical/chronological toggle)
   useLayoutEffect(() => {
-    setSlice(loadChunk(anchorIndexRef.current, verseKeys));
-  }, [verseKeys]);
+    setSlice(loadChunk(anchorIndexRef.current, verseKeys, options?.bufferOverride));
+  }, [verseKeys, options?.bufferOverride]);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
