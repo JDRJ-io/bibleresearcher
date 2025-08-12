@@ -218,7 +218,7 @@ export function NewColumnHeaders({
     }
   };
 
-  // Build clean column configuration
+  // Build clean column configuration - NOW DEPENDS ON columnWidthMult for reactive updates
   const columns: SimpleColumn[] = useMemo(() => {
     const cols: SimpleColumn[] = [];
 
