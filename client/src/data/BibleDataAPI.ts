@@ -186,7 +186,8 @@ async function loadCrossReferences(set: 'cf1' | 'cf2' = 'cf1') {
 
 // Get cross-reference data for BibleDataAPI facade
 export async function getCrossRef(set: 'cf1' | 'cf2' = 'cf1'): Promise<string> {
-  return await loadCrossReferences(set);
+  console.error(`❌ DEPRECATED: getCrossRef() should not be called. Use getCrossRefsBatch() with HTTP Range requests instead.`);
+  throw new Error(`getCrossRef() is deprecated. Use getCrossRefsBatch() for optimized performance.`);
 }
 
 export async function loadCrossRefSlice(start: number, end: number) {
