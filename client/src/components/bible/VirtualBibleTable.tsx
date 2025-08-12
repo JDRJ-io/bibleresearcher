@@ -183,8 +183,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // Force hook re-evaluation when activeLabels changes  
   useEffect(() => {
     // useViewportLabels debug logs removed for performance
-      mainTranslation: translationMainTranslation || mainTranslation
-    });
   }, [activeLabels, sliceVerses.length, translationMainTranslation, mainTranslation]);
   
   const { getVerseLabels } = useViewportLabels({
@@ -405,12 +403,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         
         // Header/data width comparison logging removed for performance
       } else {
-        console.log('🔍 Elements not found:', { 
-          headerCell: !!headerCell, 
-          dataCell: !!dataCell,
-          headerSelector: '[data-column="reference"]',
-          dataSelector: '[data-verse-ref] > div:first-child'
-        });
+        // Elements not found debug logging removed for performance
       }
     };
     
