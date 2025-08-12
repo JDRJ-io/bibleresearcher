@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, uuid, timestamp, smallint, bigint, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, uuid, timestamp, smallint, bigint, primaryKey, index, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -16,6 +16,16 @@ export const profiles = pgTable("profiles", {
   tier: text("tier").default("free"), // 'free' or 'premium'
   recovery_passkey_hash: text("recovery_passkey_hash"),
   marketing_opt_in: boolean("marketing_opt_in").default(false),
+  
+  // Stripe membership fields
+  stripe_customer_id: text("stripe_customer_id").unique(),
+  subscription_status: text("subscription_status")
+    .default("incomplete")
+    .$type<'trialing' | 'active' | 'past_due' | 'paused' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'unpaid'>(),
+  current_period_end: timestamp("current_period_end"),
+  trial_end: timestamp("trial_end"),
+  cancel_at: timestamp("cancel_at"),
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -79,6 +89,36 @@ export const userPreferences = pgTable("user_preferences", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Sessions table for Stripe auth (required for membership system)
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: text("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Subscriptions table for Stripe audit trail
+export const subscriptions = pgTable("subscriptions", {
+  id: text("id").primaryKey(), // stripe subscription id
+  user_id: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  status: text("status").notNull(),
+  price_id: text("price_id").notNull(),
+  product_id: text("product_id").notNull(),
+  current_period_start: timestamp("current_period_start"),
+  current_period_end: timestamp("current_period_end"),
+  cancel_at: timestamp("cancel_at"),
+  canceled_at: timestamp("canceled_at"),
+  trial_start: timestamp("trial_start"),
+  trial_end: timestamp("trial_end"),
+  raw: jsonb("raw").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("subscriptions_user_id_idx").on(table.user_id),
+]);
+
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertProfileSchema = createInsertSchema(profiles).omit({ createdAt: true, updatedAt: true });
 export const insertNoteSchema = createInsertSchema(notes).omit({ id: true });
@@ -87,6 +127,7 @@ export const insertHighlightSchema = createInsertSchema(highlights).omit({ id: t
 export const insertForumPostSchema = createInsertSchema(forumPosts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({ id: true });
 export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({ id: true, updatedAt: true });
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ created_at: true });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -104,3 +145,5 @@ export type ForumVote = typeof forumVotes.$inferSelect;
 export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
 export type UserPreferences = typeof userPreferences.$inferSelect;
 export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
