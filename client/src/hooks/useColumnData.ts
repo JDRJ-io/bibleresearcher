@@ -1,17 +1,12 @@
 // Hook to load data when columns are toggled
 import { useEffect } from 'react';
 import { useBibleStore } from '@/App';
-import { getCrossRef, getProphecyRows, getProphecyIndex } from '@/data/BibleDataAPI';
+import { getProphecyRows, getProphecyIndex } from '@/data/BibleDataAPI';
 
 export function useColumnData() {
   const { showCrossRefs, showProphecies } = useBibleStore();
 
-  // Load cross-reference data when column is toggled
-  useEffect(() => {
-    if (showCrossRefs) {
-      loadCrossReferenceData();
-    }
-  }, [showCrossRefs]);
+  // Cross-reference data loading handled automatically by useCrossRefLoader
 
   // Load prophecy data when column is toggled
   useEffect(() => {
@@ -20,19 +15,7 @@ export function useColumnData() {
     }
   }, [showProphecies]);
 
-  const loadCrossReferenceData = async () => {
-    try {
-      console.log('📖 Loading cross-reference data...');
-      const crossRefData = await getCrossRef('cf1');
-      console.log('✅ Cross-reference data loaded:', crossRefData.length, 'bytes');
-      
-      // Parse and store cross-reference data
-      // This would typically parse the cf1.txt format and store in the store
-      // For now, let's just log that it's loaded
-    } catch (error) {
-      console.error('❌ Failed to load cross-reference data:', error);
-    }
-  };
+  // Deprecated cross-reference loader removed - handled by useCrossRefLoader with getCrossRefsBatch
 
   const loadProphecyData = async () => {
     try {
@@ -50,7 +33,6 @@ export function useColumnData() {
   };
 
   return {
-    loadCrossReferenceData,
     loadProphecyData
   };
 }
