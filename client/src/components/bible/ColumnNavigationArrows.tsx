@@ -37,19 +37,19 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     Notes: 320
   };
 
-  // Build active columns list from store state (excluding reference pillar)
-  const activeColumns: ColumnId[] = [];
-  
-  // Always include main translation
-  activeColumns.push('KJV');
-  
-  if (showCrossRefs) activeColumns.push('CrossRefs');
-  if (showNotes) activeColumns.push('Notes');
-  if (showProphecies) {
-    activeColumns.push('Prediction', 'Fulfillment', 'Verification');
-  }
-  
-  console.log('📋 Active Columns List:', { showProphecies, showCrossRefs, showNotes, activeColumns });
+  // Build active columns list from store state (excluding reference pillar) - memoized to prevent re-renders
+  const activeColumns = React.useMemo((): ColumnId[] => {
+    const columns: ColumnId[] = ['KJV']; // Always include main translation
+    
+    if (showCrossRefs) columns.push('CrossRefs');
+    if (showNotes) columns.push('Notes');
+    if (showProphecies) {
+      columns.push('Prediction', 'Fulfillment', 'Verification');
+    }
+    
+    console.log('📋 Active Columns List:', { showProphecies, showCrossRefs, showNotes, activeColumns: columns });
+    return columns;
+  }, [showCrossRefs, showNotes, showProphecies]);
 
   // Determine target slots based on screen size and orientation
   const isPortrait = window.innerHeight > window.innerWidth;
@@ -126,7 +126,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
       canGoRight: res.canGoRight,
       columnWidthMult: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1')
     });
-  }, [activeColumns, columnOffset, baseWidths, calculateColumnWidths]);
+  }, [activeColumns, columnOffset, calculateColumnWidths]);
 
   // Recompute on mount and when dependencies change
   useEffect(() => {
