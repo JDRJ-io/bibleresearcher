@@ -44,8 +44,25 @@ export function useReferenceColumnWidth() {
     // Monitor width changes - initial check
     monitorReferenceWidth();
 
-    // Check for width changes periodically since CSS variables don't trigger events
-    const intervalId = setInterval(monitorReferenceWidth, 250); // Check every 250ms
+    // Initial check
+    monitorReferenceWidth();
+
+    // Listen for column change events instead of polling
+    const { useColumnChangeSignal } = await import('./useColumnChangeSignal');
+    
+    // Set up event listener for column changes
+    const handleColumnChange = (detail: any) => {
+      if (detail.changeType === 'width' || detail.changeType === 'multiplier') {
+        setTimeout(monitorReferenceWidth, 50);
+      }
+    };
+
+    const cleanup = useColumnChangeSignal ? 
+      useColumnChangeSignal(handleColumnChange) : 
+      null;
+
+    // Fallback: minimal polling only if events aren't working
+    const fallbackInterval = setInterval(monitorReferenceWidth, 2000); // Much less frequenty 250ms
 
     // Also monitor window resize for immediate updates
     const handleResize = () => {
@@ -55,7 +72,8 @@ export function useReferenceColumnWidth() {
     window.addEventListener('resize', handleResize);
     
     return () => {
-      clearInterval(intervalId);
+      clearInterval(fallbackInterval);
+      if (cleanup) cleanup();
       window.removeEventListener('resize', handleResize);
       // Clean up classes on unmount
       document.body.classList.remove('reference-column-thin');

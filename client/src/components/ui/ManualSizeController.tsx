@@ -3,6 +3,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Monitor, RotateCcw } from 'lucide-react';
+import { useBibleStore } from '@/App';
+import { useColumnChangeEmitter } from '@/hooks/useColumnChangeSignal';
 
 interface ManualSizeControllerProps {
   className?: string;
@@ -14,6 +16,9 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
   const [rowHeight, setRowHeight] = useState(1.0);
   const [columnWidth, setColumnWidth] = useState(1.0);
   const [isPresentationMode, setIsPresentationMode] = useState(false);
+
+  const store = useBibleStore();
+  const emitColumnChange = useColumnChangeEmitter();
 
   // Load saved preferences on mount
   useEffect(() => {
@@ -102,6 +107,15 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
     }
   };
 
+  const setMultiplier = (newMult: number) => {
+      document.documentElement.style.setProperty('--column-width-mult', newMult.toString());
+      console.log(`🎛️ Column Width Multiplier: ${newMult}x`);
+
+      // Emit column change signal
+      emitColumnChange('multiplier', { multiplier: newMult });
+    };
+
+
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="space-y-3">
@@ -116,15 +130,15 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
               Unified Sizing
             </Label>
           </div>
-          
+
           {/* Presentation Mode Preset Button */}
           <Button
             onClick={togglePresentationMode}
             variant={isPresentationMode ? "default" : "outline"}
             size="sm"
             className={`flex items-center gap-1 text-xs ${
-              isPresentationMode 
-                ? "bg-blue-600 hover:bg-blue-700 text-white" 
+              isPresentationMode
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
                 : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
             }`}
           >

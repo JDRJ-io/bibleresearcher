@@ -78,7 +78,16 @@ export function NewColumnHeaders({
   
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
-  
+
+  // Import the column change signal hook
+  const { useColumnChangeSignal, useColumnChangeEmitter } = useMemo(() => {
+    // Dynamic import to avoid circular dependencies
+    return {
+      useColumnChangeSignal: null,
+      useColumnChangeEmitter: null
+    };
+  }, []);
+
   useEffect(() => {
     // Function to get current column width multiplier
     const updateColumnWidthMult = () => {
@@ -92,27 +101,36 @@ export function NewColumnHeaders({
     // Set initial value
     updateColumnWidthMult();
     
-    // Create a MutationObserver to watch for style changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-          updateColumnWidthMult();
-        }
-      });
-    });
-    
-    // Start observing the document.documentElement for style changes
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
+    // Set up async import for column change signals
+    const setupColumnSignals = async () => {
+      try {
+        const { useColumnChangeSignal } = await import('@/hooks/useColumnChangeSignal');
+        
+        // Listen for column multiplier changes
+        const cleanup = useColumnChangeSignal((detail: any) => {
+          if (detail.changeType === 'multiplier') {
+            updateColumnWidthMult();
+          }
+        });
+        
+        return cleanup;
+      } catch (error) {
+        console.warn('Column change signals not available, using fallback');
+        return null;
+      }
+    };
+
+    let cleanup: (() => void) | null = null;
+    setupColumnSignals().then(c => { cleanup = c; });
     
     // Cleanup
-    return () => observer.disconnect();
+    return () => {
+      if (cleanup) cleanup();
+    };
   }, []);
 
   // Presentation mode toggle - width x2, text x1.5, row height x1.35
-  const togglePresentationMode = () => {
+  const togglePresentationMode = useCallback(async () => {
     if (!isPresentationMode) {
       // Enter presentation mode
       document.documentElement.style.setProperty('--column-width-mult', '2');
@@ -120,6 +138,15 @@ export function NewColumnHeaders({
       document.documentElement.style.setProperty('--row-height-mult', '1.35');
       setIsPresentationMode(true);
       console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
+
+      // Emit column change signal
+      try {
+        const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
+        const signal = useColumnChangeEmitter();
+        signal('multiplier', { multiplier: 2, presentationMode: true });
+      } catch (error) {
+        console.warn('Could not emit column change signal');
+      }
     } else {
       // Exit presentation mode - reset to defaults
       document.documentElement.style.setProperty('--column-width-mult', '1');
@@ -127,8 +154,17 @@ export function NewColumnHeaders({
       document.documentElement.style.setProperty('--row-height-mult', '1');
       setIsPresentationMode(false);
       console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+
+      // Emit column change signal
+      try {
+        const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
+        const signal = useColumnChangeEmitter();
+        signal('multiplier', { multiplier: 1, presentationMode: false });
+      } catch (error) {
+        console.warn('Could not emit column change signal');
+      }
     }
-  };
+  }, [isPresentationMode]);
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
