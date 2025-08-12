@@ -64,6 +64,28 @@ export function useTranslationMaps(): UseTranslationMapsReturn {
     }
   }, [mainTranslation]); // React to changes in main translation
 
+  // Load alternate translations that are in store but missing from cache
+  useEffect(() => {
+    const loadMissingAlternates = async () => {
+      for (const altCode of alternates) {
+        if (!masterCache.has(`translation-${altCode}`)) {
+          console.log(`🔄 Loading missing alternate translation: ${altCode}`);
+          try {
+            const { loadTranslation } = await import('@/data/BibleDataAPI');
+            const translationMap = await loadTranslation(altCode);
+            console.log(`✅ Loaded alternate translation: ${altCode} (${translationMap.size} verses)`);
+          } catch (error) {
+            console.error(`❌ Failed to load alternate ${altCode}:`, error);
+          }
+        }
+      }
+    };
+    
+    if (alternates.length > 0) {
+      loadMissingAlternates();
+    }
+  }, [alternates]); // React to changes in alternate translations
+
   // All translation parsing is now handled by BibleDataAPI facade
 
   /**
