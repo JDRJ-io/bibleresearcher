@@ -13,12 +13,16 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
   useEffect(() => {
     if (!containerEl) return;
 
+    let updateTimer: NodeJS.Timeout;
     const updateVisibleCount = () => {
-      const containerRect = containerEl.getBoundingClientRect();
-      const width = Math.round(containerRect.width);
-      setContainerWidthPx(width);
+      // THROTTLE UPDATES: Prevent excessive recalculations
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(() => {
+        const containerRect = containerEl.getBoundingClientRect();
+        const width = Math.round(containerRect.width);
+        setContainerWidthPx(width);
 
-      console.log('📐 useMeasureVisibleColumns: Container width =', width);
+        console.log('📐 useMeasureVisibleColumns: Container width =', width);
 
       // How many total columns (fixed + as many navigable as fit) can we show?
       // We count fixed first, then add navigable until we run out of room.
@@ -47,8 +51,9 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
         }
       }
 
-      console.log(`📐 Final calculation: ${count} columns fit in ${width}px (used: ${used}px)`);
-      setVisibleCount(count);
+        console.log(`📐 Final calculation: ${count} columns fit in ${width}px (used: ${used}px)`);
+        setVisibleCount(count);
+      }, 50); // 50ms throttle for mobile performance
     };
 
     // Initial calculation
@@ -62,6 +67,9 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
     });
 
     ro.observe(containerEl);
-    return () => ro.disconnect();
+    return () => {
+      clearTimeout(updateTimer);
+      ro.disconnect();
+    };
   }, [containerEl, fixedColumns, navigableColumns, columnWidthsPx, setVisibleCount, setContainerWidthPx]);
 }

@@ -85,6 +85,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   // Initialize notes caching system for batch loading
   const { batchLoadNotes } = useNotesCache();
+  
+  // Import and initialize mobile memory & performance monitoring
+  useEffect(() => {
+    Promise.all([
+      import('@/lib/mobileMemoryMonitor'),
+      import('@/lib/performanceMonitor')
+    ]).then(([{ MobileMemoryMonitor }, { PerformanceMonitor }]) => {
+      const memoryMonitor = MobileMemoryMonitor.getInstance();
+      const perfMonitor = PerformanceMonitor.getInstance();
+      memoryMonitor.startMonitoring();
+      perfMonitor.startMonitoring();
+    });
+  }, []);
 
   // Get verse text retrieval function from useBibleData - MUST BE EARLY
   const { getVerseText: getBibleVerseText } = useBibleData();

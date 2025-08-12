@@ -33,7 +33,33 @@ interface CacheEntry {
 
 class LRUCache {
   private cache = new Map<string, CacheEntry>();
-  private maxSize = 12; // Max 12 translations as per PR-B requirement
+  private maxSize = window.innerWidth <= 768 ? 6 : 12; // MOBILE OPTIMIZATION: Reduce cache size for mobile devices
+  
+  constructor() {
+    // Listen for mobile memory events
+    if (typeof window !== 'undefined') {
+      window.addEventListener('mobile-memory-emergency', () => {
+        this.emergencyCleanup();
+      });
+      window.addEventListener('mobile-memory-warning', () => {
+        this.gentleCleanup();
+      });
+    }
+  }
+  
+  private emergencyCleanup() {
+    const beforeSize = this.cache.size;
+    this.cache.clear();
+    console.log(`🚨 LRU Emergency cleanup: cleared ${beforeSize} entries`);
+  }
+  
+  private gentleCleanup() {
+    const beforeSize = this.cache.size;
+    const deleteCount = Math.floor(this.cache.size * 0.3); // Remove 30%
+    const keysToDelete = Array.from(this.cache.keys()).slice(0, deleteCount);
+    keysToDelete.forEach(k => this.cache.delete(k));
+    console.log(`⚠️ LRU Gentle cleanup: removed ${deleteCount}/${beforeSize} entries`);
+  }
   
   get(key: string): any | undefined {
     const entry = this.cache.get(key);
@@ -46,6 +72,19 @@ class LRUCache {
   }
   
   set(key: string, value: any): void {
+    // MEMORY PRESSURE CHECK: Clear cache more aggressively on mobile
+    const memInfo = (performance as any).memory;
+    const memoryPressure = memInfo ? memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit : 0;
+    const isMobile = window.innerWidth <= 768;
+    
+    if (memoryPressure > 0.8 || (isMobile && memoryPressure > 0.6)) {
+      // Emergency cache clearing
+      const deleteCount = Math.floor(this.cache.size / 2);
+      const keysToDelete = Array.from(this.cache.keys()).slice(0, deleteCount);
+      keysToDelete.forEach(k => this.cache.delete(k));
+      console.log(`🚨 Emergency cache clear: removed ${deleteCount} items due to memory pressure`);
+    }
+    
     if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
       // Find least recently used entry
       let oldestKey = '';

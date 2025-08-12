@@ -16,7 +16,11 @@ export async function queueSync() {
 }
 
 export async function pushPending() {
-  const pendingNotes = await db.notes.where('pending').equals(true).toArray();
+  // MOBILE OPTIMIZATION: Process in smaller batches to prevent memory spikes
+  const isMobile = window.innerWidth <= 768;
+  const batchSize = isMobile ? 5 : 10;
+  
+  const pendingNotes = await db.notes.where('pending').equals(true).limit(batchSize).toArray();
   
   for (const note of pendingNotes) {
     try {
@@ -32,8 +36,8 @@ export async function pushPending() {
     }
   }
 
-  // Repeat for bookmarks/highlights
-  const pendingBookmarks = await db.bookmarks.where('pending').equals(true).toArray();
+  // Repeat for bookmarks/highlights - BATCH PROCESSING
+  const pendingBookmarks = await db.bookmarks.where('pending').equals(true).limit(batchSize).toArray();
   for (const bookmark of pendingBookmarks) {
     try {
       const { error } = await supabase.from('bookmarks').upsert({ ...bookmark, pending: undefined });
@@ -43,7 +47,7 @@ export async function pushPending() {
     }
   }
   
-  const pendingHighlights = await db.highlights.where('pending').equals(true).toArray();
+  const pendingHighlights = await db.highlights.where('pending').equals(true).limit(batchSize).toArray();
   for (const highlight of pendingHighlights) {
     try {
       const { error } = await supabase.from('highlights').upsert({ ...highlight, pending: undefined });
@@ -51,5 +55,10 @@ export async function pushPending() {
     } catch (error) {
       console.log('Sync failed for highlight:', highlight.id, error);
     }
+  }
+  
+  // MOBILE CLEANUP: Clear memory after sync operations
+  if (isMobile && 'gc' in window) {
+    (window as any).gc();
   }
 }
