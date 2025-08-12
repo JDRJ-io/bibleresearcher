@@ -816,18 +816,18 @@ export function useBibleData() {
     // ANCHOR-CENTERED LOADING: Use loadChunk(anchorIndex, buffer) pattern  
     const { getVerseKeys } = await import('@/lib/verseKeysLoader');
     const allVerseKeys = getVerseKeys();
-    const startIndex = Math.max(0, centerIndex - 100);
-    const endIndex = Math.min(allVerseKeys.length - 1, centerIndex + 100);
+    const startIndex = Math.max(0, centerIndex - 50);
+    const endIndex = Math.min(allVerseKeys.length - 1, centerIndex + 50);
     const slice = allVerseKeys.slice(startIndex, endIndex + 1);
 
-    console.log(`📍 ANCHOR LOAD: Center=${centerIndex}, Range=${startIndex}-${endIndex}, Slice=${slice.length} verses`);
+    console.log(`📍 ANCHOR LOAD: Center=${centerIndex}, Range=${startIndex}-${endIndex}, Slice=${slice.length} verses (±50 buffer)`);
 
     // Generate unique request ID to prevent race conditions
     const requestId = ++currentRequestRef.current;
 
     console.time(`fetch-${requestId}`);
     console.log(
-      `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${centerIndex}, buffer: 100)`,
+      `🔄 Starting fetch ${requestId}: range ${startIndex}-${endIndex} (center: ${centerIndex}, buffer: 50)`,
     );
 
     // TRUE CENTER-ANCHORED: Only clear and load verses outside current range

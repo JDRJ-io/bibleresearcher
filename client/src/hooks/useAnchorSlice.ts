@@ -3,7 +3,7 @@ import { useRef, useState, useLayoutEffect } from "react";
 import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
-// SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities - AGGRESSIVE MEMORY REDUCTION
+// SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities - RESTORED PROPER BUFFER
 function getOptimalBuffer(): number {
   // Detect mobile/low-memory devices
   const isMobile = window.innerWidth <= 768;
@@ -15,9 +15,9 @@ function getOptimalBuffer(): number {
   const memoryPressure = memInfo ? memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit : 0;
   
   if (isMobile || isLowMemory || isSlowConnection || memoryPressure > 0.8) {
-    return 25; // REDUCED: Smaller buffer for mobile to prevent crashes
+    return 40; // RESTORED: Reasonable buffer for mobile while preventing crashes
   }
-  return 60; // REDUCED: Smaller desktop buffer for better memory management
+  return 80; // RESTORED: Proper desktop buffer for smooth scrolling
 }
 
 // Simple loadChunk implementation to replace anchorLoader - MOBILE OPTIMIZED
@@ -51,7 +51,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
   };
 }
 
-// SMART THRESHOLD: Dynamic based on device capabilities - AGGRESSIVE PERFORMANCE TUNING
+// SMART THRESHOLD: Dynamic based on device capabilities - BALANCED PERFORMANCE
 function getOptimalThreshold(): number {
   const isMobile = window.innerWidth <= 768;
   const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
@@ -59,9 +59,9 @@ function getOptimalThreshold(): number {
   const memoryPressure = memInfo ? memInfo.usedJSHeapSize / memInfo.jsHeapSizeLimit : 0;
   
   if (isMobile || isLowMemory || memoryPressure > 0.7) {
-    return 8; // INCREASED: Less frequent loads to reduce processing overhead
+    return 15; // BALANCED: Trigger loading when within 15 verses of buffer edge
   }
-  return 12; // INCREASED: Reduce desktop processing load too
+  return 20; // BALANCED: Desktop loads when within 20 verses of buffer edge
 }
 
 export function useAnchorSlice(
@@ -103,9 +103,9 @@ export function useAnchorSlice(
         
         const optimalThresh = getOptimalThreshold();
         
-        // REDUCED INSTANT LOADING: Only for critical near-edge cases on mobile
+        // BALANCED INSTANT LOADING: For near-edge cases maintaining smooth scrolling
         const isMobile = window.innerWidth <= 768;
-        const isNearEdge = isMobile && Math.abs(clampedAnchor - lastAnchor) >= 6; // Increased threshold
+        const isNearEdge = isMobile && Math.abs(clampedAnchor - lastAnchor) >= 10; // Balanced threshold
         
         if (Math.abs(clampedAnchor - lastAnchor) >= optimalThresh || isNearEdge) {
           // Store current scroll position before slice change
