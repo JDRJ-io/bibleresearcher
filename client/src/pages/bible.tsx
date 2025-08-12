@@ -249,8 +249,10 @@ export default function BiblePage() {
     
     const handleSlotVisibility = (event: CustomEvent) => {
       const { slot, visible } = event.detail;
-      console.log(`📡 Received slot visibility event: slot ${slot} → ${visible}`);
+      console.log(`📡 RECEIVED slot visibility event: slot ${slot} → ${visible}`);
+      console.log(`📊 Column state before update:`, columnState.columns.map(c => `slot ${c.slot}: ${c.visible}`));
       columnState.setVisible(slot, visible);
+      console.log(`📊 Column state after update:`, columnState.columns.map(c => `slot ${c.slot}: ${c.visible}`));
     };
 
     window.addEventListener('translation-slot-visibility', handleSlotVisibility as EventListener);

@@ -59,6 +59,11 @@ export function NewColumnHeaders({
   isGuest = true 
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
+  
+  // DEBUG: Track alternate translation changes
+  useEffect(() => {
+    console.log(`🔍 NewColumnHeaders: main=${main}, alternates=[${alternates.join(', ')}]`);
+  }, [main, alternates]);
   const store = useBibleStore();
   const { 
     isInitialized, 

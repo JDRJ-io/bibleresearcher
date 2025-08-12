@@ -49,11 +49,15 @@ export const useTranslationMaps = create<TranslationState>()(
           
           // Also make the corresponding slot visible in the main store
           const slot = getSlotForAlternateIndex(newAlternates.length - 1);
+          console.log(`🎯 DISPATCHING translation-slot-visibility: slot ${slot} → visible:true for ${id}`);
           if (slot !== -1) {
             // Use window event to notify main store to avoid circular dependency
             window.dispatchEvent(new CustomEvent('translation-slot-visibility', {
               detail: { slot, visible: true }
             }));
+            console.log(`📡 Dispatched slot visibility event: slot ${slot} → true`);
+          } else {
+            console.error(`❌ Invalid slot ${slot} for alternate translation ${id}`);
           }
         } else {
           // was there, remove it
@@ -62,11 +66,15 @@ export const useTranslationMaps = create<TranslationState>()(
           
           // Also hide the corresponding slot in the main store
           const slot = getSlotForAlternateIndex(removedIndex);
+          console.log(`🎯 DISPATCHING translation-slot-visibility: slot ${slot} → visible:false for ${id}`);
           if (slot !== -1) {
             // Use window event to notify main store to avoid circular dependency
             window.dispatchEvent(new CustomEvent('translation-slot-visibility', {
               detail: { slot, visible: false }
             }));
+            console.log(`📡 Dispatched slot visibility event: slot ${slot} → false`);
+          } else {
+            console.error(`❌ Invalid slot ${slot} for alternate translation ${id}`);
           }
         }
       },
