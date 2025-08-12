@@ -48,7 +48,7 @@ export function useReferenceColumnWidth() {
     monitorReferenceWidth();
 
     // Listen for column change events instead of polling
-    const { useColumnChangeSignal } = await import('./useColumnChangeSignal');
+    let cleanup: (() => void) | null = null;
     
     // Set up event listener for column changes
     const handleColumnChange = (detail: any) => {
@@ -57,9 +57,16 @@ export function useReferenceColumnWidth() {
       }
     };
 
-    const cleanup = useColumnChangeSignal ? 
-      useColumnChangeSignal(handleColumnChange) : 
-      null;
+    // Dynamically import and set up column change signal
+    import('./useColumnChangeSignal').then(({ useColumnChangeSignal }) => {
+      if (useColumnChangeSignal) {
+        const result = useColumnChangeSignal(handleColumnChange);
+        if (result) cleanup = result;
+      }
+    }).catch(() => {
+      // Fallback if useColumnChangeSignal is not available
+      console.log('Column change signal not available, using polling fallback');
+    });
 
     // Fallback: minimal polling only if events aren't working
     const fallbackInterval = setInterval(monitorReferenceWidth, 2000); // Much less frequenty 250ms
