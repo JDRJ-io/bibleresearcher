@@ -8,6 +8,13 @@ A sophisticated web application for biblical research, providing an Excel-like i
 - **Debugging Approach**: Wants global system monitoring to understand actual data flows
 - **Development Focus**: Values understanding how things actually work vs. how they're designed
 
+## Recent Changes (August 12, 2025)
+- **Column Header System**: Completed unified dynamic column width system using CSS calc() expressions and --column-width-mult variable
+- **Navigation Logic**: Fixed all maxVisibleColumns references, now using dynamic getVisibleSlice() system throughout VirtualRow.tsx
+- **Data Loading Issue Resolved**: Fixed translation cache initialization - all Bible translations (KJV, AMP, CSB) now loading correctly with 31,102 verses each
+- **Infinite Render Loop Fixed**: Resolved React infinite render issue in ColumnNavigationArrows component by properly memoizing dependencies
+- **Bible Verse Display**: Verse text now displaying correctly, cross-references working (e.g., Gen.1:1 shows 76 cross-refs)
+
 ## System Architecture
 
 ### Core Design Principles

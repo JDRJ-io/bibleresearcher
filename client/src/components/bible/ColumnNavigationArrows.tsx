@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { cn } from '@/lib/utils';
@@ -27,15 +27,15 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
   const containerRef = useRef<HTMLElement | null>(null);
   const pillarRef = useRef<HTMLElement | null>(null);
 
-  // Base widths for different column types (in pixels at zoom = 1.0)
-  const baseWidths: Record<ColumnId, number> = {
+  // Base widths for different column types (in pixels at zoom = 1.0) - memoized to prevent re-renders
+  const baseWidths = useMemo((): Record<ColumnId, number> => ({
     KJV: 420,
     CrossRefs: 360,
     Prediction: 360,
     Fulfillment: 360,
     Verification: 360,
     Notes: 320
-  };
+  }), []);
 
   // Build active columns list from store state (excluding reference pillar) - memoized to prevent re-renders
   const activeColumns = React.useMemo((): ColumnId[] => {
@@ -80,7 +80,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     console.log('📐 Calculated widths:', widths, 'for columns:', activeColumns, 'with multiplier:', columnWidthMult);
     setMeasuredWidths(widths);
     return widths;
-  }, [activeColumns]);
+  }, [activeColumns, baseWidths]);
 
   // Compute layout on mount and when critical dependencies change
   const recomputeLayout = useCallback(() => {
