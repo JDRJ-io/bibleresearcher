@@ -14,11 +14,7 @@ export function useReferenceColumnWidth() {
 
       if (adaptiveRefWidth) {
         const widthValue = parseInt(adaptiveRefWidth.replace('px', ''));
-        console.log('📐 Reference column width monitoring:', { 
-          adaptiveRefWidth, 
-          widthValue, 
-          isThin: widthValue <= 40 
-        });
+        // Monitor reference column width (logging removed for performance)
 
         // Apply thin column class to body when reference column is ≤40px
         if (widthValue <= 40) {

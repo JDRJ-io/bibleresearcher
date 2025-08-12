@@ -60,10 +60,7 @@ export function NewColumnHeaders({
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
 
-  // DEBUG: Track alternate translation changes
-  useEffect(() => {
-    console.log(`🔍 NewColumnHeaders: main=${main}, alternates=[${alternates.join(', ')}]`);
-  }, [main, alternates]);
+  // Track alternate translation changes (logging removed for performance)
   const store = useBibleStore();
   const { 
     isInitialized, 
@@ -407,15 +404,7 @@ export function NewColumnHeaders({
     setActiveId(null);
   }
 
-  console.log('📋 NewColumnHeaders rendered with columns:', columns.map(c => ({ name: c.name, type: c.type, visible: c.visible, width: c.width })));
-  console.log('📋 NewColumnHeaders showDates prop:', showDates);
-  console.log('📋 NewColumnHeaders navigation state:', { 
-    columnOffset, 
-    totalColumns: columns.length,
-    visibleColumnsCount: visibleColumns.length,
-    visibleColumnNames: visibleColumns.map(c => c.name)
-  });
-  console.log('🎛️ Column Width Multiplier:', columnWidthMult);
+  // Column rendering logs removed for performance
 
   const isPortrait = window.innerHeight > window.innerWidth;
 

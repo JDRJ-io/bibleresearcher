@@ -55,7 +55,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
 
   // DEBUG: Add activeLabels check
   const activeLabels = bibleStore?.activeLabels ?? [];
-  console.log('🍔 HamburgerMenu activeLabels:', activeLabels);
+  // HamburgerMenu debug removed for performance
 
   const { theme, setTheme, themes } = useTheme();
 

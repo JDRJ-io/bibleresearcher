@@ -108,14 +108,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
     );
   };
 
-  // Debug: Log cross-reference rendering for Gen.1:1
-  if (verse.reference === "Gen.1:1") {
-    console.log('🔗 RENDER DEBUG Gen.1:1:', {
-      crossRefsCount: crossRefs.length,
-      firstFew: crossRefs.slice(0, 3),
-      hasOnVerseClick: !!onVerseClick
-    });
-  }
+  // Cross-reference rendering debug removed for performance
 
   return (
     <div className="px-2 py-1 text-sm cell-content cross-ref-cell glass-morphism glass-cross-ref-cell">
@@ -351,15 +344,7 @@ function MainTranslationCell({
   const contextBoundaries = store.contextBoundaries;
   const showContext = store.showContext;
 
-  // FIX #4: Debug translation lookup with normalization  
-  if (verse.reference === "Gen.4:1") {
-    console.log('CELL CHECK', {
-      verse: verse.reference,
-      mainTranslation,
-      normalizedCode: mainTranslation?.toUpperCase(),
-      textResult: getVerseText(verse.reference, mainTranslation)?.slice(0,40)
-    });
-  }
+  // Translation lookup debug removed for performance
 
   // Get verse text with proper fallbacks
   const verseText = getVerseText(verse.reference, mainTranslation) || 
@@ -373,33 +358,7 @@ function MainTranslationCell({
   // Use LabeledText if we have active labels (don't require verseLabels yet, let component handle empty data)
   const shouldUseLabeledText = activeLabels && activeLabels.length > 0;
 
-  // Enhanced debug for Gen.1:1
-  if (verse.reference === "Gen.1:1" || verse.reference === "Gen 1:1") {
-    console.log(`🏷️ MainTranslationCell DEBUG for ${verse.reference}:`, {
-      verseLabels,
-      activeLabels,
-      shouldUseLabeledText,
-      hasGetVerseLabels: !!getVerseLabels,
-      storeActiveLabels: store?.activeLabels,
-      verseText: verseText ? verseText.substring(0, 50) + '...' : 'NO TEXT',
-      verseTextLength: verseText?.length || 0
-    });
-
-    // Try different reference formats
-    // OPTIMIZATION: verse.reference is now in dot format - no conversion needed
-    const altRef1 = verse.reference;
-    const altRef2 = verse.reference;
-
-    if (getVerseLabels) {
-      console.log(`🏷️ MainTranslationCell trying alt refs:`, {
-        original: verse.reference,
-        alt1: altRef1,
-        alt2: altRef2,
-        labelsAlt1: getVerseLabels(altRef1),
-        labelsAlt2: getVerseLabels(altRef2)
-      });
-    }
-  }
+  // MainTranslationCell debug removed for performance
 
   // Handle empty verse text - just return empty instead of loading message
   if (!verseText) {
@@ -938,7 +897,7 @@ export function VirtualRow({
       case 'alt-translation':
         const altTranslationCode = config.translationCode || 'KJV';
         const altVerseText = getVerseText(verse.reference, altTranslationCode);
-        console.log(`🔍 VirtualRow: Rendering alt-translation ${altTranslationCode} for ${verse.reference} in slot ${slot}`);
+        // Rendering alt-translation (removed verbose logging)
         
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>

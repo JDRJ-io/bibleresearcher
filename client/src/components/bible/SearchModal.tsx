@@ -37,11 +37,7 @@ interface SearchModalProps {
 }
 
 export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTranslation, verses = [] }: SearchModalProps) {
-  console.log('🔍 SearchModal rendered with:', {
-    isOpen,
-    versesLength: verses.length,
-    firstVerse: verses[0]?.reference
-  });
+  // SearchModal render logs removed for performance
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -73,17 +69,16 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     }
 
     try {
-      console.log(`🔍 Loading translation for search: ${translationCode}`);
+      // Loading translation for search (logging removed for performance)
       const { loadTranslation } = await import('@/data/BibleDataAPI');
       const translationMap = await loadTranslation(translationCode);
       
       if (translationMap && translationMap.size > 0) {
         setLoadedTranslations(prev => new Map(prev).set(translationCode, translationMap));
-        console.log(`🔍 Successfully loaded ${translationCode} with ${translationMap.size} verses`);
         return translationMap;
       }
     } catch (error) {
-      console.error(`🔍 Failed to load translation ${translationCode}:`, error);
+      // Translation loading error (logging removed for performance)
     }
     
     return null;
@@ -91,10 +86,9 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
 
   // Create verse objects with text content for search engine
   const versesWithText = useMemo(() => {
-    console.log(`🔍 SearchModal versesWithText memo - verses.length: ${verses.length}, getVerseText available: ${!!getVerseText}`);
+    // SearchModal versesWithText memo logs removed for performance
     
     if (!verses.length || !getVerseText) {
-      console.log(`🔍 SearchModal returning empty versesWithText`);
       return [];
     }
     
@@ -118,9 +112,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       };
     });
     
-    console.log(`🔍 SearchModal created ${result.length} versesWithText, sample:`, result[0]);
-    console.log(`🔍 SearchModal sample verse text object:`, result[0]?.text);
-    console.log(`🔍 SearchModal sample verse keys in text:`, Object.keys(result[0]?.text || {}));
+    // SearchModal versesWithText creation logs removed for performance
     return result;
   }, [verses, getVerseText, activeTranslation]);
   
