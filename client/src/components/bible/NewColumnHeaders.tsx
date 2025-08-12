@@ -62,7 +62,7 @@ export function NewColumnHeaders({
 
   // DEBUG: Track alternate translation changes
   useEffect(() => {
-    console.log(`🔍 NewColumnHeaders: main=${main}, alternates=${alternates}`);
+    console.log(`🔍 NewColumnHeaders: main=${main}, alternates=[${alternates.join(', ')}]`);
   }, [main, alternates]);
   const store = useBibleStore();
   const { 
@@ -126,7 +126,9 @@ export function NewColumnHeaders({
     };
 
     let cleanup: (() => void) | null = null;
-    setupColumnSignals().then(c => { cleanup = c; });
+    setupColumnSignals().then(c => { 
+      if (typeof c === 'function') cleanup = c; 
+    });
 
     // Cleanup
     return () => {

@@ -621,22 +621,23 @@ export function VirtualRow({
     });
   }
 
-  // Dynamically add alternate translation columns to slots 2-5 (matching columnLayout.ts)
-  // This matches the slot assignment in columnLayout.ts
+  // Dynamically add alternate translation columns to slots 12-19 (FIXED to match translationSlice.ts)
+  // This ensures NO interference with cross-references (slot 7) or prophecy columns (slots 8-10)
   // FILTER OUT main translation to prevent duplication
   alternates
     .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
     .forEach((translationCode, index) => {
-      // Alternate translations start from slot 2 (after main translation at slot 1)
-      const slot = 2 + index;
+      // All alternate translations start from slot 12 (AFTER cross-references at slot 7)
+      const slotNumber = 12 + index; // Slots 12-19
 
-      if (slot <= 5) { // Max 4 alternate translations total (slots 2-5)
-        slotConfig[slot] = { 
+      if (slotNumber <= 19) { // Max 8 alternate translations total (slots 12-19)
+        slotConfig[slotNumber] = { 
           type: 'alt-translation', 
           header: translationCode, 
           translationCode, 
           visible: true  // Show all active alternate translations
         };
+        console.log(`🔍 VirtualRow: Added alternate translation ${translationCode} to slot ${slotNumber}`);
       }
     });
 
@@ -680,10 +681,10 @@ export function VirtualRow({
 
   // Calculate how many columns can actually fit on screen (same logic as NewColumnHeaders)
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  const isPortrait = typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
+  const isPortraitLayout = typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
   
   let maxVisibleNavigableColumns;
-  if (isPortrait) {
+  if (isPortraitLayout) {
     if (viewportWidth <= 430) maxVisibleNavigableColumns = 2;
     else if (viewportWidth <= 768) maxVisibleNavigableColumns = 3;
     else maxVisibleNavigableColumns = 4;
@@ -709,14 +710,12 @@ export function VirtualRow({
   function getDefaultWidth(slot: number): number {
     switch (slot) {
       case 0: return 5;   // Reference
-      case 1: return 8;   // Notes
-      case 2: return 20;  // Main translation
-      case 3: return 15;  // Cross References
-      case 4: return 6;   // Dates
-      case 5: case 6: case 7: case 8: case 9: case 10:
-      case 11: case 12: case 13: case 14: case 15: case 16:
-        return 18; // Alt translations
-      case 17: case 18: case 19: return 5; // Prophecy P/F/V
+      case 2: return 8;   // Notes (moved to slot 2)
+      case 3: return 20;  // Main translation (moved to slot 3)
+      case 7: return 15;  // Cross References (slot 7)
+      case 8: case 9: case 10: return 10; // Prophecy columns
+      case 12: case 13: case 14: case 15: 
+      case 16: case 17: case 18: case 19: return 18; // Alternate translations (slots 12-19)
       default: return 10;
     }
   }
@@ -750,27 +749,25 @@ export function VirtualRow({
       }
 
       // Use adaptive CSS variables for portrait/landscape modes
-      const isPortrait = window.innerHeight > window.innerWidth;
+      const isPortraitInCell = window.innerHeight > window.innerWidth;
 
-      if (isPortrait) {
+      if (isPortraitInCell) {
         // Portrait mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
         if (slotNumber === 0) return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 2 && config.type === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
         if (slotNumber === 3 && config.type === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
         if (slotNumber === 7 && config.type === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-        if (config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-        if (config.type === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-        if (config.type === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 8 && slotNumber <= 10 && (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v')) return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 12 && slotNumber <= 19 && config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
         return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
       } else {
         // Landscape mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
         if (slotNumber === 0) return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 2) return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
         if (slotNumber === 3) return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
         if (slotNumber === 7) return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-        if (config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-        if (config.type === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-        if (config.type === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 8 && slotNumber <= 10) return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 12 && slotNumber <= 19) return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
         return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
       }
     };
@@ -785,20 +782,21 @@ export function VirtualRow({
 
     switch (config.type) {
       case 'reference':
+        const isPortraitInRefCell = window.innerHeight > window.innerWidth;
         return (
           <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
-              isPortrait 
+              isPortraitInRefCell 
                 ? 'flex flex-row items-center justify-center gap-1' 
                 : 'flex flex-col items-center justify-center'
             }`}>
-              <span className={`leading-none m-0 p-0 ${isPortrait ? 'vertical-text' : 'truncate'}`}>
+              <span className={`leading-none m-0 p-0 ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
                 {verse.reference}
               </span>
               {showDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
-                  className={isPortrait ? 'vertical-text' : 'mt-0.5'} 
+                  className={isPortraitInRefCell ? 'vertical-text' : 'mt-0.5'} 
                 />
               )}
             </div>
@@ -937,6 +935,44 @@ export function VirtualRow({
           </div>
         );
 
+      case 'alt-translation':
+        const altTranslationCode = config.translationCode || 'KJV';
+        const altVerseText = getVerseText(verse.reference, altTranslationCode);
+        console.log(`🔍 VirtualRow: Rendering alt-translation ${altTranslationCode} for ${verse.reference} in slot ${slot}`);
+        
+        return (
+          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+            <HoverVerseBar
+              reference={verse.reference}
+              verseId={verse.id}
+              translationCode={altTranslationCode}
+              text={altVerseText || `[${altTranslationCode} loading...]`}
+              onCopy={() => {}}
+              onBookmark={() => {}}
+              onShare={() => {}}
+              wrapperClassName="h-full max-h-full"
+            >
+              <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
+                {altVerseText ? (
+                  shouldUseLabeledText ? (
+                    <LabeledText
+                      text={altVerseText}
+                      labelData={verseLabels}
+                      activeLabels={activeLabels}
+                      verseKey={`${verse.reference}-${altTranslationCode}`}
+                      translationCode={altTranslationCode}
+                    />
+                  ) : (
+                    altVerseText
+                  )
+                ) : (
+                  `[${altTranslationCode} loading...]`
+                )}
+              </div>
+            </HoverVerseBar>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -956,20 +992,20 @@ export function VirtualRow({
     }, 0);
   }, [visibleColumns, columnState]);
 
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  const shouldCenter = actualTotalWidth <= viewportWidth * 0.95;
-  const needsHorizontalScroll = actualTotalWidth > viewportWidth;
+  const currentViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  const shouldCenter = actualTotalWidth <= currentViewportWidth * 0.95;
+  const needsHorizontalScroll = actualTotalWidth > currentViewportWidth;
 
   // RESPONSIVE MIN-WIDTH: Use viewport-constrained width on smaller screens
   const responsiveMinWidth = useMemo(() => {
     // On mobile/tablet, allow more flexible width utilization
-    if (viewportWidth <= 768) {
+    if (currentViewportWidth <= 768) {
       // Use 95% of viewport width or actual width, whichever is smaller
-      return Math.min(actualTotalWidth, viewportWidth * 0.95);
+      return Math.min(actualTotalWidth, currentViewportWidth * 0.95);
     }
     // On desktop, maintain full calculated width
     return actualTotalWidth;
-  }, [actualTotalWidth, viewportWidth]);
+  }, [actualTotalWidth, currentViewportWidth]);
 
   // Remove mystical/prophecy effects from rows
 
