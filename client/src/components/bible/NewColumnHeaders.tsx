@@ -267,30 +267,34 @@ export function NewColumnHeaders({
     }
 
     // 7. Prophecy columns (should come before alternate translations)
-    if (showProphecy) {
-      cols.push(
-        {
-          id: 'prophecy-prediction',
-          name: 'Prediction',
-          type: 'prophecy',
-          visible: true,
-          width: getResponsiveWidth('prophecy')
-        },
-        {
-          id: 'prophecy-fulfillment',
-          name: 'Fulfillment',
-          type: 'prophecy',
-          visible: true,
-          width: getResponsiveWidth('prophecy')
-        },
-        {
-          id: 'prophecy-verification',
-          name: 'Verification',
-          type: 'prophecy',
-          visible: true,
-          width: getResponsiveWidth('prophecy')
-        }
-      );
+    if (store.showPrediction) {
+      cols.push({
+        id: 'prophecy-prediction',
+        name: 'Prediction',
+        type: 'prophecy',
+        visible: true,
+        width: getResponsiveWidth('prophecy')
+      });
+    }
+    
+    if (store.showFulfillment) {
+      cols.push({
+        id: 'prophecy-fulfillment',
+        name: 'Fulfillment',
+        type: 'prophecy',
+        visible: true,
+        width: getResponsiveWidth('prophecy')
+      });
+    }
+    
+    if (store.showVerification) {
+      cols.push({
+        id: 'prophecy-verification',
+        name: 'Verification',
+        type: 'prophecy',
+        visible: true,
+        width: getResponsiveWidth('prophecy')
+      });
     }
 
     // 8. Alternate translations (filter out main to avoid duplication)
@@ -307,7 +311,7 @@ export function NewColumnHeaders({
       });
 
     return cols.filter(col => col.visible);
-  }, [main, alternates, showNotes, showDates, showCrossRefs, showProphecy, adaptiveWidths, columnWidthMult]);
+  }, [main, alternates, showNotes, showDates, showCrossRefs, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths, columnWidthMult]);
 
   // Sync columns with localColumns for drag and drop
   useMemo(() => {
