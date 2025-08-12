@@ -92,9 +92,6 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
       setIsPresentationMode(true);
       setIsUnified(false); // Switch to split mode to show individual values
       console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
-      
-      // Emit custom event for efficient layout recalculation
-      window.dispatchEvent(new CustomEvent('presentation-mode-changed'));
     } else {
       // Exit presentation mode - reset to defaults
       setTextSize(1.0);
@@ -102,9 +99,6 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
       setColumnWidth(1.0);
       setIsPresentationMode(false);
       console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
-      
-      // Emit custom event for efficient layout recalculation
-      window.dispatchEvent(new CustomEvent('presentation-mode-changed'));
     }
   };
 

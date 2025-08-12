@@ -1,0 +1,366 @@
+perfect — here are the **exact building blocks** your engineer can drop into the codebase. No demo scaffolding, just the real pieces and where they plug in.
+
+---
+
+# 1) Load mode (global switch)
+
+Only enters `KeysOnly` while the **custom scrollbar thumb is being dragged**. Normal wheel / middle-mouse / touch scrolling stays `Full`.
+
+```ts
+// loadMode.ts
+import React from 'react';
+
+export type LoadMode = 'Full' | 'KeysOnly';
+
+export const LoadModeContext = React.createContext<{
+  mode: LoadMode;
+  setMode: (m: LoadMode) => void;
+}>({ mode: 'Full', setMode: () => {} });
+
+export function LoadModeProvider({ children }: { children: React.ReactNode }) {
+  const [mode, setMode] = React.useState<LoadMode>('Full');
+  return <LoadModeContext.Provider value={{ mode, setMode }}>{children}</LoadModeContext.Provider>;
+}
+```
+
+**Use:** wrap your app/screen once with `<LoadModeProvider>`.
+
+---
+
+# 2) Scroll math helpers (correct, drift-free)
+
+Map **available scroll** ↔ **available track**. This prevents drift and “off-by-more-at-bottom” errors.
+
+```ts
+// scrollMath.ts
+export function thumbYFromScroll(
+  scrollTop: number,
+  scrollHeight: number,
+  clientHeight: number,
+  trackHeight: number,
+  thumbHeight: number
+) {
+  const maxScroll = Math.max(0, scrollHeight - clientHeight);
+  const trackSpan = Math.max(0, trackHeight - thumbHeight);
+  const ratio = maxScroll > 0 ? scrollTop / maxScroll : 0;
+  return ratio * trackSpan; // px
+}
+
+export function scrollFromThumbY(
+  thumbY: number,
+  scrollHeight: number,
+  clientHeight: number,
+  trackHeight: number,
+  thumbHeight: number
+) {
+  const maxScroll = Math.max(0, scrollHeight - clientHeight);
+  const trackSpan = Math.max(0, trackHeight - thumbHeight);
+  const ratio = trackSpan > 0 ? thumbY / trackSpan : 0;
+  return ratio * maxScroll; // scrollTop px
+}
+
+export function centerIndexFromScroll(args: {
+  scrollTop: number; viewportHeight: number; rowHeight: number; totalRows: number;
+}) {
+  const { scrollTop, viewportHeight, rowHeight, totalRows } = args;
+  const centerY = scrollTop + viewportHeight / 2;
+  const idx = Math.round(centerY / rowHeight);
+  return Math.max(0, Math.min(totalRows - 1, idx));
+}
+```
+
+> If rows are not strictly fixed height, switch `centerIndexFromScroll` to use a **prefix sum of row offsets + binary search**.
+
+---
+
+# 3) Custom scrollbar controller (thumb-only toggles KeysOnly)
+
+* Keeps `Full` mode for normal scroll (wheel/touch/middle-mouse).
+* Switches to `KeysOnly` only while dragging the **thumb**.
+* Positions the thumb on every scroll/resize.
+
+```ts
+// useCustomScrollbar.ts
+import React from 'react';
+import { LoadModeContext } from './loadMode';
+import { scrollFromThumbY, thumbYFromScroll } from './scrollMath';
+
+export function useCustomScrollbar(scrollRef: React.RefObject<HTMLElement>) {
+  const trackRef = React.useRef<HTMLDivElement>(null);
+  const thumbRef = React.useRef<HTMLDivElement>(null);
+  const { setMode } = React.useContext(LoadModeContext);
+  const dragging = React.useRef(false);
+
+  // sync thumb when content scrolls or sizes change
+  React.useEffect(() => {
+    const el = scrollRef.current, track = trackRef.current, thumb = thumbRef.current;
+    if (!el || !track || !thumb) return;
+
+    const placeThumb = () => {
+      const y = thumbYFromScroll(el.scrollTop, el.scrollHeight, el.clientHeight, track.clientHeight, thumb.clientHeight);
+      thumb.style.transform = `translateY(${y}px)`;
+    };
+
+    placeThumb();
+    const onScroll = () => placeThumb();
+    el.addEventListener('scroll', onScroll, { passive: true });
+
+    const ro = new (window as any).ResizeObserver?.(placeThumb);
+    ro?.observe(el);
+    ro?.observe(track);
+
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      ro?.disconnect?.();
+    };
+  }, [scrollRef]);
+
+  // pointer drag logic — ONLY thumb drag toggles KeysOnly
+  React.useEffect(() => {
+    const el = scrollRef.current, track = trackRef.current, thumb = thumbRef.current;
+    if (!el || !track || !thumb) return;
+
+    let startY = 0, startThumbY = 0;
+
+    const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.target !== thumb) return;         // important: only the thumb
+      dragging.current = true;
+      setMode('KeysOnly');                    // pause heavy loads
+      thumb.setPointerCapture(e.pointerId);
+      startY = e.clientY;
+
+      // current translateY (style attribute is set in sync step)
+      const m = /translateY\\(([-0-9.]+)px\\)/.exec(thumb.style.transform || '');
+      startThumbY = m ? parseFloat(m[1]) : 0;
+      e.preventDefault();
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragging.current) return;
+      const dy = e.clientY - startY;
+      const trackSpan = track.clientHeight - thumb.clientHeight;
+      const thumbY = clamp(startThumbY + dy, 0, trackSpan);
+      thumb.style.transform = `translateY(${thumbY}px)`;
+
+      const newScrollTop = scrollFromThumbY(
+        thumbY, el.scrollHeight, el.clientHeight, track.clientHeight, thumb.clientHeight
+      );
+      el.scrollTop = newScrollTop;
+      e.preventDefault();
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      if (!dragging.current) return;
+      dragging.current = false;
+      setMode('Full');                        // resume heavy loads
+      thumb.releasePointerCapture(e.pointerId);
+    };
+
+    thumb.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+
+    return () => {
+      thumb.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+  }, [scrollRef, setMode]);
+
+  return { trackRef, thumbRef };
+}
+```
+
+**Expectations in your DOM:** one “track” div and one “thumb” div positioned absolutely inside it. You control thumb height.
+
+---
+
+# 4) Center-anchor tooltip (portal) + controller
+
+Tooltip appears **only while in KeysOnly** (i.e., during thumb drag), and shows the **center verse key** of the viewport. It follows the thumb if present; otherwise, centers in the viewport.
+
+```tsx
+// CenterTooltip.tsx
+import React from 'react';
+import { createPortal } from 'react-dom';
+
+export function CenterTooltip({
+  visible, y, x, text,
+}: { visible: boolean; y: number; x?: number; text: string }) {
+  if (!visible || !text) return null;
+  if (typeof document === 'undefined') return null;
+  return createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        top: y,
+        left: x ?? window.innerWidth / 2,
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        pointerEvents: 'none',
+      }}
+      className="px-3 py-1.5 rounded-2xl text-sm font-semibold shadow-lg backdrop-blur-md
+                 bg-[color-mix(in_oklab,var(--bg-secondary,#111),transparent_75%)]
+                 border border-[color-mix(in_oklab,var(--text-primary,#fff),transparent_90%)]"
+      role="status"
+      aria-live="polite"
+    >
+      {text}
+    </div>,
+    document.body
+  );
+}
+```
+
+```ts
+// useCenterTooltip.ts
+import React from 'react';
+import { LoadModeContext } from './loadMode';
+import { centerIndexFromScroll } from './scrollMath';
+
+export function useCenterTooltip(opts: {
+  scrollRef: React.RefObject<HTMLElement>;
+  thumbRef?: React.RefObject<HTMLElement>;
+  rowHeight: number;
+  totalRows: number;
+  indexToKey: (i: number) => string;
+}) {
+  const { scrollRef, thumbRef, rowHeight, totalRows, indexToKey } = opts;
+  const { mode } = React.useContext(LoadModeContext);
+  const [visible, setVisible] = React.useState(false);
+  const [text, setText] = React.useState('');
+  const [y, setY] = React.useState(0);
+  const [x, setX] = React.useState<number | undefined>(undefined);
+  const raf = React.useRef<number | null>(null);
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const i = centerIndexFromScroll({
+        scrollTop: el.scrollTop,
+        viewportHeight: el.clientHeight,
+        rowHeight,
+        totalRows,
+      });
+      setText(indexToKey(i));
+
+      const thumbRect = thumbRef?.current?.getBoundingClientRect();
+      if (thumbRect) {
+        setY(thumbRect.top + thumbRect.height / 2);
+        setX(thumbRect.left - 12);
+      } else {
+        const rect = el.getBoundingClientRect();
+        setY(rect.top + el.clientHeight / 2);
+        setX(undefined);
+      }
+    };
+
+    const onScroll = () => {
+      if (mode !== 'KeysOnly') return; // normal scrolling: no tooltip, no gating
+      setVisible(true);
+      if (raf.current) cancelAnimationFrame(raf.current!);
+      raf.current = requestAnimationFrame(update);
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, [scrollRef, thumbRef, rowHeight, totalRows, indexToKey, mode]);
+
+  React.useEffect(() => { if (mode === 'Full') setVisible(false); }, [mode]);
+
+  return { visible, text, y, x };
+}
+```
+
+---
+
+# 5) Data-loader gating (presentation logic)
+
+Use `LoadMode` to **pause heavy fetches** (labels, cross-refs, notes, prophecy) **only** during thumb drag. Normal scroll stays `Full`.
+
+### If you use React Query:
+
+```ts
+// example in a heavy hook
+const { mode } = React.useContext(LoadModeContext);
+
+const labelsQuery = useQuery({
+  queryKey: ['labels', windowStart, windowEnd],
+  queryFn: fetchLabelsForWindow,
+  enabled: mode === 'Full',        // ⬅️ paused during KeysOnly
+  staleTime: 30_000,
+});
+```
+
+### If you don’t use a query lib:
+
+```ts
+const { mode } = React.useContext(LoadModeContext);
+React.useEffect(() => {
+  if (mode !== 'Full') return;     // ⬅️ skip while dragging thumb
+  const ac = new AbortController();
+  fetchHeavy(windowStart, windowEnd, { signal: ac.signal });
+  return () => ac.abort();
+}, [mode, windowStart, windowEnd]);
+```
+
+### Keys-only path:
+
+Your verse table still needs the **keys** while dragging. Ensure the “keys” provider ignores `mode` (it should always be enabled).
+
+---
+
+# 6) Integration checklist (surgical)
+
+1. **Wrap** your screen with `<LoadModeProvider>`.
+2. **Custom scrollbar DOM:**
+
+   * Track element (fixed at right).
+   * Thumb element inside track (absolute).
+3. **Hook up controller:**
+
+   ```ts
+   const { trackRef, thumbRef } = useCustomScrollbar(scrollContainerRef);
+   ```
+
+   Assign `ref={trackRef}` and `ref={thumbRef}` to your existing elements.
+4. **Tooltip:**
+
+   ```ts
+   const { visible, text, y, x } = useCenterTooltip({
+     scrollRef: scrollContainerRef,
+     thumbRef,             // optional, but recommended
+     rowHeight,            // fixed row height in px
+     totalRows,            // rows in current view/window
+     indexToKey,           // (i:number)=>"Book.Ch:Vs"
+   });
+   <CenterTooltip visible={visible} text={text} y={y} x={x} />
+   ```
+5. **Keep normal scrolling Full:**
+
+   * Do **not** call `setMode('KeysOnly')` on wheel/touch/keyboard.
+   * Only the **thumb’s pointerdown** sets KeysOnly; pointerup restores Full.
+6. **Fixed heights:**
+
+   * Enforce fixed row height; overflow scrolls **inside the cell**.
+   * If any row can grow, use a measured prefix-sum for `centerIndexFromScroll`.
+
+---
+
+## Notes your engineer will care about
+
+* All position math uses **layout space** (`clientHeight`, not rect heights mixed with transforms).
+* No timers for “guessing” intent: **mode flips only on thumb drag**.
+* Tooltip renders via **portal to `body`** to avoid clipping from parent overflow/transform.
+* The scrollbar math is **drift-proof** (both sides subtract the spans).
+* Mobile: touch scrolling never flips mode; thumb drag still works (pointer events).
+* Accessibility: tooltip has `role="status"`/`aria-live` for screen readers.
+
+If you want, paste your component/file names (`VerseTable`, `MainShell`, etc.) and I’ll mark the exact insertion points (lines/blocks) so your engineer can patch it in faster.

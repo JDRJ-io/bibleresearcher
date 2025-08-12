@@ -1,0 +1,173 @@
+Thanks for your detailed breakdown — and yes, I can see exactly where the overflow issue is likely coming from.
+
+### 🎯 **Root Issue**
+
+After reviewing `VirtualRow.tsx`, `index.css`, and especially the `HoverVerseBar` logic and wrapping, the problem most likely stems from **the `HoverVerseBar` wrapping your verse cell**, and the **CSS layout assumptions being broken by its `relative` container**.
+
+Your layout relies on:
+
+* Fixed row heights (`--row-height`)
+* Inner cell elements with `overflow-y: auto` for scroll behavior
+* A very strict `box-sizing: border-box`, padding/margin reset for all column/cell elements
+
+But now you have:
+
+```tsx
+<HoverVerseBar>
+  <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto ...">
+    ...
+  </div>
+</HoverVerseBar>
+```
+
+And `HoverVerseBar` injects this:
+
+```tsx
+<div className="relative">...</div>
+```
+
+This means the inner structure is now:
+
+```
+<div class="fixed-height cell">  ← assumed to handle overflow
+  <div class="relative">         ← breaks overflow containment
+    <div class="cell-content overflow-y-auto"> ← now overflows outside the fixed-height cell
+```
+
+**This breaks the containment rules**.
+
+---
+
+### ✅ **Fix: Force the height & overflow to remain inside each cell**
+
+You have 2 valid approaches to fix this:
+
+---
+
+### ✅ OPTION 1: Set `h-full` and `max-h-full` on the outer `HoverVerseBar` wrapper
+
+In `VirtualRow.tsx`, inside `MainTranslationCell`, change this:
+
+```tsx
+<HoverVerseBar ...>
+  <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto ${contextClasses}`}>
+    ...
+  </div>
+</HoverVerseBar>
+```
+
+to:
+
+```tsx
+<HoverVerseBar
+  verse={verse}
+  translation={mainTranslation}
+  onCopy={handleCopy}
+  onBookmark={handleBookmark}
+  onShare={handleShare}
+>
+  <div className={`h-full max-h-full`}>
+    <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto ${contextClasses}`}>
+      <div className="whitespace-pre-wrap break-words leading-relaxed">
+        {shouldUseLabeledText ? (
+          <span
+            data-verse-ref={verse.reference}
+            data-translation={mainTranslation}
+            className="verse-text"
+          >
+            <LabeledText ... />
+          </span>
+        ) : (
+          <span
+            data-verse-ref={verse.reference}
+            data-translation={mainTranslation}
+            className="verse-text"
+          >
+            <VerseText ... />
+          </span>
+        )}
+      </div>
+    </div>
+  </div>
+</HoverVerseBar>
+```
+
+This way, the `relative` div from `HoverVerseBar` becomes a container of fixed height, and the scrollable div is properly bounded inside it.
+
+---
+
+### ✅ OPTION 2: Let `HoverVerseBar` pass `className` or `wrapperClassName` as a prop
+
+Update `HoverVerseBar.tsx` to accept a prop like `wrapperClassName` and apply it to the outermost `<div>` like this:
+
+```tsx
+export function HoverVerseBar({ 
+  verse, 
+  children, 
+  wrapperClassName = '',
+  ...
+}: HoverVerseBarProps & { wrapperClassName?: string }) {
+  ...
+  return (
+    <HoverCard openDelay={200} closeDelay={100}>
+      <HoverCardTrigger asChild>
+        <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className={`relative ${wrapperClassName}`}
+        >
+          {children}
+        </div>
+      </HoverCardTrigger>
+      ...
+    </HoverCard>
+  );
+}
+```
+
+Then in `VirtualRow.tsx`:
+
+```tsx
+<HoverVerseBar
+  verse={verse}
+  translation={mainTranslation}
+  onCopy={handleCopy}
+  onBookmark={handleBookmark}
+  onShare={handleShare}
+  wrapperClassName="h-full max-h-full"
+>
+  <div className={`px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto ${contextClasses}`}>
+    ...
+  </div>
+</HoverVerseBar>
+```
+
+---
+
+### 💡 Additional Tips
+
+* Ensure no child of `VirtualRow` is breaking the height limit. You already use this (which is correct):
+
+  ```css
+  .virtual-row > div > div {
+    height: calc(var(--row-height-base) * var(--row-height-mult));
+    max-height: calc(var(--row-height-base) * var(--row-height-mult));
+    overflow-y: auto;
+  }
+  ```
+
+* Check that `cell-content` does not add unexpected margins/padding beyond its height budget.
+
+---
+
+### ✅ Summary
+
+| Area                     | Problem                                        | Fix                                                                                         |
+| ------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `HoverVerseBar`          | Adds `relative` div without height restriction | Add `h-full max-h-full` to that wrapper                                                     |
+| `VirtualRow` verse cells | Cell overflow not contained                    | Wrap scrollable `div` **inside** height-bound wrapper                                       |
+| CSS                      | Correct                                        | Confirmed ✅ (CSS rules already enforce `max-height`, `overflow-y: auto` on `.cell-content`) |
+
+---
+
+Would you like me to patch `HoverVerseBar.tsx` and `VirtualRow.tsx` with the correct full code now so you can drop it in directly?

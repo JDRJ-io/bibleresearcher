@@ -36,41 +36,10 @@ class AnointedDB extends Dexie {
       bookmarks: '++id, verse_id, updated_at, pending', 
       highlights: '++id, verse_id, updated_at, pending',
     });
-    
-    // MOBILE MEMORY OPTIMIZATION: Listen for memory events
-    if (typeof window !== 'undefined') {
-      window.addEventListener('mobile-memory-emergency', () => {
-        this.emergencyCleanup();
-      });
-      window.addEventListener('mobile-memory-warning', () => {
-        this.gentleCleanup();
-      });
-    }
-  }
-  
-  private async emergencyCleanup() {
-    try {
-      // Clear transaction caches
-      await this.close();
-      console.log('🚨 IndexedDB Emergency cleanup: closed connections');
-    } catch (error) {
-      console.error('Emergency cleanup failed:', error);
-    }
-  }
-  
-  private async gentleCleanup() {
-    try {
-      // Close and reopen connection to clear internal caches
-      await this.close();
-      this.open();
-      console.log('⚠️ IndexedDB Gentle cleanup: refreshed connection');
-    } catch (error) {
-      console.error('Gentle cleanup failed:', error);
-    }
   }
 }
 
-export const db = new AnointedDB();
+export const db = new AnointedDB('anointedOffline');
 
 // Initialize version and stores
 db.version(1).stores({

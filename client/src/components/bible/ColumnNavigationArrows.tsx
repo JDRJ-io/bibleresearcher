@@ -128,37 +128,44 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     });
   }, [activeColumns, columnOffset, baseWidths, calculateColumnWidths]);
 
-  // Recompute on mount and when dependencies change - FIXED DEPENDENCY CHAIN
+  // Recompute on mount and when dependencies change
   useEffect(() => {
     recomputeLayout();
-  }, [activeColumns, columnOffset]); // Remove recomputeLayout from deps to prevent infinite loop
+  }, [recomputeLayout]);
 
-  // Event-driven: Listen for CSS variable changes (presentation mode toggle) - THROTTLED FOR MOBILE
+  // Event-driven: Listen for CSS variable changes (presentation mode toggle)
   useEffect(() => {
-    let resizeTimer: NodeJS.Timeout;
-    const onResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(recomputeLayout, 100); // Throttle resize events for mobile performance
-    };
-    
-    window.addEventListener('resize', onResize, { passive: true });
-    window.addEventListener('orientationchange', onResize, { passive: true });
+    const onResize = () => recomputeLayout();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
 
-    // REMOVE EXPENSIVE MUTATION OBSERVER - Use custom event instead
-    const handlePresentationModeChange = () => {
-      console.log('📡 Presentation mode changed, recomputing layout');
-      recomputeLayout();
-    };
+    // Listen for CSS custom property changes (column width multiplier)
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          const currentMult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
+          // Only recompute if the multiplier actually changed
+          const previousMult = measuredWidths.length > 0 ? measuredWidths[0] / baseWidths[activeColumns[0]] : 1;
+          if (Math.abs(currentMult - previousMult) > 0.1) {
+            console.log('📡 Column width multiplier changed, recomputing layout');
+            recomputeLayout();
+          }
+        }
+      });
+    });
     
-    window.addEventListener('presentation-mode-changed', handlePresentationModeChange);
+    // Observe document root for style attribute changes
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
     
     return () => {
-      clearTimeout(resizeTimer);
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onResize);
-      window.removeEventListener('presentation-mode-changed', handlePresentationModeChange);
+      observer.disconnect();
     };
-  }, []); // FIXED: No dependencies to prevent infinite re-creation
+  }, [recomputeLayout, measuredWidths, baseWidths, activeColumns]);
 
   if (!layout || layout.totalNavigableColumns <= layout.visibleCount) {
     return null; // All columns fit, no navigation needed
