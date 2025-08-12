@@ -132,12 +132,7 @@ export function useVerseNav(scrollToVerse: ScrollToFn) {
       recentHistory: mobileHistory.slice(-5) // Show last 5 entries
     });
   } else {
-    console.log('🖥️ Desktop Navigation state:', {
-      browserHistoryLength: window.history.length,
-      canGoBack,
-      canGoForward,
-      currentHash: window.location.hash
-    });
+    // Desktop navigation state logging removed for performance
   }
 
   // Desktop only: Handle browser popstate events

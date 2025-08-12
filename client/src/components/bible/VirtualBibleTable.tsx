@@ -148,40 +148,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const store = useBibleStore();
   const activeLabels = store.activeLabels;
   
-  // Immediate debug log to see current state
-  console.log('🔍🔍🔍 IMMEDIATE - VirtualBibleTable current activeLabels:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
-  console.log('🔍🔍🔍 IMMEDIATE - Full store check:', { 
-    hasStore: !!store,
-    storeActiveLabels: store?.activeLabels,
-    directActiveLabels: useBibleStore.getState().activeLabels 
-  });
+  // VirtualBibleTable immediate debug logs removed for performance
   
-  // Force test to ensure store updates are working
-  useEffect(() => {
-    const unsubscribe = useBibleStore.subscribe(
-      (state) => {
-        console.log('🔥🔥🔥 STORE SUBSCRIPTION - activeLabels changed to:', state.activeLabels);
-      }
-    );
-    return unsubscribe;
-  }, []);
+  // Store subscription debug logs removed for performance
   
-  // DIRECT TEST: Force test Dan.7:3 with known labels
-  useEffect(() => {
-    if (activeLabels?.includes('what' as any)) {
-      console.log('🧪 DIRECT TEST: Testing Dan.7:3 with what label active');
-      const testLabels = { what: ['four huge beasts'], where: ['out of the water'], action: ['came up'] };
-      const testText = 'Then four huge beasts came up out of the water, each different from the others.';
-      console.log('🧪 Test text:', testText);
-      console.log('🧪 Test labels:', testLabels);
-    }
-  }, [activeLabels]);
+  // Direct test debug logs removed for performance
   
-  // Debug activeLabels from store - FORCE RENDER CHECK
-  useEffect(() => {
-    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels changed:', activeLabels, 'type:', typeof activeLabels, 'length:', activeLabels?.length);
-    console.log('🔍🔍🔍 URGENT DEBUG - VirtualBibleTable activeLabels array:', JSON.stringify(activeLabels));
-  }, [activeLabels]);
+  // VirtualBibleTable urgent debug logs removed for performance
   
   // Convert slice to verse objects for useViewportLabels
   const sliceVerses = useMemo(() => {
@@ -209,10 +182,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   // Force hook re-evaluation when activeLabels changes  
   useEffect(() => {
-    console.log('🔍 VirtualBibleTable about to call useViewportLabels with:', {
-      versesCount: sliceVerses.length,
-      activeLabels: activeLabels,
-      activeLabelsJSON: JSON.stringify(activeLabels),
+    // useViewportLabels debug logs removed for performance
       mainTranslation: translationMainTranslation || mainTranslation
     });
   }, [activeLabels, sliceVerses.length, translationMainTranslation, mainTranslation]);
@@ -405,9 +375,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     },
   });
 
-  console.log(`🎯 VirtualBibleTable anchor-centered render: ${anchorIndex} (${getVerseKeyByIndex(anchorIndex)})`);
+  // VirtualBibleTable anchor-centered render log removed for performance
   const rowDataSize = rowData ? Object.keys(rowData).length : 0;
-  console.log(`📊 CHUNK DATA: start=${slice.start}, end=${slice.end}, verseIDs=${slice.verseIDs.length}, rowData keys=${rowDataSize}`);
+  // Chunk data log removed for performance
   
   // DEBUG: Check column widths after render  
   useEffect(() => {
@@ -420,7 +390,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
       
-      console.log('🔍 CSS Variables:', { refWidth, adaptiveRefWidth, columnWidthMult, isPortrait, screenWidth, screenHeight });
+      // CSS Variables debug removed for performance
       
       const headerCell = document.querySelector('[data-column="reference"]');
       const dataCell = document.querySelector('[data-verse-ref] > div:first-child');
@@ -433,9 +403,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         const headerMinWidth = headerStyles.minWidth;
         const dataMinWidth = dataStyles.minWidth;
         
-        console.log('🔍 ANSWER: Header width =', headerWidth, ', Data width =', dataWidth);
-        console.log('🔍 Min widths: Header min =', headerMinWidth, ', Data min =', dataMinWidth);
-        console.log('🔍 Width match:', headerWidth === dataWidth ? 'YES' : 'NO');
+        // Header/data width comparison logging removed for performance
       } else {
         console.log('🔍 Elements not found:', { 
           headerCell: !!headerCell, 
@@ -791,10 +759,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                   contextGroup: "standard" as const
                 };
 
-                // Only log for first verse to avoid spam
-                if (id === "Gen.1:1") {
-                  console.log(`🔍 VirtualBibleTable rendering VirtualRow for ${id}, onExpandVerse available:`, !!onExpandVerse);
-                }
+                // VirtualRow rendering log removed for performance
                 return (
                   <VirtualRow 
                     key={id}

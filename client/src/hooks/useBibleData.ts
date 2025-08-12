@@ -1420,11 +1420,11 @@ export function useBibleData() {
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
 
     if (!translationMap) {
-      console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
+      // Translation cache miss (logging removed to reduce console noise)
       return "";
     }
 
-    console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
+    // Translation found in cache (logging removed to reduce console noise)
 
     // OPTIMIZATION: Direct lookup with dot format reference  
     const text = translationMap.get(reference);
@@ -1443,11 +1443,11 @@ export function useBibleData() {
     const translationMap = masterCache.get(cacheKey) as Map<string, string> | undefined;
 
     if (!translationMap) {
-      console.log(`Translation ${translationCode} not found in cache. Available keys:`, Array.from(masterCache.size > 0 ? ['has cache entries'] : ['cache empty']));
+      // Translation cache miss (logging removed to reduce console noise)
       return undefined;
     }
 
-    console.log(`✓ Found translation ${translationCode} in cache with ${translationMap.size} verses`);
+    // Translation found in cache (logging removed to reduce console noise)
 
     // OPTIMIZATION: Direct lookup with dot format reference
     const text = translationMap.get(verseReference);
