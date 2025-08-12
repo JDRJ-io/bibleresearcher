@@ -14,8 +14,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  DragOverlay,
   DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -59,10 +59,10 @@ export function NewColumnHeaders({
   isGuest = true 
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
-  
+
   // DEBUG: Track alternate translation changes
   useEffect(() => {
-    console.log(`🔍 NewColumnHeaders: main=${main}, alternates=[${alternates.join(', ')}]`);
+    console.log(`🔍 NewColumnHeaders: main=${main}, alternates=${alternates}`);
   }, [main, alternates]);
   const store = useBibleStore();
   const { 
@@ -80,7 +80,7 @@ export function NewColumnHeaders({
 
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
-  
+
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
 
@@ -102,22 +102,22 @@ export function NewColumnHeaders({
       const numericMult = parseFloat(mult) || 1;
       setColumnWidthMult(numericMult);
     };
-    
+
     // Set initial value
     updateColumnWidthMult();
-    
+
     // Set up async import for column change signals
     const setupColumnSignals = async () => {
       try {
         const { useColumnChangeSignal } = await import('@/hooks/useColumnChangeSignal');
-        
+
         // Listen for column multiplier changes
         const cleanup = useColumnChangeSignal((detail: any) => {
           if (detail.changeType === 'multiplier') {
             updateColumnWidthMult();
           }
         });
-        
+
         return cleanup;
       } catch (error) {
         console.warn('Column change signals not available, using fallback');
@@ -127,7 +127,7 @@ export function NewColumnHeaders({
 
     let cleanup: (() => void) | null = null;
     setupColumnSignals().then(c => { cleanup = c; });
-    
+
     // Cleanup
     return () => {
       if (cleanup) cleanup();
@@ -316,18 +316,18 @@ export function NewColumnHeaders({
   const { getVisibleSlice } = useBibleStore();
   const visibleColumns = useMemo(() => {
     const activeColumns = localColumns.length > 0 ? localColumns : columns;
-    
+
     // Define which columns are always fixed (not affected by horizontal navigation)
     const fixedColumnTypes = ['reference'];
-    
+
     // Separate fixed and navigable columns
     const fixedColumns = activeColumns.filter(col => fixedColumnTypes.includes(col.type));
     const navigableColumns = activeColumns.filter(col => !fixedColumnTypes.includes(col.type));
-    
+
     // NEW: Use dynamic slice instead of static maxVisibleColumns
     const { start, end } = getVisibleSlice();
     const offsetNavigableColumns = navigableColumns.slice(start, end);
-    
+
     // Combine fixed columns (always first) with offset navigable columns
     return [...fixedColumns, ...offsetNavigableColumns];
   }, [localColumns, columns, getVisibleSlice]);
@@ -347,7 +347,7 @@ export function NewColumnHeaders({
         const newIndex = items.findIndex((item) => item.id === over?.id);
 
         const reorderedItems = arrayMove(items, oldIndex, newIndex);
-        
+
         // Update the store's column order to sync with header order
         // Map column types to their corresponding slots for the store
         const typeToSlotMap: Record<string, number> = {
@@ -356,9 +356,9 @@ export function NewColumnHeaders({
           'notes': 2,
           'main-translation': 3,
           'cross-refs': 7,
-          'prophecy-p': 8,
-          'prophecy-f': 9,
-          'prophecy-v': 10,
+          'prophecy-prediction': 8,
+          'prophecy-fulfillment': 9,
+          'prophecy-verification': 10,
           'alt-translation': 12, // base slot for alternates
         };
 
@@ -478,12 +478,12 @@ export function NewColumnHeaders({
             {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
             {isPresentationMode ? "Reset" : "Present"}
           </Button>
-          
+
           <ColumnNavigationArrows />
-          
+
           <div className="flex-1" />
         </div>
-        
+
         {/* Column headers with drag and drop support */}
         <SortableContext 
           items={visibleColumns.map(col => col.id)} 

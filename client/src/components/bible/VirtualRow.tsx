@@ -621,16 +621,16 @@ export function VirtualRow({
     });
   }
 
-  // Dynamically add alternate translation columns to slots 12-19 (AFTER cross-references)
-  // This matches the slot assignment in ColumnHeaders.tsx
+  // Dynamically add alternate translation columns to slots 2-5 (matching columnLayout.ts)
+  // This matches the slot assignment in columnLayout.ts
   // FILTER OUT main translation to prevent duplication
   alternates
     .filter(translationCode => translationCode !== mainTranslation) // Prevent main translation duplication
     .forEach((translationCode, index) => {
-      // All alternate translations start from slot 12 (AFTER cross-references at slot 7)
-      const slot = 12 + index;
+      // Alternate translations start from slot 2 (after main translation at slot 1)
+      const slot = 2 + index;
 
-      if (slot <= 19) { // Max 8 alternate translations total starting from slot 12
+      if (slot <= 5) { // Max 4 alternate translations total (slots 2-5)
         slotConfig[slot] = { 
           type: 'alt-translation', 
           header: translationCode, 
