@@ -80,7 +80,7 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
     console.log('📐 Calculated widths:', widths, 'for columns:', activeColumns, 'with multiplier:', columnWidthMult);
     setMeasuredWidths(widths);
     return widths;
-  }, [activeColumns, baseWidths]);
+  }, [activeColumns]);
 
   // Compute layout on mount and when critical dependencies change
   const recomputeLayout = useCallback(() => {
