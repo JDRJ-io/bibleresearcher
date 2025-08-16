@@ -160,9 +160,9 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* Main Content Container - Mobile Optimized */}
       <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
-                      rounded-2xl border border-yellow-400/60 
+                      rounded-2xl border-2 border-yellow-300 shadow-[0_0_0_1px_rgba(168,85,247,0.8),0_0_20px_rgba(251,191,36,0.6),0_0_40px_rgba(251,191,36,0.3)]
                       bg-gradient-to-br from-yellow-400/20 via-purple-500/15 to-pink-400/10
-                      backdrop-blur-lg shadow-2xl shadow-yellow-400/40
+                      backdrop-blur-lg
                       max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
         
@@ -170,8 +170,9 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
         <button
           onClick={onCloseSignUp}
           className="absolute top-4 right-4 p-2 rounded-full 
-                     bg-white/10 hover:bg-white/20 transition-colors
-                     text-white/70 hover:text-white z-20"
+                     bg-white/10 hover:bg-white/20 transition-all duration-300
+                     border-2 border-red-400/80 hover:border-red-300 shadow-[0_0_8px_rgba(248,113,113,0.6)]
+                     text-white/70 hover:text-white z-20 hover:shadow-[0_0_15px_rgba(248,113,113,0.8)]"
         >
           <X className="h-5 w-5" />
         </button>
@@ -192,8 +193,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="Your sacred name"
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
-              className="h-12 text-lg bg-white/15 border-yellow-400/50 focus:border-yellow-300 
-                         text-white placeholder-white/50 backdrop-blur-sm focus:shadow-lg focus:shadow-yellow-400/30"
+              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-white placeholder-white/50 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300"
               required
             />
           </div>
@@ -206,19 +207,19 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="your.divine@email.com"
               value={signUpData.email}
               onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-              className="h-12 text-lg bg-white/15 border-yellow-400/50 focus:border-yellow-300 
-                         text-white placeholder-white/50 backdrop-blur-sm focus:shadow-lg focus:shadow-yellow-400/30"
+              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-white placeholder-white/50 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300"
               required
             />
           </div>
 
           {/* Marketing Opt-in */}
-          <div className="flex items-start space-x-3 p-4 rounded-lg bg-purple-900/40 border border-purple-400/60">
+          <div className="flex items-start space-x-3 p-4 rounded-lg bg-purple-900/40 border-2 border-purple-400 shadow-[0_0_0_1px_rgba(196,181,253,0.6),0_0_15px_rgba(147,51,234,0.4)]">
             <Checkbox
               id="marketing-opt-in"
               checked={signUpData.marketingOptIn}
               onCheckedChange={(checked) => setSignUpData({ ...signUpData, marketingOptIn: !!checked })}
-              className="border-yellow-400/70 data-[state=checked]:bg-yellow-300 data-[state=checked]:border-yellow-300 data-[state=checked]:shadow-lg data-[state=checked]:shadow-yellow-400/50"
+              className="border-2 border-yellow-400 data-[state=checked]:bg-yellow-300 data-[state=checked]:border-yellow-200 data-[state=checked]:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_12px_rgba(251,191,36,0.6)]"
             />
             <Label 
               htmlFor="marketing-opt-in" 
@@ -232,9 +233,10 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
             type="submit" 
             className="w-full h-14 text-lg font-bold bg-gradient-to-r from-yellow-400 via-yellow-500 to-purple-500 
                        hover:from-yellow-500 hover:via-purple-400 hover:to-purple-600 text-black 
-                       shadow-2xl shadow-yellow-400/30 hover:shadow-yellow-400/50 
+                       shadow-[0_0_0_2px_rgba(251,191,36,1),0_0_0_4px_rgba(147,51,234,0.8),0_0_25px_rgba(251,191,36,0.5)] 
+                       hover:shadow-[0_0_0_2px_rgba(251,191,36,1),0_0_0_4px_rgba(147,51,234,1),0_0_35px_rgba(251,191,36,0.7),0_0_50px_rgba(147,51,234,0.4)] 
                        transform hover:scale-105 transition-all duration-300 rounded-lg
-                       border border-yellow-400/30 hover:border-yellow-400/60"
+                       border-2 border-yellow-300 hover:border-yellow-200"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -260,7 +262,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   onCloseSignUp();
                   onSignInOpen?.();
                 }}
-                className="text-blue-400 hover:text-blue-300 underline font-medium"
+                className="text-blue-300 hover:text-blue-200 underline font-medium hover:text-shadow-[0_0_8px_rgba(147,197,253,0.8)] transition-all duration-300"
               >
                 Return to your sacred studies
               </button>
