@@ -19,9 +19,9 @@ export function LoadingWheel({
 
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
-      <div className={`animate-spin rounded-full border-2 border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-400 bg-clip-border ${sizeClasses[size]}`} style={{backgroundImage: 'conic-gradient(from 0deg, #a855f7, #ec4899, #f59e0b, #8b5cf6)'}} />
+      <div className={`animate-spin rounded-full border-4 ${sizeClasses[size]}`} style={{background: 'conic-gradient(from 0deg, #fbbf24, #ec4899, #8b5cf6, #06b6d4, #fbbf24)', filter: 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.8))'}} />
       {message && (
-        <span className="text-sm text-purple-600 dark:text-purple-300 font-medium animate-pulse">
+        <span className="text-sm text-yellow-300 font-bold animate-pulse" style={{textShadow: '0 0 8px rgba(251, 191, 36, 0.8), 0 0 16px rgba(251, 191, 36, 0.4)'}}>
           {message}
         </span>
       )}
