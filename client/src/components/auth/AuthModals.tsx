@@ -136,31 +136,34 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
   // Render modals using portals to escape container constraints
   const signUpModal = isSignUpOpen ? createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden"
-         style={{background: 'radial-gradient(circle at 30% 40%, #ff0000, #000000 50%, #0080ff 80%, #ffff00)'}}
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center 
+                    bg-gradient-to-br from-black/80 via-purple-900/50 to-black/80
+                    backdrop-blur-sm overflow-hidden"
          onClick={onCloseSignUp}>
       
       {/* Divine Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full animate-pulse" style={{background: '#ffff00', boxShadow: '0 0 100px #ffff00'}} />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full animate-pulse delay-1000" style={{background: '#0080ff', boxShadow: '0 0 80px #0080ff'}} />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full animate-pulse delay-500" style={{background: '#ff0000', boxShadow: '0 0 90px #ff0000'}} />
-        <div className="absolute top-3/4 left-1/6 w-32 h-32 rounded-full animate-pulse delay-700" style={{background: '#ff4444', boxShadow: '0 0 60px #ff4444'}} />
-        <div className="absolute bottom-1/6 right-1/6 w-40 h-40 rounded-full animate-pulse delay-300" style={{background: '#ff8800', boxShadow: '0 0 70px #ff8800'}} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-400/50 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/40 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-pink-400/30 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute top-3/4 left-1/6 w-32 h-32 bg-cyan-400/35 rounded-full blur-2xl animate-pulse delay-700" />
       </div>
 
       {/* Holy Light Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-4 left-4 w-4 h-32 rotate-12" style={{background: 'linear-gradient(to bottom, #ffff00, transparent)', boxShadow: '0 0 20px #ffff00'}} />
-        <div className="absolute top-4 right-4 w-4 h-36 -rotate-12" style={{background: 'linear-gradient(to bottom, #0080ff, transparent)', boxShadow: '0 0 25px #0080ff'}} />
-        <div className="absolute bottom-4 left-1/3 w-4 h-28 rotate-45" style={{background: 'linear-gradient(to top, #ffff00, transparent)', boxShadow: '0 0 20px #ffff00'}} />
-        <div className="absolute top-1/3 right-1/3 w-4 h-32 rotate-45" style={{background: 'linear-gradient(to bottom, #ff0000, transparent)', boxShadow: '0 0 25px #ff0000'}} />
-        <div className="absolute bottom-1/3 left-1/4 w-4 h-24 -rotate-12" style={{background: 'linear-gradient(to top, #0080ff, transparent)', boxShadow: '0 0 20px #0080ff'}} />
+        <div className="absolute top-4 left-4 w-1 h-16 bg-gradient-to-b from-yellow-400 to-transparent rotate-12 blur-sm" />
+        <div className="absolute top-4 right-4 w-1 h-20 bg-gradient-to-b from-purple-500 to-transparent -rotate-12 blur-sm" />
+        <div className="absolute bottom-4 left-1/3 w-1 h-12 bg-gradient-to-t from-yellow-400/80 to-transparent rotate-45 blur-sm" />
+        <div className="absolute top-1/3 right-1/3 w-1 h-14 bg-gradient-to-b from-pink-400/90 to-transparent rotate-45 blur-sm" />
+        <div className="absolute bottom-1/3 left-1/4 w-1 h-10 bg-gradient-to-t from-cyan-400/70 to-transparent -rotate-12 blur-sm" />
       </div>
 
       {/* Main Content Container - Mobile Optimized */}
-      <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 rounded-2xl max-h-[85vh] overflow-y-auto"
-           style={{border: '4px solid #ffff00', background: 'linear-gradient(135deg, #ff000088, #000000cc, #ffff0066)', boxShadow: '0 0 40px #ffff00, inset 0 0 30px #000000'}}
+      <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
+                      rounded-2xl border border-yellow-400/60 
+                      bg-gradient-to-br from-yellow-400/20 via-purple-500/15 to-pink-400/10
+                      backdrop-blur-lg shadow-2xl shadow-yellow-400/40
+                      max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
         
         {/* Close Button */}
@@ -175,7 +178,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
         {/* Divine Crown Icon */}
         <div className="text-center mb-6">
-          <Crown className="w-16 h-16 mx-auto mb-4" style={{color: '#ffff00', filter: 'drop-shadow(0 0 15px #ffff00)'}} />
+          <Crown className="w-16 h-16 mx-auto text-yellow-300 mb-4 drop-shadow-lg filter drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
           <h1 className="text-4xl font-bold text-white mb-2">Join the Anointed</h1>
           <p className="text-white/70 text-lg">Enter the sacred realm of biblical wisdom</p>
         </div>
@@ -189,8 +192,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="Your sacred name"
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
-              className="h-12 text-lg text-white font-medium placeholder-white"
-              style={{background: '#00000088', border: '2px solid #ffff00', borderRadius: '8px', boxShadow: '0 0 10px #ffff00'}}
+              className="h-12 text-lg bg-white/15 border-yellow-400/50 focus:border-yellow-300 
+                         text-white placeholder-white/50 backdrop-blur-sm focus:shadow-lg focus:shadow-yellow-400/30"
               required
             />
           </div>
@@ -203,14 +206,14 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="your.divine@email.com"
               value={signUpData.email}
               onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-              className="h-12 text-lg text-white font-medium placeholder-white"
-              style={{background: '#00000088', border: '2px solid #ffff00', borderRadius: '8px', boxShadow: '0 0 10px #ffff00'}}
+              className="h-12 text-lg bg-white/15 border-yellow-400/50 focus:border-yellow-300 
+                         text-white placeholder-white/50 backdrop-blur-sm focus:shadow-lg focus:shadow-yellow-400/30"
               required
             />
           </div>
 
           {/* Marketing Opt-in */}
-          <div className="flex items-start space-x-3 p-4 rounded-lg" style={{background: '#0080ff44', border: '2px solid #0080ff', boxShadow: '0 0 15px #0080ff'}}>
+          <div className="flex items-start space-x-3 p-4 rounded-lg bg-purple-900/40 border border-purple-400/60">
             <Checkbox
               id="marketing-opt-in"
               checked={signUpData.marketingOptIn}
