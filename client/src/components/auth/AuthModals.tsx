@@ -144,24 +144,24 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
       {/* Divine Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-400/50 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/40 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-pink-400/30 rounded-full blur-2xl animate-pulse delay-500" />
-        <div className="absolute top-3/4 left-1/6 w-32 h-32 bg-cyan-400/35 rounded-full blur-2xl animate-pulse delay-700" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/40 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-red-400/30 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute top-3/4 left-1/6 w-32 h-32 bg-yellow-500/35 rounded-full blur-2xl animate-pulse delay-700" />
       </div>
 
       {/* Holy Light Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-4 left-4 w-1 h-16 bg-gradient-to-b from-yellow-400 to-transparent rotate-12 blur-sm" />
-        <div className="absolute top-4 right-4 w-1 h-20 bg-gradient-to-b from-purple-500 to-transparent -rotate-12 blur-sm" />
+        <div className="absolute top-4 right-4 w-1 h-20 bg-gradient-to-b from-blue-500 to-transparent -rotate-12 blur-sm" />
         <div className="absolute bottom-4 left-1/3 w-1 h-12 bg-gradient-to-t from-yellow-400/80 to-transparent rotate-45 blur-sm" />
-        <div className="absolute top-1/3 right-1/3 w-1 h-14 bg-gradient-to-b from-pink-400/90 to-transparent rotate-45 blur-sm" />
-        <div className="absolute bottom-1/3 left-1/4 w-1 h-10 bg-gradient-to-t from-cyan-400/70 to-transparent -rotate-12 blur-sm" />
+        <div className="absolute top-1/3 right-1/3 w-1 h-14 bg-gradient-to-b from-red-400/90 to-transparent rotate-45 blur-sm" />
+        <div className="absolute bottom-1/3 left-1/4 w-1 h-10 bg-gradient-to-t from-blue-400/70 to-transparent -rotate-12 blur-sm" />
       </div>
 
       {/* Main Content Container - Mobile Optimized */}
       <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
                       rounded-2xl border border-yellow-400/60 
-                      bg-gradient-to-br from-yellow-400/20 via-purple-500/15 to-pink-400/10
+                      bg-gradient-to-br from-yellow-400/20 via-blue-500/15 to-red-400/10
                       backdrop-blur-lg shadow-2xl shadow-yellow-400/40
                       max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
@@ -213,7 +213,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           </div>
 
           {/* Marketing Opt-in */}
-          <div className="flex items-start space-x-3 p-4 rounded-lg bg-purple-900/40 border border-purple-400/60">
+          <div className="flex items-start space-x-3 p-4 rounded-lg bg-blue-900/40 border border-blue-400/60">
             <Checkbox
               id="marketing-opt-in"
               checked={signUpData.marketingOptIn}
