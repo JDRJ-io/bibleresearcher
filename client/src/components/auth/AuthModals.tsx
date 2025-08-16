@@ -137,7 +137,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   // Render modals using portals to escape container constraints
   const signUpModal = isSignUpOpen ? createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center 
-                    bg-gradient-to-br from-black/80 via-purple-900/50 to-black/80
+                    bg-gradient-to-br from-red-900/60 via-black/80 to-red-800/50
                     backdrop-blur-sm overflow-hidden"
          onClick={onCloseSignUp}>
       
@@ -145,8 +145,9 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-400/80 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-blue-500/70 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-red-500/60 rounded-full blur-2xl animate-pulse delay-500" />
-        <div className="absolute top-3/4 left-1/6 w-32 h-32 bg-yellow-500/65 rounded-full blur-2xl animate-pulse delay-700" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-red-500/80 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute top-3/4 left-1/6 w-32 h-32 bg-red-400/70 rounded-full blur-2xl animate-pulse delay-700" />
+        <div className="absolute bottom-1/6 right-1/6 w-40 h-40 bg-red-600/50 rounded-full blur-3xl animate-pulse delay-300" />
       </div>
 
       {/* Holy Light Effects */}
@@ -154,14 +155,14 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
         <div className="absolute top-4 left-4 w-2 h-20 bg-gradient-to-b from-yellow-300 to-transparent rotate-12 blur-sm" />
         <div className="absolute top-4 right-4 w-2 h-24 bg-gradient-to-b from-blue-400 to-transparent -rotate-12 blur-sm" />
         <div className="absolute bottom-4 left-1/3 w-2 h-16 bg-gradient-to-t from-yellow-300 to-transparent rotate-45 blur-sm" />
-        <div className="absolute top-1/3 right-1/3 w-2 h-18 bg-gradient-to-b from-red-400 to-transparent rotate-45 blur-sm" />
+        <div className="absolute top-1/3 right-1/3 w-2 h-18 bg-gradient-to-b from-red-500 to-transparent rotate-45 blur-sm" />
         <div className="absolute bottom-1/3 left-1/4 w-2 h-14 bg-gradient-to-t from-blue-400 to-transparent -rotate-12 blur-sm" />
       </div>
 
       {/* Main Content Container - Mobile Optimized */}
       <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
                       rounded-2xl border border-yellow-400/60 
-                      bg-gradient-to-br from-yellow-400/30 via-blue-500/25 to-red-400/20
+                      bg-gradient-to-br from-red-400/25 via-red-500/20 to-yellow-400/15
                       backdrop-blur-lg shadow-2xl shadow-yellow-400/40
                       max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
