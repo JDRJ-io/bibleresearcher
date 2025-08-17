@@ -1,181 +1,186 @@
+/**
+ * React hooks for user-specific data (bookmarks, highlights, notes)
+ * Uses the new RLS-secured API format
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notesApi, highlightsApi, bookmarksApi, preferencesApi } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import type { 
-  Note, 
-  InsertNote, 
-  Highlight, 
-  InsertHighlight, 
-  Bookmark, 
-  InsertBookmark,
-  UserPreferences,
-  InsertUserPreferences
-} from '@shared/schema';
+import { userBookmarksApi, userHighlightsApi, userNotesApi } from '../lib/userDataApi';
+import { Segment } from '@shared/highlights';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
-// Notes hooks
-export const useUserNotes = () => {
+// ============= BOOKMARKS HOOKS =============
+
+export function useUserBookmarks(visibleVerseKeys: string[]) {
   const { user } = useAuth();
-  const isLoggedIn = !!user;
   
   return useQuery({
-    queryKey: ['user-notes'],
-    queryFn: notesApi.getAll,
-    enabled: isLoggedIn,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryKey: ['user-bookmarks', visibleVerseKeys.join(',')],
+    queryFn: () => userBookmarksApi.loadForVerses(visibleVerseKeys),
+    enabled: !!user && visibleVerseKeys.length > 0,
   });
-};
+}
 
-export const useCreateNote = () => {
+export function useToggleBookmark() {
   const queryClient = useQueryClient();
-  
+  const { toast } = useToast();
+
   return useMutation({
-    mutationFn: (noteData: Omit<InsertNote, 'user_id'>) => notesApi.create(noteData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-notes'] });
-    },
-  });
-};
-
-export const useUpdateNote = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, ...noteData }: { id: number } & Partial<Omit<InsertUserNote, 'userId'>>) => 
-      notesApi.update(id, noteData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-notes'] });
-    },
-  });
-};
-
-export const useDeleteNote = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (id: number) => notesApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-notes'] });
-    },
-  });
-};
-
-// Highlights hooks
-export const useUserHighlights = () => {
-  const { user } = useAuth();
-  const isLoggedIn = !!user;
-  
-  return useQuery({
-    queryKey: ['user-highlights'],
-    queryFn: highlightsApi.getAll,
-    enabled: isLoggedIn,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-};
-
-export const useCreateHighlight = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (highlightData: Omit<InsertHighlight, 'user_id'>) => highlightsApi.create(highlightData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
-    },
-  });
-};
-
-export const useDeleteHighlight = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (id: number) => highlightsApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
-      queryClient.invalidateQueries({ queryKey: ['highlights'] }); // Also refresh verse-specific highlights
-    },
-  });
-};
-
-export const useDeleteAllHighlights = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ verseRef, translation }: { verseRef: string; translation: string }) => 
-      highlightsApi.deleteAllForVerse(verseRef, translation),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
-      queryClient.invalidateQueries({ queryKey: ['highlights'] }); // Also refresh verse-specific highlights
-    },
-  });
-};
-
-// Bookmarks hooks
-export const useUserBookmarks = () => {
-  const { user } = useAuth();
-  const isLoggedIn = !!user;
-  
-  return useQuery({
-    queryKey: ['user-bookmarks'],
-    queryFn: bookmarksApi.getAll,
-    enabled: isLoggedIn,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-};
-
-export const useCreateBookmark = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (bookmarkData: Omit<InsertBookmark, 'userId'>) => bookmarksApi.create(bookmarkData),
+    mutationFn: ({ translation, verse_key }: { translation: string; verse_key: string }) =>
+      userBookmarksApi.toggle(translation, verse_key),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
+      toast({
+        title: "Bookmark updated",
+        description: "Your bookmark has been saved",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Bookmark toggle error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update bookmark",
+        variant: "destructive",
+      });
     },
   });
-};
+}
 
-export const useUpdateBookmark = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: ({ id, ...bookmarkData }: { id: number } & Partial<Pick<Bookmark, 'name' | 'color'>>) => 
-      bookmarksApi.update(id, bookmarkData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
-    },
-  });
-};
-
-export const useDeleteBookmark = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: (id: number) => bookmarksApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-bookmarks'] });
-    },
-  });
-};
-
-// Preferences hooks
-export const useUserPreferences = () => {
+export function useIsBookmarked(translation: string, verse_key: string) {
   const { user } = useAuth();
-  const isLoggedIn = !!user;
   
   return useQuery({
-    queryKey: ['user-preferences'],
-    queryFn: preferencesApi.get,
-    enabled: isLoggedIn,
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    queryKey: ['bookmark-check', translation, verse_key],
+    queryFn: () => userBookmarksApi.isBookmarked(translation, verse_key),
+    enabled: !!user && !!translation && !!verse_key,
   });
-};
+}
 
-export const useUpdatePreferences = () => {
-  const queryClient = useQueryClient();
+// ============= HIGHLIGHTS HOOKS =============
+
+export function useUserHighlights(translation: string, visibleVerseKeys: string[]) {
+  const { user } = useAuth();
   
+  return useQuery({
+    queryKey: ['user-highlights', translation, visibleVerseKeys.join(',')],
+    queryFn: () => userHighlightsApi.loadForVerses(translation, visibleVerseKeys),
+    enabled: !!user && !!translation && visibleVerseKeys.length > 0,
+  });
+}
+
+export function useVerseHighlights(translation: string, verseKey: string) {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ['verse-highlights', translation, verseKey],
+    queryFn: () => userHighlightsApi.getForVerse(translation, verseKey),
+    enabled: !!user && !!translation && !!verseKey,
+  });
+}
+
+export function useSaveHighlights() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   return useMutation({
-    mutationFn: (preferencesData: Omit<InsertUserPreferences, 'userId'>) => 
-      preferencesApi.upsert(preferencesData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-preferences'] });
+    mutationFn: ({ 
+      translation, 
+      verseKey, 
+      segments, 
+      serverRev, 
+      textLen 
+    }: {
+      translation: string;
+      verseKey: string;
+      segments: Segment[];
+      serverRev?: number | null;
+      textLen?: number | null;
+    }) => userHighlightsApi.save(translation, verseKey, segments, serverRev, textLen),
+    onSuccess: (_, variables) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['verse-highlights', variables.translation, variables.verseKey] 
+      });
+      
+      toast({
+        title: "Highlight saved",
+        description: "Your text highlighting has been saved",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Highlight save error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save highlight",
+        variant: "destructive",
+      });
     },
   });
-};
+}
+
+export function useDeleteHighlights() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ translation, verseKey }: { translation: string; verseKey: string }) =>
+      userHighlightsApi.deleteForVerse(translation, verseKey),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['user-highlights'] });
+      queryClient.invalidateQueries({ 
+        queryKey: ['verse-highlights', variables.translation, variables.verseKey] 
+      });
+      
+      toast({
+        title: "Highlights cleared",
+        description: "All highlights for this verse have been removed",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Highlight delete error:', error);
+      toast({
+        title: "Error", 
+        description: error.message || "Failed to delete highlights",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+// ============= NOTES HOOKS =============
+
+export function useUserNotes(visibleVerseRefs: string[]) {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ['user-notes', visibleVerseRefs.join(',')],
+    queryFn: () => userNotesApi.loadForVerses(visibleVerseRefs),
+    enabled: !!user && visibleVerseRefs.length > 0,
+  });
+}
+
+export function useSaveNote() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ verseRef, text }: { verseRef: string; text: string }) =>
+      userNotesApi.save(verseRef, text),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-notes'] });
+      toast({
+        title: "Note saved",
+        description: "Your note has been saved",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Note save error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save note",
+        variant: "destructive",
+      });
+    },
+  });
+}
