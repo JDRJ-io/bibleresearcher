@@ -46,10 +46,10 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+    <div className="fixed inset-x-0 bottom-0 z-50 p-4 bg-black/20 backdrop-blur-sm">
       <div 
         ref={tooltipRef}
-        className="w-full max-w-2xl max-h-[80vh] bg-background dark:bg-background border border-border rounded-lg shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95"
+        className="w-full max-w-4xl mx-auto max-h-[70vh] bg-background dark:bg-background border border-border rounded-t-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-card/50">

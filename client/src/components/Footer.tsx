@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { DocumentTooltip } from './DocumentTooltip';
+import { DocumentMenu } from './DocumentMenu';
 import { loadDocument, availableDocuments, DocumentKey } from '../utils/documentLoader';
 
 const Footer = () => {
   const [tooltip, setTooltip] = useState<{ key: DocumentKey; title: string } | null>(null);
   const [documentContent, setDocumentContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const openDocument = async (key: DocumentKey) => {
     const doc = availableDocuments[key];
@@ -23,32 +25,11 @@ const Footer = () => {
   };
 
   const openAllDocs = () => {
-    const allDocsContent = `# All Documents
+    setIsMenuOpen(true);
+  };
 
-Welcome to our document library. Click on any document below to read it:
-
-## Legal Documents
-- **Terms of Service** - Our terms and conditions
-- **Privacy Policy** - How we handle your data
-- **Policies** - Comprehensive platform policies
-
-## Support & Information
-- **Support** - Get help with your account
-- **Acknowledgments** - Credits and attributions
-- **Our Mission** - Learn about our purpose
-- **Safety & Scam Prevention** - Stay safe online
-
-## Community
-- **Forum** - Join our community discussions
-- **Donate** - Support our mission
-
----
-
-For specific questions or support, please contact us through the appropriate channels listed in our support documentation.`;
-
-    setTooltip({ key: 'policies', title: 'All Documents' });
-    setDocumentContent(allDocsContent);
-    setIsLoading(false);
+  const handleDocumentSelect = async (key: DocumentKey) => {
+    await openDocument(key);
   };
 
   const closeTooltip = () => {
@@ -151,6 +132,13 @@ For specific questions or support, please contact us through the appropriate cha
           </div>
         </div>
       </footer>
+
+      {/* Document Menu */}
+      <DocumentMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onSelectDocument={handleDocumentSelect}
+      />
 
       {/* Document Tooltip */}
       <DocumentTooltip
