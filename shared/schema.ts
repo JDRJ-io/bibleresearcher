@@ -95,7 +95,7 @@ export const forumVotes = pgTable("forum_votes", {
 
 export const userPreferences = pgTable("user_preferences", {
   id: serial("id").primaryKey(),
-  userId: uuid("user_id").references(() => users.id).notNull(),
+  userId: uuid("user_id").references(() => users.id).notNull().unique(),
   theme: text("theme").default("light-mode"),
   selectedTranslations: text("selected_translations").array().default(["KJV"]),
   showNotes: boolean("show_notes").default(false),
@@ -105,6 +105,27 @@ export const userPreferences = pgTable("user_preferences", {
   lastVersePosition: text("last_verse_position"),
   columnLayout: text("column_layout"), // JSON string
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Navigation history table - tracks last 10 verse visits
+export const navigationHistory = pgTable("navigation_history", {
+  id: serial("id").primaryKey(),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
+  verse_reference: text("verse_reference").notNull(), // e.g., "John.3:16"
+  translation: text("translation").notNull(),
+  visited_at: timestamp("visited_at").defaultNow(),
+});
+
+// User session data for autosave functionality
+export const userSessions = pgTable("user_sessions", {
+  id: serial("id").primaryKey(),
+  user_id: uuid("user_id").references(() => users.id).notNull().unique(),
+  last_verse_position: text("last_verse_position"), // Current verse being read
+  current_translation: text("current_translation").default("KJV"),
+  layout_preferences: text("layout_preferences"), // JSON: column widths, visible columns, etc.
+  scroll_position: integer("scroll_position").default(0),
+  last_active: timestamp("last_active").defaultNow(),
+  session_data: text("session_data"), // Additional JSON session data
 });
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
