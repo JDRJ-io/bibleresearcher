@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { Scroll, ChevronRight, X } from 'lucide-react';
+import { PatchNotesModal } from './PatchNotesModal';
 
 interface PatchNotesBannerProps {
   isVisible?: boolean;
@@ -14,6 +15,7 @@ interface PatchNotesBannerProps {
 
 export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBannerProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!isVisible) return null;
 
@@ -58,6 +60,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         {/* Adaptive Call to Action */}
         <div className="flex items-center ml-2 sm:ml-3 md:ml-4 lg:ml-6 flex-shrink-0">
           <button
+            onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             className={`
@@ -94,6 +97,12 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
       {/* Bottom Divine Glow */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-px 
                     bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent" />
+      
+      {/* Patch Notes Modal */}
+      <PatchNotesModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }
