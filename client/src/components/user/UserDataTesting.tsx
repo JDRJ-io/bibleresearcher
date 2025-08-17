@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToggleBookmark, useIsBookmarked, useSaveHighlights, useVerseHighlights, useDeleteHighlights } from '@/hooks/useUserData';
 import { Segment, addRange, removeRange, recolorRange } from '@shared/highlights';
 import { useToast } from '@/hooks/use-toast';
+import { runUserDataTests } from '@/tests/userDataTests';
 
 export function UserDataTesting() {
   const { user } = useAuth();
@@ -219,6 +220,29 @@ export function UserDataTesting() {
     }
   };
 
+  const runComprehensiveTests = async () => {
+    try {
+      toast({ title: "🧪 Running comprehensive tests...", description: "This may take a few moments" });
+      
+      const results = await runUserDataTests();
+      const totalTests = Object.values(results).reduce((sum, cat) => sum + cat.passed + cat.failed, 0);
+      const totalPassed = Object.values(results).reduce((sum, cat) => sum + cat.passed, 0);
+      const successRate = Math.round((totalPassed / totalTests) * 100);
+      
+      toast({ 
+        title: `📊 Tests completed`, 
+        description: `${totalPassed}/${totalTests} passed (${successRate}%). Check console for details.`,
+        variant: successRate > 80 ? "default" : "destructive"
+      });
+    } catch (error: any) {
+      toast({ 
+        title: "❌ Test suite failed", 
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   if (!user) {
     return (
       <Card className="max-w-md mx-auto mt-8">
@@ -302,7 +326,7 @@ export function UserDataTesting() {
           <CardDescription>Run automated tests to verify functionality</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Button 
               onClick={testBookmarkRoundTrip}
               disabled={toggleBookmark.isPending}
@@ -327,6 +351,13 @@ export function UserDataTesting() {
               variant="outline"
             >
               Test Clamping
+            </Button>
+            <Button 
+              onClick={runComprehensiveTests}
+              variant="secondary"
+              className="md:col-span-1"
+            >
+              🧪 Full Test Suite
             </Button>
           </div>
         </CardContent>

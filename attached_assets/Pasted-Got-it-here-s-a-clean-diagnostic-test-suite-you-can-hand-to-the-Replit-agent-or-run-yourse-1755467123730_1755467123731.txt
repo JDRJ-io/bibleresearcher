@@ -1,0 +1,121 @@
+Got it 👍 — here’s a **clean diagnostic test suite** you can hand to the Replit agent (or run yourself in Jest/Node) so you know whether **highlights, bookmarks, and notes** are behaving correctly **per user**.
+
+This test doesn’t assume your UI — it just checks the storage + API functions.
+
+---
+
+# 🧪 Test Plan for Bible Site (Highlights, Bookmarks, Notes)
+
+## 1. **Setup**
+
+* Create **two test users** in Supabase (`userA`, `userB`).
+* Use a **shared verse** (e.g. `John.3:16` in `KJV`).
+* Each test inserts data independently, then we verify isolation.
+
+---
+
+## 2. **Highlights Tests**
+
+```ts
+import { addRange, removeRange, recolorRange } from "./highlights";
+
+test("user can create and split highlights", async () => {
+  let segs = [];
+  segs = addRange(segs, 5, 12, "yellow");
+  expect(segs).toEqual([{ start:5, end:12, color:"yellow"}]);
+
+  segs = removeRange(segs, 8, 10);
+  expect(segs).toEqual([
+    { start:5, end:8, color:"yellow" },
+    { start:10, end:12, color:"yellow" }
+  ]);
+
+  segs = recolorRange(segs, 7, 11, "blue");
+  expect(segs).toEqual([
+    { start:5, end:7, color:"yellow" },
+    { start:7, end:11, color:"blue" },
+    { start:11, end:12, color:"yellow" }
+  ]);
+});
+
+test("users do not see each other's highlights", async () => {
+  await supabase.rpc("save_highlights", {
+    p_translation: "KJV",
+    p_verse_key: "John.3:16",
+    p_segments: [{ start:0, end:5, color:"red"}],
+    p_client_rev: null,
+    p_text_len: 25
+  }, { user: userA });
+
+  const { data: highlightsA } = await supabase.from("user_highlights").select("*").eq("user_id", userA.id);
+  const { data: highlightsB } = await supabase.from("user_highlights").select("*").eq("user_id", userB.id);
+
+  expect(highlightsA.length).toBe(1);
+  expect(highlightsB.length).toBe(0);
+});
+```
+
+---
+
+## 3. **Bookmarks Tests**
+
+```ts
+test("bookmarks save per user", async () => {
+  await supabase.from("bookmarks").insert({
+    user_id: userA.id,
+    name: "Test Bookmark",
+    index_value: 12345,
+    color: "blue"
+  });
+
+  const { data: bmA } = await supabase.from("bookmarks").select("*").eq("user_id", userA.id);
+  const { data: bmB } = await supabase.from("bookmarks").select("*").eq("user_id", userB.id);
+
+  expect(bmA.length).toBe(1);
+  expect(bmB.length).toBe(0);
+});
+```
+
+---
+
+## 4. **Notes Tests**
+
+```ts
+test("notes save and update per user", async () => {
+  // User A saves a note
+  await supabase.from("user_notes").insert({
+    user_id: userA.id,
+    translation: "KJV",
+    verse_key: "John.3:16",
+    note_text: "For God so loved..."
+  });
+
+  // Fetch for User A
+  const { data: notesA } = await supabase.from("user_notes").select("*").eq("user_id", userA.id);
+  expect(notesA[0].note_text).toContain("loved");
+
+  // Ensure User B has nothing
+  const { data: notesB } = await supabase.from("user_notes").select("*").eq("user_id", userB.id);
+  expect(notesB.length).toBe(0);
+
+  // Update note
+  await supabase.from("user_notes").update({
+    note_text: "Updated note"
+  }).eq("user_id", userA.id).eq("verse_key", "John.3:16");
+
+  const { data: updated } = await supabase.from("user_notes").select("*").eq("user_id", userA.id);
+  expect(updated[0].note_text).toBe("Updated note");
+});
+```
+
+---
+
+## ✅ What This Confirms
+
+* **Highlights**: Splitting/merging/deleting works, no bleed across users.
+* **Bookmarks**: Saved per user, isolated.
+* **Notes**: Save & update correctly, user isolation enforced.
+* **RLS (Row Level Security)** is working — no cross-user leaks.
+
+---
+
