@@ -89,8 +89,8 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="overflow-auto p-6">
+        {/* Content - Scrollable */}
+        <div className="overflow-y-auto overflow-x-hidden p-6 max-h-[60vh]" style={{ scrollBehavior: 'smooth' }}>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
