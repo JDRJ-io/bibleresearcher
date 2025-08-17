@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useBibleStore } from '@/App';
-import MobileFooter from "@/components/MobileFooter";
+import Footer from "@/components/Footer";
 import { TopHeader } from '@/components/bible/TopHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import Welcome from '@/pages/auth/Welcome';
@@ -456,8 +456,8 @@ export default function BiblePage() {
           onClose={handleCloseIntroOverlay} 
         />
 
-        {/* Enhanced Mobile Footer */}
-        <MobileFooter />
+        {/* Enhanced Footer */}
+        <Footer />
         
         {/* Development logging widget */}
 

@@ -1,54 +1,137 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { DocumentTooltip } from './DocumentTooltip';
+import { loadDocument, availableDocuments, DocumentKey } from '../utils/documentLoader';
 
 const Footer = () => {
+  const [tooltip, setTooltip] = useState<{ key: DocumentKey; title: string } | null>(null);
+  const [documentContent, setDocumentContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const openDocument = async (key: DocumentKey) => {
+    const doc = availableDocuments[key];
+    setTooltip({ key, title: doc.title });
+    setIsLoading(true);
+    
+    try {
+      const content = await loadDocument(doc.filename);
+      setDocumentContent(content);
+    } catch (error) {
+      setDocumentContent('# Error\n\nFailed to load document. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const closeTooltip = () => {
+    setTooltip(null);
+    setDocumentContent('');
+  };
+
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex flex-col sm:flex-row justify-between items-center text-xs text-muted-foreground">
-          <div className="flex items-center space-x-4 mb-2 sm:mb-0">
-            <a 
-              href="/docs/acknowledgments" 
-              className="hover:text-foreground transition-colors"
-            >
-              Acknowledgments
-            </a>
-            <a 
-              href="/docs/privacy-policy" 
-              className="hover:text-foreground transition-colors"
-            >
-              Privacy Policy
-            </a>
-            <a 
-              href="/docs/policies" 
-              className="hover:text-foreground transition-colors"
-            >
-              Policies
-            </a>
-            <a 
-              href="/docs/tos" 
-              className="hover:text-foreground transition-colors"
-            >
-              Terms of Service
-            </a>
-            <a 
-              href="/docs/donate" 
-              className="hover:text-foreground transition-colors"
-            >
-              Donate
-            </a>
-            <a 
-              href="/docs" 
-              className="hover:text-foreground transition-colors font-medium"
-            >
-              All Documents
-            </a>
+    <>
+      <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:bg-background/95 light:bg-white/95">
+        <div className="container mx-auto px-4 py-2">
+          {/* Desktop: Single row layout */}
+          <div className="hidden sm:flex justify-between items-center text-xs text-muted-foreground">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => openDocument('privacy')}
+                className="hover:text-foreground transition-colors"
+              >
+                Privacy
+              </button>
+              <button 
+                onClick={() => openDocument('tos')}
+                className="hover:text-foreground transition-colors"
+              >
+                Terms
+              </button>
+              <button 
+                onClick={() => openDocument('policies')}
+                className="hover:text-foreground transition-colors"
+              >
+                Policies
+              </button>
+              <button 
+                onClick={() => openDocument('acknowledgments')}
+                className="hover:text-foreground transition-colors"
+              >
+                Acknowledgments
+              </button>
+              <button 
+                onClick={() => openDocument('support')}
+                className="hover:text-foreground transition-colors"
+              >
+                Support
+              </button>
+              <button 
+                onClick={() => openDocument('donate')}
+                className="hover:text-foreground transition-colors"
+              >
+                Donate
+              </button>
+            </div>
+            <div className="text-right">
+              © 2025 Anointed.io
+            </div>
           </div>
-          <div className="text-center sm:text-right">
-            © 2025 Anointed.io
+
+          {/* Mobile: Two row layout */}
+          <div className="sm:hidden">
+            <div className="flex justify-center items-center space-x-3 mb-1 text-xs text-muted-foreground">
+              <button 
+                onClick={() => openDocument('privacy')}
+                className="hover:text-foreground transition-colors"
+              >
+                Privacy
+              </button>
+              <button 
+                onClick={() => openDocument('tos')}
+                className="hover:text-foreground transition-colors"
+              >
+                Terms
+              </button>
+              <button 
+                onClick={() => openDocument('policies')}
+                className="hover:text-foreground transition-colors"
+              >
+                Policies
+              </button>
+              <button 
+                onClick={() => openDocument('support')}
+                className="hover:text-foreground transition-colors"
+              >
+                Support
+              </button>
+            </div>
+            <div className="flex justify-center items-center space-x-3 text-xs text-muted-foreground">
+              <button 
+                onClick={() => openDocument('acknowledgments')}
+                className="hover:text-foreground transition-colors"
+              >
+                Acknowledgments
+              </button>
+              <button 
+                onClick={() => openDocument('donate')}
+                className="hover:text-foreground transition-colors"
+              >
+                Donate
+              </button>
+              <span>© 2025 Anointed.io</span>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+
+      {/* Document Tooltip */}
+      <DocumentTooltip
+        isOpen={!!tooltip}
+        onClose={closeTooltip}
+        title={tooltip?.title || ''}
+        content={documentContent}
+        isLoading={isLoading}
+      />
+    </>
   );
 };
 
