@@ -1,0 +1,608 @@
+okay so I'm going to give all of this to the replit agent and they're going to wire everything accordingly?
+
+
+
+
+
+
+1. what’s broken (quick diagnosis)
+2. a single SQL migration to make the DB right (tables + RLS + constraints)
+3. corrected client APIs (drop-in TypeScript)
+4. a super-short verification script (no Jest…just run the queries)
+
+
+---
+
+# 2) Fix the **client API** (drop-in replacements)
+
+### 2.1 Bookmarks
+
+```ts
+// client/src/lib/userDataApi.ts
+export const userBookmarksApi = {
+  async toggle(translation: string, verse_key: string): Promise<void> {
+    await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
+
+    // Is it already bookmarked for THIS user?
+    const { data: existing, error: selErr } = await supabase
+      .from('user_bookmarks')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .eq('translation', translation)
+      .eq('verse_key', verse_key)
+      .maybeSingle();
+    if (selErr) throw selErr;
+
+    if (existing) {
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('translation', translation)
+        .eq('verse_key', verse_key);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .upsert(
+          { user_id: user.id, translation, verse_key },
+          { onConflict: 'user_id,translation,verse_key' }
+        );
+      if (error) throw error;
+    }
+  }
+};
+```
+
+### 2.2 Notes
+
+```ts
+export const userNotesApi = {
+  async save(translation: string, verseKey: string, text: string, clientRev?: number): Promise<void> {
+    await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
+
+    // get server_rev
+    const { data: row, error: getErr } = await supabase
+      .from('user_notes')
+      .select('server_rev')
+      .eq('user_id', user.id)
+      .eq('translation', translation)
+      .eq('verse_key', verseKey)
+      .maybeSingle();
+    if (getErr) throw getErr;
+
+    const nextRev = (row?.server_rev ?? 0) + 1;
+
+    const { error } = await supabase
+      .from('user_notes')
+      .upsert({
+        user_id: user.id,
+        translation,
+        verse_key: verseKey,
+        note_text: text,
+        server_rev: clientRev ?? nextRev,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,translation,verse_key' });
+
+    if (error) throw error;
+  }
+};
+```
+
+### 2.3 Highlights (send real JSON, not a string)
+
+Assumes you already use the `addRange/removeRange/recolorRange` helpers we discussed.
+
+```ts
+export type Segment = { start: number; end: number; color: string };
+
+export const userHighlightsApi = {
+  async save(translation: string, verseKey: string, segments: Segment[], textLen: number, clientRev?: number): Promise<void> {
+    await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
+
+    // fetch current server_rev
+    const { data: row, error: getErr } = await supabase
+      .from('user_highlights')
+      .select('server_rev')
+      .eq('user_id', user.id)
+      .eq('translation', translation)
+      .eq('verse_key', verseKey)
+      .maybeSingle();
+    if (getErr) throw getErr;
+
+    const nextRev = (clientRev ?? row?.server_rev ?? 0) + 1;
+
+    const { error } = await supabase
+      .from('user_highlights')
+      .upsert({
+        user_id: user.id,
+        translation,
+        verse_key: verseKey,
+        segments,                // <-- send array, NOT JSON.stringify
+        text_len: textLen,
+        server_rev: nextRev,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,translation,verse_key' });
+
+    if (error) throw error;
+  }
+};
+```
+
+> ✅ This supports the **split/delete recolor** behavior we designed: your client utilities turn user interactions into a **normalized segments array**; the DB stores the entire array per verse as the source of truth.
+
+### 2.4 Navigation History & Sessions (no more client-DDL)
+
+Remove calls to `rpc('execute_sql', …)`. These tables are created by the migration above. Keep only **inserts/reads**:
+
+```ts
+// navigationHistory.ts (only data I/O)
+await supabase.from('navigation_history').insert({
+  user_id: user.id,
+  verse_reference,
+  translation,
+  visited_at: new Date().toISOString()
+});
+```
+
+```ts
+// autosave.ts
+await supabase.from('user_sessions').upsert({
+  user_id: user.id,
+  last_verse_position: data.last_verse_position ?? null,
+  current_translation: data.current_translation ?? 'KJV',
+  layout_preferences: data.layout_preferences ?? '{}',
+  scroll_position: data.scroll_position ?? 0,
+  last_active: new Date().toISOString(),
+  session_data: data.session_data ?? '{}'
+}, { onConflict: 'user_id' });
+```
+
+---
+
+# 3) “Ask the agent to run these” (quick checks)
+
+> Replace `:uidA` and `:uidB` with two real auth user IDs from your project.
+
+```sql
+-- A) Round-trip: bookmark isolation
+insert into public.user_bookmarks (user_id,translation,verse_key) values (:uidA,'KJV','John.3:16')
+on conflict do nothing;
+
+select count(*) as a from public.user_bookmarks where user_id=:uidA and translation='KJV' and verse_key='John.3:16';
+select count(*) as b from public.user_bookmarks where user_id=:uidB and translation='KJV' and verse_key='John.3:16';
+
+-- Expect: a=1, b=0
+
+-- B) Highlights: write & read per user
+insert into public.user_highlights (user_id,translation,verse_key,segments,text_len,server_rev)
+values (:uidA,'KJV','John.3:16','[{"start":5,"end":12,"color":"yellow"}]', 25, 1)
+on conflict (user_id,translation,verse_key) do update
+  set segments=excluded.segments, text_len=excluded.text_len, server_rev=excluded.server_rev;
+
+select segments from public.user_highlights where user_id=:uidA and translation='KJV' and verse_key='John.3:16';
+select segments from public.user_highlights where user_id=:uidB and translation='KJV' and verse_key='John.3:16';
+
+-- Expect: one row for uidA, none for uidB
+
+-- C) Notes: write & read per user
+insert into public.user_notes (user_id,translation,verse_key,note_text,server_rev)
+values (:uidA,'KJV','John.3:16','For God so loved...',1)
+on conflict (user_id,translation,verse_key) do update
+  set note_text=excluded.note_text, server_rev=excluded.server_rev;
+
+select note_text from public.user_notes where user_id=:uidA and translation='KJV' and verse_key='John.3:16';
+select note_text from public.user_notes where user_id=:uidB and translation='KJV' and verse_key='John.3:16';
+
+-- Expect: value for uidA, no row for uidB
+```
+
+If any of those “B user” queries return data, RLS isn’t applied correctly; if “A user” queries fail, the table/columns don’t match the client.
+
+---
+
+# 4) What to tell the Replit agent (copy/paste)
+
+1. **Run the migration** I pasted (“01–03 sections”).
+2. Replace `userDataApi.ts` functions with the **Bookmarks/Notes/Highlights** code above.
+3. **Remove** any `rpc('execute_sql', …)` DDL. We already created `navigation_history` and `user_sessions`.
+4. Ensure every write **includes `user_id`** and every delete/update **filters by `user_id, translation, verse_key`**.
+5. Run the **quick checks** (SQL) with two real user UUIDs. Paste results.
+6. In the admin console, confirm **RLS checks are green** and that **writes appear only for the active user**.
+
+---
+
+If you want, I can also drop a tiny `useVerseNote()` and `useHighlights()` hook that wraps these APIs so your editor never “jumps” while typing (you said notes work now—that pattern is perfect).
+
+Got it—here are clean, production-ready React hooks for **notes**, **highlights**, and **bookmarks** that match the schema we set up (`public.user_notes`, `public.user_highlights`, `public.user_bookmarks`). They handle local drafts, server revs, realtime (without UI jitter), and the split/merge logic for highlights.
+
+---
+
+# 1) Utilities (shared)
+
+```ts
+// src/lib/userData/types.ts
+export type VerseKey = string; // e.g. "John.3:16"
+export type Translation = string; // e.g. "KJV"
+
+export type Segment = { start: number; end: number; color: string }; // [start,end), end>start
+```
+
+```ts
+// src/lib/userData/segments.ts
+import type { Segment } from './types';
+
+// keep [start,end) non-overlapping; glue adjacent same-color segments
+export function normalize(segments: Segment[]): Segment[] {
+  const s = [...segments].sort((a,b)=> a.start - b.start || a.end - b.end);
+  const out: Segment[] = [];
+  for (const seg of s) {
+    if (!out.length) { out.push({...seg}); continue; }
+    const last = out[out.length - 1];
+    if (seg.start <= last.end) {
+      if (seg.color === last.color) {
+        last.end = Math.max(last.end, seg.end);
+      } else {
+        // conflict: cut/insert with “newer wins”
+        if (seg.start > last.start) {
+          out[out.length - 1] = { ...last, end: seg.start };
+        } else {
+          out.pop();
+        }
+        out.push({...seg});
+        if (seg.end < last.end) out.push({ start: seg.end, end: last.end, color: last.color });
+      }
+    } else {
+      if (seg.color === last.color && seg.start === last.end) last.end = seg.end; // glue
+      else out.push({...seg});
+    }
+  }
+  return out;
+}
+
+export function addRange(segments: Segment[], start: number, end: number, color: string): Segment[] {
+  if (end <= start) return segments;
+  return normalize([...segments, { start, end, color }]);
+}
+
+export function removeRange(segments: Segment[], start: number, end: number): Segment[] {
+  if (end <= start) return segments;
+  const out: Segment[] = [];
+  for (const s of segments) {
+    if (end <= s.start || start >= s.end) { out.push(s); continue; } // no overlap
+    if (start <= s.start && end >= s.end) { continue; }              // delete whole segment
+    if (start > s.start && end < s.end) {
+      out.push({ start: s.start, end: start, color: s.color });
+      out.push({ start: end,   end: s.end,   color: s.color });
+    } else if (start <= s.start) {
+      out.push({ start: end, end: s.end, color: s.color });
+    } else if (end >= s.end) {
+      out.push({ start: s.start, end: start, color: s.color });
+    }
+  }
+  return out;
+}
+
+export function recolorRange(segments: Segment[], start: number, end: number, newColor: string): Segment[] {
+  return addRange(removeRange(segments, start, end), start, end, newColor);
+}
+```
+
+---
+
+# 2) Hooks
+
+Assumptions:
+
+* You have `supabase` client and `ensureAuth()` utility.
+* Tables: `user_notes(user_id, translation, verse_key, note_text, server_rev, updated_at)`,
+  `user_highlights(user_id, translation, verse_key, segments jsonb, text_len int, server_rev, updated_at)`,
+  `user_bookmarks(user_id, translation, verse_key, created_at)`.
+
+## 2.1 Notes — jitter-free local draft + save-on-blur/autosave
+
+```tsx
+// src/lib/userData/useVerseNote.ts
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { supabase, ensureAuth } from '../supabase'; // your path
+
+type NoteKey = { userId: string; translation: string; verseKey: string };
+
+function noteDraftKey(k: NoteKey) {
+  return `${k.userId}::${k.translation}::${k.verseKey}::note`;
+}
+
+export function useVerseNote(k: NoteKey) {
+  const [text, setText] = useState('');
+  const [serverRev, setServerRev] = useState(0);
+  const [focused, setFocused] = useState(false);
+  const clientId = useRef(crypto.randomUUID());
+
+  // initial load
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      await ensureAuth();
+      const draft = localStorage.getItem(noteDraftKey(k));
+      if (draft) setText(draft);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_notes')
+        .select('note_text, server_rev')
+        .eq('user_id', user.id)
+        .eq('translation', k.translation)
+        .eq('verse_key', k.verseKey)
+        .maybeSingle();
+      if (!alive) return;
+      if (!error && data) {
+        setServerRev(data.server_rev ?? 0);
+        if (!draft) setText(data.note_text ?? '');
+      }
+    })();
+    return () => { alive = false; };
+  }, [k.userId, k.translation, k.verseKey]);
+
+  // persist draft locally while typing
+  useEffect(() => {
+    localStorage.setItem(noteDraftKey(k), text ?? '');
+  }, [k.userId, k.translation, k.verseKey, text]);
+
+  const save = useCallback(async () => {
+    await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const nextRev = serverRev + 1;
+    const { error } = await supabase.from('user_notes').upsert({
+      user_id: user.id,
+      translation: k.translation,
+      verse_key: k.verseKey,
+      note_text: text,
+      server_rev: nextRev,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,translation,verse_key' });
+
+    if (!error) {
+      setServerRev(nextRev);
+      localStorage.removeItem(noteDraftKey(k));
+      return true;
+    }
+    console.error('note save error', error);
+    return false;
+  }, [k.translation, k.verseKey, serverRev, text]);
+
+  // autosave every 15s while focused; Cmd/Ctrl+S saves
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        void save();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    const id = setInterval(() => { if (focused) void save(); }, 15000);
+    return () => { window.removeEventListener('keydown', onKey); clearInterval(id); };
+  }, [focused, save]);
+
+  return {
+    text, setText,
+    onFocus: () => setFocused(true),
+    onBlur: async () => { setFocused(false); await save(); },
+    saveNow: save,
+  };
+}
+```
+
+## 2.2 Highlights — split/merge, recolor, delete-in-middle, full-array upsert
+
+```tsx
+// src/lib/userData/useHighlights.ts
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { supabase, ensureAuth } from '../supabase';
+import type { Segment } from './types';
+import { addRange, removeRange, recolorRange, normalize } from './segments';
+
+type HighlightsKey = { userId: string; translation: string; verseKey: string; textLen: number };
+
+function hlDraftKey(k: HighlightsKey) {
+  return `${k.userId}::${k.translation}::${k.verseKey}::hl`;
+}
+
+export function useHighlights(k: HighlightsKey) {
+  const [segments, setSegments] = useState<Segment[]>([]);
+  const [serverRev, setServerRev] = useState(0);
+  const [focused, setFocused] = useState(false);
+  const clientId = useRef(crypto.randomUUID());
+
+  // initial load
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      await ensureAuth();
+      const draft = localStorage.getItem(hlDraftKey(k));
+      if (draft) {
+        try { setSegments(JSON.parse(draft)); } catch {}
+      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_highlights')
+        .select('segments, server_rev, text_len')
+        .eq('user_id', user.id)
+        .eq('translation', k.translation)
+        .eq('verse_key', k.verseKey)
+        .maybeSingle();
+      if (!alive) return;
+      if (!error && data) {
+        setServerRev(data.server_rev ?? 0);
+        // if no local draft, load server
+        if (!draft) setSegments(Array.isArray(data.segments) ? data.segments : []);
+      }
+    })();
+    return () => { alive = false; };
+  }, [k.userId, k.translation, k.verseKey]);
+
+  // persist draft locally while editing
+  useEffect(() => {
+    localStorage.setItem(hlDraftKey(k), JSON.stringify(segments ?? []));
+  }, [k.userId, k.translation, k.verseKey, segments]);
+
+  const save = useCallback(async () => {
+    await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const nextRev = serverRev + 1;
+    const clean = normalize(segments);
+
+    const { error } = await supabase.from('user_highlights').upsert({
+      user_id: user.id,
+      translation: k.translation,
+      verse_key: k.verseKey,
+      segments: clean,            // send array, not string
+      text_len: k.textLen ?? 0,
+      server_rev: nextRev,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id,translation,verse_key' });
+
+    if (!error) {
+      setServerRev(nextRev);
+      setSegments(clean);
+      localStorage.removeItem(hlDraftKey(k));
+      return true;
+    }
+    console.error('highlight save error', error);
+    return false;
+  }, [k.translation, k.verseKey, k.textLen, serverRev, segments]);
+
+  // editing helpers (local only; call save() on blur or when desired)
+  const add = useCallback((start: number, end: number, color: string) => {
+    setSegments(s => addRange(s, start, end, color));
+  }, []);
+
+  const remove = useCallback((start: number, end: number) => {
+    setSegments(s => removeRange(s, start, end));
+  }, []);
+
+  const recolor = useCallback((start: number, end: number, color: string) => {
+    setSegments(s => recolorRange(s, start, end, color));
+  }, []);
+
+  return {
+    segments, setSegments,
+    add, remove, recolor,
+    onFocus: () => setFocused(true),
+    onBlur: async () => { setFocused(false); await save(); },
+    saveNow: save,
+  };
+}
+```
+
+> ✅ This supports your exact scenario: if a user had a highlight `[5,12)` and “deletes” `[8,10)`, the hook’s `remove()` leaves `[5,7)` and `[10,12)` (end-exclusive means you’ll render indices 5–7 and 10–11). Recoloring overlays a new color and re-normalizes.
+
+## 2.3 Bookmarks — simple per-user toggle
+
+```tsx
+// src/lib/userData/useBookmark.ts
+import { useCallback, useEffect, useState } from 'react';
+import { supabase, ensureAuth } from '../supabase';
+import type { Translation, VerseKey } from './types';
+
+export function useBookmark(userId: string | null, translation: Translation, verseKey: VerseKey) {
+  const [bookmarked, setBookmarked] = useState<boolean>(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!userId) return;
+      const { data, error } = await supabase
+        .from('user_bookmarks')
+        .select('user_id')
+        .eq('user_id', userId)
+        .eq('translation', translation)
+        .eq('verse_key', verseKey)
+        .maybeSingle();
+      if (!alive) return;
+      if (!error) setBookmarked(!!data);
+    })();
+    return () => { alive = false; };
+  }, [userId, translation, verseKey]);
+
+  const toggle = useCallback(async () => {
+    await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    if (bookmarked) {
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('translation', translation)
+        .eq('verse_key', verseKey);
+      if (!error) setBookmarked(false);
+    } else {
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .upsert(
+          { user_id: user.id, translation, verse_key: verseKey },
+          { onConflict: 'user_id,translation,verse_key' }
+        );
+      if (!error) setBookmarked(true);
+    }
+  }, [bookmarked, translation, verseKey]);
+
+  return { bookmarked, toggle };
+}
+```
+
+---
+
+# 3) Tiny usage examples
+
+```tsx
+// Notes usage
+const { data: { user } } = await supabase.auth.getUser();
+const note = useVerseNote({ userId: user?.id!, translation: 'KJV', verseKey: 'John.3:16' });
+// <textarea value={note.text} onChange={e=>note.setText(e.target.value)} onFocus={note.onFocus} onBlur={note.onBlur} />
+```
+
+```tsx
+// Highlights usage
+const hl = useHighlights({ userId: user?.id!, translation: 'KJV', verseKey: 'John.3:16', textLen: verseText.length });
+// e.g. on drag end
+// hl.add(startIdx, endIdx, chosenColor)
+// hl.remove(startIdx, endIdx)  // your “delete color” action
+// hl.recolor(startIdx, endIdx, newColor)
+```
+
+```tsx
+// Bookmark usage
+const bm = useBookmark(user?.id ?? null, 'KJV', 'John.3:16');
+// <button onClick={bm.toggle}>{bm.bookmarked ? 'Unbookmark' : 'Bookmark'}</button>
+```
+
+---
+
+# 4) Why this will work now
+
+* **Per-user isolation**: every query filters by `user_id` under RLS.
+* **No jitter**: UI edits are local while focused; saves happen on blur/autosave.
+* **Robust highlights**: split/merge/recolor with one canonical JSON array per verse.
+* **End-exclusive ranges**: easy to render and split without off-by-ones.
+* **Idempotent upsert**: safe to call often; `server_rev` increments locally.
+
+If you want, I can add optional **realtime** subscribers that only apply server changes when the editor isn’t focused (same as the note hook pattern), but most teams keep highlights purely “fetch/save” to avoid render churn—and it’s totally fine.
+
+Want me to generate a small Cypress/Playwright script to click around and verify notes/highlights/bookmarks save per user?
+

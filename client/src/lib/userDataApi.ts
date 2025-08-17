@@ -23,34 +23,34 @@ export const userBookmarksApi = {
    */
   async toggle(translation: string, verse_key: string): Promise<void> {
     await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
 
-    // First check if bookmark exists
-    const { data: existing } = await supabase
+    // Is it already bookmarked for THIS user?
+    const { data: existing, error: selErr } = await supabase
       .from('user_bookmarks')
-      .select('id')
+      .select('user_id')
+      .eq('user_id', user.id)
       .eq('translation', translation)
       .eq('verse_key', verse_key)
-      .single();
+      .maybeSingle();
+    if (selErr) throw selErr;
 
     if (existing) {
-      // Remove bookmark
       const { error } = await supabase
         .from('user_bookmarks')
         .delete()
-        .match({ translation, verse_key });
-      
+        .eq('user_id', user.id)
+        .eq('translation', translation)
+        .eq('verse_key', verse_key);
       if (error) throw error;
     } else {
-      // Add bookmark
-      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase
         .from('user_bookmarks')
-        .upsert({
-          user_id: user!.id,
-          translation,
-          verse_key
-        });
-      
+        .upsert(
+          { user_id: user.id, translation, verse_key },
+          { onConflict: 'user_id,translation,verse_key' }
+        );
       if (error) throw error;
     }
   },
@@ -93,39 +93,44 @@ export const userBookmarksApi = {
 
 export const userHighlightsApi = {
   /**
-   * Save highlights using the RPC function with conflict resolution
+   * Save highlights with proper JSON storage and conflict resolution
    */
   async save(
     translation: string, 
     verseKey: string, 
     segments: Segment[], 
-    serverRev?: number | null,
-    textLen?: number | null
+    textLen: number,
+    clientRev?: number
   ): Promise<void> {
     await ensureAuth();
-
-    // Direct database insert/update instead of RPC for now
     const { data: { user } } = await supabase.auth.getUser();
-    
+    if (!user) throw new Error('No user');
+
+    // fetch current server_rev
+    const { data: row, error: getErr } = await supabase
+      .from('user_highlights')
+      .select('server_rev')
+      .eq('user_id', user.id)
+      .eq('translation', translation)
+      .eq('verse_key', verseKey)
+      .maybeSingle();
+    if (getErr) throw getErr;
+
+    const nextRev = (clientRev ?? row?.server_rev ?? 0) + 1;
+
     const { error } = await supabase
       .from('user_highlights')
       .upsert({
-        user_id: user!.id,
-        translation: translation,
+        user_id: user.id,
+        translation,
         verse_key: verseKey,
-        segments: JSON.stringify(segments),
-        server_rev: serverRev || 1,
+        segments,                // <-- send array, NOT JSON.stringify
         text_len: textLen,
+        server_rev: nextRev,
         updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,translation,verse_key'
-      });
+      }, { onConflict: 'user_id,translation,verse_key' });
 
-    if (error) {
-      console.error('Error saving highlights:', error);
-      throw error;
-    }
-    
+    if (error) throw error;
     console.log('💾 Highlights saved:', verseKey, segments.length, 'segments');
   },
 
@@ -187,12 +192,13 @@ export const userHighlightsApi = {
    */
   async deleteForVerse(translation: string, verseKey: string): Promise<void> {
     await ensureAuth();
-
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
+
     const { error } = await supabase
       .from('user_highlights')
       .delete()
-      .eq('user_id', user!.id)
+      .eq('user_id', user.id)
       .eq('translation', translation)
       .eq('verse_key', verseKey);
 
@@ -201,44 +207,62 @@ export const userHighlightsApi = {
   }
 };
 
-// ============= NOTES API (if needed) =============
+// ============= NOTES API =============
 
 export const userNotesApi = {
   /**
-   * Save a note for a verse
+   * Save a note for a verse with proper conflict resolution
    */
-  async save(verseRef: string, text: string): Promise<void> {
+  async save(translation: string, verseKey: string, text: string, clientRev?: number): Promise<void> {
     await ensureAuth();
-
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
+
+    // get server_rev
+    const { data: row, error: getErr } = await supabase
+      .from('user_notes')
+      .select('server_rev')
+      .eq('user_id', user.id)
+      .eq('translation', translation)
+      .eq('verse_key', verseKey)
+      .maybeSingle();
+    if (getErr) throw getErr;
+
+    const nextRev = (row?.server_rev ?? 0) + 1;
+
     const { error } = await supabase
-      .from('notes')
+      .from('user_notes')
       .upsert({
-        user_id: user!.id,
-        verse_ref: verseRef,
-        text
-      }, {
-        onConflict: 'user_id,verse_ref'
-      });
+        user_id: user.id,
+        translation,
+        verse_key: verseKey,
+        note_text: text,
+        server_rev: clientRev ?? nextRev,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,translation,verse_key' });
 
     if (error) throw error;
-    console.log('📝 Note saved for:', verseRef);
+    console.log('📝 Note saved for:', verseKey);
   },
 
   /**
    * Load notes for visible verses
    */
-  async loadForVerses(verseRefs: string[]): Promise<Array<{ verse_ref: string; text: string }>> {
-    if (!verseRefs.length) return [];
+  async loadForVerses(translation: string, verseKeys: string[]): Promise<Array<{ verse_key: string; note_text: string; server_rev: number }>> {
+    if (!verseKeys.length) return [];
     
     await ensureAuth();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No user');
 
     const { data, error } = await supabase
-      .from('notes')
-      .select('verse_ref, text')
-      .in('verse_ref', verseRefs);
+      .from('user_notes')
+      .select('verse_key, note_text, server_rev')
+      .eq('user_id', user.id)
+      .eq('translation', translation)
+      .in('verse_key', verseKeys);
 
     if (error) throw error;
-    return (data || []) as Array<{ verse_ref: string; text: string }>;
+    return (data || []) as Array<{ verse_key: string; note_text: string; server_rev: number }>;
   }
 };
