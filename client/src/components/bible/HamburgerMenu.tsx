@@ -143,7 +143,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
     { id: "display-settings", label: "Display Settings", icon: Settings },
     { id: "color-theme", label: "Color Theme", icon: Palette },
     { id: "bookmarks", label: "Bookmarks", icon: Bookmark },
-    { id: "documentation", label: "Documentation", icon: FileText },
+    { id: "documentation", label: "Docs", icon: FileText },
   ];
 
   const renderTabContent = () => {
