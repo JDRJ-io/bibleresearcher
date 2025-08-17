@@ -2,7 +2,7 @@ Got it — you’ll definitely need a **full Privacy Policy** if you’re launch
 
 **Effective Date:** August 1st, 2025
 
-Anointed.io (“we,” “our,” or “us”) is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and your rights regarding your data.
+Anointed.io is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and your rights regarding your data.
 
 ---
 

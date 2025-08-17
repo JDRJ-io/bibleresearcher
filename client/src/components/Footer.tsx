@@ -22,6 +22,35 @@ const Footer = () => {
     }
   };
 
+  const openAllDocs = () => {
+    const allDocsContent = `# All Documents
+
+Welcome to our document library. Click on any document below to read it:
+
+## Legal Documents
+- **Terms of Service** - Our terms and conditions
+- **Privacy Policy** - How we handle your data
+- **Policies** - Comprehensive platform policies
+
+## Support & Information
+- **Support** - Get help with your account
+- **Acknowledgments** - Credits and attributions
+- **Our Mission** - Learn about our purpose
+- **Safety & Scam Prevention** - Stay safe online
+
+## Community
+- **Forum** - Join our community discussions
+- **Donate** - Support our mission
+
+---
+
+For specific questions or support, please contact us through the appropriate channels listed in our support documentation.`;
+
+    setTooltip({ key: 'policies', title: 'All Documents' });
+    setDocumentContent(allDocsContent);
+    setIsLoading(false);
+  };
+
   const closeTooltip = () => {
     setTooltip(null);
     setDocumentContent('');
@@ -35,12 +64,6 @@ const Footer = () => {
           <div className="hidden sm:flex justify-between items-center text-xs text-muted-foreground">
             <div className="flex items-center space-x-4">
               <button 
-                onClick={() => openDocument('privacy')}
-                className="hover:text-foreground transition-colors"
-              >
-                Privacy
-              </button>
-              <button 
                 onClick={() => openDocument('tos')}
                 className="hover:text-foreground transition-colors"
               >
@@ -53,16 +76,22 @@ const Footer = () => {
                 Policies
               </button>
               <button 
-                onClick={() => openDocument('acknowledgments')}
+                onClick={() => openDocument('privacy')}
                 className="hover:text-foreground transition-colors"
               >
-                Acknowledgments
+                Privacy
               </button>
               <button 
-                onClick={() => openDocument('support')}
+                onClick={() => window.open('/forum', '_blank')}
                 className="hover:text-foreground transition-colors"
               >
-                Support
+                Forum
+              </button>
+              <button 
+                onClick={() => openAllDocs()}
+                className="hover:text-foreground transition-colors"
+              >
+                All Docs
               </button>
               <button 
                 onClick={() => openDocument('donate')}
@@ -80,16 +109,10 @@ const Footer = () => {
           <div className="sm:hidden">
             <div className="flex justify-center items-center space-x-3 mb-1 text-xs text-muted-foreground">
               <button 
-                onClick={() => openDocument('privacy')}
-                className="hover:text-foreground transition-colors"
-              >
-                Privacy
-              </button>
-              <button 
                 onClick={() => openDocument('tos')}
                 className="hover:text-foreground transition-colors"
               >
-                Terms
+                ToS
               </button>
               <button 
                 onClick={() => openDocument('policies')}
@@ -98,26 +121,32 @@ const Footer = () => {
                 Policies
               </button>
               <button 
-                onClick={() => openDocument('support')}
+                onClick={() => openDocument('privacy')}
                 className="hover:text-foreground transition-colors"
               >
-                Support
+                Privacy Policy
+              </button>
+              <button 
+                onClick={() => window.open('/forum', '_blank')}
+                className="hover:text-foreground transition-colors"
+              >
+                Forum
               </button>
             </div>
             <div className="flex justify-center items-center space-x-3 text-xs text-muted-foreground">
               <button 
-                onClick={() => openDocument('acknowledgments')}
+                onClick={() => openAllDocs()}
                 className="hover:text-foreground transition-colors"
               >
-                Acknowledgments
+                All Docs
               </button>
+              <span>© 2025 Anointed.io</span>
               <button 
                 onClick={() => openDocument('donate')}
                 className="hover:text-foreground transition-colors"
               >
                 Donate
               </button>
-              <span>© 2025 Anointed.io</span>
             </div>
           </div>
         </div>
