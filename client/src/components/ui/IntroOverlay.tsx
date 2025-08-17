@@ -71,7 +71,7 @@ export function IntroOverlay({ isVisible, onClose }: IntroOverlayProps) {
         </button>
 
         {/* Divine Crown Icon */}
-        <div className="text-center mb-6">
+        <div className="text-center mt-4 mb-8">
           <div className="inline-block p-4 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 border border-yellow-400/30">
             <div className="w-16 h-16 text-yellow-400">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
