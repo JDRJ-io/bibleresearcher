@@ -46,7 +46,7 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
-      fetch('/docs/changelog.md')
+      fetch('/important_docs/patch_notes.md')
         .then(response => response.text())
         .then(content => {
           setPatchNotes(content);
