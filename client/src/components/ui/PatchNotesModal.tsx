@@ -18,6 +18,9 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
+    // Lock body scroll
+    document.body.style.overflow = 'hidden';
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
@@ -34,6 +37,7 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
+      document.body.style.overflow = '';
       document.removeEventListener('keydown', handleEscape);
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -59,7 +63,10 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div 
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" 
+      style={{ zIndex: 99999 }}
+    >
       <div 
         ref={modalRef}
         className="w-full max-w-3xl max-h-[80vh] bg-background dark:bg-background border border-border rounded-lg shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300"
