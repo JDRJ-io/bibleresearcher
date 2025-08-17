@@ -36,16 +36,16 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         <div className="absolute left-3/4 top-1/2 w-1.5 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse delay-1000" />
       </div>
 
-      <div className="relative px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 lg:py-4 flex items-center justify-between 
+      <div className="relative px-4 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 lg:py-4 flex items-center justify-center 
                       min-h-[36px] xs:min-h-[40px] sm:min-h-[44px] md:min-h-[48px] lg:min-h-[52px]">
         {/* Mobile-Optimized Left Side */}
-        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0 justify-center">
           <div className="p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
                          border border-yellow-400/30 flex-shrink-0">
             <Scroll className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 lg:h-5.5 lg:w-5.5 text-yellow-400" />
           </div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 md:space-x-4 flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 md:space-x-4 flex-1 min-w-0 text-center sm:text-left">
             <h3 className="text-xs xs:text-xs sm:text-sm md:text-base lg:text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 
                           dark:from-yellow-400 dark:to-purple-400 
                           bg-clip-text text-transparent truncate">
@@ -59,7 +59,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         </div>
 
         {/* Adaptive Call to Action */}
-        <div className="flex items-center ml-2 sm:ml-3 md:ml-4 lg:ml-6 flex-shrink-0">
+        <div className="flex items-center absolute right-4 sm:right-4 md:right-6 lg:right-8 flex-shrink-0">
           <button
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
