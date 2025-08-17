@@ -138,6 +138,8 @@ export const insertUserHighlightSchema = createInsertSchema(userHighlights).omit
 export const insertForumPostSchema = createInsertSchema(forumPosts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertForumVoteSchema = createInsertSchema(forumVotes).omit({ id: true });
 export const insertUserPreferencesSchema = createInsertSchema(userPreferences).omit({ id: true, updatedAt: true });
+export const insertNavigationHistorySchema = createInsertSchema(navigationHistory).omit({ id: true, visited_at: true });
+export const insertUserSessionSchema = createInsertSchema(userSessions).omit({ id: true, last_active: true });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -159,3 +161,7 @@ export type ForumVote = typeof forumVotes.$inferSelect;
 export type InsertForumVote = z.infer<typeof insertForumVoteSchema>;
 export type UserPreferences = typeof userPreferences.$inferSelect;
 export type InsertUserPreferences = z.infer<typeof insertUserPreferencesSchema>;
+export type NavigationHistory = typeof navigationHistory.$inferSelect;
+export type InsertNavigationHistory = z.infer<typeof insertNavigationHistorySchema>;
+export type UserSession = typeof userSessions.$inferSelect;
+export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;

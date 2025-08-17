@@ -21,6 +21,7 @@ import NotFound from "@/pages/not-found";
 import Subscribe from "@/pages/Subscribe";
 import DocsPage from "@/pages/DocsPage";
 import { UserDataTesting } from "@/components/user/UserDataTesting";
+import { SetupPage } from "@/pages/SetupPage";
 import { create } from 'zustand';
 // Start preloading KJV immediately when app loads
 import '@/lib/preloader';
@@ -780,7 +781,7 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/docs/:docId?" component={DocsPage} />
       <Route path="/test-user-data" component={UserDataTesting} />
-
+      <Route path="/setup" component={SetupPage} />
       <Route component={NotFound} />
     </Switch>
   );

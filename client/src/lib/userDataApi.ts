@@ -42,9 +42,11 @@ export const userBookmarksApi = {
       if (error) throw error;
     } else {
       // Add bookmark
+      const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase
         .from('user_bookmarks')
         .upsert({
+          user_id: user!.id,
           translation,
           verse_key
         });
@@ -102,18 +104,29 @@ export const userHighlightsApi = {
   ): Promise<void> {
     await ensureAuth();
 
-    const { error } = await supabase.rpc('save_highlights', {
-      p_translation: translation,
-      p_verse_key: verseKey,
-      p_segments: segments,
-      p_client_rev: serverRev ?? null,
-      p_text_len: textLen ?? null
-    });
+    // Direct database insert/update instead of RPC for now
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const { error } = await supabase
+      .from('user_highlights')
+      .upsert({
+        user_id: user!.id,
+        translation: translation,
+        verse_key: verseKey,
+        segments: JSON.stringify(segments),
+        server_rev: serverRev || 1,
+        text_len: textLen,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,translation,verse_key'
+      });
 
     if (error) {
       console.error('Error saving highlights:', error);
       throw error;
     }
+    
+    console.log('💾 Highlights saved:', verseKey, segments.length, 'segments');
   },
 
   /**
@@ -175,13 +188,16 @@ export const userHighlightsApi = {
   async deleteForVerse(translation: string, verseKey: string): Promise<void> {
     await ensureAuth();
 
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from('user_highlights')
       .delete()
+      .eq('user_id', user!.id)
       .eq('translation', translation)
       .eq('verse_key', verseKey);
 
     if (error) throw error;
+    console.log('🗑️ Highlights deleted for:', verseKey);
   }
 };
 
@@ -194,14 +210,19 @@ export const userNotesApi = {
   async save(verseRef: string, text: string): Promise<void> {
     await ensureAuth();
 
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from('notes')
       .upsert({
+        user_id: user!.id,
         verse_ref: verseRef,
         text
+      }, {
+        onConflict: 'user_id,verse_ref'
       });
 
     if (error) throw error;
+    console.log('📝 Note saved for:', verseRef);
   },
 
   /**
