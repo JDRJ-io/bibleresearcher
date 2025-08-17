@@ -20,6 +20,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
   if (!isVisible) return null;
 
   return (
+    <>
     <div className="relative w-full bg-gradient-to-r from-purple-900/20 via-yellow-400/10 to-purple-900/20 
                     border-y border-yellow-400/20 backdrop-blur-sm
                     transition-all duration-300 ease-out
@@ -97,13 +98,16 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
       {/* Bottom Divine Glow */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-px 
                     bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent" />
-      
-      {/* Patch Notes Modal */}
+    </div>
+    
+    {/* Patch Notes Modal - Rendered outside the banner container */}
+    {isModalOpen && (
       <PatchNotesModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
-    </div>
+    )}
+    </>
   );
 }
 
