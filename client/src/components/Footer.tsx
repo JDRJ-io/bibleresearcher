@@ -7,25 +7,40 @@ const Footer = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center text-xs text-muted-foreground">
           <div className="flex items-center space-x-4 mb-2 sm:mb-0">
             <a 
-              href="#" 
+              href="/docs/acknowledgments" 
               className="hover:text-foreground transition-colors"
-              onClick={(e) => e.preventDefault()}
             >
-              About
+              Acknowledgments
             </a>
             <a 
-              href="#" 
+              href="/docs/privacy-policy" 
               className="hover:text-foreground transition-colors"
-              onClick={(e) => e.preventDefault()}
             >
-              Support
+              Privacy Policy
             </a>
             <a 
-              href="#" 
+              href="/docs/policies" 
               className="hover:text-foreground transition-colors"
-              onClick={(e) => e.preventDefault()}
             >
-              Privacy
+              Policies
+            </a>
+            <a 
+              href="/docs/tos" 
+              className="hover:text-foreground transition-colors"
+            >
+              Terms of Service
+            </a>
+            <a 
+              href="/docs/donate" 
+              className="hover:text-foreground transition-colors"
+            >
+              Donate
+            </a>
+            <a 
+              href="/docs" 
+              className="hover:text-foreground transition-colors font-medium"
+            >
+              All Documents
             </a>
           </div>
           <div className="text-center sm:text-right">

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Settings, LogOut, Crown } from 'lucide-react';
+import { User, Settings, LogOut, Crown, FileText } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 export function UserProfileDropdown() {
@@ -78,6 +78,11 @@ export function UserProfileDropdown() {
         <DropdownMenuItem onClick={() => setLocation('/dev')}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Dev Tools</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem onClick={() => setLocation('/docs')}>
+          <FileText className="mr-2 h-4 w-4" />
+          <span>Documentation</span>
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />

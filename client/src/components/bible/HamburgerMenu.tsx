@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move } from "lucide-react";
+import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move, FileText } from "lucide-react";
 import { BookmarksList } from '@/components/user/BookmarksList';
 import { LabelsLegend } from './LabelsLegend';
 import { MainTranslationSelector } from './MainTranslationSelector';
@@ -143,6 +143,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
     { id: "display-settings", label: "Display Settings", icon: Settings },
     { id: "color-theme", label: "Color Theme", icon: Palette },
     { id: "bookmarks", label: "Bookmarks", icon: Bookmark },
+    { id: "documentation", label: "Documentation", icon: FileText },
   ];
 
   const renderTabContent = () => {
@@ -400,6 +401,56 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
               }}
               className="flex-1"
             />
+          </div>
+        );
+
+      case "documentation":
+        return (
+          <div className="space-y-3">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Important Documents</h4>
+            <div className="space-y-2">
+              <a 
+                href="/docs/acknowledgments" 
+                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={onClose}
+              >
+                <FileText className="w-3 h-3" />
+                Acknowledgments
+              </a>
+              <a 
+                href="/docs/privacy-policy" 
+                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={onClose}
+              >
+                <FileText className="w-3 h-3" />
+                Privacy Policy
+              </a>
+              <a 
+                href="/docs/tos" 
+                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={onClose}
+              >
+                <FileText className="w-3 h-3" />
+                Terms of Service
+              </a>
+              <a 
+                href="/docs/donate" 
+                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={onClose}
+              >
+                <FileText className="w-3 h-3" />
+                Support Our Mission
+              </a>
+              <hr className="border-gray-200 dark:border-gray-700" />
+              <a 
+                href="/docs" 
+                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                onClick={onClose}
+              >
+                <FileText className="w-3 h-3" />
+                View All Documents
+              </a>
+            </div>
           </div>
         );
 
