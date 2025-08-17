@@ -46,10 +46,10 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 p-4 bg-black/20 backdrop-blur-sm">
+    <div className="fixed bottom-16 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]">
       <div 
         ref={tooltipRef}
-        className="w-full max-w-4xl mx-auto max-h-[70vh] bg-background dark:bg-background border border-border rounded-t-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300"
+        className="bg-background dark:bg-background border border-border rounded-t-lg shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-card/50">
@@ -63,7 +63,7 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
         </div>
 
         {/* Content */}
-        <div className="overflow-auto max-h-[60vh] p-4">
+        <div className="overflow-auto max-h-96 p-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
