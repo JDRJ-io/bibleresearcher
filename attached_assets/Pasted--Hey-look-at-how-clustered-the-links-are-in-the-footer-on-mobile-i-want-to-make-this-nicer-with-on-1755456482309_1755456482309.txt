@@ -1,0 +1,244 @@
+
+Hey look at how clustered the links are in the footer on mobile, i want to make this nicer, with only the ones needed in the footer view & others in the all documents tab, i also want to make the footers not open a new page, but just open a little tab from the bottom with the text neatly arranged, and a little menu of different docs if they click all docs, we will also need a forum button at the bottom 
+ToS,  Policies, Privacy Policies, Forum
+All Docs, c2025 Anointed.io, Donate
+This is what I'm thinking, do you have any other suggestions?
+
+Love this direction. A tight mobile footer with a bottom-sheet (slide-up) is perfect for keeping the page clean but still “one tap away” from legal + forum.
+
+Here’s what I’d ship:
+
+Quick UX tweaks
+	•	Keep just ToS · Policies · Privacy · Forum on row 1, and All Docs · Donate · © 2025 Anointed.io on row 2.
+	•	Make each open a bottom sheet (not a new page). “All Docs” opens a mini menu with the rest (Acknowledgments, Licenses, Attributions, DMCA, Contact, Changelog, Release Notes, etc.).
+	•	Persistent Forum button in the footer (same style), and also show a floating “Forum” FAB on desktop/tablet if you want quick access.
+	•	Respect safe areas: add padding for iOS home indicator (env(safe-area-inset-bottom)).
+	•	Accessibility: sheet should trap focus, close on swipe-down/drag, ESC, and backdrop tap.
+	•	Performance: mount the sheet lazily; fetch doc text only when opened.
+
+Drop-in React (TS) implementation
+
+Minimal, dependency-free. Add these three files and you’re done.
+
+components/BottomSheet.tsx
+
+import React, { useEffect, useRef } from "react";
+
+type BottomSheetProps = {
+  isOpen: boolean;
+  title?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+};
+
+export default function BottomSheet({ isOpen, title, onClose, children }: BottomSheetProps) {
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const startY = useRef<number | null>(null);
+  const currentY = useRef<number>(0);
+
+  // lock background scroll
+  useEffect(() => {
+    if (!isOpen) return;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = overflow; };
+  }, [isOpen]);
+
+  // esc to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
+  // simple drag-to-close
+  const onTouchStart: React.TouchEventHandler = (e) => { startY.current = e.touches[0].clientY; };
+  const onTouchMove: React.TouchEventHandler = (e) => {
+    if (startY.current == null || !sheetRef.current) return;
+    currentY.current = Math.max(0, e.touches[0].clientY - startY.current);
+    sheetRef.current.style.transform = `translateY(${currentY.current}px)`;
+  };
+  const onTouchEnd: React.TouchEventHandler = () => {
+    if (!sheetRef.current) return;
+    const shouldClose = currentY.current > 80;
+    sheetRef.current.style.transform = "";
+    startY.current = null;
+    currentY.current = 0;
+    if (shouldClose) onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div aria-modal="true" role="dialog" className="bs-overlay" onClick={onClose}>
+      <div
+        ref={sheetRef}
+        className="bs-sheet"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        <div className="bs-grabber" aria-hidden />
+        {title && <h3 className="bs-title">{title}</h3>}
+        <div className="bs-content">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+components/MobileFooter.tsx
+
+import React, { useState, useEffect, useMemo } from "react";
+import BottomSheet from "./BottomSheet";
+
+type DocKey = "tos" | "policies" | "privacy" | "ack" | "licenses" | "dmca" | "contact" | "changelog";
+
+async function loadMarkdown(path: string) {
+  const res = await fetch(path);
+  const text = await res.text();
+  return text;
+}
+
+export default function MobileFooter() {
+  const [sheet, setSheet] = useState<null | { key: DocKey | "docs" | "donate" | "forum"; title: string }>(null);
+  const [md, setMd] = useState<string>("");
+
+  // lazy-load markdown when a legal doc opens
+  useEffect(() => {
+    if (!sheet) return;
+    const map: Record<DocKey, string> = {
+      tos: "/docs/tos.md",
+      policies: "/docs/policies.md",
+      privacy: "/docs/privacy.md",
+      ack: "/docs/acknowledgments.md",
+      licenses: "/docs/licenses.md",
+      dmca: "/docs/dmca.md",
+      contact: "/docs/contact.md",
+      changelog: "/docs/changelog.md",
+    };
+    if (sheet.key === "docs" || sheet.key === "donate" || sheet.key === "forum") return setMd("");
+
+    loadMarkdown(map[sheet.key as DocKey]).then(setMd).catch(() => setMd("Failed to load document."));
+  }, [sheet]);
+
+  const year = useMemo(() => new Date().getFullYear(), []);
+
+  return (
+    <>
+      <footer className="footer">
+        <div className="footer-row">
+          <button onClick={() => setSheet({ key: "tos", title: "Terms of Service" })}>ToS</button>
+          <button onClick={() => setSheet({ key: "policies", title: "Policies" })}>Policies</button>
+          <button onClick={() => setSheet({ key: "privacy", title: "Privacy Policy" })}>Privacy</button>
+          <button onClick={() => setSheet({ key: "forum", title: "Forum" })}>Forum</button>
+        </div>
+
+        <div className="footer-row">
+          <button onClick={() => setSheet({ key: "docs", title: "All Documents" })}>All Docs</button>
+          <button onClick={() => setSheet({ key: "donate", title: "Donate" })}>Donate</button>
+          <span className="muted">© {year} Anointed.io</span>
+        </div>
+      </footer>
+
+      <BottomSheet
+        isOpen={!!sheet}
+        title={sheet?.title}
+        onClose={() => setSheet(null)}
+      >
+        {sheet?.key === "docs" && (
+          <nav className="docs-menu">
+            <button onClick={() => setSheet({ key: "tos", title: "Terms of Service" })}>Terms of Service</button>
+            <button onClick={() => setSheet({ key: "policies", title: "Policies" })}>Policies</button>
+            <button onClick={() => setSheet({ key: "privacy", title: "Privacy Policy" })}>Privacy Policy</button>
+            <button onClick={() => setSheet({ key: "ack", title: "Acknowledgments" })}>Acknowledgments</button>
+            <button onClick={() => setSheet({ key: "licenses", title: "Licenses & Attributions" })}>Licenses & Attributions</button>
+            <button onClick={() => setSheet({ key: "dmca", title: "DMCA" })}>DMCA</button>
+            <button onClick={() => setSheet({ key: "contact", title: "Contact" })}>Contact</button>
+            <button onClick={() => setSheet({ key: "changelog", title: "Changelog" })}>Changelog</button>
+          </nav>
+        )}
+
+        {sheet?.key === "forum" && (
+          <div className="sheet-actions">
+            <p>Jump into the community forum.</p>
+            <a className="primary" href="/forum">Open Forum</a>
+          </div>
+        )}
+
+        {sheet?.key === "donate" && (
+          <div className="sheet-actions">
+            <p>Support the work of Anointed.io.</p>
+            <a className="primary" href="/donate">Give</a>
+          </div>
+        )}
+
+        {md && (
+          <article className="doc-body" dangerouslySetInnerHTML={{ __html: marked(md) as unknown as string }} />
+        )}
+      </BottomSheet>
+    </>
+  );
+}
+
+Note: this uses marked to render Markdown. If you don’t already have it, npm i marked. Or replace with your existing MD renderer.
+
+styles/footer.css
+
+.footer {
+  position: sticky; bottom: 0; left: 0; right: 0;
+  display: grid; gap: 6px;
+  padding: 8px calc(12px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-right));
+  background: rgba(8,10,15,0.85); backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  z-index: 30;
+}
+.footer-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.footer button {
+  appearance: none; border: 0; background: transparent; color: #b8c0d0; font: 500 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 8px 10px; border-radius: 8px;
+}
+.footer button:active { transform: scale(0.98); }
+.footer .muted { color: #7c8699; font-size: 12px; margin-left: auto; }
+
+/* Bottom sheet */
+.bs-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: grid; place-items: end center; z-index: 1000;
+}
+.bs-sheet {
+  width: 100%; max-height: 85vh; background: #0f1218; color: #e7ecf7;
+  border-top-left-radius: 16px; border-top-right-radius: 16px;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: rise 160ms ease-out;
+}
+@keyframes rise { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.bs-grabber { width: 44px; height: 5px; background: #2a2f3a; border-radius: 999px; margin: 8px auto; }
+.bs-title { margin: 6px 16px 8px; font-size: 16px; font-weight: 600; color:#dfe6f3; }
+.bs-content { padding: 0 16px 16px; overflow: auto; max-height: calc(85vh - 60px); }
+
+.docs-menu { display: grid; gap: 8px; padding-bottom: 8px; }
+.docs-menu button {
+  text-align: left; padding: 12px;
+  border-radius: 10px; background: #131824; border: 1px solid rgba(255,255,255,0.06); color: #d7def0;
+}
+.sheet-actions { display: grid; gap: 12px; }
+.sheet-actions .primary {
+  display:inline-block; text-align:center; padding: 12px 14px; border-radius: 10px;
+  background: #2a69ff; color: #fff; text-decoration: none; font-weight: 600;
+}
+.doc-body { line-height: 1.6; font-size: 14px; }
+.doc-body h1,h2,h3 { margin: 1em 0 .5em; }
+.doc-body a { color: #8ab4ff; }
+
+Put your markdown files under /public/docs/*.md (or wherever you prefer) so they can be fetched into the sheet.
+
+Extra suggestions (optional)
+	•	Add a tiny “…” overflow button next to © for a one-tap “About / Version / Status” mini-sheet.
+	•	If you plan cookies: add “Cookie Settings” (also a sheet).
+	•	Track opens with a lightweight event for analytics, not page navigations.
+	•	For desktop, keep the same footer but open the sheet at 560–640px width as a centered modal for parity.
+
+If you want, I can tune the visual style to match your current dark theme (fonts, shadows, borders) or wire this to your existing markdown/legal content loader.
