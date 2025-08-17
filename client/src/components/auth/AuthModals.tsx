@@ -137,7 +137,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   // Render modals using portals to escape container constraints
   const signUpModal = isSignUpOpen ? createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center 
-                    bg-gradient-to-br from-black/80 via-purple-900/50 to-black/80
+                    bg-gradient-to-br from-black/85 via-purple-900/60 to-black/85
                     backdrop-blur-sm overflow-hidden"
          onClick={onCloseSignUp}>
       
@@ -159,7 +159,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
       </div>
 
       {/* Main Content Container - Mobile Optimized */}
-      <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
+      <div className="relative z-10 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg mx-2 sm:mx-4 p-6 
                       rounded-2xl border-2 border-yellow-300 shadow-[0_0_0_1px_rgba(168,85,247,0.8),0_0_20px_rgba(251,191,36,0.6),0_0_40px_rgba(251,191,36,0.3)]
                       bg-gradient-to-br from-yellow-400/20 via-purple-500/15 to-pink-400/10
                       backdrop-blur-lg
@@ -276,7 +276,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
   const signInModal = isSignInOpen ? createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center 
-                    bg-gradient-to-br from-black/80 via-blue-900/50 to-purple-900/50
+                    bg-gradient-to-br from-black/85 via-blue-900/60 to-purple-900/60
                     backdrop-blur-sm overflow-hidden"
          onClick={onCloseSignIn}>
       
@@ -298,7 +298,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
       </div>
 
       {/* Main Content Container - Mobile Optimized */}
-      <div className="relative z-10 w-full max-w-[calc(100vw-2rem)] max-w-lg mx-4 p-6 
+      <div className="relative z-10 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg mx-2 sm:mx-4 p-6 
                       rounded-2xl border-2 border-blue-300 shadow-[0_0_0_1px_rgba(147,197,253,0.8),0_0_20px_rgba(59,130,246,0.6),0_0_40px_rgba(59,130,246,0.3)] 
                       bg-gradient-to-br from-blue-400/20 via-purple-500/15 to-cyan-400/10
                       backdrop-blur-lg

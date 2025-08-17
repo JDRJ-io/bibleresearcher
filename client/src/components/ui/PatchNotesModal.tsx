@@ -64,12 +64,12 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" 
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm" 
       style={{ zIndex: 99999 }}
     >
       <div 
         ref={modalRef}
-        className="w-full max-w-3xl max-h-[80vh] bg-background dark:bg-background border border-border rounded-lg shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300"
+        className="w-full max-w-[calc(100vw-1rem)] sm:max-w-3xl max-h-[80vh] bg-background dark:bg-background border border-border rounded-lg shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-purple-900/10 via-yellow-400/5 to-purple-900/10">
