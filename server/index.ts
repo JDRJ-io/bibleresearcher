@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import storageRoutes from './routes/storage.js';
 import userRoutes from './routes/users.js';
 import { registerStripeRoutes } from './routes/stripe.js';
+import authRoutes from './routes/auth';
+import profileRoutes from './routes/profile';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +24,8 @@ app.use('/important_docs', express.static(path.join(__dirname, '..', 'client', '
 // Routes
 app.use('/api/storage', storageRoutes);
 app.use('/api/users', userRoutes);
+app.use(authRoutes);
+app.use(profileRoutes);
 
 // Stripe payment routes
 registerStripeRoutes(app);
@@ -29,6 +33,11 @@ registerStripeRoutes(app);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Test endpoint to check if new routes are working
+app.get('/api/test-auth', (req, res) => {
+  res.json({ message: 'Auth endpoints are configured' });
 });
 
 app.listen(PORT, () => {

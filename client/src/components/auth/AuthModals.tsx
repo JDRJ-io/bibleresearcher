@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { sendMagicLink } from '@/lib/auth'
-import { X, Mail, Shield, Crown, Sparkles } from 'lucide-react'
+import { X, Mail, Shield, Crown, Sparkles, Check, AlertCircle } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -28,17 +28,65 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   // Only render if we have a DOM to portal to
   if (typeof document === 'undefined') return null;
   
-  const [signUpData, setSignUpData] = useState({ displayName: '', email: '', marketingOptIn: false })
+  const [signUpData, setSignUpData] = useState({ 
+    displayName: '', 
+    username: '', 
+    email: '', 
+    password: '', 
+    marketingOptIn: false 
+  })
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle')
   const [signInEmail, setSignInEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
+  // Check username availability
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username.trim() || username.length < 3) {
+      setUsernameStatus('idle')
+      return
+    }
+
+    setUsernameStatus('checking')
+    try {
+      const response = await fetch(`/api/auth/username-available?u=${encodeURIComponent(username)}`)
+      const result = await response.json()
+      
+      if (result.ok) {
+        setUsernameStatus(result.available ? 'available' : 'unavailable')
+      } else {
+        setUsernameStatus('unavailable')
+      }
+    } catch (error) {
+      console.error('Username check failed:', error)
+      setUsernameStatus('unavailable')
+    }
+  }
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!signUpData.displayName.trim() || !signUpData.email.trim()) {
+    if (!signUpData.displayName.trim() || !signUpData.username.trim() || !signUpData.email.trim() || !signUpData.password.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please enter both your name and email address.",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (signUpData.password.length < 8) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (usernameStatus !== 'available') {
+      toast({
+        title: "Username Not Available",
+        description: "Please choose a different username.",
         variant: "destructive"
       })
       return
@@ -46,40 +94,43 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
     setIsLoading(true)
     try {
-      const result = await sendMagicLink(signUpData.email)
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: signUpData.email,
+          password: signUpData.password,
+          username: signUpData.username,
+          displayName: signUpData.displayName
+        }),
+      })
+
+      const result = await response.json()
       
-      if (!result.success) {
+      if (!result.ok) {
         toast({
           title: "Sign Up Failed",
-          description: result.message,
+          description: result.error || "Something went wrong",
           variant: "destructive"
         })
       } else {
-        // Set up marketing opt-in listener for when user signs in
-        if (signUpData.marketingOptIn) {
-          const unsubscribe = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-              try {
-                await supabase
-                  .from('profiles')
-                  .update({ marketing_opt_in: true })
-                  .eq('id', session.user.id);
-                console.log('✅ Marketing opt-in saved for user');
-              } catch (error) {
-                console.warn('Failed to save marketing opt-in:', error);
-              }
-              // Clean up listener after first sign-in
-              unsubscribe.data.subscription.unsubscribe();
-            }
-          });
+        if (result.needsConfirmation) {
+          toast({
+            title: "Check Your Email! 📧",
+            description: `We sent a confirmation link to ${signUpData.email}`,
+          })
+        } else {
+          toast({
+            title: "Account Created! ✨",
+            description: "Welcome! You've been signed in automatically.",
+          })
         }
         
-        toast({
-          title: "Magic Link Sent! ✨",
-          description: `Check your email (${signUpData.email}) for your sign-in link.`,
-        })
         onCloseSignUp()
-        setSignUpData({ displayName: '', email: '', marketingOptIn: false })
+        setSignUpData({ displayName: '', username: '', email: '', password: '', marketingOptIn: false })
+        setUsernameStatus('idle')
       }
     } catch (error) {
       toast({
@@ -194,9 +245,50 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
               className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-yellow-200/80 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
+                         text-yellow-100 placeholder-yellow-200/80 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="signup-username" className="text-white/90 text-lg">Username</Label>
+            <div className="relative">
+              <Input
+                id="signup-username"
+                type="text"
+                placeholder="chosen_username"
+                value={signUpData.username}
+                onChange={(e) => {
+                  const username = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                  setSignUpData({ ...signUpData, username });
+                  checkUsernameAvailability(username);
+                }}
+                className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
+                           text-yellow-100 placeholder-yellow-200/80 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300 pr-10" 
+                style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
+                required
+                minLength={3}
+                maxLength={24}
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                {usernameStatus === 'checking' && (
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-yellow-400 border-t-transparent"></div>
+                )}
+                {usernameStatus === 'available' && (
+                  <Check className="h-5 w-5 text-green-400" />
+                )}
+                {usernameStatus === 'unavailable' && (
+                  <AlertCircle className="h-5 w-5 text-red-400" />
+                )}
+              </div>
+            </div>
+            {usernameStatus === 'available' && (
+              <p className="text-green-400 text-sm">✓ Username available</p>
+            )}
+            {usernameStatus === 'unavailable' && (
+              <p className="text-red-400 text-sm">✗ Username not available</p>
+            )}
           </div>
           
           <div className="space-y-2">
@@ -208,8 +300,25 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               value={signUpData.email}
               onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
               className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-yellow-200/80 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
+                         text-yellow-100 placeholder-yellow-200/80 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="signup-password" className="text-white/90 text-lg">Password</Label>
+            <Input
+              id="signup-password"
+              type="password"
+              placeholder="Sacred password (8+ characters)"
+              value={signUpData.password}
+              onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
+              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-yellow-100 placeholder-yellow-200/80 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
+              required
+              minLength={8}
             />
           </div>
 
@@ -237,17 +346,17 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                        hover:shadow-[0_0_0_2px_rgba(251,191,36,1),0_0_0_4px_rgba(147,51,234,1),0_0_35px_rgba(251,191,36,0.7),0_0_50px_rgba(147,51,234,0.4)] 
                        transform hover:scale-105 transition-all duration-300 rounded-lg
                        border-2 border-yellow-300 hover:border-yellow-200"
-            disabled={isLoading}
+            disabled={isLoading || usernameStatus !== 'available'}
           >
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                Sending Magic Link...
+                Creating Account...
               </>
             ) : (
               <>
-                <Mail className="mr-2 h-4 w-4" />
-                Send Magic Link ✨
+                <Crown className="mr-2 h-4 w-4" />
+                Create Sacred Account ✨
               </>
             )}
           </Button>
