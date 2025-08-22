@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import { X } from 'lucide-react';
+import { DocumentKey } from '../utils/documentLoader';
 
 // Configure marked for better formatting
 marked.setOptions({
@@ -14,7 +15,7 @@ interface DocumentTooltipProps {
   title: string;
   content: string;
   isLoading?: boolean;
-  onOpenDocument?: (documentKey: string) => void;
+  onOpenDocument?: (documentKey: DocumentKey) => Promise<void>;
 }
 
 export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
@@ -29,7 +30,7 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Map of URL paths to document keys
-  const urlToDocumentKey: Record<string, string> = {
+  const urlToDocumentKey: Record<string, DocumentKey> = {
     '/privacy': 'privacy',
     '/pricing': 'pricing',
     '/tos': 'tos',
