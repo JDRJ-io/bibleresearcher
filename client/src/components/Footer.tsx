@@ -63,6 +63,12 @@ const Footer = () => {
                 Privacy
               </button>
               <button 
+                onClick={() => openDocument('pricing')}
+                className="hover:text-foreground transition-colors"
+              >
+                Pricing
+              </button>
+              <button 
                 onClick={() => window.open('/forum', '_blank')}
                 className="hover:text-foreground transition-colors"
               >
@@ -105,7 +111,13 @@ const Footer = () => {
                 onClick={() => openDocument('privacy')}
                 className="hover:text-foreground transition-colors"
               >
-                Privacy Policy
+                Privacy
+              </button>
+              <button 
+                onClick={() => openDocument('pricing')}
+                className="hover:text-foreground transition-colors"
+              >
+                Pricing
               </button>
               <button 
                 onClick={() => window.open('/forum', '_blank')}

@@ -26,6 +26,10 @@ export const availableDocuments = {
     filename: 'Policies.md',
     title: 'Policies'
   },
+  'pricing': {
+    filename: 'Pricing.md',
+    title: 'Pricing'
+  },
   'acknowledgments': {
     filename: 'Acknowledgments.md',
     title: 'Acknowledgments'
@@ -45,6 +49,38 @@ export const availableDocuments = {
   'safety': {
     filename: 'Safety & Scam Prevention.md',
     title: 'Safety & Scam Prevention'
+  },
+  'accessibility': {
+    filename: 'Accessibility.md',
+    title: 'Accessibility'
+  },
+  'community': {
+    filename: 'Community_Spaces.md',
+    title: 'Community Spaces'
+  },
+  'contributor': {
+    filename: 'Contributor Agreement original.md',
+    title: 'Contributor Agreement'
+  },
+  'dmca': {
+    filename: 'DMCA.md',
+    title: 'DMCA Policy'
+  },
+  'delete-account': {
+    filename: 'Delete_account.md',
+    title: 'Delete Account'
+  },
+  'disclaimer': {
+    filename: 'Disclaimer.md',
+    title: 'Disclaimer'
+  },
+  'cookies': {
+    filename: 'cookies.md',
+    title: 'Cookie Policy'
+  },
+  'patch-notes': {
+    filename: 'patch_notes.md',
+    title: 'Patch Notes'
   }
 } as const;
 

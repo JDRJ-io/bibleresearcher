@@ -47,7 +47,10 @@ export const DocumentMenu: React.FC<DocumentMenuProps> = ({
       docs: [
         { key: 'tos' as DocumentKey, description: 'Our terms and conditions' },
         { key: 'privacy' as DocumentKey, description: 'How we handle your data' },
-        { key: 'policies' as DocumentKey, description: 'Comprehensive platform policies' }
+        { key: 'policies' as DocumentKey, description: 'Comprehensive platform policies' },
+        { key: 'dmca' as DocumentKey, description: 'DMCA takedown policy' },
+        { key: 'disclaimer' as DocumentKey, description: 'Legal disclaimers' },
+        { key: 'cookies' as DocumentKey, description: 'Cookie usage policy' }
       ]
     },
     support: {
@@ -56,13 +59,19 @@ export const DocumentMenu: React.FC<DocumentMenuProps> = ({
         { key: 'support' as DocumentKey, description: 'Get help with your account' },
         { key: 'acknowledgments' as DocumentKey, description: 'Credits and attributions' },
         { key: 'mission' as DocumentKey, description: 'Learn about our purpose' },
-        { key: 'safety' as DocumentKey, description: 'Stay safe online' }
+        { key: 'safety' as DocumentKey, description: 'Stay safe online' },
+        { key: 'accessibility' as DocumentKey, description: 'Accessibility features' },
+        { key: 'patch-notes' as DocumentKey, description: 'Latest updates and changes' },
+        { key: 'delete-account' as DocumentKey, description: 'How to delete your account' }
       ]
     },
-    community: {
-      title: 'Community',
+    business: {
+      title: 'Business & Community',
       docs: [
-        { key: 'donate' as DocumentKey, description: 'Support our mission' }
+        { key: 'pricing' as DocumentKey, description: 'Subscription plans and pricing' },
+        { key: 'donate' as DocumentKey, description: 'Support our mission' },
+        { key: 'community' as DocumentKey, description: 'Community spaces and guidelines' },
+        { key: 'contributor' as DocumentKey, description: 'Contributor agreement' }
       ]
     }
   };
