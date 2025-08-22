@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import { X } from 'lucide-react';
 
+// Configure marked for better formatting
+marked.setOptions({
+  breaks: true, // Convert line breaks to <br> tags
+  gfm: true,    // GitHub Flavored Markdown
+});
+
 interface DocumentTooltipProps {
   isOpen: boolean;
   onClose: () => void;
@@ -70,7 +76,16 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
             </div>
           ) : (
             <div 
-              className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground prose-a:text-primary hover:prose-a:text-primary/80"
+              className="prose prose-sm max-w-none dark:prose-invert
+                         prose-headings:text-foreground prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-4 first:prose-headings:mt-0
+                         prose-p:text-foreground prose-p:mb-4 prose-p:leading-relaxed prose-p:text-sm
+                         prose-strong:text-foreground prose-strong:font-semibold
+                         prose-li:text-foreground prose-li:mb-2 prose-li:text-sm prose-li:leading-relaxed
+                         prose-ol:mb-4 prose-ul:mb-4 prose-ol:pl-4 prose-ul:pl-4
+                         prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80
+                         [&>ol]:list-decimal [&>ul]:list-disc [&>ol>li]:ml-4 [&>ul>li]:ml-4
+                         [&>p>strong]:text-foreground [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
+                         [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm"
               dangerouslySetInnerHTML={{ __html: marked(content) }}
             />
           )}
