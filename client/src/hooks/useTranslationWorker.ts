@@ -21,11 +21,17 @@ export function useTranslationWorker() {
     const worker = new Worker('/translationWorker.js');
     workerRef.current = worker;
 
-    // Initialize with API key
+    // Initialize with API key from environment variables
+    const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseAnon) {
+      console.error('Missing VITE_SUPABASE_ANON_KEY environment variable');
+      return;
+    }
+    
     worker.postMessage({
       type: 'INIT',
       payload: {
-        apiKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjYXF2eGJic2N3Y3hianBmcmRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0OTA2MTQsImV4cCI6MjA2MTA2NjYxNH0.yZgEijr7c_oAFu2oYWD4YCmrbusoWL3wgsAi757CCU8'
+        apiKey: supabaseAnon
       }
     });
 
