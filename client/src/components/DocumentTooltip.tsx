@@ -14,6 +14,7 @@ interface DocumentTooltipProps {
   title: string;
   content: string;
   isLoading?: boolean;
+  onOpenDocument?: (documentKey: string) => void;
 }
 
 export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
@@ -21,9 +22,33 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
   onClose,
   title,
   content,
-  isLoading = false
+  isLoading = false,
+  onOpenDocument
 }) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Map of URL paths to document keys
+  const urlToDocumentKey: Record<string, string> = {
+    '/privacy': 'privacy',
+    '/pricing': 'pricing',
+    '/tos': 'tos',
+    '/policies': 'policies',
+    '/support': 'support',
+    '/donate': 'donate',
+    '/mission': 'mission',
+    '/safety': 'safety',
+    '/accessibility': 'accessibility',
+    '/community': 'community',
+    '/contributor': 'contributor',
+    '/dmca': 'dmca',
+    '/disclaimer': 'disclaimer',
+    '/cookies': 'cookies',
+    '/patch-notes': 'patch-notes',
+    '/delete-account': 'delete-account',
+    '/privacy_policy': 'privacy',
+    '/acknowledgments': 'acknowledgments'
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -48,6 +73,32 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onClose]);
+
+  // Handle clicks on links within the document content
+  useEffect(() => {
+    if (!isOpen || !contentRef.current || !onOpenDocument) return;
+
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A') {
+        const href = target.getAttribute('href');
+        if (href && urlToDocumentKey[href]) {
+          e.preventDefault();
+          e.stopPropagation();
+          const documentKey = urlToDocumentKey[href];
+          onOpenDocument(documentKey);
+        }
+      }
+    };
+
+    contentRef.current.addEventListener('click', handleLinkClick);
+
+    return () => {
+      if (contentRef.current) {
+        contentRef.current.removeEventListener('click', handleLinkClick);
+      }
+    };
+  }, [isOpen, onOpenDocument, urlToDocumentKey]);
 
   if (!isOpen) return null;
 
@@ -76,13 +127,14 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
             </div>
           ) : (
             <div 
+              ref={contentRef}
               className="prose prose-sm max-w-none dark:prose-invert
                          prose-headings:text-foreground prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-4 first:prose-headings:mt-0
                          prose-p:text-foreground prose-p:mb-4 prose-p:leading-relaxed prose-p:text-sm
                          prose-strong:text-foreground prose-strong:font-semibold
                          prose-li:text-foreground prose-li:mb-2 prose-li:text-sm prose-li:leading-relaxed
                          prose-ol:mb-4 prose-ul:mb-4 prose-ol:pl-4 prose-ul:pl-4
-                         prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80
+                         prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80 prose-a:cursor-pointer
                          [&>ol]:list-decimal [&>ul]:list-disc [&>ol>li]:ml-4 [&>ul>li]:ml-4
                          [&>p>strong]:text-foreground [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
                          [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm"

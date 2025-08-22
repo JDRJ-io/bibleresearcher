@@ -159,6 +159,7 @@ const Footer = () => {
         title={tooltip?.title || ''}
         content={documentContent}
         isLoading={isLoading}
+        onOpenDocument={openDocument}
       />
     </>
   );
