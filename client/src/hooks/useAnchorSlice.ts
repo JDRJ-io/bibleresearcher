@@ -47,15 +47,15 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
   };
 }
 
-// SMART THRESHOLD: Dynamic based on device capabilities
+// SMOOTH THRESHOLD: Less frequent triggers for smoother scrolling
 function getOptimalThreshold(): number {
   const isMobile = window.innerWidth <= 768;
   const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
   
   if (isMobile || isLowMemory) {
-    return 5; // Very frequent loads to stay ahead of scrolling
+    return 15; // Less frequent triggers for smoother mobile scrolling
   }
-  return 8; // More frequent loads for desktop too
+  return 20; // Less frequent triggers for smoother desktop scrolling
 }
 
 export function useAnchorSlice(
@@ -93,11 +93,10 @@ export function useAnchorSlice(
       
       const optimalThresh = getOptimalThreshold();
       
-      // INSTANT LOADING: For mobile, always load if we're within 3 verses of viewport edge
+      // SMOOTH MOBILE: Remove the aggressive 3-verse trigger that causes lag
       const isMobile = window.innerWidth <= 768;
-      const isNearEdge = isMobile && Math.abs(clampedAnchor - lastAnchor) >= 3;
       
-      if (Math.abs(clampedAnchor - lastAnchor) >= optimalThresh || isNearEdge) {
+      if (Math.abs(clampedAnchor - lastAnchor) >= optimalThresh) {
         // Store current scroll position before slice change
         const currentScrollTop = el.scrollTop;
         
