@@ -129,11 +129,11 @@ export function InlineDateInfo({ verseId, className = '' }: InlineDateInfoProps)
   };
 
   if (isLoading || !dateInfo) {
-    return <Clock className="w-2.5 h-2.5 text-gray-400" />;
+    return <Clock className="w-2.5 h-2.5" style={{color: 'var(--text-secondary)'}} />;
   }
 
   return (
-    <div className={`text-[9px] text-gray-500 dark:text-gray-400 font-mono leading-tight ${className}`}>
+    <div className={`text-[9px] font-mono leading-tight ${className}`} style={{color: 'var(--text-secondary)'}}>
       {dateInfo.era}
     </div>
   );

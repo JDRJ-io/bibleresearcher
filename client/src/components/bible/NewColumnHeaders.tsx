@@ -439,7 +439,6 @@ export function NewColumnHeaders({
           font-bold 
           text-xs 
           leading-none
-          ${column.type === 'main-translation' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-background'}
           ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2 py-1'}
           ${isDragging ? 'opacity-50' : ''}
           ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}
@@ -449,7 +448,10 @@ export function NewColumnHeaders({
           width: column.width,
           minWidth: column.width,
           maxWidth: column.width,
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
+          color: 'var(--text-primary)',
+          borderColor: 'var(--border-color)'
         }}
         data-column={column.type}
         {...(isDraggable ? attributes : {})}
@@ -457,7 +459,7 @@ export function NewColumnHeaders({
       >
         <div className="flex items-center gap-1">
           {isDraggable && (
-            <GripVertical className="w-3 h-3 text-gray-400" />
+            <GripVertical className="w-3 h-3" style={{color: 'var(--text-secondary)'}} />
           )}
           {column.name}
         </div>
@@ -479,17 +481,21 @@ export function NewColumnHeaders({
         }}
       >
         {/* Navigation arrows positioned above the headers */}
-        <div className="flex justify-between items-center px-4 py-1 bg-gray-50 dark:bg-gray-900 border-b">
+        <div 
+          className="flex justify-between items-center px-4 py-1 border-b"
+          style={{backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)'}}
+        >
           {/* Presentation Mode Toggle */}
           <Button
             onClick={togglePresentationMode}
             variant={isPresentationMode ? "default" : "outline"}
             size="sm"
-            className={`flex items-center gap-1 text-xs ${
-              isPresentationMode 
-                ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
-            }`}
+            className="flex items-center gap-1 text-xs"
+            style={{
+              backgroundColor: isPresentationMode ? 'var(--accent-color)' : 'var(--bg-primary)',
+              color: isPresentationMode ? 'var(--bg-primary)' : 'var(--text-primary)',
+              borderColor: 'var(--border-color)'
+            }}
           >
             {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
             {isPresentationMode ? "Reset" : "Present"}
