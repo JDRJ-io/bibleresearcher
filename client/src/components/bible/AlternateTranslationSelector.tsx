@@ -33,10 +33,10 @@ export function AlternateTranslationSelector({ onUpdate }: AlternateTranslationS
 
   return (
     <div className="space-y-3">
-      <div className="text-xs text-gray-600 dark:text-gray-400">
+      <div className="text-xs" style={{color: 'var(--text-secondary)'}}>
         Current active: {alternates.length} translation{alternates.length !== 1 ? 's' : ''}
         {alternates.length > 0 && (
-          <span className="ml-2 text-blue-600 dark:text-blue-400">
+          <span className="ml-2" style={{color: 'var(--accent-color)'}}>
             ({alternates.join(', ')})
           </span>
         )}
@@ -51,14 +51,14 @@ export function AlternateTranslationSelector({ onUpdate }: AlternateTranslationS
               onCheckedChange={(checked) => handleAlternateToggle(code, checked as boolean)}
               className="w-3 h-3"
             />
-            <Label htmlFor={`alt-${code}`} className="text-xs cursor-pointer">
+            <Label htmlFor={`alt-${code}`} className="text-xs cursor-pointer" style={{color: 'var(--text-primary)'}}>
               {code}
             </Label>
           </div>
         ))}
       </div>
       
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      <div className="text-xs mt-2" style={{color: 'var(--text-secondary)'}}>
         Each translation will appear as a separate column in slots 5-16
       </div>
     </div>

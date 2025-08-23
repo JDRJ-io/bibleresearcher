@@ -34,8 +34,8 @@ export function MainTranslationSelector({ onUpdate }: MainTranslationSelectorPro
 
   return (
     <div className="space-y-3">
-      <div className="text-xs text-gray-600 dark:text-gray-400">
-        Current main translation: <span className="font-medium text-blue-600 dark:text-blue-400">{main}</span>
+      <div className="text-xs" style={{color: 'var(--text-secondary)'}}>
+        Current main translation: <span className="font-medium" style={{color: 'var(--accent-color)'}}>{main}</span>
       </div>
       
       <RadioGroup value={main} onValueChange={handleMainChange}>
@@ -43,7 +43,7 @@ export function MainTranslationSelector({ onUpdate }: MainTranslationSelectorPro
           {AVAILABLE_TRANSLATIONS.map(code => (
             <div key={code} className="flex items-center space-x-2">
               <RadioGroupItem value={code} id={`main-${code}`} className="w-3 h-3" />
-              <Label htmlFor={`main-${code}`} className="text-xs cursor-pointer">
+              <Label htmlFor={`main-${code}`} className="text-xs cursor-pointer" style={{color: 'var(--text-primary)'}}>
                 {code}
               </Label>
             </div>
@@ -51,7 +51,7 @@ export function MainTranslationSelector({ onUpdate }: MainTranslationSelectorPro
         </div>
       </RadioGroup>
       
-      <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      <div className="text-xs mt-2" style={{color: 'var(--text-secondary)'}}>
         The main translation appears in slot 2 and cannot be removed
       </div>
     </div>
