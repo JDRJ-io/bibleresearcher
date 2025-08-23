@@ -126,15 +126,27 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                 <button
                   type="button"
                   className="font-mono text-sm font-semibold cursor-pointer"
-                  style={{color: 'var(--accent-color)', background: 'none', border: 'none', padding: '0'}}
-                  onClick={(e) => handleCrossRefClick(ref, e)}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onTouchEnd={(e) => handleCrossRefClick(ref, e)}
-                  style={{ 
-                    minHeight: '24px', 
+                  style={{
+                    color: 'var(--link-color)', 
+                    background: 'none', 
+                    border: 'none', 
+                    padding: '0',
+                    textDecoration: 'none',
+                    minHeight: '24px',
                     minWidth: '60px',
                     touchAction: 'manipulation'
                   }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.textDecoration = 'underline';
+                    e.currentTarget.style.color = 'var(--link-hover-color)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.textDecoration = 'none';
+                    e.currentTarget.style.color = 'var(--link-color)';
+                  }}
+                  onClick={(e) => handleCrossRefClick(ref, e)}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onTouchEnd={(e) => handleCrossRefClick(ref, e)}
                 >
                   {ref}
                 </button>

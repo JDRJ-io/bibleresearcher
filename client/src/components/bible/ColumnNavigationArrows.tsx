@@ -189,20 +189,28 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
       <button
         onClick={handleNavigateLeft}
         disabled={!layout?.canGoLeft}
-        className={cn(
-          "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-          "border border-gray-300 dark:border-gray-600",
-          layout?.canGoLeft 
-            ? "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer" 
-            : "bg-gray-100 dark:bg-gray-900 text-gray-400 dark:text-gray-600 cursor-not-allowed"
-        )}
+        style={{
+          backgroundColor: layout?.canGoLeft ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+          borderColor: 'var(--border-color)',
+          color: layout?.canGoLeft ? 'var(--text-primary)' : 'var(--text-secondary)',
+          cursor: layout?.canGoLeft ? 'pointer' : 'not-allowed',
+          opacity: layout?.canGoLeft ? 1 : 0.5
+        }}
+        className="flex items-center justify-center w-8 h-8 rounded-md transition-all border hover:opacity-80"
         title="Navigate left one column"
       >
         <ChevronLeft size={16} />
       </button>
 
       {/* Column Indicator */}
-      <div className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded">
+      <div 
+        className="flex items-center gap-1 px-2 py-1 text-xs rounded"
+        style={{
+          backgroundColor: 'var(--bg-secondary)',
+          color: 'var(--text-secondary)',
+          border: '1px solid var(--border-color)'
+        }}
+      >
         <span>{layout?.labelStart}-{layout?.labelEnd}</span>
         <span>/</span>
         <span>{layout?.totalNavigableColumns}</span>
@@ -212,13 +220,14 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
       <button
         onClick={handleNavigateRight}
         disabled={!layout?.canGoRight}
-        className={cn(
-          "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-          "border border-gray-300 dark:border-gray-600",
-          layout?.canGoRight 
-            ? "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-pointer" 
-            : "bg-gray-100 dark:bg-gray-900 text-gray-400 dark:text-gray-600 cursor-not-allowed"
-        )}
+        style={{
+          backgroundColor: layout?.canGoRight ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+          borderColor: 'var(--border-color)',
+          color: layout?.canGoRight ? 'var(--text-primary)' : 'var(--text-secondary)',
+          cursor: layout?.canGoRight ? 'pointer' : 'not-allowed',
+          opacity: layout?.canGoRight ? 1 : 0.5
+        }}
+        className="flex items-center justify-center w-8 h-8 rounded-md transition-all border hover:opacity-80"
         title="Navigate right one column"
       >
         <ChevronRight size={16} />

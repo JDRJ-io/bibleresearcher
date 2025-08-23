@@ -76,7 +76,6 @@ body {
 }
 
 .cross-ref-item:hover {
-  color: var(--accent-color);
   background: none !important;
 }
 

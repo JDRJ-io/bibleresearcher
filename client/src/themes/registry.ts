@@ -22,6 +22,8 @@ type ThemeVars = {
   textSecondary: string;
   borderColor: string;
   accentColor: string;
+  linkColor: string;
+  linkHoverColor: string;
 };
 
 export const THEMES: Record<ThemeName, ThemeVars> = {
@@ -38,6 +40,8 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     textSecondary: 'hsl(215, 20%, 35%)',
     borderColor: 'hsl(214, 32%, 91%)',
     accentColor: 'hsl(221, 83%, 53%)',
+    linkColor: 'hsl(221, 83%, 53%)',
+    linkHoverColor: 'hsl(221, 83%, 43%)',
   },
   dark: {
     bgPrimary: 'hsl(222, 20%, 11%)',
@@ -52,6 +56,8 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     textSecondary: 'hsl(215, 20%, 65%)',
     borderColor: 'hsl(217, 33%, 17%)',
     accentColor: 'hsl(217, 91%, 65%)',
+    linkColor: 'hsl(217, 91%, 70%)',
+    linkHoverColor: 'hsl(217, 91%, 80%)',
   },
   aurora: {
     bgPrimary: 'hsl(210, 30%, 12%)',
@@ -67,6 +73,8 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     textSecondary: 'hsl(190, 40%, 65%)',
     borderColor: 'hsl(190, 50%, 25%)',
     accentColor: 'hsl(170, 80%, 60%)',
+    linkColor: 'hsl(170, 100%, 70%)',
+    linkHoverColor: 'hsl(170, 100%, 80%)',
   },
   sepia: {
     bgPrimary: 'hsl(35, 35%, 92%)',
@@ -81,6 +89,8 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     textSecondary: 'hsl(30, 30%, 35%)',
     borderColor: 'hsl(35, 30%, 78%)',
     accentColor: 'hsl(40, 70%, 45%)',
+    linkColor: 'hsl(210, 85%, 50%)',
+    linkHoverColor: 'hsl(210, 85%, 40%)',
   },
   forest: {
     bgPrimary: 'hsl(145, 20%, 12%)',
@@ -95,6 +105,8 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     textSecondary: 'hsl(120, 25%, 65%)',
     borderColor: 'hsl(130, 30%, 25%)',
     accentColor: 'hsl(120, 50%, 50%)',
+    linkColor: 'hsl(120, 60%, 60%)',
+    linkHoverColor: 'hsl(120, 60%, 70%)',
   },
   cyberpunk: {
     bgPrimary: 'hsl(280, 28%, 10%)',
@@ -110,5 +122,7 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     textSecondary: 'hsl(310, 40%, 65%)',
     borderColor: 'hsl(300, 50%, 25%)',
     accentColor: 'hsl(310, 95%, 60%)',
+    linkColor: 'hsl(310, 100%, 70%)',
+    linkHoverColor: 'hsl(310, 100%, 80%)',
   },
 };

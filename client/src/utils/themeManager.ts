@@ -35,6 +35,8 @@ export function applyTheme(name: ThemeName) {
   set('--text-secondary', t.textSecondary);
   set('--border-color', t.borderColor);
   set('--accent-color', t.accentColor);
+  set('--link-color', t.linkColor);
+  set('--link-hover-color', t.linkHoverColor);
 
   // Tailwind-facing aliases
   set('--background', t.bgPrimary);
