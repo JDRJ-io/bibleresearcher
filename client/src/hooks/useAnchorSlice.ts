@@ -3,7 +3,7 @@ import { useRef, useState, useLayoutEffect } from "react";
 import { getVerseKeys } from "@/lib/verseKeysLoader";
 import { ROW_HEIGHT } from "@/constants/layout";
 
-// SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities
+// MASSIVE ALWAYS-AHEAD BUFFER: Always keep verses loaded way ahead of user
 function getOptimalBuffer(): number {
   // Detect mobile/low-memory devices
   const isMobile = window.innerWidth <= 768;
@@ -11,9 +11,9 @@ function getOptimalBuffer(): number {
   const isSlowConnection = (navigator as any).connection && (navigator as any).connection.effectiveType?.includes('2g');
   
   if (isMobile || isLowMemory || isSlowConnection) {
-    return 40; // Increased mobile buffer for smoother scrolling
+    return 200; // MASSIVE mobile buffer - always stay ahead
   }
-  return 100; // Larger desktop buffer for seamless experience
+  return 500; // HUGE desktop buffer - user never waits
 }
 
 // Simple loadChunk implementation to replace anchorLoader - MOBILE OPTIMIZED
@@ -38,7 +38,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
     `${Math.round(memInfo.usedJSHeapSize / 1024 / 1024)}MB/${Math.round(memInfo.jsHeapSizeLimit / 1024 / 1024)}MB` : 
     'unknown';
   
-  console.log(`📖 PREEMPTIVE LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer}, verses=${slice.length}, staying ahead of scroll`);
+  console.log(`🚀 CONTINUOUS LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer}, verses=${slice.length}, MASSIVE BUFFER ALWAYS AHEAD`);
   
   return {
     start,
@@ -47,15 +47,15 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
   };
 }
 
-// SMOOTH THRESHOLD: Less frequent triggers for smoother scrolling
+// INSTANT THRESHOLD: Update continuously, not reactively
 function getOptimalThreshold(): number {
   const isMobile = window.innerWidth <= 768;
   const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
   
   if (isMobile || isLowMemory) {
-    return 15; // Less frequent triggers for smoother mobile scrolling
+    return 5; // Update every 5 verses - stay ahead constantly
   }
-  return 20; // Less frequent triggers for smoother desktop scrolling
+  return 5; // Update every 5 verses - never let user outpace loading
 }
 
 export function useAnchorSlice(
