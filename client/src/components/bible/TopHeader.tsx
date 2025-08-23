@@ -243,7 +243,13 @@ export function TopHeader({
               <Button
                 variant="default"
                 size="sm"
-                className="h-8 px-3 text-xs"
+                className="h-8 px-3 text-xs font-semibold border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                style={{
+                  backgroundColor: 'var(--accent-color)',
+                  color: 'var(--bg-primary)',
+                  borderColor: 'var(--accent-color)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
                 onClick={() => setIsSignInOpen(true)}
               >
                 <KeyRound className="w-3 h-3 mr-1" />
@@ -352,11 +358,18 @@ export function TopHeader({
               <Button
                 variant="default"
                 size="sm"
-                className="px-4 h-9"
+                className="px-4 h-9 font-semibold border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg relative overflow-hidden"
+                style={{
+                  backgroundColor: 'var(--accent-color)',
+                  color: 'var(--bg-primary)',
+                  borderColor: 'var(--accent-color)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }}
                 onClick={() => setIsSignInOpen(true)}
               >
-                <KeyRound className="w-4 h-4 mr-2" />
-                Sign In
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                <KeyRound className="w-4 h-4 mr-2 relative z-10" />
+                <span className="relative z-10">Sign In</span>
               </Button>
             )}
 
