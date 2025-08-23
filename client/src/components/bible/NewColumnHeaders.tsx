@@ -477,7 +477,8 @@ export function NewColumnHeaders({
       <div 
         className="column-headers-wrapper sticky top-0 z-20 bg-background border-b"
         style={{ 
-          width: '100%'
+          width: '100%',
+          overflow: 'hidden'
         }}
       >
         {/* Navigation arrows positioned above the headers */}
