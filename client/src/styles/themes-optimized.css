@@ -63,16 +63,21 @@ body {
 
 /* No theme-specific adjustments needed for light/dark */
 
-/* Clean cross-reference styling - no boxes, just text */
+/* Clean cross-reference styling - completely transparent, text only */
 .cross-ref-item {
   color: var(--text-primary);
   display: block;
   margin-bottom: 0.25rem;
   line-height: 1.4;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
 }
 
 .cross-ref-item:hover {
   color: var(--accent-color);
+  background: none !important;
 }
 
 /* No custom fonts needed for light/dark themes */

@@ -122,10 +122,11 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             }
 
             return (
-              <div key={i} className="cross-ref-item block w-full mb-1">
+              <div key={i} className="cross-ref-item block w-full mb-1" style={{background: 'none', border: 'none', padding: '0'}}>
                 <button
                   type="button"
-                  className="font-mono text-blue-600 dark:text-blue-400 text-sm font-semibold cursor-pointer"
+                  className="font-mono text-sm font-semibold cursor-pointer"
+                  style={{color: 'var(--accent-color)', background: 'none', border: 'none', padding: '0'}}
                   onClick={(e) => handleCrossRefClick(ref, e)}
                   onTouchStart={(e) => e.stopPropagation()}
                   onTouchEnd={(e) => handleCrossRefClick(ref, e)}
@@ -137,8 +138,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                 >
                   {ref}
                 </button>
-                <div className="text-gray-700 dark:text-gray-300 text-sm leading-tight whitespace-normal break-words">
-                  <div className="px-2 py-1 text-sm leading-tight cell-content h-full overflow-y-auto" style={{ maxHeight: '100%', boxSizing: 'border-box' }}>
+                <div className="text-sm leading-tight whitespace-normal break-words" style={{color: 'var(--text-primary)', background: 'none', padding: '0'}}>
+                  <div className="text-sm leading-tight h-full" style={{background: 'none', padding: '0', border: 'none', boxShadow: 'none'}}>
                     {refText ? renderTextWithLabels(refText, ref) : '—'}
                   </div>
                 </div>
