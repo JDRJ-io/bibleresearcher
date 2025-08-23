@@ -470,10 +470,11 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                 <FileText className="w-3 h-3" />
                 Support Our Mission
               </a>
-              <hr className="border-gray-200 dark:border-gray-700" />
+              <hr style={{borderColor: 'var(--border-color)'}} />
               <a 
                 href="/docs" 
-                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                className="flex items-center gap-2 text-xs hover:underline font-medium"
+                style={{color: 'var(--accent-color)'}}
                 onClick={onClose}
               >
                 <FileText className="w-3 h-3" />
@@ -499,7 +500,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
       <div className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40 max-w-[calc(100vw-16px)]">
         {/* Sleek Tab Bar */}
         <div className="flex flex-col">
-          <div className="flex bg-white/20 dark:bg-gray-900/30 backdrop-blur-xl rounded-full border border-white/30 dark:border-gray-700/30 p-1 shadow-lg relative">
+          <div className="flex backdrop-blur-xl rounded-full p-1 shadow-lg relative" style={{backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', border: '1px solid'}}>
             {tabs.map((tab, index) => {
               const Icon = tab.icon;
               return (
@@ -512,11 +513,23 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                         setActiveTab(tab.id);
                       }
                     }}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
-                      activeTab === tab.id
-                        ? "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-md"
-                        : "text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white/30 dark:hover:bg-gray-800/30"
-                    }`}
+                    className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 shadow-md"
+                    style={{
+                      backgroundColor: activeTab === tab.id ? 'var(--highlight-bg)' : 'transparent',
+                      color: activeTab === tab.id ? 'var(--accent-color)' : 'var(--text-secondary)'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (activeTab !== tab.id) {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+                        e.currentTarget.style.color = 'var(--accent-color)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (activeTab !== tab.id) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                      }
+                    }}
                   >
                     <Icon className="w-3 h-3" />
                     <span className="hidden sm:inline">{tab.label}</span>
@@ -528,7 +541,16 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
             {/* Close Button integrated in tab bar */}
             <button
               onClick={onClose}
-              className="flex items-center justify-center w-8 h-8 rounded-full text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-2"
+              className="flex items-center justify-center w-8 h-8 rounded-full transition-colors ml-2"
+              style={{color: 'var(--text-secondary)'}}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--accent-color)';
+                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -539,7 +561,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
           {/* Dropdown positioned directly under tab bar for mobile */}
           {activeTab && (
             <div className="mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] z-50">
-              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg shadow-xl border border-white/20 dark:border-gray-700/30 animate-in slide-in-from-top-2 duration-200">
+              <div className="backdrop-blur-xl rounded-lg shadow-xl animate-in slide-in-from-top-2 duration-200" style={{backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', border: '1px solid'}}>
                 <div className="p-3 sm:p-4 max-h-72 sm:max-h-80 overflow-y-auto">
                   {renderTabContent()}
                 </div>

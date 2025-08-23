@@ -111,7 +111,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Cross-reference rendering debug removed for performance
 
   return (
-    <div className="px-2 py-1 text-sm cell-content cross-ref-cell glass-morphism glass-cross-ref-cell">
+    <div className="px-2 py-1 text-sm cell-content cross-ref-cell">
       {crossRefs.length > 0 ? (
         <div className="space-y-0">
           {crossRefs.map((ref, i) => {
