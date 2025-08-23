@@ -500,7 +500,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
       <div className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40 max-w-[calc(100vw-16px)]">
         {/* Sleek Tab Bar */}
         <div className="flex flex-col">
-          <div className="flex backdrop-blur-xl rounded-full p-1 shadow-lg relative" style={{backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', border: '1px solid'}}>
+          <div className="flex backdrop-blur-xl rounded-full p-1 relative" style={{backgroundColor: 'var(--bg-secondary)'}}>
             {tabs.map((tab, index) => {
               const Icon = tab.icon;
               return (
@@ -513,7 +513,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                         setActiveTab(tab.id);
                       }
                     }}
-                    className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200 shadow-md"
+                    className="flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all duration-200"
                     style={{
                       backgroundColor: activeTab === tab.id ? 'var(--highlight-bg)' : 'transparent',
                       color: activeTab === tab.id ? 'var(--accent-color)' : 'var(--text-secondary)'
