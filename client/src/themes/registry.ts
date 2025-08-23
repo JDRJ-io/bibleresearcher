@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'dark' | 'aurora' | 'sepia' | 'forest' | 'cyberpunk';
+export type ThemeName = 'light' | 'dark' | 'aurora' | 'sepia' | 'forest' | 'cyberpunk' | 'electric';
 
 type ThemeVars = {
   // surfaces
@@ -124,5 +124,22 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     accentColor: 'hsl(310, 95%, 60%)',
     linkColor: 'hsl(310, 100%, 70%)',
     linkHoverColor: 'hsl(310, 100%, 80%)',
+  },
+  electric: {
+    bgPrimary: 'hsl(220, 85%, 8%)',
+    bgSecondary: 'hsl(225, 80%, 6%)',
+    headerBg: 'hsl(220, 85%, 8%)',
+    columnBg: 'hsl(220, 85%, 8%)',
+    highlightBg: 'hsla(60, 100%, 50%, 0.15)',
+    gradAngle: '135deg',
+    grad0: 'hsl(230, 90%, 12%)',
+    grad1: 'hsl(210, 85%, 15%)',
+    glassBg: 'rgba(5, 15, 40, 0.25)',
+    textPrimary: 'hsl(50, 100%, 90%)',
+    textSecondary: 'hsl(45, 80%, 75%)',
+    borderColor: 'hsl(220, 70%, 25%)',
+    accentColor: 'hsl(60, 100%, 50%)',
+    linkColor: 'hsl(55, 100%, 60%)',
+    linkHoverColor: 'hsl(50, 100%, 70%)',
   },
 };

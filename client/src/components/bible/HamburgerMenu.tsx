@@ -377,7 +377,8 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                   aurora: 'Aurora',
                   sepia: 'Sepia',
                   forest: 'Forest',
-                  cyberpunk: 'Cyberpunk'
+                  cyberpunk: 'Cyberpunk',
+                  electric: 'Electric'
                 } as const;
 
                 return (
