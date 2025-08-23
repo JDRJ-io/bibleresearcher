@@ -5,18 +5,15 @@ import { ROW_HEIGHT } from "@/constants/layout";
 
 // SMART MOBILE OPTIMIZATION: Dynamic buffer based on device capabilities
 function getOptimalBuffer(): number {
-  // MINIMUM GUARANTEE: Always at least 20 verses in each direction as requested
-  const MINIMUM_BUFFER = 20;
-  
   // Detect mobile/low-memory devices
   const isMobile = window.innerWidth <= 768;
   const isLowMemory = (navigator as any).deviceMemory && (navigator as any).deviceMemory <= 4;
   const isSlowConnection = (navigator as any).connection && (navigator as any).connection.effectiveType?.includes('2g');
   
   if (isMobile || isLowMemory || isSlowConnection) {
-    return Math.max(MINIMUM_BUFFER, 40); // At least 20, but prefer 40 for smoother scrolling
+    return 40; // Increased mobile buffer for smoother scrolling
   }
-  return Math.max(MINIMUM_BUFFER, 100); // At least 20, but prefer 100 for seamless experience
+  return 100; // Larger desktop buffer for seamless experience
 }
 
 // Simple loadChunk implementation to replace anchorLoader - MOBILE OPTIMIZED
@@ -41,7 +38,7 @@ function loadChunk(anchorIndex: number, verseKeys: string[], buffer?: number) {
     `${Math.round(memInfo.usedJSHeapSize / 1024 / 1024)}MB/${Math.round(memInfo.jsHeapSizeLimit / 1024 / 1024)}MB` : 
     'unknown';
   
-  console.log(`📖 PREEMPTIVE LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer} (min 20), verses=${slice.length}, staying ahead of scroll`);
+  console.log(`📖 PREEMPTIVE LOADING: anchor=${anchorIndex}, buffer=${optimalBuffer}, verses=${slice.length}, staying ahead of scroll`);
   
   return {
     start,
