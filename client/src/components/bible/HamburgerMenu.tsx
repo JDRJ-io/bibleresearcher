@@ -370,20 +370,31 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
             <div className="space-y-1">
-              {themes.map((themeOption) => (
-                <button
-                  key={themeOption.id}
-                  onClick={() => setTheme(themeOption.id as any)}
-                  className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
-                    theme === themeOption.id 
-                      ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
-                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                >
-                  <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" />
-                  <span className="text-xs">{themeOption.name}</span>
-                </button>
-              ))}
+              {themes.map((themeName) => {
+                const themeDisplayNames = {
+                  light: 'Light',
+                  dark: 'Dark', 
+                  aurora: 'Aurora',
+                  sepia: 'Sepia',
+                  forest: 'Forest',
+                  cyberpunk: 'Cyberpunk'
+                } as const;
+
+                return (
+                  <button
+                    key={themeName}
+                    onClick={() => setTheme(themeName)}
+                    className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
+                      theme === themeName 
+                        ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
+                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" />
+                    <span className="text-xs">{themeDisplayNames[themeName] || themeName}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         );
