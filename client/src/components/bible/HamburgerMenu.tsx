@@ -368,7 +368,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
       case "color-theme":
         return (
           <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Choose Theme</h4>
+            <h4 className="text-xs font-medium" style={{color: 'var(--text-primary)'}}>Choose Theme</h4>
             <div className="space-y-1">
               {themes.map((themeName) => {
                 const themeDisplayNames = {
@@ -386,11 +386,25 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                     onClick={() => setTheme(themeName)}
                     className={`flex items-center space-x-2 w-full p-2 rounded-lg transition-all text-left ${
                       theme === themeName 
-                        ? "bg-blue-100 dark:bg-blue-900/30 ring-1 ring-blue-500" 
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                        ? "ring-1" 
+                        : ""
                     }`}
+                    style={{
+                      backgroundColor: theme === themeName ? 'var(--highlight-bg)' : 'transparent',
+                      borderColor: theme === themeName ? 'var(--accent-color)' : 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (theme !== themeName) {
+                        e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (theme !== themeName) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
                   >
-                    <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" />
+                    <div className="w-3 h-3 rounded-full border flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500" style={{borderColor: 'var(--border-color)'}} />
                     <span className="text-xs">{themeDisplayNames[themeName] || themeName}</span>
                   </button>
                 );
@@ -418,11 +432,12 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
       case "documentation":
         return (
           <div className="space-y-3">
-            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Important Documents</h4>
+            <h4 className="text-xs font-medium" style={{color: 'var(--text-primary)'}}>Important Documents</h4>
             <div className="space-y-2">
               <a 
                 href="/docs/acknowledgments" 
-                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 text-xs hover:underline"
+                style={{color: 'var(--accent-color)'}}
                 onClick={onClose}
               >
                 <FileText className="w-3 h-3" />
@@ -430,7 +445,8 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
               </a>
               <a 
                 href="/docs/privacy-policy" 
-                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 text-xs hover:underline"
+                style={{color: 'var(--accent-color)'}}
                 onClick={onClose}
               >
                 <FileText className="w-3 h-3" />
@@ -438,7 +454,8 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
               </a>
               <a 
                 href="/docs/tos" 
-                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 text-xs hover:underline"
+                style={{color: 'var(--accent-color)'}}
                 onClick={onClose}
               >
                 <FileText className="w-3 h-3" />
@@ -446,7 +463,8 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
               </a>
               <a 
                 href="/docs/donate" 
-                className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 text-xs hover:underline"
+                style={{color: 'var(--accent-color)'}}
                 onClick={onClose}
               >
                 <FileText className="w-3 h-3" />
