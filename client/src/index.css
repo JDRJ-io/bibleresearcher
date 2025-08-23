@@ -430,6 +430,7 @@
 
 /* Professional theme mode classes */
 .light-mode, :root.light {
+  /* Canonical "bg-" vars (source of truth) */
   --bg-primary: hsl(0, 0%, 100%);
   --bg-secondary: hsl(210, 40%, 98%);
   --text-primary: hsl(210, 24%, 16%);
@@ -441,9 +442,17 @@
   --column-bg: hsl(0, 0%, 100%);
   --highlight-bg: hsl(214, 100%, 97%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Tailwind-facing aliases */
+  --background: var(--bg-primary);
+  --primary: var(--bg-primary);
+  --secondary: var(--bg-secondary);
+  --card: var(--column-bg);
+  --popover: var(--header-bg);
 }
 
 .dark-mode, :root.dark {
+  /* Canonical "bg-" vars (source of truth) */
   --bg-primary: hsl(222, 20%, 11%);
   --bg-secondary: hsl(222, 15%, 8%);
   --text-primary: hsl(213, 31%, 91%);
@@ -455,6 +464,13 @@
   --column-bg: hsl(222, 20%, 11%);
   --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Tailwind-facing aliases */
+  --background: var(--bg-primary);
+  --primary: var(--bg-primary);
+  --secondary: var(--bg-secondary);
+  --card: var(--column-bg);
+  --popover: var(--header-bg);
 }
 
 
@@ -465,7 +481,7 @@
 
 /* Apply theme variables to elements */
 body {
-  background-color: var(--bg-primary);
+  background: var(--background); /* resolves to --bg-primary via alias */
   color: var(--text-primary);
   font-size: var(--text-base);
   font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);

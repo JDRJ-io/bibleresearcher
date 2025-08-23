@@ -31,13 +31,23 @@ export class ThemeManager {
       memoryFootprint: 'low',
       fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
       variables: {
+        // Core theme variables
         '--bg-primary': 'hsl(0, 0%, 100%)',
         '--bg-secondary': 'hsl(210, 40%, 98%)',
         '--text-primary': 'hsl(210, 24%, 16%)',
         '--text-secondary': 'hsl(215, 20%, 35%)',
         '--border-color': 'hsl(214, 32%, 91%)',
         '--accent-color': 'hsl(221, 83%, 53%)',
-        '--highlight-bg': 'hsl(214, 100%, 97%)'
+        '--header-bg': 'hsl(0, 0%, 100%)',
+        '--column-bg': 'hsl(0, 0%, 100%)',
+        '--highlight-bg': 'hsl(214, 100%, 97%)',
+        '--text-color': 'hsl(210, 24%, 16%)',
+        // Tailwind aliases to guarantee consistency
+        '--background': 'hsl(0, 0%, 100%)',
+        '--primary': 'hsl(0, 0%, 100%)',
+        '--secondary': 'hsl(210, 40%, 98%)',
+        '--card': 'hsl(0, 0%, 100%)',
+        '--popover': 'hsl(0, 0%, 100%)'
       }
     },
     {
@@ -47,13 +57,23 @@ export class ThemeManager {
       memoryFootprint: 'low',
       fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
       variables: {
+        // Core theme variables
         '--bg-primary': 'hsl(222, 20%, 11%)',
         '--bg-secondary': 'hsl(222, 15%, 8%)',
         '--text-primary': 'hsl(213, 31%, 91%)',
         '--text-secondary': 'hsl(215, 20%, 65%)',
         '--border-color': 'hsl(217, 33%, 17%)',
         '--accent-color': 'hsl(217, 91%, 65%)',
-        '--highlight-bg': 'hsl(215, 27%, 32%)'
+        '--header-bg': 'hsl(222, 20%, 11%)',
+        '--column-bg': 'hsl(222, 20%, 11%)',
+        '--highlight-bg': 'hsl(215, 27%, 32%)',
+        '--text-color': 'hsl(213, 31%, 91%)',
+        // Tailwind aliases to guarantee consistency
+        '--background': 'hsl(222, 20%, 11%)',
+        '--primary': 'hsl(222, 20%, 11%)',
+        '--secondary': 'hsl(222, 15%, 8%)',
+        '--card': 'hsl(222, 20%, 11%)',
+        '--popover': 'hsl(222, 20%, 11%)'
       }
     }
   ];
