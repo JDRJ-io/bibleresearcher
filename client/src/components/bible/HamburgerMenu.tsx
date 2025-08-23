@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move, FileText } from "lucide-react";
+import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move, FileText, ChevronDown } from "lucide-react";
 import { BookmarksList } from '@/components/user/BookmarksList';
 import { LabelsLegend } from './LabelsLegend';
 import { MainTranslationSelector } from './MainTranslationSelector';
@@ -533,6 +533,9 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                   >
                     <Icon className="w-3 h-3" />
                     <span className="hidden sm:inline">{tab.label}</span>
+                    {(tab.id === "main-translation" || tab.id === "alt-translations") && (
+                      <ChevronDown className="w-3 h-3 ml-1" />
+                    )}
                   </button>
                 </div>
               );
