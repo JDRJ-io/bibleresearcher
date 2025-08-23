@@ -4,7 +4,7 @@
  * Positioned between column headers and top header
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Scroll, ChevronRight, X } from 'lucide-react';
 import { PatchNotesModal } from './PatchNotesModal';
 
@@ -16,6 +16,18 @@ interface PatchNotesBannerProps {
 export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBannerProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Auto-close banner on scroll
+  useEffect(() => {
+    if (!isVisible || !onDismiss) return;
+    
+    const handleScroll = () => {
+      onDismiss();
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isVisible, onDismiss]);
 
   if (!isVisible) return null;
 
@@ -59,7 +71,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         </div>
 
         {/* Adaptive Call to Action */}
-        <div className="flex items-center absolute right-4 sm:right-4 md:right-6 lg:right-8 flex-shrink-0">
+        <div className="flex items-center absolute right-4 sm:right-4 md:right-6 lg:right-8 flex-shrink-0 space-x-2">
           <button
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
@@ -81,18 +93,18 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
               <ChevronRight className={`h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
             </div>
           </button>
+          
+          {/* Mobile-Optimized Dismiss Button - positioned after View Updates button */}
+          {onDismiss && (
+            <button
+              onClick={onDismiss}
+              className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 
+                       text-white/50 hover:text-white/70 transition-colors z-10"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
-
-        {/* Mobile-Optimized Dismiss Button */}
-        {onDismiss && (
-          <button
-            onClick={onDismiss}
-            className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 
-                     text-white/50 hover:text-white/70 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
       </div>
 
       {/* Bottom Divine Glow */}
