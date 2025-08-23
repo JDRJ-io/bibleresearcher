@@ -65,7 +65,7 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
     return result;
   }, [verseKeys.join('|')]);
 
-  // Load labels AND main translation text when translation or active labels change
+  // Load labels when translation or active labels change
   useEffect(() => {
     console.log('🔄 WORKER: useViewportLabels effect triggered', { 
       activeLabels, 
@@ -77,34 +77,14 @@ export function useViewportLabels({ verses, activeLabels, mainTranslation }: Use
       allKeysFirst3: allRequiredVerseKeys.slice(0, 3)
     });
 
-    // Always preload main translation for expanded verses - critical for smooth scrolling
-    const preloadMainTranslation = async () => {
-      if (!mainTranslation || allRequiredVerseKeys.length === 0) return;
-      
-      try {
-        console.log(`🔄 PRELOAD: Ensuring ${mainTranslation} translation loaded for ${allRequiredVerseKeys.length} expanded verses`);
-        const { loadTranslation } = await import('@/data/BibleDataAPI');
-        const translationMap = await loadTranslation(mainTranslation);
-        console.log(`✅ PRELOAD: ${mainTranslation} ready with ${translationMap.size} verses for seamless main column display`);
-      } catch (error) {
-        console.error(`❌ PRELOAD: Failed to load ${mainTranslation} for expanded verses:`, error);
-      }
-    };
+    if (activeLabels.length === 0 || !mainTranslation) {
+      console.log('🔄 WORKER: No active labels, clearing data');
+      setLabelsData({});
+      return;
+    }
 
     const loadLabels = async () => {
       setIsLoading(true);
-      
-      // CRITICAL FIX: Always preload main translation for expanded verses first
-      await preloadMainTranslation();
-      
-      // Only load labels if active labels are present
-      if (activeLabels.length === 0) {
-        console.log('🔄 WORKER: No active labels, clearing label data but main translation preloaded');
-        setLabelsData({});
-        setIsLoading(false);
-        return;
-      }
-
       console.log(`🔄 WORKER: Loading labels for ${activeLabels.length} active labels:`, activeLabels, 'translation:', mainTranslation);
       console.log(`🔄 WORKER: Including ${allRequiredVerseKeys.length} total verses (viewport + cross-refs + prophecies)`);
       try {

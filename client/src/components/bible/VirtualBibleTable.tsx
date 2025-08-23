@@ -15,7 +15,7 @@ import { useOrientation } from '@/hooks/useOrientation';
 import { useReferenceColumnWidth } from '@/hooks/useReferenceColumnWidth';
 import { VirtualRow } from "./VirtualRow";
 import { getVerseCount, getVerseKeys, getVerseKeyByIndex } from "@/lib/verseKeysLoader";
-import { useAdaptivePredictiveVirtualizer } from "@/hooks/useAdaptivePredictiveVirtualizer";
+import { useAnchorSlice } from "@/hooks/useAnchorSlice";
 import { useTranslationMaps } from "@/hooks/useTranslationMaps";
 import { useRowData } from "@/hooks/useRowData";
 import { useSliceDataLoader } from "@/hooks/useSliceDataLoader";
@@ -111,8 +111,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const { currentVerseKeys, isChronological } = useBibleStore();
   const verseKeys = currentVerseKeys.length > 0 ? currentVerseKeys : getVerseKeys(); // Use store keys or fallback
   
-  // APV: Adaptive Predictive Virtualizer with velocity-aware windowing
-  const { anchorIndex, slice } = useAdaptivePredictiveVirtualizer(containerRef, verseKeys, { 
+  // PAUSE virtual loading during scrollbar dragging for smooth performance
+  const { anchorIndex, slice } = useAnchorSlice(containerRef, verseKeys, { 
     disabled: isScrollbarDragging 
   });
   
