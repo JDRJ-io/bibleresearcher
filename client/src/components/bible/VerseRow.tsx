@@ -87,7 +87,13 @@ export function VerseRow({
       onMouseUp={handleMouseUp}
     >
       {/* Reference Column - Fixed Width with vertical text */}
-      <div className="w-12 flex-shrink-0 flex items-center justify-center border-r px-1 text-xs font-medium">
+      <div 
+        className="w-12 flex-shrink-0 flex items-center justify-center border-r px-1 text-xs font-medium"
+        style={{
+          color: 'var(--text-primary)',
+          borderColor: 'var(--border-color)'
+        }}
+      >
         <span className="transform -rotate-90 whitespace-nowrap origin-center text-center">
           {verse.reference}
         </span>
@@ -214,7 +220,7 @@ export function VerseRow({
               
               return (
                 <div className="space-y-2">
-                  <div className="text-xs text-gray-500 mb-2">
+                  <div className="text-xs mb-2" style={{color: 'var(--text-secondary)'}}>
                     Labels ({mainTranslation})
                   </div>
                   {(activeLabels as LabelName[]).map((labelName) => {
@@ -223,14 +229,18 @@ export function VerseRow({
                     if (labelValues && labelValues.length > 0) {
                       return (
                         <div key={labelName} className="mb-2">
-                          <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                          <div className="text-xs font-medium mb-1" style={{color: 'var(--text-secondary)'}}>
                             {labelName}:
                           </div>
                           <div className="flex flex-wrap gap-1">
                             {labelValues.map((value, index) => (
                               <span
                                 key={index}
-                                className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full"
+                                className="inline-block px-2 py-1 text-xs rounded-full"
+                                style={{
+                                  backgroundColor: 'var(--highlight-bg)',
+                                  color: 'var(--text-primary)'
+                                }}
                               >
                                 {value}
                               </span>

@@ -47,7 +47,13 @@ function ReferenceCell({ verse }: CellProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium text-gray-700 dark:text-gray-300 glass-morphism glass-reference-cell flex-shrink-0 border-r border-gray-200 dark:border-gray-700`}>
+    <div 
+      className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
+      style={{
+        color: 'var(--text-primary)',
+        borderColor: 'var(--border-color)'
+      }}
+    >
       {verse.reference}
     </div>
   );
