@@ -1,0 +1,422 @@
+Awesome—here’s a drop-in “trust-but-verify” test pack you can hand to your AI agent. It covers three layers:
+	1.	Static audit (code smells & config)
+	2.	Unit test (ThemeManager sets all vars)
+	3.	E2E test (real browser: body background, gradient, aliases, no rogue layers)
+
+I’ve formatted these so you can run them from the terminal, with an input file and an output file per your preference.
+
+⸻
+
+0) Prereqs
+
+# If you don’t already have them:
+npm i -D playwright @playwright/test vitest @testing-library/dom @testing-library/jest-dom ts-node typescript
+npx playwright install
+
+Create a simple input file your CI/dev can tweak:
+
+tests/site-url.txt
+
+http://localhost:5173
+
+
+⸻
+
+1) Static audit script (reads site-url.txt, writes report)
+
+scripts/theme-audit.ts (Node/TS – scans your repo & emits a markdown report)
+
+// scripts/theme-audit.ts
+// Usage: npx ts-node scripts/theme-audit.ts tests/site-url.txt tests/theme-audit-report.md
+import { readFileSync, writeFileSync, readdirSync } from 'fs';
+import { join } from 'path';
+
+type Finding = { file: string; line: number; message: string; snippet: string };
+
+const roots = ['client/src', 'src', 'styles', 'client'];
+const patterns: { name: string; regex: RegExp; message: string }[] = [
+  // 1) Body forced transparent (should be removed)
+  {
+    name: 'body-transparent',
+    regex: /body\s*{[^}]*background:\s*transparent[^}]*}/gis,
+    message: 'Body background is forced to transparent (should be removed).',
+  },
+  // 2) Negative z-index background layer (should not exist)
+  {
+    name: 'neg-z',
+    regex: /z-index\s*:\s*-\d+/gi,
+    message: 'Found negative z-index; background layer should use body::before instead.',
+  },
+  // 3) Missing Tailwind aliases in CSS (should map to your bg vars)
+  {
+    name: 'missing-alias-background',
+    regex: /--background\s*:/gi,
+    message: 'Found --background alias (GOOD). This is informational only.',
+  },
+  {
+    name: 'missing-alias-card',
+    regex: /--card\s*:/gi,
+    message: 'Found --card alias (GOOD). This is informational only.',
+  },
+  // 4) DynamicBackground component usage (prefer body::before)
+  {
+    name: 'dynamic-background-component',
+    regex: /DynamicBackground\.tsx|<DynamicBackground/i,
+    message: 'DynamicBackground component referenced; prefer body::before pseudo-element.',
+  },
+];
+
+const requiredVars = [
+  '--bg-primary',
+  '--bg-secondary',
+  '--header-bg',
+  '--column-bg',
+  '--highlight-bg',
+  // aliases that Tailwind consumes
+  '--background',
+  '--primary',
+  '--secondary',
+  '--card',
+  '--popover',
+];
+
+function listFiles(dir: string): string[] {
+  let out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, entry.name);
+    if (entry.isDirectory()) out = out.concat(listFiles(p));
+    else if (/\.(css|ts|tsx|scss|less)$/.test(p)) out.push(p);
+  }
+  return out;
+}
+
+function grep(file: string, content: string, re: RegExp): Finding[] {
+  const res: Finding[] = [];
+  let m;
+  const lines = content.split(/\r?\n/);
+  while ((m = re.exec(content))) {
+    const pos = content.slice(0, m.index).split(/\r?\n/).length;
+    res.push({
+      file,
+      line: pos,
+      message: '',
+      snippet: lines[pos - 1]?.trim() ?? '',
+    });
+  }
+  return res;
+}
+
+function main() {
+  const [, , inPath, outPath] = process.argv;
+  const siteUrl = readFileSync(inPath, 'utf8').trim();
+
+  const allFiles = roots.flatMap(r => {
+    try { return listFiles(r); } catch { return []; }
+  });
+
+  const findings: Finding[] = [];
+  const seenAliases = new Set<string>();
+  const seenVars = new Set<string>();
+
+  for (const f of allFiles) {
+    const text = readFileSync(f, 'utf8');
+    for (const pat of patterns) {
+      const hits = grep(f, text, pat.regex).map(h => ({ ...h, message: pat.message }));
+      findings.push(...hits);
+      if (pat.name.startsWith('missing-alias')) {
+        if (hits.length) seenAliases.add(pat.name);
+      }
+    }
+    for (const v of requiredVars) {
+      if (new RegExp(v.replace(/[-]/g, '\\-')).test(text)) seenVars.add(v);
+    }
+  }
+
+  const missingVars = requiredVars.filter(v => !seenVars.has(v));
+  const hasAliasBackground = seenAliases.has('missing-alias-background');
+  const hasAliasCard = seenAliases.has('missing-alias-card');
+
+  const out: string[] = [];
+  out.push(`# Theme Audit Report`);
+  out.push(`Target URL: ${siteUrl}`);
+  out.push(`Generated: ${new Date().toISOString()}`);
+  out.push(``);
+  out.push(`## Summary`);
+  out.push(`- **Missing vars**: ${missingVars.length ? missingVars.join(', ') : 'None ✅'}`);
+  out.push(`- **Tailwind aliases**:`);
+  out.push(`  - --background present: ${hasAliasBackground ? 'Yes ✅' : 'No ❌'}`);
+  out.push(`  - --card present: ${hasAliasCard ? 'Yes ✅' : 'No ❌'}`);
+  out.push(``);
+  out.push(`## Findings`);
+  if (!findings.length) out.push(`No issues found ✅`);
+  for (const f of findings) {
+    out.push(`- ${f.message}`);
+    out.push(`  - File: \`${f.file}\` @ line ${f.line}`);
+    if (f.snippet) out.push(`  - Snippet: \`${f.snippet}\``);
+  }
+
+  writeFileSync(outPath, out.join('\n'), 'utf8');
+  console.log(`Wrote ${outPath}`);
+}
+
+main();
+
+Run it:
+
+npx ts-node scripts/theme-audit.ts tests/site-url.txt tests/theme-audit-report.md
+# -> See ./tests/theme-audit-report.md for a human-readable result
+
+
+⸻
+
+2) Unit test: ThemeManager sets all surface & alias vars
+
+tests/theme.manager.spec.ts (Vitest + JSDOM)
+
+import { describe, it, expect, beforeEach } from 'vitest';
+
+// Pretend-import your ThemeManager; update path if needed
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { themeManager } from '../client/src/utils/themeOptimizer';
+
+const requiredVars = [
+  '--bg-primary',
+  '--bg-secondary',
+  '--header-bg',
+  '--column-bg',
+  '--highlight-bg',
+  '--background',
+  '--primary',
+  '--secondary',
+  '--card',
+  '--popover',
+];
+
+function getVar(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+describe('ThemeManager variable coverage', () => {
+  beforeEach(() => {
+    document.documentElement.classList.remove('dark', 'light');
+  });
+
+  it('applies ALL required CSS variables for light theme', async () => {
+    themeManager.applyTheme?.('light'); // adjust if your API differs
+    for (const v of requiredVars) {
+      const val = getVar(v);
+      expect(val, `Missing or empty ${v} in light`).toBeTruthy();
+    }
+    expect(document.documentElement.classList.contains('light')).toBeTruthy();
+  });
+
+  it('applies ALL required CSS variables for dark theme', async () => {
+    themeManager.applyTheme?.('dark');
+    for (const v of requiredVars) {
+      const val = getVar(v);
+      expect(val, `Missing or empty ${v} in dark`).toBeTruthy();
+    }
+    expect(document.documentElement.classList.contains('dark')).toBeTruthy();
+  });
+});
+
+Run it:
+
+npx vitest run tests/theme.manager.spec.ts
+
+
+⸻
+
+3) E2E: Playwright checks real rendering & DOM
+
+tests/theme.e2e.spec.ts (Playwright)
+
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'fs';
+
+const siteUrl = readFileSync('tests/site-url.txt', 'utf8').trim();
+
+test.describe('Theme background system', () => {
+  test('body has real background (not transparent) and gradient is on body::before', async ({ page }) => {
+    await page.goto(siteUrl, { waitUntil: 'networkidle' });
+
+    // 1) The <body> should NOT be transparent; it should use --background
+    const bodyBg = await page.evaluate(() => {
+      const el = document.body;
+      const cs = window.getComputedStyle(el);
+      return {
+        background: cs.background,
+        bgColor: cs.backgroundColor,
+        hasTransparent: /rgba?\(0,\s*0,\s*0,\s*0\)|transparent/i.test(cs.background + ' ' + cs.backgroundColor),
+      };
+    });
+    expect(bodyBg.hasTransparent, 'Body background is transparent; should be a real color').toBeFalsy();
+
+    // 2) body::before exists and paints the gradient
+    const beforeBgImage = await page.evaluate(() => {
+      const cs = window.getComputedStyle(document.body, '::before');
+      return cs.getPropertyValue('background-image');
+    });
+    expect(beforeBgImage, 'body::before gradient missing').toMatch(/linear-gradient/i);
+
+    // 3) Content sits above gradient
+    const rootZ = await page.evaluate(() => {
+      const root = document.querySelector('#root, .app-root') as HTMLElement | null;
+      return root ? window.getComputedStyle(root).zIndex : null;
+    });
+    expect(rootZ === null || parseInt(String(rootZ), 10) >= 1).toBeTruthy();
+
+    // 4) No rogue negative z-index layers in the DOM
+    const negZCount = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll<HTMLElement>('*'))
+        .map(el => window.getComputedStyle(el).zIndex)
+        .filter(z => !isNaN(parseInt(z)) && parseInt(z) < 0).length;
+    });
+    expect(negZCount, 'Found elements with negative z-index (should not be needed)').toBe(0);
+
+    // 5) DynamicBackground component should not be mounted (prefer body::before)
+    const dynBgExists = await page.evaluate(() => !!document.querySelector('.dynamic-background'));
+    expect(dynBgExists, 'Found .dynamic-background element; prefer body::before').toBeFalsy();
+  });
+
+  test('theme toggle updates vars & switches gradient', async ({ page }) => {
+    await page.goto(siteUrl, { waitUntil: 'networkidle' });
+
+    // Capture light variables
+    const lightVars = await page.evaluate(() => {
+      const root = getComputedStyle(document.documentElement);
+      return {
+        bgPrimary: root.getPropertyValue('--bg-primary').trim(),
+        background: root.getPropertyValue('--background').trim(),
+      };
+    });
+
+    // Trigger theme change (adjust if your toggle selector differs)
+    // Try common patterns: data-theme-toggle, [aria-label="Toggle theme"], or a key in localStorage
+    const toggled = await page.evaluate(() => {
+      const btn = document.querySelector('[data-theme-toggle], [aria-label="Toggle theme"], .theme-toggle');
+      if (btn instanceof HTMLElement) { btn.click(); return true; }
+      // fallback: directly set localStorage and dispatch
+      try {
+        localStorage.setItem('bible-theme-optimized', 'dark');
+        document.documentElement.classList.add('dark');
+        return true;
+      } catch { return false; }
+    });
+    expect(toggled).toBeTruthy();
+
+    // Wait a tick for applyTheme to flush
+    await page.waitForTimeout(50);
+
+    // Capture dark variables
+    const darkVars = await page.evaluate(() => {
+      const root = getComputedStyle(document.documentElement);
+      return {
+        bgPrimary: root.getPropertyValue('--bg-primary').trim(),
+        background: root.getPropertyValue('--background').trim(),
+        isDark: document.documentElement.classList.contains('dark'),
+      };
+    });
+
+    expect(darkVars.isDark, 'html.dark class not set after toggle').toBeTruthy();
+    expect(darkVars.bgPrimary && darkVars.bgPrimary !== lightVars.bgPrimary).toBeTruthy();
+    expect(darkVars.background && darkVars.background !== lightVars.background).toBeTruthy();
+
+    // Gradient changed too (optional heuristic: just ensure it still exists)
+    const beforeBgImage = await page.evaluate(() => {
+      const cs = window.getComputedStyle(document.body, '::before');
+      return cs.getPropertyValue('background-image');
+    });
+    expect(beforeBgImage).toMatch(/linear-gradient/i);
+  });
+
+  test('glass morphism surfaces are semi-transparent per theme', async ({ page }) => {
+    await page.goto(siteUrl, { waitUntil: 'networkidle' });
+
+    const getAlpha = (rgba: string) => {
+      const m = rgba.match(/rgba?\(([^)]+)\)/i);
+      if (!m) return null;
+      const parts = m[1].split(',').map(s => s.trim());
+      return parts.length === 4 ? parseFloat(parts[3]) : 1;
+    };
+
+    // Ensure at least one .glass-morphism surface exists
+    const ensured = await page.evaluate(() => {
+      let el = document.querySelector('.glass-morphism') as HTMLElement | null;
+      if (!el) {
+        el = document.createElement('div');
+        el.className = 'glass-morphism';
+        el.textContent = 'probe';
+        document.body.appendChild(el);
+      }
+      return true;
+    });
+    expect(ensured).toBeTruthy();
+
+    const alphaLight = await page.evaluate(() => getComputedStyle(document.querySelector('.glass-morphism')!).backgroundColor);
+    expect(alphaLight).toBeTruthy();
+
+    // Toggle to dark (fallback like above)
+    await page.evaluate(() => {
+      localStorage.setItem('bible-theme-optimized', 'dark');
+      document.documentElement.classList.add('dark');
+    });
+    await page.waitForTimeout(20);
+
+    const alphaDark = await page.evaluate(() => getComputedStyle(document.querySelector('.glass-morphism')!).backgroundColor);
+
+    // We only assert that both are not fully opaque, leaving exact numbers to your CSS
+    const parseAlpha = (s: string | null) => {
+      if (!s) return 1;
+      const m = s.match(/rgba?\(([^)]+)\)/i);
+      if (!m) return 1;
+      const parts = m[1].split(',').map(x => x.trim());
+      return parts.length === 4 ? parseFloat(parts[3]) : 1;
+    };
+
+    expect(parseAlpha(alphaLight)!).toBeLessThan(1);
+    expect(parseAlpha(alphaDark)!).toBeLessThan(1);
+  });
+});
+
+Run it:
+
+npx playwright test tests/theme.e2e.spec.ts --reporter=list
+
+
+⸻
+
+4) What the report should prove (pass criteria)
+	•	No background: transparent on body (static audit)
+	•	No negative z-index background layers (static audit + E2E)
+	•	Tailwind aliases present: --background, --card (static audit)
+	•	ThemeManager sets ALL vars: --bg-primary/secondary/header/column/highlight + aliases (--background/primary/secondary/card/popover) (unit)
+	•	body::before gradient exists and content is above it (E2E)
+	•	Theme toggle flips vars AND gradient remains (E2E)
+	•	Glass morphism is semi-transparent in both themes (E2E)
+	•	No .dynamic-background DOM element (E2E)
+
+⸻
+
+One-liner CI script (runs all and saves artifacts)
+
+# package.json > scripts
+{
+  "scripts": {
+    "audit:theme": "ts-node scripts/theme-audit.ts tests/site-url.txt tests/theme-audit-report.md",
+    "test:unit:theme": "vitest run tests/theme.manager.spec.ts",
+    "test:e2e:theme": "playwright test tests/theme.e2e.spec.ts --reporter=list",
+    "verify:theme": "npm run audit:theme && npm run test:unit:theme && npm run test:e2e:theme"
+  }
+}
+
+Run:
+
+npm run verify:theme
+# artifacts: tests/theme-audit-report.md + Playwright report
+
+
+⸻
+
+If your agent claims “done,” have them paste the audit report plus the Playwright console output. If any assert fails, the error message tells them exactly what to fix.
