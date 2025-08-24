@@ -836,20 +836,26 @@ export const useBibleStore = create<{
     return columns;
   },
 
-  // Simplified getVisibleSlice for consistent navigation
+  // FIXED: Show ALL navigable columns instead of limiting to a slice
+  // This resolves issues with column combinations causing blank columns and scroll limits
   getVisibleSlice: () => {
     const s = get();
-    const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0));
     const total = s.navigableColumns?.length ?? 0;
-    const maxOffset = Math.max(0, total - take);
+    
+    // Show ALL navigable columns - no artificial slicing
     const start = 0;
-    const end = Math.min(total, start + take);
-    const canGoLeft = start > 0;
-    const canGoRight = end < total;
+    const end = total; // Show all columns, not just a subset
+    const canGoLeft = false; // No need for navigation since we show all
+    const canGoRight = false; // No need for navigation since we show all
 
-    // Basic template generation for compatibility
-    const templateForVisible = Array(take).fill('360px').join(' ');
-    const visibleKeys = Array.from({ length: take }, (_, i) => `col-${start + i}`);
+    // Generate template for ALL columns with proper widths
+    const templateForVisible = Array(total).fill('360px').join(' ');
+    const visibleKeys = Array.from({ length: total }, (_, i) => `col-${start + i}`);
+    
+    // Get actual active columns for proper rendering
+    const activeColumns = s.buildActiveColumns();
+
+    console.log('🔍 NAVIGATION: Setting navigable columns:', s.navigableColumns);
 
     return {
       start,
@@ -861,9 +867,9 @@ export const useBibleStore = create<{
       totalNavigable: total,
       templateForVisible,
       visibleKeys,
-      visibleNavigableCount: end - start,
+      visibleNavigableCount: total, // Show all navigable columns
       modeUsed: 'count' as const,
-      activeColumns: [] // Simplified for now
+      activeColumns
     };
   },
 

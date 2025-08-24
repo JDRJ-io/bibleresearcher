@@ -205,20 +205,23 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   useColumnData();
 
   // Get store state for column toggles
-  const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes, translationState } = useBibleStore();
+  const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes, showPrediction, showFulfillment, showVerification, translationState } = useBibleStore();
 
   // NEW: Update store with current column configuration (now that store variables are available)
   useEffect(() => {
     // Fixed: keep the reference column pinned
     setFixedColumns(['reference']);
 
-    // Canonical IDs that match data-col-key / header ids
+    // FIXED: Include ALL active columns to support unlimited column display
     const nav: string[] = ['main-translation'];
     if (showCrossRefs) nav.push('cross-refs');
     if (showNotes)     nav.push('notes');
-    if (showProphecies) {
-      nav.push('prophecy-prediction', 'prophecy-fulfillment', 'prophecy-verification');
-    }
+    
+    // Add individual prophecy columns based on their specific toggles
+    const { showPrediction, showFulfillment, showVerification } = useBibleStore.getState();
+    if (showPrediction) nav.push('prophecy-prediction');
+    if (showFulfillment) nav.push('prophecy-fulfillment');
+    if (showVerification) nav.push('prophecy-verification');
 
     // Include all alternate translations as navigable columns
     translationState.alternates
@@ -267,7 +270,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       measureColumns();
     }, 100); // Small delay to ensure DOM is ready
     
-  }, [showCrossRefs, showProphecies, showNotes, translationState.alternates, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
+  }, [showCrossRefs, showProphecies, showNotes, showPrediction, showFulfillment, showVerification, translationState.alternates, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
 
   // PERFORMANCE FIX: Preload notes for visible verses when notes column is enabled
   useEffect(() => {

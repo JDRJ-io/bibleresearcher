@@ -20,35 +20,27 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
 
       console.log('📐 useMeasureVisibleColumns: Container width =', width);
 
-      // How many total columns (fixed + as many navigable as fit) can we show?
-      // We count fixed first, then add navigable until we run out of room.
-      let used = 0;
-      let count = 0;
+      // FIXED: Show ALL active columns instead of limiting by width
+      // This resolves the issue where 5+ alternate translation columns go blank
+      // and where combinations of columns cause display limits and scrolling issues
+      
+      let totalColumns = fixedColumns.length + navigableColumns.length;
+      
+      console.log(`📐 Showing ALL active columns: ${fixedColumns.length} fixed + ${navigableColumns.length} navigable = ${totalColumns} total`);
+      
+      // Log all columns being displayed
+      fixedColumns.forEach(id => {
+        const w = Math.max(1, columnWidthsPx[id] ?? 50);
+        console.log(`📐 Fixed column ${id}: ${w}px`);
+      });
+      
+      navigableColumns.forEach(id => {
+        const w = Math.max(1, columnWidthsPx[id] ?? 200);
+        console.log(`📐 Navigable column ${id}: ${w}px`);
+      });
 
-      // Include fixed columns first
-      for (const id of fixedColumns) {
-        const w = Math.max(1, columnWidthsPx[id] ?? 50); // Default 50px if not measured
-        used += w;
-        count += 1;
-        console.log(`📐 Fixed column ${id}: ${w}px, total used: ${used}px`);
-      }
-
-      // Then add navigable columns until we run out of room
-      for (const id of navigableColumns) {
-        const w = Math.max(1, columnWidthsPx[id] ?? 200); // Default 200px if not measured
-        if (used + w <= width || count === 0) {
-          // Allow at least one column even if > width (e.g., 200% zoom case)
-          used += w;
-          count += 1;
-          console.log(`📐 Navigable column ${id}: ${w}px, total used: ${used}px, count: ${count}`);
-        } else {
-          console.log(`📐 Navigable column ${id}: ${w}px would exceed width (${used + w}px > ${width}px), stopping`);
-          break;
-        }
-      }
-
-      console.log(`📐 Final calculation: ${count} columns fit in ${width}px (used: ${used}px)`);
-      setVisibleCount(count);
+      console.log(`📐 Final calculation: ${totalColumns} columns (all active columns shown, horizontal scroll enabled)`);
+      setVisibleCount(totalColumns);
     };
 
     // Initial calculation
