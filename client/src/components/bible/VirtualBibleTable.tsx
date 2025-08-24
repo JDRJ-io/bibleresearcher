@@ -601,13 +601,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     let lastScrollTop = 0;
     let scrollTimeout: NodeJS.Timeout | null = null;
 
-    // Track scroll position for custom scrollbar (vertical only)
+    // Track scroll position for custom scrollbar (both vertical and horizontal)
     const onScroll = (e: Event) => {
       const target = e.target as HTMLDivElement;
       const currentScrollTop = target.scrollTop;
+      const currentScrollLeft = target.scrollLeft;
       
-      // No longer track scrollLeft since horizontal scrolling is disabled
-      setScrollLeft(0); // Always keep at 0
+      // Track both vertical and horizontal scroll positions
+      setScrollLeft(currentScrollLeft);
       
       // Update scrollTop state if not currently dragging scrollbar
       if (!isScrollbarDragging) {
