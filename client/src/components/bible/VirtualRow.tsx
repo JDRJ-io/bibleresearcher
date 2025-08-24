@@ -718,6 +718,32 @@ export function VirtualRow({
     const { slot, config } = column;
     const isMain = config.translationCode === mainTranslation;
 
+    // Generate column ID to match NewColumnHeaders format
+    const getColumnId = (config: SlotConfig) => {
+      switch (config.type) {
+        case 'reference':
+          return 'reference';
+        case 'notes':
+          return 'notes';
+        case 'main-translation':
+          return 'main-translation';
+        case 'cross-refs':
+          return 'cross-references';
+        case 'prophecy-p':
+          return 'prophecy-prediction';
+        case 'prophecy-f':
+          return 'prophecy-fulfillment';
+        case 'prophecy-v':
+          return 'prophecy-verification';
+        case 'alt-translation':
+          return `alt-translation-${config.translationCode}`;
+        default:
+          return config.type;
+      }
+    };
+
+    const columnId = getColumnId(config);
+
     // Get responsive pixel width for portrait/landscape modes
     const getResponsiveColumnPixelWidth = (slotNumber: number) => {
       const columnInfo = columnState?.columns?.find((col: any) => col.slot === slotNumber);
@@ -762,7 +788,13 @@ export function VirtualRow({
       case 'reference':
         const isPortraitInRefCell = window.innerHeight > window.innerWidth;
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div 
+            key={slot} 
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
+          >
             <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
               isPortraitInRefCell 
                 ? 'flex flex-row items-center justify-center gap-1' 
@@ -783,14 +815,26 @@ export function VirtualRow({
 
       case 'notes':
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div 
+            key={slot} 
+            className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
+          >
             <NotesCell verseRef={verse.reference} className="h-full" onVerseClick={onVerseClick} />
           </div>
         );
 
       case 'main-translation':
         return (
-          <div key={slot} className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+          <div 
+            key={slot} 
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" 
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
+          >
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
               verse={verse} 
@@ -843,7 +887,13 @@ export function VirtualRow({
         };
 
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" style={columnStyle}>
+          <div 
+            key={slot} 
+            className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" 
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
+          >
             <HoverVerseBar
               verse={verse}
               translation={config.translationCode}
@@ -879,6 +929,8 @@ export function VirtualRow({
             key={slot} 
             className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
             style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
             onWheel={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
@@ -901,7 +953,13 @@ export function VirtualRow({
       case 'prophecy-f':
       case 'prophecy-v':
         return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
+          <div 
+            key={slot} 
+            className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
+          >
             <ProphecyCell 
               verse={verse} 
               type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
@@ -913,44 +971,6 @@ export function VirtualRow({
           </div>
         );
 
-      case 'alt-translation':
-        const altTranslationCode = config.translationCode || 'KJV';
-        const altVerseText = getVerseText(verse.reference, altTranslationCode);
-        
-        // Get label data for semantic styling
-        const altVerseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
-        const altShouldUseLabeledText = activeLabels.length > 0 && Object.keys(altVerseLabels).length > 0;
-        
-        return (
-          <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
-            <HoverVerseBar
-              verse={verse}
-              translation={altTranslationCode}
-              onCopy={() => {}}
-              onBookmark={() => {}}
-              onShare={() => {}}
-              wrapperClassName="h-full max-h-full"
-            >
-              <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
-                {altVerseText ? (
-                  altShouldUseLabeledText ? (
-                    <LabeledText
-                      text={altVerseText}
-                      labelData={altVerseLabels}
-                      activeLabels={activeLabels}
-                      verseKey={`${verse.reference}-${altTranslationCode}`}
-                      translationCode={altTranslationCode}
-                    />
-                  ) : (
-                    altVerseText
-                  )
-                ) : (
-                  `[${altTranslationCode} loading...]`
-                )}
-              </div>
-            </HoverVerseBar>
-          </div>
-        );
 
       default:
         return null;
