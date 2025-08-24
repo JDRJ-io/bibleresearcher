@@ -488,10 +488,11 @@ export function NewColumnHeaders({
             ref={headerRef}
             className="column-headers-inner flex"
             style={{ 
-              minWidth: 'max-content',
-              width: 'max-content',
+              minWidth: 'fit-content',
+              width: 'fit-content',
               margin: isPortrait ? '0' : '0 auto',
-              overflowX: 'auto'
+              overflowX: 'auto',
+              maxWidth: '100%' // Prevent excessive width expansion
             }}
           >
             {visibleColumns.map((column) => (

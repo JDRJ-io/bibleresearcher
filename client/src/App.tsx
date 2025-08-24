@@ -778,9 +778,9 @@ export const useBibleStore = create<{
     'main-translation': 420,
     'alt-translation': 360,
     'cross-refs': 360,
-    'prophecy-p': 360,
-    'prophecy-f': 360,
-    'prophecy-v': 360,
+    'prophecy-prediction': 360,
+    'prophecy-fulfillment': 360,
+    'prophecy-verification': 360,
     notes: 320
   },
   
@@ -813,18 +813,20 @@ export const useBibleStore = create<{
       columns.push({ key: 'notes', type: 'notes' });
     }
     
-    // Add prophecy columns if enabled
-    if (state.showProphecies) {
-      columns.push(
-        { key: 'prophecy-p', type: 'prophecy-p' },
-        { key: 'prophecy-f', type: 'prophecy-f' },
-        { key: 'prophecy-v', type: 'prophecy-v' }
-      );
+    // Add prophecy columns if enabled (match DOM element IDs)
+    if (state.showPrediction) {
+      columns.push({ key: 'prophecy-prediction', type: 'prophecy-prediction' });
+    }
+    if (state.showFulfillment) {
+      columns.push({ key: 'prophecy-fulfillment', type: 'prophecy-fulfillment' });
+    }
+    if (state.showVerification) {
+      columns.push({ key: 'prophecy-verification', type: 'prophecy-verification' });
     }
     
-    // Add alternate translations
+    // Add alternate translations (match DOM element IDs)
     state.translationState.alternates.forEach((altCode, index) => {
-      columns.push({ key: `alt-${altCode}`, type: 'alt-translation', translationCode: altCode });
+      columns.push({ key: `alt-translation-${altCode}`, type: 'alt-translation', translationCode: altCode });
     });
     
     return columns;

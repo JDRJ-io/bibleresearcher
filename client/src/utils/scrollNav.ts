@@ -18,7 +18,7 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
                    headerEl.querySelector<HTMLElement>(`[data-type="${key}"]`) ||
                    headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
       if (!cell) {
-        console.log(`Column header not found for key: ${key}`);
+        console.log(`❌ Column header not found for key: ${key}`, { availableHeaders: Array.from(headerEl.querySelectorAll('[data-col-key]')).map(el => el.getAttribute('data-col-key')) });
         continue;
       }
       // left position relative to the scrolling container

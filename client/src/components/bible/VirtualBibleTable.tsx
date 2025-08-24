@@ -700,15 +700,16 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         >
           <div className="tableInner flex"
             style={{ 
-              minWidth: isMobile ? '100%' : 'max-content', // Keep original adaptive logic
-              width: isMobile ? '100%' : 'max-content',
-              maxWidth: isMobile ? '98%' : undefined, // Small safety margin on mobile
+              minWidth: isMobile ? '100%' : 'fit-content', // Use fit-content instead of max-content
+              width: isMobile ? '100%' : 'fit-content',
+              maxWidth: isMobile ? '98%' : '100%', // Prevent overflow on all devices
               margin: isPortrait ? '0' : '0 auto',
               overflow: isMobile ? 'hidden' : 'visible'
             }}>
             <div style={{ 
-              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'max-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
+              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`,
+              maxWidth: '100%' // Prevent container from exceeding viewport
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
