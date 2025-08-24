@@ -26,15 +26,15 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
   // Now properly depends on the actual state that determines active columns
   const navigableKeys = useMemo(() => {
     const columns = buildActiveColumns();
+    console.log('🔍 NAVIGATION: buildActiveColumns returned:', columns.map(c => c.key));
+    console.log('🔍 NAVIGATION: current alternates:', translationState.alternates);
+    
     const filtered = columns
       .filter(col => col.key !== 'reference' && col.key !== 'index')
       .map(col => col.key);
     
-    // Temporary debug to understand why arrows don't work without prophecy columns
-    if (filtered.length < 3) {
-      console.log('⚠️ Only', filtered.length, 'navigable columns detected:', filtered);
-      console.log('⚠️ Translation state:', translationState);
-    }
+    console.log('🔍 NAVIGATION: filtered navigable keys:', filtered);
+    console.log('🔍 NAVIGATION: total navigable count:', filtered.length);
     
     return filtered;
   }, [
