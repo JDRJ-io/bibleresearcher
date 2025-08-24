@@ -23,10 +23,23 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     
     for (const key of navigableKeys) {
       // Try multiple selectors to find the column header
-      const cell = headerEl.querySelector<HTMLElement>(`.col-header[data-col-key="${key}"]`) ||
-                   headerEl.querySelector<HTMLElement>(`[data-column="${key}"]`) ||
-                   headerEl.querySelector<HTMLElement>(`[data-type="${key}"]`) ||
-                   headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
+      const selector1 = `.col-header[data-col-key="${key}"]`;
+      const selector2 = `[data-column="${key}"]`;
+      const selector3 = `[data-type="${key}"]`;
+      const selector4 = `.column-header-cell[data-column="${key}"]`;
+      
+      const cell1 = headerEl.querySelector<HTMLElement>(selector1);
+      const cell2 = headerEl.querySelector<HTMLElement>(selector2);
+      const cell3 = headerEl.querySelector<HTMLElement>(selector3);
+      const cell4 = headerEl.querySelector<HTMLElement>(selector4);
+      
+      console.log(`🔍 SCROLL DEBUG: Detailed search for "${key}":`);
+      console.log(`  - Selector1 "${selector1}": ${!!cell1}`);
+      console.log(`  - Selector2 "${selector2}": ${!!cell2}`);
+      console.log(`  - Selector3 "${selector3}": ${!!cell3}`);
+      console.log(`  - Selector4 "${selector4}": ${!!cell4}`);
+      
+      const cell = cell1 || cell2 || cell3 || cell4;
       
       console.log(`🔍 SCROLL DEBUG: Looking for key "${key}": found=${!!cell}, offsetLeft=${cell?.offsetLeft}`);
       
