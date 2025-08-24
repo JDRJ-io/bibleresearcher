@@ -504,7 +504,8 @@ export function NewColumnHeaders({
               width: 'fit-content',
               margin: isPortrait ? '0' : '0 auto',
               overflowX: 'auto',
-              maxWidth: '100%' // Prevent excessive width expansion
+              maxWidth: '100%', // Prevent excessive width expansion
+              transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
             }}
           >
             {visibleColumns.map((column) => (
