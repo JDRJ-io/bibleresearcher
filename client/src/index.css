@@ -374,11 +374,17 @@ body {
   max-width: var(--adaptive-ref-width) !important;
 }
 
-.column-header-cell[data-column="main"],
-.column-header-cell[data-column*="translation"]:not([data-column="reference"]) {
+/* Main translation only */
+.column-header-cell[data-column="main-translation"] {
   width: var(--adaptive-main-width) !important;
   min-width: var(--adaptive-main-width) !important;
   max-width: var(--adaptive-main-width) !important;
+}
+/* Alt translations */
+.column-header-cell[data-column="alt-translation"] {
+  width: var(--adaptive-alt-width) !important;
+  min-width: var(--adaptive-alt-width) !important;
+  max-width: var(--adaptive-alt-width) !important;
 }
 
 .column-header-cell[data-column="cross-refs"],
@@ -1814,6 +1820,15 @@ body.overlay-open {
 /* SAFETY NET: let grid see cells if there are wrappers */
 .row-grid > .cell-wrap { 
   display: contents; 
+}
+
+/* Keep # column always visible */
+.column-header-cell[data-column="reference"],
+.bible-column[data-column="reference"] {
+  position: sticky;
+  left: 0;
+  z-index: 5; /* above neighbors */
+  background: var(--header-bg, var(--background));
 }
 
 /* cell-level stickiness for fixed columns */

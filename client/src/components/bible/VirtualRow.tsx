@@ -728,7 +728,7 @@ export function VirtualRow({
         case 'main-translation':
           return 'main-translation';
         case 'cross-refs':
-          return 'cross-references';
+          return 'cross-refs';
         case 'prophecy-p':
           return 'prophecy-prediction';
         case 'prophecy-f':

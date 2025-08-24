@@ -76,7 +76,7 @@
   }
 
   /* Main translation mobile sizing */
-  .column-header-cell[data-column="main"] {
+  .column-header-cell[data-column="main-translation"] {
     width: var(--adaptive-main-width) !important;  /* Sync with table content */
   }
 
@@ -118,7 +118,7 @@
       width: var(--adaptive-ref-width) !important;  /* Sync with table content */
     }
 
-    .column-header-cell[data-column="main"] {
+    .column-header-cell[data-column="main-translation"] {
       width: var(--adaptive-main-width) !important;  /* Sync with table content */
     }
 

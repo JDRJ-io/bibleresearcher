@@ -82,7 +82,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
   
   // Slot 6: Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
   {
-    id: 'cross-references',
+    id: 'cross-refs',
     name: 'Cross References',
     type: 'cross-ref',
     width: 'w-80',       // Same as alternate translations

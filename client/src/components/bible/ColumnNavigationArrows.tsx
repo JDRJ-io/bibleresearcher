@@ -26,15 +26,9 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
   // Now properly depends on the actual state that determines active columns
   const navigableKeys = useMemo(() => {
     const columns = buildActiveColumns();
-    console.log('🔍 NAVIGATION: buildActiveColumns returned:', columns.map(c => c.key));
-    console.log('🔍 NAVIGATION: current alternates:', translationState.alternates);
-    
     const filtered = columns
       .filter(col => col.key !== 'reference' && col.key !== 'index')
       .map(col => col.key);
-    
-    console.log('🔍 NAVIGATION: filtered navigable keys:', filtered);
-    console.log('🔍 NAVIGATION: total navigable count:', filtered.length);
     
     return filtered;
   }, [

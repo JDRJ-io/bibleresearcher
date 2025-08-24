@@ -209,19 +209,24 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
   // NEW: Update store with current column configuration (now that store variables are available)
   useEffect(() => {
-    // Update fixed and navigable column lists in store
+    // Fixed: keep the reference column pinned
     setFixedColumns(['reference']);
-    
-    const navigableColumnIds = [];
-    if (showCrossRefs) navigableColumnIds.push('KJV', 'CrossRefs');
-    else navigableColumnIds.push('KJV');
-    
-    if (showNotes) navigableColumnIds.push('Notes');
+
+    // Canonical IDs that match data-col-key / header ids
+    const nav: string[] = ['main-translation'];
+    if (showCrossRefs) nav.push('cross-refs');
+    if (showNotes)     nav.push('notes');
     if (showProphecies) {
-      navigableColumnIds.push('Prediction', 'Fulfillment', 'Verification');
+      nav.push('prophecy-prediction', 'prophecy-fulfillment', 'prophecy-verification');
     }
-    
-    setNavigableColumns(navigableColumnIds);
+
+    // Include all alternate translations as navigable columns
+    const { translationState } = useBibleStore.getState();
+    translationState.alternates
+      .filter(code => code !== translationState.main)
+      .forEach(code => nav.push(`alt-translation-${code}`));
+
+    setNavigableColumns(nav);
     
     // Measure and update column widths
     setTimeout(() => {
@@ -233,17 +238,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }
         
         // Measure main translation column
-        const kjvEl = document.querySelector('[data-column="main-translation"]');
-        if (kjvEl) {
-          setColumnWidthPx('KJV', kjvEl.getBoundingClientRect().width);
-        }
+        const mainEl = document.querySelector('[data-column="main-translation"]');
+        if (mainEl) setColumnWidthPx('main-translation', mainEl.getBoundingClientRect().width);
         
         // Measure cross refs column
         if (showCrossRefs) {
           const crossEl = document.querySelector('[data-column="cross-refs"]');
-          if (crossEl) {
-            setColumnWidthPx('CrossRefs', crossEl.getBoundingClientRect().width);
-          }
+          if (crossEl) setColumnWidthPx('cross-refs', crossEl.getBoundingClientRect().width);
         }
         
         // Measure prophecy columns
@@ -251,11 +252,16 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           const predEl = document.querySelector('[data-column="prophecy-prediction"]');
           const fulfEl = document.querySelector('[data-column="prophecy-fulfillment"]');
           const verifEl = document.querySelector('[data-column="prophecy-verification"]');
-          
-          if (predEl) setColumnWidthPx('Prediction', predEl.getBoundingClientRect().width);
-          if (fulfEl) setColumnWidthPx('Fulfillment', fulfEl.getBoundingClientRect().width);
-          if (verifEl) setColumnWidthPx('Verification', verifEl.getBoundingClientRect().width);
+          if (predEl)  setColumnWidthPx('prophecy-prediction', predEl.getBoundingClientRect().width);
+          if (fulfEl)  setColumnWidthPx('prophecy-fulfillment', fulfEl.getBoundingClientRect().width);
+          if (verifEl) setColumnWidthPx('prophecy-verification', verifEl.getBoundingClientRect().width);
         }
+
+        // Measure all alternate translations
+        document.querySelectorAll<HTMLElement>('[data-column="alt-translation"]').forEach(el => {
+          const id = el.getAttribute('data-col-key');  // e.g., alt-translation-NKJV
+          if (id) setColumnWidthPx(id, el.getBoundingClientRect().width);
+        });
       };
       
       measureColumns();
