@@ -76,14 +76,6 @@ export function NewColumnHeaders({
   const headerRef = useRef<HTMLDivElement>(null);
   // bodyRef is passed in from props
 
-  // Sync header scroll position with body via scrollLeft prop
-  useEffect(() => {
-    const headerElement = headerRef.current;
-    if (headerElement && typeof scrollLeft === 'number') {
-      headerElement.scrollLeft = scrollLeft;
-    }
-  }, [scrollLeft]);
-
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
 
@@ -493,7 +485,8 @@ export function NewColumnHeaders({
               minWidth: 'fit-content',
               width: 'fit-content',
               margin: isPortrait ? '0' : '0 auto',
-              overflowX: 'auto'
+              overflowX: 'auto',
+              maxWidth: '100%' // Prevent excessive width expansion
             }}
           >
             {visibleColumns.map((column) => (
