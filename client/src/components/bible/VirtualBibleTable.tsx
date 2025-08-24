@@ -653,6 +653,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         scrollLeft={scrollLeft}
         preferences={preferences || {}}
         isGuest={true}
+        bodyRef={containerRef}
       />
 
       {/* Unified scroll container with momentary axis commitment */}

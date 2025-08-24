@@ -768,7 +768,7 @@ export const useBibleStore = create<{
   containerWidthPx: 0,
   columnWidthsPx: {},
   gapPx: 0,
-  fixedColumns: ['reference'],
+  fixedColumns: ['reference'], // Only reference is fixed now
   navigableColumns: [],
   fallbackVisibleNavigableCount: 1,
   
@@ -799,10 +799,11 @@ export const useBibleStore = create<{
     const state = get();
     const columns = [];
     
-    // Always include main translation
+    // Reference is fixed, not included in navigable
+    // Always include main translation in navigable
     columns.push({ key: 'main-translation', type: 'main-translation' });
     
-    // Add cross-refs if enabled
+    // Add cross-refs if enabled (now navigable)
     if (state.showCrossRefs) {
       columns.push({ key: 'cross-refs', type: 'cross-refs' });
     }

@@ -600,13 +600,10 @@ body {
   }
 
   .bibleTable {
-    /* Three columns locked, rest overflow horizontally */
-    grid-auto-columns: var(--main-xref-w);
-    grid-template-columns:
-      var(--ref-w)          /* Ref column – fixed width   */
-      var(--main-xref-w)    /* Main translation – flex    */
-      var(--main-xref-w)    /* Cross reference – flex     */
-      repeat(auto-fill, max-content); /* any other columns */
+    /* Let columns auto-flow horizontally; reference will be made sticky-left in cells */
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    /* Do NOT pin main/xref as fixed columns here */
     overflow-x: auto;       /* scrollbar for "extra" cols */
 
     /* Expert's scroll enhancements */
@@ -1817,4 +1814,36 @@ body.overlay-open {
 /* SAFETY NET: let grid see cells if there are wrappers */
 .row-grid > .cell-wrap { 
   display: contents; 
+}
+
+/* cell-level stickiness for fixed columns */
+.header-cell.reference, .data-cell.reference, 
+.column-header-cell[data-column="reference"], .cell[data-column="reference"],
+.cell-ref {
+  position: sticky !important; 
+  left: 0 !important; 
+  z-index: 3 !important; 
+  background: var(--bg-primary, white) !important;
+  border-right: 1px solid var(--border-color, #e5e7eb) !important;
+}
+
+.header-cell.index, .data-cell.index,
+.column-header-cell[data-column="index"], .cell[data-column="index"] {
+  position: sticky !important; 
+  left: 0 !important; 
+  z-index: 4 !important;
+  background: var(--bg-primary, white) !important;
+}
+
+.header-cell.reference, .data-cell.reference,
+.column-header-cell[data-column="reference"], .cell[data-column="reference"] {
+  /* if index exists, bump reference by its width; otherwise 0 */
+  left: var(--index-col-width, 0px) !important;
+}
+
+/* hard kill any legacy "pillar" padding that appears in certain modes */
+.virtual-rows, .virtual-row, .bibleTable {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
 }

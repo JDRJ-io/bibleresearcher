@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
@@ -38,6 +38,7 @@ interface NewColumnHeadersProps {
   scrollLeft: number;
   preferences: any;
   isGuest?: boolean;
+  bodyRef?: React.RefObject<HTMLElement>;
 }
 
 interface SimpleColumn {
@@ -56,7 +57,8 @@ export function NewColumnHeaders({
   showDates = false,
   scrollLeft, 
   preferences, 
-  isGuest = true 
+  isGuest = true,
+  bodyRef
 }: NewColumnHeadersProps) {
   const { main, alternates } = useTranslationMaps();
 
@@ -71,6 +73,10 @@ export function NewColumnHeaders({
 
   // Use the live store state instead of preferences for notes visibility
   const showNotes = storeShowNotes;
+
+  // Create refs for scroll navigation
+  const headerRef = useRef<HTMLDivElement>(null);
+  // bodyRef is passed in from props
 
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
@@ -416,6 +422,7 @@ export function NewColumnHeaders({
           borderColor: 'var(--border-color)'
         }}
         data-column={column.type}
+        data-col-key={column.id}
         {...(isDraggable ? attributes : {})}
         {...(isDraggable ? listeners : {})}
       >
@@ -464,7 +471,10 @@ export function NewColumnHeaders({
             {isPresentationMode ? "Reset" : "Present"}
           </Button>
 
-          <ColumnNavigationArrows />
+          <ColumnNavigationArrows 
+            headerRef={headerRef}
+            bodyRef={bodyRef || headerRef}
+          />
 
           <div className="flex-1" />
         </div>
@@ -475,12 +485,13 @@ export function NewColumnHeaders({
           strategy={horizontalListSortingStrategy}
         >
           <div 
+            ref={headerRef}
             className="column-headers-inner flex"
             style={{ 
               minWidth: 'max-content',
               width: 'max-content',
               margin: isPortrait ? '0' : '0 auto',
-              overflowX: 'hidden'
+              overflowX: 'auto'
             }}
           >
             {visibleColumns.map((column) => (

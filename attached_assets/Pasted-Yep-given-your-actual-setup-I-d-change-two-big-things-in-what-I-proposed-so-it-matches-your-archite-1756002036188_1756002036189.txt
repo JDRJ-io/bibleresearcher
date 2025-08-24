@@ -1,0 +1,203 @@
+Yep—given your actual setup, I’d change two big things in what I proposed so it matches your architecture and fixes the misalignment/indent for good:
+
+# What I’d update
+
+1. **Use real horizontal scroll for the “illusion,” not slicing.**
+   Your CSS already sets up a horizontally scrollable grid (`overflow-x: auto`, `grid-auto-flow: column`, `scroll-snap-type`). So make the left/right arrows **drive `scrollLeft` by one column** instead of swapping a window of columns. This keeps the DOM stable and prevents header/body desync.
+
+2. **Only `reference` (and optional `index`) are fixed; everything else is navigable.**
+   Right now portrait CSS treats `main` and `cross-ref` as fixed tracks, which is why nav “does nothing” until you add prophecy/alt columns. Move `main`, `cross-ref`, `prophecy`, `translation`, `notes`, etc. into the **scrollable area** so arrow clicks always do work.
+
+---
+
+# Surgical patches (no rewrites)
+
+## A) CSS: stop pinning extra fixed tracks; keep native horizontal scroll
+
+**Before (portrait rule pins 2 fixed tracks):**
+
+```css
+@media (orientation: portrait) {
+  .bibleTable {
+    grid-template-columns:
+      var(--ref-w)          /* fixed */
+      var(--main-xref-w)    /* fixed - main  ❌ */
+      var(--main-xref-w)    /* fixed - xref  ❌ */
+      repeat(auto-fill, max-content);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+}
+```
+
+**After (only reference fixed; the rest scroll):**
+
+```css
+@media (orientation: portrait) {
+  .bibleTable {
+    /* Let columns auto-flow horizontally; reference will be made sticky-left in cells */
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    /* Do NOT pin main/xref as fixed columns here */
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+}
+```
+
+> If you hard-set ref width via `--ref-w`, keep it; just don’t reserve extra fixed tracks for `main`/`cross-ref`.
+
+---
+
+## B) JS: arrows move `scrollLeft` by **exactly one column**
+
+Add a tiny helper that knows two scroll containers (header + body) and a list of navigable column keys in order.
+
+```ts
+// scrollNav.ts
+type ScrollNavOpts = {
+  headerEl: HTMLElement;    // sticky header scroller
+  bodyEl: HTMLElement;      // rows scroller
+  navigableKeys: string[];  // everything except 'reference' (and 'index' if you have it)
+};
+
+export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNavOpts) {
+  const getTrackLefts = () => {
+    // read left positions from header cells (use a data attribute on each header cell)
+    const lefts: number[] = [];
+    for (const key of navigableKeys) {
+      const cell = headerEl.querySelector<HTMLElement>(`.col-header[data-col-key="${key}"]`);
+      if (!cell) continue;
+      // left position relative to the scrolling container
+      lefts.push(cell.offsetLeft);
+    }
+    return lefts.sort((a,b)=>a-b);
+  };
+
+  const sync = () => { headerEl.scrollLeft = bodyEl.scrollLeft; };
+  bodyEl.addEventListener('scroll', sync, { passive: true });
+
+  const step = (dir: -1 | 1) => {
+    const lefts = getTrackLefts();
+    const curr = bodyEl.scrollLeft;
+    if (!lefts.length) return;
+
+    if (dir > 0) {
+      // next visible track strictly to the right
+      const next = lefts.find(L => L > curr + 1);
+      if (next != null) bodyEl.scrollTo({ left: next, behavior: 'smooth' });
+    } else {
+      // nearest track strictly to the left
+      const prev = [...lefts].reverse().find(L => L < curr - 1);
+      if (prev != null) bodyEl.scrollTo({ left: prev, behavior: 'smooth' });
+    }
+  };
+
+  return {
+    left: () => step(-1),
+    right: () => step(1),
+    destroy: () => bodyEl.removeEventListener('scroll', sync),
+  };
+}
+```
+
+Use it in your arrows:
+
+```tsx
+// ColumnNavigationArrows.tsx
+export function ColumnNavigationArrows({ headerRef, bodyRef, navigableKeys }: {
+  headerRef: React.RefObject<HTMLElement>;
+  bodyRef: React.RefObject<HTMLElement>;
+  navigableKeys: string[];
+}) {
+  const scroller = useMemo(() => {
+    if (!headerRef.current || !bodyRef.current) return null;
+    return makeColumnScroller({
+      headerEl: headerRef.current,
+      bodyEl: bodyRef.current,
+      navigableKeys,
+    });
+  }, [headerRef.current, bodyRef.current, navigableKeys.join('|')]);
+
+  if (!scroller) return null;
+
+  return (
+    <div className="col-nav">
+      <button onClick={scroller.left}>◀</button>
+      <button onClick={scroller.right}>▶</button>
+    </div>
+  );
+}
+```
+
+> This makes the “illusion” real: we simply bump `scrollLeft` to the next column boundary. No window slicing. No re-layout. Headers and rows stay in lockstep via `scrollLeft` sync.
+
+---
+
+## C) Fixed columns: sticky-left in cells, **no body padding**
+
+Keep the reference (and optional index) visible via sticky, not via padding/margins (which caused the big indent when prophecy/alt toggles flipped a class).
+
+```css
+/* cell-level stickiness */
+.header-cell.reference, .data-cell.reference { position: sticky; left: 0; z-index: 3; background: var(--bg-surface); }
+.header-cell.index, .data-cell.index       { position: sticky; left: 0; z-index: 4; }
+
+.header-cell.reference, .data-cell.reference {
+  /* if index exists, bump reference by its width; otherwise 0 */
+  left: var(--index-col-width, 0px);
+}
+
+/* hard kill any legacy “pillar” padding that appears in certain modes */
+.virtual-rows, .virtual-row, .bibleTable {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
+}
+```
+
+---
+
+## D) One small invariants tweak in state
+
+Make sure **only** these are considered fixed:
+
+```ts
+// wherever you derive fixed vs navigable from COLUMN_LAYOUT
+const fixedColumns = COLUMN_LAYOUT.filter(c => c.type === 'reference' || c.type === 'index');
+const navigableColumns = COLUMN_LAYOUT.filter(c => c.type !== 'reference' && c.type !== 'index');
+```
+
+> If `main`/`cross-ref` were previously treated as fixed in JS, move them to `navigableColumns`. That’s the reason arrows “wake up” only when prophecy/alt are added.
+
+---
+
+## E) (Optional) keep your “visible range” labels
+
+If you still show “1–3 / 8”, compute it from scroll positions instead of a sliced window:
+
+```ts
+// derive the left-most fully visible navigable index
+function visibleRangeFromScroll(headerEl: HTMLElement, navigableKeys: string[]) {
+  const curr = headerEl.scrollLeft;
+  const lefts = navigableKeys.map((k) => {
+    const el = headerEl.querySelector<HTMLElement>(`.col-header[data-col-key="${k}"]`);
+    return el ? el.offsetLeft : 0;
+  });
+  lefts.sort((a,b)=>a-b);
+  const startIdx = Math.max(0, lefts.findIndex(L => L >= curr));
+  // estimate how many fit by comparing right edge; or keep your width-based calculator
+  return { start1: startIdx + 1, total: navigableKeys.length };
+}
+```
+
+---
+
+# Why these updates
+
+* They align with your **current CSS grid** and “snap x” approach.
+* Arrows now **always** work, even with only main+xref, because those are part of the scrollable set.
+* The **left indent disappears** because reference is sticky at the cell level and we’ve removed padding hacks that flipped on with prophecy/alt.
+* Header/body stay aligned because we **sync scrollLeft** instead of re-slicing content.
+
+If you want me to write the exact 3–5 line changes for each of your specific files (`index.css`, `NewColumnHeaders.tsx`, `ColumnNavigationArrows.tsx`, etc.), drop the relevant snippets (header/body wrappers + refs), and I’ll tailor the tiny diffs.
