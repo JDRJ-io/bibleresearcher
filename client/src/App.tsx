@@ -157,6 +157,7 @@ export const useBibleStore = create<{
     modeUsed: 'width' | 'count';
     activeColumns: { key: string; type: string; translationCode?: string }[];
   };
+  getSharedGridTemplate: () => string;
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -913,6 +914,12 @@ export const useBibleStore = create<{
       modeUsed: widthMode ? 'width' : 'count',
       activeColumns: activeColumns.slice(start, end)
     };
+  },
+
+  // Shared grid template for perfect header-row alignment
+  getSharedGridTemplate: () => {
+    const { templateForVisible } = get().getVisibleSlice();
+    return templateForVisible;
   }
 }));
 

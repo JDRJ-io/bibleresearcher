@@ -1,0 +1,125 @@
+Got it. Here’s the **minimal fix patch**—no rewrites, just the parts that stop the indent and make the arrows move the window by exactly **one navigable column** while the header stays sticky.
+
+---
+
+## 1) Store: step-by-1 windowing (ref column NOT counted)
+
+Update your nav actions and maxOffset math to use your existing visible window size (3–20), excluding the ref column.
+
+```ts
+// useBibleStore (only these lines)
+
+navigateColumnLeft: () =>
+  set(s => ({ columnOffset: Math.max(0, s.columnOffset - 1) })),
+
+navigateColumnRight: () =>
+  set(s => {
+    const take = Math.max(1, (s.visibleCount ?? s.visibleNavigableCount) - s.fixedColumns.length); // 3–20 main tracks
+    const maxOffset = Math.max(0, s.navigableColumns.length - take);
+    return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
+  }),
+
+getVisibleSlice: () => {
+  const s = get();
+  const take = Math.max(1, (s.visibleCount ?? s.visibleNavigableCount) - s.fixedColumns.length);
+  const start = Math.max(0, Math.min(s.columnOffset, Math.max(0, s.navigableColumns.length - take)));
+  const end   = Math.min(s.navigableColumns.length, start + take);
+  return { start, end };
+}
+```
+
+> If you already have `visibleNavigableCount`, use that instead of `(s.visibleCount - s.fixedColumns.length)`.
+
+---
+
+## 2) Header & Rows: **same grid template** (prevents misalignment)
+
+Add the same `gridTemplateColumns` and `columnGap` to both components, built from the **exact same keys**.
+
+```tsx
+// NewColumnHeaders.tsx (add these few lines where you render the header grid)
+const { start, end } = useBibleStore(s => s.getVisibleSlice());
+const fixedKeys = useBibleStore(s => s.fixedColumns);
+const navKeys   = useBibleStore(s => s.navigableColumns);
+const widths    = useBibleStore(s => s.columnWidthsPx);
+const gapPx     = useBibleStore(s => s.gapPx);
+
+const template = useMemo(() => {
+  const keys = [...fixedKeys, ...navKeys.slice(start, end)];
+  return keys.map(k => `${(widths?.[k] ?? 280)}px`).join(' ');
+}, [fixedKeys, navKeys, start, end, widths]);
+
+// apply to wrapper
+<div className="grid items-stretch" style={{ gridTemplateColumns: template, columnGap: gapPx }}>
+  {/* header cells */}
+</div>
+```
+
+```tsx
+// VirtualRow.tsx (same template & gap on each row grid)
+const { start, end } = useBibleStore(s => s.getVisibleSlice());
+const fixedKeys = useBibleStore(s => s.fixedColumns);
+const navKeys   = useBibleStore(s => s.navigableColumns);
+const widths    = useBibleStore(s => s.columnWidthsPx);
+const gapPx     = useBibleStore(s => s.gapPx);
+
+const template = useMemo(() => {
+  const keys = [...fixedKeys, ...navKeys.slice(start, end)];
+  return keys.map(k => `${(widths?.[k] ?? 280)}px`).join(' ');
+}, [fixedKeys, navKeys, start, end, widths]);
+
+<div className="grid row-grid" style={{ gridTemplateColumns: template, columnGap: gapPx }}>
+  {/* row cells */}
+</div>
+```
+
+---
+
+## 3) Sticky header & fixed column (no horizontal indent)
+
+Keep the header sticky at the top, and make the ref column sticky **left:0** in both header and body.
+
+```css
+/* CSS */
+.table-viewport { overflow-y: auto; overflow-x: hidden; }
+.grid { min-width: 0; }
+.sticky-header { position: sticky; top: 0; z-index: 30; background: var(--bg-surface); }
+
+.header-cell.reference,
+.data-cell.reference { position: sticky; left: 0; z-index: 2; background: var(--bg-surface); }
+
+/* kill old pillar padding that causes the indentation */
+.virtual-rows, .virtual-row, .row-grid { padding-left: 0 !important; margin-left: 0 !important; }
+```
+
+> If you also have a `# / index` fixed column, make it sticky too and bump the ref’s left by that width (using a CSS var is fine):
+
+```css
+.header-cell.index, .data-cell.index { position: sticky; left: 0; z-index: 3; }
+.header-cell.reference, .data-cell.reference { left: var(--index-col-width, 140px); }
+```
+
+---
+
+## 4) Arrows: just call the store (moves by one)
+
+```tsx
+// ColumnNavigationArrows.tsx
+const left  = useBibleStore(s => s.navigateColumnLeft);
+const right = useBibleStore(s => s.navigateColumnRight);
+const { start, end } = useBibleStore(s => s.getVisibleSlice());
+const total = useBibleStore(s => s.navigableColumns.length);
+
+<button onClick={left}  disabled={start === 0}>◀</button>
+<span className="tabular-nums">{start + 1}-{end} / {total}</span>
+<button onClick={right} disabled={end >= total}>▶</button>
+```
+
+---
+
+### That’s it
+
+* Arrows shift **exactly one** navigable column.
+* Header stays sticky; body shifts.
+* Header and rows share **one** template → no drift.
+* Indentation removed by nuking old pillar padding and using sticky `left:0` for the ref column.

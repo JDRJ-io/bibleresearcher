@@ -315,10 +315,7 @@ export function NewColumnHeaders({
     setLocalColumns(columns);
   }, [columns]);
 
-  // Temporarily disabled unified navigation state to fix render loop
-  // const { templateForVisible, visibleKeys } = useBibleStore(s => s.getVisibleSlice());
-  
-  // Use direct columns instead of complex mapping for now to avoid render loops
+  // For now, use direct columns to avoid infinite render loops
   const visibleColumns = columns;
 
   // Drag and drop handlers
