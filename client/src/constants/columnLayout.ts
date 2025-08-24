@@ -146,6 +146,88 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     position: 11,
     defaultVisible: false,
     guestMode: true
+  },
+
+  // Slots 12-19: Additional alternate translations (8 slots total)
+  {
+    id: 'alt-translation-5',
+    name: 'Alt Translation 5',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 12,
+    defaultVisible: false,
+    guestMode: true
+  },
+  {
+    id: 'alt-translation-6',
+    name: 'Alt Translation 6',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 13,
+    defaultVisible: false,
+    guestMode: true
+  },
+  {
+    id: 'alt-translation-7',
+    name: 'Alt Translation 7',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 14,
+    defaultVisible: false,
+    guestMode: false // Premium feature
+  },
+  {
+    id: 'alt-translation-8',
+    name: 'Alt Translation 8',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 15,
+    defaultVisible: false,
+    guestMode: false
+  },
+  {
+    id: 'alt-translation-9',
+    name: 'Alt Translation 9',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 16,
+    defaultVisible: false,
+    guestMode: false
+  },
+  {
+    id: 'alt-translation-10',
+    name: 'Alt Translation 10',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 17,
+    defaultVisible: false,
+    guestMode: false
+  },
+  {
+    id: 'alt-translation-11',
+    name: 'Alt Translation 11',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 18,
+    defaultVisible: false,
+    guestMode: false
+  },
+  {
+    id: 'alt-translation-12',
+    name: 'Alt Translation 12',
+    type: 'translation',
+    width: 'w-80',
+    mobileWidth: 'w-full',
+    position: 19,
+    defaultVisible: false,
+    guestMode: false
   }
 ];
 
