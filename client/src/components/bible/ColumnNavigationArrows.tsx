@@ -90,19 +90,33 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
     };
   }, [scroller]);
 
+  // Debug logging for navigation state
+  console.log('🔍 ColumnNavigationArrows Debug:', {
+    hasScroller: !!scroller,
+    visibleRange,
+    navigableKeysLength: navigableKeys.length,
+    headerRefCurrent: !!headerRef?.current,
+    bodyRefCurrent: !!bodyRef?.current
+  });
+
   // Don't show navigation if no scroller or all columns fit
   if (!scroller || visibleRange.total <= 1) {
+    console.log('🚫 Navigation arrows hidden - scroller:', !!scroller, 'total columns:', visibleRange.total);
     return null;
   }
 
   const handleNavigateLeft = () => {
+    console.log('🔍 Left arrow clicked!', { canGoLeft: visibleRange.canGoLeft, hasScroller: !!scroller });
     if (visibleRange.canGoLeft && scroller) {
+      console.log('⬅️ Scrolling left...');
       scroller.left();
     }
   };
 
   const handleNavigateRight = () => {
+    console.log('🔍 Right arrow clicked!', { canGoRight: visibleRange.canGoRight, hasScroller: !!scroller });
     if (visibleRange.canGoRight && scroller) {
+      console.log('➡️ Scrolling right...');
       scroller.right();
     }
   };
