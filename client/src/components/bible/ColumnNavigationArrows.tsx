@@ -31,6 +31,11 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
       .map(col => col.key);
     
     console.log('🔍 ColumnNavigationArrows navigableKeys:', filtered);
+    console.log('🔍 ColumnNavigationArrows total navigable count:', filtered.length);
+    console.log('🔍 ColumnNavigationArrows translation state:', { 
+      main: translationState.main, 
+      alternates: translationState.alternates 
+    });
     return filtered;
   }, [
     buildActiveColumns, 

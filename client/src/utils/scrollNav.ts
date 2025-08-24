@@ -24,6 +24,7 @@ function measureLefts(headerEl: HTMLElement, keys: string[], stickyLeft: number)
 }
 
 export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNavOpts) {
+  console.log('🔍 makeColumnScroller called with navigableKeys:', navigableKeys);
   // keep header scroll mirrored to body
   const sync = () => { headerEl.scrollLeft = bodyEl.scrollLeft; };
   bodyEl.addEventListener('scroll', sync, { passive: true });

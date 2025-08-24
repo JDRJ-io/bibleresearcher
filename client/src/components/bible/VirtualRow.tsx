@@ -706,6 +706,7 @@ export function VirtualRow({
     console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
     console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
     console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
+    console.log('🔍 VirtualRow Debug - Actual column keys being rendered:', visibleColumns.map(c => c.config?.key || c.config?.type));
     console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
 
     // Debug cross-references data
