@@ -496,21 +496,39 @@ export function NewColumnHeaders({
           items={visibleColumns.map(col => col.id)} 
           strategy={horizontalListSortingStrategy}
         >
-          <div 
-            ref={headerRef}
-            className="column-headers-inner flex"
-            style={{ 
-              minWidth: 'fit-content',
-              width: 'fit-content',
-              margin: isPortrait ? '0' : '0 auto',
-              overflowX: 'auto',
-              maxWidth: '100%', // Prevent excessive width expansion
-              transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
-            }}
-          >
-            {visibleColumns.map((column) => (
-              <SortableHeaderCell key={column.id} column={column} />
+          <div className="flex">
+            {/* Reference header - stays fixed like the reference column data */}
+            {visibleColumns.filter(col => col.id === 'reference').map((column) => (
+              <div
+                key={column.id}
+                style={{
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 30,
+                  backgroundColor: 'var(--bg-primary)'
+                }}
+              >
+                <SortableHeaderCell column={column} />
+              </div>
             ))}
+            
+            {/* Scrollable headers - move with table horizontal scroll */}
+            <div 
+              ref={headerRef}
+              className="column-headers-inner flex"
+              style={{ 
+                minWidth: 'fit-content',
+                width: 'fit-content',
+                margin: isPortrait ? '0' : '0 auto',
+                overflowX: 'auto',
+                maxWidth: '100%', // Prevent excessive width expansion
+                transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
+              }}
+            >
+              {visibleColumns.filter(col => col.id !== 'reference').map((column) => (
+                <SortableHeaderCell key={column.id} column={column} />
+              ))}
+            </div>
           </div>
         </SortableContext>
 
