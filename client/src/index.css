@@ -40,6 +40,47 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Column-wrapper styles for sticky headers */
+.gridX {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  will-change: transform;
+  height: 100%;
+}
+
+.col {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  flex-shrink: 0;
+}
+
+.col__header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--header-bg, white);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  height: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 1px rgba(0,0,0,0.08);
+}
+
+.col__body {
+  overflow: visible;
+  position: relative;
+}
+
+.tableY {
+  overflow-y: auto;
+  height: 100%;
+  width: 100%;
+}
+
 /* Hide default scrollbars but keep scrolling functionality */
 .unified-scroll-container::-webkit-scrollbar {
   display: none;

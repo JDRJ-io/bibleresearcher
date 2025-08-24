@@ -1,0 +1,108 @@
+Yep—make each column a wrapper that contains its own header and body, then make that header `position: sticky; top: 0`. When you move the column horizontally, the header comes with it automatically and still pins to the top while you scroll.
+
+Here’s the reliable “column-wrapper” recipe:
+
+```tsx
+// Column.tsx
+type ColumnProps = { id: string; title: string; width: number; children: React.ReactNode };
+export function Column({ id, title, width, children }: ColumnProps) {
+  return (
+    <div className="col" style={{ width }}>
+      <div className="col__header" data-col={id}>{title}</div>
+      <div className="col__body">{children}</div>
+    </div>
+  );
+}
+
+// Grid.tsx
+export function Grid({ order, widths, columns }: {
+  order: string[];
+  widths: Record<string, number>;
+  columns: Record<string, React.ReactNode>;
+}) {
+  return (
+    <div className="gridX"> {/* horizontal scroller */}
+      {order.map(id => (
+        <Column key={id} id={id} title={id.toUpperCase()} width={widths[id]}>
+          {columns[id]}
+        </Column>
+      ))}
+    </div>
+  );
+}
+```
+
+```css
+/* Horizontal track that you reorder across */
+.gridX {
+  display: flex;
+  gap: 0;                 /* avoid hairline gaps */
+  overflow-x: auto;
+  will-change: transform; /* smooth drag/scroll */
+}
+
+/* Each column owns its header + body */
+.col {
+  display: grid;
+  grid-template-rows: auto 1fr; /* header then body */
+  /* Optional: let individual columns be sticky-left to “lock” them */
+  /* position: sticky; left: <computed px>; */
+}
+
+/* The magic: header sticks to the top of the VERTICAL scroller */
+.col__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;             /* above cells */
+  background: var(--header-bg, canvas);
+  /* keep width equal to the column by living inside .col */
+  /* optional border/shadow for clarity */
+  box-shadow: 0 1px var(--hairline, rgba(0,0,0,.08));
+}
+
+/* Your vertical scroller wraps rows/cells (global, not per column) */
+.tableY {
+  overflow-y: auto;
+  height: 100%;
+}
+```
+
+How to wire it in practice
+
+1. Make sure the **vertical scrolling container** is an ancestor of the headers (e.g., a `.tableY` that wraps your whole grid). `position: sticky; top:0` uses *that* container.
+2. Put each header **inside the same wrapper** as its cells (`.col`). When you reorder columns, you’re just reordering these wrappers—header can’t drift.
+3. Keep widths in one source of truth (e.g., `{ order: string[], widths: Record<string,number> }`). The wrapper takes `style={{ width }}`, so header and body are always the same width.
+
+Gotchas (easy fixes)
+
+* If sticky doesn’t stick: some ancestor probably has `overflow: hidden/auto/scroll`. The header needs to see the vertical scroller you intend. Common pattern:
+
+  * Outer: `.tableY { overflow-y: auto }`
+  * Inner: `.gridX { overflow-x: auto }`
+* Give the header a **background** (or it’ll look transparent over cells) and a **z-index > cells**.
+* Avoid `transform` on the vertical scroller (it can create weird stacking/containing blocks). Transforming the **columns** themselves is fine.
+* Virtualized rows? This pattern is virtualization-friendly—the header is outside the virtualized list for that column, so it never unmounts.
+
+If you can’t restructure into column wrappers
+Use a **shared template** so a separate header row stays aligned:
+
+```css
+.headers, .rows { display: grid; grid-template-columns: var(--col-template); }
+.headers { position: sticky; top: 0; z-index: 2; }
+```
+
+```ts
+// Update once whenever order/widths change
+const template = order.map(id => `${widths[id]}px`).join(' ');
+document.documentElement.style.setProperty('--col-template', template);
+```
+
+And if header/body must be separate scroll containers, sync horizontal scroll:
+
+```ts
+bodyEl.addEventListener('scroll', () => {
+  headerEl.scrollLeft = bodyEl.scrollLeft;
+}, { passive: true });
+```
+
+Either approach gives you: **headers that always travel with their column AND stick to the top**—no event “signals,” just solid layout mechanics. If you want, tell me which of your 0–19 slot files owns the column list, and I’ll drop in exact patch lines.
