@@ -94,9 +94,12 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
   console.log('🔍 ColumnNavigationArrows Debug:', {
     hasScroller: !!scroller,
     visibleRange,
+    navigableKeys,
     navigableKeysLength: navigableKeys.length,
     headerRefCurrent: !!headerRef?.current,
-    bodyRefCurrent: !!bodyRef?.current
+    bodyRefCurrent: !!bodyRef?.current,
+    headerRefElement: headerRef?.current,
+    bodyRefElement: bodyRef?.current
   });
 
   // Don't show navigation if no scroller or all columns fit
@@ -123,6 +126,11 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
+      {/* Debug Info */}
+      <div className="text-xs text-gray-500">
+        Debug: L={visibleRange.canGoLeft ? 'Y' : 'N'} R={visibleRange.canGoRight ? 'Y' : 'N'}
+      </div>
+      
       {/* Left Arrow */}
       <button
         onClick={handleNavigateLeft}
@@ -132,10 +140,14 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
           borderColor: 'var(--border-color)',
           color: visibleRange.canGoLeft ? 'var(--text-primary)' : 'var(--text-secondary)',
           cursor: visibleRange.canGoLeft ? 'pointer' : 'not-allowed',
-          opacity: visibleRange.canGoLeft ? 1 : 0.5
+          opacity: visibleRange.canGoLeft ? 1 : 0.5,
+          zIndex: 1000, // Ensure it's above other elements
+          position: 'relative' // Ensure proper stacking context
         }}
         className="flex items-center justify-center w-8 h-8 rounded-md transition-all border hover:opacity-80"
         title="Navigate left one column"
+        onMouseEnter={() => console.log('🔍 Left button hover - can click:', visibleRange.canGoLeft)}
+        onMouseDown={() => console.log('🔍 Left button mouse down')}
       >
         <ChevronLeft size={16} />
       </button>
@@ -163,10 +175,14 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
           borderColor: 'var(--border-color)',
           color: visibleRange.canGoRight ? 'var(--text-primary)' : 'var(--text-secondary)',
           cursor: visibleRange.canGoRight ? 'pointer' : 'not-allowed',
-          opacity: visibleRange.canGoRight ? 1 : 0.5
+          opacity: visibleRange.canGoRight ? 1 : 0.5,
+          zIndex: 1000, // Ensure it's above other elements
+          position: 'relative' // Ensure proper stacking context
         }}
         className="flex items-center justify-center w-8 h-8 rounded-md transition-all border hover:opacity-80"
         title="Navigate right one column"
+        onMouseEnter={() => console.log('🔍 Right button hover - can click:', visibleRange.canGoRight)}
+        onMouseDown={() => console.log('🔍 Right button mouse down')}
       >
         <ChevronRight size={16} />
       </button>
