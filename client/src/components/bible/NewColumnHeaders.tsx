@@ -315,8 +315,15 @@ export function NewColumnHeaders({
     setLocalColumns(columns);
   }, [columns]);
 
-  // For now, use direct columns to avoid infinite render loops
+  // Simplified to prevent render loops - use direct columns
   const visibleColumns = columns;
+  
+  // Basic grid template based on column count
+  const headerTemplate = useMemo(() => {
+    return visibleColumns.map(() => '280px').join(' ');
+  }, [visibleColumns.length]);
+  
+  const gapPx = 0; // Simplified for now
 
   // Drag and drop handlers
   function handleDragStart(event: DragStartEvent) {
@@ -475,8 +482,10 @@ export function NewColumnHeaders({
           strategy={horizontalListSortingStrategy}
         >
           <div 
-            className="column-headers-inner flex"
+            className="column-headers-inner grid sticky-header"
             style={{ 
+              gridTemplateColumns: headerTemplate,
+              columnGap: `${gapPx}px`,
               minWidth: 'max-content',
               width: 'max-content',
               margin: isPortrait ? '0' : '0 auto',
