@@ -1,87 +1,78 @@
-// Column scroll navigation utility
-// Enables horizontal scrolling by exact column positions instead of slicing
+// Column scroll navigation utility (sticky-aware & alt-friendly)
 
 export type ScrollNavOpts = {
-  headerEl: HTMLElement;    // sticky header scroller
-  bodyEl: HTMLElement;      // rows scroller  
-  navigableKeys: string[];  // everything except 'reference' (and 'index' if you have it)
+  headerEl: HTMLElement;    // the element with [data-col-key] header cells
+  bodyEl: HTMLElement;      // the horizontal scroller for rows
+  navigableKeys: string[];  // keys like 'main-translation', 'cross-refs', 'alt-translation-NKJV', ...
 };
 
+function getStickyLeftPx(headerEl: HTMLElement) {
+  const idx = headerEl.querySelector<HTMLElement>('[data-column="index"]');
+  const ref = headerEl.querySelector<HTMLElement>('[data-column="reference"]');
+  const w = (el?: HTMLElement | null) => (el ? el.getBoundingClientRect().width : 0);
+  return w(idx) + w(ref);
+}
+
+function measureLefts(headerEl: HTMLElement, keys: string[], stickyLeft: number) {
+  const rectParent = headerEl.getBoundingClientRect();
+  return keys.map(k => {
+    const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${k}"]`);
+    if (!cell) return { key: k, left: 0, width: 0, ok: false };
+    const r = cell.getBoundingClientRect();
+    return { key: k, left: Math.max(0, r.left - rectParent.left - stickyLeft), width: r.width, ok: true };
+  });
+}
+
 export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNavOpts) {
-  const getTrackLefts = () => {
-    const lefts: number[] = [];
-    
-    // Get reference column width to account for sticky positioning
-    const refColumn = headerEl.querySelector<HTMLElement>('[data-column="reference"]');
-    const refWidth = refColumn ? refColumn.offsetWidth : 0;
-    
-    for (const key of navigableKeys) {
-      const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${key}"]`) ||
-                   headerEl.querySelector<HTMLElement>(`[data-column="${key}"]`) ||
-                   headerEl.querySelector<HTMLElement>(`[data-type="${key}"]`) ||
-                   headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
-      
-      if (cell) {
-        // Adjust position to account for sticky reference column
-        lefts.push(cell.offsetLeft - refWidth);
-      }
-    }
-    return lefts.sort((a, b) => a - b);
-  };
-
-  const sync = () => { 
-    headerEl.scrollLeft = bodyEl.scrollLeft; 
-  };
-  
-  // Set up bidirectional sync
+  // keep header scroll mirrored to body
+  const sync = () => { headerEl.scrollLeft = bodyEl.scrollLeft; };
   bodyEl.addEventListener('scroll', sync, { passive: true });
-  
-  const step = (dir: -1 | 1) => {
-    const lefts = getTrackLefts();
-    const curr = bodyEl.scrollLeft;
-    if (!lefts.length) return;
 
-    if (dir > 0) {
-      // next visible track strictly to the right
-      const next = lefts.find(L => L > curr + 1);
-      if (next != null) bodyEl.scrollTo({ left: next, behavior: 'smooth' });
-    } else {
-      // nearest track strictly to the left
-      const prev = [...lefts].reverse().find(L => L < curr - 1);
-      if (prev != null) bodyEl.scrollTo({ left: prev, behavior: 'smooth' });
+  const scrollTo = (x: number) => {
+    const target = Math.max(0, Math.round(x));
+    bodyEl.scrollTo({ left: target, behavior: 'smooth' });
+    headerEl.scrollLeft = target; // immediate header update
+  };
+
+  const stickyLeft = () => getStickyLeftPx(headerEl);
+  const snapshot = () => measureLefts(headerEl, navigableKeys, stickyLeft());
+
+  const currentIndex = () => {
+    const S = snapshot();
+    const cur = bodyEl.scrollLeft;
+    // choose the nearest start >= current
+    let idx = 0;
+    for (let i = 0; i < S.length; i++) {
+      if (S[i].left >= cur - 1) { idx = i; break; }
+      idx = i;
     }
+    return Math.max(0, Math.min(idx, S.length - 1));
+  };
+
+  const step = (dir: -1 | 1) => {
+    if (!navigableKeys.length) return;
+    const S = snapshot();
+    const idx = currentIndex();
+    const next = Math.max(0, Math.min(idx + dir, S.length - 1));
+    scrollTo(S[next].left);
   };
 
   const getVisibleRange = () => {
-    const lefts = getTrackLefts();
-    const curr = bodyEl.scrollLeft;
-    const containerWidth = bodyEl.clientWidth;
-    const lastColumnLeft = lefts[lefts.length - 1] || 0;
-    
-    
-    // Find first visible column
-    const startIdx = Math.max(0, lefts.findIndex(L => L >= curr - 10)); // -10px tolerance
-    
-    // Find last visible column
-    let endIdx = startIdx;
-    for (let i = startIdx; i < lefts.length; i++) {
-      if (lefts[i] <= curr + containerWidth + 10) { // +10px tolerance
-        endIdx = i;
-      } else {
-        break;
-      }
+    const S = snapshot();
+    const viewLeft = bodyEl.scrollLeft;
+    const viewRight = viewLeft + bodyEl.clientWidth - stickyLeft();
+    let start = 0, end = 0;
+    for (let i = 0; i < S.length; i++) {
+      const l = S[i].left, r = l + S[i].width;
+      const visible = r > viewLeft && l < viewRight;
+      if (visible) { end = i; if (start === 0) start = i; }
     }
-    
-    const canGoLeft = curr > 10;
-    const canGoRight = curr + containerWidth < lastColumnLeft + 100;
-    
-    
     return {
-      start: startIdx + 1, // 1-based for display
-      end: endIdx + 1,
-      total: navigableKeys.length,
-      canGoLeft,
-      canGoRight
+      start: start + 1,
+      end: end + 1,
+      total: S.length,
+      canGoLeft: start > 0,
+      canGoRight: end < S.length - 1
     };
   };
 

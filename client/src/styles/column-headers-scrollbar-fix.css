@@ -4,7 +4,8 @@
 .column-headers-wrapper,
 .column-headers-inner,
 .column-headers-container {
-  overflow: hidden !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   scrollbar-width: none !important; /* Firefox */
   -ms-overflow-style: none !important; /* IE/Edge */
 }

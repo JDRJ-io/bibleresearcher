@@ -1,0 +1,247 @@
+You’re right to be frustrated. I dug through every file you sent (all 23) and found the real blockers that explain why nothing changed:
+
+1. your header scroller is **not scrollable** — `column-headers-scrollbar-fix.css` forces `overflow: hidden !important;` on the very element you’re trying to scroll/sync. That guarantees header/body desync and breaks snap-to-column logic, no matter what else we do.
+
+2. alt-translation header widths are **forced to the main width** by a broad CSS rule, so when an alt appears the header is ≈¼-column off vs the row.
+
+3. rows label cross-refs as `data-col-key="cross-references"` while headers use `"cross-refs"` — the nav can’t resolve that column.
+
+4. mobile header CSS targets `data-column="main"` but your DOM uses `main-translation`.
+
+Here are the *surgical patches* to fix these four, plus a robust scroll helper so the left/right click always snaps to the right column, includes alternates, and keeps “#” pinned.
+
+---
+
+# 1) Make headers scrollable (but keep scrollbars hidden)
+
+**File:** `column-headers-scrollbar-fix.css`
+
+Replace the top block so we hide bars without disabling scroll:
+
+```diff
+- .column-headers-wrapper,
+- .column-headers-inner,
+- .column-headers-container {
+-   overflow: hidden !important;
+-   scrollbar-width: none !important; /* Firefox */
+-   -ms-overflow-style: none !important; /* IE/Edge */
+- }
++ .column-headers-wrapper,
++ .column-headers-inner,
++ .column-headers-container {
++   overflow-x: auto !important;
++   overflow-y: hidden !important;
++   scrollbar-width: none !important; /* Firefox */
++   -ms-overflow-style: none !important; /* IE/Edge */
++ }
+
+/* Keep these — they hide the chrome but allow scrolling */
+ .column-headers-wrapper::-webkit-scrollbar,
+ .column-headers-inner::-webkit-scrollbar,
+ .column-headers-container::-webkit-scrollbar {
+   display: none !important;
+ }
+```
+
+This is the big one: header can now actually scroll/sync with the body.
+
+---
+
+# 2) Give alt translations their own header width (stop the ¼-column drift)
+
+**File:** `index.css`
+
+Find this block (it’s around the “Ensure identical width calculations” section):
+
+```css
+.column-header-cell[data-column="main"],
+.column-header-cell[data-column*="translation"]:not([data-column="reference"]) {
+  width: var(--adaptive-main-width) !important;
+  min-width: var(--adaptive-main-width) !important;
+  max-width: var(--adaptive-main-width) !important;
+}
+```
+
+Replace with:
+
+```css
+/* Main only */
+.column-header-cell[data-column="main-translation"] {
+  width: var(--adaptive-main-width) !important;
+  min-width: var(--adaptive-main-width) !important;
+  max-width: var(--adaptive-main-width) !important;
+}
+
+/* Alts */
+.column-header-cell[data-column="alt-translation"] {
+  width: var(--adaptive-alt-width) !important;
+  min-width: var(--adaptive-alt-width) !important;
+  max-width: var(--adaptive-alt-width) !important;
+}
+```
+
+(Optional but helpful for perfect parity — add body rule if you don’t already have it):
+
+```css
+.cell[data-column="alt-translation"] {
+  flex: 0 0 var(--adaptive-alt-width) !important;
+  width: var(--adaptive-alt-width) !important;
+  max-width: var(--adaptive-alt-width) !important;
+  min-width: var(--adaptive-alt-width) !important;
+}
+```
+
+---
+
+# 3) Make cross-refs IDs consistent (row ↔ header)
+
+**File:** `VirtualRow.tsx`
+
+In `getColumnId(...)`, change the cross-refs mapping:
+
+```diff
+- case 'cross-refs':
+-   return 'cross-references';
++ case 'cross-refs':
++   return 'cross-refs';
+```
+
+**File:** `columnLayout.ts`
+
+If you still use this ID anywhere, align it too:
+
+```diff
+- id: 'cross-references',
++ id: 'cross-refs',
+```
+
+---
+
+# 4) Fix mobile selectors for the main column
+
+**File:** `mobile-headers.css`
+
+Everywhere it says `data-column="main"`, change to:
+
+```diff
+- .column-header-cell[data-column="main"] { ... }
++ .column-header-cell[data-column="main-translation"] { ... }
+```
+
+There are multiple occurrences — update them all.
+
+---
+
+# 5) Robust, sticky-aware column snapping (drop-in)
+
+Your `scrollNav.ts` file is truncated and a little permissive. Replace it with this version that:
+
+* uses `data-col-key` to match your header cells,
+* subtracts the sticky left width (the “# / reference” region),
+* keeps header and body in lockstep,
+* includes alternates because you already build them in `buildActiveColumns()`.
+
+**File:** `scrollNav.ts`
+
+```ts
+// Column scroll navigation utility (sticky-aware & alt-friendly)
+
+export type ScrollNavOpts = {
+  headerEl: HTMLElement;    // the element with [data-col-key] header cells
+  bodyEl: HTMLElement;      // the horizontal scroller for rows
+  navigableKeys: string[];  // keys like 'main-translation', 'cross-refs', 'alt-translation-NKJV', ...
+};
+
+function getStickyLeftPx(headerEl: HTMLElement) {
+  const idx = headerEl.querySelector<HTMLElement>('[data-column="index"]');
+  const ref = headerEl.querySelector<HTMLElement>('[data-column="reference"]');
+  const w = (el?: HTMLElement | null) => (el ? el.getBoundingClientRect().width : 0);
+  return w(idx) + w(ref);
+}
+
+function measureLefts(headerEl: HTMLElement, keys: string[], stickyLeft: number) {
+  const rectParent = headerEl.getBoundingClientRect();
+  return keys.map(k => {
+    const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${k}"]`);
+    if (!cell) return { key: k, left: 0, width: 0, ok: false };
+    const r = cell.getBoundingClientRect();
+    return { key: k, left: Math.max(0, r.left - rectParent.left - stickyLeft), width: r.width, ok: true };
+  });
+}
+
+export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNavOpts) {
+  // keep header scroll mirrored to body
+  const sync = () => { headerEl.scrollLeft = bodyEl.scrollLeft; };
+  bodyEl.addEventListener('scroll', sync, { passive: true });
+
+  const scrollTo = (x: number) => {
+    const target = Math.max(0, Math.round(x));
+    bodyEl.scrollTo({ left: target, behavior: 'smooth' });
+    headerEl.scrollLeft = target; // immediate header update
+  };
+
+  const stickyLeft = () => getStickyLeftPx(headerEl);
+  const snapshot = () => measureLefts(headerEl, navigableKeys, stickyLeft());
+
+  const currentIndex = () => {
+    const S = snapshot();
+    const cur = bodyEl.scrollLeft;
+    // choose the nearest start >= current
+    let idx = 0;
+    for (let i = 0; i < S.length; i++) {
+      if (S[i].left >= cur - 1) { idx = i; break; }
+      idx = i;
+    }
+    return Math.max(0, Math.min(idx, S.length - 1));
+  };
+
+  const step = (dir: -1 | 1) => {
+    if (!navigableKeys.length) return;
+    const S = snapshot();
+    const idx = currentIndex();
+    const next = Math.max(0, Math.min(idx + dir, S.length - 1));
+    scrollTo(S[next].left);
+  };
+
+  const getVisibleRange = () => {
+    const S = snapshot();
+    const viewLeft = bodyEl.scrollLeft;
+    const viewRight = viewLeft + bodyEl.clientWidth - stickyLeft();
+    let start = 0, end = 0;
+    for (let i = 0; i < S.length; i++) {
+      const l = S[i].left, r = l + S[i].width;
+      const visible = r > viewLeft && l < viewRight;
+      if (visible) { end = i; if (start === 0) start = i; }
+    }
+    return {
+      start: start + 1,
+      end: end + 1,
+      total: S.length,
+      canGoLeft: start > 0,
+      canGoRight: end < S.length - 1
+    };
+  };
+
+  return {
+    left: () => step(-1),
+    right: () => step(1),
+    getVisibleRange,
+    destroy: () => bodyEl.removeEventListener('scroll', sync),
+  };
+}
+```
+
+You don’t need to change `ColumnNavigationArrows.tsx` — it’s already calling `buildActiveColumns()` (which includes alts) and wires up `makeColumnScroller(...)`. The keys it passes (`main-translation`, `cross-refs`, `prophecy-*`, `alt-translation-XXX`) match your header `data-col-key`s in `NewColumnHeaders.tsx`.
+
+---
+
+## Quick verification (takes 60 seconds)
+
+1. Turn on at least one alt translation.
+2. Confirm header scrolls when the body scrolls (drag the table sideways) — if it doesn’t, re-check patch #1.
+3. Click the right arrow repeatedly — it should cycle:
+   `main-translation → cross-refs (if on) → prophecy-P/F/V (if on) → alt-translation-...` (each present alt).
+4. Watch the “#” column — it must never move.
+5. Inspect one alt header vs its body column — widths should match exactly (no \~¼-column offset).
+
+If anything *still* misbehaves after these exact changes, I’ll zero in on that specific symptom with you and produce the next minimal patch. But these four fixes are the root of what you described — and they’re the reason your previous attempts didn’t budge things.

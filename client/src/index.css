@@ -387,6 +387,13 @@ body {
   max-width: var(--adaptive-alt-width) !important;
 }
 
+.cell[data-column="alt-translation"] {
+  flex: 0 0 var(--adaptive-alt-width) !important;
+  width: var(--adaptive-alt-width) !important;
+  max-width: var(--adaptive-alt-width) !important;
+  min-width: var(--adaptive-alt-width) !important;
+}
+
 .column-header-cell[data-column="cross-refs"],
 .column-header-cell[data-column*="cross"] {
   width: var(--adaptive-cross-width) !important;
