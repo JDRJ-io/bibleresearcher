@@ -363,6 +363,24 @@ export function NewColumnHeaders({
           }
         });
 
+        // Emit column order change signal to notify other components
+        const emitOrderSignal = async () => {
+          try {
+            const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
+            const signal = useColumnChangeEmitter();
+            signal('order', { 
+              reorderedColumns: reorderedItems,
+              oldIndex,
+              newIndex,
+              timestamp: Date.now()
+            });
+          } catch (error) {
+            console.warn('Could not emit column order change signal');
+          }
+        };
+        
+        emitOrderSignal();
+
         return reorderedItems;
       });
     }
