@@ -19,15 +19,17 @@
   height: 0 !important;
 }
 
-/* Ensure navigation arrows section doesn't overflow */
+/* Allow navigation arrows section to scroll horizontally */
 .column-headers-wrapper .flex.justify-between {
-  overflow: hidden !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   max-width: 100% !important;
 }
 
-/* Ensure inner flex container doesn't cause overflow */
+/* Allow inner flex container to scroll horizontally */
 .column-headers-inner.flex {
-  overflow: hidden !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   max-width: 100% !important;
 }
 
