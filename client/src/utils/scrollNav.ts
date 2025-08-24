@@ -14,16 +14,12 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     console.log('🔍 SCROLL DEBUG: Finding headers for keys:', navigableKeys);
     console.log('🔍 SCROLL DEBUG: Header element:', headerEl);
     
-    // Debug all available headers
+    // Debug all available headers - simplified
     const allHeaders = Array.from(headerEl.querySelectorAll('[data-col-key], [data-column], [data-type], .column-header-cell'));
-    console.log('🔍 SCROLL DEBUG: All header elements found:', allHeaders.map(el => ({
-      element: el,
-      dataColKey: el.getAttribute('data-col-key'),
-      dataColumn: el.getAttribute('data-column'),
-      dataType: el.getAttribute('data-type'),
-      className: el.className,
-      offsetLeft: (el as HTMLElement).offsetLeft
-    })));
+    console.log('🔍 SCROLL DEBUG: Found', allHeaders.length, 'header elements');
+    allHeaders.forEach(el => {
+      console.log('  Header:', el.getAttribute('data-col-key') || el.getAttribute('data-column'), 'offsetLeft:', (el as HTMLElement).offsetLeft);
+    });
     
     for (const key of navigableKeys) {
       // Try multiple selectors to find the column header
@@ -32,17 +28,7 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
                    headerEl.querySelector<HTMLElement>(`[data-type="${key}"]`) ||
                    headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
       
-      console.log(`🔍 SCROLL DEBUG: Looking for key "${key}":`, {
-        found: !!cell,
-        element: cell,
-        offsetLeft: cell?.offsetLeft,
-        selectors: [
-          `.col-header[data-col-key="${key}"]`,
-          `[data-column="${key}"]`,
-          `[data-type="${key}"]`,
-          `.column-header-cell[data-column="${key}"]`
-        ]
-      });
+      console.log(`🔍 SCROLL DEBUG: Looking for key "${key}": found=${!!cell}, offsetLeft=${cell?.offsetLeft}`);
       
       if (!cell) {
         console.log(`❌ Column header not found for key: ${key}`, { availableHeaders: Array.from(headerEl.querySelectorAll('[data-col-key]')).map(el => el.getAttribute('data-col-key')) });
@@ -85,15 +71,13 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     const containerWidth = bodyEl.clientWidth;
     const lastColumnLeft = lefts[lefts.length - 1] || 0;
     
-    console.log('🔍 SCROLL DEBUG: getVisibleRange calculations:', {
-      lefts,
-      scrollLeft: curr,
-      containerWidth,
-      lastColumnLeft,
-      totalNavigableKeys: navigableKeys.length,
-      bodyElScrollWidth: bodyEl.scrollWidth,
-      bodyElClientWidth: bodyEl.clientWidth
-    });
+    console.log('🔍 SCROLL DEBUG: getVisibleRange calculations:');
+    console.log('  - lefts:', lefts);
+    console.log('  - scrollLeft:', curr);
+    console.log('  - containerWidth:', containerWidth);
+    console.log('  - lastColumnLeft:', lastColumnLeft);
+    console.log('  - bodyElScrollWidth:', bodyEl.scrollWidth);
+    console.log('  - bodyElClientWidth:', bodyEl.clientWidth);
     
     // Find first visible column
     const startIdx = Math.max(0, lefts.findIndex(L => L >= curr - 10)); // -10px tolerance
@@ -111,14 +95,11 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     const canGoLeft = curr > 10;
     const canGoRight = curr + containerWidth < lastColumnLeft + 100;
     
-    console.log('🔍 SCROLL DEBUG: Visibility calculations:', {
-      startIdx,
-      endIdx,
-      canGoLeft,
-      canGoRight,
-      canGoLeftReason: `curr(${curr}) > 10 = ${canGoLeft}`,
-      canGoRightReason: `curr(${curr}) + containerWidth(${containerWidth}) = ${curr + containerWidth} < lastColumnLeft(${lastColumnLeft}) + 100 = ${lastColumnLeft + 100} = ${canGoRight}`
-    });
+    console.log('🔍 SCROLL DEBUG: Visibility calculations:');
+    console.log('  - startIdx:', startIdx, 'endIdx:', endIdx);
+    console.log('  - canGoLeft:', canGoLeft, `(${curr} > 10)`);
+    console.log('  - canGoRight:', canGoRight, `(${curr + containerWidth} < ${lastColumnLeft + 100})`);
+    console.log('  - CRITICAL: scrollable width needed vs actual:', lastColumnLeft + 100, 'vs', curr + containerWidth);
     
     return {
       start: startIdx + 1, // 1-based for display

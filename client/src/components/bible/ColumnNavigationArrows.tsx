@@ -25,10 +25,14 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
   // Get navigable column keys (everything except reference)
   // Now properly depends on the actual state that determines active columns
   const navigableKeys = useMemo(() => {
+    console.log('🔍 NAVIGABLE KEYS: Calling buildActiveColumns...');
     const columns = buildActiveColumns();
-    return columns
+    console.log('🔍 NAVIGABLE KEYS: buildActiveColumns returned:', columns);
+    const filtered = columns
       .filter(col => col.key !== 'reference' && col.key !== 'index')
       .map(col => col.key);
+    console.log('🔍 NAVIGABLE KEYS: After filtering:', filtered);
+    return filtered;
   }, [
     buildActiveColumns, 
     showCrossRefs, 
@@ -90,17 +94,13 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
     };
   }, [scroller]);
 
-  // Debug logging for navigation state
-  console.log('🔍 ColumnNavigationArrows Debug:', {
-    hasScroller: !!scroller,
-    visibleRange,
-    navigableKeys,
-    navigableKeysLength: navigableKeys.length,
-    headerRefCurrent: !!headerRef?.current,
-    bodyRefCurrent: !!bodyRef?.current,
-    headerRefElement: headerRef?.current,
-    bodyRefElement: bodyRef?.current
-  });
+  // Debug logging for navigation state - simplified to avoid stringification error
+  console.log('🔍 ColumnNavigationArrows Debug:');
+  console.log('  - hasScroller:', !!scroller);
+  console.log('  - visibleRange:', visibleRange);
+  console.log('  - navigableKeys:', navigableKeys);
+  console.log('  - headerRefCurrent:', !!headerRef?.current);
+  console.log('  - bodyRefCurrent:', !!bodyRef?.current);
 
   // Don't show navigation if no scroller or all columns fit
   if (!scroller || visibleRange.total <= 1) {
@@ -130,6 +130,27 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
       <div className="text-xs text-gray-500">
         Debug: L={visibleRange.canGoLeft ? 'Y' : 'N'} R={visibleRange.canGoRight ? 'Y' : 'N'}
       </div>
+      
+      {/* Debug Button */}
+      <button 
+        onClick={() => {
+          console.log('🔍 MANUAL DEBUG: Testing buildActiveColumns...');
+          const result = buildActiveColumns();
+          console.log('🔍 MANUAL DEBUG: buildActiveColumns result:', result);
+          console.log('🔍 MANUAL DEBUG: Store state:', {
+            showCrossRefs,
+            showProphecies, 
+            showPrediction,
+            showFulfillment,
+            showVerification,
+            showNotes,
+            translationState
+          });
+        }}
+        className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+      >
+        Debug
+      </button>
       
       {/* Left Arrow */}
       <button

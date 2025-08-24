@@ -799,36 +799,53 @@ export const useBibleStore = create<{
     const state = get();
     const columns = [];
     
+    console.log('🔍 BUILD ACTIVE COLUMNS Debug:');
+    console.log('  - showCrossRefs:', state.showCrossRefs);
+    console.log('  - showNotes:', state.showNotes);
+    console.log('  - showPrediction:', state.showPrediction);
+    console.log('  - showFulfillment:', state.showFulfillment);
+    console.log('  - showVerification:', state.showVerification);
+    console.log('  - translationState:', state.translationState);
+    
     // Reference is fixed, not included in navigable
     // Always include main translation in navigable
     columns.push({ key: 'main-translation', type: 'main-translation' });
+    console.log('  + Added main-translation');
     
     // Add cross-refs if enabled (now navigable)
     if (state.showCrossRefs) {
       columns.push({ key: 'cross-refs', type: 'cross-refs' });
+      console.log('  + Added cross-refs');
     }
     
     // Add notes if enabled
     if (state.showNotes) {
       columns.push({ key: 'notes', type: 'notes' });
+      console.log('  + Added notes');
     }
     
     // Add prophecy columns if enabled (match DOM element IDs)
     if (state.showPrediction) {
       columns.push({ key: 'prophecy-prediction', type: 'prophecy-prediction' });
+      console.log('  + Added prophecy-prediction');
     }
     if (state.showFulfillment) {
       columns.push({ key: 'prophecy-fulfillment', type: 'prophecy-fulfillment' });
+      console.log('  + Added prophecy-fulfillment');
     }
     if (state.showVerification) {
       columns.push({ key: 'prophecy-verification', type: 'prophecy-verification' });
+      console.log('  + Added prophecy-verification');
     }
     
     // Add alternate translations (match DOM element IDs)
+    console.log('  - Checking alternates:', state.translationState.alternates);
     state.translationState.alternates.forEach((altCode, index) => {
       columns.push({ key: `alt-translation-${altCode}`, type: 'alt-translation', translationCode: altCode });
+      console.log(`  + Added alt-translation-${altCode}`);
     });
     
+    console.log('🔍 BUILD ACTIVE COLUMNS Final result:', columns.map(c => c.key));
     return columns;
   },
   
