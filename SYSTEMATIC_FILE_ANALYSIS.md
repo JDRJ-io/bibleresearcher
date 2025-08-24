@@ -46,15 +46,15 @@
 - [x] client/src/hooks/useHighlights.ts ✅ COMPLETED
 - [x] client/src/hooks/useNotes.ts ✅ COMPLETED
 - [x] client/src/hooks/useVerseNav.ts ✅ COMPLETED
-- [ ] client/src/hooks/useLabeledText.ts
-- [ ] client/src/hooks/useColumnChangeSignal.ts
-- [ ] client/src/hooks/useMeasureVisibleColumns.ts
-- [ ] client/src/hooks/useViewportLabels.ts
-- [ ] client/src/hooks/useStrongsWorker.ts
-- [ ] client/src/hooks/useSearchWorker.ts
-- [ ] client/src/hooks/useInstallPrompt.ts
-- [ ] client/src/hooks/use-toast.ts
-- [ ] client/src/hooks/use-mobile.tsx
+- [x] client/src/hooks/useLabeledText.ts ✅ COMPLETED
+- [x] client/src/hooks/useColumnChangeSignal.ts ✅ COMPLETED
+- [x] client/src/hooks/useMeasureVisibleColumns.ts ✅ COMPLETED
+- [x] client/src/hooks/useViewportLabels.ts ✅ COMPLETED
+- [x] client/src/hooks/useStrongsWorker.ts ✅ COMPLETED
+- [x] client/src/hooks/useSearchWorker.ts ✅ COMPLETED
+- [x] client/src/hooks/useInstallPrompt.ts ✅ COMPLETED
+- [x] client/src/hooks/use-toast.ts ✅ COMPLETED
+- [x] client/src/hooks/use-mobile.tsx ✅ COMPLETED
 
 ### MAJOR COMPONENTS  
 - [ ] client/src/components/bible/VirtualBibleTable.tsx ✅ COMPLETED
