@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -64,6 +64,36 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   const [bookmarkName, setBookmarkName] = useState("");
   const [bookmarkColor, setBookmarkColor] = useState("#3b82f6");
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
+
+  // Ref for click-outside detection
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Handle escape key and click outside to close menu
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        console.log('🍔 Closing menu via Escape key');
+        onClose();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        console.log('🍔 Closing menu via click outside');
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   // Prevent render if store not initialized
   if (!isInitialized) {
@@ -498,7 +528,10 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
         onClick={handleOverlayClick}
       />
 
-      <div className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40 max-w-[calc(100vw-16px)]">
+      <div 
+        ref={menuRef}
+        className="hamburger-menu fixed top-16 right-2 sm:top-20 sm:right-4 z-40 max-w-[calc(100vw-16px)]"
+      >
         {/* Sleek Tab Bar */}
         <div className="flex flex-col">
           <div className="flex backdrop-blur-xl rounded-full p-1 relative" style={{backgroundColor: 'var(--bg-secondary)'}}>
