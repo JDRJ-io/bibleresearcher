@@ -706,7 +706,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: isPortrait ? '0' : '0 auto',
+              margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
               overflow: 'visible'
             }}>
             <div style={{ 
