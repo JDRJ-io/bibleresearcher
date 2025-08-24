@@ -3,6 +3,8 @@ import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
+import { useOrientation } from '@/hooks/useOrientation';
+import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import { Button } from '@/components/ui/button';
 import { Monitor, RotateCcw } from 'lucide-react';
 import {
@@ -86,6 +88,32 @@ export function NewColumnHeaders({
 
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
+
+  // CRITICAL: Use exact same layout logic as VirtualBibleTable
+  // Get mainTranslation from translations system
+  const mainTranslation = typeof main === 'string' ? main : (main?.key || 'KJV');
+  const activeTranslations = selectedTranslations || [mainTranslation];
+  
+  // Calculate actualTotalWidth using same logic as table
+  const actualTotalWidth = useMemo(() => {
+    let width = 0;
+    width += 80; // Reference column ~80px  
+    width += 320; // Main translation ~320px
+    if (showCrossRefs) width += 320; // Cross refs ~320px
+    if (showProphecy) width += 180; // P+F+V ~60px each
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    return width;
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecy]);
+
+  // Get viewport width (same as table)
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  
+  // Get orientation (same as table)
+  const orientation = useOrientation();
+  const isPortraitLayout = orientation === 'portrait';
+  
+  // Get responsive config (same as table)  
+  const responsiveConfig = useResponsiveColumns();
 
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
@@ -486,16 +514,31 @@ export function NewColumnHeaders({
           items={visibleColumns.map(col => col.id)} 
           strategy={horizontalListSortingStrategy}
         >
+          {/* CRITICAL: Match exact same layout structure as VirtualBibleTable */}
           <div 
-            ref={headerRef}
-            className="column-headers-inner flex"
             style={{ 
-              minWidth: 'max-content', // Force wider than viewport when needed
-              width: 'max-content',    // Match table content width
-              margin: isPortrait ? '0' : '0 auto',
-              overflowX: 'auto',
-              overflowY: 'hidden'
+              minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
+              position: 'relative',
+              overflow: 'visible'
             }}
+          >
+            <div className="headerTableInner flex"
+              style={{ 
+                minWidth: 'fit-content',
+                width: 'fit-content',
+                margin: isPortraitLayout ? '0' : '0 auto',
+                overflow: 'visible'
+              }}
+            >
+              <div 
+                ref={headerRef}
+                className="column-headers-inner flex"
+                style={{ 
+                  minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
+                  width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`,
+                  overflowX: 'auto',
+                  overflowY: 'hidden'
+                }}
           >
             {visibleColumns.map((column) => (
               <SortableHeaderCell key={column.id} column={column} />
