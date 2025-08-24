@@ -916,15 +916,16 @@ export function VirtualRow({
       case 'alt-translation':
         const altTranslationCode = config.translationCode || 'KJV';
         const altVerseText = getVerseText(verse.reference, altTranslationCode);
-        // Rendering alt-translation (removed verbose logging)
+        
+        // Get label data for semantic styling
+        const altVerseLabels = getVerseLabels ? getVerseLabels(verse.reference) : {};
+        const altShouldUseLabeledText = activeLabels.length > 0 && Object.keys(altVerseLabels).length > 0;
         
         return (
           <div key={slot} className="bible-column border-r border-gray-200 dark:border-gray-700" style={columnStyle}>
             <HoverVerseBar
-              reference={verse.reference}
-              verseId={verse.id}
-              translationCode={altTranslationCode}
-              text={altVerseText || `[${altTranslationCode} loading...]`}
+              verse={verse}
+              translation={altTranslationCode}
               onCopy={() => {}}
               onBookmark={() => {}}
               onShare={() => {}}
@@ -932,10 +933,10 @@ export function VirtualRow({
             >
               <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
                 {altVerseText ? (
-                  shouldUseLabeledText ? (
+                  altShouldUseLabeledText ? (
                     <LabeledText
                       text={altVerseText}
-                      labelData={verseLabels}
+                      labelData={altVerseLabels}
                       activeLabels={activeLabels}
                       verseKey={`${verse.reference}-${altTranslationCode}`}
                       translationCode={altTranslationCode}
