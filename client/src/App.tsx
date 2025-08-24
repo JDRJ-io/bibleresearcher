@@ -833,7 +833,7 @@ export const useBibleStore = create<{
       }
     }
 
-    // ADD ALTERNATE TRANSLATIONS - THIS WAS MISSING!
+    // ALTERNATE TRANSLATIONS - NOW PROPERLY INCLUDED!
     state.translationState.alternates
       .filter(alt => alt !== state.translationState.main) // Prevent duplicates
       .forEach(translationCode => {
@@ -849,6 +849,7 @@ export const useBibleStore = create<{
       columns.push({ key: 'notes', header: 'Notes', type: 'notes' });
     }
 
+    console.log('🔍 buildActiveColumns result:', columns.map(c => `${c.key} (${c.type})`));
     return columns;
   },
 

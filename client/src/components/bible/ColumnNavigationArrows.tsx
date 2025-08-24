@@ -30,6 +30,7 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
       .filter(col => col.key !== 'reference' && col.key !== 'index')
       .map(col => col.key);
     
+    console.log('🔍 ColumnNavigationArrows navigableKeys:', filtered);
     return filtered;
   }, [
     buildActiveColumns, 
@@ -39,7 +40,8 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
     showFulfillment,
     showVerification,
     showNotes,
-    translationState.alternates
+    translationState.alternates,
+    translationState.main
   ]);
 
   // Create column scroller instance
