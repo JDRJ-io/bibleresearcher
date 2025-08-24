@@ -753,13 +753,12 @@ export const useBibleStore = create<{
   // Horizontal column navigation implementation
   columnOffset: 0,
   setColumnOffset: (offset: number) => set({ columnOffset: Math.max(0, offset) }),
-  // EXPERT FIX: Step left/right by exactly 1 navigable column (ref excluded)
   navigateColumnLeft: () => set(state => ({ 
     columnOffset: Math.max(0, state.columnOffset - 1) 
   })),
   navigateColumnRight: () => set(state => {
-    const take = Math.max(1, (state.fallbackVisibleNavigableCount ?? state.visibleCount) - state.fixedColumns.length);
-    const maxOffset = Math.max(0, state.navigableColumns.length - take);
+    // Use the dynamic system - limit offset to navigable columns minus what currently fits
+    const maxOffset = Math.max(0, state.navigableColumns.length - (state.visibleCount - state.fixedColumns.length));
     return { 
       columnOffset: Math.min(state.columnOffset + 1, maxOffset) 
     };
@@ -831,25 +830,58 @@ export const useBibleStore = create<{
     return columns;
   },
   
-  // EXPERT FIX: Enhanced getVisibleSlice with count-based navigation
+  // Enhanced getVisibleSlice with CSS grid template generation
   getVisibleSlice: () => {
     const state = get();
     const activeColumns = state.buildActiveColumns();
     const totalNavigable = activeColumns.length;
     
-    // EXPERT FIX: Use count-based logic instead of width-based
-    const take = Math.max(1, (state.fallbackVisibleNavigableCount ?? state.visibleCount) - state.fixedColumns.length);
-    const maxOffset = Math.max(0, totalNavigable - take);
-    const start = Math.min(state.columnOffset, maxOffset);
-    const end = Math.min(totalNavigable, start + take);
+    // Clamp offset against total
+    const offset = Math.min(state.columnOffset, Math.max(0, totalNavigable - 1));
     
-    const canGoLeft = start > 0;
-    const canGoRight = end < totalNavigable;
+    // Decide mode: width-aware if container is measured
+    const hasContainer = state.containerWidthPx > 0;
+    const widthMode = hasContainer;
     
     // Fixed columns (reference)
     const fixedKeys = ['reference'];
-    const visibleNavigableCount = Math.max(0, end - start);
-    const templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
+    const fixedWidth = state.baseWidths.reference || 72;
+    
+    let start = offset;
+    let end = offset;
+    let visibleNavigableCount = 0;
+    let templateKeys = [];
+    
+    if (widthMode && totalNavigable > 0) {
+      // WIDTH MODE: pack columns by width into remaining capacity
+      const capacity = Math.max(0, state.containerWidthPx - fixedWidth - state.gapPx);
+      let used = 0;
+      
+      while (end < totalNavigable) {
+        const column = activeColumns[end];
+        const baseWidth = state.baseWidths[column.type] || 360;
+        const actualWidth = state.columnWidthsPx[column.key] || baseWidth;
+        const nextUsed = used + (used > 0 ? state.gapPx : 0) + actualWidth;
+        
+        if (nextUsed > capacity && end > start) break;
+        used = nextUsed;
+        end++;
+      }
+      
+      if (end === start && totalNavigable > 0) end = start + 1; // ensure at least one
+      visibleNavigableCount = Math.max(0, end - start);
+      templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
+      
+    } else {
+      // COUNT MODE: use fallback count
+      const take = Math.max(1, state.fallbackVisibleNavigableCount);
+      end = Math.min(totalNavigable, start + take);
+      visibleNavigableCount = Math.max(0, end - start);
+      templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
+    }
+    
+    const canGoLeft = start > 0;
+    const canGoRight = end < totalNavigable;
     
     // Generate CSS grid template
     const multiplier = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
@@ -879,7 +911,7 @@ export const useBibleStore = create<{
       templateForVisible,
       visibleKeys: templateKeys,
       visibleNavigableCount,
-      modeUsed: 'count',
+      modeUsed: widthMode ? 'width' : 'count',
       activeColumns: activeColumns.slice(start, end)
     };
   },

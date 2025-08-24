@@ -1804,29 +1804,3 @@ body.overlay-open {
   color: hsl(var(--muted-foreground));
   font-style: italic;
 }
-
-/* EXPERT FIX: Remove legacy pillar padding that appears when alt translations are on */
-.has-alt .virtual-table,
-.has-alt .virtual-rows,
-.has-alt .virtual-row,
-.has-alt .row-grid {
-  padding-left: 0 !important;
-  margin-left: 0 !important;
-  transform: none !important; /* in case an old translateX was applied */
-}
-
-/* EXPERT FIX: Ensure reference column is sticky instead of padding the body */
-.header-cell.reference,
-.data-cell.reference {
-  position: sticky;
-  left: 0;
-  z-index: 2;
-  background: var(--bg-surface);
-}
-
-/* EXPERT FIX: Safety override for any leftover pillar styling */
-.virtual-rows, 
-.virtual-row { 
-  padding-left: 0 !important; 
-  margin-left: 0 !important; 
-}

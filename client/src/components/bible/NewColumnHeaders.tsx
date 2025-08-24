@@ -475,10 +475,8 @@ export function NewColumnHeaders({
           strategy={horizontalListSortingStrategy}
         >
           <div 
-            className="column-headers-inner grid"
+            className="column-headers-inner flex"
             style={{ 
-              gridTemplateColumns: useBibleStore(s => s.getSharedGridTemplate()),
-              columnGap: useBibleStore(s => s.gapPx),
               minWidth: 'max-content',
               width: 'max-content',
               margin: isPortrait ? '0' : '0 auto',

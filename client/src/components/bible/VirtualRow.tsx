@@ -991,18 +991,17 @@ export function VirtualRow({
   // RESPONSIVE COLUMN WIDTHS - Optimize space utilization
   return (
     <div 
-      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row grid"
+      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
       style={{ 
         height: rowHeight,
-        gridTemplateColumns: useBibleStore(s => s.getSharedGridTemplate()),
-        columnGap: useBibleStore(s => s.gapPx),
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
-        minWidth: `${responsiveMinWidth}px`
+        minWidth: `${responsiveMinWidth}px`,
+        display: 'flex'
       }}
       data-verse-ref={verse.reference}
       onDoubleClick={handleDoubleClick}
     >
-      {/* EXPERT FIX: Grid-based layout with shared template */}
+      {/* Fixed-width layout - all columns maintain exact widths */}
       {visibleColumns.map(renderSlot)}
     </div>
   );
