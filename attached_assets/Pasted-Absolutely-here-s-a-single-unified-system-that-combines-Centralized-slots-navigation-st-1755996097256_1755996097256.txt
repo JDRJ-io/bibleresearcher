@@ -1,0 +1,533 @@
+Absolutely — here’s a single, unified system that combines:
+
+* **Centralized slots + navigation state (Zustand)**
+* **Width-aware windowing** (so arrows “page” columns with *vertical-only* scroll)
+* **Count-based fallback** (works before widths are measured)
+* **Shared grid template** (headers + rows stay perfectly aligned)
+* **Live resizing** (column size or CSS var changes reflow both headers & rows)
+
+Drop these in as-is; file paths are suggestions.
+
+---
+
+# 0) Types (if you don’t already have them)
+
+**`/src/types/bible.ts`**
+
+```ts
+export type Column = {
+  key: string;           // stable unique id, e.g., 'reference', 'kjv', 'notes', 'cf', 'prophecy:pred'
+  type: string;          // 'reference' | 'main' | 'notes' | 'crossrefs' | 'prophecy:pred' | 'prophecy:fulfill' | 'prophecy:verify' | 'translation'
+  widthPx?: number;      // optional measured width
+  slot?: number;         // numeric identification for telemetry/debug
+};
+```
+
+---
+
+# 1) Unified Store (central truth for nav, widths, slots, template)
+
+**`/src/stores/useBibleStore.ts`**
+
+```ts
+import { create } from 'zustand';
+import type { Column } from '@/types/bible';
+
+// ---------- config ----------
+const DEFAULT_WIDTH = 280; // used until measured
+const BASE_WIDTH_BY_TYPE: Record<string, number> = {
+  reference: 140,
+  main: 360,
+  notes: 320,
+  crossrefs: 360,
+  'prophecy:pred': 320,
+  'prophecy:fulfill': 320,
+  'prophecy:verify': 320,
+  translation: 340,
+};
+
+function computeVisibleNavigableCount(viewportWidthPx: number, isPortrait: boolean): number {
+  if (isPortrait) {
+    if (viewportWidthPx <= 430) return 2;
+    if (viewportWidthPx <= 768) return 3;
+    return 4;
+  } else {
+    if (viewportWidthPx <= 768) return 4;
+    if (viewportWidthPx <= 1024) return 6;
+    return 8;
+  }
+}
+
+// Centralized numeric ID map (stable)
+function assignSlots(cols: Column[]): Column[] {
+  const BASE: Record<string, number> = {
+    reference: 0,
+    notes: 2,
+    main: 3,
+    crossrefs: 7,
+    'prophecy:pred': 8,
+    'prophecy:fulfill': 9,
+    'prophecy:verify': 10,
+  };
+  let altIx = 0;
+  return cols
+    .map(c => {
+      if (c.slot != null) return c;
+      if (BASE[c.type] != null) return { ...c, slot: BASE[c.type] };
+      if (c.type.startsWith('translation')) return { ...c, slot: 12 + (altIx++) };
+      return { ...c, slot: 20 + (altIx++) };
+    })
+    .sort((a, b) => (a.slot ?? 999) - (b.slot ?? 999));
+}
+
+// ---------- store ----------
+type VisibleSlice = {
+  start: number; end: number;                 // navigable indices [start, end)
+  canGoLeft: boolean; canGoRight: boolean;
+  labelStart: number; labelEnd: number;       // 1-based display for navigables
+  totalNavigable: number;
+  templateForVisible: string;                 // "grid-template-columns" value
+  visibleKeys: string[];                      // fixed + sliced navigables
+  visibleNavigableCount: number;              // number of navigables currently visible
+  modeUsed: 'width' | 'count';                // diagnostics
+};
+
+type BibleState = {
+  // core nav
+  columnOffset: number;
+
+  // columns as KEYS (keeps store small)
+  fixedColumns: string[];        // typically ['reference']
+  navigableColumns: string[];    // everything except fixed
+
+  // measurements
+  columnWidthsPx: Record<string, number>; // by key
+  containerWidthPx: number;               // inner width of the columns container
+  gapPx: number;                          // CSS grid column gap in px
+
+  // count-based fallback capacity
+  fallbackVisibleNavigableCount: number;
+
+  // actions
+  setActiveColumns: (cols: Column[]) => void;
+  setContainerWidth: (px: number) => void;
+  setGapPx: (px: number) => void;
+  setColumnWidths: (m: Record<string, number>) => void;
+  setResponsiveConfig: (opts: { viewportWidthPx: number; isPortrait: boolean }) => void;
+
+  setColumnOffset: (o: number) => void;
+  navigateColumnLeft: () => void;
+  navigateColumnRight: () => void;
+
+  // derived
+  getVisibleSlice: () => VisibleSlice;
+
+  // debug helpers
+  _clampColumnOffset: () => void;
+};
+
+export const useBibleStore = create<BibleState>((set, get) => ({
+  columnOffset: 0,
+
+  fixedColumns: ['reference'],
+  navigableColumns: [],
+
+  columnWidthsPx: {},
+  containerWidthPx: 0,
+  gapPx: 8,
+
+  fallbackVisibleNavigableCount: 1,
+
+  setActiveColumns: (cols) => {
+    const withSlots = assignSlots(cols);
+    const fixed = withSlots.filter(c => c.type === 'reference').map(c => c.key);
+    const navigable = withSlots.filter(c => c.type !== 'reference').map(c => c.key);
+
+    set({
+      fixedColumns: fixed.length ? fixed : ['reference'],
+      navigableColumns: navigable,
+    });
+    get()._clampColumnOffset();
+
+    // seed width map with base widths if missing
+    const widthMap = { ...get().columnWidthsPx };
+    for (const c of withSlots) {
+      if (widthMap[c.key] == null) {
+        const base = BASE_WIDTH_BY_TYPE[c.type] ?? DEFAULT_WIDTH;
+        widthMap[c.key] = Math.round(base);
+      }
+    }
+    set({ columnWidthsPx: widthMap });
+  },
+
+  setContainerWidth: (px) => set({ containerWidthPx: Math.max(0, px) }),
+  setGapPx: (px) => set({ gapPx: Math.max(0, px) }),
+  setColumnWidths: (m) => set({ columnWidthsPx: { ...get().columnWidthsPx, ...m } }),
+
+  setResponsiveConfig: ({ viewportWidthPx, isPortrait }) => {
+    set({ fallbackVisibleNavigableCount: computeVisibleNavigableCount(viewportWidthPx, isPortrait) });
+    get()._clampColumnOffset();
+  },
+
+  setColumnOffset: (o) => {
+    const { navigableColumns } = get();
+    const maxOffset = Math.max(0, navigableColumns.length - 1);
+    set({ columnOffset: Math.max(0, Math.min(o | 0, maxOffset)) });
+  },
+
+  navigateColumnLeft: () => set(s => ({ columnOffset: Math.max(0, s.columnOffset - 1) })),
+  navigateColumnRight: () => set(s => {
+    const maxOffset = Math.max(0, s.navigableColumns.length - 1);
+    return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
+  }),
+
+  getVisibleSlice: () => {
+    const s = get();
+    const totalNavigable = s.navigableColumns.length;
+
+    // clamp offset against total
+    const offset = Math.min(s.columnOffset, Math.max(0, totalNavigable - 1));
+
+    // decide mode: width-aware if container is measured
+    const hasContainer = s.containerWidthPx > 0;
+    const widthMode = hasContainer;
+
+    // compute fixed width total
+    const fixedWidth = s.fixedColumns.reduce((sum, k, i) => {
+      const w = s.columnWidthsPx[k] ?? DEFAULT_WIDTH;
+      return sum + w + (i > 0 ? s.gapPx : 0);
+    }, 0);
+
+    let start = offset;
+    let end = offset;
+    let visibleNavigableCount = 0;
+    let templateKeys: string[] = [];
+
+    if (widthMode) {
+      // WIDTH MODE: pack columns by width into remaining capacity
+      const capacity = Math.max(0, s.containerWidthPx - fixedWidth);
+      let used = 0;
+      while (end < totalNavigable) {
+        const k = s.navigableColumns[end];
+        const w = s.columnWidthsPx[k] ?? DEFAULT_WIDTH;
+        const nextUsed = used + (used > 0 ? s.gapPx : 0) + w;
+        if (nextUsed > capacity) break;
+        used = nextUsed;
+        end++;
+      }
+      if (end === start && totalNavigable > 0) end = start + 1; // ensure at least one
+      visibleNavigableCount = Math.max(0, end - start);
+      templateKeys = [...s.fixedColumns, ...s.navigableColumns.slice(start, end)];
+
+    } else {
+      // COUNT MODE: use fallback count
+      const take = Math.max(1, s.fallbackVisibleNavigableCount);
+      end = Math.min(totalNavigable, start + take);
+      visibleNavigableCount = Math.max(0, end - start);
+      templateKeys = [...s.fixedColumns, ...s.navigableColumns.slice(start, end)];
+    }
+
+    const canGoLeft = start > 0;
+    const canGoRight = end < totalNavigable;
+
+    const templateForVisible = templateKeys
+      .map(k => `${(s.columnWidthsPx[k] ?? DEFAULT_WIDTH)}px`)
+      .join(' ');
+
+    return {
+      start,
+      end,
+      canGoLeft,
+      canGoRight,
+      labelStart: totalNavigable ? start + 1 : 0,
+      labelEnd: end,
+      totalNavigable,
+      templateForVisible,
+      visibleKeys: templateKeys,
+      visibleNavigableCount,
+      modeUsed: widthMode ? 'width' : 'count',
+    };
+  },
+
+  _clampColumnOffset: () => {
+    const { columnOffset, navigableColumns } = get();
+    const maxOffset = Math.max(0, navigableColumns.length - 1);
+    if (columnOffset > maxOffset) set({ columnOffset: maxOffset });
+  },
+}));
+```
+
+---
+
+# 2) Arrows (reads derived slice; never recomputes)
+
+**`/src/components/ColumnNavigationArrows.tsx`**
+
+```tsx
+import { useBibleStore } from '@/stores/useBibleStore';
+
+export default function ColumnNavigationArrows() {
+  const goLeft = useBibleStore(s => s.navigateColumnLeft);
+  const goRight = useBibleStore(s => s.navigateColumnRight);
+  const slice = useBibleStore(s => s.getVisibleSlice());
+  const fallbackCount = useBibleStore(s => s.fallbackVisibleNavigableCount);
+
+  if (slice.totalNavigable <= (fallbackCount || 1)) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <button onClick={goLeft} disabled={!slice.canGoLeft} aria-label="Previous columns">◀</button>
+      <span className="tabular-nums text-sm">
+        {slice.labelStart}-{slice.labelEnd} / {slice.totalNavigable}
+      </span>
+      <button onClick={goRight} disabled={!slice.canGoRight} aria-label="Next columns">▶</button>
+    </div>
+  );
+}
+```
+
+---
+
+# 3) Headers & Rows (share the same grid template + key order)
+
+**`/src/components/NewColumnHeaders.tsx`**
+
+```tsx
+import { useMemo } from 'react';
+import { useBibleStore } from '@/stores/useBibleStore';
+import type { Column } from '@/types/bible';
+
+export function NewColumnHeaders({ allColumns }: { allColumns: Column[] }) {
+  const { templateForVisible, visibleKeys } = useBibleStore(s => s.getVisibleSlice());
+  const gapPx = useBibleStore(s => s.gapPx);
+
+  const byKey = useMemo(() => {
+    const m = new Map<string, Column>();
+    allColumns.forEach(c => m.set(c.key, c));
+    return m;
+  }, [allColumns]);
+
+  const visibleCols = useMemo(
+    () => visibleKeys.map(k => byKey.get(k)).filter(Boolean) as Column[],
+    [visibleKeys, byKey]
+  );
+
+  return (
+    <div className="grid items-stretch"
+         style={{ gridTemplateColumns: templateForVisible, columnGap: gapPx }}>
+      {visibleCols.map(col => (
+        <HeaderCell key={col.key} column={col} />
+      ))}
+    </div>
+  );
+}
+```
+
+**`/src/components/VirtualRow.tsx`**
+
+```tsx
+import { useMemo } from 'react';
+import { useBibleStore } from '@/stores/useBibleStore';
+import type { Column } from '@/types/bible';
+
+export function VirtualRow({ allColumns, rowData }: { allColumns: Column[]; rowData: any }) {
+  const { templateForVisible, visibleKeys } = useBibleStore(s => s.getVisibleSlice());
+  const gapPx = useBibleStore(s => s.gapPx);
+
+  const byKey = useMemo(() => {
+    const m = new Map<string, Column>();
+    allColumns.forEach(c => m.set(c.key, c));
+    return m;
+  }, [allColumns]);
+
+  const visibleCols = useMemo(
+    () => visibleKeys.map(k => byKey.get(k)).filter(Boolean) as Column[],
+    [visibleKeys, byKey]
+  );
+
+  return (
+    <div className="grid"
+         style={{ gridTemplateColumns: templateForVisible, columnGap: gapPx }}>
+      {visibleCols.map(col => (
+        <Cell key={col.key} column={col} rowData={rowData} />
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+# 4) Measurements (container width, CSS vars, drag-resize → live)
+
+**`/src/hooks/useColumnMeasurements.ts`**
+
+```tsx
+import { useLayoutEffect } from 'react';
+import { useBibleStore } from '@/stores/useBibleStore';
+import type { Column } from '@/types/bible';
+
+export function useColumnMeasurements(
+  containerRef: React.RefObject<HTMLElement>,
+  columns: Column[],
+) {
+  const setContainerWidth = useBibleStore(s => s.setContainerWidth);
+  const setColumnWidths  = useBibleStore(s => s.setColumnWidths);
+  const setGapPx         = useBibleStore(s => s.setGapPx);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+    const el = containerRef.current;
+
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        setContainerWidth(Math.floor(e.contentRect.width));
+      }
+    });
+    ro.observe(el);
+
+    // CSS-controlled multiplier & gap
+    const cs = getComputedStyle(document.documentElement);
+    const mult = parseFloat(cs.getPropertyValue('--column-width-mult') || '1') || 1;
+    const gap  = parseFloat(cs.getPropertyValue('--column-gap-px') || '8') || 8;
+    setGapPx(gap);
+
+    // Seed widths from type bases * multiplier (can be overridden by drag-resize)
+    const m: Record<string, number> = {};
+    for (const c of columns) {
+      if (c.type) {
+        // If you want real DOM measurements, replace this block
+        // by reading each header cell's boundingClientRect width.
+        const base = ((): number => {
+          // keep in sync with BASE_WIDTH_BY_TYPE in the store
+          switch (c.type) {
+            case 'reference': return 140;
+            case 'main': return 360;
+            case 'notes': return 320;
+            case 'crossrefs': return 360;
+            case 'prophecy:pred':
+            case 'prophecy:fulfill':
+            case 'prophecy:verify': return 320;
+            case 'translation': return 340;
+            default: return 320;
+          }
+        })();
+        m[c.key] = Math.round(base * mult);
+      }
+    }
+    setColumnWidths(m);
+
+    return () => ro.disconnect();
+  }, [containerRef, columns, setContainerWidth, setColumnWidths, setGapPx]);
+}
+```
+
+> If users drag-resize a column, call `setColumnWidths({ [key]: newWidthPx })` at the end of the drag. The slice and grid templates will update immediately, keeping vertical-only scroll.
+
+---
+
+# 5) Shell wiring (columns + responsive config in one place)
+
+**`/src/AppShell.tsx`** (or wherever you have the table container)
+
+```tsx
+import { useEffect, useRef } from 'react';
+import { useBibleStore } from '@/stores/useBibleStore';
+import { useColumnMeasurements } from '@/hooks/useColumnMeasurements';
+import type { Column } from '@/types/bible';
+
+export function AppShell({ activeColumns }: { activeColumns: Column[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const setActiveColumns   = useBibleStore(s => s.setActiveColumns);
+  const setResponsiveConfig= useBibleStore(s => s.setResponsiveConfig);
+
+  // keep store in sync with active columns
+  useEffect(() => { setActiveColumns(activeColumns); }, [activeColumns, setActiveColumns]);
+
+  // measure container + seed widths (and react to CSS var changes)
+  useColumnMeasurements(containerRef, activeColumns);
+
+  // update fallback count on viewport changes (used before widths are known)
+  useEffect(() => {
+    const onResize = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      setResponsiveConfig({ viewportWidthPx: vw, isPortrait: vh >= vw });
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [setResponsiveConfig]);
+
+  return (
+    <div ref={containerRef} className="table-viewport">
+      <ColumnNavigationArrows />
+      <NewColumnHeaders allColumns={activeColumns} />
+      {/* your virtual list / rows */}
+    </div>
+  );
+}
+```
+
+---
+
+# 6) CSS (vertical-only scrolling, sticky reference, no horizontal overflow)
+
+**`/src/styles/table.css`**
+
+```css
+.table-viewport {
+  overflow-y: auto;
+  overflow-x: hidden;      /* lock out horizontal scrolling */
+  contain: layout paint size;
+}
+
+.table-viewport .grid { min-width: 0; }
+
+.header-cell.reference,
+.data-cell.reference {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-surface);
+}
+```
+
+You can drive sizing via CSS vars:
+
+```css
+:root {
+  --column-width-mult: 1;
+  --column-gap-px: 8;
+}
+/* presentation mode etc. can tweak --column-width-mult */
+```
+
+---
+
+# 7) Quick debug (paste anywhere temporarily)
+
+```ts
+const s = useBibleStore.getState();
+console.debug('NAV DEBUG', {
+  offset: s.columnOffset,
+  container: s.containerWidthPx,
+  gap: s.gapPx,
+  fixed: s.fixedColumns.map(k => [k, s.columnWidthsPx[k]]),
+  nav: s.navigableColumns.map(k => [k, s.columnWidthsPx[k]]),
+  slice: s.getVisibleSlice(), // shows modeUsed ('width'|'count'), visibleKeys, templateForVisible
+});
+```
+
+---
+
+## Why this unifies both designs
+
+* **One source of truth** (store) for `offset`, active columns, widths, capacity, and numeric slots.
+* **Width-aware paging** ensures the arrows advance a *width-fitted window* of columns: perfect for **portrait mobile** with **vertical-only** scrolling.
+* **Count fallback** keeps navigation working before measurements land.
+* **Shared grid template** (`templateForVisible`) feeds **both headers and rows**, guaranteeing pixel-locked alignment when columns grow/shrink.
+* **Slots are centralized** via `assignSlots()` so your numeric identification is consistent in logs/UI.
+
+If anything still sticks, paste the `NAV DEBUG` output after some ▶/◀ clicks and a width change, and I’ll zero in on it.
