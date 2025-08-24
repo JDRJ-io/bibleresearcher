@@ -521,9 +521,7 @@ export function VirtualRow({
   const { main: mainTranslation, alternates } = useTranslationMaps();
 
   // Debug translation store state (only for first verse to avoid spam)
-  if (verse.reference === "Gen 1:1") {
-    console.log('🔍 VirtualRow translation state:', { mainTranslation, alternates });
-  }
+  // Console logging removed for cleaner output
   const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
@@ -615,7 +613,6 @@ export function VirtualRow({
           translationCode, 
           visible: true  // Show all active alternate translations
         };
-        console.log(`🔍 VirtualRow: Added alternate translation ${translationCode} to slot ${slotNumber}`);
       }
     });
 
