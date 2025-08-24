@@ -802,7 +802,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider 
-          enablePerformanceMode={enablePerformanceMode()}
           defaultTheme="light"
         >
           <DynamicBackground />
