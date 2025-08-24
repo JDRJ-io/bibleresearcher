@@ -79,9 +79,7 @@ export function NewColumnHeaders({
   // Sync header scroll position with body via scrollLeft prop
   useEffect(() => {
     const headerElement = headerRef.current;
-    console.log('🎯 Header sync effect triggered:', { scrollLeft, hasHeaderElement: !!headerElement });
     if (headerElement && typeof scrollLeft === 'number') {
-      console.log('🎯 Setting header scrollLeft from', headerElement.scrollLeft, 'to', scrollLeft);
       headerElement.scrollLeft = scrollLeft;
     }
   }, [scrollLeft]);
@@ -492,8 +490,8 @@ export function NewColumnHeaders({
             ref={headerRef}
             className="column-headers-inner flex"
             style={{ 
-              minWidth: 'fit-content',
-              width: 'fit-content',
+              minWidth: 'max-content', // Force wider than viewport when needed
+              width: 'max-content',    // Match table content width
               margin: isPortrait ? '0' : '0 auto',
               overflowX: 'auto',
               overflowY: 'hidden'

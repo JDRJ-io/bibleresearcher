@@ -609,7 +609,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       
       // Track both vertical and horizontal scroll positions
       setScrollLeft(currentScrollLeft);
-      console.log('🔄 Table scrolled horizontally:', currentScrollLeft);
       
       // Update scrollTop state if not currently dragging scrollbar
       if (!isScrollbarDragging) {
