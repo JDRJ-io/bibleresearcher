@@ -76,6 +76,39 @@ export function NewColumnHeaders({
   const headerRef = useRef<HTMLDivElement>(null);
   // bodyRef is passed in from props
 
+  // Sync horizontal scrolling between headers and table body
+  useEffect(() => {
+    const headerElement = headerRef.current;
+    const bodyElement = bodyRef?.current;
+
+    if (!headerElement || !bodyElement) return;
+
+    let isHeaderScrolling = false;
+    let isBodyScrolling = false;
+
+    const syncBodyToHeader = () => {
+      if (isBodyScrolling) return;
+      isHeaderScrolling = true;
+      bodyElement.scrollLeft = headerElement.scrollLeft;
+      setTimeout(() => { isHeaderScrolling = false; }, 10);
+    };
+
+    const syncHeaderToBody = () => {
+      if (isHeaderScrolling) return;
+      isBodyScrolling = true;
+      headerElement.scrollLeft = bodyElement.scrollLeft;
+      setTimeout(() => { isBodyScrolling = false; }, 10);
+    };
+
+    headerElement.addEventListener('scroll', syncBodyToHeader);
+    bodyElement.addEventListener('scroll', syncHeaderToBody);
+
+    return () => {
+      headerElement.removeEventListener('scroll', syncBodyToHeader);
+      bodyElement.removeEventListener('scroll', syncHeaderToBody);
+    };
+  }, [bodyRef]);
+
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
 
