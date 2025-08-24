@@ -245,11 +245,12 @@ export default function BiblePage() {
 
   // Listen for translation slot visibility events
   useEffect(() => {
-    const { columnState } = useBibleStore.getState();
-    
     const handleSlotVisibility = (event: CustomEvent) => {
       const { slot, visible } = event.detail;
       console.log(`📡 RECEIVED slot visibility event: slot ${slot} → ${visible}`);
+      
+      // Get fresh columnState each time the event fires to avoid stale state
+      const { columnState } = useBibleStore.getState();
       console.log(`📊 Column state before update:`, columnState.columns.map(c => `slot ${c.slot}: ${c.visible}`));
       columnState.setVisible(slot, visible);
       console.log(`📊 Column state after update:`, columnState.columns.map(c => `slot ${c.slot}: ${c.visible}`));
