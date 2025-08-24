@@ -126,11 +126,6 @@ export const useBibleStore = create<{
   unlockMode: boolean;
   toggleUnlockMode: () => void;
 
-  // Horizontal column navigation state
-  columnOffset: number;
-  setColumnOffset: (offset: number) => void;
-  navigateColumnLeft: () => void;
-  navigateColumnRight: () => void;
 
   // UNIFIED: Dynamic visible count system with enhanced navigation
   visibleCount: number;
@@ -756,18 +751,6 @@ export const useBibleStore = create<{
     columnKeys: []
   },
 
-  // Horizontal column navigation implementation
-  columnOffset: 0,
-  setColumnOffset: (offset: number) => set({ columnOffset: Math.max(0, offset) }),
-  navigateColumnLeft: () =>
-    set(s => ({ columnOffset: Math.max(0, s.columnOffset - 1) })),
-
-  navigateColumnRight: () =>
-    set(s => {
-      const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0)); // main tracks (3–20)
-      const maxOffset = Math.max(0, (s.navigableColumns?.length ?? 0) - take);
-      return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
-    }),
 
   // UNIFIED: Dynamic visible count system implementation with CSS grid templates
   visibleCount: 1,
@@ -840,8 +823,7 @@ export const useBibleStore = create<{
         columns.push({
           key: `alt-translation-${translationCode}`,
           header: translationCode,
-          type: 'alt-translation',
-          translationCode
+          type: 'alt-translation'
         });
       });
 
@@ -860,7 +842,7 @@ export const useBibleStore = create<{
     const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0));
     const total = s.navigableColumns?.length ?? 0;
     const maxOffset = Math.max(0, total - take);
-    const start = Math.min(s.columnOffset ?? 0, maxOffset);
+    const start = 0;
     const end = Math.min(total, start + take);
     const canGoLeft = start > 0;
     const canGoRight = end < total;

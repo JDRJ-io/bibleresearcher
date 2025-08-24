@@ -3,7 +3,6 @@ import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
 import { useAdaptivePortraitColumns } from '@/hooks/useAdaptivePortraitColumns';
-import { ColumnNavigationArrows } from './ColumnNavigationArrows';
 import { Button } from '@/components/ui/button';
 import { Monitor, RotateCcw } from 'lucide-react';
 import {
@@ -67,7 +66,6 @@ export function NewColumnHeaders({
   const { 
     isInitialized, 
     showNotes: storeShowNotes, 
-    columnOffset, 
     unlockMode 
   } = store;
 
@@ -471,10 +469,6 @@ export function NewColumnHeaders({
             {isPresentationMode ? "Reset" : "Present"}
           </Button>
 
-          <ColumnNavigationArrows 
-            headerRef={headerRef}
-            bodyRef={bodyRef || headerRef}
-          />
 
           <div className="flex-1" />
         </div>
