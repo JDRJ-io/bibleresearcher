@@ -840,7 +840,8 @@ export const useBibleStore = create<{
         columns.push({
           key: `alt-translation-${translationCode}`,
           header: translationCode,
-          type: 'alt-translation'
+          type: 'alt-translation',
+          translationCode
         });
       });
 

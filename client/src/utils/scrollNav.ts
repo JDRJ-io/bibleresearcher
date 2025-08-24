@@ -17,14 +17,26 @@ function measureLefts(headerEl: HTMLElement, keys: string[], stickyLeft: number)
   const rectParent = headerEl.getBoundingClientRect();
   return keys.map(k => {
     const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${k}"]`);
-    if (!cell) return { key: k, left: 0, width: 0, ok: false };
+    if (!cell) {
+      console.log(`🔍 MISSING COLUMN: Cannot find element with data-col-key="${k}"`);
+      return { key: k, left: 0, width: 0, ok: false };
+    }
     const r = cell.getBoundingClientRect();
-    return { key: k, left: Math.max(0, r.left - rectParent.left - stickyLeft), width: r.width, ok: true };
+    const result = { key: k, left: Math.max(0, r.left - rectParent.left - stickyLeft), width: r.width, ok: true };
+    console.log(`🔍 FOUND COLUMN: ${k} ->`, result);
+    return result;
   });
 }
 
 export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNavOpts) {
   console.log('🔍 makeColumnScroller called with navigableKeys:', navigableKeys);
+  
+  // Debug: Check what columns actually exist in the DOM
+  const allColElements = headerEl.querySelectorAll('[data-col-key]');
+  console.log('🔍 DOM columns found:', Array.from(allColElements).map(el => el.getAttribute('data-col-key')));
+  console.log('🔍 Header element classes:', headerEl.className);
+  console.log('🔍 Header element children:', headerEl.children.length);
+  
   // keep header scroll mirrored to body
   const sync = () => { headerEl.scrollLeft = bodyEl.scrollLeft; };
   bodyEl.addEventListener('scroll', sync, { passive: true });
