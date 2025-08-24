@@ -87,11 +87,11 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
     };
 
     document.addEventListener('keydown', handleEscape);
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside, true); // Use capture phase
 
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside, true); // Match capture phase
     };
   }, [isOpen, onClose]);
 
