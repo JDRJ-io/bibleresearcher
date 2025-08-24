@@ -674,21 +674,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         style={{ 
           position: 'relative',
           height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",
-          overflowX: 'hidden', // Disable horizontal scrolling - navigation arrows control column visibility
-          overflowY: 'auto', // Allow vertical scrolling only
+          overflowX: 'auto', // Enable horizontal scrolling
+          overflowY: 'auto', // Allow vertical scrolling
           overscrollBehavior: 'contain',
           contain: 'layout paint style',
           willChange: 'scroll-position',
-          touchAction: 'pan-y', // Only allow vertical panning
+          touchAction: 'auto', // Allow all panning directions
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none', // IE/Edge
-          // Ensure content width doesn't exceed viewport to prevent horizontal scrolling
-          maxWidth: '100vw',
-          // On mobile, ensure strict vertical-only scrolling
+          // On mobile, allow both horizontal and vertical scrolling
           ...(isMobile && {
-            touchAction: 'pan-y manipulation',
-            overscrollBehaviorX: 'none',
+            touchAction: 'auto',
+            overscrollBehaviorX: 'contain',
             overscrollBehaviorY: 'contain'
           })
         }}
@@ -697,25 +695,22 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            minWidth: isMobile ? `${viewportWidth}px` : `${Math.max(actualTotalWidth, viewportWidth)}px`,
-            maxWidth: isMobile ? `${viewportWidth * 0.98}px` : undefined, // Slight constraint on mobile to prevent edge overflow
+            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: isMobile ? 'hidden' : 'visible'
+            overflow: 'visible'
           }}
         >
           <div className="tableInner flex"
             style={{ 
-              minWidth: isMobile ? '100%' : 'fit-content', // Use fit-content instead of max-content
-              width: isMobile ? '100%' : 'fit-content',
-              maxWidth: isMobile ? '98%' : '100%', // Prevent overflow on all devices
+              minWidth: 'fit-content',
+              width: 'fit-content',
               margin: isPortrait ? '0' : '0 auto',
-              overflow: isMobile ? 'hidden' : 'visible'
+              overflow: 'visible'
             }}>
             <div style={{ 
               minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`,
-              maxWidth: '100%' // Prevent container from exceeding viewport
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
