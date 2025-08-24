@@ -126,18 +126,37 @@ export const useBibleStore = create<{
   navigateColumnLeft: () => void;
   navigateColumnRight: () => void;
   
-  // NEW: Dynamic visible count system (replaces static maxVisibleColumns)
+  // UNIFIED: Dynamic visible count system with enhanced navigation
   visibleCount: number;
   containerWidthPx: number;
   columnWidthsPx: Record<string, number>;
+  gapPx: number;
   fixedColumns: string[];
   navigableColumns: string[];
+  fallbackVisibleNavigableCount: number;
+  baseWidths: Record<string, number>;
   setVisibleCount: (count: number) => void;
   setContainerWidthPx: (width: number) => void;
+  setGapPx: (gap: number) => void;
   setColumnWidthPx: (id: string, width: number) => void;
   setFixedColumns: (columns: string[]) => void;
   setNavigableColumns: (columns: string[]) => void;
-  getVisibleSlice: () => { start: number; end: number };
+  setFallbackVisibleNavigableCount: (count: number) => void;
+  buildActiveColumns: () => { key: string; type: string; translationCode?: string }[];
+  getVisibleSlice: () => {
+    start: number;
+    end: number;
+    canGoLeft: boolean;
+    canGoRight: boolean;
+    labelStart: number;
+    labelEnd: number;
+    totalNavigable: number;
+    templateForVisible: string;
+    visibleKeys: string[];
+    visibleNavigableCount: number;
+    modeUsed: 'width' | 'count';
+    activeColumns: { key: string; type: string; translationCode?: string }[];
+  };
 }>((set, get) => ({
   isInitialized: true,
   translations: {},
@@ -744,25 +763,156 @@ export const useBibleStore = create<{
     };
   }),
 
-  // NEW: Dynamic visible count system implementation
+  // UNIFIED: Dynamic visible count system implementation with CSS grid templates
   visibleCount: 1,
   containerWidthPx: 0,
   columnWidthsPx: {},
+  gapPx: 0,
   fixedColumns: ['reference'],
   navigableColumns: [],
+  fallbackVisibleNavigableCount: 1,
+  
+  // Column type to width mapping (base widths)
+  baseWidths: {
+    reference: 72,
+    'main-translation': 420,
+    'alt-translation': 360,
+    'cross-refs': 360,
+    'prophecy-p': 360,
+    'prophecy-f': 360,
+    'prophecy-v': 360,
+    notes: 320
+  },
+  
   setVisibleCount: (count: number) => set({ visibleCount: Math.max(1, count) }),
   setContainerWidthPx: (width: number) => set({ containerWidthPx: Math.max(0, width) }),
+  setGapPx: (gap: number) => set({ gapPx: Math.max(0, gap) }),
   setColumnWidthPx: (id: string, width: number) => set(state => ({
     columnWidthsPx: { ...state.columnWidthsPx, [id]: width }
   })),
   setFixedColumns: (columns: string[]) => set({ fixedColumns: columns }),
   setNavigableColumns: (columns: string[]) => set({ navigableColumns: columns }),
+  setFallbackVisibleNavigableCount: (count: number) => set({ fallbackVisibleNavigableCount: Math.max(1, count) }),
+  
+  // Build active columns from current state
+  buildActiveColumns: () => {
+    const state = get();
+    const columns = [];
+    
+    // Always include main translation
+    columns.push({ key: 'main-translation', type: 'main-translation' });
+    
+    // Add cross-refs if enabled
+    if (state.showCrossRefs) {
+      columns.push({ key: 'cross-refs', type: 'cross-refs' });
+    }
+    
+    // Add notes if enabled
+    if (state.showNotes) {
+      columns.push({ key: 'notes', type: 'notes' });
+    }
+    
+    // Add prophecy columns if enabled
+    if (state.showProphecies) {
+      columns.push(
+        { key: 'prophecy-p', type: 'prophecy-p' },
+        { key: 'prophecy-f', type: 'prophecy-f' },
+        { key: 'prophecy-v', type: 'prophecy-v' }
+      );
+    }
+    
+    // Add alternate translations
+    state.translationState.alternates.forEach((altCode, index) => {
+      columns.push({ key: `alt-${altCode}`, type: 'alt-translation', translationCode: altCode });
+    });
+    
+    return columns;
+  },
+  
+  // Enhanced getVisibleSlice with CSS grid template generation
   getVisibleSlice: () => {
     const state = get();
-    const take = Math.max(0, state.visibleCount - state.fixedColumns.length);
-    const start = state.columnOffset;
-    const end = Math.min(state.navigableColumns.length, start + take);
-    return { start, end };
+    const activeColumns = state.buildActiveColumns();
+    const totalNavigable = activeColumns.length;
+    
+    // Clamp offset against total
+    const offset = Math.min(state.columnOffset, Math.max(0, totalNavigable - 1));
+    
+    // Decide mode: width-aware if container is measured
+    const hasContainer = state.containerWidthPx > 0;
+    const widthMode = hasContainer;
+    
+    // Fixed columns (reference)
+    const fixedKeys = ['reference'];
+    const fixedWidth = state.baseWidths.reference || 72;
+    
+    let start = offset;
+    let end = offset;
+    let visibleNavigableCount = 0;
+    let templateKeys = [];
+    
+    if (widthMode && totalNavigable > 0) {
+      // WIDTH MODE: pack columns by width into remaining capacity
+      const capacity = Math.max(0, state.containerWidthPx - fixedWidth - state.gapPx);
+      let used = 0;
+      
+      while (end < totalNavigable) {
+        const column = activeColumns[end];
+        const baseWidth = state.baseWidths[column.type] || 360;
+        const actualWidth = state.columnWidthsPx[column.key] || baseWidth;
+        const nextUsed = used + (used > 0 ? state.gapPx : 0) + actualWidth;
+        
+        if (nextUsed > capacity && end > start) break;
+        used = nextUsed;
+        end++;
+      }
+      
+      if (end === start && totalNavigable > 0) end = start + 1; // ensure at least one
+      visibleNavigableCount = Math.max(0, end - start);
+      templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
+      
+    } else {
+      // COUNT MODE: use fallback count
+      const take = Math.max(1, state.fallbackVisibleNavigableCount);
+      end = Math.min(totalNavigable, start + take);
+      visibleNavigableCount = Math.max(0, end - start);
+      templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
+    }
+    
+    const canGoLeft = start > 0;
+    const canGoRight = end < totalNavigable;
+    
+    // Generate CSS grid template
+    const multiplier = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
+    const templateForVisible = templateKeys
+      .map(key => {
+        if (key === 'reference') {
+          return `${Math.round((state.baseWidths.reference || 72) * multiplier)}px`;
+        }
+        const column = activeColumns.find(col => col.key === key);
+        if (column) {
+          const baseWidth = state.baseWidths[column.type] || 360;
+          const actualWidth = state.columnWidthsPx[key] || baseWidth;
+          return `${Math.round(actualWidth * multiplier)}px`;
+        }
+        return '360px';
+      })
+      .join(' ');
+    
+    return {
+      start,
+      end,
+      canGoLeft,
+      canGoRight,
+      labelStart: totalNavigable ? start + 1 : 0,
+      labelEnd: end,
+      totalNavigable,
+      templateForVisible,
+      visibleKeys: templateKeys,
+      visibleNavigableCount,
+      modeUsed: widthMode ? 'width' : 'count',
+      activeColumns: activeColumns.slice(start, end)
+    };
   }
 }));
 

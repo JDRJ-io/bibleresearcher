@@ -315,46 +315,11 @@ export function NewColumnHeaders({
     setLocalColumns(columns);
   }, [columns]);
 
-  // Apply horizontal navigation filtering - Fixed to show all columns when they fit
-  const { getVisibleSlice } = useBibleStore();
-  const visibleColumns = useMemo(() => {
-    const activeColumns = localColumns.length > 0 ? localColumns : columns;
-
-    // Define which columns are always fixed (not affected by horizontal navigation)
-    const fixedColumnTypes = ['reference'];
-
-    // Separate fixed and navigable columns
-    const fixedColumns = activeColumns.filter(col => fixedColumnTypes.includes(col.type));
-    const navigableColumns = activeColumns.filter(col => !fixedColumnTypes.includes(col.type));
-
-    // Calculate how many columns can actually fit on screen
-    const viewportWidth = window.innerWidth;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    
-    let maxVisibleNavigableColumns;
-    if (isPortrait) {
-      if (viewportWidth <= 430) maxVisibleNavigableColumns = 2; // Small phones
-      else if (viewportWidth <= 768) maxVisibleNavigableColumns = 3; // Larger phones/tablets  
-      else maxVisibleNavigableColumns = 4; // Portrait tablets
-    } else {
-      if (viewportWidth <= 768) maxVisibleNavigableColumns = 4; // Small landscape screens
-      else if (viewportWidth <= 1024) maxVisibleNavigableColumns = 6; // Medium landscape screens
-      else maxVisibleNavigableColumns = 8; // Large landscape screens - show more columns
-    }
-
-    // If we have fewer navigable columns than can fit, show them all
-    if (navigableColumns.length <= maxVisibleNavigableColumns) {
-      return [...fixedColumns, ...navigableColumns];
-    }
-
-    // Otherwise, use the slice system
-    const { start, end } = getVisibleSlice();
-    const actualEnd = Math.min(end, start + maxVisibleNavigableColumns);
-    const offsetNavigableColumns = navigableColumns.slice(start, actualEnd);
-
-    // Combine fixed columns (always first) with offset navigable columns
-    return [...fixedColumns, ...offsetNavigableColumns];
-  }, [localColumns, columns, getVisibleSlice]);
+  // Temporarily disabled unified navigation state to fix render loop
+  // const { templateForVisible, visibleKeys } = useBibleStore(s => s.getVisibleSlice());
+  
+  // Use direct columns instead of complex mapping for now to avoid render loops
+  const visibleColumns = columns;
 
   // Drag and drop handlers
   function handleDragStart(event: DragStartEvent) {
@@ -517,8 +482,8 @@ export function NewColumnHeaders({
             style={{ 
               minWidth: 'max-content',
               width: 'max-content',
-              margin: isPortrait ? '0' : '0 auto', // Match the tableInner margin
-              overflowX: 'hidden' // Prevent horizontal scroll - navigation arrows control visibility
+              margin: isPortrait ? '0' : '0 auto',
+              overflowX: 'hidden'
             }}
           >
             {visibleColumns.map((column) => (
