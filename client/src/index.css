@@ -21,6 +21,25 @@
   transform: rotate(180deg);
 }
 
+/* Hide main document scrollbars */
+html::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* Hide default scrollbars but keep scrolling functionality */
 .unified-scroll-container::-webkit-scrollbar {
   display: none;
