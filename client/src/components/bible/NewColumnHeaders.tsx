@@ -315,7 +315,7 @@ export function NewColumnHeaders({
     setLocalColumns(columns);
   }, [columns]);
 
-  // Apply horizontal navigation filtering - Fixed to show all columns when they fit
+  // Apply horizontal navigation filtering with DEBUGGING
   const { getVisibleSlice } = useBibleStore();
   const visibleColumns = useMemo(() => {
     const activeColumns = localColumns.length > 0 ? localColumns : columns;
@@ -333,17 +333,32 @@ export function NewColumnHeaders({
     
     let maxVisibleNavigableColumns;
     if (isPortrait) {
-      if (viewportWidth <= 430) maxVisibleNavigableColumns = 2; // Small phones
-      else if (viewportWidth <= 768) maxVisibleNavigableColumns = 3; // Larger phones/tablets  
-      else maxVisibleNavigableColumns = 4; // Portrait tablets
+      if (viewportWidth <= 430) maxVisibleNavigableColumns = 2;
+      else if (viewportWidth <= 768) maxVisibleNavigableColumns = 3;
+      else maxVisibleNavigableColumns = 4;
     } else {
-      if (viewportWidth <= 768) maxVisibleNavigableColumns = 4; // Small landscape screens
-      else if (viewportWidth <= 1024) maxVisibleNavigableColumns = 6; // Medium landscape screens
-      else maxVisibleNavigableColumns = 8; // Large landscape screens - show more columns
+      if (viewportWidth <= 768) maxVisibleNavigableColumns = 4;
+      else if (viewportWidth <= 1024) maxVisibleNavigableColumns = 6;
+      else maxVisibleNavigableColumns = 8;
     }
+
+    console.log('🎯 HEADERS NAVIGATION DEBUG:', {
+      activeColumnsCount: activeColumns.length,
+      activeColumnTypes: activeColumns.map(c => c.type),
+      fixedColumns: fixedColumns.map(c => c.type),
+      navigableColumns: navigableColumns.map(c => c.type),
+      maxVisibleNavigableColumns,
+      viewportWidth,
+      isPortrait
+    });
 
     // If we have fewer navigable columns than can fit, show them all
     if (navigableColumns.length <= maxVisibleNavigableColumns) {
+      console.log('🟢 HEADERS: All columns fit, showing all', {
+        navigableCount: navigableColumns.length,
+        maxVisible: maxVisibleNavigableColumns,
+        showingAll: true
+      });
       return [...fixedColumns, ...navigableColumns];
     }
 
@@ -351,6 +366,17 @@ export function NewColumnHeaders({
     const { start, end } = getVisibleSlice();
     const actualEnd = Math.min(end, start + maxVisibleNavigableColumns);
     const offsetNavigableColumns = navigableColumns.slice(start, actualEnd);
+
+    console.log('🔴 HEADERS: Using navigation slice', {
+      navigableCount: navigableColumns.length,
+      maxVisible: maxVisibleNavigableColumns,
+      sliceStart: start,
+      sliceEnd: end,
+      actualEnd,
+      offsetColumnsCount: offsetNavigableColumns.length,
+      offsetColumnTypes: offsetNavigableColumns.map(c => c.type),
+      usingNavigation: true
+    });
 
     // Combine fixed columns (always first) with offset navigable columns
     return [...fixedColumns, ...offsetNavigableColumns];

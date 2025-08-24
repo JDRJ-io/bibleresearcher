@@ -672,16 +672,39 @@ export function VirtualRow({
     else maxVisibleNavigableColumns = 8;
   }
 
-  // If we have fewer navigable columns than can fit, show them all
+  // Apply navigation filtering with DEBUGGING
   let visibleColumns;
   if (navigableColumns.length <= maxVisibleNavigableColumns) {
     visibleColumns = [...fixedColumns, ...navigableColumns];
+    // DEBUG: Log when all columns fit
+    if (verse.reference === "Gen 1:1") {
+      console.log('🟢 VIRTUALROW: All columns fit, showing all', {
+        navigableCount: navigableColumns.length,
+        maxVisible: maxVisibleNavigableColumns,
+        showingAll: true
+      });
+    }
   } else {
-    // Otherwise, use the slice system
+    // Use navigation slice system
     const { start, end } = getVisibleSlice();
     const actualEnd = Math.min(end, start + maxVisibleNavigableColumns);
     const offsetNavigableColumns = navigableColumns.slice(start, actualEnd);
     visibleColumns = [...fixedColumns, ...offsetNavigableColumns];
+    
+    // DEBUG: Log when using navigation
+    if (verse.reference === "Gen 1:1") {
+      console.log('🔴 VIRTUALROW: Using navigation slice', {
+        navigableCount: navigableColumns.length,
+        maxVisible: maxVisibleNavigableColumns,
+        sliceStart: start,
+        sliceEnd: end,
+        actualEnd,
+        offsetColumnsCount: offsetNavigableColumns.length,
+        offsetColumnTypes: offsetNavigableColumns.map(c => c.config?.type),
+        finalVisibleCount: visibleColumns.length,
+        usingNavigation: true
+      });
+    }
   }
 
   // Helper function to get default widths per UI Layout Spec
@@ -698,20 +721,23 @@ export function VirtualRow({
     }
   }
 
-  // Debug logging for first verse
+  // NAVIGATION DEBUG - Show what columns are being rendered
   if (verse.reference === "Gen 1:1") {
-    console.log('🔍 VirtualRow Debug - Translation state:', { mainTranslation, alternates });
-    console.log('🔍 VirtualRow Debug - Show states:', { showCrossRefs, showProphecies, showNotes, showDates });
-    console.log('🔍 VirtualRow Debug - Visible columns:', visibleColumns.map(c => `slot ${c.slot} (${c.config?.type}: ${c.config?.header})`));
-    console.log('🔍 VirtualRow Debug - Verse data:', { verseID: verse.id, reference: verse.reference });
-    console.log('🔍 VirtualRow Debug - onVerseClick handler:', !!onVerseClick);
-    console.log('🔍 VirtualRow Debug - Main verse text:', getMainVerseText(verse.reference));
-    console.log('🔍 VirtualRow Debug - KJV verse text:', getVerseText(verse.reference, 'KJV'));
-
-    // Debug cross-references data
-    const { crossRefs } = useBibleStore.getState();
-    console.log('🔍 VirtualRow Debug - Cross refs for verse:', crossRefs[verse.reference]);
-    console.log('🔍 VirtualRow Debug - All cross refs keys:', Object.keys(crossRefs).slice(0, 10));
+    const { start, end } = getVisibleSlice();
+    console.log('🎯 VIRTUALROW NAVIGATION DEBUG:', {
+      verseRef: verse.reference,
+      allColumnsCount: allColumns.length,
+      allColumnTypes: allColumns.map(c => c.config?.type),
+      fixedColumns: fixedColumns.map(c => c.config?.type),
+      navigableColumns: navigableColumns.map(c => c.config?.type),
+      maxVisibleNavigableColumns,
+      navigableLength: navigableColumns.length,
+      sliceStart: start,
+      sliceEnd: end,
+      visibleColumnsCount: visibleColumns.length,
+      visibleColumnTypes: visibleColumns.map(c => c.config?.type),
+      columnOffset: store.columnOffset
+    });
   }
 
   const renderSlot = (column: any) => {

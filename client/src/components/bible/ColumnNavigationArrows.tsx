@@ -173,13 +173,29 @@ export function ColumnNavigationArrows({ className }: ColumnNavigationArrowsProp
 
   const handleNavigateLeft = () => {
     if (layout?.canGoLeft && setColumnOffset) {
-      setColumnOffset(layout.startIndex - 1);
+      const newOffset = layout.startIndex - 1;
+      console.log('🔵 NAVIGATION ARROW: Going LEFT', {
+        currentOffset: columnOffset,
+        newOffset,
+        currentRange: `${layout.labelStart}-${layout.labelEnd}`,
+        canGoLeft: layout.canGoLeft,
+        canGoRight: layout.canGoRight
+      });
+      setColumnOffset(newOffset);
     }
   };
 
   const handleNavigateRight = () => {
     if (layout?.canGoRight && setColumnOffset) {
-      setColumnOffset(layout.startIndex + 1);
+      const newOffset = layout.startIndex + 1;
+      console.log('🔵 NAVIGATION ARROW: Going RIGHT', {
+        currentOffset: columnOffset,
+        newOffset,
+        currentRange: `${layout.labelStart}-${layout.labelEnd}`,
+        canGoLeft: layout.canGoLeft,
+        canGoRight: layout.canGoRight
+      });
+      setColumnOffset(newOffset);
     }
   };
 
