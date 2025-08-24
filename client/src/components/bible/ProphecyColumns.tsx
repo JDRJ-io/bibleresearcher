@@ -156,20 +156,20 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   if (isLoading) {
     return (
       <div className="flex h-full">
-        {/* Separate P, F, V columns with loading - much wider columns */}
-        <div className="w-[1600px] flex-shrink-0 border-r p-2">
+        {/* Separate P, F, V columns with loading - responsive widths */}
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="flex justify-center py-4">
             <HolyBookLoader size="sm" />
           </div>
         </div>
-        <div className="w-[1600px] flex-shrink-0 border-r p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="flex justify-center py-4">
             <HolyBookLoader size="sm" />
           </div>
         </div>
-        <div className="w-[1600px] flex-shrink-0 p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="flex justify-center py-4">
             <HolyBookLoader size="sm" />
@@ -182,16 +182,16 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   if (prophecies.length === 0) {
     return (
       <div className="flex h-full">
-        {/* Empty P, F, V columns - much wider columns */}
-        <div className="w-[1600px] flex-shrink-0 border-r p-2">
+        {/* Empty P, F, V columns - responsive widths */}
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[1600px] flex-shrink-0 border-r p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[1600px] flex-shrink-0 p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
@@ -201,8 +201,8 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
 
   return (
     <div className="flex h-full">
-      {/* Separate P, F, V columns - much wider columns for better content display */}
-      <div className="w-[1600px] flex-shrink-0 border-r p-2 overflow-y-auto">
+      {/* Separate P, F, V columns - responsive widths for better content display */}
+      <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2 overflow-y-auto">
         <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -215,7 +215,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         ))}
       </div>
 
-      <div className="w-[1600px] flex-shrink-0 border-r p-2 overflow-y-auto">
+      <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2 overflow-y-auto">
         <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -228,7 +228,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         ))}
       </div>
 
-      <div className="w-[1600px] flex-shrink-0 p-2 overflow-y-auto">
+      <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 p-2 overflow-y-auto">
         <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
         {prophecies.map((prophecy) => (
           <ProphecyBlock
@@ -254,15 +254,15 @@ export function ProphecyColumns({ verseIDs, onVerseClick, mainTranslation }: {
   if (!verseKey) {
     return (
       <div className="flex h-full">
-        <div className="w-[1600px] flex-shrink-0 border-r p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">Prediction</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[1600px] flex-shrink-0 border-r p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 border-r p-2">
           <div className="text-xs font-bold text-orange-600 dark:text-orange-400 mb-2">Fulfillment</div>
           <div className="text-gray-400 text-center">—</div>
         </div>
-        <div className="w-[1600px] flex-shrink-0 p-2">
+        <div style={{ width: 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))' }} className="flex-shrink-0 p-2">
           <div className="text-xs font-bold text-purple-600 dark:text-purple-400 mb-2">Verification</div>
           <div className="text-gray-400 text-center">—</div>
         </div>

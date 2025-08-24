@@ -11,15 +11,34 @@ interface ColumnNavigationArrowsProps {
 }
 
 export function ColumnNavigationArrows({ className, headerRef, bodyRef }: ColumnNavigationArrowsProps) {
-  const { buildActiveColumns } = useBibleStore();
+  const { 
+    buildActiveColumns, 
+    showCrossRefs, 
+    showProphecies, 
+    showPrediction,
+    showFulfillment,
+    showVerification,
+    showNotes,
+    translationState 
+  } = useBibleStore();
   
   // Get navigable column keys (everything except reference)
+  // Now properly depends on the actual state that determines active columns
   const navigableKeys = useMemo(() => {
     const columns = buildActiveColumns();
     return columns
       .filter(col => col.key !== 'reference' && col.key !== 'index')
       .map(col => col.key);
-  }, [buildActiveColumns]);
+  }, [
+    buildActiveColumns, 
+    showCrossRefs, 
+    showProphecies, 
+    showPrediction,
+    showFulfillment,
+    showVerification,
+    showNotes,
+    translationState.alternates
+  ]);
 
   // Create column scroller instance
   const scroller = useMemo(() => {
