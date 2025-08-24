@@ -14,48 +14,19 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     console.log('🔍 SCROLL DEBUG: Finding headers for keys:', navigableKeys);
     console.log('🔍 SCROLL DEBUG: Header element:', headerEl);
     
-    // Debug all available headers - simplified
-    const allHeaders = Array.from(headerEl.querySelectorAll('[data-col-key], [data-column], [data-type], .column-header-cell'));
-    console.log('🔍 SCROLL DEBUG: Found', allHeaders.length, 'header elements');
-    allHeaders.forEach(el => {
-      console.log('  Header:', el.getAttribute('data-col-key') || el.getAttribute('data-column'), 'offsetLeft:', (el as HTMLElement).offsetLeft);
-    });
-    
     for (const key of navigableKeys) {
       // Try multiple selectors to find the column header
-      // Check data-col-key first (used by prophecy columns)
-      const selector1 = `[data-col-key="${key}"]`;
-      const selector2 = `[data-column="${key}"]`;
-      const selector3 = `[data-type="${key}"]`;
-      const selector4 = `.column-header-cell[data-column="${key}"]`;
-      const selector5 = `.col-header[data-col-key="${key}"]`;
-      
-      const cell1 = headerEl.querySelector<HTMLElement>(selector1);
-      const cell2 = headerEl.querySelector<HTMLElement>(selector2);
-      const cell3 = headerEl.querySelector<HTMLElement>(selector3);
-      const cell4 = headerEl.querySelector<HTMLElement>(selector4);
-      const cell5 = headerEl.querySelector<HTMLElement>(selector5);
-      
-      console.log(`🔍 SCROLL DEBUG: Detailed search for "${key}":`);
-      console.log(`  - Selector1 "${selector1}": ${!!cell1}`);
-      console.log(`  - Selector2 "${selector2}": ${!!cell2}`);
-      console.log(`  - Selector3 "${selector3}": ${!!cell3}`);
-      console.log(`  - Selector4 "${selector4}": ${!!cell4}`);
-      console.log(`  - Selector5 "${selector5}": ${!!cell5}`);
-      
-      const cell = cell1 || cell2 || cell3 || cell4 || cell5;
-      
-      console.log(`🔍 SCROLL DEBUG: Looking for key "${key}": found=${!!cell}, offsetLeft=${cell?.offsetLeft}`);
+      const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${key}"]`) ||
+                   headerEl.querySelector<HTMLElement>(`[data-column="${key}"]`) ||
+                   headerEl.querySelector<HTMLElement>(`[data-type="${key}"]`) ||
+                   headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
       
       if (!cell) {
-        console.log(`❌ Column header not found for key: ${key}`, { availableHeaders: Array.from(headerEl.querySelectorAll('[data-col-key]')).map(el => el.getAttribute('data-col-key')) });
         continue;
       }
-      // left position relative to the scrolling container
+      
       lefts.push(cell.offsetLeft);
     }
-    
-    console.log('🔍 SCROLL DEBUG: Final lefts array:', lefts);
     return lefts.sort((a, b) => a - b);
   };
 
