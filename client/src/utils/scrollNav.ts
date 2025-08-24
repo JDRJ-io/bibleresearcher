@@ -11,6 +11,10 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
   const getTrackLefts = () => {
     const lefts: number[] = [];
     
+    // Get reference column width to account for sticky positioning
+    const refColumn = headerEl.querySelector<HTMLElement>('[data-column="reference"]');
+    const refWidth = refColumn ? refColumn.offsetWidth : 0;
+    
     for (const key of navigableKeys) {
       const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${key}"]`) ||
                    headerEl.querySelector<HTMLElement>(`[data-column="${key}"]`) ||
@@ -18,7 +22,8 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
                    headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
       
       if (cell) {
-        lefts.push(cell.offsetLeft);
+        // Adjust position to account for sticky reference column
+        lefts.push(cell.offsetLeft - refWidth);
       }
     }
     return lefts.sort((a, b) => a - b);

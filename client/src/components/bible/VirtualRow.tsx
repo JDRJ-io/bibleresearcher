@@ -790,7 +790,7 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell" 
             style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
