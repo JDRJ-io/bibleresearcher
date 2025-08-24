@@ -64,6 +64,12 @@ interface SizeState {
 
 type LabelName = import('@/lib/labelBits').LabelName;
 
+interface ActiveColumn {
+  key: string;
+  header: string;
+  type: 'reference' | 'translation' | 'cross-ref' | 'prophecy' | 'notes' | 'alt-translation';
+}
+
 export const useBibleStore = create<{
   translations: Record<string, any>;
   actives: string[];
@@ -119,13 +125,13 @@ export const useBibleStore = create<{
   setCurrentVerseKeys: (keys: string[]) => void;
   unlockMode: boolean;
   toggleUnlockMode: () => void;
-  
+
   // Horizontal column navigation state
   columnOffset: number;
   setColumnOffset: (offset: number) => void;
   navigateColumnLeft: () => void;
   navigateColumnRight: () => void;
-  
+
   // UNIFIED: Dynamic visible count system with enhanced navigation
   visibleCount: number;
   containerWidthPx: number;
@@ -142,7 +148,7 @@ export const useBibleStore = create<{
   setFixedColumns: (columns: string[]) => void;
   setNavigableColumns: (columns: string[]) => void;
   setFallbackVisibleNavigableCount: (count: number) => void;
-  buildActiveColumns: () => { key: string; type: string; translationCode?: string }[];
+  buildActiveColumns: () => ActiveColumn[];
   getVisibleSlice: () => {
     start: number;
     end: number;
@@ -155,7 +161,7 @@ export const useBibleStore = create<{
     visibleKeys: string[];
     visibleNavigableCount: number;
     modeUsed: 'width' | 'count';
-    activeColumns: { key: string; type: string; translationCode?: string }[];
+    activeColumns: ActiveColumn[];
   };
   getSharedGridTemplate: () => string;
 }>((set, get) => ({
@@ -771,7 +777,7 @@ export const useBibleStore = create<{
   fixedColumns: ['reference'], // Only reference is fixed now
   navigableColumns: [],
   fallbackVisibleNavigableCount: 1,
-  
+
   // Column type to width mapping (base widths)
   baseWidths: {
     reference: 72,
@@ -783,7 +789,7 @@ export const useBibleStore = create<{
     'prophecy-verification': 360,
     notes: 320
   },
-  
+
   setVisibleCount: (count: number) => set({ visibleCount: Math.max(1, count) }),
   setContainerWidthPx: (width: number) => set({ containerWidthPx: Math.max(0, width) }),
   setGapPx: (gap: number) => set({ gapPx: Math.max(0, gap) }),
@@ -793,54 +799,59 @@ export const useBibleStore = create<{
   setFixedColumns: (columns: string[]) => set({ fixedColumns: columns }),
   setNavigableColumns: (columns: string[]) => set({ navigableColumns: columns }),
   setFallbackVisibleNavigableCount: (count: number) => set({ fallbackVisibleNavigableCount: Math.max(1, count) }),
-  
+
   // Build active columns from current state
   buildActiveColumns: () => {
     const state = get();
-    const columns = [];
-    
-    
-    // Reference is fixed, not included in navigable
-    // Always include main translation in navigable
-    columns.push({ key: 'main-translation', type: 'main-translation' });
-    
-    // Add cross-refs if enabled (now navigable)
-    if (state.showCrossRefs) {
-      columns.push({ key: 'cross-refs', type: 'cross-refs' });
-      console.log('  + Added cross-refs');
-    }
-    
-    // Add notes if enabled
-    if (state.showNotes) {
-      columns.push({ key: 'notes', type: 'notes' });
-      console.log('  + Added notes');
-    }
-    
-    // Add prophecy columns if enabled (match DOM element IDs)
-    if (state.showPrediction) {
-      columns.push({ key: 'prophecy-prediction', type: 'prophecy-prediction' });
-      console.log('  + Added prophecy-prediction');
-    }
-    if (state.showFulfillment) {
-      columns.push({ key: 'prophecy-fulfillment', type: 'prophecy-fulfillment' });
-      console.log('  + Added prophecy-fulfillment');
-    }
-    if (state.showVerification) {
-      columns.push({ key: 'prophecy-verification', type: 'prophecy-verification' });
-      console.log('  + Added prophecy-verification');
-    }
-    
-    // Add alternate translations (match DOM element IDs)
-    console.log('  - Checking alternates:', state.translationState.alternates);
-    state.translationState.alternates.forEach((altCode, index) => {
-      columns.push({ key: `alt-translation-${altCode}`, type: 'alt-translation', translationCode: altCode });
-      console.log(`  + Added alt-translation-${altCode}`);
+    const columns: ActiveColumn[] = [];
+
+    // Always include reference column
+    columns.push({ key: 'reference', header: '#', type: 'reference' });
+
+    // Main translation
+    columns.push({ 
+      key: state.translationState.main, 
+      header: state.translationState.main, 
+      type: 'translation' 
     });
-    
-    console.log('🔍 BUILD ACTIVE COLUMNS Final result:', columns.map(c => c.key));
+
+    // Cross references
+    if (state.showCrossRefs) {
+      columns.push({ key: 'cross-refs', header: 'Cross Refs', type: 'cross-ref' });
+    }
+
+    // Prophecy columns
+    if (state.showProphecies) {
+      if (state.showPrediction) {
+        columns.push({ key: 'prediction', header: 'P', type: 'prophecy' });
+      }
+      if (state.showFulfillment) {
+        columns.push({ key: 'fulfillment', header: 'F', type: 'prophecy' });
+      }
+      if (state.showVerification) {
+        columns.push({ key: 'verification', header: 'V', type: 'prophecy' });
+      }
+    }
+
+    // ADD ALTERNATE TRANSLATIONS - THIS WAS MISSING!
+    state.translationState.alternates
+      .filter(alt => alt !== state.translationState.main) // Prevent duplicates
+      .forEach(translationCode => {
+        columns.push({
+          key: `alt-translation-${translationCode}`,
+          header: translationCode,
+          type: 'alt-translation'
+        });
+      });
+
+    // Notes column
+    if (state.showNotes) {
+      columns.push({ key: 'notes', header: 'Notes', type: 'notes' });
+    }
+
     return columns;
   },
-  
+
   // Simplified getVisibleSlice for consistent navigation
   getVisibleSlice: () => {
     const s = get();
@@ -851,11 +862,11 @@ export const useBibleStore = create<{
     const end = Math.min(total, start + take);
     const canGoLeft = start > 0;
     const canGoRight = end < total;
-    
+
     // Basic template generation for compatibility
     const templateForVisible = Array(take).fill('360px').join(' ');
     const visibleKeys = Array.from({ length: take }, (_, i) => `col-${start + i}`);
-    
+
     return {
       start,
       end,
