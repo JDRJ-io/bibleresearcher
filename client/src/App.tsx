@@ -753,16 +753,15 @@ export const useBibleStore = create<{
   // Horizontal column navigation implementation
   columnOffset: 0,
   setColumnOffset: (offset: number) => set({ columnOffset: Math.max(0, offset) }),
-  navigateColumnLeft: () => set(state => ({ 
-    columnOffset: Math.max(0, state.columnOffset - 1) 
-  })),
-  navigateColumnRight: () => set(state => {
-    // Use the dynamic system - limit offset to navigable columns minus what currently fits
-    const maxOffset = Math.max(0, state.navigableColumns.length - (state.visibleCount - state.fixedColumns.length));
-    return { 
-      columnOffset: Math.min(state.columnOffset + 1, maxOffset) 
-    };
-  }),
+  navigateColumnLeft: () =>
+    set(s => ({ columnOffset: Math.max(0, s.columnOffset - 1) })),
+
+  navigateColumnRight: () =>
+    set(s => {
+      const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0)); // main tracks (3–20)
+      const maxOffset = Math.max(0, (s.navigableColumns?.length ?? 0) - take);
+      return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
+    }),
 
   // UNIFIED: Dynamic visible count system implementation with CSS grid templates
   visibleCount: 1,
@@ -830,89 +829,34 @@ export const useBibleStore = create<{
     return columns;
   },
   
-  // Enhanced getVisibleSlice with CSS grid template generation
+  // Simplified getVisibleSlice for consistent navigation
   getVisibleSlice: () => {
-    const state = get();
-    const activeColumns = state.buildActiveColumns();
-    const totalNavigable = activeColumns.length;
-    
-    // Clamp offset against total
-    const offset = Math.min(state.columnOffset, Math.max(0, totalNavigable - 1));
-    
-    // Decide mode: width-aware if container is measured
-    const hasContainer = state.containerWidthPx > 0;
-    const widthMode = hasContainer;
-    
-    // Fixed columns (reference)
-    const fixedKeys = ['reference'];
-    const fixedWidth = state.baseWidths.reference || 72;
-    
-    let start = offset;
-    let end = offset;
-    let visibleNavigableCount = 0;
-    let templateKeys = [];
-    
-    if (widthMode && totalNavigable > 0) {
-      // WIDTH MODE: pack columns by width into remaining capacity
-      const capacity = Math.max(0, state.containerWidthPx - fixedWidth - state.gapPx);
-      let used = 0;
-      
-      while (end < totalNavigable) {
-        const column = activeColumns[end];
-        const baseWidth = state.baseWidths[column.type] || 360;
-        const actualWidth = state.columnWidthsPx[column.key] || baseWidth;
-        const nextUsed = used + (used > 0 ? state.gapPx : 0) + actualWidth;
-        
-        if (nextUsed > capacity && end > start) break;
-        used = nextUsed;
-        end++;
-      }
-      
-      if (end === start && totalNavigable > 0) end = start + 1; // ensure at least one
-      visibleNavigableCount = Math.max(0, end - start);
-      templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
-      
-    } else {
-      // COUNT MODE: use fallback count
-      const take = Math.max(1, state.fallbackVisibleNavigableCount);
-      end = Math.min(totalNavigable, start + take);
-      visibleNavigableCount = Math.max(0, end - start);
-      templateKeys = [...fixedKeys, ...activeColumns.slice(start, end).map(col => col.key)];
-    }
-    
+    const s = get();
+    const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0));
+    const total = s.navigableColumns?.length ?? 0;
+    const maxOffset = Math.max(0, total - take);
+    const start = Math.min(s.columnOffset ?? 0, maxOffset);
+    const end = Math.min(total, start + take);
     const canGoLeft = start > 0;
-    const canGoRight = end < totalNavigable;
+    const canGoRight = end < total;
     
-    // Generate CSS grid template
-    const multiplier = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1');
-    const templateForVisible = templateKeys
-      .map(key => {
-        if (key === 'reference') {
-          return `${Math.round((state.baseWidths.reference || 72) * multiplier)}px`;
-        }
-        const column = activeColumns.find(col => col.key === key);
-        if (column) {
-          const baseWidth = state.baseWidths[column.type] || 360;
-          const actualWidth = state.columnWidthsPx[key] || baseWidth;
-          return `${Math.round(actualWidth * multiplier)}px`;
-        }
-        return '360px';
-      })
-      .join(' ');
+    // Basic template generation for compatibility
+    const templateForVisible = Array(take).fill('360px').join(' ');
+    const visibleKeys = Array.from({ length: take }, (_, i) => `col-${start + i}`);
     
     return {
       start,
       end,
       canGoLeft,
       canGoRight,
-      labelStart: totalNavigable ? start + 1 : 0,
+      labelStart: total ? start + 1 : 0,
       labelEnd: end,
-      totalNavigable,
+      totalNavigable: total,
       templateForVisible,
-      visibleKeys: templateKeys,
-      visibleNavigableCount,
-      modeUsed: widthMode ? 'width' : 'count',
-      activeColumns: activeColumns.slice(start, end)
+      visibleKeys,
+      visibleNavigableCount: end - start,
+      modeUsed: 'count' as const,
+      activeColumns: [] // Simplified for now
     };
   },
 

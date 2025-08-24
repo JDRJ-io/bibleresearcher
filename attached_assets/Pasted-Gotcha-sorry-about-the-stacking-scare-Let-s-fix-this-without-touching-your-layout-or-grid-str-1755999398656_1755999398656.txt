@@ -1,0 +1,79 @@
+Gotcha — sorry about the stacking scare. Let’s fix this **without** touching your layout or grid structure.
+
+## Do only these small changes
+
+### 1) Stop the “alt translation” left-indent (CSS hotfix)
+
+Add this (keep it until you remove the legacy rule that pads for a pillar):
+
+```css
+/* HOTFIX: when an alt translation is active, do NOT indent the body */
+.has-alt .virtual-rows,
+.has-alt .virtual-row,
+.has-alt .row-grid {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
+}
+```
+
+> Do **not** add/modify any `display:grid` here. This just cancels the gutter.
+
+---
+
+### 2) Make the arrows move by exactly one navigable column (store only)
+
+Use your existing state names (`visibleCount`, `fixedColumns`, `navigableColumns`). Replace only these functions:
+
+```ts
+// useBibleStore.ts (minimal patch)
+
+navigateColumnLeft: () =>
+  set(s => ({ columnOffset: Math.max(0, s.columnOffset - 1) })),
+
+navigateColumnRight: () =>
+  set(s => {
+    const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0)); // main tracks (3–20)
+    const maxOffset = Math.max(0, (s.navigableColumns?.length ?? 0) - take);
+    return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
+  }),
+
+getVisibleSlice: () => {
+  const s = get();
+  const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0));
+  const total = s.navigableColumns?.length ?? 0;
+  const maxOffset = Math.max(0, total - take);
+  const start = Math.min(s.columnOffset ?? 0, maxOffset);
+  const end   = Math.min(total, start + take);
+  return { start, end };
+}
+```
+
+> This leaves your existing header/body rendering alone. No grid/template changes = no stacking.
+
+---
+
+### 3) Safety net (only if you have a wrapper between row grid and cells)
+
+If your row has a wrapper around each cell, let the grid “see” the cells:
+
+```css
+/* OPTIONAL: only if your structure is .row-grid > .cell-wrap > .data-cell */
+.row-grid > .cell-wrap { display: contents; }
+```
+
+---
+
+## Quick checks (30 seconds)
+
+1. Toggle an **alt translation** → **no left gutter**.
+2. Click ◀/▶ → window moves **one column** each click.
+3. Scroll → header still sticky, no stacking.
+
+If you still see a gutter, there’s one lingering rule like:
+
+```
+.has-alt .virtual-rows { padding-left: var(--pillar-width) }
+```
+
+Delete/disable that specific rule and you’re set.

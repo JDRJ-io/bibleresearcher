@@ -1804,3 +1804,17 @@ body.overlay-open {
   color: hsl(var(--muted-foreground));
   font-style: italic;
 }
+
+/* HOTFIX: when an alt translation is active, do NOT indent the body */
+.has-alt .virtual-rows,
+.has-alt .virtual-row,
+.has-alt .row-grid {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
+}
+
+/* SAFETY NET: let grid see cells if there are wrappers */
+.row-grid > .cell-wrap { 
+  display: contents; 
+}
