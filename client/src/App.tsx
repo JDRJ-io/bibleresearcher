@@ -758,8 +758,8 @@ export const useBibleStore = create<{
 
   navigateColumnRight: () =>
     set(s => {
-      const tracks = Math.max(1, (s.visibleCount ?? s.fallbackVisibleNavigableCount) - (s.fixedColumns?.length ?? 0)); // your 3–20
-      const maxOffset = Math.max(0, (s.navigableColumns?.length ?? 0) - tracks);
+      const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0)); // main tracks (3–20)
+      const maxOffset = Math.max(0, (s.navigableColumns?.length ?? 0) - take);
       return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
     }),
 
@@ -769,8 +769,8 @@ export const useBibleStore = create<{
   columnWidthsPx: {},
   gapPx: 0,
   fixedColumns: ['reference'],
-  navigableColumns: ['main-translation', 'cross-refs', 'notes'], // Initialize with default navigable columns
-  fallbackVisibleNavigableCount: 3,
+  navigableColumns: [],
+  fallbackVisibleNavigableCount: 1,
   
   // Column type to width mapping (base widths)
   baseWidths: {
@@ -829,27 +829,20 @@ export const useBibleStore = create<{
     return columns;
   },
   
-  // Enhanced getVisibleSlice with proper navigation logic
+  // Simplified getVisibleSlice for consistent navigation
   getVisibleSlice: () => {
     const s = get();
-    const tracks = Math.max(1, (s.visibleCount ?? s.fallbackVisibleNavigableCount) - (s.fixedColumns?.length ?? 0));
+    const take = Math.max(1, (s.visibleCount ?? 1) - (s.fixedColumns?.length ?? 0));
     const total = s.navigableColumns?.length ?? 0;
-    const maxOff = Math.max(0, total - tracks);
-    const start = Math.min(s.columnOffset ?? 0, maxOff);
-    const end = Math.min(total, start + tracks);
+    const maxOffset = Math.max(0, total - take);
+    const start = Math.min(s.columnOffset ?? 0, maxOffset);
+    const end = Math.min(total, start + take);
     const canGoLeft = start > 0;
     const canGoRight = end < total;
     
-    // Generate template using actual column keys
-    const fixedKeys = s.fixedColumns || ['reference'];
-    const navKeys = s.navigableColumns || [];
-    const visibleNavKeys = navKeys.slice(start, end);
-    const allKeys = [...fixedKeys, ...visibleNavKeys];
-    
-    const templateForVisible = allKeys.map(key => {
-      const width = s.columnWidthsPx?.[key] ?? s.baseWidths?.[key] ?? 280;
-      return `${width}px`;
-    }).join(' ');
+    // Basic template generation for compatibility
+    const templateForVisible = Array(take).fill('360px').join(' ');
+    const visibleKeys = Array.from({ length: take }, (_, i) => `col-${start + i}`);
     
     return {
       start,
@@ -860,10 +853,10 @@ export const useBibleStore = create<{
       labelEnd: end,
       totalNavigable: total,
       templateForVisible,
-      visibleKeys: allKeys,
+      visibleKeys,
       visibleNavigableCount: end - start,
       modeUsed: 'count' as const,
-      activeColumns: [] // Will be populated by buildActiveColumns if needed
+      activeColumns: [] // Simplified for now
     };
   },
 

@@ -1805,56 +1805,13 @@ body.overlay-open {
   font-style: italic;
 }
 
-/* HOTFIX: when alt/prophecy flags are on, do NOT pad/shift the body */
-[class*="has-alt"] .virtual-rows,
-[class*="has-alt"] .virtual-row,
-[class*="has-proph"] .virtual-rows,
-[class*="has-proph"] .virtual-row,
-.virtual-table.has-alt,
-.virtual-table.has-proph {
+/* HOTFIX: when an alt translation is active, do NOT indent the body */
+.has-alt .virtual-rows,
+.has-alt .virtual-row,
+.has-alt .row-grid {
   padding-left: 0 !important;
   margin-left: 0 !important;
-  transform: none !important; /* cancels legacy translateX pillar hack */
-}
-
-/* Table viewport and sticky header setup */
-.table-viewport { 
-  overflow-y: auto; 
-  overflow-x: hidden; 
-  scrollbar-gutter: stable both-edges; 
-}
-
-.sticky-header { 
-  position: sticky; 
-  top: 0; 
-  z-index: 30; 
-  background: var(--bg-surface); 
-}
-
-.grid { 
-  min-width: 0; /* prevents grid grows wider than container */ 
-}
-
-/* Make fixed columns sticky (not padded) */
-.header-cell.reference, 
-.data-cell.reference { 
-  position: sticky; 
-  left: 0; 
-  z-index: 2; 
-  background: var(--bg-surface); 
-}
-
-/* If you also have a #/index column: place it at left:0 and bump reference by that width */
-.header-cell.index, 
-.data-cell.index { 
-  position: sticky; 
-  left: 0; 
-  z-index: 3; 
-}
-
-.header-cell.reference, 
-.data-cell.reference { 
-  left: var(--index-col-width, 140px); 
+  transform: none !important;
 }
 
 /* SAFETY NET: let grid see cells if there are wrappers */

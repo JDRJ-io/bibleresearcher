@@ -988,26 +988,20 @@ export function VirtualRow({
 
   // Remove mystical/prophecy effects from rows
 
-  // Simplified grid template to match headers
-  const rowTemplate = useMemo(() => {
-    return visibleColumns.map(() => '280px').join(' ');
-  }, [visibleColumns.length]);
-  
-  const gapPx = 0; // Simplified for now
-
+  // RESPONSIVE COLUMN WIDTHS - Optimize space utilization
   return (
     <div 
-      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row grid row-grid"
+      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
       style={{ 
         height: rowHeight,
-        gridTemplateColumns: rowTemplate,
-        columnGap: '0px',
-        minWidth: 'max-content'
+        width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
+        minWidth: `${responsiveMinWidth}px`,
+        display: 'flex'
       }}
       data-verse-ref={verse.reference}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Grid layout - all columns maintain exact widths */}
+      {/* Fixed-width layout - all columns maintain exact widths */}
       {visibleColumns.map(renderSlot)}
     </div>
   );
