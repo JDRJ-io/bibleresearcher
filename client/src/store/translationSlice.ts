@@ -4,12 +4,15 @@ import { persist } from 'zustand/middleware';
 
 // Helper function to map alternate translation index to slot number
 function getSlotForAlternateIndex(index: number): number {
-  // All alternate translations use slots 12-19 (8 total slots)
-  // This matches the slot assignment in ColumnHeaders.tsx and VirtualRow.tsx
-  if (index < 8) {
-    return 12 + index;
+  // First 4 alternate translations use slots 2-5
+  if (index < 4) {
+    return 2 + index; // slots 2, 3, 4, 5
   }
-  return -1; // Invalid index (max 8 alternate translations)
+  // Next 8 alternate translations use slots 12-19
+  else if (index < 12) {
+    return 12 + (index - 4); // slots 12, 13, 14, 15, 16, 17, 18, 19
+  }
+  return -1; // Invalid index (max 12 alternate translations)
 }
 
 interface TranslationState {
