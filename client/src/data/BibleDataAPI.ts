@@ -619,6 +619,7 @@ export async function getProphecyIndexDetailed(): Promise<Record<string, any>> {
 }
 
 // Import new Strong's service
+import { strongsService } from '@/lib/strongsService';
 
 // Unified API object for backwards compatibility
 export const BibleDataAPI = {
@@ -653,9 +654,11 @@ export const BibleDataAPI = {
   searchVerses,
 
   // New Strong's Range request methods
-  // Strong's functions removed - legacy code cleanup
+  getStrongsWord: (strongsKey: string) => strongsService.getStrongsWord(strongsKey),
+  getVerseStrongsData: (reference: string) => strongsService.getVerseStrongsData(reference),
+  getStrongsOccurrences: (strongsKey: string) => strongsService.getStrongsOccurrences(strongsKey),
   getInterlinearData: async (reference: string) => {
-    // Strong's service removed - legacy code cleanup
-    return [];
+    const data = await strongsService.getVerseStrongsData(reference);
+    return data.interlinearCells || [];
   },
 };

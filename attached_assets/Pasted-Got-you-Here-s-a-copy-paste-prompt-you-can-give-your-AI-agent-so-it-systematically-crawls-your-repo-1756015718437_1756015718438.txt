@@ -1,0 +1,103 @@
+Got you. Here’s a copy-paste prompt you can give your AI agent so it systematically crawls your repo, extracts every function (including React components/hooks), and explains what each governs — with zero guesswork and useful cross-refs.
+
+Master Prompt for the Agent (copy–paste)
+
+You are auditing a codebase. Your job is to enumerate every function-like symbol and explain what it governs (UI, state, data, routing, side-effects, etc.). Be precise and evidence-based.
+
+Scope
+	•	Include: *.ts, *.tsx, *.js, *.jsx, server route handlers, API routes, React components, hooks, utilities, classes (methods count), Next/Node handlers, scripts.
+	•	Also include SQL files if present (*.sql): list stored functions/procedures and what tables/columns they govern.
+	•	Exclude: build artifacts (dist/.next/out), lockfiles, images, fonts, and minified vendor bundles.
+
+What “governs” means
+	•	UI: renders views/layout, user interactions, event handlers.
+	•	State: local state, global stores (Zustand/Redux/context), cache/query keys (TanStack Query).
+	•	Data: DB queries (Supabase/SQL), storage buckets, REST/GraphQL endpoints, params & returned shapes.
+	•	Routing: Next.js route handlers, loaders, middleware, dynamic routes.
+	•	Side-effects: I/O, network calls, timers, observers, DOM mutations, logging, analytics.
+	•	Auth/Permissions: any checks, RLS notes, headers, tokens.
+	•	Errors: throws, rejects, boundary behavior.
+	•	Dependencies: notable imports used to achieve the above.
+
+Output
+
+Produce two files:
+	1.	functions_catalog.jsonl (JSON Lines; one JSON object per symbol)
+Schema per line:
+
+{
+  "file": "relative/path.tsx",
+  "lines": "123-210",
+  "symbol": "useBookmarksPanel",
+  "kind": "react_hook | function | component | class_method | api_handler | sql_function",
+  "export": "named | default | internal",
+  "signature": "useBookmarksPanel(initial?: Bookmark[]): ReturnType<...>",
+  "governs": {
+    "ui": "toggling the bookmarks side panel and rendering list items",
+    "state": "reads/writes Zustand store: useBibleStore.bookmarks",
+    "data": "loads/saves to Supabase table public.bookmarks (columns: user_id, name, index_value, color)",
+    "routing": "none",
+    "side_effects": "subscribes to window 'resize' to recalc widths",
+    "auth": "requires user.id; guards against null",
+    "errors": "throws if saveBookmark fails; surfaces toast",
+    "dependencies": ["zustand", "@supabase/supabase-js", "react"]
+  },
+  "calls": ["saveBookmark", "loadBookmarks"],
+  "called_by": ["BookmarksButton.onClick"],
+  "related_files": ["lib/supabase/bookmarks.ts"],
+  "query_or_table_refs": ["public.bookmarks"],
+  "notes": "Used by <MainMenu/>; debounced save (300ms)."
+}
+
+	2.	functions_catalog_summary.md
+
+	•	High-level counts by kind (components, hooks, api_handlers, sql_functions).
+	•	Top files with most symbols.
+	•	Tables/endpoints touched and which symbols govern them.
+	•	Gaps/TODOs: untyped responses, missing error handling, unused exports.
+
+Method (no hallucinations)
+	1.	Parse, don’t grep. Use AST parsing:
+	•	TypeScript projects: ts-morph or TypeScript Compiler API to walk source files and extract:
+	•	function declarations/expressions, arrow functions with identifiers, React FCs, custom hooks (use*), class methods, exported symbols, Next route handlers (GET/POST/...) and middleware.
+	•	For SQL, parse CREATE FUNCTION|PROCEDURE blocks and detect referenced tables.
+	2.	Resolve refs:
+	•	Follow imports to attribute responsibilities: e.g., if a function calls db.from('user_notes'), attribute it to data → table user_notes.
+	•	For TanStack Query: record query keys and which functions fetch/mutate.
+	•	For Zustand/Context: record store slices read/written (property names).
+	3.	Evidence every entry:
+	•	Include "lines" start–end, and exact file path.
+	•	Never claim a behavior you can’t tie to code or a dependency.
+	4.	Special handling:
+	•	React Component = function returning JSX or forwardRef/memo.
+	•	Next.js app router: treat app/**/route.ts exported HTTP verbs as api_handler.
+	•	Edge/server actions: mark "side_effects": "server action" if using "use server".
+	5.	Quality gates:
+	•	If you’re unsure, add "notes": "uncertain: …" and say why (dynamic import, type-any, etc.).
+	•	Prefer exact names and concrete tables/paths over generic wording.
+	•	Deduplicate by symbol identity within a file.
+
+Deliverables & acceptance criteria
+	•	✅ functions_catalog.jsonl is present, parsable (one JSON per line), covering 100% of in-scope files.
+	•	✅ functions_catalog_summary.md includes: counts, table/endpoints map, and a list of top 10 governing functions for critical flows (auth, notes, highlights, bookmarks, cross-refs, prophecy, translation loading).
+	•	✅ Every JSON entry has file, lines, symbol, kind, export, signature, and governs.
+	•	✅ No binaries or build folders scanned.
+
+Nice to have (if fast)
+	•	Build a small call graph: for each symbol, include "calls" and "called_by" (best-effort from local project).
+	•	Output a CSV (functions_catalog.csv) with columns: file, lines, symbol, kind, export, governs_ui, governs_state, governs_data, governs_routing, side_effects, auth, errors.
+
+Example (one line of JSONL)
+
+{"file":"client/src/components/bible/BookmarksButton.tsx","lines":"15-88","symbol":"BookmarksButton","kind":"component","export":"named","signature":"(props: { className?: string }) => JSX.Element","governs":{"ui":"renders toolbar button and badge","state":"toggles useBibleStore.ui.bookmarksOpen","data":"none","routing":"none","side_effects":"analytics.track('bookmark_toggle')","auth":"visible to authenticated users","errors":"none","dependencies":["react","zustand","analytics"]},"calls":["useBibleStore","track"],"called_by":["MainMenu"],"related_files":["client/src/store/useBibleStore.ts"],"query_or_table_refs":[],"notes":""}
+
+
+⸻
+
+Optional one-liner version
+
+If you want something shorter to paste into a chat:
+
+“Scan the repo (TS/TSX/JS/JSX + SQL). For every function/component/hook/method/API route, output JSONL with: file, line range, symbol name, kind, export type, signature, and a governs object (ui/state/data/routing/side_effects/auth/errors + dependencies). Include calls/called_by, related_files, and tables/endpoints touched. No guesses—tie claims to code. Produce functions_catalog.jsonl and a functions_catalog_summary.md with counts, data-table map, and top governing functions.”
+
+Want me to tailor this for your exact stack (Next.js app vs pages router, Zustand slices, Supabase buckets/tables you’ve named, TanStack Query keys)? I can bake those into the prompt so the agent auto-detects them.
