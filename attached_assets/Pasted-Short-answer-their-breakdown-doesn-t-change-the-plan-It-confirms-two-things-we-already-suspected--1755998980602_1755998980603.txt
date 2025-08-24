@@ -1,0 +1,118 @@
+Short answer: their breakdown doesn’t change the plan. It confirms two things we already suspected—(1) nav only “wakes up” when `navigableColumns.length > visible window`, and (2) the giant left gutter is coming from an old “pillar padding” rule that flips on when an alt-translation is active. So: keep step-by-1 paging, and hard-kill the alt-triggered padding. Here are the **exact patches** to fix it without rewrites.
+
+---
+
+# 1) Kill the alt-triggered left indent (CSS only)
+
+Add this override (keep it until you delete the legacy rule):
+
+```css
+/* remove legacy pillar padding that appears when alt translations are on */
+.has-alt .virtual-table,
+.has-alt .virtual-rows,
+.has-alt .virtual-row,
+.has-alt .row-grid {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important; /* in case an old translateX was applied */
+}
+```
+
+Also make sure your fixed ref column is sticky instead of padding the body:
+
+```css
+.header-cell.reference,
+.data-cell.reference {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg-surface);
+}
+```
+
+> If you also have a fixed “# / index” column, make it `left: 0` and bump the ref:
+
+```css
+.header-cell.index, .data-cell.index { position: sticky; left: 0; z-index: 3; }
+.header-cell.reference, .data-cell.reference { left: var(--index-col-width, 140px); }
+```
+
+---
+
+# 2) Ensure arrows step by **exactly one** navigable column (ref excluded)
+
+In your store (where `navigateColumnLeft/Right` and `getVisibleSlice` live), just clamp by count—don’t depend on width.
+
+```ts
+// step left/right by 1; window size = your main tracks (3–20), ref excluded
+navigateColumnLeft: () =>
+  set(s => ({ columnOffset: Math.max(0, s.columnOffset - 1) })),
+
+navigateColumnRight: () =>
+  set(s => {
+    const take = Math.max(1, (s.visibleNavigableCount ?? s.visibleCount) - s.fixedColumns.length);
+    const maxOffset = Math.max(0, s.navigableColumns.length - take);
+    return { columnOffset: Math.min(s.columnOffset + 1, maxOffset) };
+  }),
+
+getVisibleSlice: () => {
+  const s = get();
+  const take = Math.max(1, (s.visibleNavigableCount ?? s.visibleCount) - s.fixedColumns.length);
+  const total = s.navigableColumns.length;
+  const maxOffset = Math.max(0, total - take);
+  const start = Math.min(s.columnOffset, maxOffset);
+  const end   = Math.min(total, start + take);
+  return { start, end, canGoLeft: start > 0, canGoRight: end < total };
+}
+```
+
+---
+
+# 3) Force **identical grid templates** for header & rows (prevents drift)
+
+Build the template from the *same keys* in both components:
+
+```tsx
+// shared logic in NewColumnHeaders.tsx and VirtualRow.tsx
+const { start, end } = useBibleStore(s => s.getVisibleSlice());
+const fixedKeys = useBibleStore(s => s.fixedColumns);
+const navKeys   = useBibleStore(s => s.navigableColumns);
+const widths    = useBibleStore(s => s.columnWidthsPx);
+const gapPx     = useBibleStore(s => s.gapPx);
+
+const template = useMemo(() => {
+  const keys = [...fixedKeys, ...navKeys.slice(start, end)];
+  return keys.map(k => `${(widths?.[k] ?? 280)}px`).join(' ');
+}, [fixedKeys, navKeys, start, end, widths]);
+
+// apply this on the wrapper div in BOTH header and row
+<div className="grid" style={{ gridTemplateColumns: template, columnGap: gapPx }}>
+  {/* cells */}
+</div>
+```
+
+---
+
+# 4) (Optional safety) Nuke any leftover “pillar” styling in the body wrapper
+
+Quick search and delete/disable anything like:
+
+* `className="padForPillar"` / `.rowsPadForPillar`
+* `style={{ paddingLeft: pillarWidthPx }}`
+* `style={{ transform: \`translateX(\${pillarWidthPx}px)\` }}\`
+
+If you can’t remove it yet, temporarily override:
+
+```css
+.virtual-rows, .virtual-row { padding-left: 0 !important; margin-left: 0 !important; }
+```
+
+---
+
+## What this achieves
+
+* Adding an alt translation no longer creates a left gutter.
+* ▶/◀ always advances the visible window by **one** navigable column.
+* Header stays sticky; body shifts; both stay perfectly aligned.
+
+If the gutter still appears after these, there’s one last `.has-alt` rule lingering—search your CSS for `has-alt` and `padding-left`/`translateX` and delete it.
