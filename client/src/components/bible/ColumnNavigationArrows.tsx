@@ -134,22 +134,18 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
       {/* Debug Button */}
       <button 
         onClick={() => {
-          console.log('🔍 MANUAL DEBUG: Testing buildActiveColumns...');
-          const result = buildActiveColumns();
-          console.log('🔍 MANUAL DEBUG: buildActiveColumns result:', result);
-          console.log('🔍 MANUAL DEBUG: Store state:', {
-            showCrossRefs,
-            showProphecies, 
-            showPrediction,
-            showFulfillment,
-            showVerification,
-            showNotes,
-            translationState
-          });
+          console.log('🔍 MANUAL DEBUG: Testing scroll calculation...');
+          if (scroller) {
+            console.log('🔍 MANUAL DEBUG: Forcing getVisibleRange call...');
+            const range = scroller.getVisibleRange();
+            console.log('🔍 MANUAL DEBUG: Range result:', range);
+          } else {
+            console.log('🔍 MANUAL DEBUG: No scroller available!');
+          }
         }}
-        className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+        className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
       >
-        Debug
+        Scroll Debug
       </button>
       
       {/* Left Arrow */}
