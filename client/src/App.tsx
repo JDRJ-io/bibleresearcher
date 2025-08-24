@@ -799,18 +799,10 @@ export const useBibleStore = create<{
     const state = get();
     const columns = [];
     
-    console.log('🔍 BUILD ACTIVE COLUMNS Debug:');
-    console.log('  - showCrossRefs:', state.showCrossRefs);
-    console.log('  - showNotes:', state.showNotes);
-    console.log('  - showPrediction:', state.showPrediction);
-    console.log('  - showFulfillment:', state.showFulfillment);
-    console.log('  - showVerification:', state.showVerification);
-    console.log('  - translationState:', state.translationState);
     
     // Reference is fixed, not included in navigable
     // Always include main translation in navigable
     columns.push({ key: 'main-translation', type: 'main-translation' });
-    console.log('  + Added main-translation');
     
     // Add cross-refs if enabled (now navigable)
     if (state.showCrossRefs) {

@@ -9,23 +9,17 @@ export type ScrollNavOpts = {
 
 export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNavOpts) {
   const getTrackLefts = () => {
-    // read left positions from header cells (use a data attribute on each header cell)
     const lefts: number[] = [];
-    console.log('🔍 SCROLL DEBUG: Finding headers for keys:', navigableKeys);
-    console.log('🔍 SCROLL DEBUG: Header element:', headerEl);
     
     for (const key of navigableKeys) {
-      // Try multiple selectors to find the column header
       const cell = headerEl.querySelector<HTMLElement>(`[data-col-key="${key}"]`) ||
                    headerEl.querySelector<HTMLElement>(`[data-column="${key}"]`) ||
                    headerEl.querySelector<HTMLElement>(`[data-type="${key}"]`) ||
                    headerEl.querySelector<HTMLElement>(`.column-header-cell[data-column="${key}"]`);
       
-      if (!cell) {
-        continue;
+      if (cell) {
+        lefts.push(cell.offsetLeft);
       }
-      
-      lefts.push(cell.offsetLeft);
     }
     return lefts.sort((a, b) => a - b);
   };
@@ -59,13 +53,6 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     const containerWidth = bodyEl.clientWidth;
     const lastColumnLeft = lefts[lefts.length - 1] || 0;
     
-    console.log('🔍 SCROLL DEBUG: getVisibleRange calculations:');
-    console.log('  - lefts:', lefts);
-    console.log('  - scrollLeft:', curr);
-    console.log('  - containerWidth:', containerWidth);
-    console.log('  - lastColumnLeft:', lastColumnLeft);
-    console.log('  - bodyElScrollWidth:', bodyEl.scrollWidth);
-    console.log('  - bodyElClientWidth:', bodyEl.clientWidth);
     
     // Find first visible column
     const startIdx = Math.max(0, lefts.findIndex(L => L >= curr - 10)); // -10px tolerance
@@ -83,11 +70,6 @@ export function makeColumnScroller({ headerEl, bodyEl, navigableKeys }: ScrollNa
     const canGoLeft = curr > 10;
     const canGoRight = curr + containerWidth < lastColumnLeft + 100;
     
-    console.log('🔍 SCROLL DEBUG: Visibility calculations:');
-    console.log('  - startIdx:', startIdx, 'endIdx:', endIdx);
-    console.log('  - canGoLeft:', canGoLeft, `(${curr} > 10)`);
-    console.log('  - canGoRight:', canGoRight, `(${curr + containerWidth} < ${lastColumnLeft + 100})`);
-    console.log('  - CRITICAL: scrollable width needed vs actual:', lastColumnLeft + 100, 'vs', curr + containerWidth);
     
     return {
       start: startIdx + 1, // 1-based for display

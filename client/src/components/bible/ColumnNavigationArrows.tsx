@@ -94,59 +94,26 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
     };
   }, [scroller]);
 
-  // Debug logging for navigation state - simplified to avoid stringification error
-  console.log('🔍 ColumnNavigationArrows Debug:');
-  console.log('  - hasScroller:', !!scroller);
-  console.log('  - visibleRange:', visibleRange);
-  console.log('  - navigableKeys:', navigableKeys);
-  console.log('  - headerRefCurrent:', !!headerRef?.current);
-  console.log('  - bodyRefCurrent:', !!bodyRef?.current);
 
   // Don't show navigation if no scroller or all columns fit
   if (!scroller || visibleRange.total <= 1) {
-    console.log('🚫 Navigation arrows hidden - scroller:', !!scroller, 'total columns:', visibleRange.total);
     return null;
   }
 
   const handleNavigateLeft = () => {
-    console.log('🔍 Left arrow clicked!', { canGoLeft: visibleRange.canGoLeft, hasScroller: !!scroller });
     if (visibleRange.canGoLeft && scroller) {
-      console.log('⬅️ Scrolling left...');
       scroller.left();
     }
   };
 
   const handleNavigateRight = () => {
-    console.log('🔍 Right arrow clicked!', { canGoRight: visibleRange.canGoRight, hasScroller: !!scroller });
     if (visibleRange.canGoRight && scroller) {
-      console.log('➡️ Scrolling right...');
       scroller.right();
     }
   };
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      {/* Debug Info */}
-      <div className="text-xs text-gray-500">
-        Debug: L={visibleRange.canGoLeft ? 'Y' : 'N'} R={visibleRange.canGoRight ? 'Y' : 'N'}
-      </div>
-      
-      {/* Debug Button */}
-      <button 
-        onClick={() => {
-          console.log('🔍 MANUAL DEBUG: Testing scroll calculation...');
-          if (scroller) {
-            console.log('🔍 MANUAL DEBUG: Forcing getVisibleRange call...');
-            const range = scroller.getVisibleRange();
-            console.log('🔍 MANUAL DEBUG: Range result:', range);
-          } else {
-            console.log('🔍 MANUAL DEBUG: No scroller available!');
-          }
-        }}
-        className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
-      >
-        Scroll Debug
-      </button>
       
       {/* Left Arrow */}
       <button
@@ -163,8 +130,6 @@ export function ColumnNavigationArrows({ className, headerRef, bodyRef }: Column
         }}
         className="flex items-center justify-center w-8 h-8 rounded-md transition-all border hover:opacity-80"
         title="Navigate left one column"
-        onMouseEnter={() => console.log('🔍 Left button hover - can click:', visibleRange.canGoLeft)}
-        onMouseDown={() => console.log('🔍 Left button mouse down')}
       >
         <ChevronLeft size={16} />
       </button>
