@@ -205,7 +205,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   useColumnData();
 
   // Get store state for column toggles
-  const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes } = useBibleStore();
+  const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes, translationState } = useBibleStore();
 
   // NEW: Update store with current column configuration (now that store variables are available)
   useEffect(() => {
@@ -221,11 +221,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
 
     // Include all alternate translations as navigable columns
-    const { translationState } = useBibleStore.getState();
     translationState.alternates
       .filter(code => code !== translationState.main)
       .forEach(code => nav.push(`alt-translation-${code}`));
 
+    console.log('🔍 NAVIGATION: Setting navigable columns:', nav);
     setNavigableColumns(nav);
     
     // Measure and update column widths
@@ -267,7 +267,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       measureColumns();
     }, 100); // Small delay to ensure DOM is ready
     
-  }, [showCrossRefs, showProphecies, showNotes, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
+  }, [showCrossRefs, showProphecies, showNotes, translationState.alternates, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
 
   // PERFORMANCE FIX: Preload notes for visible verses when notes column is enabled
   useEffect(() => {
