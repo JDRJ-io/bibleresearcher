@@ -67,7 +67,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 4,
     defaultVisible: false,
-    guestMode: false // Premium feature
+    guestMode: true // Available to all users
   },
   {
     id: 'alt-translation-4',
@@ -77,7 +77,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 5,
     defaultVisible: false,
-    guestMode: false
+    guestMode: true // Available to all users
   },
   
   // Slot 6: Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
@@ -177,7 +177,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 14,
     defaultVisible: false,
-    guestMode: false // Premium feature
+    guestMode: true // Available to all users
   },
   {
     id: 'alt-translation-8',
@@ -187,7 +187,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 15,
     defaultVisible: false,
-    guestMode: false
+    guestMode: true // Available to all users
   },
   {
     id: 'alt-translation-9',
@@ -197,7 +197,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 16,
     defaultVisible: false,
-    guestMode: false
+    guestMode: true // Available to all users
   },
   {
     id: 'alt-translation-10',
@@ -207,7 +207,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 17,
     defaultVisible: false,
-    guestMode: false
+    guestMode: true // Available to all users
   },
   {
     id: 'alt-translation-11',
@@ -217,7 +217,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 18,
     defaultVisible: false,
-    guestMode: false
+    guestMode: true // Available to all users
   },
   {
     id: 'alt-translation-12',
@@ -227,7 +227,7 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     mobileWidth: 'w-full',
     position: 19,
     defaultVisible: false,
-    guestMode: false
+    guestMode: true // Available to all users
   }
 ];
 
@@ -246,14 +246,15 @@ export function getVisibleColumns(preferences: any, isGuest: boolean = true): Co
       // Always show reference and main translation
       if (col.id === 'reference' || col.id === 'main-translation') return true;
       
-      // Guest mode restrictions
-      if (isGuest && !col.guestMode) return false;
+      // Keep notes restricted for paid members only
+      if (col.type === 'notes' && isGuest && !col.guestMode) return false;
       
-      // Check preferences
+      // All other columns available based on preferences regardless of guest status
       if (col.type === 'cross-ref' && preferences.showCrossRefs) return true;
       if (col.type === 'prophecy' && preferences.showProphecy) return true;
       if (col.type === 'notes' && preferences.showNotes) return true;
       if (col.type === 'context' && preferences.showContext) return true;
+      if (col.type === 'translation') return true; // All translations available
       
       return false;
     })

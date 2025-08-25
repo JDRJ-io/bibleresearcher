@@ -120,25 +120,24 @@ export function useResponsiveColumns(): ResponsiveColumnConfig {
     
     const pixelWidths = calculateOptimalWidths();
     
-    // Calculate how many core columns can fit before horizontal scroll is needed
-    const coreColumnsWidth = pixelWidths.reference + pixelWidths.mainTranslation + pixelWidths.crossReference;
-    const maxColumnsBeforeScroll = Math.floor(availableWidth / 160); // Rough estimate
+    // Allow unlimited columns with horizontal scrolling - no column limits
+    const maxColumnsBeforeScroll = Infinity; // Unlimited columns
     
     return {
       isPortrait,
       isLandscape,
       isTouchDevice,
-      columnAlignment: isPortrait ? 'left-based' : 'centered',
-      enableHorizontalScroll: true, // Always enable for 20-column system
+      columnAlignment: 'left', // Always left-aligned for consistent behavior
+      enableHorizontalScroll: true, // Always enable horizontal scrolling
       referenceWidth: `${pixelWidths.reference}px`,
       mainTranslationWidth: `${pixelWidths.mainTranslation}px`,
       crossRefWidth: `${pixelWidths.crossReference}px`,
-      containerClass: 'overflow-x-hidden overflow-y-hidden', // VirtualBibleTable handles all scrolling
+      containerClass: 'overflow-x-auto overflow-y-hidden', // Always allow horizontal scrolling
       // Enhanced properties
       screenWidth: width,
       availableWidth,
-      maxColumnsBeforeScroll,
-      shouldOptimizeForPortrait: isPortrait && width <= 768,
+      maxColumnsBeforeScroll, // No limit on columns
+      shouldOptimizeForPortrait: false, // No portrait optimizations that limit columns
       columnPixelWidths: pixelWidths
     };
   }, [windowSize]);

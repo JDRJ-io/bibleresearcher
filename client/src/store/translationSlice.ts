@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 
 // Helper function to map alternate translation index to slot number
 function getSlotForAlternateIndex(index: number): number {
-  // First 4 alternate translations use slots 2-5
+  // First 4 alternate translations use slots 2-5  
   if (index < 4) {
     return 2 + index; // slots 2, 3, 4, 5
   }
@@ -12,7 +12,10 @@ function getSlotForAlternateIndex(index: number): number {
   else if (index < 12) {
     return 12 + (index - 4); // slots 12, 13, 14, 15, 16, 17, 18, 19
   }
-  return -1; // Invalid index (max 12 alternate translations)
+  // Support unlimited alternate translations by creating additional slots dynamically
+  else {
+    return 20 + (index - 12); // slots 20, 21, 22, ... (unlimited)
+  }
 }
 
 interface TranslationState {
