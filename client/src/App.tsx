@@ -848,14 +848,17 @@ export const useBibleStore = create<{
     const canGoLeft = false; // No need for navigation since we show all
     const canGoRight = false; // No need for navigation since we show all
 
-    // Generate template for ALL columns with proper widths
-    const templateForVisible = Array(total).fill('360px').join(' ');
-    const visibleKeys = Array.from({ length: total }, (_, i) => `col-${start + i}`);
-    
-    // Get actual active columns for proper rendering
+    // Generate template using actual responsive column widths instead of hardcoded 360px
     const activeColumns = s.buildActiveColumns();
+    const templateForVisible = activeColumns.map(col => {
+      const width = s.columnWidthsPx[col.key] || 200; // Fallback to 200px if width not set
+      return `${width}px`;
+    }).join(' ');
+    
+    const visibleKeys = Array.from({ length: total }, (_, i) => `col-${start + i}`);
 
     console.log('🔍 NAVIGATION: Setting navigable columns:', s.navigableColumns);
+    console.log('🔍 NAVIGATION: Template widths:', templateForVisible);
 
     return {
       start,
