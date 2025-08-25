@@ -519,16 +519,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // Calculate actual total width based on visible columns - simplified approach
+  // Calculate actual total width using real adaptive widths
   const actualTotalWidth = useMemo(() => {
+    const { adaptiveWidths } = adaptiveConfig;
     let width = 0;
-    width += 80; // Reference column ~80px  
-    width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 320; // Cross refs ~320px
-    if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    
+    width += adaptiveWidths.reference; // Reference column (actual width)
+    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
+    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
+    
+    // Prophecy columns - each uses prophecy width
+    if (showProphecies) {
+      if (store.showPrediction) width += adaptiveWidths.prophecy;
+      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
+      if (store.showVerification) width += adaptiveWidths.prophecy;
+    }
+    
+    // Alternate translations use alternate width
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
+    
     return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
