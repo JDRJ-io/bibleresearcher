@@ -1,0 +1,190 @@
+Awesome—your report nails the culprits. Here’s exactly what I’d do next (plan only; no edits yet), ordered to give you the quickest, safest win.
+
+# 0) Strategy in one line
+
+Make **one** variable-driven width system and apply it to the **track-governing wrapper** for every column (header + body). Kill fixed `w-*`/`min-w-*`/`basis-*` on inner wrappers.
+
+---
+
+# 1) Create semantic width utilities (single source of truth)
+
+Add a tiny CSS file (or section) that every column can share:
+
+```css
+/* columns.css (import once after Tailwind) */
+:root{
+  --column-width-mult: 1;
+
+  /* base widths – tune to your current sizes */
+  --col-ref-base: 5rem;
+  --col-main-base: 20rem;
+  --col-alt-base: 20rem;
+  --col-xref-base: 18rem;
+  --col-notes-base: 18rem;
+  --col-prophecy-base: 18rem;
+
+  /* computed widths */
+  --col-ref:      calc(var(--col-ref-base)      * var(--column-width-mult));
+  --col-main:     calc(var(--col-main-base)     * var(--column-width-mult));
+  --col-alt:      calc(var(--col-alt-base)      * var(--column-width-mult));
+  --col-xref:     calc(var(--col-xref-base)     * var(--column-width-mult));
+  --col-notes:    calc(var(--col-notes-base)    * var(--column-width-mult));
+  --col-prophecy: calc(var(--col-prophecy-base) * var(--column-width-mult));
+}
+
+/* apply on the OUTER cell wrapper that governs track size */
+.colW-ref      { width: var(--col-ref);      min-width: var(--col-ref);      flex: 0 0 var(--col-ref); }
+.colW-main     { width: var(--col-main);     min-width: var(--col-main);     flex: 0 0 var(--col-main); }
+.colW-alt      { width: var(--col-alt);      min-width: var(--col-alt);      flex: 0 0 var(--col-alt); }
+.colW-xref     { width: var(--col-xref);     min-width: var(--col-xref);     flex: 0 0 var(--col-xref); }
+.colW-notes    { width: var(--col-notes);    min-width: var(--col-notes);    flex: 0 0 var(--col-notes); }
+.colW-prophecy { width: var(--col-prophecy); min-width: var(--col-prophecy); flex: 0 0 var(--col-prophecy); }
+```
+
+> Keep using your working prophecy inline calc for now, but we’ll align it to `.colW-prophecy` in step 4 so everything is uniform.
+
+---
+
+# 2) Fix the two hard blockers you found
+
+## A) `VirtualRow.tsx:51` ReferenceCell
+
+**Before (report):**
+
+```tsx
+className="w-20 px-1 py-1 text-xs"
+```
+
+**Plan:**
+
+* Replace the width class with `.colW-ref` on the **outer wrapper** for the reference column cell.
+* Keep only spacing/typography classes inside.
+
+**After (shape):**
+
+```tsx
+<div className="colW-ref">    {/* track-governing wrapper */}
+  <div className="px-1 py-1 text-xs"> { /* content */ } </div>
+</div>
+```
+
+## B) `VirtualRow.tsx:1018` TranslationCell
+
+**Before (report):**
+
+```tsx
+className="w-80 px-2 py-1 text-sm flex-shrink-0"
+```
+
+**Plan:**
+
+* Replace the width with `.colW-main` (if it’s the main translation) or `.colW-alt` (if it renders alternates).
+* Remove `flex-shrink-0` if this wrapper is the flex/grid item defining the track (our utility already pins flex-basis).
+
+**After (shape):**
+
+```tsx
+<div className="colW-main">
+  <div className="px-2 py-1 text-sm"> … </div>
+</div>
+```
+
+> If the same code path renders alternates based on `column.type`, choose `.colW-main` vs `.colW-alt` accordingly.
+
+---
+
+# 3) Stop encoding Tailwind width classes in `columnLayout.ts`
+
+**Before (report):** entries with `width: 'w-20'`, `width: 'w-80'`.
+
+**Plan options (pick one):**
+
+* **Preferred:** Replace those with a **semantic width key** (e.g., `widthKey: 'ref' | 'main' | 'alt' | 'xref' | 'notes' | 'prophecy'`) and map to the `.colW-*` class at render time.
+* **Transitional:** If you must keep a string, change `width: 'w-80'` → `widthClass: 'colW-main'` etc.
+
+**Why:** This prevents regressions where Tailwind fixed widths sneak back in.
+
+---
+
+# 4) Make prophecy follow the same utility (for consistency)
+
+**Before (report):** prophecy uses inline `width: calc(var(--adaptive-prophecy-width) * var(--column-width-mult))`.
+**Plan:** Keep its adaptive base number, but pipe through the **same var**:
+
+* Set `--col-prophecy-base` to your `--adaptive-prophecy-width` value (or compute it where you set the others).
+* Use `className="colW-prophecy"` on the governing wrapper.
+* (You can keep the inline width temporarily while migrating; final state should be the utility.)
+
+---
+
+# 5) Remove/neutralize the global `.w-80 { width: calc(20rem * var(--font-size-multiplier)) }` override
+
+**Report:** It uses `--font-size-multiplier`, which is the wrong variable and will keep fighting you.
+
+**Plan (choose one):**
+
+* **Best:** Delete this override and migrate all affected places to the `.colW-*` utilities.
+* **If you must keep it briefly:** Change it to reference the correct variable, but **rename the class** to avoid colliding with Tailwind’s `w-80`:
+
+  ```css
+  .w-80-var { width: calc(20rem * var(--column-width-mult)); }
+  ```
+
+  …then replace usages to `.w-80-var` temporarily. (Still migrate to `.colW-*` asap.)
+
+---
+
+# 6) Sanity pass: remove inner width blockers
+
+In the same components:
+
+* Strip `w-*`, `min-w-*`, `basis-*`, `flex-none`, `flex-[0_0_*]` from **inner** wrappers that are *inside* the `.colW-*` element.
+* Keep padding/typography only.
+
+This prevents the inner child’s intrinsic width from reasserting itself (critical with `grid-auto-columns: max-content`).
+
+---
+
+# 7) Headers parity
+
+Where header cells render (sticky header component / header row):
+
+* Apply the **same** `.colW-*` class on the header cell wrapper that governs its track.
+* Remove any fixed `w-*`/`min-w-*` there too. Headers and body must read from the exact same var path.
+
+---
+
+# 8) Verify the menu updates the right element
+
+Confirm the menu writes:
+
+```ts
+wrapperEl.style.setProperty('--column-width-mult', String(mult));
+```
+
+…on the **table wrapper** that contains both header and body. Don’t scatter this per cell.
+
+---
+
+# 9) Quick acceptance tests (what I’d run)
+
+1. Change size via menu (`0.8`, `1.0`, `1.25`, `1.5`) → **all** columns resize uniformly; headers stay aligned.
+2. DevTools → edit `--column-width-mult` on wrapper → immediate change everywhere (no browser resize).
+3. Inspect any cell → **no** `w-*`/`min-w-*`/`basis-*` on the track-governing wrapper or its inner content.
+4. Viewport resize still behaves (media-query base widths OK), **and** manual multiplier stacks on top.
+5. Prophecy columns now behave identically via `.colW-prophecy`.
+
+---
+
+## Minimal patch list (summarized to hand your AI)
+
+* Add `columns.css` (vars + `.colW-*` utilities).
+* `VirtualRow.tsx:51` ReferenceCell → replace `w-20 …` with wrapper `className="colW-ref"`, move padding/text classes inside.
+* `VirtualRow.tsx:1018` TranslationCell → replace `w-80 …` with wrapper `className="colW-main"` (or `.colW-alt` for alternates); drop `flex-shrink-0`.
+* `columnLayout.ts:22–273` → replace `width: 'w-20'/'w-80'` with semantic `widthKey` or direct `'colW-*'` names; update renderer to apply the right class.
+* `index.css:809–1586` → remove/rename the `.w-80` override; do **not** use `--font-size-multiplier` for widths.
+* Audit & strip inner `w-*`/`min-w-*`/`basis-*`/`flex-none` in Reference/Translation/CrossRef/Notes cells (keep typography/padding only).
+* Ensure header cells use the same `.colW-*` class as their body counterpart.
+* Confirm the menu sets `--column-width-mult` on the shared table wrapper.
+
+If you want, paste the two small code regions around `VirtualRow.tsx:51` and `:1018`, plus one representative `columnLayout` item, and I’ll write the exact replacements line-for-line before anyone touches the code.
