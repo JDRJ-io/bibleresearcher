@@ -4,7 +4,7 @@ import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useEnsureTranslationLoaded } from '@/hooks/useEnsureTranslationLoaded';
 import { useIsMobile, useScreenSize } from '@/hooks/use-mobile';
-import { getVisibleColumns, getColumnWidth, getDataRequirements, COLUMN_LAYOUT } from '@/constants/columnLayout';
+import { getVisibleColumns, getColumnWidth, getDataRequirements } from '@/constants/columnLayout';
 import { useColumnData } from '@/hooks/useColumnData';
 import { useResponsiveColumns } from '@/hooks/useResponsiveColumns';
 import LabeledText from './LabeledText';
@@ -47,16 +47,14 @@ function ReferenceCell({ verse }: CellProps) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="colW-ref">
-      <div 
-        className={`${isMobile ? 'cell-ref' : 'px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell border-r`}
-        style={{
-          color: 'var(--text-primary)',
-          borderColor: 'var(--border-color)'
-        }}
-      >
-        {verse.reference}
-      </div>
+    <div 
+      className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
+      style={{
+        color: 'var(--text-primary)',
+        borderColor: 'var(--border-color)'
+      }}
+    >
+      {verse.reference}
     </div>
   );
 }
@@ -753,11 +751,9 @@ export function VirtualRow({
       }
     };
 
-    // Get semantic width class from columnLayout
-    const columnSlot = COLUMN_LAYOUT.find(c => c.position === slot);
-    const widthClass = columnSlot ? getColumnWidth(columnSlot, false) : 'colW-alt';
-    
+    // Use inline styles for exact width matching with responsive column width scaling
     const columnStyle = {
+      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
       flexShrink: 0
     };
 
@@ -769,7 +765,7 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell ${widthClass}`}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell" 
             style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
@@ -796,7 +792,7 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column border-r border-gray-200 dark:border-gray-700 ${widthClass}`}
+            className="bible-column border-r border-gray-200 dark:border-gray-700" 
             style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
@@ -809,7 +805,7 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full ${widthClass}`}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" 
             style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
@@ -1017,19 +1013,16 @@ interface TranslationCellProps {
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
   const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
-  const widthClass = isMain ? "colW-main" : "colW-alt";
 
   return (
-    <div className={widthClass}>
-      <div className="px-2 py-1 text-sm overflow-hidden">
-        <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
-          <div className="whitespace-pre-wrap break-words leading-relaxed">
-            {verseText || (
-              <span className="text-muted-foreground italic">
-                [{verse.reference} - {translation} loading...]
-              </span>
-            )}
-          </div>
+    <div className="w-80 px-2 py-1 text-sm flex-shrink-0 overflow-hidden">
+      <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
+        <div className="whitespace-pre-wrap break-words leading-relaxed">
+          {verseText || (
+            <span className="text-muted-foreground italic">
+              [{verse.reference} - {translation} loading...]
+            </span>
+          )}
         </div>
       </div>
     </div>
