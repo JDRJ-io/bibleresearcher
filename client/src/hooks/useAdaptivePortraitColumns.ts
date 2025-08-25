@@ -35,42 +35,86 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     };
   }
 
-  // Portrait mode - UNLIMITED COLUMNS: Set standard widths that work with horizontal scrolling
-  // All columns should be accessible via horizontal scroll regardless of viewport width
-  console.log('🎯 UNLIMITED-COLUMN Portrait Mode:', { viewportWidth, viewportHeight });
+  // Portrait precision mode - USER'S EXACT SPECIFICATION:
+  // 1. Detect portrait viewport width automatically 
+  // 2. Subtract reference column width
+  // 3. Divide remaining space EQUALLY between main translation and cross-references
+  console.log('🎯 THREE-COLUMN Portrait Mode:', { viewportWidth, viewportHeight });
 
-  // Set standard fixed widths that work well for horizontal scrolling
-  // No need to calculate based on viewport - let horizontal scrolling handle overflow
-  const refWidth = 50;        // Fixed reference width
-  const mainWidth = 280;      // Standard main translation width
-  const crossWidth = 260;     // Standard cross-reference width
-  const alternateWidth = 280; // Same as main translation
-  const prophecyWidth = 280;  // Same as main translation
-  const notesWidth = 250;     // Slightly narrower for notes
-  const contextWidth = 80;    // Thin for context indicators
+  // Account for scrollbars, borders, padding - conservative margin
+  const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
 
-  console.log('📐 UNLIMITED-COLUMN Portrait Calculation:', {
+  // STEP 1: Reference column gets fixed optimal width - SYNC WITH CSS BREAKPOINTS
+  let refWidth: number;
+  if (viewportWidth >= 768 && viewportWidth <= 1024) {
+    // Tablet portrait - match CSS breakpoint exactly
+    refWidth = 56; // Matches tablet CSS breakpoint
+  } else if (viewportWidth <= 640) {
+    // Mobile portrait - ultra-compact for reference column
+    refWidth = 32; // Compact but readable for "#" header
+  } else if (viewportWidth > 640 && viewportWidth < 768) {
+    // Large mobile/small tablet transition - make reference column more compact
+    refWidth = Math.max(24, Math.min(32, Math.floor(safeViewportWidth * 0.06)));
+  } else {
+    // Desktop portrait (rare) - use comfortable width
+    refWidth = 60;
+  }
+
+  // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
+  let remainingSpace: number;
+  let mainWidth: number;
+  let crossWidth: number;
+
+  if (viewportWidth >= 768 && viewportWidth <= 1024) {
+    // Tablet portrait - match CSS calculation exactly: calc((100vw - 140px) * 0.44)
+    const cssRemainingSpace = viewportWidth - 140; // Matches CSS: 100vw - 140px
+    mainWidth = Math.floor(cssRemainingSpace * 0.44); // Matches CSS percentage
+    crossWidth = Math.floor(cssRemainingSpace * 0.44); // Equal to main
+    remainingSpace = mainWidth + crossWidth;
+  } else {
+    // Other sizes - use equal division approach
+    remainingSpace = safeViewportWidth - refWidth;
+    mainWidth = Math.floor(remainingSpace / 2);
+    crossWidth = Math.floor(remainingSpace / 2);
+  }
+
+  // Ensure minimum readability (compress proportionally if needed)
+  const minMain = 100;  // Absolute minimum for main translation
+  const minCross = 80;  // Absolute minimum for cross-references
+
+  let finalRef = refWidth;
+  let finalMain = Math.max(minMain, mainWidth);
+  let finalCross = Math.max(minCross, crossWidth);
+
+  // If minimums exceed available space, compress proportionally
+  const totalNeeded = finalRef + finalMain + finalCross;
+  if (totalNeeded > safeViewportWidth) {
+    const compressionRatio = safeViewportWidth / totalNeeded;
+    finalRef = Math.floor(finalRef * compressionRatio);
+    finalMain = Math.floor(finalMain * compressionRatio);
+    finalCross = Math.floor(finalCross * compressionRatio);
+  }
+
+  console.log('📐 THREE-COLUMN Adaptive Calculation:', {
     viewportWidth,
-    fixedWidths: {
-      reference: refWidth,
-      mainTranslation: mainWidth,
-      crossReference: crossWidth,
-      alternate: alternateWidth,
-      prophecy: prophecyWidth,
-      notes: notesWidth,
-      context: contextWidth
-    },
-    totalAvailable: 'Unlimited with horizontal scroll'
+    safeViewportWidth,
+    refWidth: finalRef,
+    remainingSpace: safeViewportWidth - finalRef,
+    mainWidth: finalMain,
+    crossWidth: finalCross,
+    totalWidth: finalRef + finalMain + finalCross,
+    perfectFit: (finalRef + finalMain + finalCross) <= safeViewportWidth,
+    equalMainCross: Math.abs(finalMain - finalCross) <= 1 // Should be equal or within 1px
   });
 
   return {
-    reference: refWidth,
-    mainTranslation: mainWidth,
-    crossReference: crossWidth,
-    alternate: alternateWidth,
-    prophecy: prophecyWidth,
-    notes: notesWidth,
-    context: contextWidth
+    reference: finalRef,
+    mainTranslation: finalMain,
+    crossReference: finalCross,
+    alternate: finalMain, // Same width as main translation
+    prophecy: finalMain,  // Same width as main translation
+    notes: Math.floor(finalMain * 0.7), // 70% of main for notes
+    context: 40  // Very thin for portrait mode since text is upright - just needs emoji space
   };
 }
 
