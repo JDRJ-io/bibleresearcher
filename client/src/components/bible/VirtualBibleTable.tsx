@@ -103,7 +103,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   useMeasureVisibleColumns(containerRef.current);
 
   // NEW: Update store with current column configuration (moved below store declarations)
-  const { setFixedColumns, setNavigableColumns, setColumnWidthPx } = useBibleStore();
+  const { setFixedColumns, setNavigableColumns, setColumnWidthPx, getSharedGridTemplate } = useBibleStore();
   
   // Remove ref handling for now
   
