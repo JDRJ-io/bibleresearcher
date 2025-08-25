@@ -519,28 +519,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // Calculate actual total width using real adaptive widths
-  const actualTotalWidth = useMemo(() => {
-    const { adaptiveWidths } = adaptiveConfig;
-    let width = 0;
-    
-    width += adaptiveWidths.reference; // Reference column (actual width)
-    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
-    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
-    
-    // Prophecy columns - each uses prophecy width
-    if (showProphecies) {
-      if (store.showPrediction) width += adaptiveWidths.prophecy;
-      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
-      if (store.showVerification) width += adaptiveWidths.prophecy;
-    }
-    
-    // Alternate translations use alternate width
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
-    
-    return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig]);
-
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
@@ -586,6 +564,28 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       });
     }
   }, [adaptiveConfig]);
+
+  // Calculate actual total width using real adaptive widths
+  const actualTotalWidth = useMemo(() => {
+    const { adaptiveWidths } = adaptiveConfig;
+    let width = 0;
+    
+    width += adaptiveWidths.reference; // Reference column (actual width)
+    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
+    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
+    
+    // Prophecy columns - each uses prophecy width
+    if (showProphecies) {
+      if (store.showPrediction) width += adaptiveWidths.prophecy;
+      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
+      if (store.showVerification) width += adaptiveWidths.prophecy;
+    }
+    
+    // Alternate translations use alternate width
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
+    
+    return width;
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig]);
 
   // ADAPTIVE VERSE REFERENCE ROTATION: Monitor reference column width and rotate when thin
   useReferenceColumnWidth();
