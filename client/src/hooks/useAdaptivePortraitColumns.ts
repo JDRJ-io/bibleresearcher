@@ -41,8 +41,8 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   // 3. Divide remaining space EQUALLY between main translation and cross-references
   console.log('🎯 THREE-COLUMN Portrait Mode:', { viewportWidth, viewportHeight });
 
-  // Account for scrollbars, borders, padding - conservative margin
-  const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
+  // Account for scrollbars, borders, padding - more conservative margin for mobile
+  const safeViewportWidth = viewportWidth - 30; // 15px margin on each side for mobile safety
 
   // STEP 1: Reference column gets fixed optimal width - SYNC WITH CSS BREAKPOINTS
   let refWidth: number;
@@ -93,6 +93,19 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     finalRef = Math.floor(finalRef * compressionRatio);
     finalMain = Math.floor(finalMain * compressionRatio);
     finalCross = Math.floor(finalCross * compressionRatio);
+  }
+  
+  // Final safety check - ensure total never exceeds safe viewport width
+  const actualTotal = finalRef + finalMain + finalCross;
+  if (actualTotal > safeViewportWidth) {
+    // Emergency compression - prioritize main translation
+    const overflow = actualTotal - safeViewportWidth;
+    if (finalCross > 60) {
+      finalCross = Math.max(60, finalCross - Math.ceil(overflow / 2));
+    }
+    if (actualTotal > safeViewportWidth && finalMain > 80) {
+      finalMain = Math.max(80, finalMain - Math.ceil(overflow / 2));
+    }
   }
 
   console.log('📐 THREE-COLUMN Adaptive Calculation:', {
