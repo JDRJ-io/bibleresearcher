@@ -613,8 +613,8 @@ body {
   }
 
   .bibleTable {
-    /* Let columns auto-flow horizontally; reference will be made sticky-left in cells */
-    grid-auto-columns: max-content;
+    /* Use responsive calculated widths instead of max-content on mobile portrait */
+    /* grid-auto-columns: max-content; -- REMOVED: This was causing overflow by ignoring JS calculations */
     grid-auto-flow: column;
     /* Do NOT pin main/xref as fixed columns here */
     overflow-x: auto;       /* scrollbar for "extra" cols */

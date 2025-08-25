@@ -716,12 +716,15 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             overflow: 'visible'
           }}
         >
-          <div className="tableInner flex"
+          <div className="tableInner bibleTable"
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
               margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
-              overflow: 'visible'
+              overflow: 'visible',
+              // Apply responsive grid template columns from JavaScript calculations
+              gridTemplateColumns: getSharedGridTemplate(),
+              display: 'grid'
             }}>
             <div style={{ 
               minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
