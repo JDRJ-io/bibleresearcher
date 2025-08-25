@@ -79,8 +79,9 @@ export function NewColumnHeaders({
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
 
-  // Custom hook to track CSS variable changes for column width multiplier
+  // Custom hook to track CSS variable changes for column width and text size multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
+  const [textSizeMult, setTextSizeMult] = useState(1);
 
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
@@ -104,8 +105,18 @@ export function NewColumnHeaders({
       setColumnWidthMult(numericMult);
     };
 
-    // Set initial value
+    // Function to get current text size multiplier
+    const updateTextSizeMult = () => {
+      const mult = getComputedStyle(document.documentElement)
+        .getPropertyValue('--text-size-mult')
+        .trim();
+      const numericMult = parseFloat(mult) || 1;
+      setTextSizeMult(numericMult);
+    };
+
+    // Set initial values
     updateColumnWidthMult();
+    updateTextSizeMult();
 
     // Set up async import for column change signals
     const setupColumnSignals = async () => {
@@ -116,6 +127,7 @@ export function NewColumnHeaders({
         const cleanup = useColumnChangeSignal((detail: any) => {
           if (detail.changeType === 'multiplier') {
             updateColumnWidthMult();
+            updateTextSizeMult();
           }
         });
 
@@ -435,7 +447,8 @@ export function NewColumnHeaders({
           boxSizing: 'border-box',
           backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
           color: 'var(--text-primary)',
-          borderColor: 'var(--border-color)'
+          borderColor: 'var(--border-color)',
+          fontSize: column.type === 'reference' ? `calc(0.875rem * ${textSizeMult})` : `calc(0.75rem * ${textSizeMult})`
         }}
         data-column={column.type}
         data-col-key={column.id}
@@ -553,7 +566,8 @@ export function NewColumnHeaders({
                 width: visibleColumns.find(col => col.id === activeId)?.width,
                 minWidth: visibleColumns.find(col => col.id === activeId)?.width,
                 maxWidth: visibleColumns.find(col => col.id === activeId)?.width,
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                fontSize: `calc(0.75rem * ${textSizeMult})`
               }}
             >
               {visibleColumns.find(col => col.id === activeId)?.name}
