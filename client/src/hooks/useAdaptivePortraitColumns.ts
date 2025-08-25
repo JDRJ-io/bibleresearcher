@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useColumnChangeSignal } from './useColumnChangeSignal';
 
 interface AdaptivePortraitConfig {
   isPortrait: boolean;
@@ -240,38 +239,6 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       window.removeEventListener('orientationchange', updateConfig);
     };
   }, []);
-
-  // Listen for column width multiplier changes to recalculate adaptive widths
-  useColumnChangeSignal((detail: any) => {
-    if (detail.changeType === 'multiplier' || detail.changeType === 'width') {
-      console.log('🎯 Column multiplier/width changed, recalculating adaptive widths');
-      // Small delay to ensure CSS variable is updated
-      setTimeout(() => {
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const isPortrait = screenHeight > screenWidth;
-        const safeViewportWidth = screenWidth - 24;
-
-        const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight);
-        const coreColumnsWidth = adaptiveWidths.reference + adaptiveWidths.mainTranslation + adaptiveWidths.crossReference;
-        const guaranteedFit = coreColumnsWidth <= safeViewportWidth;
-
-        // Update CSS variables FIRST
-        updateCSSVariables(adaptiveWidths);
-
-        // Then update React state
-        setConfig({
-          isPortrait,
-          screenWidth,
-          screenHeight,
-          safeViewportWidth,
-          coreColumnsWidth,
-          guaranteedFit,
-          adaptiveWidths
-        });
-      }, 50);
-    }
-  });
 
   // Update CSS variables whenever config changes
   useEffect(() => {
