@@ -654,32 +654,9 @@ export function VirtualRow({
   const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
   const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
 
-  // Calculate how many columns can actually fit on screen (same logic as NewColumnHeaders)
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-  const isPortraitLayout = typeof window !== 'undefined' && window.innerHeight > window.innerWidth;
-  
-  let maxVisibleNavigableColumns;
-  if (isPortraitLayout) {
-    if (viewportWidth <= 430) maxVisibleNavigableColumns = 2;
-    else if (viewportWidth <= 768) maxVisibleNavigableColumns = 3;
-    else maxVisibleNavigableColumns = 4;
-  } else {
-    if (viewportWidth <= 768) maxVisibleNavigableColumns = 4;
-    else if (viewportWidth <= 1024) maxVisibleNavigableColumns = 6;
-    else maxVisibleNavigableColumns = 8;
-  }
-
-  // If we have fewer navigable columns than can fit, show them all
-  let visibleColumns;
-  if (navigableColumns.length <= maxVisibleNavigableColumns) {
-    visibleColumns = [...fixedColumns, ...navigableColumns];
-  } else {
-    // Otherwise, use the slice system
-    const { start, end } = getVisibleSlice();
-    const actualEnd = Math.min(end, start + maxVisibleNavigableColumns);
-    const offsetNavigableColumns = navigableColumns.slice(start, actualEnd);
-    visibleColumns = [...fixedColumns, ...offsetNavigableColumns];
-  }
+  // FIXED: Always show all toggled columns for horizontal scrolling support
+  // Remove artificial limits that were preventing mobile users from seeing all their active columns
+  const visibleColumns = [...fixedColumns, ...navigableColumns];
 
   // Helper function to get default widths per UI Layout Spec
   function getDefaultWidth(slot: number): number {
