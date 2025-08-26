@@ -197,9 +197,6 @@ export function NewColumnHeaders({
     // Apply column width multiplier to get actual pixel width
     const actualWidth = baseWidth * columnWidthMult;
     
-    // Debug: Log header width calculation
-    console.log(`🎛️ HEADER ${columnType}: ${baseWidth} * ${columnWidthMult} = ${actualWidth}px`);
-    
     return `${actualWidth}px`;
   };
 
