@@ -182,30 +182,25 @@ export function NewColumnHeaders({
   // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
   // NOW CONNECTED TO --column-width-mult from ManualSizeController
   const getResponsiveWidth = (columnType: string): string => {
-    const isPortrait = window.innerHeight > window.innerWidth;
+    // Get base width from adaptiveWidths and multiply by current columnWidthMult
+    let baseWidth: number;
     
-
-    if (isPortrait) {
-      // Portrait mode - use CSS variables with column-width-mult scaling
-      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-      return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-    } else {
-      // Landscape mode - use adaptive CSS variables with scaling
-      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-      return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-    }
+    if (columnType === 'reference') baseWidth = adaptiveWidths.reference;
+    else if (columnType === 'main-translation') baseWidth = adaptiveWidths.mainTranslation;
+    else if (columnType === 'cross-refs') baseWidth = adaptiveWidths.crossReference;
+    else if (columnType === 'alt-translation') baseWidth = adaptiveWidths.alternate;
+    else if (columnType === 'prophecy') baseWidth = adaptiveWidths.prophecy;
+    else if (columnType === 'notes') baseWidth = adaptiveWidths.notes;
+    else if (columnType === 'context') baseWidth = adaptiveWidths.context;
+    else baseWidth = adaptiveWidths.alternate;
+    
+    // Apply column width multiplier to get actual pixel width
+    const actualWidth = baseWidth * columnWidthMult;
+    
+    // Debug: Log header width calculation
+    console.log(`🎛️ HEADER ${columnType}: ${baseWidth} * ${columnWidthMult} = ${actualWidth}px`);
+    
+    return `${actualWidth}px`;
   };
 
   // Build clean column configuration - NOW DEPENDS ON columnWidthMult for reactive updates
