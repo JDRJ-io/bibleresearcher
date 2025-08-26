@@ -212,13 +212,13 @@ body {
   --row-height-mult: 1.0; /* Row spacing in Bible table */
   --column-width-mult: 1.0; /* Universal column width expansion */
   
-  /* Base column widths - tune to your current sizes */
-  --col-ref-base: 4.5rem;
-  --col-main-base: 20rem;
-  --col-alt-base: 20rem;
-  --col-xref-base: 18rem;
-  --col-notes-base: 18rem;
-  --col-prophecy-base: 12.5rem;
+  /* Base column widths - matching current app values */
+  --col-ref-base: 72px;
+  --col-main-base: 200px;
+  --col-alt-base: 200px;
+  --col-xref-base: 288px;
+  --col-notes-base: 200px;
+  --col-prophecy-base: 200px;
   
   /* Computed column widths with multiplier */
   --col-ref: calc(var(--col-ref-base) * var(--column-width-mult));
