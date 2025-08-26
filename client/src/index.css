@@ -1852,17 +1852,38 @@ body.overlay-open {
   display: contents; 
 }
 
-/* Reference column integrated into unified centering - no longer sticky */
+/* Keep # column always visible */
 .column-header-cell[data-column="reference"],
-.bible-column[data-column="reference"],
-.header-cell.reference, 
-.data-cell.reference, 
-.cell[data-column="reference"],
+.bible-column[data-column="reference"] {
+  position: sticky;
+  left: 0;
+  z-index: 5; /* above neighbors */
+  background: var(--header-bg, var(--background));
+}
+
+/* cell-level stickiness for fixed columns */
+.header-cell.reference, .data-cell.reference, 
+.column-header-cell[data-column="reference"], .cell[data-column="reference"],
 .cell-ref {
-  /* Remove sticky positioning to allow unified centering */
-  position: static !important; 
+  position: sticky !important; 
+  left: 0 !important; 
+  z-index: 3 !important; 
   background: var(--bg-primary, white) !important;
   border-right: 1px solid var(--border-color, #e5e7eb) !important;
+}
+
+.header-cell.index, .data-cell.index,
+.column-header-cell[data-column="index"], .cell[data-column="index"] {
+  position: sticky !important; 
+  left: 0 !important; 
+  z-index: 4 !important;
+  background: var(--bg-primary, white) !important;
+}
+
+.header-cell.reference, .data-cell.reference,
+.column-header-cell[data-column="reference"], .cell[data-column="reference"] {
+  /* if index exists, bump reference by its width; otherwise 0 */
+  left: var(--index-col-width, 0px) !important;
 }
 
 /* hard kill any legacy "pillar" padding that appears in certain modes */

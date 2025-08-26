@@ -528,7 +528,22 @@ export function NewColumnHeaders({
           <div className="flex" style={{
             justifyContent: shouldCenter ? 'center' : 'flex-start'
           }}>
-            {/* All headers together - unified centering container */}
+            {/* Reference header - stays fixed like the reference column data */}
+            {visibleColumns.filter(col => col.id === 'reference').map((column) => (
+              <div
+                key={column.id}
+                style={{
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 30,
+                  backgroundColor: 'var(--bg-primary)'
+                }}
+              >
+                <SortableHeaderCell column={column} />
+              </div>
+            ))}
+            
+            {/* Scrollable headers - move with table horizontal scroll */}
             <div 
               ref={headerRef}
               className="column-headers-inner flex"
@@ -541,7 +556,7 @@ export function NewColumnHeaders({
                 transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
               }}
             >
-              {visibleColumns.map((column) => (
+              {visibleColumns.filter(col => col.id !== 'reference').map((column) => (
                 <SortableHeaderCell key={column.id} column={column} />
               ))}
             </div>
