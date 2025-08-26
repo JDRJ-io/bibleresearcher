@@ -720,7 +720,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
+              margin: shouldCenter ? '0 auto' : '0',
               overflow: 'visible',
               // Apply responsive grid template columns from JavaScript calculations
               gridTemplateColumns: getSharedGridTemplate(),
