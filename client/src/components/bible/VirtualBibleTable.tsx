@@ -100,10 +100,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
 
-  // AXIS-LOCKED SCROLLING: Apply the new smooth axis lock system
+  // AXIS-LOCKED SCROLLING: Apply the new smooth axis lock system with kinetic momentum
   useSmoothAxisLock(containerRef, {
     dominanceRatio: 1.2,
-    wheelUnlockMs: 160
+    wheelUnlockMs: 160,
+    momentum: true,             // enables touch fling
+    momentumDecay: 0.003,       // feel: 0.002 (long) .. 0.005 (short)
+    momentumMinVelocity: 0.05,  // ~50 px/s threshold
+    momentumMaxDuration: 1200,
   });
 
   // NEW: Measure actual column container for dynamic visible count calculation

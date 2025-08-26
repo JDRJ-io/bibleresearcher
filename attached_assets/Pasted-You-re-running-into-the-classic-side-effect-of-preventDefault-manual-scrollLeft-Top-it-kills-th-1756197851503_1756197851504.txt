@@ -1,3 +1,7 @@
+You’re running into the classic side-effect of preventDefault() + manual scrollLeft/Top: it kills the browser’s built-in fling momentum on touch. Fix = add a tiny kinetic (inertial) scroller that kicks in on touchend using the last gesture velocity. Wheel/trackpad already delivers momentum as extra wheel events, so we don’t add fake momentum there—just keep our current logic.
+
+Here’s a drop-in upgrade of the hook with smooth axis lock + touch momentum:
+
 import { useEffect, useRef } from "react";
 
 type Axis = "x" | "y" | null;
@@ -235,3 +239,36 @@ export function useSmoothAxisLock<T extends HTMLElement>(
     };
   }, [ref]);
 }
+
+CSS (unchanged)
+
+.virtualTableViewport {
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y pinch-zoom; /* allow both; JS picks axis */
+  -webkit-overflow-scrolling: touch;    /* iOS smoothness */
+}
+
+Use it
+
+const vpRef = useRef<HTMLDivElement>(null);
+useSmoothAxisLock(vpRef, {
+  dominanceRatio: 1.2,
+  wheelUnlockMs: 160,
+  momentum: true,             // << enables touch fling
+  momentumDecay: 0.003,       // feel: 0.002 (long) .. 0.005 (short)
+  momentumMinVelocity: 0.05,  // ~50 px/s threshold
+  momentumMaxDuration: 1200,
+});
+
+Why this fixes your issue
+	•	Touch: we own the gesture (to avoid diagonal), so native fling is gone; we recreate it with a lightweight physics loop. Fast swipes now continue smoothly after finger lift.
+	•	Wheel/trackpad: momentum comes as additional wheel events from the OS—your scroll continues naturally; we don’t add extra fake momentum, so it stops when the OS stream stops.
+
+Tuning cheatsheet
+	•	Longer glide: decrease momentumDecay (e.g., 0.002).
+	•	Snappier stop: increase momentumDecay (e.g., 0.004–0.005).
+	•	Ignore tiny flings: raise momentumMinVelocity (0.08–0.12).
+	•	Cap long flings: lower momentumMaxDuration (800–1000ms).
+
+If you want, I can also add axis-aware scroll snapping (e.g., snap to verse boundaries) that plays nicely with the kinetic motion.
