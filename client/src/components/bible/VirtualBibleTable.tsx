@@ -718,30 +718,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
         data-testid="bible-table"
       >
-        {/* Content container - let CSS handle centering */}
-        <div 
+        {/* Content container */}
+        <div className="tableInner bibleTable"
           style={{ 
             minWidth: 'fit-content',
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
+            width: 'fit-content',
             position: 'relative',
             overflow: 'visible',
-            width: 'fit-content'
-          }}
-        >
-          <div className="tableInner bibleTable"
-            style={{ 
-              minWidth: 'fit-content',
-              width: 'fit-content',
-              overflow: 'visible',
-              // Apply responsive grid template columns from JavaScript calculations
-              gridTemplateColumns: getSharedGridTemplate(),
-              display: 'grid'
-            }}>
-            <div style={{ 
-              minWidth: 'fit-content',
-              width: 'fit-content'
-            }}>
-            <div style={{height: slice.start * ROW_HEIGHT}} />
+            // Apply responsive grid template columns from JavaScript calculations
+            gridTemplateColumns: getSharedGridTemplate(),
+            display: 'grid'
+          }}>
+          <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
                 const verseData = rowData?.[id];
@@ -803,8 +792,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-            </div>
-          </div>
         </div>
       </div>
 
