@@ -131,9 +131,20 @@ export function NewColumnHeaders({
       if (typeof c === 'function') cleanup = c; 
     });
 
+    // Also watch for CSS variable changes using MutationObserver as a backup
+    const observer = new MutationObserver(() => {
+      updateColumnWidthMult();
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+
     // Cleanup
     return () => {
       if (cleanup) cleanup();
+      observer.disconnect();
     };
   }, []);
 

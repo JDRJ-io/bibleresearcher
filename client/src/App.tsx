@@ -856,6 +856,11 @@ export const useBibleStore = create<{
       window.innerWidth <= 640 && 
       window.innerHeight > window.innerWidth;
     
+    // Get column width multiplier from CSS variable
+    const columnWidthMult = typeof window !== 'undefined' 
+      ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult').trim()) || 1
+      : 1;
+    
     const templateForVisible = activeColumns.map((col, index) => {
       // Try to get width from columnWidthsPx first
       let width = s.columnWidthsPx[col.key];
@@ -892,7 +897,9 @@ export const useBibleStore = create<{
         }
       }
       
-      return `${width}px`;
+      // Apply column width multiplier to all columns
+      const adjustedWidth = width * columnWidthMult;
+      return `${adjustedWidth}px`;
     }).join(' ');
     
     const visibleKeys = Array.from({ length: total }, (_, i) => `col-${start + i}`);

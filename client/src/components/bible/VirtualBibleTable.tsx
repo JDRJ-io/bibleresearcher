@@ -206,6 +206,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
   // Get store state for column toggles
   const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes, showPrediction, showFulfillment, showVerification, translationState } = useBibleStore();
+  
+  // Track column width multiplier changes to force grid recalculation
+  const [columnWidthMult, setColumnWidthMult] = useState(1);
+  
+  useEffect(() => {
+    const updateMult = () => {
+      const mult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult').trim()) || 1;
+      setColumnWidthMult(mult);
+    };
+    
+    updateMult();
+    
+    // Watch for CSS variable changes
+    const observer = new MutationObserver(updateMult);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
   // NEW: Update store with current column configuration (now that store variables are available)
   useEffect(() => {
@@ -710,20 +731,23 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            minWidth: actualTotalWidth <= viewportWidth ? '100%' : `${actualTotalWidth}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: 'visible'
+            overflow: 'visible',
+            display: 'flex',
+            justifyContent: actualTotalWidth <= viewportWidth ? 'center' : 'flex-start'
           }}
         >
           <div className="tableInner bibleTable"
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: responsiveConfig.columnAlignment === 'centered' ? '0 auto' : '0',
+              margin: '0',
               overflow: 'visible',
               // Apply responsive grid template columns from JavaScript calculations
-              gridTemplateColumns: getSharedGridTemplate(),
+              // Force recalculation when columnWidthMult changes
+              gridTemplateColumns: columnWidthMult ? getSharedGridTemplate() : getSharedGridTemplate(),
               display: 'grid'
             }}>
             <div style={{ 
