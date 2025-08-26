@@ -85,6 +85,42 @@ export function NewColumnHeaders({
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
 
+  // Track column width multiplier changes for header width synchronization
+  useEffect(() => {
+    // Initial read
+    const root = document.documentElement;
+    const initialMult = parseFloat(
+      getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
+    );
+    if (Math.abs(initialMult - columnWidthMult) > 0.01) {
+      setColumnWidthMult(initialMult);
+    }
+  }, []); // Run once on mount
+
+  // Separate effect to watch for CSS variable changes
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // Watch for direct CSS variable changes using MutationObserver
+    const observer = new MutationObserver(() => {
+      const currentMult = parseFloat(
+        getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
+      );
+      if (Math.abs(currentMult - columnWidthMult) > 0.01) {
+        setColumnWidthMult(currentMult);
+      }
+    });
+
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [columnWidthMult]);
+
   // Import the column change signal hook
   const { useColumnChangeSignal, useColumnChangeEmitter } = useMemo(() => {
     // Dynamic import to avoid circular dependencies
