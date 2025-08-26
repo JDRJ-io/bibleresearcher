@@ -116,6 +116,7 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
   };
 
   const setMultiplier = (newMult: number) => {
+      // Update the unified column width multiplier
       document.documentElement.style.setProperty('--column-width-mult', newMult.toString());
       console.log(`🎛️ Column Width Multiplier: ${newMult}x`);
 

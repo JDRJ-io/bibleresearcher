@@ -441,15 +441,33 @@ export function NewColumnHeaders({
         `}
         style={{
           ...style,
-          width: column.width,
-          minWidth: column.width,
-          maxWidth: column.width,
           boxSizing: 'border-box',
           backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
           color: 'var(--text-primary)',
           borderColor: 'var(--border-color)',
           fontSize: column.type === 'reference' ? `calc(0.875rem * ${textSizeMult})` : `calc(0.75rem * ${textSizeMult})`
         }}
+        className={`
+          column-header-cell 
+          flex-shrink-0 
+          flex 
+          items-center 
+          justify-center 
+          border-r 
+          font-bold 
+          text-xs 
+          leading-none
+          ${column.type === 'reference' ? 'colW-ref text-sm p-0' : 
+            column.type === 'main-translation' ? 'colW-main text-xs px-2 py-1' :
+            column.type === 'alt-translation' ? 'colW-alt text-xs px-2 py-1' :
+            column.type === 'cross-refs' ? 'colW-xref text-xs px-2 py-1' :
+            column.type === 'prophecy' ? 'colW-prophecy text-xs px-2 py-1' :
+            column.type === 'notes' ? 'colW-notes text-xs px-2 py-1' :
+            'colW-alt text-xs px-2 py-1'
+          }
+          ${isDragging ? 'opacity-50' : ''}
+          ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}
+        `}
         data-column={column.type}
         data-col-key={column.id}
         {...(isDraggable ? attributes : {})}

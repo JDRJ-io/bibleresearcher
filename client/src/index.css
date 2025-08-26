@@ -9,6 +9,7 @@
 
 /* Import label effects first */
 @import './styles/label-effects.css';
+@import url('./styles/columns.css');
 
 @tailwind base;
 @tailwind components;
@@ -185,28 +186,28 @@ body {
 }
 
 /* UI Layout Spec CSS Foundation - Device-responsive sizing */
-@media (max-width: 640px) { 
-  :root { 
-    --baseRem: 0.875rem; 
-    --baseColW: 420px; 
-  } 
+@media (max-width: 640px) {
+  :root {
+    --baseRem: 0.875rem;
+    --baseColW: 420px;
+  }
 }
 
-@media (min-width: 641px) and (max-width: 1023px) { 
-  :root { 
-    --baseRem: 1rem; 
-    --baseColW: 480px; 
-  } 
+@media (min-width: 641px) and (max-width: 1023px) {
+  :root {
+    --baseRem: 1rem;
+    --baseColW: 480px;
+  }
 }
 
-@media (min-width: 1024px) { 
-  :root { 
-    --baseRem: 1.125rem; 
-    --baseColW: 520px; 
-  } 
+@media (min-width: 1024px) {
+  :root {
+    --baseRem: 1.125rem;
+    --baseColW: 520px;
+  }
 }
 
-:root { 
+:root {
   /* Manual controls - user adjustable */
   --text-size-mult: 1.0; /* Text size in Bible content */
   --row-height-mult: 1.0; /* Row spacing in Bible table */
@@ -229,7 +230,7 @@ body {
   --top-header-height-desktop: 52px;
   --top-header-height-mobile: 48px;
   --column-header-height: 40px;
-  
+
   /* Header rollup animation variables */
   --header-rollup-transform: translateY(0);
   --header-rollup-transition: transform 0.3s ease-out;
@@ -252,8 +253,8 @@ body {
 }
 
 /* Apply manual sizing only to Bible content, not UI chrome */
-.bible-content-area { 
-  font-size: calc(var(--baseRem) * var(--text-size-mult)); 
+.bible-content-area {
+  font-size: calc(var(--baseRem) * var(--text-size-mult));
 }
 
 /* Top header uses automatic adaptive scaling, not manual controls */
@@ -287,8 +288,8 @@ body {
 }
 
 /* Column width scaling - separate from overall UI scaling */
-.bible-column { 
-  width: calc(var(--column-width, 18rem) * var(--column-width-mult)); 
+.bible-column {
+  width: calc(var(--column-width, 18rem) * var(--column-width-mult));
 }
 
 /* Reference column has fixed width */
@@ -564,7 +565,7 @@ body {
 
   /* Fallback baseline widths - expert's clamp() approach for landscape */
   --w-ref: 4.5rem;                              /* reference # column */
-  --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */  
+  --w-main: clamp(14rem, 35vw, 22rem);          /* primary translation */
   --w-xref: clamp(10rem, 45vw, 18rem);          /* cross-ref column */
   --w-alt: clamp(12rem, 30vw, 20rem);           /* alternate translations */
   --w-prophecy: clamp(14rem, 35vw, 22rem);      /* prophecy columns - same as main */
@@ -669,18 +670,18 @@ body {
 
   /* Expert's smooth scrolling enhancements */
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain; /* Prevent scroll bounce bubbling */
+  overscroll-behavior: contain;
 }
 
 /* Table inner content - natural width scaling */
-.tableInner { 
-  inline-size: max-content; 
+.tableInner {
+  inline-size: max-content;
 }
 
 /* PORTRAIT MODE - Expert's orientation-aware layout */
 @media (orientation: portrait) {
   /* Switch to left-aligned layout in portrait */
-  .tableWrapper { 
+  .tableWrapper {
     justify-content: flex-start;                 /* hug the left */
     max-width: 100vw;                           /* Never exceed viewport */
   }
@@ -703,13 +704,13 @@ body {
     --w-alt: clamp(30vw, 35vw, 10rem);          /* Max 10rem for alternates */
     --w-prophecy: clamp(35vw, 40vw, 12rem);     /* Max 12rem for prophecy */
   }
-  
+
   /* Ensure table never exceeds viewport */
   .bibleTable {
     max-width: 100vw !important;
     box-sizing: border-box !important;
   }
-  
+
   .tableWrapper {
     max-width: 100vw !important;
     box-sizing: border-box !important;
@@ -754,7 +755,7 @@ body {
 }
 
 /* Column groups for snap alignment */
-.columnGroup { 
+.columnGroup {
   scroll-snap-align: start;           /* every column bundle snaps cleanly */
 }
 
@@ -1115,7 +1116,7 @@ body {
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 8px 16px -8px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
@@ -1126,7 +1127,7 @@ body {
   -webkit-backdrop-filter: blur(8px) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
@@ -1195,36 +1196,36 @@ body.menu-open {
 }
 
 /* Force horizontal scrollbar visibility - guarantee appears when content overflows */
-.bible-table-wrapper::-webkit-scrollbar{ 
-  height:8px; 
+.bible-table-wrapper::-webkit-scrollbar{
+  height:8px;
   display: block !important;
 }
 
-.bible-table-wrapper::-webkit-scrollbar-track{ 
+.bible-table-wrapper::-webkit-scrollbar-track{
   background: rgb(243 244 246); /* bg-gray-100 */
-  border-radius:4px; 
+  border-radius:4px;
 }
 
-.bible-table-wrapper::-webkit-scrollbar-thumb{ 
+.bible-table-wrapper::-webkit-scrollbar-thumb{
   background: rgb(156 163 175); /* bg-gray-400 */
-  border-radius:4px; 
+  border-radius:4px;
   min-width: 40px; /* Ensure thumb is visible when scrollable */
 }
 
-.bible-table-wrapper::-webkit-scrollbar-thumb:hover{ 
+.bible-table-wrapper::-webkit-scrollbar-thumb:hover{
   background: rgb(107 114 128); /* bg-gray-500 */
 }
 
 /* Dark mode scrollbar */
-.dark .bible-table-wrapper::-webkit-scrollbar-track{ 
+.dark .bible-table-wrapper::-webkit-scrollbar-track{
   background: rgb(55 65 81); /* bg-gray-700 */
 }
 
-.dark .bible-table-wrapper::-webkit-scrollbar-thumb{ 
+.dark .bible-table-wrapper::-webkit-scrollbar-thumb{
   background: rgb(75 85 99); /* bg-gray-600 */
 }
 
-.dark .bible-table-wrapper::-webkit-scrollbar-thumb:hover{ 
+.dark .bible-table-wrapper::-webkit-scrollbar-thumb:hover{
   background: rgb(156 163 175); /* bg-gray-400 */
 }
 
@@ -1241,8 +1242,8 @@ html {
 }
 
 /* Minimal axis-clamped scrolling */
-.scroll-area { 
-  touch-action: auto; 
+.scroll-area {
+  touch-action: auto;
 }
 
 /* Custom scrollbar for cross-reference cells */
@@ -1297,21 +1298,21 @@ html {
 
 /* Mobile optimization: better row height and font sizes */
 @media (max-width: 640px) {
-  .virtual-row { 
+  .virtual-row {
     line-height: 1.35rem;
     flex-wrap: wrap;
   }
 
-  .virtual-row .text-xs { 
-    font-size: 0.80rem; 
+  .virtual-row .text-xs {
+    font-size: 0.80rem;
   }
 
   /* Stack cross-reference column below main verse on mobile */
-  .w-80, .w-60 { 
-    width: 100vw; 
+  .w-80, .w-60 {
+    width: 100vw;
   }
 
-  .w-60 { 
+  .w-60 {
     order: 2; /* stack cross-ref under verse */
   }
 }
@@ -1632,33 +1633,33 @@ body.overlay-open {
 
 /* Mobile Footer and Bottom Sheet Styles */
 .footer {
-  position: sticky; 
-  bottom: 0; 
-  left: 0; 
+  position: sticky;
+  bottom: 0;
+  left: 0;
   right: 0;
-  display: grid; 
+  display: grid;
   gap: 6px;
   padding: 8px calc(12px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-right));
-  background: rgba(8,10,15,0.85); 
+  background: rgba(8,10,15,0.85);
   backdrop-filter: blur(8px);
   border-top: 1px solid rgba(255,255,255,0.06);
   z-index: 30;
 }
 
-.footer-row { 
-  display: flex; 
-  gap: 10px; 
-  align-items: center; 
-  justify-content: space-between; 
+.footer-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .footer button {
-  appearance: none; 
-  border: 0; 
-  background: transparent; 
-  color: hsl(var(--muted-foreground)); 
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
   font: 500 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  padding: 8px 10px; 
+  padding: 8px 10px;
   border-radius: 8px;
   transition: all 0.2s ease;
 }
@@ -1668,33 +1669,33 @@ body.overlay-open {
   background: rgba(255,255,255,0.05);
 }
 
-.footer button:active { 
-  transform: scale(0.98); 
+.footer button:active {
+  transform: scale(0.98);
 }
 
-.footer .muted { 
-  color: hsl(var(--muted-foreground)); 
-  font-size: 12px; 
-  margin-left: auto; 
+.footer .muted {
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  margin-left: auto;
 }
 
 /* Bottom sheet styles */
 .bs-overlay {
-  position: fixed; 
-  inset: 0; 
+  position: fixed;
+  inset: 0;
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(4px);
-  display: grid; 
-  place-items: end center; 
+  display: grid;
+  place-items: end center;
   z-index: 1000;
 }
 
 .bs-sheet {
-  width: 100%; 
-  max-height: 85vh; 
-  background: hsl(var(--background)); 
+  width: 100%;
+  max-height: 85vh;
+  background: hsl(var(--background));
   color: hsl(var(--foreground));
-  border-top-left-radius: 16px; 
+  border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   box-shadow: 0 -8px 30px rgba(0,0,0,0.5);
   padding-bottom: env(safe-area-inset-bottom);
@@ -1702,50 +1703,50 @@ body.overlay-open {
   border: 1px solid hsl(var(--border));
 }
 
-@keyframes rise { 
-  from { 
-    transform: translateY(12px); 
-    opacity: 0; 
-  } 
-  to { 
-    transform: translateY(0); 
-    opacity: 1; 
-  } 
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-.bs-grabber { 
-  width: 44px; 
-  height: 5px; 
-  background: hsl(var(--muted)); 
-  border-radius: 999px; 
-  margin: 8px auto; 
+.bs-grabber {
+  width: 44px;
+  height: 5px;
+  background: hsl(var(--muted));
+  border-radius: 999px;
+  margin: 8px auto;
 }
 
-.bs-title { 
-  margin: 6px 16px 8px; 
-  font-size: 16px; 
-  font-weight: 600; 
-  color: hsl(var(--foreground)); 
+.bs-title {
+  margin: 6px 16px 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
 }
 
-.bs-content { 
-  padding: 0 16px 16px; 
-  overflow: auto; 
-  max-height: calc(85vh - 60px); 
+.bs-content {
+  padding: 0 16px 16px;
+  overflow: auto;
+  max-height: calc(85vh - 60px);
 }
 
-.docs-menu { 
-  display: grid; 
-  gap: 8px; 
-  padding-bottom: 8px; 
+.docs-menu {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 8px;
 }
 
 .docs-menu button {
-  text-align: left; 
+  text-align: left;
   padding: 12px;
-  border-radius: 10px; 
-  background: hsl(var(--card)); 
-  border: 1px solid hsl(var(--border)); 
+  border-radius: 10px;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   color: hsl(var(--foreground));
   transition: all 0.2s ease;
 }
@@ -1755,9 +1756,9 @@ body.overlay-open {
   color: hsl(var(--accent-foreground));
 }
 
-.sheet-actions { 
-  display: grid; 
-  gap: 12px; 
+.sheet-actions {
+  display: grid;
+  gap: 12px;
 }
 
 .sheet-actions p {
@@ -1767,13 +1768,13 @@ body.overlay-open {
 }
 
 .sheet-actions .primary {
-  display: inline-block; 
-  text-align: center; 
-  padding: 12px 14px; 
+  display: inline-block;
+  text-align: center;
+  padding: 12px 14px;
   border-radius: 10px;
-  background: hsl(var(--primary)); 
-  color: hsl(var(--primary-foreground)); 
-  text-decoration: none; 
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
   font-weight: 600;
   transition: all 0.2s ease;
 }
@@ -1783,14 +1784,14 @@ body.overlay-open {
   transform: translateY(-1px);
 }
 
-.doc-body { 
-  line-height: 1.6; 
-  font-size: 14px; 
+.doc-body {
+  line-height: 1.6;
+  font-size: 14px;
   color: hsl(var(--foreground));
 }
 
-.doc-body h1, .doc-body h2, .doc-body h3 { 
-  margin: 1em 0 .5em; 
+.doc-body h1, .doc-body h2, .doc-body h3 {
+  margin: 1em 0 .5em;
   color: hsl(var(--foreground));
 }
 
@@ -1813,8 +1814,8 @@ body.overlay-open {
   margin: 0.5em 0;
 }
 
-.doc-body a { 
-  color: hsl(var(--primary)); 
+.doc-body a {
+  color: hsl(var(--primary));
   text-decoration: underline;
 }
 
@@ -1839,8 +1840,8 @@ body.overlay-open {
 }
 
 /* SAFETY NET: let grid see cells if there are wrappers */
-.row-grid > .cell-wrap { 
-  display: contents; 
+.row-grid > .cell-wrap {
+  display: contents;
 }
 
 /* Keep # column always visible */
@@ -1853,20 +1854,20 @@ body.overlay-open {
 }
 
 /* cell-level stickiness for fixed columns */
-.header-cell.reference, .data-cell.reference, 
+.header-cell.reference, .data-cell.reference,
 .column-header-cell[data-column="reference"], .cell[data-column="reference"],
 .cell-ref {
-  position: sticky !important; 
-  left: 0 !important; 
-  z-index: 3 !important; 
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 3 !important;
   background: var(--bg-primary, white) !important;
   border-right: 1px solid var(--border-color, #e5e7eb) !important;
 }
 
 .header-cell.index, .data-cell.index,
 .column-header-cell[data-column="index"], .cell[data-column="index"] {
-  position: sticky !important; 
-  left: 0 !important; 
+  position: sticky !important;
+  left: 0 !important;
   z-index: 4 !important;
   background: var(--bg-primary, white) !important;
 }
