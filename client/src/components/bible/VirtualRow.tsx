@@ -351,7 +351,7 @@ function MainTranslationCell({
   verse, 
   getVerseText, 
   mainTranslation,
-  getVerseLabels
+  getVerseLabels 
 }: {
   verse: BibleVerse;
   getVerseText: (reference: string, translation: string) => string;
@@ -501,21 +501,21 @@ export function VirtualRow({
 }: VirtualRowProps) {
   // Track orientation changes for responsive date positioning
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
-
+  
   useEffect(() => {
     const handleOrientationChange = () => {
       setIsPortrait(window.innerHeight > window.innerWidth);
     };
-
+    
     window.addEventListener('resize', handleOrientationChange);
     window.addEventListener('orientationchange', handleOrientationChange);
-
+    
     return () => {
       window.removeEventListener('resize', handleOrientationChange);
       window.removeEventListener('orientationchange', handleOrientationChange);
     };
   }, []);
-
+  
   // FIX #1: Use translation store as SINGLE source of truth for mainTranslation
   const store = useBibleStore();
   const { main: mainTranslation, alternates } = useTranslationMaps();
@@ -727,58 +727,37 @@ export function VirtualRow({
         return '160px'; // fallback
       }
 
-      // Convert rem to pixels using a base factor (e.g., 16px per rem)
-      // The CSS custom properties handle the multiplier, so we just need to ensure they're used.
-      // The specific values for these CSS properties should be defined in a global stylesheet or CSS file.
-      if (isPortrait) {
-        switch (slotNumber) {
-          case 0: return 'var(--adaptive-ref-width, 80px)';
-          case 2: return 'var(--adaptive-notes-width, 120px)';
-          case 3: return 'var(--adaptive-main-width, 320px)';
-          case 7: return 'var(--adaptive-cross-width, 240px)';
-          default: 
-            if (slotNumber >= 8 && slotNumber <= 10) return 'var(--adaptive-prophecy-width, 160px)';
-            if (slotNumber >= 12 && slotNumber <= 19) return 'var(--adaptive-alt-width, 288px)';
-            return 'var(--adaptive-alt-width, 288px)';
-        }
+      // Use adaptive CSS variables for portrait/landscape modes
+      const isPortraitInCell = window.innerHeight > window.innerWidth;
+
+      if (isPortraitInCell) {
+        // Portrait mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
+        if (slotNumber === 0) return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 2 && config.type === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 3 && config.type === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 7 && config.type === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 8 && slotNumber <= 10 && (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v')) return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 12 && slotNumber <= 19 && config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+        return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
       } else {
-        switch (slotNumber) {
-          case 0: return 'var(--adaptive-ref-width, 80px)';
-          case 2: return 'var(--adaptive-notes-width, 120px)';
-          case 3: return 'var(--adaptive-main-width, 320px)';
-          case 7: return 'var(--adaptive-cross-width, 240px)';
-          default: 
-            if (slotNumber >= 8 && slotNumber <= 10) return 'var(--adaptive-prophecy-width, 160px)';
-            if (slotNumber >= 12 && slotNumber <= 19) return 'var(--adaptive-alt-width, 288px)';
-            return 'var(--adaptive-alt-width, 288px)';
-        }
+        // Landscape mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
+        if (slotNumber === 0) return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 2) return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 3) return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 7) return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 8 && slotNumber <= 10) return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+        if (slotNumber >= 12 && slotNumber <= 19) return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+        return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
       }
     };
 
-    // Helper function to get cell-specific styles, including the dynamic widths
-    const getCellStyle = (columnType: string) => {
-      const baseStyles: React.CSSProperties = {
-        color: 'var(--text-primary)',
-        borderColor: 'var(--border-color)',
-        height: '100%', // Ensure cell content takes full height
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxSizing: 'border-box', // Include padding and border in the element's total width and height
-        overflow: 'hidden', // Prevent content from spilling out
-        padding: '0', // Reset padding, it will be applied inside the inner div
-        margin: '0', // Reset margin
-      };
-
-      const responsiveWidth = getResponsiveColumnPixelWidth(slot);
-
-      return {
-        ...baseStyles,
-        width: responsiveWidth,
-        minWidth: responsiveWidth, // Ensure it doesn't shrink below the responsive width
-        maxWidth: responsiveWidth, // Ensure it doesn't grow beyond the responsive width
-      };
+    // Use inline styles for exact width matching with responsive column width scaling
+    const columnStyle = {
+      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
+      flexShrink: 0
     };
+
+    const bgClass = "";
 
     switch (config.type) {
       case 'reference':
@@ -786,17 +765,17 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
-            style={getCellStyle('reference')}
           >
-            <div className={`px-1 py-1 text-xs flex items-center justify-center ${
+            <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
               isPortraitInRefCell 
-                ? 'flex-row gap-1' 
-                : 'flex-col'
+                ? 'flex flex-row items-center justify-center gap-1' 
+                : 'flex flex-col items-center justify-center'
             }`}>
-              <span className={`leading-none ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
+              <span className={`leading-none m-0 p-0 ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
                 {verse.reference}
               </span>
               {showDates && (
@@ -814,9 +793,9 @@ export function VirtualRow({
           <div 
             key={slot} 
             className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
-            style={getCellStyle('notes')}
           >
             <NotesCell verseRef={verse.reference} className="h-full" onVerseClick={onVerseClick} />
           </div>
@@ -827,9 +806,9 @@ export function VirtualRow({
           <div 
             key={slot} 
             className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
-            style={getCellStyle('main-translation')}
           >
             <MainTranslationCell 
               key={`${verse.reference}-${mainTranslation}`}
@@ -886,38 +865,36 @@ export function VirtualRow({
           <div 
             key={slot} 
             className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" 
-            data-column="alt-translation"
-            data-col-key={`alt-translation-${translationCode}`}
-            style={getCellStyle('alt-translation')}
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
           >
-            <div className="px-2 py-1 text-sm" style={getCellStyle('alt-translation')}>
-              <HoverVerseBar
-                verse={verse}
-                translation={config.translationCode}
-                onCopy={handleAltCopy}
-                onBookmark={handleAltBookmark}
-                onShare={handleAltShare}
-                wrapperClassName="h-full max-h-full"
-              >
-                <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
-                  {verseText ? (
-                    shouldUseLabeledText ? (
-                      <LabeledText
-                        text={verseText}
-                        labelData={verseLabels}
-                        activeLabels={activeLabels}
-                        verseKey={`${verse.reference}-${config.translationCode}`}
-                        translationCode={config.translationCode}
-                      />
-                    ) : (
-                      verseText
-                    )
+            <HoverVerseBar
+              verse={verse}
+              translation={config.translationCode}
+              onCopy={handleAltCopy}
+              onBookmark={handleAltBookmark}
+              onShare={handleAltShare}
+              wrapperClassName="h-full max-h-full"
+            >
+              <div className="px-2 py-1 text-sm cell-content h-full max-h-full overflow-y-auto">
+                {verseText ? (
+                  shouldUseLabeledText ? (
+                    <LabeledText
+                      text={verseText}
+                      labelData={verseLabels}
+                      activeLabels={activeLabels}
+                      verseKey={`${verse.reference}-${config.translationCode}`}
+                      translationCode={config.translationCode}
+                    />
                   ) : (
-                    `[${config.translationCode} loading...]`
-                  )}
-                </div>
-              </HoverVerseBar>
-            </div>
+                    verseText
+                  )
+                ) : (
+                  `[${config.translationCode} loading...]`
+                )}
+              </div>
+            </HoverVerseBar>
           </div>
         );
 
@@ -926,9 +903,9 @@ export function VirtualRow({
           <div 
             key={slot} 
             className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
-            style={getCellStyle('cross-refs')}
             onWheel={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
@@ -954,20 +931,18 @@ export function VirtualRow({
           <div 
             key={slot} 
             className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
-            style={getCellStyle('prophecy')}
           >
-            <div className="px-2 py-1 text-sm" style={getCellStyle('prophecy')}>
-              <ProphecyCell 
-                verse={verse} 
-                type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
-                getVerseText={getVerseText}
-                mainTranslation={mainTranslation}
-                onVerseClick={onVerseClick}
-                getVerseLabels={getVerseLabels}
-              />
-            </div>
+            <ProphecyCell 
+              verse={verse} 
+              type={config.type.split('-')[1].toUpperCase() as "P" | "F" | "V"}
+              getVerseText={getVerseText}
+              mainTranslation={mainTranslation}
+              onVerseClick={onVerseClick}
+              getVerseLabels={getVerseLabels}
+            />
           </div>
         );
 
