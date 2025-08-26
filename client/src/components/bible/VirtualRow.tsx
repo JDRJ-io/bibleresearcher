@@ -48,15 +48,13 @@ function ReferenceCell({ verse }: CellProps) {
 
   return (
     <div 
-      className={`${isMobile ? 'cell-ref' : 'colW-ref'} font-medium glass-morphism glass-reference-cell border-r`}
+      className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
       style={{
         color: 'var(--text-primary)',
         borderColor: 'var(--border-color)'
       }}
     >
-      <div className="px-1 py-1 text-xs">
-        {verse.reference}
-      </div>
+      {verse.reference}
     </div>
   );
 }
@@ -753,20 +751,11 @@ export function VirtualRow({
       }
     };
 
-    // Determine the appropriate width class based on column type
-    const getColumnWidthClass = (type: string) => {
-      switch(type) {
-        case 'reference': return 'colW-ref';
-        case 'main-translation': return 'colW-main';
-        case 'alt-translation': return 'colW-alt';
-        case 'cross-ref': return 'colW-xref';
-        case 'notes': return 'colW-notes';
-        case 'prophecy': return 'colW-prophecy';
-        default: return 'colW-main';
-      }
+    // Use inline styles for exact width matching with responsive column width scaling
+    const columnStyle = {
+      width: getResponsiveColumnPixelWidth(slot), // Unified variables already include multiplier
+      flexShrink: 0
     };
-    
-    const widthClass = getColumnWidthClass(config.type);
 
     const bgClass = "";
 
@@ -776,8 +765,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell"
-            style={{ width: 'var(--col-ref)', minWidth: 'var(--col-ref)', flexShrink: 0 }}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -803,8 +792,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column border-r border-gray-200 dark:border-gray-700"
-            style={{ width: 'var(--col-prophecy)', minWidth: 'var(--col-prophecy)', flexShrink: 0 }}
+            className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -816,8 +805,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full"
-            style={{ width: 'var(--col-main)', minWidth: 'var(--col-main)', flexShrink: 0 }}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -875,8 +864,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column border-r border-gray-200 dark:border-gray-700 h-full"
-            style={{ width: 'var(--col-alt)', minWidth: 'var(--col-alt)', flexShrink: 0 }}
+            className="bible-column border-r border-gray-200 dark:border-gray-700 h-full" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -913,8 +902,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700"
-            style={{ width: 'var(--col-xref)', minWidth: 'var(--col-xref)', flexShrink: 0 }}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
             onWheel={(e) => e.stopPropagation()}
@@ -941,8 +930,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className="bible-column border-r border-gray-200 dark:border-gray-700"
-            style={{ width: 'var(--col-prophecy)', minWidth: 'var(--col-prophecy)', flexShrink: 0 }}
+            className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -1024,19 +1013,16 @@ interface TranslationCellProps {
 
 function TranslationCell({ verse, translation, getVerseText, isMain }: TranslationCellProps) {
   const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
-  const widthClass = isMain ? 'colW-main' : 'colW-alt';
 
   return (
-    <div className={`${widthClass} overflow-hidden`}>
-      <div className="px-2 py-1 text-sm">
-        <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
-          <div className="whitespace-pre-wrap break-words leading-relaxed">
-            {verseText || (
-              <span className="text-muted-foreground italic">
-                [{verse.reference} - {translation} loading...]
-              </span>
-            )}
-          </div>
+    <div className="w-80 px-2 py-1 text-sm flex-shrink-0 overflow-hidden">
+      <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
+        <div className="whitespace-pre-wrap break-words leading-relaxed">
+          {verseText || (
+            <span className="text-muted-foreground italic">
+              [{verse.reference} - {translation} loading...]
+            </span>
+          )}
         </div>
       </div>
     </div>

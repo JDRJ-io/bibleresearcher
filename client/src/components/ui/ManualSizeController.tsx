@@ -228,12 +228,7 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
               max="2.0"
               step="0.05"
               value={columnWidth}
-              onChange={(e) => {
-                const newWidth = parseFloat(e.target.value);
-                setColumnWidth(newWidth);
-                // Emit column change signal immediately
-                emitColumnChange('multiplier', { multiplier: newWidth });
-              }}
+              onChange={(e) => setColumnWidth(parseFloat(e.target.value))}
               className="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer dark:bg-orange-700 slider-thumb-orange"
             />
             <p className="text-xs text-gray-600 dark:text-gray-400">

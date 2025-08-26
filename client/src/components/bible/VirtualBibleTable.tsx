@@ -206,27 +206,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
 
   // Get store state for column toggles
   const { showCrossRefs, showProphecies, toggleCrossRefs, showNotes, showPrediction, showFulfillment, showVerification, translationState } = useBibleStore();
-  
-  // Track column width multiplier changes to force grid recalculation
-  const [columnWidthMult, setColumnWidthMult] = useState(1);
-  
-  useEffect(() => {
-    const updateMult = () => {
-      const mult = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult').trim()) || 1;
-      setColumnWidthMult(mult);
-    };
-    
-    updateMult();
-    
-    // Watch for CSS variable changes
-    const observer = new MutationObserver(updateMult);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
-    
-    return () => observer.disconnect();
-  }, []);
 
   // NEW: Update store with current column configuration (now that store variables are available)
   useEffect(() => {
@@ -586,75 +565,27 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
   }, [adaptiveConfig]);
 
-  // Calculate actual total width including column width multiplier
+  // Calculate actual total width using real adaptive widths
   const actualTotalWidth = useMemo(() => {
-    // Get the column width multiplier from CSS variable
-    const mult = typeof window !== 'undefined' 
-      ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult').trim()) || 1
-      : 1;
-    
-    // Get base widths from CSS variables (these already include the multiplier)
-    const computedStyle = typeof window !== 'undefined' ? getComputedStyle(document.documentElement) : null;
+    const { adaptiveWidths } = adaptiveConfig;
     let width = 0;
     
-    if (computedStyle) {
-      // Parse the calc() expressions to get actual pixel values
-      const getPixelValue = (cssVar: string, fallback: number): number => {
-        const value = computedStyle.getPropertyValue(cssVar).trim();
-        if (value.startsWith('calc(')) {
-          // Extract base value and multiply
-          const match = value.match(/calc\((\d+(?:\.\d+)?)(px|rem)?\s*\*\s*(\d+(?:\.\d+)?)\)/i);
-          if (match) {
-            const base = parseFloat(match[1]);
-            const multiplier = parseFloat(match[3]);
-            return base * multiplier;
-          }
-        } else if (value.endsWith('px')) {
-          return parseFloat(value);
-        }
-        return fallback * mult;
-      };
-      
-      // Reference column
-      width += getPixelValue('--col-ref', 72);
-      
-      // Main translation
-      width += getPixelValue('--col-main', 320);
-      
-      // Cross refs
-      if (showCrossRefs) width += getPixelValue('--col-xref', 288);
-      
-      // Notes
-      if (showNotes) width += getPixelValue('--col-notes', 288);
-      
-      // Prophecy columns
-      if (showProphecies) {
-        const prophecyWidth = getPixelValue('--col-prophecy', 200);
-        if (store.showPrediction) width += prophecyWidth;
-        if (store.showFulfillment) width += prophecyWidth;
-        if (store.showVerification) width += prophecyWidth;
-      }
-      
-      // Alternate translations
-      const altWidth = getPixelValue('--col-alt', 320);
-      width += (activeTranslations.filter(t => t !== mainTranslation).length * altWidth);
-    } else {
-      // Fallback calculation
-      const { adaptiveWidths } = adaptiveConfig;
-      width = adaptiveWidths.reference + adaptiveWidths.mainTranslation;
-      if (showCrossRefs) width += adaptiveWidths.crossReference;
-      if (showNotes) width += adaptiveWidths.notes;
-      if (showProphecies) {
-        if (store.showPrediction) width += adaptiveWidths.prophecy;
-        if (store.showFulfillment) width += adaptiveWidths.prophecy;
-        if (store.showVerification) width += adaptiveWidths.prophecy;
-      }
-      width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
-      width = width * mult;
+    width += adaptiveWidths.reference; // Reference column (actual width)
+    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
+    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
+    
+    // Prophecy columns - each uses prophecy width
+    if (showProphecies) {
+      if (store.showPrediction) width += adaptiveWidths.prophecy;
+      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
+      if (store.showVerification) width += adaptiveWidths.prophecy;
     }
     
+    // Alternate translations use alternate width
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
+    
     return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showNotes, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig, columnWidthMult]);
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig]);
 
   // ADAPTIVE VERSE REFERENCE ROTATION: Monitor reference column width and rotate when thin
   useReferenceColumnWidth();
@@ -672,19 +603,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // The old static column system has been removed
   // All column calculations now happen dynamically via useMeasureVisibleColumns
 
-  // PROPER CENTERING: Use responsive config for landscape centering, and also check if columns fit
-  const shouldCenter = responsiveConfig.columnAlignment === 'centered' && actualTotalWidth < viewportWidth - 40;
+  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
+  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
-  
-  // Debug centering logic
-  console.log('🎯 Centering Logic:', {
-    columnAlignment: responsiveConfig.columnAlignment,
-    isLandscape: responsiveConfig.isLandscape,
-    actualTotalWidth,
-    viewportWidth,
-    shouldCenter,
-    needsHorizontalScroll
-  });
 
   // Simplified vertical-only scrolling system with header rollup detection
   useEffect(() => {
@@ -789,24 +710,25 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            minWidth: shouldCenter ? '100%' : `${actualTotalWidth}px`,
+            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: 'visible',
-            display: 'flex',
-            justifyContent: shouldCenter ? 'center' : 'flex-start'
+            overflow: 'visible'
           }}
         >
           <div className="tableInner bibleTable"
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: '0',
+              margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
               overflow: 'visible',
               // Apply responsive grid template columns from JavaScript calculations
-              // Force recalculation when columnWidthMult changes
-              gridTemplateColumns: columnWidthMult ? getSharedGridTemplate() : getSharedGridTemplate(),
+              gridTemplateColumns: getSharedGridTemplate(),
               display: 'grid'
+            }}>
+            <div style={{ 
+              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
@@ -870,6 +792,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
+            </div>
           </div>
         </div>
       </div>

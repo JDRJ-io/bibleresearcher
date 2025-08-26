@@ -211,22 +211,6 @@ body {
   --text-size-mult: 1.0; /* Text size in Bible content */
   --row-height-mult: 1.0; /* Row spacing in Bible table */
   --column-width-mult: 1.0; /* Universal column width expansion */
-  
-  /* Base column widths - optimized for big screens */
-  --col-ref-base: 72px;
-  --col-main-base: 320px;
-  --col-alt-base: 320px;
-  --col-xref-base: 288px;
-  --col-notes-base: 288px;
-  --col-prophecy-base: 200px;
-  
-  /* Computed column widths with multiplier */
-  --col-ref: calc(var(--col-ref-base) * var(--column-width-mult));
-  --col-main: calc(var(--col-main-base) * var(--column-width-mult));
-  --col-alt: calc(var(--col-alt-base) * var(--column-width-mult));
-  --col-xref: calc(var(--col-xref-base) * var(--column-width-mult));
-  --col-notes: calc(var(--col-notes-base) * var(--column-width-mult));
-  --col-prophecy: calc(var(--col-prophecy-base) * var(--column-width-mult));
 
   /* Automatic adaptive sizing - screen resolution based */
   --adaptive-header-scale: 1.0; /* Top header auto-sizing */
@@ -693,22 +677,11 @@ body {
   inline-size: max-content; 
 }
 
-/* LANDSCAPE MODE - Expert's orientation-aware layout */
-@media (orientation: landscape) {
-  .tableWrapper {
-    justify-content: center !important;        /* center content in landscape */
-  }
-  
-  .bibleTable {
-    margin: 0 auto !important;                 /* center table content in landscape */
-  }
-}
-
 /* PORTRAIT MODE - Expert's orientation-aware layout */
 @media (orientation: portrait) {
   /* Switch to left-aligned layout in portrait */
   .tableWrapper { 
-    justify-content: flex-start !important;     /* hug the left in portrait */
+    justify-content: flex-start;                 /* hug the left */
     max-width: 100vw;                           /* Never exceed viewport */
   }
 
@@ -754,10 +727,15 @@ body {
   overscroll-behavior: contain;       /* no scroll chaining */
 }
 
-/* Table wrapper - additional scroll rules */
+/* Table wrapper - horizontal scroll only */
 .tableWrapper {
+  overflow-x: auto;                   /* shows bar only if needed */
+  overflow-y: hidden;
+  scrollbar-gutter: stable;           /* prevents width-jump when bar appears */
   touch-action: pan-x pinch-zoom;     /* allow X-panning only */
+  overscroll-behavior: contain;       /* stop bounce from bubbling up */
   scroll-snap-type: x mandatory;      /* neat column snap */
+  -webkit-overflow-scrolling: touch;  /* momentum on iOS */
 }
 
 /* Portrait mode - axis-locked scrolling with left alignment */
@@ -767,12 +745,12 @@ body {
 
 /* Landscape mode - smart centering with overflow support */
 .tableWrapper.twLandscape {
-  justify-content: center;            /* center content in landscape */
   overflow-x: auto;                   /* horizontal scroll when needed */
 }
 
 .tableWrapper.twLandscape .bibleTable {
   width: max-content;                 /* shrink-wrap to columns */
+  margin: 0 auto;                     /* center while columns fit viewport */
 }
 
 /* Column groups for snap alignment */
@@ -1590,8 +1568,22 @@ body.overlay-open {
     width: calc(var(--colW) * 2.2); /* Slightly wider for better proportions */
   }
 
-  /* DEPRECATED: These overrides interfere with the column width system
-   * Use the colW-* classes instead which properly respect --column-width-mult */
+  /* Responsive column scaling */
+  .w-12 { width: calc(3rem * var(--font-size-multiplier, 1)); }
+  .w-14 { width: calc(3.5rem * var(--font-size-multiplier, 1)); }
+  .w-16 { width: calc(4rem * var(--font-size-multiplier, 1)); }
+  .w-20 { width: calc(5rem * var(--font-size-multiplier, 1)); }
+  .w-48 { width: calc(12rem * var(--font-size-multiplier, 1)); }
+  .w-64 { width: calc(16rem * var(--font-size-multiplier, 1)); }
+  .w-80 { width: calc(20rem * var(--font-size-multiplier, 1)); }
+
+  /* Mobile column width overrides - use CSS variables for consistency */
+  .dual-col .w-80 { width: calc(var(--colW) * 1) !important; }
+  .dual-col .w-60 { width: calc(var(--colW) * 0.75) !important; }
+  .dual-col .w-20 { width: calc(var(--colW) * 0.25) !important; }
+  .dual-col .w-16 { width: calc(var(--colW) * 0.2) !important; }
+  .dual-col .w-14 { width: calc(var(--colW) * 0.175) !important; }
+  .dual-col .w-12 { width: calc(var(--colW) * 0.15) !important; }
 }
 
 /* ADAPTIVE VERSE REFERENCE ROTATION - Based on Column Width, Not Screen Size */
@@ -1891,11 +1883,3 @@ body.overlay-open {
   margin-left: 0 !important;
   transform: none !important;
 }
-
-/* Column width utility classes - apply on the OUTER cell wrapper that governs track size */
-.colW-ref      { width: var(--col-ref);      min-width: var(--col-ref);      flex: 0 0 auto; }
-.colW-main     { width: var(--col-main);     min-width: var(--col-main);     flex: 0 0 auto; }
-.colW-alt      { width: var(--col-alt);      min-width: var(--col-alt);      flex: 0 0 auto; }
-.colW-xref     { width: var(--col-xref);     min-width: var(--col-xref);     flex: 0 0 auto; }
-.colW-notes    { width: var(--col-notes);    min-width: var(--col-notes);    flex: 0 0 auto; }
-.colW-prophecy { width: var(--col-prophecy); min-width: var(--col-prophecy); flex: 0 0 auto; }

@@ -856,32 +856,43 @@ export const useBibleStore = create<{
       window.innerWidth <= 640 && 
       window.innerHeight > window.innerWidth;
     
-    // Get CSS variable values directly for each column type
-    const getColumnWidth = (col: any) => {
-      if (typeof window === 'undefined') return '200px';
-      
-      const computedStyle = getComputedStyle(document.documentElement);
-      
-      // Map column types to CSS variables
-      if (col.key === 'reference' || col.type === 'reference') {
-        return computedStyle.getPropertyValue('--col-ref').trim() || '72px';
-      } else if (col.key === 'main-translation' || col.type === 'translation') {
-        return computedStyle.getPropertyValue('--col-main').trim() || '320px';
-      } else if (col.key === 'cross-refs' || col.type === 'cross-ref') {
-        return computedStyle.getPropertyValue('--col-xref').trim() || '288px';
-      } else if (col.type === 'prophecy' || col.key?.includes('prophecy')) {
-        return computedStyle.getPropertyValue('--col-prophecy').trim() || '200px';
-      } else if (col.type === 'alt-translation') {
-        return computedStyle.getPropertyValue('--col-alt').trim() || '320px';
-      } else if (col.type === 'notes' || col.key === 'notes') {
-        return computedStyle.getPropertyValue('--col-notes').trim() || '288px';
-      } else {
-        return computedStyle.getPropertyValue('--col-main').trim() || '200px';
-      }
-    };
-    
     const templateForVisible = activeColumns.map((col, index) => {
-      return getColumnWidth(col);
+      // Try to get width from columnWidthsPx first
+      let width = s.columnWidthsPx[col.key];
+      
+      if (!width && isMobilePortrait) {
+        // For mobile portrait, use adaptive widths and smart sizing for additional columns
+        if (col.key === 'reference') {
+          width = 32; // Use adaptive reference width
+        } else if (col.key === 'main-translation' || col.type === 'translation') {
+          width = 150; // Use adaptive main width (will be updated by CSS variables)
+        } else if (col.key === 'cross-refs') {
+          width = 150; // Use adaptive cross width
+        } else if (col.type === 'prophecy') {
+          width = 80; // Compact width for prophecy columns on mobile
+        } else if (col.type === 'alt-translation') {
+          width = 120; // Compact width for alternate translations
+        } else if (col.type === 'notes') {
+          width = 100; // Compact width for notes
+        } else {
+          width = 100; // Default compact width for other columns
+        }
+      }
+      
+      // Fallback to reasonable defaults based on column type
+      if (!width) {
+        if (col.key === 'reference') {
+          width = 72;
+        } else if (col.type === 'prophecy') {
+          width = 200;
+        } else if (col.type === 'cross-ref') {
+          width = 288;
+        } else {
+          width = 200;
+        }
+      }
+      
+      return `${width}px`;
     }).join(' ');
     
     const visibleKeys = Array.from({ length: total }, (_, i) => `col-${start + i}`);
