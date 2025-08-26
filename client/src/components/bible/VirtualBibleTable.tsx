@@ -559,7 +559,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
     
     // Notes column - use adaptive width
-    if (preferences?.showNotes) {
+    if (showNotes) {
       width += adaptiveWidths.notes;
       console.log('🔧 Width calc: Notes +', adaptiveWidths.notes, '= total:', width);
     }
@@ -583,13 +583,13 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       mainTranslation: true,
       crossRefs: showCrossRefs,
       prophecies: showProphecies,
-      notes: preferences?.showNotes,
+      notes: showNotes,
       dates: store.showDates,
       altTranslations: altCount
     });
     
     return width;
-  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, preferences?.showNotes, store.showDates]);
+  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, store.showDates]);
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';
 
