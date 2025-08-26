@@ -25,7 +25,7 @@ import { useBibleData } from "@/hooks/useBibleData";
 import { useVerseNav } from "@/hooks/useVerseNav";
 import { makeScrollToVerse } from "@/utils/scrollToVerse";
 import { getVerseIndex } from "@/lib/verseIndexMap";
-import { useSmoothAxisLock } from "@/hooks/useSmoothAxisLock";
+import { useNaturalAxisLock } from "@/hooks/useNaturalAxisLock";
 
 import type {
   BibleVerse,
@@ -100,14 +100,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
 
-  // AXIS-LOCKED SCROLLING: Apply the new smooth axis lock system with kinetic momentum
-  useSmoothAxisLock(containerRef, {
+  // NATURAL AXIS-LOCKED SCROLLING: Let browser handle momentum, we just control overflow axes
+  useNaturalAxisLock(containerRef, {
     dominanceRatio: 1.2,
     wheelUnlockMs: 160,
-    momentum: true,             // enables touch fling
-    momentumDecay: 0.003,       // feel: 0.002 (long) .. 0.005 (short)
-    momentumMinVelocity: 0.05,  // ~50 px/s threshold
-    momentumMaxDuration: 1200,
+    gestureThreshold: 8,
   });
 
   // NEW: Measure actual column container for dynamic visible count calculation
