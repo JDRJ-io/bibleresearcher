@@ -39,7 +39,7 @@ const Footer = () => {
 
   return (
     <>
-      <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 dark:bg-background/80 light:bg-white/80">
+      <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:bg-background/95 light:bg-white/95">
         <div className="container mx-auto px-4 py-2">
           {/* Desktop: Single row layout */}
           <div className="hidden sm:flex justify-between items-center text-xs text-muted-foreground">

@@ -848,57 +848,14 @@ export const useBibleStore = create<{
     const canGoLeft = false; // No need for navigation since we show all
     const canGoRight = false; // No need for navigation since we show all
 
-    // Generate template using responsive widths that account for mobile viewport
-    const activeColumns = s.buildActiveColumns();
-    
-    // Check if we're in mobile portrait mode
-    const isMobilePortrait = typeof window !== 'undefined' && 
-      window.innerWidth <= 640 && 
-      window.innerHeight > window.innerWidth;
-    
-    const templateForVisible = activeColumns.map((col, index) => {
-      // Try to get width from columnWidthsPx first
-      let width = s.columnWidthsPx[col.key];
-      
-      if (!width && isMobilePortrait) {
-        // For mobile portrait, use adaptive widths and smart sizing for additional columns
-        if (col.key === 'reference') {
-          width = 32; // Use adaptive reference width
-        } else if (col.key === 'main-translation' || col.type === 'translation') {
-          width = 150; // Use adaptive main width (will be updated by CSS variables)
-        } else if (col.key === 'cross-refs') {
-          width = 150; // Use adaptive cross width
-        } else if (col.type === 'prophecy') {
-          width = 80; // Compact width for prophecy columns on mobile
-        } else if (col.type === 'alt-translation') {
-          width = 120; // Compact width for alternate translations
-        } else if (col.type === 'notes') {
-          width = 100; // Compact width for notes
-        } else {
-          width = 100; // Default compact width for other columns
-        }
-      }
-      
-      // Fallback to reasonable defaults based on column type
-      if (!width) {
-        if (col.key === 'reference') {
-          width = 72;
-        } else if (col.type === 'prophecy') {
-          width = 200;
-        } else if (col.type === 'cross-ref') {
-          width = 288;
-        } else {
-          width = 200;
-        }
-      }
-      
-      return `${width}px`;
-    }).join(' ');
-    
+    // Generate template for ALL columns with proper widths
+    const templateForVisible = Array(total).fill('360px').join(' ');
     const visibleKeys = Array.from({ length: total }, (_, i) => `col-${start + i}`);
+    
+    // Get actual active columns for proper rendering
+    const activeColumns = s.buildActiveColumns();
 
     console.log('🔍 NAVIGATION: Setting navigable columns:', s.navigableColumns);
-    console.log('🔍 NAVIGATION: Template widths:', templateForVisible);
 
     return {
       start,

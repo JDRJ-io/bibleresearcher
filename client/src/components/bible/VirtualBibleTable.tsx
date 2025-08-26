@@ -103,7 +103,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   useMeasureVisibleColumns(containerRef.current);
 
   // NEW: Update store with current column configuration (moved below store declarations)
-  const { setFixedColumns, setNavigableColumns, setColumnWidthPx, getSharedGridTemplate } = useBibleStore();
+  const { setFixedColumns, setNavigableColumns, setColumnWidthPx } = useBibleStore();
   
   // Remove ref handling for now
   
@@ -519,6 +519,17 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
+  // Calculate actual total width based on visible columns - simplified approach
+  const actualTotalWidth = useMemo(() => {
+    let width = 0;
+    width += 80; // Reference column ~80px  
+    width += 320; // Main translation ~320px
+    if (showCrossRefs) width += 320; // Cross refs ~320px
+    if (showProphecies) width += 180; // P+F+V ~60px each
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    return width;
+  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
+
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
 
@@ -565,28 +576,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
   }, [adaptiveConfig]);
 
-  // Calculate actual total width using real adaptive widths
-  const actualTotalWidth = useMemo(() => {
-    const { adaptiveWidths } = adaptiveConfig;
-    let width = 0;
-    
-    width += adaptiveWidths.reference; // Reference column (actual width)
-    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
-    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
-    
-    // Prophecy columns - each uses prophecy width
-    if (showProphecies) {
-      if (store.showPrediction) width += adaptiveWidths.prophecy;
-      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
-      if (store.showVerification) width += adaptiveWidths.prophecy;
-    }
-    
-    // Alternate translations use alternate width
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
-    
-    return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig]);
-
   // ADAPTIVE VERSE REFERENCE ROTATION: Monitor reference column width and rotate when thin
   useReferenceColumnWidth();
 
@@ -603,17 +592,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // The old static column system has been removed
   // All column calculations now happen dynamically via useMeasureVisibleColumns
 
-  // PROPER CENTERING: Center when content fits AND we're in true landscape mode on wider screens
-  const isWideScreen = viewportWidth >= 1025;
-  const isRealLandscape = !isPortrait && isWideScreen;
-  const shouldCenter = isRealLandscape && actualTotalWidth <= viewportWidth * 0.9;
+  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
+  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
-
-  // Force re-render when columns change to trigger dynamic recentering
-  useEffect(() => {
-    // This effect runs whenever column visibility changes, triggering a layout recalculation
-    console.log('🎯 CENTERING: Columns changed, actualTotalWidth:', actualTotalWidth, 'shouldCenter:', shouldCenter);
-  }, [activeTranslations.length, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, actualTotalWidth, shouldCenter]);
 
   // Simplified vertical-only scrolling system with header rollup detection
   useEffect(() => {
@@ -693,7 +674,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           (hScrollRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className="unified-scroll-container scroll-area tableWrapper"
+        className="unified-scroll-container scroll-area"
         style={{ 
           position: 'relative',
           height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",
@@ -706,9 +687,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none', // IE/Edge
-          // Apply the same centering logic as headers
-          display: 'flex',
-          justifyContent: shouldCenter ? 'center' : 'flex-start',
           // On mobile, allow both horizontal and vertical scrolling
           ...(isMobile && {
             touchAction: 'auto',
@@ -718,28 +696,25 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
         data-testid="bible-table"
       >
-        {/* Content container */}
+        {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            minWidth: 'fit-content',
+            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: 'visible',
-            width: 'fit-content'
+            overflow: 'visible'
           }}
         >
-          <div className="tableInner bibleTable"
+          <div className="tableInner flex"
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              overflow: 'visible',
-              // Apply responsive grid template columns from JavaScript calculations
-              gridTemplateColumns: getSharedGridTemplate(),
-              display: 'grid'
+              margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
+              overflow: 'visible'
             }}>
             <div style={{ 
-              minWidth: 'fit-content',
-              width: 'fit-content'
+              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
+              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {

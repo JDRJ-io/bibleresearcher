@@ -78,61 +78,6 @@ export function NewColumnHeaders({
 
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
-  
-  // Add responsive state for centering logic
-  const [shouldCenter, setShouldCenter] = useState(false);
-  
-  useEffect(() => {
-    const updateCentering = () => {
-      const isPortrait = window.innerHeight > window.innerWidth;
-      const isWideScreen = window.innerWidth >= 1025;
-      const isRealLandscape = !isPortrait && isWideScreen;
-      setShouldCenter(isRealLandscape);
-    };
-
-    // Set initial value
-    updateCentering();
-
-    // Listen for window resize
-    window.addEventListener('resize', updateCentering);
-    
-    return () => window.removeEventListener('resize', updateCentering);
-  }, []);
-  
-  // Calculate actual total width using real adaptive widths - same logic as VirtualBibleTable
-  const actualTotalWidth = useMemo(() => {
-    let width = 0;
-    
-    width += adaptiveWidths.reference; // Reference column (actual width)
-    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
-    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
-    
-    // Prophecy columns - each uses prophecy width
-    if (showProphecy) {
-      if (store.showPrediction) width += adaptiveWidths.prophecy;
-      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
-      if (store.showVerification) width += adaptiveWidths.prophecy;
-    }
-    
-    // Alternate translations use alternate width - THIS IS THE KEY FIX
-    width += (alternates.length * adaptiveWidths.alternate);
-    
-    return width;
-  }, [alternates.length, showCrossRefs, showProphecy, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths]);
-
-  // Update centering when columns change - now includes actual width calculation
-  useEffect(() => {
-    const viewportWidth = window.innerWidth;
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const isWideScreen = viewportWidth >= 1025;
-    const isRealLandscape = !isPortrait && isWideScreen;
-    
-    // Use the same logic as VirtualBibleTable: center only if content fits
-    const shouldCenterValue = isRealLandscape && actualTotalWidth <= viewportWidth * 0.9;
-    setShouldCenter(shouldCenterValue);
-    
-    console.log('🎯 HEADERS: Column count changed, actualTotalWidth:', actualTotalWidth, 'shouldCenter:', shouldCenterValue);
-  }, [alternates.length, showCrossRefs, showNotes, showProphecy, store.showPrediction, store.showFulfillment, store.showVerification, actualTotalWidth]);
 
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
@@ -551,19 +496,15 @@ export function NewColumnHeaders({
           items={visibleColumns.map(col => col.id)} 
           strategy={horizontalListSortingStrategy}
         >
-          <div className="flex" style={{
-            justifyContent: shouldCenter ? 'center' : 'flex-start'
-          }}>
-            {/* Reference header - only sticky when not centering */}
+          <div className="flex">
+            {/* Reference header - stays fixed like the reference column data */}
             {visibleColumns.filter(col => col.id === 'reference').map((column) => (
               <div
                 key={column.id}
                 style={{
-                  ...(shouldCenter ? {} : {
-                    position: 'sticky',
-                    left: 0,
-                    zIndex: 30
-                  }),
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 30,
                   backgroundColor: 'var(--bg-primary)'
                 }}
               >
@@ -578,7 +519,7 @@ export function NewColumnHeaders({
               style={{ 
                 minWidth: 'fit-content',
                 width: 'fit-content',
-                margin: '0', // Let parent flexbox handle centering
+                margin: isPortrait ? '0' : '0 auto',
                 overflowX: 'auto',
                 maxWidth: '100%', // Prevent excessive width expansion
                 transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll

@@ -613,13 +613,11 @@ body {
   }
 
   .bibleTable {
-    /* Use responsive calculated widths instead of max-content on mobile portrait */
-    /* grid-auto-columns: max-content; -- REMOVED: This was causing overflow by ignoring JS calculations */
+    /* Let columns auto-flow horizontally; reference will be made sticky-left in cells */
+    grid-auto-columns: max-content;
     grid-auto-flow: column;
     /* Do NOT pin main/xref as fixed columns here */
     overflow-x: auto;       /* scrollbar for "extra" cols */
-    max-width: 100vw;       /* Prevent exceeding viewport width */
-    box-sizing: border-box; /* Include padding/borders in width calculation */
 
     /* Expert's scroll enhancements */
     scroll-snap-type: x mandatory;
@@ -678,50 +676,29 @@ body {
 }
 
 /* PORTRAIT MODE - Expert's orientation-aware layout */
-/* Only apply portrait overrides when screen is actually narrow AND tall */
-@media (orientation: portrait) and (max-width: 1024px) {
-  /* Switch to left-aligned layout only on actual narrow portrait devices */
+@media (orientation: portrait) {
+  /* Switch to left-aligned layout in portrait */
   .tableWrapper { 
     justify-content: flex-start;                 /* hug the left */
-    max-width: 100vw;                           /* Never exceed viewport */
   }
 
   :root {
     --w-ref: 2rem;
-    --w-main: clamp(35vw, 45vw, 50vw);          /* Conservative main width */
-    --w-xref: clamp(30vw, 40vw, 45vw);          /* Conservative cross-ref width */
-    --w-alt: clamp(30vw, 40vw, 45vw);           /* Conservative alternate width */
-    --w-prophecy: clamp(35vw, 45vw, 50vw);      /* Conservative prophecy width */
+    --w-main: clamp(45vw, 60vw, 80vw);          /* main fills most of the width */
+    --w-xref: clamp(40vw, 55vw, 70vw);          /* equal importance with main */
+    --w-alt: clamp(35vw, 50vw, 65vw);           /* alternate translations */
+    --w-prophecy: clamp(45vw, 60vw, 80vw);      /* prophecy columns - same as main */
   }
 }
 
-/* LANDSCAPE MODE - Ensure centering is preserved for wide screens */
-@media (orientation: landscape) and (min-width: 1025px) {
-  .tableWrapper {
-    justify-content: center;                     /* Center when screen is wide enough */
-  }
-}
-
-/* Tiny phones - conservative widths to prevent overflow */
+/* Tiny phones - expert's fixed widths to prevent crumbs */
 @media (max-width: 480px) {
   :root {
-    --w-ref: 1.5rem;                            /* Smaller reference column */
-    --w-main: clamp(35vw, 40vw, 12rem);         /* Max 12rem to prevent overflow */
-    --w-xref: clamp(30vw, 35vw, 10rem);         /* Max 10rem for cross-refs */
-    --w-alt: clamp(30vw, 35vw, 10rem);          /* Max 10rem for alternates */
-    --w-prophecy: clamp(35vw, 40vw, 12rem);     /* Max 12rem for prophecy */
-  }
-  
-  /* Ensure table never exceeds viewport and stays left-aligned */
-  .bibleTable {
-    max-width: 100vw !important;
-    box-sizing: border-box !important;
-  }
-  
-  .tableWrapper {
-    max-width: 100vw !important;
-    box-sizing: border-box !important;
-    justify-content: flex-start !important;     /* Force left alignment on tiny phones */
+    --w-ref: 2rem;
+    --w-main: 18rem;                            /* fixed width for readability */
+    --w-xref: 18rem;                            /* equal width with main */
+    --w-alt: 16rem;                             /* slightly smaller alternates */
+    --w-prophecy: 18rem;                        /* prophecy columns - same as main */
   }
 }
 
