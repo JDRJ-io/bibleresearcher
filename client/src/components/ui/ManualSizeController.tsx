@@ -60,15 +60,7 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
       document.documentElement.style.setProperty('--row-height-mult', rowHeight.toString());
       document.documentElement.style.setProperty('--column-width-mult', columnWidth.toString());
     }
-    
-    // Emit column change signal whenever any size changes
-    emitColumnChange('multiplier', { 
-      textSize, 
-      rowHeight, 
-      columnWidth,
-      isUnified
-    });
-  }, [isUnified, textSize, rowHeight, columnWidth, emitColumnChange]);
+  }, [isUnified, textSize, rowHeight, columnWidth]);
 
   // Save preferences to localStorage
   useEffect(() => {

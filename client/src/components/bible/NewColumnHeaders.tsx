@@ -79,9 +79,8 @@ export function NewColumnHeaders({
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
 
-  // Custom hook to track CSS variable changes for column width and text size multiplier
+  // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
-  const [textSizeMult, setTextSizeMult] = useState(1);
 
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
@@ -105,18 +104,8 @@ export function NewColumnHeaders({
       setColumnWidthMult(numericMult);
     };
 
-    // Function to get current text size multiplier
-    const updateTextSizeMult = () => {
-      const mult = getComputedStyle(document.documentElement)
-        .getPropertyValue('--text-size-mult')
-        .trim();
-      const numericMult = parseFloat(mult) || 1;
-      setTextSizeMult(numericMult);
-    };
-
-    // Set initial values
+    // Set initial value
     updateColumnWidthMult();
-    updateTextSizeMult();
 
     // Set up async import for column change signals
     const setupColumnSignals = async () => {
@@ -127,7 +116,6 @@ export function NewColumnHeaders({
         const cleanup = useColumnChangeSignal((detail: any) => {
           if (detail.changeType === 'multiplier') {
             updateColumnWidthMult();
-            updateTextSizeMult();
           }
         });
 
@@ -203,36 +191,36 @@ export function NewColumnHeaders({
     return null;
   }
 
+  // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
+  // NOW CONNECTED TO --column-width-mult from ManualSizeController
+  const getResponsiveWidth = (columnType: string): string => {
+    const isPortrait = window.innerHeight > window.innerWidth;
+
+    if (isPortrait) {
+      // Portrait mode - use CSS variables with column-width-mult scaling
+      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
+      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
+      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
+      return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+    } else {
+      // Landscape mode - use adaptive CSS variables with scaling
+      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
+      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
+      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
+      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
+      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
+      return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
+    }
+  };
+
   // Build clean column configuration - NOW DEPENDS ON columnWidthMult for reactive updates
   const columns: SimpleColumn[] = useMemo(() => {
-    // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
-    // NOW CONNECTED TO --column-width-mult from ManualSizeController
-    const getResponsiveWidth = (columnType: string): string => {
-      const isPortrait = window.innerHeight > window.innerWidth;
-
-      if (isPortrait) {
-        // Portrait mode - use CSS variables with column-width-mult scaling
-        if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-        if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-        if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-        if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-        if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-        if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-        if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-        return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      } else {
-        // Landscape mode - use adaptive CSS variables with scaling
-        if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-        if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-        if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-        if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-        if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-        if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-        if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-        return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      }
-    };
-
     const cols: SimpleColumn[] = [];
 
     // 1. Reference column (always visible)
@@ -447,8 +435,7 @@ export function NewColumnHeaders({
           boxSizing: 'border-box',
           backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
           color: 'var(--text-primary)',
-          borderColor: 'var(--border-color)',
-          fontSize: column.type === 'reference' ? `calc(0.875rem * ${textSizeMult})` : `calc(0.75rem * ${textSizeMult})`
+          borderColor: 'var(--border-color)'
         }}
         data-column={column.type}
         data-col-key={column.id}
@@ -566,8 +553,7 @@ export function NewColumnHeaders({
                 width: visibleColumns.find(col => col.id === activeId)?.width,
                 minWidth: visibleColumns.find(col => col.id === activeId)?.width,
                 maxWidth: visibleColumns.find(col => col.id === activeId)?.width,
-                boxSizing: 'border-box',
-                fontSize: `calc(0.75rem * ${textSizeMult})`
+                boxSizing: 'border-box'
               }}
             >
               {visibleColumns.find(col => col.id === activeId)?.name}
