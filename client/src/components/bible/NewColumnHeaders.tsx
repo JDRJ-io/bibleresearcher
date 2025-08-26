@@ -78,6 +78,35 @@ export function NewColumnHeaders({
 
   // Use the same adaptive widths system as VirtualRow
   const { adaptiveWidths } = useAdaptivePortraitColumns();
+  
+  // Add responsive state for centering logic
+  const [shouldCenter, setShouldCenter] = useState(false);
+  
+  useEffect(() => {
+    const updateCentering = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isWideScreen = window.innerWidth >= 1025;
+      const isRealLandscape = !isPortrait && isWideScreen;
+      setShouldCenter(isRealLandscape);
+    };
+
+    // Set initial value
+    updateCentering();
+
+    // Listen for window resize
+    window.addEventListener('resize', updateCentering);
+    
+    return () => window.removeEventListener('resize', updateCentering);
+  }, []);
+  
+  // Update centering when columns change
+  useEffect(() => {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isWideScreen = window.innerWidth >= 1025;
+    const isRealLandscape = !isPortrait && isWideScreen;
+    setShouldCenter(isRealLandscape);
+    console.log('🎯 HEADERS: Column count changed, shouldCenter:', isRealLandscape);
+  }, [alternates.length, showCrossRefs, showNotes, showProphecy, store.showPrediction, store.showFulfillment, store.showVerification]);
 
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
@@ -496,7 +525,9 @@ export function NewColumnHeaders({
           items={visibleColumns.map(col => col.id)} 
           strategy={horizontalListSortingStrategy}
         >
-          <div className="flex">
+          <div className="flex" style={{
+            justifyContent: shouldCenter ? 'center' : 'flex-start'
+          }}>
             {/* Reference header - stays fixed like the reference column data */}
             {visibleColumns.filter(col => col.id === 'reference').map((column) => (
               <div
@@ -519,7 +550,7 @@ export function NewColumnHeaders({
               style={{ 
                 minWidth: 'fit-content',
                 width: 'fit-content',
-                margin: isPortrait ? '0' : '0 auto',
+                margin: '0', // Let parent flexbox handle centering
                 overflowX: 'auto',
                 maxWidth: '100%', // Prevent excessive width expansion
                 transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll

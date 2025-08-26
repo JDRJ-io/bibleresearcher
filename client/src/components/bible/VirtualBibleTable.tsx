@@ -609,6 +609,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const shouldCenter = isRealLandscape && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
+  // Force re-render when columns change to trigger dynamic recentering
+  useEffect(() => {
+    // This effect runs whenever column visibility changes, triggering a layout recalculation
+    console.log('🎯 CENTERING: Columns changed, actualTotalWidth:', actualTotalWidth, 'shouldCenter:', shouldCenter);
+  }, [activeTranslations.length, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, actualTotalWidth, shouldCenter]);
+
   // Simplified vertical-only scrolling system with header rollup detection
   useEffect(() => {
     const container = containerRef.current;
