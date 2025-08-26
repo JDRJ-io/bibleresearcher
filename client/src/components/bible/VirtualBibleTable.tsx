@@ -539,24 +539,54 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     
     // Reference column - use adaptive width
     width += adaptiveWidths.reference;
+    console.log('🔧 Width calc: Reference +', adaptiveWidths.reference, '= total:', width);
     
     // Main translation - use adaptive width  
     width += adaptiveWidths.mainTranslation;
+    console.log('🔧 Width calc: Main translation +', adaptiveWidths.mainTranslation, '= total:', width);
     
     // Cross references - use adaptive width
-    if (showCrossRefs) width += adaptiveWidths.crossReference;
+    if (showCrossRefs) {
+      width += adaptiveWidths.crossReference;
+      console.log('🔧 Width calc: Cross refs +', adaptiveWidths.crossReference, '= total:', width);
+    }
     
     // Prophecy columns (P, F, V) - use adaptive width for each
-    if (showProphecies) width += (adaptiveWidths.prophecy * 3); // 3 prophecy columns
+    if (showProphecies) {
+      const prophecyWidth = adaptiveWidths.prophecy * 3;
+      width += prophecyWidth;
+      console.log('🔧 Width calc: Prophecy +', prophecyWidth, '= total:', width);
+    }
     
     // Notes column - use adaptive width
-    if (preferences?.showNotes) width += adaptiveWidths.notes;
+    if (preferences?.showNotes) {
+      width += adaptiveWidths.notes;
+      console.log('🔧 Width calc: Notes +', adaptiveWidths.notes, '= total:', width);
+    }
     
     // Context/dates column - use adaptive width  
-    if (store.showDates) width += adaptiveWidths.context;
+    if (store.showDates) {
+      width += adaptiveWidths.context;
+      console.log('🔧 Width calc: Context +', adaptiveWidths.context, '= total:', width);
+    }
     
     // Alternate translations - use adaptive width for each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
+    const altCount = activeTranslations.filter(t => t !== mainTranslation).length;
+    if (altCount > 0) {
+      const altWidth = altCount * adaptiveWidths.alternate;
+      width += altWidth;
+      console.log('🔧 Width calc: Alt translations +', altWidth, '(', altCount, '×', adaptiveWidths.alternate, ') = total:', width);
+    }
+    
+    console.log('🔧 FINAL TOTAL WIDTH:', width, 'for columns:', {
+      reference: true,
+      mainTranslation: true,
+      crossRefs: showCrossRefs,
+      prophecies: showProphecies,
+      notes: preferences?.showNotes,
+      dates: store.showDates,
+      altTranslations: altCount
+    });
     
     return width;
   }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, preferences?.showNotes, store.showDates]);
