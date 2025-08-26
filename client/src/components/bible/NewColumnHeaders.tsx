@@ -554,14 +554,16 @@ export function NewColumnHeaders({
           <div className="flex" style={{
             justifyContent: shouldCenter ? 'center' : 'flex-start'
           }}>
-            {/* Reference header - stays fixed like the reference column data */}
+            {/* Reference header - only sticky when not centering */}
             {visibleColumns.filter(col => col.id === 'reference').map((column) => (
               <div
                 key={column.id}
                 style={{
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 30,
+                  ...(shouldCenter ? {} : {
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 30
+                  }),
                   backgroundColor: 'var(--bg-primary)'
                 }}
               >
