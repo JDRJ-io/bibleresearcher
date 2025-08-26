@@ -99,14 +99,40 @@ export function NewColumnHeaders({
     return () => window.removeEventListener('resize', updateCentering);
   }, []);
   
-  // Update centering when columns change
+  // Calculate actual total width using real adaptive widths - same logic as VirtualBibleTable
+  const actualTotalWidth = useMemo(() => {
+    let width = 0;
+    
+    width += adaptiveWidths.reference; // Reference column (actual width)
+    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
+    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
+    
+    // Prophecy columns - each uses prophecy width
+    if (showProphecy) {
+      if (store.showPrediction) width += adaptiveWidths.prophecy;
+      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
+      if (store.showVerification) width += adaptiveWidths.prophecy;
+    }
+    
+    // Alternate translations use alternate width - THIS IS THE KEY FIX
+    width += (alternates.length * adaptiveWidths.alternate);
+    
+    return width;
+  }, [alternates.length, showCrossRefs, showProphecy, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths]);
+
+  // Update centering when columns change - now includes actual width calculation
   useEffect(() => {
+    const viewportWidth = window.innerWidth;
     const isPortrait = window.innerHeight > window.innerWidth;
-    const isWideScreen = window.innerWidth >= 1025;
+    const isWideScreen = viewportWidth >= 1025;
     const isRealLandscape = !isPortrait && isWideScreen;
-    setShouldCenter(isRealLandscape);
-    console.log('🎯 HEADERS: Column count changed, shouldCenter:', isRealLandscape);
-  }, [alternates.length, showCrossRefs, showNotes, showProphecy, store.showPrediction, store.showFulfillment, store.showVerification]);
+    
+    // Use the same logic as VirtualBibleTable: center only if content fits
+    const shouldCenterValue = isRealLandscape && actualTotalWidth <= viewportWidth * 0.9;
+    setShouldCenter(shouldCenterValue);
+    
+    console.log('🎯 HEADERS: Column count changed, actualTotalWidth:', actualTotalWidth, 'shouldCenter:', shouldCenterValue);
+  }, [alternates.length, showCrossRefs, showNotes, showProphecy, store.showPrediction, store.showFulfillment, store.showVerification, actualTotalWidth]);
 
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
