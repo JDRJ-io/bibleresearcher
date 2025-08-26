@@ -417,13 +417,7 @@ export function NewColumnHeaders({
           color: 'var(--text-primary)',
           borderColor: 'var(--border-color)'
         }}
-        ref={(el) => {
-          // DEBUG: Log actual rendered width
-          if (el) {
-            console.log(`🎭 RENDERED ${column.type}: ${column.width} (actual DOM: ${el.style.width})`);
-          }
-          setNodeRef(el);
-        }}
+        ref={setNodeRef}
         data-column={column.type}
         data-col-key={column.id}
         {...(isDraggable ? attributes : {})}

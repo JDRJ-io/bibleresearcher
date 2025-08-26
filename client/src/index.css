@@ -369,36 +369,36 @@ body {
 .column-header-cell[data-column="reference"],
 .bible-verse-row > div:first-child,
 [data-verse-ref] > div:first-child {
-  width: var(--adaptive-ref-width) !important;
-  min-width: var(--adaptive-ref-width) !important;
-  max-width: var(--adaptive-ref-width) !important;
+  width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
 }
 
 /* Main translation only */
 .column-header-cell[data-column="main-translation"] {
-  width: var(--adaptive-main-width) !important;
-  min-width: var(--adaptive-main-width) !important;
-  max-width: var(--adaptive-main-width) !important;
+  width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
 }
 /* Alt translations */
 .column-header-cell[data-column="alt-translation"] {
-  width: var(--adaptive-alt-width) !important;
-  min-width: var(--adaptive-alt-width) !important;
-  max-width: var(--adaptive-alt-width) !important;
+  width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
 }
 
 .cell[data-column="alt-translation"] {
-  flex: 0 0 var(--adaptive-alt-width) !important;
-  width: var(--adaptive-alt-width) !important;
-  max-width: var(--adaptive-alt-width) !important;
-  min-width: var(--adaptive-alt-width) !important;
+  flex: 0 0 calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
 }
 
 .column-header-cell[data-column="cross-refs"],
 .column-header-cell[data-column*="cross"] {
-  width: var(--adaptive-cross-width) !important;
-  min-width: var(--adaptive-cross-width) !important;
-  max-width: var(--adaptive-cross-width) !important;
+  width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
 }
 
 .dark .column-header-cell,

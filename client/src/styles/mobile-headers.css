@@ -68,7 +68,7 @@
 
   /* Mobile column headers must use adaptive CSS variables for perfect sync */
   .column-header-cell[data-column="reference"] {
-    width: calc(var(--adaptive-ref-width) + 4px) !important;  /* Sync with table content + 4px */
+    width: calc((var(--adaptive-ref-width) + 4px) * var(--column-width-mult, 1)) !important;  /* Sync with table content + 4px */
     box-sizing: border-box !important;
     padding: 0 !important; /* NO PADDING - match data cell */
     margin: 0 !important; /* NO MARGIN - match data cell */
@@ -77,68 +77,68 @@
 
   /* Main translation mobile sizing */
   .column-header-cell[data-column="main-translation"] {
-    width: var(--adaptive-main-width) !important;  /* Sync with table content */
+    width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
   /* Cross references mobile sizing */  
   .column-header-cell[data-column="cross-refs"] {
-    width: var(--adaptive-cross-width) !important;  /* Sync with table content */
+    width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
   /* Prophecy columns mobile sizing */
   .column-header-cell[data-column="prophecy"] {
-    width: var(--adaptive-prophecy-width) !important;  /* Sync with table content */
+    width: calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
   /* Notes column mobile sizing */
   .column-header-cell[data-column="notes"] {
-    width: var(--adaptive-notes-width) !important;  /* Sync with table content */
+    width: calc(var(--adaptive-notes-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
   /* Context column mobile sizing */
   .column-header-cell[data-column="context"] {
-    width: var(--adaptive-context-width) !important;  /* Sync with table content */
+    width: calc(var(--adaptive-context-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
   /* Landscape phone adjustments - use adaptive variables for perfect sync */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .column-header-cell[data-column="reference"] {
-      width: calc(var(--adaptive-ref-width) + 4px) !important;  /* Sync with table content */
+      width: calc((var(--adaptive-ref-width) + 4px) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
     .column-header-cell[data-column="main"],
     .column-header-cell[data-column="cross-refs"] {
-      width: var(--adaptive-main-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
   }
 
   /* Tablet and larger screens - use adaptive CSS variables for perfect sync */
   @media (min-width: 641px) {
     .column-header-cell[data-column="reference"] {
-      width: var(--adaptive-ref-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
     .column-header-cell[data-column="main-translation"] {
-      width: var(--adaptive-main-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
     .column-header-cell[data-column="cross-refs"] {
-      width: var(--adaptive-cross-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
     /* Prophecy columns sync */
     .column-header-cell[data-column="prophecy"] {
-      width: var(--adaptive-prophecy-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
     /* Notes column sync */
     .column-header-cell[data-column="notes"] {
-      width: var(--adaptive-notes-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-notes-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
     /* Context column sync */
     .column-header-cell[data-column="context"] {
-      width: var(--adaptive-context-width) !important;  /* Sync with table content */
+      width: calc(var(--adaptive-context-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
   }
 }
