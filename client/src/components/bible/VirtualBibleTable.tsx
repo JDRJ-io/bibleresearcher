@@ -519,6 +519,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
+  // Get viewport width
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+
+  // Mobile detection for dual-column layout
+  const isMobile = useIsMobile();
+  
+  // Responsive column system
+  const responsiveConfig = useResponsiveColumns();
+  // Expert's lightweight CSS-first adaptive system
+  useAdaptiveWidths();
+  
+  const adaptiveConfig = useAdaptivePortraitColumns();
+
   // Calculate actual total width based on visible columns using adaptive widths
   const actualTotalWidth = useMemo(() => {
     const { adaptiveWidths } = adaptiveConfig;
@@ -547,19 +560,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     
     return width;
   }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, preferences?.showNotes, store.showDates]);
-
-  // Get viewport width
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
-
-  // Mobile detection for dual-column layout
-  const isMobile = useIsMobile();
-  
-  // Responsive column system
-  const responsiveConfig = useResponsiveColumns();
-  // Expert's lightweight CSS-first adaptive system
-  useAdaptiveWidths();
-  
-  const adaptiveConfig = useAdaptivePortraitColumns();
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';
 
