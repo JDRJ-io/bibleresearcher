@@ -656,7 +656,21 @@ export function VirtualRow({
 
   // FIXED: Always show all toggled columns for horizontal scrolling support
   // Remove artificial limits that were preventing mobile users from seeing all their active columns
-  const visibleColumns = [...fixedColumns, ...navigableColumns];
+  // But filter out context columns in mobile portrait mode to prevent extra thin columns
+  const isPortraitMode = window.innerHeight > window.innerWidth;
+  const isMobileMode = window.innerWidth <= 640;
+  const isMobilePortraitMode = isPortraitMode && isMobileMode;
+  
+  let visibleColumns = [...fixedColumns, ...navigableColumns];
+  
+  // Filter out context columns in mobile portrait mode
+  if (isMobilePortraitMode) {
+    visibleColumns = visibleColumns.filter(col => 
+      col.config?.type !== 'context' && 
+      col.slot !== 1 && // Dates slot
+      col.slot !== 11   // Context slot
+    );
+  }
 
   // Helper function to get default widths per UI Layout Spec
   function getDefaultWidth(slot: number): number {
