@@ -101,7 +101,16 @@ export function NewColumnHeaders({
         .getPropertyValue('--column-width-mult')
         .trim();
       const numericMult = parseFloat(mult) || 1;
-      setColumnWidthMult(numericMult);
+      
+      // DEBUG: Log column width multiplier changes
+      if (Math.abs(numericMult - columnWidthMult) > 0.01) {
+        console.log('🎛️ HEADERS: Column width multiplier changed:', {
+          old: columnWidthMult,
+          new: numericMult,
+          adaptiveWidths: adaptiveWidths
+        });
+        setColumnWidthMult(numericMult);
+      }
     };
 
     // Set initial value
@@ -120,7 +129,7 @@ export function NewColumnHeaders({
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [columnWidthMult, adaptiveWidths]);
 
   // Presentation mode toggle - width x2, text x1.5, row height x1.35
   const togglePresentationMode = useCallback(async () => {
@@ -180,6 +189,17 @@ export function NewColumnHeaders({
   // NOW CONNECTED TO --column-width-mult from ManualSizeController
   const getResponsiveWidth = (columnType: string): string => {
     const isPortrait = window.innerHeight > window.innerWidth;
+    
+    // DEBUG: Calculate actual pixel values for debugging
+    const baseWidth = (adaptiveWidths as any)[columnType] || adaptiveWidths.alternate || 200;
+    const actualPixelWidth = baseWidth * columnWidthMult;
+    
+    console.log(`🎛️ HEADERS: ${columnType} width calculation:`, {
+      baseWidth,
+      columnWidthMult,
+      actualPixelWidth,
+      cssCalc: `calc(var(--adaptive-${columnType}-width) * var(--column-width-mult, 1))`
+    });
 
     if (isPortrait) {
       // Portrait mode - use CSS variables with column-width-mult scaling

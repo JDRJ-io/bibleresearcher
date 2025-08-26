@@ -569,26 +569,37 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const { adaptiveWidths } = adaptiveConfig;
     
     let width = 0;
+    const breakdown = [];
     
     // Reference column - use adaptive width with multiplier
-    width += (adaptiveWidths.reference * columnWidthMult);
+    const refWidth = adaptiveWidths.reference * columnWidthMult;
+    width += refWidth;
+    breakdown.push(`Reference: ${adaptiveWidths.reference} * ${columnWidthMult} = ${refWidth}px`);
     
     // Main translation - use adaptive width with multiplier
-    width += (adaptiveWidths.mainTranslation * columnWidthMult);
+    const mainWidth = adaptiveWidths.mainTranslation * columnWidthMult;
+    width += mainWidth;
+    breakdown.push(`Main: ${adaptiveWidths.mainTranslation} * ${columnWidthMult} = ${mainWidth}px`);
     
     // Cross references - use adaptive width with multiplier
     if (showCrossRefs) {
-      width += (adaptiveWidths.crossReference * columnWidthMult);
+      const crossWidth = adaptiveWidths.crossReference * columnWidthMult;
+      width += crossWidth;
+      breakdown.push(`Cross: ${adaptiveWidths.crossReference} * ${columnWidthMult} = ${crossWidth}px`);
     }
     
     // Prophecy columns (P, F, V) - use adaptive width with multiplier for each
     if (showProphecies) {
-      width += (adaptiveWidths.prophecy * 3 * columnWidthMult); // 3 prophecy columns
+      const prophecyWidth = adaptiveWidths.prophecy * 3 * columnWidthMult;
+      width += prophecyWidth; // 3 prophecy columns
+      breakdown.push(`Prophecy: ${adaptiveWidths.prophecy} * 3 * ${columnWidthMult} = ${prophecyWidth}px`);
     }
     
     // Notes column - use adaptive width with multiplier
     if (showNotes) {
-      width += (adaptiveWidths.notes * columnWidthMult);
+      const notesWidth = adaptiveWidths.notes * columnWidthMult;
+      width += notesWidth;
+      breakdown.push(`Notes: ${adaptiveWidths.notes} * ${columnWidthMult} = ${notesWidth}px`);
     }
     
     // Context/dates - NO WIDTH ADDED (dates appear inline in reference column, not as separate column)
@@ -596,11 +607,23 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     // Alternate translations - use adaptive width with multiplier for each
     const altCount = activeTranslations.filter(t => t !== mainTranslation).length;
     if (altCount > 0) {
-      width += (altCount * adaptiveWidths.alternate * columnWidthMult);
+      const altWidth = altCount * adaptiveWidths.alternate * columnWidthMult;
+      width += altWidth;
+      breakdown.push(`Alternates: ${altCount} * ${adaptiveWidths.alternate} * ${columnWidthMult} = ${altWidth}px`);
     }
     
+    // DEBUG: Log detailed width calculations
+    console.log('🎯 CENTERING: Actual total width calculation:', {
+      columnWidthMult,
+      viewportWidth,
+      actualTotalWidth: width,
+      breakdown,
+      shouldCenter: width <= viewportWidth * 0.9,
+      needsHorizontalScroll: width > viewportWidth
+    });
+    
     return width;
-  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, columnWidthMult]);
+  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, columnWidthMult, viewportWidth]);
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';
 
