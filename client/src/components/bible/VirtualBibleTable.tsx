@@ -693,7 +693,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           (hScrollRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className="unified-scroll-container scroll-area"
+        className="unified-scroll-container scroll-area tableWrapper"
         style={{ 
           position: 'relative',
           height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",
@@ -706,9 +706,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none', // IE/Edge
-          // Centering logic
+          // Remove JavaScript centering - let CSS handle it consistently with headers
           display: 'flex',
-          justifyContent: shouldCenter ? 'center' : 'flex-start',
           // On mobile, allow both horizontal and vertical scrolling
           ...(isMobile && {
             touchAction: 'auto',
@@ -718,14 +717,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         }}
         data-testid="bible-table"
       >
-        {/* Content container - preserving original adaptive behavior */}
+        {/* Content container - let CSS handle centering */}
         <div 
           style={{ 
-            minWidth: shouldCenter ? 'fit-content' : `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            minWidth: 'fit-content',
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
             overflow: 'visible',
-            width: shouldCenter ? 'fit-content' : '100%'
+            width: 'fit-content'
           }}
         >
           <div className="tableInner bibleTable"
@@ -738,8 +737,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               display: 'grid'
             }}>
             <div style={{ 
-              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
+              minWidth: 'fit-content',
+              width: 'fit-content'
             }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
