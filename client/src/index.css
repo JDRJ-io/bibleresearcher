@@ -677,11 +677,18 @@ body {
   inline-size: max-content; 
 }
 
+/* LANDSCAPE MODE - Expert's orientation-aware layout */
+@media (orientation: landscape) {
+  .tableWrapper {
+    justify-content: center !important;        /* center content in landscape */
+  }
+}
+
 /* PORTRAIT MODE - Expert's orientation-aware layout */
 @media (orientation: portrait) {
   /* Switch to left-aligned layout in portrait */
   .tableWrapper { 
-    justify-content: flex-start;                 /* hug the left */
+    justify-content: flex-start !important;     /* hug the left in portrait */
     max-width: 100vw;                           /* Never exceed viewport */
   }
 
@@ -727,15 +734,10 @@ body {
   overscroll-behavior: contain;       /* no scroll chaining */
 }
 
-/* Table wrapper - horizontal scroll only */
+/* Table wrapper - additional scroll rules */
 .tableWrapper {
-  overflow-x: auto;                   /* shows bar only if needed */
-  overflow-y: hidden;
-  scrollbar-gutter: stable;           /* prevents width-jump when bar appears */
   touch-action: pan-x pinch-zoom;     /* allow X-panning only */
-  overscroll-behavior: contain;       /* stop bounce from bubbling up */
   scroll-snap-type: x mandatory;      /* neat column snap */
-  -webkit-overflow-scrolling: touch;  /* momentum on iOS */
 }
 
 /* Portrait mode - axis-locked scrolling with left alignment */
@@ -745,12 +747,12 @@ body {
 
 /* Landscape mode - smart centering with overflow support */
 .tableWrapper.twLandscape {
+  justify-content: center;            /* center content in landscape */
   overflow-x: auto;                   /* horizontal scroll when needed */
 }
 
 .tableWrapper.twLandscape .bibleTable {
   width: max-content;                 /* shrink-wrap to columns */
-  margin: 0 auto;                     /* center while columns fit viewport */
 }
 
 /* Column groups for snap alignment */
