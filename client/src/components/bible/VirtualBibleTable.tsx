@@ -700,6 +700,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none', // IE/Edge
+          // Centering logic
+          display: 'flex',
+          justifyContent: shouldCenter ? 'center' : 'flex-start',
           // On mobile, allow both horizontal and vertical scrolling
           ...(isMobile && {
             touchAction: 'auto',
@@ -712,17 +715,17 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            minWidth: `${Math.max(actualTotalWidth, viewportWidth)}px`,
+            minWidth: shouldCenter ? 'fit-content' : `${Math.max(actualTotalWidth, viewportWidth)}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
-            overflow: 'visible'
+            overflow: 'visible',
+            width: shouldCenter ? 'fit-content' : '100%'
           }}
         >
           <div className="tableInner bibleTable"
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: shouldCenter ? '0 auto' : '0',
               overflow: 'visible',
               // Apply responsive grid template columns from JavaScript calculations
               gridTemplateColumns: getSharedGridTemplate(),
