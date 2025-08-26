@@ -393,7 +393,6 @@ export function NewColumnHeaders({
 
     return (
       <div
-        ref={setNodeRef}
         className={`
           column-header-cell 
           flex-shrink-0 
@@ -417,6 +416,13 @@ export function NewColumnHeaders({
           backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
           color: 'var(--text-primary)',
           borderColor: 'var(--border-color)'
+        }}
+        ref={(el) => {
+          // DEBUG: Log actual rendered width
+          if (el) {
+            console.log(`🎭 RENDERED ${column.type}: ${column.width} (actual DOM: ${el.style.width})`);
+          }
+          setNodeRef(el);
         }}
         data-column={column.type}
         data-col-key={column.id}
