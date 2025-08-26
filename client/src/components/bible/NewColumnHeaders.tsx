@@ -85,42 +85,6 @@ export function NewColumnHeaders({
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
 
-  // Track column width multiplier changes for header width synchronization
-  useEffect(() => {
-    // Initial read
-    const root = document.documentElement;
-    const initialMult = parseFloat(
-      getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
-    );
-    if (Math.abs(initialMult - columnWidthMult) > 0.01) {
-      setColumnWidthMult(initialMult);
-    }
-  }, []); // Run once on mount
-
-  // Separate effect to watch for CSS variable changes
-  useEffect(() => {
-    const root = document.documentElement;
-    
-    // Watch for direct CSS variable changes using MutationObserver
-    const observer = new MutationObserver(() => {
-      const currentMult = parseFloat(
-        getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
-      );
-      if (Math.abs(currentMult - columnWidthMult) > 0.01) {
-        setColumnWidthMult(currentMult);
-      }
-    });
-
-    observer.observe(root, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [columnWidthMult]);
-
   // Import the column change signal hook
   const { useColumnChangeSignal, useColumnChangeEmitter } = useMemo(() => {
     // Dynamic import to avoid circular dependencies
@@ -143,33 +107,18 @@ export function NewColumnHeaders({
     // Set initial value
     updateColumnWidthMult();
 
-    // Set up async import for column change signals
-    const setupColumnSignals = async () => {
-      try {
-        const { useColumnChangeSignal } = await import('@/hooks/useColumnChangeSignal');
-
-        // Listen for column multiplier changes
-        const cleanup = useColumnChangeSignal((detail: any) => {
-          if (detail.changeType === 'multiplier') {
-            updateColumnWidthMult();
-          }
-        });
-
-        return cleanup;
-      } catch (error) {
-        console.warn('Column change signals not available, using fallback');
-        return null;
-      }
-    };
-
-    let cleanup: (() => void) | null = null;
-    setupColumnSignals().then(c => { 
-      if (typeof c === 'function') cleanup = c; 
+    // Watch for direct CSS variable changes using MutationObserver
+    const observer = new MutationObserver(() => {
+      updateColumnWidthMult();
     });
 
-    // Cleanup
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+
     return () => {
-      if (cleanup) cleanup();
+      observer.disconnect();
     };
   }, []);
 
