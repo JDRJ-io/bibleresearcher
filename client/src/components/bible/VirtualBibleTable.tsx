@@ -519,16 +519,34 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     return columns;
   }, [mainTranslation, showCrossRefs, showProphecies, activeTranslations]);
 
-  // Calculate actual total width based on visible columns - simplified approach
+  // Calculate actual total width based on visible columns using adaptive widths
   const actualTotalWidth = useMemo(() => {
+    const { adaptiveWidths } = adaptiveConfig;
     let width = 0;
-    width += 80; // Reference column ~80px  
-    width += 320; // Main translation ~320px
-    if (showCrossRefs) width += 320; // Cross refs ~320px
-    if (showProphecies) width += 180; // P+F+V ~60px each
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * 320); // Alt translations ~320px each
+    
+    // Reference column - use adaptive width
+    width += adaptiveWidths.reference;
+    
+    // Main translation - use adaptive width  
+    width += adaptiveWidths.mainTranslation;
+    
+    // Cross references - use adaptive width
+    if (showCrossRefs) width += adaptiveWidths.crossReference;
+    
+    // Prophecy columns (P, F, V) - use adaptive width for each
+    if (showProphecies) width += (adaptiveWidths.prophecy * 3); // 3 prophecy columns
+    
+    // Notes column - use adaptive width
+    if (preferences?.showNotes) width += adaptiveWidths.notes;
+    
+    // Context/dates column - use adaptive width  
+    if (store.showDates) width += adaptiveWidths.context;
+    
+    // Alternate translations - use adaptive width for each
+    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
+    
     return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies]);
+  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, preferences?.showNotes, store.showDates]);
 
   // Get viewport width
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
