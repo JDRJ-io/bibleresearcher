@@ -4,20 +4,20 @@
  * Minimal memory usage, no animations, maximum readability
  */
 
-/* Minimal glass effect variables - optimized for performance */
+/* Enhanced glass effect variables - better blur for proper glass effect */
 :root {
-  /* Very subtle glass effects */
-  --glass-blur: 4px;
+  /* Stronger glass effects for better content obscuring */
+  --glass-blur: 16px;
   --glass-opacity: 0.95;
-  --glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   
-  /* Light theme glass variables - very subtle */
-  --glass-bg-light: rgba(255, 255, 255, 0.92);
+  /* Light theme glass variables - enhanced for better blur */
+  --glass-bg-light: rgba(255, 255, 255, 0.85);
   --glass-border-light: rgba(255, 255, 255, 0.6);
   
-  /* Dark theme glass variables - very subtle */
-  --glass-bg-dark: rgba(0, 0, 0, 0.15);
-  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  /* Dark theme glass variables - enhanced for better blur */
+  --glass-bg-dark: rgba(0, 0, 0, 0.25);
+  --glass-border-dark: rgba(255, 255, 255, 0.12);
 }
 
 /* Base glass morphism class - minimal and peaceful */
@@ -71,11 +71,11 @@
   border-color: var(--accent-color);
 }
 
-/* Simple mobile adjustments - minimal processing */
+/* Mobile adjustments - maintain strong blur for proper glass effect */
 @media (max-width: 768px) {
   :root {
-    /* Even less blur on mobile */
-    --glass-blur: 2px;
+    /* Maintain good blur on mobile for proper glass effect */
+    --glass-blur: 12px;
   }
   
   .glass-morphism {

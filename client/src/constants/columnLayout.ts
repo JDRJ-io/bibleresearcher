@@ -5,8 +5,8 @@ export interface ColumnSlot {
   id: string;
   name: string;
   type: 'reference' | 'translation' | 'cross-ref' | 'prophecy' | 'notes' | 'context';
-  width: string; // Column width utility class (.colW-*)
-  mobileWidth: string; // Mobile-specific width (deprecated - unified system)
+  width: string; // Tailwind width class
+  mobileWidth: string; // Mobile-specific width
   position: number; // Slot position (0-19)
   defaultVisible: boolean;
   guestMode: boolean; // Available to guest users
@@ -19,8 +19,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'reference',
     name: '#',
     type: 'reference',
-    width: 'colW-ref',
-    mobileWidth: 'colW-ref', // Unified width system
+    width: 'w-20',
+    mobileWidth: 'w-6', // ULTRA-THIN for rotated text (12px = minimal possible)
     position: 0,
     defaultVisible: true,
     guestMode: true
@@ -31,8 +31,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'main-translation',
     name: 'Main Translation',
     type: 'translation',
-    width: 'colW-main',
-    mobileWidth: 'colW-main', // Unified width system
+    width: 'w-80',
+    mobileWidth: 'w-52', // Main translation - MAXIMUM possible width (300px)
     position: 1,
     defaultVisible: true,
     guestMode: true
@@ -43,8 +43,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-1',
     name: 'Alt Translation 1',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 2,
     defaultVisible: false,
     guestMode: true
@@ -53,8 +53,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-2',
     name: 'Alt Translation 2',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 3,
     defaultVisible: false,
     guestMode: true
@@ -63,8 +63,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-3',
     name: 'Alt Translation 3',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 4,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -73,8 +73,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-4',
     name: 'Alt Translation 4',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 5,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -85,8 +85,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'cross-refs',
     name: 'Cross References',
     type: 'cross-ref',
-    width: 'colW-xref',
-    mobileWidth: 'colW-xref',
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 6,
     defaultVisible: true, // Default ON for free users
     guestMode: true
@@ -97,8 +97,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'prophecy-prediction',
     name: 'Predictions',
     type: 'prophecy',
-    width: 'colW-xref',
-    mobileWidth: 'colW-xref',
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 7,
     defaultVisible: false,
     guestMode: true
@@ -107,8 +107,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'prophecy-fulfillment',
     name: 'Fulfillments',
     type: 'prophecy',
-    width: 'colW-xref',
-    mobileWidth: 'colW-xref',
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 8,
     defaultVisible: false,
     guestMode: true
@@ -117,8 +117,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'prophecy-verification',
     name: 'Verifications',
     type: 'prophecy',
-    width: 'colW-xref',
-    mobileWidth: 'colW-xref',
+    width: 'w-80',       // Same as alternate translations
+    mobileWidth: 'w-80', // Same as alternate translations
     position: 9,
     defaultVisible: false,
     guestMode: true
@@ -153,8 +153,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-5',
     name: 'Alt Translation 5',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 12,
     defaultVisible: false,
     guestMode: true
@@ -163,8 +163,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-6',
     name: 'Alt Translation 6',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 13,
     defaultVisible: false,
     guestMode: true
@@ -173,8 +173,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-7',
     name: 'Alt Translation 7',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 14,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -183,8 +183,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-8',
     name: 'Alt Translation 8',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 15,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -193,8 +193,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-9',
     name: 'Alt Translation 9',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 16,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -203,8 +203,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-10',
     name: 'Alt Translation 10',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 17,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -213,8 +213,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-11',
     name: 'Alt Translation 11',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 18,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -223,8 +223,8 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     id: 'alt-translation-12',
     name: 'Alt Translation 12',
     type: 'translation',
-    width: 'colW-alt',
-    mobileWidth: 'colW-alt',
+    width: 'w-80',
+    mobileWidth: 'w-full',
     position: 19,
     defaultVisible: false,
     guestMode: true // Available to all users
@@ -265,25 +265,25 @@ export function getColumnWidth(column: ColumnSlot, isMobile: boolean = false): s
   // Convert Tailwind classes to CSS custom properties that can be scaled
   const baseWidth = isMobile ? column.mobileWidth : column.width;
   
-  // Direct mapping for new unified column width system
-  const colWMap: Record<string, string> = {
-    'colW-ref': 'var(--col-ref)',
-    'colW-main': 'var(--col-main)',
-    'colW-alt': 'var(--col-alt)',
-    'colW-xref': 'var(--col-xref)',
-    'colW-notes': 'var(--col-notes)',
-    'colW-prophecy': 'var(--col-prophecy)',
-    // Legacy support (to be removed)
-    'w-6': 'calc(1.5rem * var(--column-width-mult))',
-    'w-20': 'calc(5rem * var(--column-width-mult))',
-    'w-52': 'calc(13rem * var(--column-width-mult))',
-    'w-80': 'calc(20rem * var(--column-width-mult))',
-    'w-64': 'calc(16rem * var(--column-width-mult))',
-    'w-72': 'calc(18rem * var(--column-width-mult))',
+  // Convert common Tailwind width classes to rem values
+  const widthMap: Record<string, string> = {
+    'w-6': '1.5rem',
+    'w-20': '5rem', 
+    'w-52': '13rem',
+    'w-80': '20rem',
+    'w-64': '16rem',
+    'w-72': '18rem',
     'w-full': '100%'
   };
   
-  return colWMap[baseWidth] || baseWidth;
+  const remValue = widthMap[baseWidth] || baseWidth;
+  
+  // Apply column width multiplier for scalable columns
+  if (remValue.includes('rem')) {
+    return `calc(${remValue} * var(--column-width-mult))`;
+  }
+  
+  return remValue;
 }
 
 // Translation slot management
