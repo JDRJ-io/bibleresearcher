@@ -672,9 +672,19 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // The old static column system has been removed
   // All column calculations now happen dynamically via useMeasureVisibleColumns
 
-  // PROPER CENTERING: Center when columns don't fill viewport (accounting for some padding)
-  const shouldCenter = actualTotalWidth < viewportWidth - 40; // 20px padding on each side
+  // PROPER CENTERING: Use responsive config for landscape centering, and also check if columns fit
+  const shouldCenter = responsiveConfig.columnAlignment === 'centered' && actualTotalWidth < viewportWidth - 40;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
+  
+  // Debug centering logic
+  console.log('🎯 Centering Logic:', {
+    columnAlignment: responsiveConfig.columnAlignment,
+    isLandscape: responsiveConfig.isLandscape,
+    actualTotalWidth,
+    viewportWidth,
+    shouldCenter,
+    needsHorizontalScroll
+  });
 
   // Simplified vertical-only scrolling system with header rollup detection
   useEffect(() => {
@@ -798,10 +808,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
               gridTemplateColumns: columnWidthMult ? getSharedGridTemplate() : getSharedGridTemplate(),
               display: 'grid'
             }}>
-            <div style={{ 
-              minWidth: responsiveConfig.columnAlignment === 'centered' ? 'fit-content' : `${actualTotalWidth}px`,
-              width: responsiveConfig.columnAlignment === 'centered' ? 'auto' : `${actualTotalWidth}px`
-            }}>
             <div style={{height: slice.start * ROW_HEIGHT}} />
             {slice.verseIDs.map((id, i) => {
                 // Convert simple rowData to BibleVerse structure
@@ -864,7 +870,6 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
                 );
             })}
             <div style={{height: (verseKeys.length - slice.end) * ROW_HEIGHT}} />
-            </div>
           </div>
         </div>
       </div>
