@@ -369,11 +369,27 @@ body {
 @media (max-width: 640px) and (orientation: portrait) {
   .column-header-cell[data-column="context"],
   .bible-column[data-column="context"],
-  div[data-column="context"] {
+  .cell[data-column="context"],
+  div[data-column="context"],
+  [data-col-key*="context"] {
     display: none !important;
     width: 0 !important;
     min-width: 0 !important;
     max-width: 0 !important;
+    flex: 0 0 0 !important;
+  }
+  
+  /* Also hide any dates-related columns that might be showing */
+  .column-header-cell[data-column="dates"],
+  .bible-column[data-column="dates"],
+  .cell[data-column="dates"],
+  div[data-column="dates"],
+  [data-col-key*="dates"] {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    flex: 0 0 0 !important;
   }
 }
 
@@ -419,6 +435,24 @@ body {
   width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
   min-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
   max-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+}
+
+/* Cross-refs data cells */
+.cell[data-column="cross-refs"],
+.bible-column[data-column="cross-refs"] {
+  width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  flex: 0 0 calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+}
+
+/* Main translation data cells */
+.cell[data-column="main-translation"],
+.bible-column[data-column="main-translation"] {
+  width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  flex: 0 0 calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
 }
 
 .dark .column-header-cell,
