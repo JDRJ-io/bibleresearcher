@@ -48,8 +48,9 @@ function ReferenceCell({ verse }: CellProps) {
 
   return (
     <div 
-      className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
+      className={`${isMobile ? 'cell-ref' : 'px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
       style={{
+        width: isMobile ? undefined : 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))',
         color: 'var(--text-primary)',
         borderColor: 'var(--border-color)'
       }}
@@ -1015,7 +1016,14 @@ function TranslationCell({ verse, translation, getVerseText, isMain }: Translati
   const verseText = getVerseText(verse.reference, translation) ?? verse.text?.[translation] ?? "";
 
   return (
-    <div className="w-80 px-2 py-1 text-sm flex-shrink-0 overflow-hidden">
+    <div 
+      className="px-2 py-1 text-sm flex-shrink-0 overflow-hidden"
+      style={{
+        width: isMain 
+          ? 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))' 
+          : 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))'
+      }}
+    >
       <div className="h-[120px] overflow-y-auto overflow-x-hidden cell-content">
         <div className="whitespace-pre-wrap break-words leading-relaxed">
           {verseText || (
