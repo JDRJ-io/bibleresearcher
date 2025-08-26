@@ -107,6 +107,12 @@ export function NewColumnHeaders({
       }
     };
 
+    // Function to handle column width changes from adaptive columns
+    const handleColumnWidthChange = (event: CustomEvent) => {
+      console.log('🔄 NewColumnHeaders: Received adaptive width change signal');
+      updateColumnWidthMult();
+    };
+
     // Set initial value
     updateColumnWidthMult();
 
@@ -120,8 +126,12 @@ export function NewColumnHeaders({
       attributeFilter: ['style']
     });
 
+    // Listen for adaptive width changes
+    window.addEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
+
     return () => {
       observer.disconnect();
+      window.removeEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
     };
   }, [columnWidthMult, adaptiveWidths]);
 
@@ -203,6 +213,11 @@ export function NewColumnHeaders({
   // Build clean column configuration - NOW DEPENDS ON columnWidthMult for reactive updates
   const columns: SimpleColumn[] = useMemo(() => {
     const cols: SimpleColumn[] = [];
+    
+    // Check if we're in mobile portrait mode to optimize column selection
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobile = window.innerWidth <= 640;
+    const isMobilePortrait = isPortrait && isMobile;
 
     // 1. Reference column (always visible)
     cols.push({
@@ -217,8 +232,8 @@ export function NewColumnHeaders({
 
     // Context boundaries is not a visual column - it's background data processing
 
-    // 4. Notes column
-    if (showNotes) {
+    // 4. Notes column (skip in mobile portrait to reduce columns)
+    if (showNotes && !isMobilePortrait) {
       cols.push({
         id: 'notes',
         name: 'Notes',

@@ -20,27 +20,59 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
 
       console.log('📐 useMeasureVisibleColumns: Container width =', width);
 
-      // FIXED: Show ALL active columns instead of limiting by width
-      // This resolves the issue where 5+ alternate translation columns go blank
-      // and where combinations of columns cause display limits and scrolling issues
+      // Mobile portrait mode optimization - limit visible columns for better UX
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobile = width <= 640;
       
-      let totalColumns = fixedColumns.length + navigableColumns.length;
-      
-      console.log(`📐 Showing ALL active columns: ${fixedColumns.length} fixed + ${navigableColumns.length} navigable = ${totalColumns} total`);
-      
-      // Log all columns being displayed
-      fixedColumns.forEach(id => {
-        const w = Math.max(1, columnWidthsPx[id] ?? 50);
-        console.log(`📐 Fixed column ${id}: ${w}px`);
-      });
-      
-      navigableColumns.forEach(id => {
-        const w = Math.max(1, columnWidthsPx[id] ?? 200);
-        console.log(`📐 Navigable column ${id}: ${w}px`);
-      });
+      if (isPortrait && isMobile) {
+        // In mobile portrait, show only essential columns to prevent layout issues
+        // Filter out very narrow columns (like context) that might cause the extra small column issue
+        const essentialFixedColumns = fixedColumns.filter(id => {
+          const w = columnWidthsPx[id] ?? 50;
+          return w >= 30; // Filter out very narrow columns like context (40px)
+        });
+        
+        const essentialNavigableColumns = navigableColumns.filter(id => {
+          const w = columnWidthsPx[id] ?? 200;
+          return w >= 100; // Ensure navigable columns are substantial enough
+        });
+        
+        const totalColumns = essentialFixedColumns.length + Math.min(essentialNavigableColumns.length, 2);
+        
+        console.log(`📐 Mobile Portrait Mode: ${essentialFixedColumns.length} fixed + ${Math.min(essentialNavigableColumns.length, 2)} navigable = ${totalColumns} total`);
+        
+        // Log essential columns being displayed
+        essentialFixedColumns.forEach(id => {
+          const w = Math.max(1, columnWidthsPx[id] ?? 50);
+          console.log(`📐 Fixed column ${id}: ${w}px`);
+        });
+        
+        essentialNavigableColumns.slice(0, 2).forEach(id => {
+          const w = Math.max(1, columnWidthsPx[id] ?? 200);
+          console.log(`📐 Navigable column ${id}: ${w}px`);
+        });
 
-      console.log(`📐 Final calculation: ${totalColumns} columns (all active columns shown, horizontal scroll enabled)`);
-      setVisibleCount(totalColumns);
+        setVisibleCount(totalColumns);
+      } else {
+        // Desktop/landscape - show all columns with horizontal scroll
+        let totalColumns = fixedColumns.length + navigableColumns.length;
+        
+        console.log(`📐 Desktop/Landscape Mode: ${fixedColumns.length} fixed + ${navigableColumns.length} navigable = ${totalColumns} total`);
+        
+        // Log all columns being displayed
+        fixedColumns.forEach(id => {
+          const w = Math.max(1, columnWidthsPx[id] ?? 50);
+          console.log(`📐 Fixed column ${id}: ${w}px`);
+        });
+        
+        navigableColumns.forEach(id => {
+          const w = Math.max(1, columnWidthsPx[id] ?? 200);
+          console.log(`📐 Navigable column ${id}: ${w}px`);
+        });
+
+        console.log(`📐 Final calculation: ${totalColumns} columns (all active columns shown, horizontal scroll enabled)`);
+        setVisibleCount(totalColumns);
+      }
     };
 
     // Initial calculation

@@ -113,8 +113,8 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     crossReference: finalCross,
     alternate: finalMain, // Same width as main translation
     prophecy: finalMain,  // Same width as main translation
-    notes: Math.floor(finalMain * 0.7), // 70% of main for notes
-    context: 40  // Very thin for portrait mode since text is upright - just needs emoji space
+    notes: Math.floor(finalMain * 0.7), // 70% of main for notes  
+    context: 0  // Hide context column in mobile portrait mode to prevent extra thin columns
   };
 }
 
@@ -230,6 +230,18 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
   // Update CSS variables whenever config changes
   useEffect(() => {
     updateCSSVariables(config.adaptiveWidths);
+    
+    // Trigger column change signal to notify headers to update
+    setTimeout(() => {
+      try {
+        // Emit width change signal to update headers
+        window.dispatchEvent(new CustomEvent('columnWidthChange', {
+          detail: { adaptiveWidths: config.adaptiveWidths }
+        }));
+      } catch (error) {
+        console.warn('Could not emit column width change signal');
+      }
+    }, 50);
   }, [config.adaptiveWidths]);
 
   return config;
