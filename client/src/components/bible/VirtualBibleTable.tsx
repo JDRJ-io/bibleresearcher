@@ -532,38 +532,45 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   const adaptiveConfig = useAdaptivePortraitColumns();
 
-  // Calculate actual total width based on visible columns using adaptive widths
+  // Calculate actual total width based on visible columns using adaptive widths AND column width multiplier
   const actualTotalWidth = useMemo(() => {
     const { adaptiveWidths } = adaptiveConfig;
+    
+    // Get current column width multiplier from CSS variable (accounts for manual resizing/presentation mode)
+    const root = document.documentElement;
+    const columnWidthMult = parseFloat(
+      getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
+    );
+    
     let width = 0;
     
-    // Reference column - use adaptive width
-    width += adaptiveWidths.reference;
+    // Reference column - use adaptive width with multiplier
+    width += (adaptiveWidths.reference * columnWidthMult);
     
-    // Main translation - use adaptive width  
-    width += adaptiveWidths.mainTranslation;
+    // Main translation - use adaptive width with multiplier
+    width += (adaptiveWidths.mainTranslation * columnWidthMult);
     
-    // Cross references - use adaptive width
+    // Cross references - use adaptive width with multiplier
     if (showCrossRefs) {
-      width += adaptiveWidths.crossReference;
+      width += (adaptiveWidths.crossReference * columnWidthMult);
     }
     
-    // Prophecy columns (P, F, V) - use adaptive width for each
+    // Prophecy columns (P, F, V) - use adaptive width with multiplier for each
     if (showProphecies) {
-      width += (adaptiveWidths.prophecy * 3); // 3 prophecy columns
+      width += (adaptiveWidths.prophecy * 3 * columnWidthMult); // 3 prophecy columns
     }
     
-    // Notes column - use adaptive width
+    // Notes column - use adaptive width with multiplier
     if (showNotes) {
-      width += adaptiveWidths.notes;
+      width += (adaptiveWidths.notes * columnWidthMult);
     }
     
     // Context/dates - NO WIDTH ADDED (dates appear inline in reference column, not as separate column)
     
-    // Alternate translations - use adaptive width for each
+    // Alternate translations - use adaptive width with multiplier for each
     const altCount = activeTranslations.filter(t => t !== mainTranslation).length;
     if (altCount > 0) {
-      width += (altCount * adaptiveWidths.alternate);
+      width += (altCount * adaptiveWidths.alternate * columnWidthMult);
     }
     
     return width;
