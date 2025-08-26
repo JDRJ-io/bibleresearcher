@@ -593,8 +593,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // All column calculations now happen dynamically via useMeasureVisibleColumns
 
   // PROPER CENTERING: Only center when content actually fits without horizontal scroll
+  // AND when it won't interfere with ref column sticky positioning
   const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
+  // FIX: Disable centering when horizontal scroll is needed to preserve ref column stickiness
+  const canSafelyCenterWithoutInterference = shouldCenter && !needsHorizontalScroll;
 
   // Simplified vertical-only scrolling system with header rollup detection
   useEffect(() => {
@@ -709,7 +712,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
+              margin: (isPortrait || !canSafelyCenterWithoutInterference) ? '0' : '0 auto',
               overflow: 'visible'
             }}>
             <div style={{ 
