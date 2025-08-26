@@ -205,29 +205,15 @@ export function NewColumnHeaders({
   // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
   // NOW CONNECTED TO --column-width-mult from ManualSizeController
   const getResponsiveWidth = (columnType: string): string => {
-    const isPortrait = window.innerHeight > window.innerWidth;
-
-    if (isPortrait) {
-      // Portrait mode - use CSS variables with column-width-mult scaling
-      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-      return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-    } else {
-      // Landscape mode - use adaptive CSS variables with scaling
-      if (columnType === 'reference') return 'calc(var(--adaptive-ref-width) * var(--column-width-mult, 1))';
-      if (columnType === 'main-translation') return 'calc(var(--adaptive-main-width) * var(--column-width-mult, 1))';
-      if (columnType === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-      if (columnType === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
-      if (columnType === 'prophecy') return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
-      if (columnType === 'notes') return 'calc(var(--adaptive-notes-width) * var(--column-width-mult, 1))';
-      if (columnType === 'context') return 'calc(var(--adaptive-context-width) * var(--column-width-mult, 1))';
-      return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
-    }
+    // Use unified column width variables that include multiplier
+    if (columnType === 'reference') return 'var(--col-ref)';
+    if (columnType === 'main-translation') return 'var(--col-main)';
+    if (columnType === 'cross-refs') return 'var(--col-xref)';
+    if (columnType === 'alt-translation') return 'var(--col-alt)';
+    if (columnType === 'prophecy') return 'var(--col-prophecy)';
+    if (columnType === 'notes') return 'var(--col-notes)';
+    if (columnType === 'context') return 'var(--col-xref)'; // Use xref width for context
+    return 'var(--col-main)'; // Default fallback
   };
 
   // Build clean column configuration - NOW DEPENDS ON columnWidthMult for reactive updates
