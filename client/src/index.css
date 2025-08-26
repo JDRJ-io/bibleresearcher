@@ -577,25 +577,67 @@ body {
   --prophecy-col-width: calc(var(--w-prophecy) * var(--column-width-mult));
 }
 
-/* Re-usable utility classes for perfect column alignment */
-.ref-col {
-  width: var(--ref-col-width);
-  min-width: var(--ref-col-width);
-  max-width: var(--ref-col-width);
+/* UNIFIED COLUMN WIDTH SYSTEM - Single source of truth */
+/* Base widths set by useColumnBaseWidths hook, scaled by --column-width-mult */
+
+:root {
+  /* Base column widths - set by useColumnBaseWidths hook */
+  --col-ref-base: 72px;
+  --col-main-base: 320px;
+  --col-alt-base: 320px;
+  --col-xref-base: 280px;
+  --col-notes-base: 300px;
+  --col-prophecy-base: 200px;
+  
+  /* Computed column widths - what components actually use */
+  --col-ref: calc(var(--col-ref-base) * var(--column-width-mult, 1));
+  --col-main: calc(var(--col-main-base) * var(--column-width-mult, 1));
+  --col-alt: calc(var(--col-alt-base) * var(--column-width-mult, 1));
+  --col-xref: calc(var(--col-xref-base) * var(--column-width-mult, 1));
+  --col-notes: calc(var(--col-notes-base) * var(--column-width-mult, 1));
+  --col-prophecy: calc(var(--col-prophecy-base) * var(--column-width-mult, 1));
+}
+
+/* Unified column width utilities */
+.colW-ref {
+  width: var(--col-ref);
+  min-width: var(--col-ref);
+  max-width: var(--col-ref);
   box-sizing: border-box;
 }
 
-.main-col {
-  width: var(--main-col-width);
-  min-width: var(--main-col-width);
-  max-width: var(--main-col-width);
+.colW-main {
+  width: var(--col-main);
+  min-width: var(--col-main);
+  max-width: var(--col-main);
   box-sizing: border-box;
 }
 
-.alt-col {
-  width: var(--alt-col-width);
-  min-width: var(--alt-col-width);
-  max-width: var(--alt-col-width);
+.colW-alt {
+  width: var(--col-alt);
+  min-width: var(--col-alt);
+  max-width: var(--col-alt);
+  box-sizing: border-box;
+}
+
+.colW-xref {
+  width: var(--col-xref);
+  min-width: var(--col-xref);
+  max-width: var(--col-xref);
+  box-sizing: border-box;
+}
+
+.colW-notes {
+  width: var(--col-notes);
+  min-width: var(--col-notes);
+  max-width: var(--col-notes);
+  box-sizing: border-box;
+}
+
+.colW-prophecy {
+  width: var(--col-prophecy);
+  min-width: var(--col-prophecy);
+  max-width: var(--col-prophecy);
   box-sizing: border-box;
 }
 
@@ -1575,7 +1617,7 @@ body.overlay-open {
   .w-20 { width: calc(5rem * var(--font-size-multiplier, 1)); }
   .w-48 { width: calc(12rem * var(--font-size-multiplier, 1)); }
   .w-64 { width: calc(16rem * var(--font-size-multiplier, 1)); }
-  .w-80 { width: calc(20rem * var(--font-size-multiplier, 1)); }
+  /* .w-80 override removed - use .colW-* utilities instead */
 
   /* Mobile column width overrides - use CSS variables for consistency */
   .dual-col .w-80 { width: calc(var(--colW) * 1) !important; }

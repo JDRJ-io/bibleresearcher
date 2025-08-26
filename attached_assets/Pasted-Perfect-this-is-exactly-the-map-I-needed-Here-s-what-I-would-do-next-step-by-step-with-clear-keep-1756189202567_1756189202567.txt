@@ -1,0 +1,136 @@
+Perfect—this is exactly the map I needed. Here’s what I would do next, step-by-step, with clear keep/retire decisions. No changes yet—this is the surgical plan you can hand to the agent.
+
+# Executive decision: pick ONE authority
+
+Make **CSS variables** the single source of truth for widths, written by **one hook**. Everything else (headers, rows, all column types) must only *read* those vars.
+
+* **Authoritative vars (final):**
+
+  * `--column-width-mult` (manual control)
+  * `--col-ref-base`, `--col-main-base`, `--col-alt-base`, `--col-xref-base`, `--col-notes-base`, `--col-prophecy-base`
+  * Computed read points (what components use):
+    `--col-ref`, `--col-main`, `--col-alt`, `--col-xref`, `--col-notes`, `--col-prophecy`
+    where each = `calc(var(--col-*-base) * var(--column-width-mult))`
+
+* **One hook to set bases by mode:** `useColumnBaseWidths()`
+  It calculates base widths for **portrait** and **landscape** and writes **only** the `--col-*-base` vars (and updates on resize/orientation).
+  All other systems stop writing width vars.
+
+---
+
+# What to KEEP vs RETIRE
+
+## Keep (consolidate into these)
+
+1. **New (or renamed) single hook:** `useColumnBaseWidths`
+
+   * Inputs: viewport dims, breakpoints, maybe density.
+   * Outputs: writes `--col-*-base` (and only those).
+   * Behavior:
+
+     * Portrait: use your best existing logic from `useAdaptivePortraitColumns`.
+     * Landscape: replace the CSS clamp system with explicit JS numbers for `--col-*-base` (see Phase 2).
+   * Also sets `--column-width-mult` default (1) if absent.
+
+2. **`.colW-*` utilities** (as in our earlier plan) applied to the **track-governing wrapper** for every header & cell.
+
+3. **Manual size controller**: continues to set only `--column-width-mult` on the shared wrapper.
+
+## Retire (or freeze, then delete)
+
+* **System A:** `useAdaptivePortraitColumns` → **fold into** `useColumnBaseWidths`, then retire.
+* **System B:** `useResponsiveColumns` (JS config that never writes CSS) → **retire**; any useful constants can be inlined into the new hook.
+* **System C:** CSS clamp `--w-ref/--w-main/--w-xref` in `index.css` → **replace** with the `--col-*-base` values from the hook; **remove** clamp vars.
+* **System D:** `useAdaptiveWidths` (only sets `--vw-free`) → **delete** once the new hook does the full job.
+
+> Rationale: too many sources compete. The single hook writes bases; the multiplier scales; components never compute widths.
+
+---
+
+# Conflict resolution (your agent can apply in code later)
+
+## 1) Portrait vs Landscape calculations
+
+* **Portrait:** adopt the values from `useAdaptivePortraitColumns` as canonical.
+  Resolve the mismatch with `useResponsiveColumns` by **discarding** that older math.
+* **Landscape:** stop relying on CSS `clamp()`; compute numeric bases in the hook.
+  Example policy:
+
+  * `ref`: fixed 5rem (or device-tuned)
+  * allocate remaining width with ratios, e.g. `main : xref : alt : notes : prophecy = 1.0 : 0.9 : 0.9 : 0.9 : 0.9`, bounded by min/max rem.
+  * Write those as `--col-*-base`.
+
+This removes the “three different methods” conflict.
+
+## 2) Headers vs rows
+
+* Both must read the **same** `.colW-*` classes → same computed var → same pixels.
+* Remove any header-only `grid-template-columns` hacks or fixed Tailwind widths.
+
+## 3) Event systems
+
+Converge to **one** event source:
+
+* Keep: `useColumnChangeEmitter` **or** store updates—but not both.
+* Recommendation: **store is the source of truth**; expose a single `onColumnLayoutChange` in the store that updates `--column-width-mult` (and any visibility state). Remove the separate emitter/signal hook.
+* Keep `useMeasureVisibleColumns` **or** `getVisibleSlice()`—but not both. Prefer a **single measurement** utility the store calls; components subscribe to store state only.
+
+## 4) Data loading duplicates
+
+* Keep **one** trigger path (store-driven) for “columns became visible → load data”.
+* Remove component-specific hidden loaders. Components should react to store “visible range + column visibility” signals only.
+
+---
+
+# Phase plan (apply in this order)
+
+## Phase 1 — Unblock rendering (fast win, minimal risk)
+
+* Add `.colW-*` utilities and apply them to all header/body wrappers.
+* Replace `w-20`/`w-80` etc. in `VirtualRow.tsx` with the correct `.colW-*`.
+* Stop encoding Tailwind widths in `columnLayout.ts` (change to semantic width keys or direct `.colW-*` names).
+* Remove the `.w-80 { width: calc(20rem * var(--font-size-multiplier)) }` override; it’s the wrong variable and will keep fighting you.
+
+Outcome: manual `--column-width-mult` works on **every** column immediately.
+
+## Phase 2 — Authority unification (one writer of base widths)
+
+* Create `useColumnBaseWidths` and move logic from `useAdaptivePortraitColumns` (portrait) + landscape rules (replace CSS clamp).
+* Delete `useAdaptivePortraitColumns`, `useResponsiveColumns`, `useAdaptiveWidths`.
+* Remove `--w-*` clamp variables from CSS; keep only `--col-*-base` + `--column-width-mult` + computed `--col-*`.
+
+Outcome: one code path sets bases; no duplicate math.
+
+## Phase 3 — Events & visibility
+
+* Remove `useColumnChangeSignal` if `useColumnChangeEmitter`/store already covers it.
+* Collapse `useMeasureVisibleColumns` & `getVisibleSlice()` into one measurement path in the store.
+
+## Phase 4 — Cleanup & perf
+
+* Delete dead code paths, old constants, and any per-component loader hooks.
+* Ensure memoization around the single hook and store updates to avoid thrash on resize.
+
+---
+
+# Acceptance tests (what “done” looks like)
+
+1. **Manual slider**: `--column-width-mult` at 0.8 / 1.0 / 1.25 / 1.5 → every column (ref, main, alt, xref, notes, prophecy) changes width identically; headers stay pixel-aligned.
+2. **DevTools var poke**: editing `--column-width-mult` on wrapper updates all columns instantly (no resize needed).
+3. **Orientation change**: rotate device → new bases written by `useColumnBaseWidths`; multiplier still applies; no jump/desync between header/body.
+4. **No duplicates**: grep shows no `useAdaptivePortraitColumns`, `useResponsiveColumns`, `useAdaptiveWidths`, no `.w-20`/`.w-80` on track wrappers, no `.w-80` override in CSS.
+5. **Single event source**: column layout changes fire only once; network/data loaders run once per visibility change.
+
+---
+
+# “Explain it to the agent” snippet (copy/paste)
+
+* “Make CSS variables the only width authority. Build `useColumnBaseWidths` that sets `--col-*-base` for portrait & landscape and updates on resize/orientation. Remove `useAdaptivePortraitColumns`, `useResponsiveColumns`, `useAdaptiveWidths`, and the CSS `--w-*` clamp system.
+* All headers & cells must size via `.colW-*` utilities bound to `--col-* = base * --column-width-mult`.
+* The menu **only** updates `--column-width-mult` on the table wrapper.
+* Consolidate column change events to a single store signal; consolidate visibility measurement to one path.
+* Do not change layout architecture; only unify width authority and remove duplicates.”
+
+---
+
+If you want, paste the small code blocks around the lines your report listed (VirtualRow:51 & :1018, one header cell, one `columnLayout` entry), and I’ll write the exact before/after edits so your agent has zero wiggle room.
