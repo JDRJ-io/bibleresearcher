@@ -127,7 +127,7 @@ export function useResponsiveColumns(): ResponsiveColumnConfig {
       isPortrait,
       isLandscape,
       isTouchDevice,
-      columnAlignment: 'left', // Always left-aligned for consistent behavior
+      columnAlignment: (!isPortrait && width >= 1025) ? 'centered' : 'left-based', // Center on wide landscape screens
       enableHorizontalScroll: true, // Always enable horizontal scrolling
       referenceWidth: `${pixelWidths.reference}px`,
       mainTranslationWidth: `${pixelWidths.mainTranslation}px`,

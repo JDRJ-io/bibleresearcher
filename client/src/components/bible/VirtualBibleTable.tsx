@@ -603,8 +603,10 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // The old static column system has been removed
   // All column calculations now happen dynamically via useMeasureVisibleColumns
 
-  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
-  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
+  // PROPER CENTERING: Center when content fits AND we're in true landscape mode on wider screens
+  const isWideScreen = viewportWidth >= 1025;
+  const isRealLandscape = !isPortrait && isWideScreen;
+  const shouldCenter = isRealLandscape && actualTotalWidth <= viewportWidth * 0.9;
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   // Simplified vertical-only scrolling system with header rollup detection
@@ -720,7 +722,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
             style={{ 
               minWidth: 'fit-content',
               width: 'fit-content',
-              margin: (isPortrait || !shouldCenter) ? '0' : '0 auto',
+              margin: shouldCenter ? '0 auto' : '0',
               overflow: 'visible',
               // Apply responsive grid template columns from JavaScript calculations
               gridTemplateColumns: getSharedGridTemplate(),

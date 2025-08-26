@@ -678,8 +678,9 @@ body {
 }
 
 /* PORTRAIT MODE - Expert's orientation-aware layout */
-@media (orientation: portrait) {
-  /* Switch to left-aligned layout in portrait */
+/* Only apply portrait overrides when screen is actually narrow AND tall */
+@media (orientation: portrait) and (max-width: 1024px) {
+  /* Switch to left-aligned layout only on actual narrow portrait devices */
   .tableWrapper { 
     justify-content: flex-start;                 /* hug the left */
     max-width: 100vw;                           /* Never exceed viewport */
@@ -694,6 +695,13 @@ body {
   }
 }
 
+/* LANDSCAPE MODE - Ensure centering is preserved for wide screens */
+@media (orientation: landscape) and (min-width: 1025px) {
+  .tableWrapper {
+    justify-content: center;                     /* Center when screen is wide enough */
+  }
+}
+
 /* Tiny phones - conservative widths to prevent overflow */
 @media (max-width: 480px) {
   :root {
@@ -704,7 +712,7 @@ body {
     --w-prophecy: clamp(35vw, 40vw, 12rem);     /* Max 12rem for prophecy */
   }
   
-  /* Ensure table never exceeds viewport */
+  /* Ensure table never exceeds viewport and stays left-aligned */
   .bibleTable {
     max-width: 100vw !important;
     box-sizing: border-box !important;
@@ -713,6 +721,7 @@ body {
   .tableWrapper {
     max-width: 100vw !important;
     box-sizing: border-box !important;
+    justify-content: flex-start !important;     /* Force left alignment on tiny phones */
   }
 }
 
