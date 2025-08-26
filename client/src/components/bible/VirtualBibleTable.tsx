@@ -586,27 +586,75 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
   }, [adaptiveConfig]);
 
-  // Calculate actual total width using real adaptive widths
+  // Calculate actual total width including column width multiplier
   const actualTotalWidth = useMemo(() => {
-    const { adaptiveWidths } = adaptiveConfig;
+    // Get the column width multiplier from CSS variable
+    const mult = typeof window !== 'undefined' 
+      ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult').trim()) || 1
+      : 1;
+    
+    // Get base widths from CSS variables (these already include the multiplier)
+    const computedStyle = typeof window !== 'undefined' ? getComputedStyle(document.documentElement) : null;
     let width = 0;
     
-    width += adaptiveWidths.reference; // Reference column (actual width)
-    width += adaptiveWidths.mainTranslation; // Main translation (actual width)
-    if (showCrossRefs) width += adaptiveWidths.crossReference; // Cross refs (actual width)
-    
-    // Prophecy columns - each uses prophecy width
-    if (showProphecies) {
-      if (store.showPrediction) width += adaptiveWidths.prophecy;
-      if (store.showFulfillment) width += adaptiveWidths.prophecy; 
-      if (store.showVerification) width += adaptiveWidths.prophecy;
+    if (computedStyle) {
+      // Parse the calc() expressions to get actual pixel values
+      const getPixelValue = (cssVar: string, fallback: number): number => {
+        const value = computedStyle.getPropertyValue(cssVar).trim();
+        if (value.startsWith('calc(')) {
+          // Extract base value and multiply
+          const match = value.match(/calc\((\d+(?:\.\d+)?)(px|rem)?\s*\*\s*(\d+(?:\.\d+)?)\)/i);
+          if (match) {
+            const base = parseFloat(match[1]);
+            const multiplier = parseFloat(match[3]);
+            return base * multiplier;
+          }
+        } else if (value.endsWith('px')) {
+          return parseFloat(value);
+        }
+        return fallback * mult;
+      };
+      
+      // Reference column
+      width += getPixelValue('--col-ref', 72);
+      
+      // Main translation
+      width += getPixelValue('--col-main', 320);
+      
+      // Cross refs
+      if (showCrossRefs) width += getPixelValue('--col-xref', 288);
+      
+      // Notes
+      if (showNotes) width += getPixelValue('--col-notes', 288);
+      
+      // Prophecy columns
+      if (showProphecies) {
+        const prophecyWidth = getPixelValue('--col-prophecy', 200);
+        if (store.showPrediction) width += prophecyWidth;
+        if (store.showFulfillment) width += prophecyWidth;
+        if (store.showVerification) width += prophecyWidth;
+      }
+      
+      // Alternate translations
+      const altWidth = getPixelValue('--col-alt', 320);
+      width += (activeTranslations.filter(t => t !== mainTranslation).length * altWidth);
+    } else {
+      // Fallback calculation
+      const { adaptiveWidths } = adaptiveConfig;
+      width = adaptiveWidths.reference + adaptiveWidths.mainTranslation;
+      if (showCrossRefs) width += adaptiveWidths.crossReference;
+      if (showNotes) width += adaptiveWidths.notes;
+      if (showProphecies) {
+        if (store.showPrediction) width += adaptiveWidths.prophecy;
+        if (store.showFulfillment) width += adaptiveWidths.prophecy;
+        if (store.showVerification) width += adaptiveWidths.prophecy;
+      }
+      width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
+      width = width * mult;
     }
     
-    // Alternate translations use alternate width
-    width += (activeTranslations.filter(t => t !== mainTranslation).length * adaptiveWidths.alternate);
-    
     return width;
-  }, [activeTranslations, mainTranslation, showCrossRefs, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig]);
+  }, [activeTranslations, mainTranslation, showCrossRefs, showNotes, showProphecies, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveConfig, columnWidthMult]);
 
   // ADAPTIVE VERSE REFERENCE ROTATION: Monitor reference column width and rotate when thin
   useReferenceColumnWidth();
@@ -624,8 +672,8 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   // The old static column system has been removed
   // All column calculations now happen dynamically via useMeasureVisibleColumns
 
-  // PROPER CENTERING: Only center when content actually fits without horizontal scroll
-  const shouldCenter = !isMobile && actualTotalWidth <= viewportWidth * 0.9;
+  // PROPER CENTERING: Center when columns don't fill viewport (accounting for some padding)
+  const shouldCenter = actualTotalWidth < viewportWidth - 40; // 20px padding on each side
   const needsHorizontalScroll = actualTotalWidth > viewportWidth;
 
   // Simplified vertical-only scrolling system with header rollup detection
@@ -731,12 +779,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
         {/* Content container - preserving original adaptive behavior */}
         <div 
           style={{ 
-            minWidth: actualTotalWidth <= viewportWidth ? '100%' : `${actualTotalWidth}px`,
+            minWidth: shouldCenter ? '100%' : `${actualTotalWidth}px`,
             minHeight: `${verseKeys.length * ROW_HEIGHT}px`,
             position: 'relative',
             overflow: 'visible',
             display: 'flex',
-            justifyContent: actualTotalWidth <= viewportWidth ? 'center' : 'flex-start'
+            justifyContent: shouldCenter ? 'center' : 'flex-start'
           }}
         >
           <div className="tableInner bibleTable"

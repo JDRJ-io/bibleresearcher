@@ -493,7 +493,8 @@ export function NewColumnHeaders({
           items={visibleColumns.map(col => col.id)} 
           strategy={horizontalListSortingStrategy}
         >
-          <div className="flex">
+          <div className="flex" style={{ justifyContent: 'center', width: '100%' }}>
+          <div className="flex" style={{ width: 'fit-content' }}>
             {/* Reference header - stays fixed like the reference column data */}
             {visibleColumns.filter(col => col.id === 'reference').map((column) => (
               <div
@@ -516,7 +517,7 @@ export function NewColumnHeaders({
               style={{ 
                 minWidth: 'fit-content',
                 width: 'fit-content',
-                margin: isPortrait ? '0' : '0 auto',
+                margin: '0',
                 overflowX: 'auto',
                 maxWidth: '100%', // Prevent excessive width expansion
                 transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
@@ -526,6 +527,7 @@ export function NewColumnHeaders({
                 <SortableHeaderCell key={column.id} column={column} />
               ))}
             </div>
+          </div>
           </div>
         </SortableContext>
 
