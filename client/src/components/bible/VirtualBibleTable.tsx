@@ -532,15 +532,41 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   
   const adaptiveConfig = useAdaptivePortraitColumns();
 
+  // Track column width multiplier changes for responsive centering
+  const [columnWidthMult, setColumnWidthMult] = useState(1);
+
+  // Listen for column width multiplier changes (presentation mode, manual sizing)
+  useEffect(() => {
+    // Initial read
+    const root = document.documentElement;
+    const initialMult = parseFloat(
+      getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
+    );
+    setColumnWidthMult(initialMult);
+
+    // Watch for direct CSS variable changes using MutationObserver
+    const observer = new MutationObserver(() => {
+      const currentMult = parseFloat(
+        getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
+      );
+      if (Math.abs(currentMult - columnWidthMult) > 0.01) {
+        setColumnWidthMult(currentMult);
+      }
+    });
+
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [columnWidthMult]);
+
   // Calculate actual total width based on visible columns using adaptive widths AND column width multiplier
   const actualTotalWidth = useMemo(() => {
     const { adaptiveWidths } = adaptiveConfig;
-    
-    // Get current column width multiplier from CSS variable (accounts for manual resizing/presentation mode)
-    const root = document.documentElement;
-    const columnWidthMult = parseFloat(
-      getComputedStyle(root).getPropertyValue('--column-width-mult') || '1'
-    );
     
     let width = 0;
     
@@ -574,7 +600,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     }
     
     return width;
-  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes]);
+  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, columnWidthMult]);
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';
 
