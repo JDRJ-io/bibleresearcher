@@ -25,6 +25,7 @@ import { useBibleData } from "@/hooks/useBibleData";
 import { useVerseNav } from "@/hooks/useVerseNav";
 import { makeScrollToVerse } from "@/utils/scrollToVerse";
 import { getVerseIndex } from "@/lib/verseIndexMap";
+import { useSmoothAxisLock } from "@/hooks/useSmoothAxisLock";
 
 import type {
   BibleVerse,
@@ -98,6 +99,12 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
   const [isScrollbarDragging, setIsScrollbarDragging] = useState(false);
   const [showScrollTooltip, setShowScrollTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | undefined>();
+
+  // AXIS-LOCKED SCROLLING: Apply the new smooth axis lock system
+  useSmoothAxisLock(containerRef, {
+    dominanceRatio: 1.2,
+    wheelUnlockMs: 160
+  });
 
   // NEW: Measure actual column container for dynamic visible count calculation
   useMeasureVisibleColumns(containerRef.current);
@@ -737,7 +744,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           (hScrollRef as any).current = node;
           (containerRef as any).current = node; // Connect containerRef for anchor slice system
         }}
-        className="unified-scroll-container scroll-area"
+        className="unified-scroll-container scroll-area virtualTableViewport"
         style={{ 
           position: 'relative',
           height: "calc(100vh - var(--top-header-height-mobile) - var(--column-header-height))",

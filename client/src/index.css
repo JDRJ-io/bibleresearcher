@@ -50,6 +50,14 @@ body {
   scrollbar-width: none;  /* Firefox */
 }
 
+/* Virtual Table Viewport - Axis-Locked Scrolling */
+.virtualTableViewport {
+  overflow: auto;
+  overscroll-behavior: contain;        /* keep scroll local */
+  touch-action: pan-x pan-y pinch-zoom;/* allow both, JS decides */
+  -webkit-overflow-scrolling: touch;   /* smooth inertia */
+}
+
 /* EXCEPTION: Show scrollbars specifically for cell content */
 .unified-scroll-container .cell-content::-webkit-scrollbar {
   display: block !important;
