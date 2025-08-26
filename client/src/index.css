@@ -682,6 +682,10 @@ body {
   .tableWrapper {
     justify-content: center !important;        /* center content in landscape */
   }
+  
+  .bibleTable {
+    margin: 0 auto !important;                 /* center table content in landscape */
+  }
 }
 
 /* PORTRAIT MODE - Expert's orientation-aware layout */
