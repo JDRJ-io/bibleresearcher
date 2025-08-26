@@ -706,8 +706,9 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
           // Hide default scrollbars since we'll show custom ones
           scrollbarWidth: 'none', // Firefox
           msOverflowStyle: 'none', // IE/Edge
-          // Remove JavaScript centering - let CSS handle it consistently with headers
+          // Apply the same centering logic as headers
           display: 'flex',
+          justifyContent: shouldCenter ? 'center' : 'flex-start',
           // On mobile, allow both horizontal and vertical scrolling
           ...(isMobile && {
             touchAction: 'auto',
