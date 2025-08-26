@@ -496,17 +496,8 @@ export function NewColumnHeaders({
           items={visibleColumns.map(col => col.id)} 
           strategy={horizontalListSortingStrategy}
         >
-          {/* Container that centers all headers together, including reference */}
-          <div 
-            className="flex"
-            style={{ 
-              minWidth: 'fit-content',
-              width: 'fit-content',
-              margin: isPortrait ? '0' : '0 auto',
-              transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
-            }}
-          >
-            {/* Reference header - sticky within the centered container */}
+          <div className="flex">
+            {/* Reference header - always sticky left, but moves with centering when content fits */}
             {visibleColumns.filter(col => col.id === 'reference').map((column) => (
               <div
                 key={column.id}
@@ -521,13 +512,17 @@ export function NewColumnHeaders({
               </div>
             ))}
             
-            {/* Other headers - flow naturally after reference */}
+            {/* Scrollable headers container - centers when content fits, scrolls when overflow */}
             <div 
               ref={headerRef}
               className="column-headers-inner flex"
               style={{ 
                 minWidth: 'fit-content',
-                width: 'fit-content'
+                width: 'fit-content',
+                margin: isPortrait ? '0' : '0 auto',
+                overflowX: 'auto',
+                maxWidth: '100%',
+                transform: `translateX(-${scrollLeft}px)` // Synchronize with table horizontal scroll
               }}
             >
               {visibleColumns.filter(col => col.id !== 'reference').map((column) => (
