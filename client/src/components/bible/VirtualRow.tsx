@@ -776,7 +776,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell ${widthClass}`}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 cell"
+            style={{ width: 'var(--col-ref)', minWidth: 'var(--col-ref)', flexShrink: 0 }}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -802,7 +803,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column border-r border-gray-200 dark:border-gray-700 ${widthClass}`}
+            className="bible-column border-r border-gray-200 dark:border-gray-700"
+            style={{ width: 'var(--col-prophecy)', minWidth: 'var(--col-prophecy)', flexShrink: 0 }}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -814,7 +816,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full ${widthClass}`}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700 h-full"
+            style={{ width: 'var(--col-main)', minWidth: 'var(--col-main)', flexShrink: 0 }}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -872,7 +875,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column border-r border-gray-200 dark:border-gray-700 h-full ${widthClass}`}
+            className="bible-column border-r border-gray-200 dark:border-gray-700 h-full"
+            style={{ width: 'var(--col-alt)', minWidth: 'var(--col-alt)', flexShrink: 0 }}
             data-column={config.type}
             data-col-key={columnId}
           >
@@ -909,7 +913,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column columnGroup border-r border-gray-200 dark:border-gray-700 ${widthClass}`}
+            className="bible-column columnGroup border-r border-gray-200 dark:border-gray-700"
+            style={{ width: 'var(--col-xref)', minWidth: 'var(--col-xref)', flexShrink: 0 }}
             data-column={config.type}
             data-col-key={columnId}
             onWheel={(e) => e.stopPropagation()}
@@ -936,7 +941,8 @@ export function VirtualRow({
         return (
           <div 
             key={slot} 
-            className={`bible-column border-r border-gray-200 dark:border-gray-700 ${widthClass}`}
+            className="bible-column border-r border-gray-200 dark:border-gray-700"
+            style={{ width: 'var(--col-prophecy)', minWidth: 'var(--col-prophecy)', flexShrink: 0 }}
             data-column={config.type}
             data-col-key={columnId}
           >
