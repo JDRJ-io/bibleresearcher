@@ -95,9 +95,12 @@
     width: calc(var(--adaptive-notes-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
-  /* Context column mobile sizing */
+  /* Context column mobile sizing - hidden in mobile portrait */
   .column-header-cell[data-column="context"] {
-    width: calc(var(--adaptive-context-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
+    width: 0 !important;  /* Hidden in mobile portrait mode */
+    min-width: 0 !important;
+    max-width: 0 !important;
+    display: none !important;  /* Completely hide context columns */
   }
 
   /* Landscape phone adjustments - use adaptive variables for perfect sync */
@@ -136,9 +139,12 @@
       width: calc(var(--adaptive-notes-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
 
-    /* Context column sync */
+    /* Context column sync - hidden in mobile portrait */
     .column-header-cell[data-column="context"] {
-      width: calc(var(--adaptive-context-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
+      width: 0 !important;  /* Hidden in mobile portrait mode */
+      min-width: 0 !important;
+      max-width: 0 !important;
+      display: none !important;  /* Completely hide context columns */
     }
   }
 }

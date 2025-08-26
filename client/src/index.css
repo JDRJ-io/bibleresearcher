@@ -365,6 +365,18 @@ body {
   line-height: 1 !important;
 }
 
+/* Hide context columns in mobile portrait mode */
+@media (max-width: 640px) and (orientation: portrait) {
+  .column-header-cell[data-column="context"],
+  .bible-column[data-column="context"],
+  div[data-column="context"] {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+  }
+}
+
 /* Dark mode border color */
 .dark .column-header-cell,
 .dark .virtual-row > div,
