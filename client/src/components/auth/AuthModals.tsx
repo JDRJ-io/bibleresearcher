@@ -188,19 +188,31 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   // Render modals using portals to escape container constraints
   const signUpModal = isSignUpOpen ? createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center 
-                    bg-black/70 backdrop-blur-sm overflow-hidden"
+                    bg-gradient-to-br from-black/85 via-purple-900/60 to-black/85
+                    backdrop-blur-sm overflow-hidden"
          onClick={onCloseSignUp}>
       
-      {/* Subtle Background Effects */}
+      {/* Divine Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/3 left-1/3 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/3 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-400/50 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/40 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-pink-400/30 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute top-3/4 left-1/6 w-32 h-32 bg-cyan-400/35 rounded-full blur-2xl animate-pulse delay-700" />
+      </div>
+
+      {/* Holy Light Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-4 left-4 w-1 h-16 bg-gradient-to-b from-yellow-400 to-transparent rotate-12 blur-sm" />
+        <div className="absolute top-4 right-4 w-1 h-20 bg-gradient-to-b from-purple-500 to-transparent -rotate-12 blur-sm" />
+        <div className="absolute bottom-4 left-1/3 w-1 h-12 bg-gradient-to-t from-yellow-400/80 to-transparent rotate-45 blur-sm" />
+        <div className="absolute top-1/3 right-1/3 w-1 h-14 bg-gradient-to-b from-pink-400/90 to-transparent rotate-45 blur-sm" />
+        <div className="absolute bottom-1/3 left-1/4 w-1 h-10 bg-gradient-to-t from-cyan-400/70 to-transparent -rotate-12 blur-sm" />
       </div>
 
       {/* Main Content Container - Mobile Optimized */}
-      <div className="relative z-10 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg mx-2 sm:mx-4 p-8 
-                      rounded-xl border border-gray-200/20 shadow-xl
-                      bg-white/95 dark:bg-gray-900/95
+      <div className="relative z-10 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg mx-2 sm:mx-4 p-6 
+                      rounded-2xl border-2 border-yellow-300 shadow-[0_0_0_1px_rgba(168,85,247,0.8),0_0_20px_rgba(251,191,36,0.6),0_0_40px_rgba(251,191,36,0.3)]
+                      bg-gradient-to-br from-yellow-400/20 via-purple-500/15 to-pink-400/10
                       backdrop-blur-lg
                       max-h-[85vh] overflow-y-auto"
            onClick={(e) => e.stopPropagation()}>
@@ -209,52 +221,52 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
         <button
           onClick={onCloseSignUp}
           className="absolute top-4 right-4 p-2 rounded-full 
-                     bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700
-                     text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200
-                     transition-colors duration-200"
+                     bg-white/10 hover:bg-white/20 transition-all duration-300
+                     border-2 border-red-400/80 hover:border-red-300 shadow-[0_0_8px_rgba(248,113,113,0.6)]
+                     text-white/70 hover:text-white z-20 hover:shadow-[0_0_15px_rgba(248,113,113,0.8)]"
         >
           <X className="h-5 w-5" />
         </button>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Crown className="w-12 h-12 mx-auto text-blue-600 dark:text-blue-400 mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Account</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">Join our community of biblical scholars</p>
+        {/* Divine Crown Icon */}
+        <div className="text-center mb-6">
+          <Crown className="w-16 h-16 mx-auto text-yellow-300 mb-4 drop-shadow-lg filter drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+          <h1 className="text-4xl font-bold text-white mb-2">Join the Anointed</h1>
+          <p className="text-white/70 text-lg">Enter the sacred realm of biblical wisdom</p>
         </div>
 
         <form onSubmit={handleSignUp} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="signup-name" className="text-gray-900 dark:text-gray-100 font-medium">Your Name</Label>
+            <Label htmlFor="signup-name" className="text-white/90 text-lg">Your Name</Label>
             <Input
               id="signup-name"
               type="text"
-              placeholder="Enter your full name"
+              placeholder="Your sacred name"
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
-              className="h-11 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 
-                         focus:border-blue-500 dark:focus:border-blue-400 text-gray-900 dark:text-gray-100 
-                         placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200"
+              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-username" className="text-gray-900 dark:text-gray-100 font-medium">Username</Label>
+            <Label htmlFor="signup-username" className="text-white/90 text-lg">Username</Label>
             <div className="relative">
               <Input
                 id="signup-username"
                 type="text"
-                placeholder="choose_username"
+                placeholder="chosen_username"
                 value={signUpData.username}
                 onChange={(e) => {
                   const username = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
                   setSignUpData({ ...signUpData, username });
                   checkUsernameAvailability(username);
                 }}
-                className="h-11 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 
-                           focus:border-blue-500 dark:focus:border-blue-400 text-gray-900 dark:text-gray-100 
-                           placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-200 pr-10"
+                className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
+                           text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300 pr-10" 
+                style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
                 required
                 minLength={3}
                 maxLength={24}
