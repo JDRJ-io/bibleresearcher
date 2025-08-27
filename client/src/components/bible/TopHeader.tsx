@@ -203,8 +203,26 @@ export function TopHeader({
             </Button>
           </div>
 
-          {/* Center: Search + Bookmark */}
-          <div className="flex-1 mx-2 max-w-[180px] flex items-center justify-center gap-2">
+          {/* Center: Anointed Logo */}
+          <div className="flex-1 mx-2 flex items-center justify-center">
+            <div className="flex items-center space-x-2">
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
+                             border border-yellow-400/30 flex items-center justify-center relative overflow-hidden">
+                {/* Holy Light Particles */}
+                <div className="absolute inset-0">
+                  <div className="absolute left-1/4 top-1/2 w-0.5 h-0.5 bg-yellow-400/60 rounded-full blur-sm animate-pulse" />
+                  <div className="absolute right-1/3 top-1/2 w-0.5 h-0.5 bg-purple-400/80 rounded-full blur-sm animate-pulse delay-500" />
+                </div>
+                <Scroll className="w-4 h-4 text-yellow-400 relative z-10" />
+              </div>
+              <span className="font-bold text-sm bg-gradient-to-r from-yellow-500 to-purple-500 
+                            dark:from-yellow-400 dark:to-purple-400 
+                            bg-clip-text text-transparent">Anointed</span>
+            </div>
+          </div>
+
+          {/* Right: Search + Bookmark + Menu */}
+          <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="sm"
@@ -227,36 +245,6 @@ export function TopHeader({
             >
               <Bookmark className="w-3 h-3" />
             </Button>
-            {/* Debug: Check if user is available for bookmark */}
-            {!user && (
-              <span className="text-xs text-muted-foreground ml-1" title="Sign in to save bookmarks">
-                (Sign in)
-              </span>
-            )}
-          </div>
-
-          {/* Right: Auth + Menu */}
-          <div className="flex items-center gap-2">
-            {user ? (
-              <UserProfileDropdown />
-            ) : (
-              <Button
-                variant="default"
-                size="sm"
-                className="h-8 px-3 text-xs font-semibold border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                style={{
-                  backgroundColor: 'var(--accent-color)',
-                  color: 'var(--bg-primary)',
-                  borderColor: 'var(--accent-color)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                }}
-                onClick={() => setIsSignInOpen(true)}
-              >
-                <KeyRound className="w-3 h-3 mr-1" />
-                Sign In
-              </Button>
-            )}
-
             <Button
               variant="outline"
               size="sm"
