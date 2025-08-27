@@ -3,11 +3,84 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, Filter, ArrowUp, ArrowDown, History, Clock, Zap, Target, Shuffle, Keyboard } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, X, Filter, ArrowUp, ArrowDown, History, Clock, Zap, Target, Shuffle, Keyboard, BookOpen, ChevronRight } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
+
+// Bible books data for navigation
+const BIBLE_BOOKS = [
+  // Old Testament
+  { name: 'Genesis', abbrev: 'Gen', chapters: 50 },
+  { name: 'Exodus', abbrev: 'Exo', chapters: 40 },
+  { name: 'Leviticus', abbrev: 'Lev', chapters: 27 },
+  { name: 'Numbers', abbrev: 'Num', chapters: 36 },
+  { name: 'Deuteronomy', abbrev: 'Deu', chapters: 34 },
+  { name: 'Joshua', abbrev: 'Jos', chapters: 24 },
+  { name: 'Judges', abbrev: 'Jdg', chapters: 21 },
+  { name: 'Ruth', abbrev: 'Rut', chapters: 4 },
+  { name: '1 Samuel', abbrev: '1Sa', chapters: 31 },
+  { name: '2 Samuel', abbrev: '2Sa', chapters: 24 },
+  { name: '1 Kings', abbrev: '1Ki', chapters: 22 },
+  { name: '2 Kings', abbrev: '2Ki', chapters: 25 },
+  { name: '1 Chronicles', abbrev: '1Ch', chapters: 29 },
+  { name: '2 Chronicles', abbrev: '2Ch', chapters: 36 },
+  { name: 'Ezra', abbrev: 'Ezr', chapters: 10 },
+  { name: 'Nehemiah', abbrev: 'Neh', chapters: 13 },
+  { name: 'Esther', abbrev: 'Est', chapters: 10 },
+  { name: 'Job', abbrev: 'Job', chapters: 42 },
+  { name: 'Psalms', abbrev: 'Psa', chapters: 150 },
+  { name: 'Proverbs', abbrev: 'Pro', chapters: 31 },
+  { name: 'Ecclesiastes', abbrev: 'Ecc', chapters: 12 },
+  { name: 'Song of Solomon', abbrev: 'Son', chapters: 8 },
+  { name: 'Isaiah', abbrev: 'Isa', chapters: 66 },
+  { name: 'Jeremiah', abbrev: 'Jer', chapters: 52 },
+  { name: 'Lamentations', abbrev: 'Lam', chapters: 5 },
+  { name: 'Ezekiel', abbrev: 'Eze', chapters: 48 },
+  { name: 'Daniel', abbrev: 'Dan', chapters: 12 },
+  { name: 'Hosea', abbrev: 'Hos', chapters: 14 },
+  { name: 'Joel', abbrev: 'Joe', chapters: 3 },
+  { name: 'Amos', abbrev: 'Amo', chapters: 9 },
+  { name: 'Obadiah', abbrev: 'Oba', chapters: 1 },
+  { name: 'Jonah', abbrev: 'Jon', chapters: 4 },
+  { name: 'Micah', abbrev: 'Mic', chapters: 7 },
+  { name: 'Nahum', abbrev: 'Nah', chapters: 3 },
+  { name: 'Habakkuk', abbrev: 'Hab', chapters: 3 },
+  { name: 'Zephaniah', abbrev: 'Zep', chapters: 3 },
+  { name: 'Haggai', abbrev: 'Hag', chapters: 2 },
+  { name: 'Zechariah', abbrev: 'Zec', chapters: 14 },
+  { name: 'Malachi', abbrev: 'Mal', chapters: 4 },
+  // New Testament
+  { name: 'Matthew', abbrev: 'Mat', chapters: 28 },
+  { name: 'Mark', abbrev: 'Mar', chapters: 16 },
+  { name: 'Luke', abbrev: 'Luk', chapters: 24 },
+  { name: 'John', abbrev: 'Joh', chapters: 21 },
+  { name: 'Acts', abbrev: 'Act', chapters: 28 },
+  { name: 'Romans', abbrev: 'Rom', chapters: 16 },
+  { name: '1 Corinthians', abbrev: '1Co', chapters: 16 },
+  { name: '2 Corinthians', abbrev: '2Co', chapters: 13 },
+  { name: 'Galatians', abbrev: 'Gal', chapters: 6 },
+  { name: 'Ephesians', abbrev: 'Eph', chapters: 6 },
+  { name: 'Philippians', abbrev: 'Phi', chapters: 4 },
+  { name: 'Colossians', abbrev: 'Col', chapters: 4 },
+  { name: '1 Thessalonians', abbrev: '1Th', chapters: 5 },
+  { name: '2 Thessalonians', abbrev: '2Th', chapters: 3 },
+  { name: '1 Timothy', abbrev: '1Ti', chapters: 6 },
+  { name: '2 Timothy', abbrev: '2Ti', chapters: 4 },
+  { name: 'Titus', abbrev: 'Tit', chapters: 3 },
+  { name: 'Philemon', abbrev: 'Phm', chapters: 1 },
+  { name: 'Hebrews', abbrev: 'Heb', chapters: 13 },
+  { name: 'James', abbrev: 'Jas', chapters: 5 },
+  { name: '1 Peter', abbrev: '1Pe', chapters: 5 },
+  { name: '2 Peter', abbrev: '2Pe', chapters: 3 },
+  { name: '1 John', abbrev: '1Jo', chapters: 5 },
+  { name: '2 John', abbrev: '2Jo', chapters: 1 },
+  { name: '3 John', abbrev: '3Jo', chapters: 1 },
+  { name: 'Jude', abbrev: 'Jud', chapters: 1 },
+  { name: 'Revelation', abbrev: 'Rev', chapters: 22 }
+];
 
 // Mobile detection hook
 const useIsMobile = () => {
@@ -50,6 +123,11 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const [showHistory, setShowHistory] = useState(false);
 
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
+  
+  // Navigation picker state
+  const [selectedBook, setSelectedBook] = useState<string>('Gen');
+  const [selectedChapter, setSelectedChapter] = useState<string>('1');
+  const [selectedVerse, setSelectedVerse] = useState<string>('1');
   
   // Mobile responsiveness hook
   const isMobile = useIsMobile();
@@ -355,6 +433,27 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     onClose();
   };
 
+  // Navigation picker handlers
+  const selectedBookData = BIBLE_BOOKS.find(book => book.abbrev === selectedBook);
+  const maxChapter = selectedBookData?.chapters || 1;
+
+  const handleNavigateToReference = () => {
+    const reference = `${selectedBook}.${selectedChapter}:${selectedVerse}`;
+    onNavigateToVerse(reference);
+    onClose();
+  };
+
+  const handleBookChange = (value: string) => {
+    setSelectedBook(value);
+    setSelectedChapter('1');
+    setSelectedVerse('1');
+  };
+
+  const handleChapterChange = (value: string) => {
+    setSelectedChapter(value);
+    setSelectedVerse('1');
+  };
+
   const getSearchTypeColor = (type: SearchResult['type']) => {
     switch (type) {
       case 'reference': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
@@ -399,6 +498,68 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
+          {/* Compact Navigation Picker */}
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Navigation</span>
+            </div>
+            <div className={`grid gap-2 ${isMobile ? 'grid-cols-2' : 'grid-cols-4'}`}>
+              {/* Book Selector */}
+              <Select value={selectedBook} onValueChange={handleBookChange}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Book" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {BIBLE_BOOKS.map(book => (
+                    <SelectItem key={book.abbrev} value={book.abbrev}>
+                      {isMobile ? book.abbrev : book.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Chapter Selector */}
+              <Select value={selectedChapter} onValueChange={handleChapterChange}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Ch" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {Array.from({ length: maxChapter }, (_, i) => i + 1).map(chapter => (
+                    <SelectItem key={chapter} value={chapter.toString()}>
+                      {chapter}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Verse Selector */}
+              <Select value={selectedVerse} onValueChange={setSelectedVerse}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Vs" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {Array.from({ length: 50 }, (_, i) => i + 1).map(verse => (
+                    <SelectItem key={verse} value={verse.toString()}>
+                      {verse}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Navigate Button */}
+              <Button 
+                onClick={handleNavigateToReference}
+                size="sm"
+                className="h-9 bg-green-600 hover:bg-green-700 text-white text-sm"
+                title="Navigate to verse"
+              >
+                <ChevronRight className="w-4 h-4" />
+                {!isMobile && <span className="ml-1">Go</span>}
+              </Button>
+            </div>
+          </div>
+
             {/* Search Input */}
             <div className="flex gap-2">
               <Input
