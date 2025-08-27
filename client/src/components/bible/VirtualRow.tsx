@@ -776,6 +776,9 @@ export function VirtualRow({
     switch (config.type) {
       case 'reference':
         const isPortraitInRefCell = window.innerHeight > window.innerWidth;
+        const isMobileTextMode = window.innerWidth <= 640;
+        const shouldRotateText = isPortraitInRefCell && isMobileTextMode;
+        
         return (
           <div 
             key={slot} 
@@ -785,17 +788,17 @@ export function VirtualRow({
             data-col-key={columnId}
           >
             <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
-              isPortraitInRefCell 
+              shouldRotateText 
                 ? 'flex flex-row items-center justify-center gap-1' 
                 : 'flex flex-col items-center justify-center'
             }`}>
-              <span className={`leading-none m-0 p-0 ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
+              <span className={`leading-none m-0 p-0 ${shouldRotateText ? 'vertical-text' : 'truncate'}`}>
                 {verse.reference}
               </span>
               {showDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
-                  className={isPortraitInRefCell ? 'vertical-text' : 'mt-0.5'} 
+                  className={shouldRotateText ? 'vertical-text' : 'mt-0.5'} 
                 />
               )}
             </div>
