@@ -85,15 +85,15 @@ export default function DocsPage() {
   };
 
   const formatMarkdown = (text: string) => {
-    // Simple markdown formatting for headers and basic styles
+    // Simple markdown formatting for headers and basic styles with theme-adaptive colors
     return text
       .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mb-4 text-foreground">$1</h1>')
       .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-semibold mb-3 mt-6 text-foreground">$1</h2>')
       .replace(/^### (.*$)/gm, '<h3 class="text-xl font-medium mb-2 mt-4 text-foreground">$1</h3>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-      .replace(/\n\n/g, '</p><p class="mb-4">')
-      .replace(/^(.+)$/gm, '<p class="mb-4">$1</p>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="italic text-foreground">$1</em>')
+      .replace(/\n\n/g, '</p><p class="mb-4 text-foreground">')
+      .replace(/^(.+)$/gm, '<p class="mb-4 text-foreground">$1</p>')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">$1 <ExternalLink className="inline w-3 h-3" /></a>');
   };
 
@@ -192,10 +192,17 @@ export default function DocsPage() {
       )}
 
       {content && (
-        <div className="prose prose-gray dark:prose-invert max-w-none">
+        <div className="prose prose-gray dark:prose-invert max-w-none text-foreground">
           <div 
             dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
-            className="leading-relaxed text-foreground [&_*]:text-foreground [&_h1]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_h4]:text-foreground [&_p]:text-foreground [&_li]:text-foreground [&_span]:text-foreground [&_strong]:text-foreground [&_em]:text-foreground [&_div]:text-foreground"
+            className="leading-relaxed text-foreground 
+                       [&_*]:text-foreground 
+                       [&_h1]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_h4]:text-foreground [&_h5]:text-foreground [&_h6]:text-foreground
+                       [&_p]:text-foreground [&_li]:text-foreground [&_span]:text-foreground 
+                       [&_strong]:text-foreground [&_em]:text-foreground [&_div]:text-foreground 
+                       [&_ul]:text-foreground [&_ol]:text-foreground [&_blockquote]:text-foreground
+                       [&_code]:text-foreground [&_pre]:text-foreground [&_table]:text-foreground
+                       [&_th]:text-foreground [&_td]:text-foreground [&_text]:text-foreground"
           />
         </div>
       )}

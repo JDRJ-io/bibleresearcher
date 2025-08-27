@@ -97,19 +97,14 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
             </div>
           ) : (
             <div 
-              className="prose prose-sm max-w-none
-                         text-black dark:text-white
-                         [&_*]:text-black [&_*]:dark:text-white
-                         [&_p]:text-black [&_p]:dark:text-white
-                         [&_h1]:text-black [&_h1]:dark:text-white
-                         [&_h2]:text-black [&_h2]:dark:text-white  
-                         [&_h3]:text-black [&_h3]:dark:text-white
-                         [&_h4]:text-black [&_h4]:dark:text-white
-                         [&_li]:text-black [&_li]:dark:text-white
-                         [&_span]:text-black [&_span]:dark:text-white
-                         [&_strong]:text-black [&_strong]:dark:text-white
-                         [&_em]:text-black [&_em]:dark:text-white
-                         [&_div]:text-black [&_div]:dark:text-white"
+              className="prose prose-sm max-w-none text-foreground
+                         [&_*]:text-foreground
+                         [&_p]:text-foreground
+                         [&_h1]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_h4]:text-foreground [&_h5]:text-foreground [&_h6]:text-foreground
+                         [&_li]:text-foreground [&_ul]:text-foreground [&_ol]:text-foreground
+                         [&_span]:text-foreground [&_strong]:text-foreground [&_em]:text-foreground [&_div]:text-foreground
+                         [&_blockquote]:text-foreground [&_code]:text-foreground [&_pre]:text-foreground
+                         [&_table]:text-foreground [&_th]:text-foreground [&_td]:text-foreground"
               dangerouslySetInnerHTML={{ __html: marked(patchNotes) }}
             />
           )}
