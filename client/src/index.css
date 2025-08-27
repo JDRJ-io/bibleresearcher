@@ -950,21 +950,26 @@ body {
   }
 
   .cell-ref {
-    font-size: 12px !important;        /* Even bigger text for mobile readability */
-    font-weight: bold !important;      /* Make reference text bold */
+    font-size: 10px !important;        /* Smaller font to ensure text fits */
+    font-weight: 600 !important;       /* Medium bold weight */
     text-align: center;
-    padding: 0 !important;             /* NO PADDING ANYWHERE */
+    padding: 2px !important;           /* Small padding for text breathing room */
     margin: 0 !important;              /* NO MARGIN ANYWHERE */
-    line-height: 1.2 !important;       /* Better line height for readability */
+    line-height: 1.1 !important;       /* Tight line height for compact display */
     writing-mode: horizontal-tb;        /* Normal horizontal text */
     text-orientation: mixed;
     white-space: normal;                /* Allow text wrapping for dates */
     word-wrap: break-word;              /* Allow text to wrap properly */
     overflow-wrap: break-word;          /* Better text wrapping */
-    overflow: hidden !important;        /* NO SCROLLBARS EVER */
+    overflow: visible !important;       /* Show all text */
     scrollbar-width: none !important;   /* Firefox: no scrollbars */
     -ms-overflow-style: none !important; /* IE/Edge: no scrollbars */
     color: var(--text-primary) !important; /* Ensure good contrast */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100% !important;
   }
   
   .cell-ref::-webkit-scrollbar {
@@ -976,42 +981,46 @@ body {
   /* Adaptive reference text for different screen sizes */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .cell-ref {
-      font-size: 11px !important;      /* Optimized for landscape */
-      padding: 1px !important;         /* Minimal padding */
+      font-size: 9px !important;       /* Smaller for landscape */
+      padding: 2px !important;         /* Small padding */
       margin: 0 !important;            /* NO MARGIN */
-      line-height: 1.1 !important;     /* Tight line height */
-      overflow: hidden !important;     /* NO SCROLLBARS */
+      line-height: 1.0 !important;     /* Very tight line height */
+      overflow: visible !important;    /* Show all text */
     }
     
-    .cell-ref div {
-      font-size: 8px !important;
+    .cell-ref div,
+    .cell-ref span {
+      font-size: 7px !important;
       line-height: 1.0 !important;
-      overflow: hidden !important;
+      overflow: visible !important;
+      display: block !important;
     }
   }
 
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     .cell-ref {
-      font-size: 13px !important;      /* Tablet size - slightly smaller for better fit */
-      padding: 2px !important;         /* Minimal padding for tablet */
+      font-size: 11px !important;      /* Tablet size - smaller for better fit */
+      padding: 3px !important;         /* Slightly more padding for tablet */
       margin: 0 !important;            /* NO MARGIN */
       text-align: center !important;   /* Center alignment for clean look */
       justify-content: center !important; /* Center flex content */
-      overflow: hidden !important;     /* NO SCROLLBARS */
-      line-height: 1.1 !important;     /* Tighter line height for stacking */
+      overflow: visible !important;    /* Show all text */
+      line-height: 1.0 !important;     /* Very tight line height for stacking */
     }
     
     /* Ensure dates text wraps properly in tablet portrait */
     .cell-ref .text-\[9px\],
-    .cell-ref div {
+    .cell-ref div,
+    .cell-ref span {
       white-space: normal !important;
       word-wrap: break-word !important;
       overflow-wrap: break-word !important;
       text-align: center !important;
       max-width: 100% !important;
-      font-size: 9px !important;
+      font-size: 8px !important;
       line-height: 1.0 !important;
-      overflow: hidden !important;
+      overflow: visible !important;
+      display: block !important;
     }
   }
 

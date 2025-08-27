@@ -133,16 +133,17 @@ export function InlineDateInfo({ verseId, className = '' }: InlineDateInfoProps)
   }
 
   return (
-    <div className={`text-[9px] font-mono leading-none ${className}`} 
+    <div className={`font-mono leading-none ${className}`} 
          style={{
            color: 'var(--text-secondary)',
            wordWrap: 'break-word',
            overflowWrap: 'break-word',
            whiteSpace: 'normal',
            maxWidth: '100%',
-           overflow: 'hidden',
+           overflow: 'visible',
            lineHeight: '1.0',
-           fontSize: '9px'
+           fontSize: '8px',
+           marginTop: '1px'
          }}>
       {dateInfo.era}
     </div>
