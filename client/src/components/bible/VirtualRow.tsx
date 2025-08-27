@@ -788,7 +788,7 @@ export function VirtualRow({
           >
             <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
               isMobilePortraitMode 
-                ? 'flex flex-row items-center justify-center gap-1' 
+                ? 'flex flex-row items-center justify-center gap-0.5' 
                 : 'flex flex-col items-center justify-center'
             }`}>
               <span className={`leading-none m-0 p-0 ${isMobilePortraitMode ? 'vertical-text' : 'truncate'}`}>
