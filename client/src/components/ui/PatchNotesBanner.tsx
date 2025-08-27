@@ -80,7 +80,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
               px-2 xs:px-3 sm:px-4 md:px-5 lg:px-6 py-1 xs:py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
               bg-gradient-to-r from-yellow-400/10 to-purple-400/10
               border-yellow-400/30 hover:border-yellow-400/50
-              text-gray-800 dark:text-white/90 hover:text-gray-900 dark:hover:text-white font-medium 
+              text-yellow-700 dark:text-yellow-200 hover:text-yellow-800 dark:hover:text-yellow-100 font-medium 
               text-xs xs:text-xs sm:text-sm md:text-base
               hover:shadow-lg hover:shadow-yellow-400/20
               transform hover:scale-105
@@ -98,8 +98,8 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 
-                       text-white/50 hover:text-white/70 transition-colors z-10"
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 
+                       text-white/70 hover:text-white/90 transition-colors z-10"
             >
               <X className="h-4 w-4" />
             </button>

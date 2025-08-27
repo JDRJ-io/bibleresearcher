@@ -83,7 +83,7 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="p-1 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-foreground"
           >
             <X className="h-5 w-5" />
           </button>
@@ -101,11 +101,12 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
                          prose-headings:text-foreground prose-headings:font-semibold
                          prose-h1:text-2xl prose-h1:bg-gradient-to-r prose-h1:from-yellow-500 prose-h1:to-purple-500 
                          dark:prose-h1:from-yellow-400 dark:prose-h1:to-purple-400 prose-h1:bg-clip-text prose-h1:text-transparent
-                         prose-h2:text-xl prose-h2:text-foreground prose-h2:border-b prose-h2:border-border prose-h2:pb-2
+                         prose-h2:text-xl prose-h2:text-foreground dark:prose-h2:text-foreground prose-h2:border-b prose-h2:border-border prose-h2:pb-2
                          prose-h3:text-lg prose-h3:text-yellow-600 dark:prose-h3:text-yellow-400
-                         prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground 
+                         prose-p:text-foreground dark:prose-p:text-foreground prose-strong:text-foreground dark:prose-strong:text-foreground prose-li:text-foreground dark:prose-li:text-foreground
                          prose-ul:list-disc prose-ol:list-decimal
-                         prose-a:text-primary hover:prose-a:text-primary/80"
+                         prose-a:text-primary hover:prose-a:text-primary/80
+                         [&_*]:text-foreground dark:[&_*]:text-foreground"
               dangerouslySetInnerHTML={{ __html: marked(patchNotes) }}
             />
           )}
