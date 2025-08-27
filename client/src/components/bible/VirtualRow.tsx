@@ -777,7 +777,9 @@ export function VirtualRow({
       case 'reference':
         const isPortraitInRefCell = window.innerHeight > window.innerWidth;
         const isMobileTextMode = window.innerWidth <= 640;
+        const isVeryNarrowMobile = window.innerWidth <= 400; // Very narrow mobile screens
         const shouldRotateText = isPortraitInRefCell && isMobileTextMode;
+        const shouldHideDates = isVeryNarrowMobile && isPortraitInRefCell; // Hide dates on very narrow screens
         
         return (
           <div 
@@ -795,7 +797,7 @@ export function VirtualRow({
               <span className={`leading-none m-0 p-0 ${shouldRotateText ? 'vertical-text' : 'truncate'}`}>
                 {verse.reference}
               </span>
-              {showDates && (
+              {showDates && !shouldHideDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
                   className={shouldRotateText ? 'vertical-text' : 'mt-1 px-0.5'} 
