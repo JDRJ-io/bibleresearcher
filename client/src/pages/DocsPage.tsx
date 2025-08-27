@@ -195,7 +195,7 @@ export default function DocsPage() {
         <div className="prose prose-gray dark:prose-invert max-w-none">
           <div 
             dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
-            className="leading-relaxed"
+            className="leading-relaxed text-foreground [&_*]:text-foreground [&_h1]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_h4]:text-foreground [&_p]:text-foreground [&_li]:text-foreground [&_span]:text-foreground [&_strong]:text-foreground [&_em]:text-foreground [&_div]:text-foreground"
           />
         </div>
       )}
