@@ -97,16 +97,17 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
             </div>
           ) : (
             <div 
-              className="prose prose-sm max-w-none dark:prose-invert 
-                         prose-headings:text-foreground prose-headings:font-semibold
+              className="text-foreground dark:text-white
+                         prose prose-sm max-w-none dark:prose-invert 
+                         prose-headings:text-foreground dark:prose-headings:text-white prose-headings:font-semibold
                          prose-h1:text-2xl prose-h1:bg-gradient-to-r prose-h1:from-yellow-500 prose-h1:to-purple-500 
                          dark:prose-h1:from-yellow-400 dark:prose-h1:to-purple-400 prose-h1:bg-clip-text prose-h1:text-transparent
-                         prose-h2:text-xl prose-h2:text-foreground dark:prose-h2:text-foreground prose-h2:border-b prose-h2:border-border prose-h2:pb-2
+                         prose-h2:text-xl prose-h2:text-foreground dark:prose-h2:text-white prose-h2:border-b prose-h2:border-border prose-h2:pb-2
                          prose-h3:text-lg prose-h3:text-yellow-600 dark:prose-h3:text-yellow-400
-                         prose-p:text-foreground dark:prose-p:text-foreground prose-strong:text-foreground dark:prose-strong:text-foreground prose-li:text-foreground dark:prose-li:text-foreground
+                         prose-p:text-foreground dark:prose-p:text-white prose-strong:text-foreground dark:prose-strong:text-white prose-li:text-foreground dark:prose-li:text-white
                          prose-ul:list-disc prose-ol:list-decimal
                          prose-a:text-primary hover:prose-a:text-primary/80
-                         [&_*]:text-foreground dark:[&_*]:text-foreground"
+                         [&_*]:text-foreground dark:[&_*]:text-white [&_p]:text-foreground dark:[&_p]:text-white [&_span]:text-foreground dark:[&_span]:text-white [&_div]:text-foreground dark:[&_div]:text-white"
               dangerouslySetInnerHTML={{ __html: marked(patchNotes) }}
             />
           )}
