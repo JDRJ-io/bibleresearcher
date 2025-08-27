@@ -789,13 +789,13 @@ export function VirtualRow({
                 ? 'flex flex-row items-center justify-center gap-1' 
                 : 'flex flex-col items-center justify-center'
             }`}>
-              <span className={`leading-none m-0 p-0 block ${isPortraitInRefCell ? 'vertical-text' : 'text-center'}`} style={{fontSize: '10px', lineHeight: '1.0', whiteSpace: 'normal', wordWrap: 'break-word'}}>
+              <span className={`leading-none m-0 p-0 ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
                 {verse.reference}
               </span>
               {showDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
-                  className={`block ${isPortraitInRefCell ? 'vertical-text' : 'text-center'}`} 
+                  className={isPortraitInRefCell ? 'vertical-text' : 'mt-0.5'} 
                 />
               )}
             </div>

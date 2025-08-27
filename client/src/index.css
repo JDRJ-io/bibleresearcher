@@ -950,77 +950,33 @@ body {
   }
 
   .cell-ref {
-    font-size: 10px !important;        /* Smaller font to ensure text fits */
-    font-weight: 600 !important;       /* Medium bold weight */
+    font-size: 12px !important;        /* Even bigger text for mobile readability */
+    font-weight: bold !important;      /* Make reference text bold */
     text-align: center;
-    padding: 2px !important;           /* Small padding for text breathing room */
+    padding: 0 !important;             /* NO PADDING ANYWHERE */
     margin: 0 !important;              /* NO MARGIN ANYWHERE */
-    line-height: 1.1 !important;       /* Tight line height for compact display */
+    line-height: 1.2 !important;       /* Better line height for readability */
     writing-mode: horizontal-tb;        /* Normal horizontal text */
     text-orientation: mixed;
-    white-space: normal;                /* Allow text wrapping for dates */
-    word-wrap: break-word;              /* Allow text to wrap properly */
-    overflow-wrap: break-word;          /* Better text wrapping */
-    overflow: visible !important;       /* Show all text */
-    scrollbar-width: none !important;   /* Firefox: no scrollbars */
-    -ms-overflow-style: none !important; /* IE/Edge: no scrollbars */
+    white-space: nowrap;
+    overflow: hidden;
     color: var(--text-primary) !important; /* Ensure good contrast */
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    height: 100% !important;
-  }
-  
-  .cell-ref::-webkit-scrollbar {
-    display: none !important;           /* Webkit: no scrollbars */
-    width: 0 !important;
-    height: 0 !important;
   }
 
   /* Adaptive reference text for different screen sizes */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
     .cell-ref {
-      font-size: 9px !important;       /* Smaller for landscape */
-      padding: 2px !important;         /* Small padding */
+      font-size: 12px !important;      /* Even bigger for landscape */
+      padding: 0 !important;           /* NO PADDING */
       margin: 0 !important;            /* NO MARGIN */
-      line-height: 1.0 !important;     /* Very tight line height */
-      overflow: visible !important;    /* Show all text */
-    }
-    
-    .cell-ref div,
-    .cell-ref span {
-      font-size: 7px !important;
-      line-height: 1.0 !important;
-      overflow: visible !important;
-      display: block !important;
     }
   }
 
   @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
     .cell-ref {
-      font-size: 11px !important;      /* Tablet size - smaller for better fit */
-      padding: 3px !important;         /* Slightly more padding for tablet */
+      font-size: 14px !important;      /* Tablet size */
+      padding: 0 !important;           /* NO PADDING */
       margin: 0 !important;            /* NO MARGIN */
-      text-align: center !important;   /* Center alignment for clean look */
-      justify-content: center !important; /* Center flex content */
-      overflow: visible !important;    /* Show all text */
-      line-height: 1.0 !important;     /* Very tight line height for stacking */
-    }
-    
-    /* Ensure dates text wraps properly in tablet portrait */
-    .cell-ref .text-\[9px\],
-    .cell-ref div,
-    .cell-ref span {
-      white-space: normal !important;
-      word-wrap: break-word !important;
-      overflow-wrap: break-word !important;
-      text-align: center !important;
-      max-width: 100% !important;
-      font-size: 8px !important;
-      line-height: 1.0 !important;
-      overflow: visible !important;
-      display: block !important;
     }
   }
 
@@ -1275,32 +1231,6 @@ body.menu-open {
   }
   .cell-ref span{
     writing-mode:vertical-rl; transform:rotate(180deg);
-    white-space: normal;                /* Allow wrapping in vertical mode too */
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    overflow: visible !important;       /* Show all text in vertical mode */
-  }
-  
-  /* Force dates to be vertical in mobile narrow columns */
-  .cell-ref div {
-    writing-mode: vertical-rl !important;
-    transform: rotate(180deg) !important;
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    overflow: visible !important;
-    text-orientation: mixed !important;
-  }
-  
-  /* Vertical text class for both reference and dates */
-  .vertical-text {
-    writing-mode: vertical-rl !important;
-    transform: rotate(180deg) !important;
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    overflow: visible !important;
-    text-orientation: mixed !important;
   }
 }
 
