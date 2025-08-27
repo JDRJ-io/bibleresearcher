@@ -143,7 +143,7 @@ export function InlineDateInfo({ verseId, className = '' }: InlineDateInfoProps)
            overflow: 'visible',
            lineHeight: '1.0',
            fontSize: '8px',
-           marginTop: '1px'
+           marginTop: className.includes('vertical-text') ? '0px' : '1px'
          }}>
       {dateInfo.era}
     </div>

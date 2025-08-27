@@ -1278,7 +1278,18 @@ body.menu-open {
     white-space: normal;                /* Allow wrapping in vertical mode too */
     word-wrap: break-word;
     overflow-wrap: break-word;
-    overflow: hidden !important;        /* NO SCROLLBARS in vertical mode */
+    overflow: visible !important;       /* Show all text in vertical mode */
+  }
+  
+  /* Vertical text class for both reference and dates */
+  .vertical-text {
+    writing-mode: vertical-rl !important;
+    transform: rotate(180deg) !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow: visible !important;
+    text-orientation: mixed !important;
   }
 }
 
