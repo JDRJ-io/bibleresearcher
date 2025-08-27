@@ -16,10 +16,7 @@ const labelConfig = [
   { key: 'where' as LabelName, label: 'Where', description: 'Locations in brackets', effectClass: 'fx-bracket' },
   { key: 'command' as LabelName, label: 'Command', description: 'Imperatives in bold', effectClass: 'fx-bold' },
   { key: 'action' as LabelName, label: 'Action', description: 'Verbs in italic', effectClass: 'fx-ital' },
-  { key: 'why' as LabelName, label: 'Why', description: 'Reasons with outline', effectClass: 'fx-outline' },
-  { key: 'seed' as LabelName, label: 'Seed', description: 'Beginning with asterisk', effectClass: 'sup-seed' },
-  { key: 'harvest' as LabelName, label: 'Harvest', description: 'Results with equals sign', effectClass: 'sup-harvest' },
-  { key: 'prediction' as LabelName, label: 'Prediction', description: 'Prophecies with tilde', effectClass: 'sup-predict' }
+  { key: 'why' as LabelName, label: 'Why', description: 'Reasons with outline', effectClass: 'fx-outline' }
 ];
 
 export function LabelsLegend({ className = '' }: LabelsLegendProps) {
