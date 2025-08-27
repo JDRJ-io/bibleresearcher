@@ -10,7 +10,7 @@ import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
 
-// Bible books data for navigation
+// Bible books data for navigation (using correct canonical names)
 const BIBLE_BOOKS = [
   // Old Testament
   { name: 'Genesis', abbrev: 'Gen', chapters: 50 },
@@ -34,14 +34,14 @@ const BIBLE_BOOKS = [
   { name: 'Psalms', abbrev: 'Psa', chapters: 150 },
   { name: 'Proverbs', abbrev: 'Pro', chapters: 31 },
   { name: 'Ecclesiastes', abbrev: 'Ecc', chapters: 12 },
-  { name: 'Song of Solomon', abbrev: 'Son', chapters: 8 },
+  { name: 'Song of Solomon', abbrev: 'Sng', chapters: 8 },
   { name: 'Isaiah', abbrev: 'Isa', chapters: 66 },
   { name: 'Jeremiah', abbrev: 'Jer', chapters: 52 },
   { name: 'Lamentations', abbrev: 'Lam', chapters: 5 },
-  { name: 'Ezekiel', abbrev: 'Eze', chapters: 48 },
+  { name: 'Ezekiel', abbrev: 'Ezk', chapters: 48 },
   { name: 'Daniel', abbrev: 'Dan', chapters: 12 },
   { name: 'Hosea', abbrev: 'Hos', chapters: 14 },
-  { name: 'Joel', abbrev: 'Joe', chapters: 3 },
+  { name: 'Joel', abbrev: 'Jol', chapters: 3 },
   { name: 'Amos', abbrev: 'Amo', chapters: 9 },
   { name: 'Obadiah', abbrev: 'Oba', chapters: 1 },
   { name: 'Jonah', abbrev: 'Jon', chapters: 4 },
@@ -127,7 +127,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   // Navigation picker state
   const [selectedBook, setSelectedBook] = useState<string>('Gen');
   const [selectedChapter, setSelectedChapter] = useState<string>('1');
-  const [selectedVerse, setSelectedVerse] = useState<string>('1');
   
   // Mobile responsiveness hook
   const isMobile = useIsMobile();
@@ -438,7 +437,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const maxChapter = selectedBookData?.chapters || 1;
 
   const handleNavigateToReference = () => {
-    const reference = `${selectedBook}.${selectedChapter}:${selectedVerse}`;
+    const reference = `${selectedBook}.${selectedChapter}:1`;
+    console.log(`📖 Navigation picker navigating to: ${reference}`);
     onNavigateToVerse(reference);
     onClose();
   };
@@ -451,7 +451,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
 
   const handleChapterChange = (value: string) => {
     setSelectedChapter(value);
-    setSelectedVerse('1');
   };
 
   const getSearchTypeColor = (type: SearchResult['type']) => {
@@ -498,66 +497,41 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          {/* Compact Navigation Picker */}
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Navigation</span>
-            </div>
-            <div className={`grid gap-2 ${isMobile ? 'grid-cols-2' : 'grid-cols-4'}`}>
-              {/* Book Selector */}
-              <Select value={selectedBook} onValueChange={handleBookChange}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Book" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {BIBLE_BOOKS.map(book => (
-                    <SelectItem key={book.abbrev} value={book.abbrev}>
-                      {isMobile ? book.abbrev : book.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Chapter Selector */}
-              <Select value={selectedChapter} onValueChange={handleChapterChange}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Ch" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {Array.from({ length: maxChapter }, (_, i) => i + 1).map(chapter => (
-                    <SelectItem key={chapter} value={chapter.toString()}>
-                      {chapter}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Verse Selector */}
-              <Select value={selectedVerse} onValueChange={setSelectedVerse}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Vs" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {Array.from({ length: 50 }, (_, i) => i + 1).map(verse => (
-                    <SelectItem key={verse} value={verse.toString()}>
-                      {verse}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Navigate Button */}
-              <Button 
-                onClick={handleNavigateToReference}
-                size="sm"
-                className="h-9 bg-green-600 hover:bg-green-700 text-white text-sm"
-                title="Navigate to verse"
-              >
-                <ChevronRight className="w-4 h-4" />
-                {!isMobile && <span className="ml-1">Go</span>}
-              </Button>
-            </div>
+          {/* Ultra Compact Navigation */}
+          <div className="flex items-center gap-1 text-xs bg-gray-50 dark:bg-gray-800 rounded px-2 py-1 border">
+            <BookOpen className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+            <Select value={selectedBook} onValueChange={handleBookChange}>
+              <SelectTrigger className="h-6 text-xs border-0 p-1 min-w-0 w-12">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="max-h-48">
+                {BIBLE_BOOKS.map(book => (
+                  <SelectItem key={book.abbrev} value={book.abbrev} className="text-xs py-1">
+                    {book.abbrev}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedChapter} onValueChange={handleChapterChange}>
+              <SelectTrigger className="h-6 text-xs border-0 p-1 min-w-0 w-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="max-h-48">
+                {Array.from({ length: maxChapter }, (_, i) => i + 1).map(chapter => (
+                  <SelectItem key={chapter} value={chapter.toString()} className="text-xs py-1">
+                    {chapter}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={handleNavigateToReference}
+              size="sm"
+              className="h-6 px-2 bg-green-600 hover:bg-green-700 text-white text-xs"
+              title="Navigate to chapter"
+            >
+              <ChevronRight className="w-3 h-3" />
+            </Button>
           </div>
 
             {/* Search Input */}
