@@ -26,8 +26,8 @@ export function ExpandedVerseOverlay({
 
   // Task 3.1: Wrap overlay component in createPortal(document.body)
   return createPortal(
-    <motion.div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    <motion.div
+      className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 text-foreground"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

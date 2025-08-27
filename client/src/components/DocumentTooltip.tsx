@@ -130,18 +130,18 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
             <div 
               ref={contentRef}
               className="prose prose-sm max-w-none
-                         text-black dark:text-white
-                         [&_*]:text-black [&_*]:dark:text-white
-                         [&_p]:text-black [&_p]:dark:text-white
-                         [&_h1]:text-black [&_h1]:dark:text-white
-                         [&_h2]:text-black [&_h2]:dark:text-white  
-                         [&_h3]:text-black [&_h3]:dark:text-white
-                         [&_h4]:text-black [&_h4]:dark:text-white
-                         [&_li]:text-black [&_li]:dark:text-white
-                         [&_span]:text-black [&_span]:dark:text-white
-                         [&_strong]:text-black [&_strong]:dark:text-white
-                         [&_em]:text-black [&_em]:dark:text-white
-                         [&_div]:text-black [&_div]:dark:text-white
+                         text-foreground dark:text-foreground 
+                         [&_*]:text-foreground [&_*]:dark:text-background
+                         [&_p]:text-foreground [&_p]:dark:text-background
+                         [&_h1]:text-foreground [&_h1]:dark:text-background
+                         [&_h2]:text-foreground [&_h2]:dark:text-background
+                         [&_h3]:text-foreground [&_h3]:dark:text-background
+                         [&_h4]:text-foreground [&_h4]:dark:text-background
+                         [&_li]:text-foreground [&_li]:dark:text-background
+                         [&_span]:text-foreground [&_span]:dark:text-background
+                         [&_strong]:text-foreground [&_strong]:dark:text-background
+                         [&_em]:text-foreground [&_em]:dark:text-background
+                         [&_div]:text-foreground [&_div]:dark:text-background
                          [&>ol]:list-decimal [&>ul]:list-disc [&>ol>li]:ml-4 [&>ul>li]:ml-4
                          [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
                          [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm"

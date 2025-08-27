@@ -14,17 +14,17 @@ import { ScrollWheelSelector } from './ScrollWheelSelector';
 // Mobile detection hook
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
-  
+
   return isMobile;
 };
 
@@ -46,19 +46,19 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const [displayedResults, setDisplayedResults] = useState(50);
   const [allResults, setAllResults] = useState<SearchResult[]>([]);
   // Removed searchAllTranslations toggle - now using individual translation selection
-  
+
   // Advanced navigation state
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   const [selectedTranslations, setSelectedTranslations] = useState<string[]>(['KJV']);
-  
+
   // Mobile responsiveness hook
   const isMobile = useIsMobile();
-  
+
   const { mainTranslation: activeTranslation, getVerseText } = useTranslationMaps();
-  
+
   // State for loaded translations cache
   const [loadedTranslations, setLoadedTranslations] = useState<Map<string, Map<string, string>>>(new Map());
 
@@ -72,7 +72,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       // Loading translation for search (logging removed for performance)
       const { loadTranslation } = await import('@/data/BibleDataAPI');
       const translationMap = await loadTranslation(translationCode);
-      
+
       if (translationMap && translationMap.size > 0) {
         setLoadedTranslations(prev => new Map(prev).set(translationCode, translationMap));
         return translationMap;
@@ -80,30 +80,30 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     } catch (error) {
       // Translation loading error (logging removed for performance)
     }
-    
+
     return null;
   };
 
   // Create verse objects with text content for search engine
   const versesWithText = useMemo(() => {
     // SearchModal versesWithText memo logs removed for performance
-    
+
     if (!verses.length || !getVerseText) {
       return [];
     }
-    
+
     const result = verses.map((verse, index) => {
       // Get text for currently loaded translations using your working system
       const textObj: Record<string, string> = {};
       const currentlyLoadedTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
-      
+
       currentlyLoadedTranslations.forEach(translationCode => {
         const text = getVerseText(verse.reference, translationCode);
         if (text && text.trim()) {
           textObj[translationCode] = text.trim();
         }
       });
-      
+
       return {
         id: verse.reference,
         reference: verse.reference, // Keep original format Gen.1:1 for proper search engine compatibility
@@ -111,11 +111,11 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         index
       };
     });
-    
+
     // SearchModal versesWithText creation logs removed for performance
     return result;
   }, [verses, getVerseText, activeTranslation]);
-  
+
   // Create search engine instance
   const searchEngine = useMemo(() => {
     return new BibleSearchEngine(versesWithText);
@@ -148,48 +148,48 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
 
   const performSearch = async () => {
     if (!searchQuery.trim()) return;
-    
+
     console.log(`🔍 REAL SEARCH START - Query: "${searchQuery}"`);
     console.log(`🔍 REAL SEARCH - verses available: ${verses.length}`);
     console.log(`🔍 REAL SEARCH - activeTranslation: ${activeTranslation}`);
-    
+
     if (!verses.length) {
       console.error('🔍 REAL SEARCH ABORT - No verses loaded');
       return;
     }
-    
+
     setIsSearching(true);
     setHasSearched(true);
     setSelectedResultIndex(-1); // Reset selection
-    
+
     try {
       // Add to search history
       if (searchQuery.trim() && !searchHistory.includes(searchQuery.trim())) {
         setSearchHistory(prev => [searchQuery.trim(), ...prev.slice(0, 9)]); // Keep last 10 searches
       }
-      
+
       console.log(`🔍 REAL SEARCH EXECUTE - Search term: "${searchQuery}"`);
-      
+
       // Determine which translations to search - use selected translations or fallback to active translation
       const translationsToSearch = selectedTranslations.length > 0 ? 
         selectedTranslations : 
         [activeTranslation];
-      
+
       console.log(`🔍 REAL SEARCH - Searching ${translationsToSearch.length} translations: ${translationsToSearch.join(', ')}`);
-      
+
       // Load any translations that aren't already loaded
       const translationMaps = new Map<string, Map<string, string>>();
-      
+
       for (const translationCode of translationsToSearch) {
         // First try to get from current system
         let translationMap = loadedTranslations.get(translationCode);
-        
+
         if (!translationMap) {
           // Load the translation dynamically
           console.log(`🔍 Loading additional translation: ${translationCode}`);
           translationMap = await loadTranslationForSearch(translationCode) || undefined;
         }
-        
+
         if (translationMap) {
           translationMaps.set(translationCode, translationMap);
           console.log(`🔍 Translation ${translationCode} ready with ${translationMap.size} verses`);
@@ -197,19 +197,19 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           console.warn(`🔍 Failed to load translation: ${translationCode}`);
         }
       }
-      
+
       // DIRECT SEARCH - Simple text matching across all loaded translations
       const directResults: SearchResult[] = [];
       const searchTerm = searchQuery.toLowerCase().trim();
-      
+
       verses.forEach((verse, index) => {
         // Search each translation for this verse
         translationsToSearch.forEach(translation => {
           let verseText = '';
-          
+
           // First try to get from currently loaded system
           verseText = getVerseText(verse.reference, translation) || '';
-          
+
           // If not available, try from newly loaded translation maps
           if (!verseText || !verseText.trim()) {
             const translationMap = translationMaps.get(translation);
@@ -217,13 +217,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               verseText = translationMap.get(verse.reference) || '';
             }
           }
-          
+
           if (verseText && verseText.toLowerCase().includes(searchTerm)) {
             const highlightedText = verseText.replace(
               new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
               '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>'
             );
-            
+
             directResults.push({
               verseId: `${verse.reference}-${translation}`,
               reference: verse.reference,
@@ -237,21 +237,21 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           }
         });
       });
-      
+
       const results = directResults;
       console.log(`🔍 REAL SEARCH FOUND ${results.length} direct matches across ${translationsToSearch.join(', ')}`);
-      
+
       // Use the direct results (they're already text-only)
       const textResults = results.sort((a, b) => b.confidence - a.confidence);
-      
+
       console.log(`🔍 REAL SEARCH FINAL: ${textResults.length} results found`);
       if (textResults.length > 0) {
         console.log(`🔍 First result:`, textResults[0]);
       }
-      
+
       setAllResults(textResults);
       setSearchResults(textResults.slice(0, displayedResults));
-      
+
       // Don't auto-select - let user manually navigate with arrow keys
     } catch (error) {
       console.error('Search error:', error);
@@ -272,7 +272,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       }
       return;
     }
-    
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (searchResults.length > 0) {
@@ -282,7 +282,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       }
       return;
     }
-    
+
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (searchResults.length > 0) {
@@ -292,7 +292,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       }
       return;
     }
-    
+
     if (e.key === 'Escape') {
       if (selectedResultIndex >= 0) {
         setSelectedResultIndex(-1);
@@ -301,7 +301,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
       }
       return;
     }
-    
+
     // Quick navigation shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
@@ -324,12 +324,12 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const handleResultClick = (result: SearchResult) => {
     console.log(`🎯 Navigating to verse: ${result.reference} from search result`);
     console.log(`🎯 Translation switching to: ${result.translationCode}`);
-    
+
     // Switch to the translation if it's different from current and we have the function
     if (result.translationCode && result.translationCode !== activeTranslation && onSwitchTranslation) {
       onSwitchTranslation(result.translationCode);
     }
-    
+
     // Navigate to the verse (use reference, not verseId which has translation suffix)
     onNavigateToVerse(result.reference);
     onClose();
@@ -350,7 +350,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const getRandomVerse = () => {
     console.log(`🎲 Random verse - verses.length: ${verses.length}`);
     if (verses.length === 0) return;
-    
+
     const randomIndex = Math.floor(Math.random() * verses.length);
     const randomVerse = verses[randomIndex];
     const randomVerseKey = randomVerse.reference;
@@ -625,7 +625,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                     {activeTranslation}
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Results</label>
                   <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
@@ -633,7 +633,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                   </div>
                 </div>
               </div>
-              
+
               {/* Translation Selection */}
               <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-600">
                 <div className="text-sm font-medium">Search Translations</div>
@@ -695,7 +695,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                       </ul>
                     </div>
                   </div>
-                  
+
                   <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                     <p className="font-medium mb-1 flex items-center gap-2">
                       <Keyboard className="w-4 h-4" />
@@ -753,13 +753,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                     </div>
                   )}
                 </div>
-                
+
                 <div 
                   className="max-h-[400px] overflow-y-auto space-y-2"
                   onScroll={(e) => {
                     const element = e.target as HTMLDivElement;
                     const { scrollTop, scrollHeight, clientHeight } = element;
-                    
+
                     // Load more results when near bottom
                     if (scrollHeight - scrollTop <= clientHeight * 1.5) {
                       const nextBatch = displayedResults + 50;
