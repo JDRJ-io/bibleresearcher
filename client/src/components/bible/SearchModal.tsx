@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard } from 'lucide-react';
+import { Search, X, Filter, ArrowUp, ArrowDown, History, Clock, Zap, Target, Shuffle, Keyboard } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
@@ -40,7 +40,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [displayedResults, setDisplayedResults] = useState(50);
   const [allResults, setAllResults] = useState<SearchResult[]>([]);
   // Removed searchAllTranslations toggle - now using individual translation selection
@@ -397,17 +396,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <Search className="w-5 h-5" />
               {isMobile ? 'Search' : 'Intelligent Bible Search'}
             </div>
-            {!isMobile && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-1"
-              >
-                <Settings className="w-4 h-4" />
-                {showAdvanced ? 'Simple' : 'Advanced'}
-              </Button>
-            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -560,55 +548,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
             </div>
           )}
 
-          {/* Advanced Options */}
-          {showAdvanced && (
-            <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Primary Translation</label>
-                  <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
-                    {activeTranslation}
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Results</label>
-                  <div className="p-2 border rounded-md bg-gray-100 dark:bg-gray-600 text-sm">
-                    Showing {searchResults.length} of {allResults.length} text matches
-                  </div>
-                </div>
-              </div>
-              
-              {/* Translation Selection */}
-              <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-600">
-                <div className="text-sm font-medium">Search Translations</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                  Select translations to search (click results to switch main translation):
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'].map(translation => (
-                    <label key={translation} className="flex items-center space-x-1 text-xs">
-                      <input
-                        type="checkbox"
-                        checked={selectedTranslations.includes(translation)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedTranslations(prev => [...prev, translation]);
-                          } else {
-                            setSelectedTranslations(prev => prev.filter(t => t !== translation));
-                          }
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className={translation === activeTranslation ? 'font-bold text-blue-600' : ''}>
-                        {translation}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Search Examples & Tips */}
           {!hasSearched && (
