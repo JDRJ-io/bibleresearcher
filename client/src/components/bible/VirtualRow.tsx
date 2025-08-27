@@ -786,7 +786,7 @@ export function VirtualRow({
           >
             <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
               isPortraitInRefCell 
-                ? 'flex flex-row items-center justify-center gap-1' 
+                ? 'flex flex-row items-start justify-start gap-1' 
                 : 'flex flex-col items-center justify-center'
             }`}>
               <span className={`leading-none m-0 p-0 ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
@@ -795,7 +795,7 @@ export function VirtualRow({
               {showDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
-                  className={isPortraitInRefCell ? 'vertical-text' : 'mt-0.5'} 
+                  className={isPortraitInRefCell ? 'vertical-text text-left' : 'mt-0.5 text-center'} 
                 />
               )}
             </div>
