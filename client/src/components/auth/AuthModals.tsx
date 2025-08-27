@@ -211,7 +211,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* Main Content Container - Mobile Optimized */}
       <div className="relative z-10 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg mx-2 sm:mx-4 p-6 
-                      rounded-2xl border-2 border-yellow-300 shadow-[0_0_0_1px_rgba(168,85,247,0.8),0_0_20px_rgba(251,191,36,0.6),0_0_40px_rgba(251,191,36,0.3)]
+                      rounded-2xl border-2 border-yellow-300 shadow-[0_0_0_1px_rgba(168,85,247,0.6),0_0_15px_rgba(251,191,36,0.4),0_0_25px_rgba(251,191,36,0.2)]
                       bg-gradient-to-br from-yellow-400/20 via-purple-500/15 to-pink-400/10
                       backdrop-blur-lg
                       max-h-[85vh] overflow-y-auto"
@@ -244,8 +244,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="Your sacred name"
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
-              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              className="h-12 text-lg bg-white/25 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-white placeholder-gray-700 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300" 
               style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
             />
@@ -264,8 +264,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   setSignUpData({ ...signUpData, username });
                   checkUsernameAvailability(username);
                 }}
-                className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                           text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300 pr-10" 
+                className="h-12 text-lg bg-white/25 border-2 border-yellow-400 focus:border-yellow-200 
+                           text-white placeholder-gray-700 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300 pr-10" 
                 style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
                 required
                 minLength={3}
@@ -299,8 +299,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="your.divine@email.com"
               value={signUpData.email}
               onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              className="h-12 text-lg bg-white/25 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-white placeholder-gray-700 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300" 
               style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
             />
@@ -314,8 +314,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="Sacred password (8+ characters)"
               value={signUpData.password}
               onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-              className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+              className="h-12 text-lg bg-white/25 border-2 border-yellow-400 focus:border-yellow-200 
+                         text-white placeholder-gray-700 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300" 
               style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
               minLength={8}
@@ -408,7 +408,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
       {/* Main Content Container - Mobile Optimized */}
       <div className="relative z-10 w-full max-w-[calc(100vw-1rem)] sm:max-w-lg mx-2 sm:mx-4 p-6 
-                      rounded-2xl border-2 border-blue-300 shadow-[0_0_0_1px_rgba(147,197,253,0.8),0_0_20px_rgba(59,130,246,0.6),0_0_40px_rgba(59,130,246,0.3)] 
+                      rounded-2xl border-2 border-blue-300 shadow-[0_0_0_1px_rgba(147,197,253,0.6),0_0_15px_rgba(59,130,246,0.4),0_0_25px_rgba(59,130,246,0.2)] 
                       bg-gradient-to-br from-blue-400/20 via-purple-500/15 to-cyan-400/10
                       backdrop-blur-lg
                       max-h-[85vh] overflow-y-auto"
@@ -441,8 +441,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               placeholder="your.divine@email.com"
               value={signInEmail}
               onChange={(e) => setSignInEmail(e.target.value)}
-              className="h-12 text-lg bg-white/15 border-2 border-blue-400 focus:border-blue-200 
-                         text-blue-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.8),0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300" style={{textShadow: '0 0 4px rgba(147, 197, 253, 0.6)'}}
+              className="h-12 text-lg bg-white/25 border-2 border-blue-400 focus:border-blue-200 
+                         text-white placeholder-gray-700 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.6),0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300" style={{textShadow: '0 0 4px rgba(147, 197, 253, 0.6)'}}
               required
             />
           </div>
