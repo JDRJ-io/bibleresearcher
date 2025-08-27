@@ -85,6 +85,29 @@
     width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
+  /* Mobile portrait mode: limit header scaling to match data cells */
+  @media (max-width: 768px) and (orientation: portrait) {
+    .column-header-cell[data-column="reference"] {
+      width: calc((var(--adaptive-ref-width) + 4px) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+    }
+
+    .column-header-cell[data-column="main-translation"] {
+      width: calc(var(--adaptive-main-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+    }
+
+    .column-header-cell[data-column="cross-refs"] {
+      width: calc(var(--adaptive-cross-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+    }
+
+    .column-header-cell[data-column="prophecy"] {
+      width: calc(var(--adaptive-prophecy-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+    }
+
+    .column-header-cell[data-column="notes"] {
+      width: calc(var(--adaptive-notes-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+    }
+  }
+
   /* Prophecy columns mobile sizing */
   .column-header-cell[data-column="prophecy"] {
     width: calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
@@ -116,7 +139,7 @@
   }
 
   /* Tablet and larger screens - use adaptive CSS variables for perfect sync */
-  @media (min-width: 641px) {
+  @media (min-width: 769px) {
     .column-header-cell[data-column="reference"] {
       width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
     }
@@ -167,7 +190,7 @@
 }
 
 /* Tablet portrait and wider - keep horizontal verse references */
-@media (min-width: 641px) {
+@media (min-width: 769px) {
   .column-header-cell[data-column="reference"] {
     writing-mode: horizontal-tb !important;
     transform: none !important;
@@ -182,7 +205,7 @@
 }
 
 /* Desktop positioning (ensure no conflicts) */
-@media (min-width: 641px) {
+@media (min-width: 769px) {
   .column-headers-container,
   .column-headers-wrapper {
     position: sticky !important;
