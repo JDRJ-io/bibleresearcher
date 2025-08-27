@@ -3,12 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, X, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard, Navigation, MapPin } from 'lucide-react';
+import { Search, X, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
 import { useTranslationMaps } from '@/hooks/useTranslationMaps';
-import { ScrollWheelSelector } from './ScrollWheelSelector';
 
 // Mobile detection hook
 const useIsMobile = () => {
@@ -766,23 +765,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                 </div>
               </div>
             )}
-          </div>
-          {/* Navigation Section */}
-          <div className="border-t pt-4">
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-4 h-4" />
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Or navigate directly to a verse:
-              </span>
-            </div>
-            <ScrollWheelSelector 
-              onNavigate={(reference) => {
-                console.log(`📍 Navigating to verse from scroll wheel: ${reference}`);
-                onNavigateToVerse(reference);
-                onClose();
-              }}
-              className="w-full"
-            />
           </div>
         </div>
       </DialogContent>
