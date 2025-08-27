@@ -494,21 +494,14 @@ body {
   height: 0 !important;
 }
 
-/* Mobile portrait mode: ensure proper text handling */
-@media (max-width: 640px) {
-  /* Ensure text content doesn't overflow in mobile portrait */
-  .cell-ref {
-    overflow: hidden !important;
-    word-wrap: break-word !important;
-    word-break: break-word !important;
-  }
-  
-  /* Force proper text wrapping in mobile portrait */
-  .cell-ref .cell-content {
-    overflow: hidden !important;
-    word-wrap: break-word !important;
-    word-break: break-word !important;
-    white-space: normal !important;
+/* Mobile portrait mode: limit reference column scaling to prevent excessive width */
+@media (max-width: 768px) and (orientation: portrait) {
+  .column-header-cell[data-column="reference"],
+  .bible-verse-row > div:first-child,
+  [data-verse-ref] > div:first-child {
+    width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
+    min-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
+    max-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
   }
 }
 

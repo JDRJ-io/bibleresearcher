@@ -45,35 +45,19 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
 
   // STEP 1: Reference column gets fixed optimal width - SYNC WITH CSS BREAKPOINTS
-  // Get column width multiplier from CSS variable
-  const columnWidthMult = typeof document !== 'undefined' 
-    ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1') 
-    : 1;
-  
-  let baseRefWidth: number;
+  let refWidth: number;
   if (viewportWidth >= 768 && viewportWidth <= 1024) {
     // Tablet portrait - match CSS breakpoint exactly
-    baseRefWidth = 56; // Matches tablet CSS breakpoint
+    refWidth = 56; // Matches tablet CSS breakpoint
   } else if (viewportWidth <= 640) {
     // Mobile portrait - ultra-compact for reference column
-    baseRefWidth = 32; // Compact but readable for "#" header
+    refWidth = 32; // Compact but readable for "#" header
   } else if (viewportWidth > 640 && viewportWidth < 768) {
     // Large mobile/small tablet transition - make reference column more compact
-    baseRefWidth = Math.max(24, Math.min(32, Math.floor(safeViewportWidth * 0.06)));
+    refWidth = Math.max(24, Math.min(32, Math.floor(safeViewportWidth * 0.06)));
   } else {
     // Desktop portrait (rare) - use comfortable width
-    baseRefWidth = 60;
-  }
-  
-  // Apply column width multiplier with mobile portrait limit
-  let refWidth: number;
-  if (viewportWidth <= 640) {
-    // Mobile portrait - limit scaling to prevent layout issues
-    const limitedMult = Math.min(columnWidthMult, 1.3);
-    refWidth = Math.floor(baseRefWidth * limitedMult);
-  } else {
-    // Other modes - apply full multiplier
-    refWidth = Math.floor(baseRefWidth * columnWidthMult);
+    refWidth = 60;
   }
 
   // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
