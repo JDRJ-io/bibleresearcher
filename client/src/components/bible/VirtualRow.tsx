@@ -784,18 +784,14 @@ export function VirtualRow({
             data-column={config.type}
             data-col-key={columnId}
           >
-            <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 ${
-              isPortraitInRefCell 
-                ? 'flex flex-row items-start justify-start gap-1' 
-                : 'flex flex-col items-center justify-center'
-            }`}>
-              <span className={`leading-none m-0 p-0 ${isPortraitInRefCell ? 'vertical-text' : 'truncate'}`}>
+            <div className={`text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 cell-content cell-ref h-full m-0 p-0 flex flex-col items-center justify-center overflow-hidden`}>
+              <span className="leading-none m-0 p-0 text-center block overflow-hidden">
                 {verse.reference}
               </span>
               {showDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
-                  className={isPortraitInRefCell ? 'vertical-text text-left' : 'mt-0.5 text-center'} 
+                  className="text-center block overflow-hidden" 
                 />
               )}
             </div>
