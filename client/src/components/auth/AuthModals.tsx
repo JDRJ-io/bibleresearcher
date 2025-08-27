@@ -443,32 +443,32 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           <p className="text-white/70 text-lg">Return to your sacred studies</p>
         </div>
 
-        <form onSubmit={handleSignIn} className="space-y-6">
+        <form onSubmit={handleSignIn} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="signin-username" className="text-white text-lg font-medium">Username</Label>
+            <Label htmlFor="signin-username" className="text-white text-base font-medium">Username</Label>
             <Input
               id="signin-username"
               type="text"
               placeholder="your_username"
               value={signInData.username}
               onChange={(e) => setSignInData({ ...signInData, username: e.target.value })}
-              className="h-12 text-lg bg-white/70 border-2 border-blue-400 focus:border-blue-200 
-                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.6),0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300" 
+              className="h-11 text-base bg-white/80 border border-blue-300 focus:border-blue-400 
+                         text-black placeholder-gray-500 backdrop-blur-sm focus:ring-2 focus:ring-blue-400/50 transition-all duration-200 rounded-md" 
               style={{}}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signin-password" className="text-white text-lg font-medium">Password</Label>
+            <Label htmlFor="signin-password" className="text-white text-base font-medium">Password</Label>
             <Input
               id="signin-password"
               type="password"
               placeholder="Your sacred password"
               value={signInData.password}
               onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-              className="h-12 text-lg bg-white/70 border-2 border-blue-400 focus:border-blue-200 
-                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.6),0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300" 
+              className="h-11 text-base bg-white/80 border border-blue-300 focus:border-blue-400 
+                         text-black placeholder-gray-500 backdrop-blur-sm focus:ring-2 focus:ring-blue-400/50 transition-all duration-200 rounded-md" 
               style={{}}
               required
             />
@@ -476,12 +476,11 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           
           <Button 
             type="submit" 
-            className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 
-                       hover:from-blue-500 hover:via-purple-400 hover:to-purple-600 text-white 
-                       shadow-[0_0_0_2px_rgba(59,130,246,1),0_0_0_4px_rgba(147,51,234,0.8),0_0_25px_rgba(59,130,246,0.5)] 
-                       hover:shadow-[0_0_0_2px_rgba(59,130,246,1),0_0_0_4px_rgba(147,51,234,1),0_0_35px_rgba(59,130,246,0.7),0_0_50px_rgba(147,51,234,0.4)] 
-                       transform hover:scale-105 transition-all duration-300 rounded-lg
-                       border-2 border-blue-300 hover:border-blue-200"
+            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-blue-600 
+                       hover:from-blue-600 hover:to-blue-700 text-white 
+                       shadow-lg hover:shadow-xl 
+                       transform hover:scale-[1.02] transition-all duration-200 rounded-md
+                       border border-blue-400"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -498,7 +497,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           </Button>
 
           {/* Forgot Password Link */}
-          <div className="text-center">
+          <div className="text-center pt-2">
             <button
               type="button"
               onClick={() => {
@@ -507,15 +506,15 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   description: "Password reset feature coming soon! Please contact support if needed.",
                 })
               }}
-              className="text-blue-300 hover:text-blue-200 underline text-sm font-medium hover:text-shadow-[0_0_8px_rgba(147,197,253,0.8)] transition-all duration-300"
+              className="text-blue-200 hover:text-blue-100 underline text-sm transition-colors duration-200"
             >
               Forgot your password?
             </button>
           </div>
           
           {/* Sign Up Link */}
-          <div className="text-center">
-            <p className="text-white/70 text-sm">
+          <div className="text-center pt-4 border-t border-white/20">
+            <p className="text-white/80 text-sm">
               New to the faith?{' '}
               <button
                 type="button"
@@ -523,7 +522,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   onCloseSignIn();
                   onSignUpOpen?.();
                 }}
-                className="text-yellow-300 hover:text-yellow-200 underline font-medium hover:text-shadow-[0_0_8px_rgba(254,240,138,0.8)] transition-all duration-300"
+                className="text-yellow-200 hover:text-yellow-100 underline font-medium transition-colors duration-200"
               >
                 Join the Anointed
               </button>
