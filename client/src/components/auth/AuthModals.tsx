@@ -36,7 +36,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
     marketingOptIn: false 
   })
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle')
-  const [signInEmail, setSignInEmail] = useState('')
+  const [signInData, setSignInData] = useState({ username: '', password: '' })
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
@@ -145,10 +145,10 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!signInEmail.trim()) {
+    if (!signInData.username.trim() || !signInData.password.trim()) {
       toast({
-        title: "Missing Email",
-        description: "Please enter your email address.",
+        title: "Missing Information",
+        description: "Please enter both username and password.",
         variant: "destructive"
       })
       return
@@ -156,21 +156,32 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
     setIsLoading(true)
     try {
-      const result = await sendMagicLink(signInEmail)
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: signInData.username,
+          password: signInData.password
+        }),
+      })
+
+      const result = await response.json()
       
-      if (!result.success) {
+      if (!result.ok) {
         toast({
           title: "Sign In Failed",
-          description: result.message,
+          description: result.error || "Invalid username or password",
           variant: "destructive"
         })
       } else {
         toast({
-          title: "Magic Link Sent! ✨",
-          description: `Check your email (${signInEmail}) for your sign-in link.`,
+          title: "Welcome Back! ✨",
+          description: "You've been signed in successfully.",
         })
         onCloseSignIn()
-        setSignInEmail('')
+        setSignInData({ username: '', password: '' })
       }
     } catch (error) {
       toast({
@@ -434,15 +445,31 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
         <form onSubmit={handleSignIn} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="signin-email" className="text-white/90 text-lg">Email Address</Label>
+            <Label htmlFor="signin-username" className="text-white text-lg font-medium">Username</Label>
             <Input
-              id="signin-email"
-              type="email"
-              placeholder="your.divine@email.com"
-              value={signInEmail}
-              onChange={(e) => setSignInEmail(e.target.value)}
+              id="signin-username"
+              type="text"
+              placeholder="your_username"
+              value={signInData.username}
+              onChange={(e) => setSignInData({ ...signInData, username: e.target.value })}
               className="h-12 text-lg bg-white/70 border-2 border-blue-400 focus:border-blue-200 
-                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.6),0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300" style={{}}
+                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.6),0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300" 
+              style={{}}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="signin-password" className="text-white text-lg font-medium">Password</Label>
+            <Input
+              id="signin-password"
+              type="password"
+              placeholder="Your sacred password"
+              value={signInData.password}
+              onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
+              className="h-12 text-lg bg-white/70 border-2 border-blue-400 focus:border-blue-200 
+                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.6),0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300" 
+              style={{}}
               required
             />
           </div>
@@ -460,15 +487,31 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                Sending Magic Link...
+                Signing In...
               </>
             ) : (
               <>
-                <Mail className="mr-2 h-4 w-4" />
-                Send Magic Link ✨
+                <Shield className="mr-2 h-4 w-4" />
+                Sign In ✨
               </>
             )}
           </Button>
+
+          {/* Forgot Password Link */}
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => {
+                toast({
+                  title: "Password Reset",
+                  description: "Password reset feature coming soon! Please contact support if needed.",
+                })
+              }}
+              className="text-blue-300 hover:text-blue-200 underline text-sm font-medium hover:text-shadow-[0_0_8px_rgba(147,197,253,0.8)] transition-all duration-300"
+            >
+              Forgot your password?
+            </button>
+          </div>
           
           {/* Sign Up Link */}
           <div className="text-center">
