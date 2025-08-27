@@ -97,14 +97,20 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
             </div>
           ) : (
             <div 
-              className="text-foreground dark:!text-white"
-              style={{ color: 'var(--foreground)' }}
-              dangerouslySetInnerHTML={{ __html: marked(patchNotes).replace(/<([^>]+)>/g, (match, tag) => {
-                if (tag.startsWith('h') || tag === 'p' || tag === 'li' || tag === 'span' || tag === 'div' || tag === 'strong' || tag === 'em') {
-                  return match.replace('>', ' style="color: white !important;">');
-                }
-                return match;
-              }) }}
+              className="prose prose-sm max-w-none
+                         text-black dark:text-white
+                         [&_*]:text-black [&_*]:dark:text-white
+                         [&_p]:text-black [&_p]:dark:text-white
+                         [&_h1]:text-black [&_h1]:dark:text-white
+                         [&_h2]:text-black [&_h2]:dark:text-white  
+                         [&_h3]:text-black [&_h3]:dark:text-white
+                         [&_h4]:text-black [&_h4]:dark:text-white
+                         [&_li]:text-black [&_li]:dark:text-white
+                         [&_span]:text-black [&_span]:dark:text-white
+                         [&_strong]:text-black [&_strong]:dark:text-white
+                         [&_em]:text-black [&_em]:dark:text-white
+                         [&_div]:text-black [&_div]:dark:text-white"
+              dangerouslySetInnerHTML={{ __html: marked(patchNotes) }}
             />
           )}
         </div>

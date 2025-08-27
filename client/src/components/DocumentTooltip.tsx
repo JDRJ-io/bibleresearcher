@@ -129,18 +129,22 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
           ) : (
             <div 
               ref={contentRef}
-              className="text-foreground dark:text-white
-                         prose prose-sm max-w-none dark:prose-invert
-                         prose-headings:text-foreground dark:prose-headings:text-white prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-4 first:prose-headings:mt-0
-                         prose-p:text-foreground dark:prose-p:text-white prose-p:mb-4 prose-p:leading-relaxed prose-p:text-sm
-                         prose-strong:text-foreground dark:prose-strong:text-white prose-strong:font-semibold
-                         prose-li:text-foreground dark:prose-li:text-white prose-li:mb-2 prose-li:text-sm prose-li:leading-relaxed
-                         prose-ol:mb-4 prose-ul:mb-4 prose-ol:pl-4 prose-ul:pl-4
-                         prose-a:text-primary hover:prose-a:text-primary/80 prose-a:cursor-pointer
+              className="prose prose-sm max-w-none
+                         text-black dark:text-white
+                         [&_*]:text-black [&_*]:dark:text-white
+                         [&_p]:text-black [&_p]:dark:text-white
+                         [&_h1]:text-black [&_h1]:dark:text-white
+                         [&_h2]:text-black [&_h2]:dark:text-white  
+                         [&_h3]:text-black [&_h3]:dark:text-white
+                         [&_h4]:text-black [&_h4]:dark:text-white
+                         [&_li]:text-black [&_li]:dark:text-white
+                         [&_span]:text-black [&_span]:dark:text-white
+                         [&_strong]:text-black [&_strong]:dark:text-white
+                         [&_em]:text-black [&_em]:dark:text-white
+                         [&_div]:text-black [&_div]:dark:text-white
                          [&>ol]:list-decimal [&>ul]:list-disc [&>ol>li]:ml-4 [&>ul>li]:ml-4
-                         [&>p>strong]:text-foreground dark:[&>p>strong]:text-white [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
-                         [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm
-                         [&_*]:text-foreground dark:[&_*]:text-white [&_p]:text-foreground dark:[&_p]:text-white [&_span]:text-foreground dark:[&_span]:text-white [&_div]:text-foreground dark:[&_div]:text-white"
+                         [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
+                         [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm"
               dangerouslySetInnerHTML={{ __html: marked(content) }}
             />
           )}
