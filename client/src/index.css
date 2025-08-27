@@ -499,9 +499,9 @@ body {
   .column-header-cell[data-column="reference"],
   .bible-verse-row > div:first-child,
   [data-verse-ref] > div:first-child {
-    width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.2)) !important;
-    min-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.2)) !important;
-    max-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.2)) !important;
+    width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
+    min-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
+    max-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
   }
 }
 
@@ -513,6 +513,16 @@ body {
 .cell-ref span,
 .cell-ref .text-xs {
   font-size: calc(0.75rem * var(--text-size-mult)) !important;
+}
+
+/* Scale date text specifically in reference column */
+.cell-ref .text-\[10px\] {
+  font-size: calc(10px * var(--text-size-mult)) !important;
+}
+
+/* Make date text responsive to preset scaling */
+.text-\[10px\] {
+  font-size: calc(10px * var(--text-size-mult));
 }
 
 /* Specific overflow handling for translation cells */
