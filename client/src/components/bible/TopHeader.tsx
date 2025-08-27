@@ -215,7 +215,7 @@ export function TopHeader({
                 </div>
                 <Scroll className="w-4 h-4 text-yellow-400 relative z-10" />
               </div>
-              <span className="font-bold text-sm bg-gradient-to-r from-yellow-500 to-purple-500 
+              <span className="font-black text-lg bg-gradient-to-r from-yellow-500 to-purple-500 
                             dark:from-yellow-400 dark:to-purple-400 
                             bg-clip-text text-transparent">Anointed</span>
             </div>
