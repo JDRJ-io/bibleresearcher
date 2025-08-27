@@ -468,6 +468,32 @@ body {
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
+/* Remove scrollbars from reference column cells */
+.cell-ref {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.cell-ref::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Also prevent scrollbars in reference column cell content */
+.cell-ref .cell-content {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.cell-ref .cell-content::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Specific overflow handling for translation cells */
 .virtual-row > div {
   overflow: hidden;
