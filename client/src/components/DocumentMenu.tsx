@@ -113,7 +113,7 @@ export const DocumentMenu: React.FC<DocumentMenuProps> = ({
                         }}
                         className="flex flex-col items-start p-3 rounded-lg border border-border bg-card hover:bg-accent hover:text-accent-foreground transition-colors text-left"
                       >
-                        <span className="font-medium text-sm text-foreground">{doc.title}</span>
+                        <span className="font-medium text-sm">{doc.title}</span>
                         <span className="text-xs text-muted-foreground mt-1">{description}</span>
                       </button>
                     );

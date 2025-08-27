@@ -51,7 +51,7 @@ export function ProphecyDetailDrawer({
         fulfillment: [`Fulfilled.1:${id}`, `Fulfilled.2:${id}`],
         verification: [`Verify.1:${id}`, `Verify.2:${id}`]
       }));
-
+      
       setProphecyDetails(details);
     } catch (error) {
       console.error('Failed to load prophecy details:', error);
@@ -96,13 +96,13 @@ export function ProphecyDetailDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-lg text-foreground">
+      <SheetContent side="right" className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2 text-foreground">
+          <SheetTitle className="flex items-center gap-2">
             <Zap className="w-5 h-5" />
             Prophecy Details
           </SheetTitle>
-          <SheetDescription className="text-muted-foreground">
+          <SheetDescription>
             Explore the predictions, fulfillments, and verification verses
           </SheetDescription>
         </SheetHeader>

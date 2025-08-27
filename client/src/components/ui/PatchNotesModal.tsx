@@ -97,14 +97,16 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
             </div>
           ) : (
             <div 
-              className="prose prose-sm max-w-none text-foreground
-                         [&_*]:text-foreground
-                         [&_p]:text-foreground
-                         [&_h1]:text-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_h4]:text-foreground [&_h5]:text-foreground [&_h6]:text-foreground
-                         [&_li]:text-foreground [&_ul]:text-foreground [&_ol]:text-foreground
-                         [&_span]:text-foreground [&_strong]:text-foreground [&_em]:text-foreground [&_div]:text-foreground
-                         [&_blockquote]:text-foreground [&_code]:text-foreground [&_pre]:text-foreground
-                         [&_table]:text-foreground [&_th]:text-foreground [&_td]:text-foreground"
+              className="prose prose-sm max-w-none dark:prose-invert 
+                         prose-headings:text-foreground prose-headings:font-semibold
+                         prose-h1:text-2xl prose-h1:bg-gradient-to-r prose-h1:from-yellow-500 prose-h1:to-purple-500 
+                         dark:prose-h1:from-yellow-400 dark:prose-h1:to-purple-400 prose-h1:bg-clip-text prose-h1:text-transparent
+                         prose-h2:text-xl prose-h2:text-foreground dark:prose-h2:text-foreground prose-h2:border-b prose-h2:border-border prose-h2:pb-2
+                         prose-h3:text-lg prose-h3:text-yellow-600 dark:prose-h3:text-yellow-400
+                         prose-p:text-foreground dark:prose-p:text-foreground prose-strong:text-foreground dark:prose-strong:text-foreground prose-li:text-foreground dark:prose-li:text-foreground
+                         prose-ul:list-disc prose-ol:list-decimal
+                         prose-a:text-primary hover:prose-a:text-primary/80
+                         [&_*]:text-foreground dark:[&_*]:text-foreground"
               dangerouslySetInnerHTML={{ __html: marked(patchNotes) }}
             />
           )}

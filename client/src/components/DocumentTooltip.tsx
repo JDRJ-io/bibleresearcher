@@ -129,22 +129,17 @@ export const DocumentTooltip: React.FC<DocumentTooltipProps> = ({
           ) : (
             <div 
               ref={contentRef}
-              className="prose prose-sm max-w-none
-                         text-foreground dark:text-foreground 
-                         [&_*]:text-foreground [&_*]:dark:text-background
-                         [&_p]:text-foreground [&_p]:dark:text-background
-                         [&_h1]:text-foreground [&_h1]:dark:text-background
-                         [&_h2]:text-foreground [&_h2]:dark:text-background
-                         [&_h3]:text-foreground [&_h3]:dark:text-background
-                         [&_h4]:text-foreground [&_h4]:dark:text-background
-                         [&_li]:text-foreground [&_li]:dark:text-background
-                         [&_span]:text-foreground [&_span]:dark:text-background
-                         [&_strong]:text-foreground [&_strong]:dark:text-background
-                         [&_em]:text-foreground [&_em]:dark:text-background
-                         [&_div]:text-foreground [&_div]:dark:text-background
+              className="prose prose-sm max-w-none dark:prose-invert
+                         prose-headings:text-foreground dark:prose-headings:text-foreground prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-4 first:prose-headings:mt-0
+                         prose-p:text-foreground dark:prose-p:text-foreground prose-p:mb-4 prose-p:leading-relaxed prose-p:text-sm
+                         prose-strong:text-foreground dark:prose-strong:text-foreground prose-strong:font-semibold
+                         prose-li:text-foreground dark:prose-li:text-foreground prose-li:mb-2 prose-li:text-sm prose-li:leading-relaxed
+                         prose-ol:mb-4 prose-ul:mb-4 prose-ol:pl-4 prose-ul:pl-4
+                         prose-a:text-primary hover:prose-a:text-primary/80 prose-a:cursor-pointer
                          [&>ol]:list-decimal [&>ul]:list-disc [&>ol>li]:ml-4 [&>ul>li]:ml-4
-                         [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
-                         [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm"
+                         [&>p>strong]:text-foreground dark:[&>p>strong]:text-foreground [&>p>strong]:font-bold [&>p>strong]:block [&>p>strong]:mb-2
+                         [&>h1]:text-lg [&>h2]:text-base [&>h3]:text-sm [&>h4]:text-sm
+                         [&_*]:text-foreground dark:[&_*]:text-foreground"
               dangerouslySetInnerHTML={{ __html: marked(content) }}
             />
           )}

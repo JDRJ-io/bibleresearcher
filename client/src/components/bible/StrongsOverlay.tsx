@@ -44,34 +44,34 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [navigationHistory, setNavigationHistory] = useState<NavigationHistoryEntry[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
-
+  
   // Get main translation from hooks
   const { mainTranslation, getMainVerseText } = useTranslationMaps();
   // Enhanced navigation function with history tracking
   const goTo = useCallback((reference: string) => {
     console.log(`🔍 Strong's navigating to: ${reference}`);
-
+    
     // Find target verse in allVerses
     const targetVerseIndex = allVerses.findIndex(v => 
       v.reference === reference || 
       v.reference === reference.replace(/\s+/g, '.') ||
       (v.reference.toLowerCase() === reference.toLowerCase())
     );
-
+    
     if (targetVerseIndex === -1) {
       console.warn(`❌ Could not find verse ${reference} in allVerses`);
       return;
     }
-
+    
     const targetVerse = allVerses[targetVerseIndex];
-
+    
     // Add current position to navigation history before navigating
     const currentEntry: NavigationHistoryEntry = {
       reference: allVerses[currentVerseIndex]?.reference || '',
       verseIndex: currentVerseIndex,
       timestamp: Date.now()
     };
-
+    
     setNavigationHistory(prev => {
       const newHistory = [...prev];
       // If we're in the middle of history, truncate future entries
@@ -81,14 +81,14 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
       newHistory.push(currentEntry);
       return newHistory;
     });
-
+    
     setCurrentHistoryIndex(prev => prev + 1);
-
+    
     // Navigate to the new verse in the background (center it in main Bible)
     if (onNavigateToVerse) {
       onNavigateToVerse(reference);
     }
-
+    
     // Update the overlay to show the new verse (keep overlay open)
     setCurrentVerseIndex(targetVerseIndex);
     setShowSearch(false);
@@ -114,7 +114,7 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
   useEffect(() => {
     const loadStrongsData = async () => {
       if (!currentVerse?.reference) return;
-
+      
       setLoading(true);
       setShowSearch(false); // Close search when switching verses
       setSelectedWord(null); // Clear selected word
@@ -142,7 +142,7 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
     try {
       // Step 1: Get basic occurrences quickly and show them immediately
       const rawOccurrences = await BibleDataAPI.getStrongsOccurrences(word.strongs);
-
+      
       if (!rawOccurrences || rawOccurrences.length === 0) {
         setSelectedOccurrences([]);
         setMorphologyLoading(false);
@@ -154,34 +154,34 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
         reference: occ.reference,
         context: occ.context
       }));
-
+      
       setSelectedOccurrences(basicOccurrences);
 
       // Step 3: Enhance with morphology data progressively (without reordering until complete)
       const clickedMorphology = word.morphology || '';
       const workingResults = [...basicOccurrences]; // Create working copy to update in-place
-
+      
       // Smaller batch size for smoother progress updates
       const batchSize = 5;
       const totalBatches = Math.ceil(rawOccurrences.length / batchSize);
       let processedCount = 0;
-
+      
       for (let i = 0; i < rawOccurrences.length; i += batchSize) {
         const batch = rawOccurrences.slice(i, i + batchSize);
-
+        
         const batchPromises = batch.map(async (occurrence, index) => {
           try {
             // Add small delay between requests to avoid overwhelming
             if (index > 0) {
               await new Promise(resolve => setTimeout(resolve, 100));
             }
-
+            
             const verseData = await BibleDataAPI.getInterlinearData(occurrence.reference);
-
+            
             const matchingWord = verseData?.find(cell => 
               cell.strongsKey === word.strongs && cell.original === occurrence.original
             );
-
+            
             return {
               reference: occurrence.reference,
               context: occurrence.context,
@@ -195,10 +195,10 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
             };
           }
         });
-
+        
         try {
           const batchResults = await Promise.all(batchPromises);
-
+          
           // Update items in-place without reordering
           batchResults.forEach((result, index) => {
             const globalIndex = i + index;
@@ -206,44 +206,44 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
               workingResults[globalIndex] = result;
             }
           });
-
+          
           processedCount += batchResults.length;
-
+          
           // Update progress
           const currentBatch = Math.floor(i / batchSize) + 1;
           setLoadingProgress(Math.round((currentBatch / totalBatches) * 100));
-
+          
           // Update display with enhanced items in original positions (no reordering yet)
           setSelectedOccurrences([...workingResults]);
-
+          
         } catch (batchError) {
           // If entire batch fails, continue with next batch
           processedCount += batch.length;
           continue;
         }
       }
-
+      
       // Final step: Sort everything once at the end
       const finalSorted = workingResults.sort((a, b) => {
         const aExactMatch = a.morphology === clickedMorphology && a.morphology;
         const bExactMatch = b.morphology === clickedMorphology && b.morphology;
-
+        
         if (aExactMatch && !bExactMatch) return -1;
         if (!aExactMatch && bExactMatch) return 1;
-
+        
         // Secondary sort: verses with morphology come before those without
         const aHasMorphology = Boolean(a.morphology);
         const bHasMorphology = Boolean(b.morphology);
-
+        
         if (aHasMorphology && !bHasMorphology) return -1;
         if (!aHasMorphology && bHasMorphology) return 1;
-
+        
         return a.reference.localeCompare(b.reference);
       });
-
+      
       setSelectedOccurrences(finalSorted);
       setMorphologyLoading(false);
-
+      
     } catch (error) {
       console.error('Error loading word occurrences:', error);
       setSelectedOccurrences([]);
@@ -256,14 +256,14 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
     if (currentHistoryIndex > 0) {
       const targetIndex = currentHistoryIndex - 1;
       const historyEntry = navigationHistory[targetIndex];
-
+      
       console.log(`🔙 Going back in Strong's history to: ${historyEntry.reference}`);
-
+      
       // Navigate to the verse in the background
       if (onNavigateToVerse) {
         onNavigateToVerse(historyEntry.reference);
       }
-
+      
       // Update overlay to show the historical verse
       setCurrentVerseIndex(historyEntry.verseIndex);
       setCurrentHistoryIndex(targetIndex);
@@ -531,7 +531,7 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
                           filteredOccurrences.map((occurrence, index) => {
                             const isExactMorphologyMatch = occurrence.morphology === selectedWord.morphology && occurrence.morphology;
                             const hasMorphology = Boolean(occurrence.morphology);
-
+                            
                             return (
                               <button
                                 key={`${occurrence.reference}-${index}`}
@@ -550,7 +550,7 @@ export function StrongsOverlay({ verse, onClose, allVerses, onNavigateToVerse }:
                                     <div className="animate-spin rounded-full h-3 w-3 border border-gray-400 border-t-transparent opacity-50"></div>
                                   </div>
                                 )}
-
+                                
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-2">
                                     <Badge variant="outline" className="font-mono text-sm px-3 py-1">
