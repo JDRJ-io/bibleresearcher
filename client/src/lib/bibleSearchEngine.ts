@@ -460,7 +460,7 @@ export class BibleSearchEngine {
   private searchByTextAllTranslations(query: string, maxResults: number): SearchResult[] {
     const results: SearchResult[] = [];
     const words = query.split(/\s+/).filter(w => w.length > 0);
-    const translationCodes = ['KJV', 'ESV', 'NIV', 'NLT', 'NASB', 'CSB', 'AMP', 'BSB', 'WEB', 'YLT', 'LSB', 'NKJV'];
+    const translationCodes = ['KJV', 'BSB', 'WEB', 'YLT'];
     
     this.verses.forEach((verseData, index) => {
       const translationResults: Array<{translation: string, text: string, score: number, highlightedText: string}> = [];

@@ -11,7 +11,7 @@ interface UnifiedTranslationSelectorProps {
   onUpdate?: () => void;
 }
 
-const AVAILABLE_TRANSLATIONS = ["KJV", "AMP", "ESV", "CSB", "BSB", "NLT", "NASB", "NKJV", "NIV", "NRSV", "WEB", "YLT"];
+const AVAILABLE_TRANSLATIONS = ["KJV", "BSB", "WEB", "YLT"];
 
 export function UnifiedTranslationSelector({ onUpdate }: UnifiedTranslationSelectorProps) {
   const { main, alternates, setMain, toggleAlternate } = useTranslationMaps();

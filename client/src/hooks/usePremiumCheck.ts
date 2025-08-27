@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 
 // List of premium-only translations
-const PREMIUM_TRANSLATIONS = ['AMP', 'NASB', 'NIV', 'ESV', 'NLT', 'MSG'];
+const PREMIUM_TRANSLATIONS: string[] = []; // All remaining translations are now free
 
 export function usePremiumCheck() {
   const { profile } = useAuth();

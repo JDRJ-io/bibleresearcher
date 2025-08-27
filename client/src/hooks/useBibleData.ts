@@ -1206,9 +1206,9 @@ export function useBibleData() {
       const searchableText = [
         verse.reference,
         verse.text.KJV || "",
-        verse.text.ESV || "",
-        verse.text.NIV || "",
-        verse.text.NKJV || "",
+        verse.text.BSB || "",
+        verse.text.WEB || "",
+        verse.text.YLT || "",
         ...(verse.crossReferences?.map((cr) => cr.text) || []),
       ]
         .join(" ")

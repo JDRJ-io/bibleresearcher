@@ -10,7 +10,7 @@ interface TranslationSelectorProps {
   onUpdate?: () => void;
 }
 
-const AVAILABLE_TRANSLATIONS = ["KJV", "AMP", "ESV", "CSB", "BSB", "NLT", "NASB", "NKJV", "NIV", "NRSV", "WEB", "YLT"];
+const AVAILABLE_TRANSLATIONS = ["KJV", "BSB", "WEB", "YLT"];
 
 // Feature Block C - Translation Modal in Hamburger Menu
 export function TranslationSelector({ onUpdate }: TranslationSelectorProps) {

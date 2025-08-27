@@ -92,7 +92,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     const result = verses.map((verse, index) => {
       // Get text for currently loaded translations using your working system
       const textObj: Record<string, string> = {};
-      const currentlyLoadedTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
+      const currentlyLoadedTranslations = ['KJV', 'BSB', 'WEB', 'YLT'];
       
       currentlyLoadedTranslations.forEach(translationCode => {
         const text = getVerseText(verse.reference, translationCode);
@@ -446,7 +446,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
             {/* Individual Translation Checkboxes */}
             <div className="flex flex-wrap items-center gap-2 border rounded-md p-2 max-w-full">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
-              {['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'].map(translation => (
+              {['KJV', 'BSB', 'WEB', 'YLT'].map(translation => (
                 <label key={translation} className="flex items-center gap-1 cursor-pointer">
                   <input
                     type="checkbox"
@@ -467,14 +467,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  const allTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
+                  const allTranslations = ['KJV', 'BSB', 'WEB', 'YLT'];
                   setSelectedTranslations(
                     selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
                   );
                 }}
                 className="h-6 px-2 text-xs ml-2"
               >
-                {selectedTranslations.length === 13 ? 'Clear All' : 'Select All'}
+                {selectedTranslations.length === 4 ? 'Clear All' : 'Select All'}
               </Button>
             </div>
 

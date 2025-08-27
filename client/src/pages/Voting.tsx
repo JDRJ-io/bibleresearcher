@@ -42,7 +42,7 @@ export default function Voting() {
         title: "Preferred translation for group study?", 
         votes: 234, 
         timeLeft: "2 days",
-        options: ["ESV", "NIV", "NASB", "KJV"]
+        options: ["BSB", "WEB", "YLT", "KJV"]
       },
     ]
   };
