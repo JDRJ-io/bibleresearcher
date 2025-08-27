@@ -490,13 +490,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         }}
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center justify-center relative">
             <div className="flex items-center gap-2">
               <Search className="w-5 h-5" />
               {isMobile ? 'Search' : 'Intelligent Bible Search'}
             </div>
             {!isMobile && (
-              <div className="flex items-center gap-1 text-xs">
+              <div className="absolute right-8 flex items-center gap-1 text-xs">
                 <Select value={selectedBook} onValueChange={handleBookChange}>
                   <SelectTrigger className="h-6 text-xs border p-1 min-w-0 w-16">
                     <SelectValue />
