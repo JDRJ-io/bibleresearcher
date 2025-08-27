@@ -245,7 +245,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
               className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-yellow-900/90 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
               style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
             />
@@ -265,7 +265,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   checkUsernameAvailability(username);
                 }}
                 className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                           text-yellow-100 placeholder-yellow-900/90 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300 pr-10" 
+                           text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300 pr-10" 
                 style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
                 required
                 minLength={3}
@@ -300,7 +300,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               value={signUpData.email}
               onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
               className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-yellow-900/90 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
               style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
             />
@@ -315,7 +315,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               value={signUpData.password}
               onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
               className="h-12 text-lg bg-white/15 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-yellow-100 placeholder-yellow-900/90 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
+                         text-yellow-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_20px_rgba(251,191,36,0.4)] transition-all duration-300" 
               style={{textShadow: '0 0 4px rgba(254, 240, 138, 0.6)'}}
               required
               minLength={8}
@@ -442,7 +442,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               value={signInEmail}
               onChange={(e) => setSignInEmail(e.target.value)}
               className="h-12 text-lg bg-white/15 border-2 border-blue-400 focus:border-blue-200 
-                         text-blue-100 placeholder-blue-900/90 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.8),0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300" style={{textShadow: '0 0 4px rgba(147, 197, 253, 0.6)'}}
+                         text-blue-100 placeholder-gray-800 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(59,130,246,0.8),0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300" style={{textShadow: '0 0 4px rgba(147, 197, 253, 0.6)'}}
               required
             />
           </div>
