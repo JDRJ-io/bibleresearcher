@@ -3,8 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, X, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard, Navigation } from 'lucide-react';
+import { Search, X, Filter, ArrowUp, ArrowDown, Settings, History, Clock, Zap, Target, Shuffle, Keyboard, Navigation, MapPin } from 'lucide-react';
 import { useBibleStore } from '@/App';
 import { LoadingWheel } from '@/components/LoadingWheel';
 import { BibleSearchEngine, type SearchResult } from '@/lib/bibleSearchEngine';
@@ -413,19 +412,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="search" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="search" className="flex items-center gap-2">
-              <Search className="w-4 h-4" />
-              {isMobile ? 'Search' : 'Text Search'}
-            </TabsTrigger>
-            <TabsTrigger value="navigate" className="flex items-center gap-2">
-              <Navigation className="w-4 h-4" />
-              {isMobile ? 'Navigate' : 'Navigate to Verse'}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="search" className="space-y-4 mt-4">
+        <div className="space-y-4 mt-4">
             {/* Search Input */}
             <div className="flex gap-2">
               <Input
@@ -833,9 +820,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               </div>
             )}
           </div>
-          </TabsContent>
-
-          <TabsContent value="navigate" className="mt-4">
+          {/* Navigation Section */}
+          <div className="border-t pt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-4 h-4" />
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Or navigate directly to a verse:
+              </span>
+            </div>
             <ScrollWheelSelector 
               onNavigate={(reference) => {
                 console.log(`📍 Navigating to verse from scroll wheel: ${reference}`);
@@ -844,8 +836,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               }}
               className="w-full"
             />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
