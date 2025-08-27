@@ -490,13 +490,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
         }}
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-center relative">
-            <div className="flex items-center gap-2">
-              <Search className="w-5 h-5" />
-              {isMobile ? 'Search' : 'Intelligent Bible Search'}
-            </div>
-            {!isMobile && (
-              <div className="absolute right-8 flex items-center gap-1 text-xs">
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Search className="w-5 h-5" />
+                {isMobile ? 'Search' : 'Intelligent Bible Search'}
+              </div>
+              <div className="flex items-center gap-1 text-xs">
                 <Select value={selectedBook} onValueChange={handleBookChange}>
                   <SelectTrigger className="h-6 text-xs border p-1 min-w-0 w-16">
                     <SelectValue />
@@ -546,7 +546,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                   Go
                 </Button>
               </div>
-            )}
+            </div>
           </DialogTitle>
         </DialogHeader>
 
@@ -565,16 +565,13 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <Button 
                 onClick={performSearch} 
                 disabled={isSearching}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 min-w-[100px] shadow-lg hover:shadow-xl transition-all duration-200 holy-button"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 shadow-lg hover:shadow-xl transition-all duration-200 holy-button"
                 title="Search Verses (Enter)"
               >
                 {isSearching ? (
                   <LoadingWheel />
                 ) : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    Search
-                  </>
+                  <Search className="w-4 h-4" />
                 )}
               </Button>
               <Button 
