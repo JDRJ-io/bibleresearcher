@@ -1281,6 +1281,17 @@ body.menu-open {
     overflow: visible !important;       /* Show all text in vertical mode */
   }
   
+  /* Force dates to be vertical in mobile narrow columns */
+  .cell-ref div {
+    writing-mode: vertical-rl !important;
+    transform: rotate(180deg) !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    overflow: visible !important;
+    text-orientation: mixed !important;
+  }
+  
   /* Vertical text class for both reference and dates */
   .vertical-text {
     writing-mode: vertical-rl !important;
