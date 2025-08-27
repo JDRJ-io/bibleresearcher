@@ -429,145 +429,92 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <Button 
                 variant="outline" 
                 onClick={getRandomVerse}
-                title={isMobile ? "Random Verse" : "Random Verse (Ctrl+R)"}
-                className={isMobile ? "px-3" : ""}
+                title="Random Verse (Ctrl+R)"
               >
                 <Shuffle className="w-4 h-4" />
               </Button>
-              {!isMobile && (
-                <Button
-                  variant={showHistory ? 'default' : 'outline'}
-                  onClick={() => setShowHistory(!showHistory)}
-                  title="Search History (Ctrl+H)"
-                  disabled={searchHistory.length === 0}
-                >
-                  <History className="w-4 h-4" />
-                </Button>
-              )}
+              <Button
+                variant={showHistory ? 'default' : 'outline'}
+                onClick={() => setShowHistory(!showHistory)}
+                title="Search History (Ctrl+H)"
+                disabled={searchHistory.length === 0}
+              >
+                <History className="w-4 h-4" />
+              </Button>
             </div>
 
-          {/* Translation Selection */}
-          {!isMobile && (
-            <div className="flex flex-wrap gap-2">
-              {/* Individual Translation Checkboxes */}
-              <div className="flex flex-wrap items-center gap-2 border rounded-md p-2 max-w-full">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
-                {['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'].map(translation => (
-                  <label key={translation} className="flex items-center gap-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedTranslations.includes(translation)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedTranslations(prev => [...prev, translation]);
-                        } else {
-                          setSelectedTranslations(prev => prev.filter(t => t !== translation));
-                        }
-                      }}
-                      className="rounded text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-xs font-medium">{translation}</span>
-                  </label>
-                ))}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    const allTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
-                    setSelectedTranslations(
-                      selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
-                    );
-                  }}
-                  className="h-6 px-2 text-xs ml-2"
-                >
-                  {selectedTranslations.length === 13 ? 'Clear All' : 'Select All'}
-                </Button>
-              </div>
-
-              {/* Keyboard Shortcuts Help */}
+          {/* Translation Selection - Compact Version */}
+          <div className="flex flex-wrap gap-2">
+            {/* Individual Translation Checkboxes */}
+            <div className="flex flex-wrap items-center gap-2 border rounded-md p-2 max-w-full">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
+              {['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'].map(translation => (
+                <label key={translation} className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedTranslations.includes(translation)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedTranslations(prev => [...prev, translation]);
+                      } else {
+                        setSelectedTranslations(prev => prev.filter(t => t !== translation));
+                      }
+                    }}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-xs font-medium">{translation}</span>
+                </label>
+              ))}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={() => alert(`Keyboard Shortcuts:
+                onClick={() => {
+                  const allTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
+                  setSelectedTranslations(
+                    selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
+                  );
+                }}
+                className="h-6 px-2 text-xs ml-2"
+              >
+                {selectedTranslations.length === 13 ? 'Clear All' : 'Select All'}
+              </Button>
+            </div>
+
+            {!isMobile && (
+              <>
+                {/* Keyboard Shortcuts Help */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => alert(`Keyboard Shortcuts:
 • Enter: Search or navigate to selected result
 • ↑↓: Navigate through results
 • Escape: Clear selection or close
 • Ctrl+F: Toggle advanced options
 • Ctrl+H: Toggle search history
 • Ctrl+R: Random verse`)}
-                className="h-8 px-2 text-xs"
-              >
-                <Keyboard className="w-3 h-3 mr-1" />
-                Help
-              </Button>
-
-              {/* Results Info */}
-              {hasSearched && (
-                <div className="flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs">
-                  <span className="font-medium">{searchResults.length}</span>
-                  <span className="text-gray-500 ml-1">results</span>
-                  {selectedResultIndex >= 0 && (
-                    <span className="ml-2 text-blue-600 dark:text-blue-400">
-                      [{selectedResultIndex + 1}/{searchResults.length}]
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Mobile Translation Selection */}
-          {isMobile && (
-            <div className="border rounded-md p-2">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    const allTranslations = ['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'];
-                    setSelectedTranslations(
-                      selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
-                    );
-                  }}
-                  className="h-6 px-2 text-xs"
+                  className="h-8 px-2 text-xs"
                 >
-                  {selectedTranslations.length === 13 ? 'Clear All' : 'Select All'}
+                  <Keyboard className="w-3 h-3 mr-1" />
+                  Help
                 </Button>
-              </div>
-              <div className="grid grid-cols-3 gap-1">
-                {['AMP', 'BSB', 'CSB', 'ESV', 'KJV', 'LSB', 'NASB', 'NIV', 'NKJV', 'NLT', 'NRSV', 'WEB', 'YLT'].map(translation => (
-                  <label key={translation} className="flex items-center gap-1 cursor-pointer text-xs">
-                    <input
-                      type="checkbox"
-                      checked={selectedTranslations.includes(translation)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedTranslations(prev => [...prev, translation]);
-                        } else {
-                          setSelectedTranslations(prev => prev.filter(t => t !== translation));
-                        }
-                      }}
-                      className="rounded text-blue-600 focus:ring-blue-500 w-3 h-3"
-                    />
-                    <span className="font-medium">{translation}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
+              </>
+            )}
 
-          {/* Mobile Results Info - Simple version */}
-          {isMobile && hasSearched && (
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-              <span>{searchResults.length} results found</span>
-              {selectedResultIndex >= 0 && (
-                <span className="text-blue-600 dark:text-blue-400">
-                  {selectedResultIndex + 1}/{searchResults.length}
-                </span>
-              )}
-            </div>
-          )}
+            {/* Results Info */}
+            {hasSearched && (
+              <div className="flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs">
+                <span className="font-medium">{searchResults.length}</span>
+                <span className="text-gray-500 ml-1">results</span>
+                {selectedResultIndex >= 0 && (
+                  <span className="ml-2 text-blue-600 dark:text-blue-400">
+                    [{selectedResultIndex + 1}/{searchResults.length}]
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
 
           {/* Search History */}
           {showHistory && searchHistory.length > 0 && (
