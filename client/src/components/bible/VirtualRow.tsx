@@ -798,7 +798,7 @@ export function VirtualRow({
               {showDates && (
                 <InlineDateInfo 
                   verseId={verse.reference} 
-                  className={shouldRotateText ? 'vertical-text' : 'mt-0.5'} 
+                  className={shouldRotateText ? 'vertical-text' : 'mt-1 px-0.5'} 
                 />
               )}
             </div>
