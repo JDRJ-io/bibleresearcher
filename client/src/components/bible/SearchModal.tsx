@@ -472,8 +472,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className={`max-h-[90vh] min-h-[60vh] flex flex-col ${
-          isMobile ? 'max-w-sm w-[95vw] mx-2' : 'max-w-4xl w-[90vw]'
+        className={`max-h-[85vh] flex flex-col ${
+          isMobile ? 'max-w-sm w-[95vw] mx-2' : 'max-w-4xl'
         }`}
         onInteractOutside={(e) => {
           // Allow clicking outside to close the modal
@@ -550,7 +550,8 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col space-y-4 mt-4 overflow-hidden">
+        <div className="space-y-4 mt-4">
+
             {/* Search Input */}
             <div className="flex gap-2">
               <Input
@@ -564,14 +565,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <Button 
                 onClick={performSearch} 
                 disabled={isSearching}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 min-w-[100px] shadow-lg hover:shadow-xl transition-all duration-200 holy-button"
                 title="Search Verses (Enter)"
               >
                 {isSearching ? (
                   <LoadingWheel />
                 ) : (
                   <>
-                    <Search className="w-4 h-4 mr-1" />
+                    <Search className="w-4 h-4 mr-2" />
                     Search
                   </>
                 )}
@@ -596,7 +597,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           {/* Translation Selection - Compact Version */}
           <div className="flex flex-wrap gap-2">
             {/* Individual Translation Checkboxes */}
-            <div className="flex flex-wrap items-center gap-2 border rounded-lg p-3 max-w-full bg-gray-50 dark:bg-gray-800">
+            <div className="flex flex-wrap items-center gap-2 border rounded-md p-2 max-w-full">
               <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Search in:</span>
               {['KJV', 'BSB', 'WEB', 'YLT'].map(translation => (
                 <label key={translation} className="flex items-center gap-1 cursor-pointer">
@@ -624,7 +625,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                     selectedTranslations.length === allTranslations.length ? [activeTranslation] : allTranslations
                   );
                 }}
-                className="h-6 px-2 text-xs ml-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
+                className="h-6 px-2 text-xs ml-2"
               >
                 {selectedTranslations.length === 4 ? 'Clear All' : 'Select All'}
               </Button>
@@ -760,7 +761,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
           )}
 
           {/* Results */}
-          <div className="flex-1 overflow-hidden min-h-0">
+          <div className="flex-1 overflow-hidden">
             {isSearching && (
               <div className="flex items-center justify-center py-8">
                 <LoadingWheel />
