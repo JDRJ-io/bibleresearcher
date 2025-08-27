@@ -422,8 +422,20 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                 className="flex-1"
                 autoFocus
               />
-              <Button onClick={performSearch} disabled={isSearching}>
-                {isSearching ? <LoadingWheel /> : <Search className="w-4 h-4" />}
+              <Button 
+                onClick={performSearch} 
+                disabled={isSearching}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 min-w-[100px] shadow-lg hover:shadow-xl transition-all duration-200 holy-button"
+                title="Search Verses (Enter)"
+              >
+                {isSearching ? (
+                  <LoadingWheel />
+                ) : (
+                  <>
+                    <Search className="w-4 h-4 mr-2" />
+                    Search
+                  </>
+                )}
               </Button>
               <Button 
                 variant="outline" 
