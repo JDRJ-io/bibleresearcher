@@ -303,8 +303,7 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
         case 'f':
-          e.preventDefault();
-          setShowAdvanced(!showAdvanced);
+          // Advanced toggle removed - functionality is now always visible
           break;
         case 'h':
           e.preventDefault();
@@ -629,13 +628,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
                   <span>{searchResults.length} results found</span>
-                  {!isMobile && showAdvanced && (
-                    <div className="flex gap-2">
-                      <Badge variant="outline" className="text-xs">Ref</Badge>
-                      <Badge variant="outline" className="text-xs">Text</Badge>
-                      <Badge variant="outline" className="text-xs">Confidence</Badge>
-                    </div>
-                  )}
                 </div>
                 
                 <div 
@@ -683,11 +675,6 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
                             <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
                               {result.translationCode}
                             </Badge>
-                          )}
-                          {showAdvanced && !isMobile && (
-                            <span className={`text-xs ${getConfidenceColor(result.confidence)}`}>
-                              {Math.round(result.confidence * 100)}%
-                            </span>
                           )}
                         </div>
                         {selectedResultIndex === index && !isMobile && (
