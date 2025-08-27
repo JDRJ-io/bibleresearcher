@@ -17,6 +17,7 @@ export function UnifiedTranslationSelector({ onUpdate }: UnifiedTranslationSelec
   const { main, alternates, setMain, toggleAlternate } = useTranslationMaps();
   const ensureTranslationLoaded = useEnsureTranslationLoaded();
   const [loadingTranslations, setLoadingTranslations] = useState<Set<string>>(new Set());
+  const [lastTap, setLastTap] = useState<{ code: string; time: number } | null>(null);
 
   const handleMainChange = async (value: string) => {
     console.log(`🔄 UnifiedTranslationSelector: Switching main translation from ${main} to ${value}`);
@@ -63,6 +64,35 @@ export function UnifiedTranslationSelector({ onUpdate }: UnifiedTranslationSelec
         newSet.delete(translationId);
         return newSet;
       });
+    }
+  };
+
+  const handleTap = async (code: string) => {
+    const now = Date.now();
+    const DOUBLE_TAP_THRESHOLD = 300; // 300ms for double tap
+    
+    if (lastTap && lastTap.code === code && (now - lastTap.time) < DOUBLE_TAP_THRESHOLD) {
+      // Double tap - set as main
+      console.log(`🖱️ Double tap detected on ${code} - setting as main`);
+      setLastTap(null);
+      await handleMainChange(code);
+    } else {
+      // Single tap - toggle alternate (with delay to check for double tap)
+      setLastTap({ code, time: now });
+      
+      setTimeout(() => {
+        setLastTap(prev => {
+          // Only process single tap if no double tap occurred
+          if (prev && prev.code === code && prev.time === now) {
+            console.log(`🖱️ Single tap confirmed on ${code} - toggling alternate`);
+            if (!loadingTranslations.has(code)) {
+              handleAlternateToggle(code, !alternates.includes(code));
+            }
+            return null;
+          }
+          return prev;
+        });
+      }, DOUBLE_TAP_THRESHOLD);
     }
   };
 
@@ -124,14 +154,9 @@ export function UnifiedTranslationSelector({ onUpdate }: UnifiedTranslationSelec
             >
               {/* Click Handler */}
               <div 
-                className="absolute inset-0 cursor-pointer"
-                onClick={() => !isLoading && handleMainChange(code)}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  if (!isMain && !isLoading) {
-                    handleAlternateToggle(code, !isAlternate);
-                  }
-                }}
+                className="absolute inset-0 cursor-pointer select-none"
+                onClick={() => !isLoading && handleTap(code)}
+                onContextMenu={(e) => e.preventDefault()}
               />
               
               {/* Translation Code */}
@@ -183,7 +208,7 @@ export function UnifiedTranslationSelector({ onUpdate }: UnifiedTranslationSelec
       
       {/* Instructions */}
       <div className="text-xs text-center" style={{color: 'var(--text-secondary)'}}>
-        Left-click to set main • Right-click to toggle alternate
+        Single tap for alternate • Double tap to set as main
       </div>
     </div>
   );
