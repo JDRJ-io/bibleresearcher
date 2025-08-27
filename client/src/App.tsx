@@ -403,9 +403,17 @@ export const useBibleStore = create<{
       });
     }
 
-    // Dates are now inline with reference column, no separate column needed
-    console.log('🔄 TOGGLE DATES - Updated to inline mode (no separate column)');
-    return { showDates: newValue };
+    const newState = {
+      showDates: newValue,
+      columnState: {
+        ...state.columnState,
+        columns: state.columnState.columns.map(col => 
+          col.slot === 1 ? { ...col, visible: newValue } : col // Slot 1 = Dates
+        )
+      }
+    };
+    console.log('🔄 TOGGLE DATES - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
   }),
 
 
@@ -542,7 +550,8 @@ export const useBibleStore = create<{
   // Complete 20-Column Layout Spec - All slots pre-assigned (keeping current working assignments)
   columnState: {
     columns: [
-      { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible, dates are now inline)
+      { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
+      { slot: 1, visible: true, widthRem: 4, displayOrder: 1 },   // Dates - ON by default
       { slot: 2, visible: false, widthRem: 16, displayOrder: 2 },   // Notes (paid feature)
       { slot: 3, visible: true, widthRem: 20, displayOrder: 3 },    // Main translation (moved here) 
       { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
