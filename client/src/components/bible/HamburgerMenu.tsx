@@ -7,8 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Book, Settings, Palette, Bookmark, Tags, Search, Eye, LogIn, UserPlus, Unlock, Lock, Move, FileText } from "lucide-react";
 import { BookmarksList } from '@/components/user/BookmarksList';
 import { LabelsLegend } from './LabelsLegend';
-import { MainTranslationSelector } from './MainTranslationSelector';
-import { AlternateTranslationSelector } from './AlternateTranslationSelector';
+import { UnifiedTranslationSelector } from './UnifiedTranslationSelector';
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -60,7 +59,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   const { theme, setTheme, themes } = useTheme();
 
   // Local state for UI
-  const [activeTab, setActiveTab] = useState("main-translation");
+  const [activeTab, setActiveTab] = useState("translations");
   const [bookmarkName, setBookmarkName] = useState("");
   const [bookmarkColor, setBookmarkColor] = useState("#3b82f6");
   const [showBookmarkForm, setShowBookmarkForm] = useState(false);
@@ -166,8 +165,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   };
 
   const tabs = [
-    { id: "main-translation", label: "Main Translation", icon: Book },
-    { id: "alt-translations", label: "Alt Translations", icon: Book },
+    { id: "translations", label: "Translations", icon: Book },
     { id: "toggle-labels", label: "Toggle Labels", icon: Tags },
     { id: "study-tools", label: "Study Tools", icon: Search },
     { id: "display-settings", label: "Display Settings", icon: Settings },
@@ -178,19 +176,11 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "main-translation":
+      case "translations":
         return (
           <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Select Main Translation</h4>
-            <MainTranslationSelector onUpdate={() => {}} />
-          </div>
-        );
-
-      case "alt-translations":
-        return (
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Additional Translations</h4>
-            <AlternateTranslationSelector onUpdate={() => console.log('🔄 Translation updated from alt-translations tab')} />
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300">Bible Translations</h4>
+            <UnifiedTranslationSelector onUpdate={() => console.log('🔄 Translation updated from unified selector')} />
           </div>
         );
 
