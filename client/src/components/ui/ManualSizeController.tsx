@@ -60,6 +60,11 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
       document.documentElement.style.setProperty('--row-height-mult', rowHeight.toString());
       document.documentElement.style.setProperty('--column-width-mult', columnWidth.toString());
     }
+
+    // Emit manual size change event to notify column headers
+    window.dispatchEvent(new CustomEvent('manualSizeChange', {
+      detail: { textSize, rowHeight, columnWidth, isUnified }
+    }));
   }, [isUnified, textSize, rowHeight, columnWidth]);
 
   // Save preferences to localStorage

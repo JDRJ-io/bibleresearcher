@@ -116,24 +116,20 @@ export function NewColumnHeaders({
     // Set initial value
     updateColumnWidthMult();
 
-    // Watch for direct CSS variable changes using MutationObserver
-    const observer = new MutationObserver(() => {
-      updateColumnWidthMult();
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
-
-    // Listen for adaptive width changes
+    // Listen for adaptive width changes (remove MutationObserver to prevent infinite loops)
     window.addEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
 
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
+    // Listen for manual size controller changes
+    const handleManualSizeChange = () => {
+      updateColumnWidthMult();
     };
-  }, [columnWidthMult, adaptiveWidths]);
+    window.addEventListener('manualSizeChange', handleManualSizeChange);
+
+    return () => {
+      window.removeEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
+      window.removeEventListener('manualSizeChange', handleManualSizeChange);
+    };
+  }, []); // Remove columnWidthMult from deps to prevent infinite loops
 
   // Presentation mode toggle - width x2, text x1.5, row height x1.35
   const togglePresentationMode = useCallback(async () => {
@@ -210,7 +206,8 @@ export function NewColumnHeaders({
     return `${actualWidth}px`;
   };
 
-  // Build clean column configuration - NOW DEPENDS ON columnWidthMult for reactive updates
+  // Build column configuration that matches VirtualRow exactly
+  // Use the SAME logic as VirtualRow to prevent duplicate columns
   const columns: SimpleColumn[] = useMemo(() => {
     const cols: SimpleColumn[] = [];
     
@@ -219,96 +216,95 @@ export function NewColumnHeaders({
     const isMobile = window.innerWidth <= 640;
     const isMobilePortrait = isPortrait && isMobile;
 
-    // 1. Reference column (always visible)
-    cols.push({
-      id: 'reference',
-      name: '#',
-      type: 'reference',
-      visible: true,
-      width: getResponsiveWidth('reference')
-    });
+    // Use the same slotConfig system as VirtualRow to ensure consistency
+    const slotConfig: Record<number, any> = {};
 
-    // 2. Dates are now inline with reference column - no separate header needed
+    // Always show reference column (slot 0)
+    slotConfig[0] = { type: 'reference', header: '#', visible: true };
 
-    // Context boundaries is not a visual column - it's background data processing
+    // Notes column (slot 2) - dates are now inline with reference
+    slotConfig[2] = { type: 'notes', header: 'Notes', visible: showNotes && !isMobilePortrait };
 
-    // 4. Notes column (skip in mobile portrait to reduce columns)
-    if (showNotes && !isMobilePortrait) {
-      cols.push({
-        id: 'notes',
-        name: 'Notes',
-        type: 'notes',
-        visible: true,
-        width: getResponsiveWidth('notes')
-      });
-    }
+    // Main translation (slot 3)
+    slotConfig[3] = { type: 'main-translation', header: main || 'KJV', translationCode: main || 'KJV', visible: true };
 
-    // 5. Main translation (always visible)
-    cols.push({
-      id: 'main-translation',
-      name: main || 'KJV',
-      type: 'main-translation',
-      visible: true,
-      width: getResponsiveWidth('main-translation')
-    });
+    // Cross References column (slot 7)
+    slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: showCrossRefs };
 
-    // 6. Cross references (should come before alternate translations)
-    if (showCrossRefs) {
-      cols.push({
-        id: 'cross-refs',
-        name: 'Cross Refs',
-        type: 'cross-refs',
-        visible: true,
-        width: getResponsiveWidth('cross-refs')
-      });
-    }
+    // Prophecy columns (slots 8-10)
+    slotConfig[8] = { type: 'prophecy-p', header: 'Prediction', visible: store.showPrediction };
+    slotConfig[9] = { type: 'prophecy-f', header: 'Fulfillment', visible: store.showFulfillment };
+    slotConfig[10] = { type: 'prophecy-v', header: 'Verification', visible: store.showVerification };
 
-    // 7. Prophecy columns (should come before alternate translations)
-    if (store.showPrediction) {
-      cols.push({
-        id: 'prophecy-prediction',
-        name: 'Prediction',
-        type: 'prophecy',
-        visible: true,
-        width: getResponsiveWidth('prophecy')
-      });
-    }
-    
-    if (store.showFulfillment) {
-      cols.push({
-        id: 'prophecy-fulfillment',
-        name: 'Fulfillment',
-        type: 'prophecy',
-        visible: true,
-        width: getResponsiveWidth('prophecy')
-      });
-    }
-    
-    if (store.showVerification) {
-      cols.push({
-        id: 'prophecy-verification',
-        name: 'Verification',
-        type: 'prophecy',
-        visible: true,
-        width: getResponsiveWidth('prophecy')
-      });
-    }
-
-    // 8. Alternate translations (filter out main to avoid duplication)
+    // Alternate translation columns (slots 12-19)
     alternates
-      .filter(code => code !== main)
+      .filter(code => code !== (main || 'KJV'))
       .forEach((code, index) => {
-        cols.push({
-          id: `alt-translation-${code}`,
-          name: code,
-          type: 'alt-translation',
-          visible: true,
-          width: getResponsiveWidth('alt-translation')
-        });
+        const slotNumber = 12 + index;
+        if (slotNumber <= 19) {
+          slotConfig[slotNumber] = {
+            type: 'alt-translation',
+            header: code,
+            translationCode: code,
+            visible: true
+          };
+        }
       });
 
-    return cols.filter(col => col.visible);
-  }, [main, alternates, showNotes, showDates, showCrossRefs, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths, columnWidthMult]);
+    // Convert slotConfig to columns array (same as VirtualRow)
+    Object.entries(slotConfig).forEach(([slotStr, config]) => {
+      if (config?.visible !== false) {
+        const slot = parseInt(slotStr);
+        
+        // Map column types to header IDs
+        let id: string;
+        switch (config.type) {
+          case 'reference':
+            id = 'reference';
+            break;
+          case 'notes':
+            id = 'notes';
+            break;
+          case 'main-translation':
+            id = 'main-translation';
+            break;
+          case 'cross-refs':
+            id = 'cross-refs';
+            break;
+          case 'prophecy-p':
+            id = 'prophecy-prediction';
+            break;
+          case 'prophecy-f':
+            id = 'prophecy-fulfillment';
+            break;
+          case 'prophecy-v':
+            id = 'prophecy-verification';
+            break;
+          case 'alt-translation':
+            id = `alt-translation-${config.translationCode}`;
+            break;
+          default:
+            id = config.type;
+        }
+
+        // Get width based on column type
+        let widthType = config.type;
+        if (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v') {
+          widthType = 'prophecy';
+        }
+
+        cols.push({
+          id,
+          name: config.header,
+          type: config.type.startsWith('prophecy-') ? 'prophecy' : config.type,
+          visible: true,
+          width: getResponsiveWidth(widthType)
+        });
+      }
+    });
+
+    return cols;
+  }, [main, alternates, showNotes, showCrossRefs, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths, columnWidthMult]);
 
   // Sync columns with localColumns for drag and drop
   useMemo(() => {
