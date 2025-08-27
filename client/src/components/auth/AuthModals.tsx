@@ -246,24 +246,24 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           <p className="text-white/70 text-lg">Enter the sacred realm of biblical wisdom</p>
         </div>
 
-        <form onSubmit={handleSignUp} className="space-y-6">
+        <form onSubmit={handleSignUp} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="signup-name" className="text-white/90 text-lg">Your Name</Label>
+            <Label htmlFor="signup-name" className="text-white text-base font-medium">Your Name</Label>
             <Input
               id="signup-name"
               type="text"
               placeholder="Your sacred name"
               value={signUpData.displayName}
               onChange={(e) => setSignUpData({ ...signUpData, displayName: e.target.value })}
-              className="h-12 text-lg bg-white/70 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300" 
+              className="h-11 text-base bg-white/80 border border-yellow-300 focus:border-yellow-400 
+                         text-black placeholder-gray-500 backdrop-blur-sm focus:ring-2 focus:ring-yellow-400/50 transition-all duration-200 rounded-md" 
               style={{}}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-username" className="text-white/90 text-lg">Username</Label>
+            <Label htmlFor="signup-username" className="text-white text-base font-medium">Username</Label>
             <div className="relative">
               <Input
                 id="signup-username"
@@ -303,30 +303,30 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="signup-email" className="text-white/90 text-lg">Email Address</Label>
+            <Label htmlFor="signup-email" className="text-white text-base font-medium">Email Address</Label>
             <Input
               id="signup-email"
               type="email"
               placeholder="your.divine@email.com"
               value={signUpData.email}
               onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-              className="h-12 text-lg bg-white/70 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300" 
+              className="h-11 text-base bg-white/80 border border-yellow-300 focus:border-yellow-400 
+                         text-black placeholder-gray-500 backdrop-blur-sm focus:ring-2 focus:ring-yellow-400/50 transition-all duration-200 rounded-md" 
               style={{}}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="signup-password" className="text-white/90 text-lg">Password</Label>
+            <Label htmlFor="signup-password" className="text-white text-base font-medium">Password</Label>
             <Input
               id="signup-password"
               type="password"
               placeholder="Sacred password (8+ characters)"
               value={signUpData.password}
               onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-              className="h-12 text-lg bg-white/70 border-2 border-yellow-400 focus:border-yellow-200 
-                         text-black placeholder-gray-600 backdrop-blur-sm focus:shadow-[0_0_0_2px_rgba(251,191,36,0.6),0_0_12px_rgba(251,191,36,0.3)] transition-all duration-300" 
+              className="h-11 text-base bg-white/80 border border-yellow-300 focus:border-yellow-400 
+                         text-black placeholder-gray-500 backdrop-blur-sm focus:ring-2 focus:ring-yellow-400/50 transition-all duration-200 rounded-md" 
               style={{}}
               required
               minLength={8}
@@ -334,16 +334,16 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           </div>
 
           {/* Marketing Opt-in */}
-          <div className="flex items-start space-x-3 p-4 rounded-lg bg-purple-900/40 border-2 border-purple-400 shadow-[0_0_0_1px_rgba(196,181,253,0.6),0_0_15px_rgba(147,51,234,0.4)]">
+          <div className="flex items-start space-x-3 p-3 rounded-md bg-purple-900/30 border border-purple-400/60">
             <Checkbox
               id="marketing-opt-in"
               checked={signUpData.marketingOptIn}
               onCheckedChange={(checked) => setSignUpData({ ...signUpData, marketingOptIn: !!checked })}
-              className="border-2 border-yellow-400 data-[state=checked]:bg-yellow-300 data-[state=checked]:border-yellow-200 data-[state=checked]:shadow-[0_0_0_2px_rgba(251,191,36,0.8),0_0_12px_rgba(251,191,36,0.6)]"
+              className="border border-yellow-400 data-[state=checked]:bg-yellow-400 data-[state=checked]:border-yellow-300"
             />
             <Label 
               htmlFor="marketing-opt-in" 
-              className="text-white/80 leading-relaxed cursor-pointer"
+              className="text-white/90 text-sm leading-relaxed cursor-pointer"
             >
               Receive divine updates and sacred teachings (1-2 messages monthly)
             </Label>
@@ -351,12 +351,11 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           
           <Button 
             type="submit" 
-            className="w-full h-14 text-lg font-bold bg-gradient-to-r from-yellow-400 via-yellow-500 to-purple-500 
-                       hover:from-yellow-500 hover:via-purple-400 hover:to-purple-600 text-black 
-                       shadow-[0_0_0_2px_rgba(251,191,36,1),0_0_0_4px_rgba(147,51,234,0.8),0_0_25px_rgba(251,191,36,0.5)] 
-                       hover:shadow-[0_0_0_2px_rgba(251,191,36,1),0_0_0_4px_rgba(147,51,234,1),0_0_35px_rgba(251,191,36,0.7),0_0_50px_rgba(147,51,234,0.4)] 
-                       transform hover:scale-105 transition-all duration-300 rounded-lg
-                       border-2 border-yellow-300 hover:border-yellow-200"
+            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-yellow-500 to-yellow-600 
+                       hover:from-yellow-600 hover:to-yellow-700 text-black 
+                       shadow-lg hover:shadow-xl 
+                       transform hover:scale-[1.02] transition-all duration-200 rounded-md
+                       border border-yellow-400"
             disabled={isLoading || usernameStatus !== 'available'}
           >
             {isLoading ? (
@@ -373,8 +372,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           </Button>
           
           {/* Sign In Link */}
-          <div className="text-center">
-            <p className="text-white/70 text-sm">
+          <div className="text-center pt-4 border-t border-white/20">
+            <p className="text-white/80 text-sm">
               Already blessed?{' '}
               <button
                 type="button"
@@ -382,7 +381,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
                   onCloseSignUp();
                   onSignInOpen?.();
                 }}
-                className="text-blue-300 hover:text-blue-200 underline font-medium hover:text-shadow-[0_0_8px_rgba(147,197,253,0.8)] transition-all duration-300"
+                className="text-blue-200 hover:text-blue-100 underline font-medium transition-colors duration-200"
               >
                 Return to your sacred studies
               </button>
