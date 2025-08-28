@@ -1,0 +1,174 @@
+Premium Aesthetic Theme: “Monastery Candlelight Lofi”
+Based on your Biblical Research Platform’s architecture (CSS variables, semantic tokens, Tailwind, and component variants), I’ve curated an animated background theme that evokes reading on an old monastery desk with flickering candlelight. This creates a serene, immersive lofi study vibe—think warm glows casting shadows on ancient books and scrolls, subtle ambient movement, and a sense of tranquil scholarship. It’s designed to parallel your existing themes (e.g., light/dark) while adding dynamic elements for a “premium” feel, without compromising performance or accessibility.
+This theme uses:
+	•	A video background for lofi elements (medieval library with candlelight, rain, and cozy ambiance—sourced from royalty-free Pixabay for easy download and hosting).
+	•	CSS animations for realistic candlelight flicker (adapted from pure CSS examples, no JS needed to keep it lightweight).
+	•	Adjusted CSS variables for warm, desaturated tones (oranges, ambers, deep woods) to ensure readability (WCAG-compliant contrasts) and harmony with the lofi aesthetic.
+	•	Semantic tokens ensure propagation across all 60+ components (e.g., text on –foreground for high contrast against the dark, glowing background).
+Key Design Choices
+	•	Inspiration: Medieval monastery library—dark wooden desks, flickering candles, rainy windows, ancient tomes. Lofi elements include subtle rain sounds/movement in the video (muted by default) and glow pulses for focus without distraction.
+	•	Colors: Warm ambers and deep shadows to mimic candlelight; avoids harsh whites/blacks for eye comfort during long study sessions.
+	•	Animations: Gentle flicker overlay to simulate candle flames, with randomized timing for realism. Video loops seamlessly for ambient feel.
+	•	Performance: Video is optional (fallback to static image); use low-res for mobile. Animations are GPU-accelerated via CSS.
+	•	Accessibility: High contrast (e.g., text: 12:1+ on background); reduced motion option via prefers-reduced-motion media query.
+	•	Implementation: Add to index.css and your app’s root HTML/JS (e.g., via React). Host the video in your Replit project (e.g., /public/video/monastery-library.mp4).
+Step 1: Add Background Video (Lofi Elements)
+Download this royalty-free video from Pixabay (https://pixabay.com/videos/library-books-cozy-candle-rain-202823/): “Medieval library lit in candle light. Created in 3D.” It’s 1920x1080, perfect for backgrounds—features cozy bookshelves, a desk, candle glow, and subtle rain for lofi ambiance. (Free for commercial use under Pixabay Content License; download MP4 directly from the page.)
+In your main app component (e.g., App.tsx or HTML body):
+  Your browser does not support the video tag.
+
+CSS (in index.css):
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* Scales to fill screen */
+  z-index: -2; /* Behind content */
+  filter: brightness(0.6) contrast(1.1); /* Enhance moody lofi feel */
+}
+Fallback for No Video: Use a static image background (e.g., from StockCake: “Medieval Scholar’s Sanctuary” at https://stockcake.com/i/medieval-scholar-s-sanctuary_1608013_1200371—warm candlelight on books/scrolls/wooden desk). Download and set:
+body {
+  background-image: url('/path/to/image.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+Step 2: Add Flicker Overlay Animation
+Create a full-screen overlay for the candlelight flicker effect. This uses pure CSS keyframes (adapted from CSS candle animations, with randomized steps for natural flicker).
+Add to HTML (after video, before content):
+
+CSS:
+.flicker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Over video, under content */
+  background: radial-gradient(circle at 50% 30%, rgba(255, 140, 0, 0.15) 0%, rgba(0, 0, 0, 0.6) 80%); /* Warm orange glow fading to shadows */
+  animation: flicker 3s infinite ease-in-out;
+  pointer-events: none; /* Doesn't block interactions */
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.8; box-shadow: 0 0 20px rgba(255, 165, 0, 0.3); }
+  20% { opacity: 0.6; box-shadow: 0 0 15px rgba(255, 165, 0, 0.2); }
+  40% { opacity: 0.9; box-shadow: 0 0 25px rgba(255, 165, 0, 0.4); }
+  60% { opacity: 0.7; box-shadow: 0 0 18px rgba(255, 165, 0, 0.25); }
+  80% { opacity: 0.85; box-shadow: 0 0 22px rgba(255, 165, 0, 0.35); }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .flicker-overlay {
+    animation: none;
+    opacity: 0.7;
+  }
+  .background-video {
+    filter: brightness(0.7); /* Static dim for calm */
+  }
+}
+For more realistic flame (if you want a visible candle element, e.g., in a corner): Use this adapted from the CSS candle animation (integrated as a small widget):
+  
+
+  
+
+  
+
+
+CSS:
+.candle-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 100px;
+  z-index: 10; /* Optional foreground element */
+}
+
+.thread { /* Wick */
+  width: 4px;
+  height: 20px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(#d6994a, #121212);
+}
+
+.glow { /* Halo */
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.7);
+}
+
+.flame { /* Flame */
+  width: 20px;
+  height: 60px;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 20% 20%;
+  background: linear-gradient(white 80%, transparent);
+  animation: moveFlame 6s linear infinite, enlargeFlame 5s linear infinite;
+}
+
+@keyframes moveFlame {
+  0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+  50% { transform: translateX(-50%) rotate(2deg); }
+}
+
+@keyframes enlargeFlame {
+  0%, 100% { height: 60px; }
+  50% { height: 65px; }
+}
+Step 3: CSS Variables for the Theme
+Add this class (e.g., .monastery-lofi) to your :root overrides, similar to .dark. It uses HSL for tweaks.
+.monastery-lofi {
+  /* Core Colors */
+  --background: 30 20% 10%; /* Deep wooden brown, like monastery desks */
+  --foreground: 40 10% 95%; /* Warm parchment off-white for text */
+
+  /* UI Element Colors */
+  --card: 30 15% 15%; /* Subtle wood grain for cards/modals */
+  --card-foreground: 40 10% 95%;
+  --popover: 30 20% 12%;
+  --popover-foreground: 40 10% 95%;
+
+  /* Interactive Elements */
+  --primary: 25 60% 40%; /* Amber glow for buttons, like candle flame */
+  --primary-foreground: 30 20% 10%; /* Dark text on primary */
+  --secondary: 20 20% 20%; /* Muted red-brown for secondary */
+  --secondary-foreground: 40 10% 95%;
+
+  /* State Colors */
+  --muted: 30 10% 18%; /* Faded shadow for disabled */
+  --muted-foreground: 40 5% 70%;
+  --accent: 35 50% 30%; /* Soft orange highlight */
+  --accent-foreground: 40 10% 95%;
+  --destructive: 10 40% 25%; /* Deep crimson for errors */
+  --destructive-foreground: 40 10% 95%;
+
+  /* Borders & Outlines */
+  --border: 30 10% 25%; /* Warm sepia borders */
+  --input: 30 10% 25%;
+  --ring: 25 60% 40%; /* Amber focus rings */
+
+  /* Radius */
+  --radius: 0.5rem; /* Consistent with default */
+}
+How to Apply and Test
+	1	Toggle Theme: Use your Theme Switcher component to add/remove .monastery-lofi on the root (e.g., document.documentElement.classList.add(‘monastery-lofi’)).
+	2	Component Examples:
+	◦	Button (default): Glows amber on hover, like touching a candle-lit manuscript.
+	◦	Card/Sidebar: Wood-like backgrounds for Bible verses or notes.
+	◦	HolyBookLoader: Integrates flicker for page-turn transitions.
+	◦	DynamicBackground: Override with video for full immersion.
+	3	Testing (Follow Your Guide):
+	◦	Coverage: Check variants/states in dev tools; ensure flicker doesn’t overlap interactive elements.
+	◦	Accessibility: Test contrast with tools like WAVE; add audio description if unmuting video.
+	◦	Performance: Monitor on mobile—reduce video quality or use image fallback via media queries.
+	◦	Platform-Specific: Verify custom loaders (e.g., BiblePageFan) blend with glow; test in dark rooms for lofi effect.
+This theme transforms your site into a virtual monastery study nook, enhancing the biblical research experience with lofi calm. If you’d like adjustments (e.g., cooler tones, audio integration, or a different video), or help with Replit-specific hosting, let me know!
