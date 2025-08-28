@@ -150,6 +150,9 @@ export function NewColumnHeaders({
 
   // Presentation mode toggle - width x2, text x1.5, row height x1.35
   const togglePresentationMode = useCallback(async () => {
+    console.log('🔥 BUTTON CLICKED: togglePresentationMode called, current isPresentationMode:', isPresentationMode);
+    console.log('🔥 Current viewport:', window.innerWidth + 'x' + window.innerHeight, 'isPortrait:', window.innerHeight > window.innerWidth);
+    
     if (!isPresentationMode) {
       // Enter presentation mode
       document.documentElement.style.setProperty('--column-width-mult', '2');
@@ -506,13 +509,17 @@ export function NewColumnHeaders({
           {/* Presentation Mode Toggle */}
           <Button
             onClick={togglePresentationMode}
+            onTouchEnd={togglePresentationMode}
             variant={isPresentationMode ? "default" : "outline"}
             size="sm"
             className="flex items-center gap-1 text-xs"
             style={{
               backgroundColor: isPresentationMode ? 'var(--accent-color)' : 'var(--bg-primary)',
               color: isPresentationMode ? 'var(--bg-primary)' : 'var(--text-primary)',
-              borderColor: 'var(--border-color)'
+              borderColor: 'var(--border-color)',
+              minHeight: '32px',
+              minWidth: '64px',
+              touchAction: 'manipulation'
             }}
           >
             {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
