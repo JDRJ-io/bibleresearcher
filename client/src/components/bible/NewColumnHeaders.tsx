@@ -154,12 +154,11 @@ export function NewColumnHeaders({
       document.documentElement.style.setProperty('--row-height-mult', '1.35');
       setIsPresentationMode(true);
       console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
+      console.log('🎛️ CSS --column-width-mult set to: 2');
       
       // Force immediate state update to ensure headers scale immediately
       setColumnWidthMult(2);
-      
-      // Trigger a re-render by forcing component update
-      setTimeout(() => updateColumnWidthMult(), 10);
+      console.log('🎛️ React columnWidthMult state set to: 2');
 
       // Emit column change signal
       try {
@@ -176,12 +175,11 @@ export function NewColumnHeaders({
       document.documentElement.style.setProperty('--row-height-mult', '1');
       setIsPresentationMode(false);
       console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+      console.log('🎛️ CSS --column-width-mult set to: 1');
       
       // Force immediate state update to ensure headers scale immediately
       setColumnWidthMult(1);
-      
-      // Trigger a re-render by forcing component update
-      setTimeout(() => updateColumnWidthMult(), 10);
+      console.log('🎛️ React columnWidthMult state set to: 1');
 
       // Emit column change signal
       try {
