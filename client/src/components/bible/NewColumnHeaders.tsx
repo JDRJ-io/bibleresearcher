@@ -352,7 +352,7 @@ export function NewColumnHeaders({
     });
 
     return cols;
-  }, [main, alternates, showNotes, showCrossRefs, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths, columnWidthMult]);
+  }, [main, alternates, showNotes, showCrossRefs, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths]);
 
   // Sync columns with localColumns for drag and drop
   useMemo(() => {
@@ -468,9 +468,6 @@ export function NewColumnHeaders({
         `}
         style={{
           ...style,
-          width: column.width,
-          minWidth: column.width,
-          maxWidth: column.width,
           boxSizing: 'border-box',
           backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
           color: 'var(--text-primary)',
