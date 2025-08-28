@@ -210,32 +210,48 @@ export function NewColumnHeaders({
     return null;
   }
 
-  // Function to get exact responsive width in pixels (matching VirtualRow logic exactly)
-  // NOW CONNECTED TO --column-width-mult from ManualSizeController
+  // Function to get responsive width using CSS calc() expressions for dynamic scaling
+  // This allows headers to respond to CSS variable changes without fixed pixel calculations
   const getResponsiveWidth = (columnType: string): string => {
-    // Get base width from adaptiveWidths and multiply by current columnWidthMult
-    let baseWidth: number;
+    // Map column types to their corresponding CSS variable names
+    let adaptiveVar: string;
     
-    if (columnType === 'reference') baseWidth = adaptiveWidths.reference;
-    else if (columnType === 'main-translation') baseWidth = adaptiveWidths.mainTranslation;
-    else if (columnType === 'cross-refs') baseWidth = adaptiveWidths.crossReference;
-    else if (columnType === 'alt-translation') baseWidth = adaptiveWidths.alternate;
-    else if (columnType === 'prophecy') baseWidth = adaptiveWidths.prophecy;
-    else if (columnType === 'notes') baseWidth = adaptiveWidths.notes;
-    else if (columnType === 'context') baseWidth = adaptiveWidths.context;
-    else baseWidth = adaptiveWidths.alternate;
+    switch (columnType) {
+      case 'reference':
+        adaptiveVar = '--adaptive-ref-width';
+        break;
+      case 'main-translation':
+        adaptiveVar = '--adaptive-main-width';
+        break;
+      case 'cross-refs':
+        adaptiveVar = '--adaptive-cross-width';
+        break;
+      case 'alt-translation':
+        adaptiveVar = '--adaptive-alt-width';
+        break;
+      case 'prophecy':
+        adaptiveVar = '--adaptive-prophecy-width';
+        break;
+      case 'notes':
+        adaptiveVar = '--adaptive-notes-width';
+        break;
+      case 'context':
+        adaptiveVar = '--adaptive-context-width';
+        break;
+      default:
+        adaptiveVar = '--adaptive-alt-width'; // Fallback
+    }
     
-    // Apply column width multiplier to get actual pixel width
-    const actualWidth = baseWidth * columnWidthMult;
+    // Return calc string for dynamic evaluation by the browser
+    const calcExpression = `calc(var(${adaptiveVar}) * var(--column-width-mult, 1))`;
     
     console.log(`🎛️ HEADERS: ${columnType} width calculation:`, {
-      baseWidth,
-      columnWidthMult,
-      actualPixelWidth: actualWidth,
-      cssCalc: `calc(var(--adaptive-${columnType.replace('-', '-')}-width) * var(--column-width-mult, 1))`
+      adaptiveVar,
+      cssCalc: calcExpression,
+      description: 'Using dynamic CSS calc() for responsive scaling'
     });
     
-    return `${actualWidth}px`;
+    return calcExpression;
   };
 
   // Build column configuration that matches VirtualRow exactly

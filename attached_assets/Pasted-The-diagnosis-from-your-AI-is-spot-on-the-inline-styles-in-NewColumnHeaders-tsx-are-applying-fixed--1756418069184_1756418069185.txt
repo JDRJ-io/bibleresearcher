@@ -1,0 +1,67 @@
+The diagnosis from your AI is spot on: the inline styles in NewColumnHeaders.tsx are applying fixed pixel values (e.g., “378px”), which override the more dynamic CSS calc rules in index.css due to higher specificity. Even with !important in CSS, inline styles win out. This creates a static width that’s calculated once (base * mult) but doesn’t respond to ongoing changes in CSS variables like --adaptive-main-width or --column-width-mult if they update post-render (e.g., due to orientation shifts or delayed event propagation). The partial expansion in the Cross Refs content (likely from VirtualRow.tsx or similar) happens because those might rely more on CSS vars without fixed inline overrides.
+To fix this properly, we need to refactor the inline styles to use dynamic calc() expressions that reference the CSS variables directly. This keeps the high specificity of inline styles but makes them responsive to variable changes without needing fixed pixel computations in JS. It also resolves any sync issues since the browser handles the calc in real-time.
+Step-by-Step Fix
+	1	Update getResponsiveWidth in NewColumnHeaders.tsx (around lines 215-239):
+	◦	Change it to return a calc() string instead of a fixed pixel value. Map column IDs to their corresponding adaptive vars (e.g., “main-translation” → “–adaptive-main-width”).
+	◦	This assumes you have adaptive vars like --adaptive-main-width, --adaptive-cross-width, etc., as mentioned. If column IDs vary, adjust the mapping accordingly.
+	2	Original (simplified for illustration): function getResponsiveWidth(column: Column) {
+	3	  const baseWidth = adaptiveWidths[column.id]; // e.g., 189
+	4	  return `${baseWidth * columnWidthMult}px`; // Fixed px
+	5	}
+	6	 Updated: function getResponsiveWidth(column: Column) {
+	7	  let adaptiveVar: string;
+	8	  switch (column.id) { // Adjust based on your actual column IDs
+	9	    case 'verse-number': // Assuming '#' column
+	10	      adaptiveVar = '--adaptive-verse-width';
+	11	      break;
+	12	    case 'main-translation': // KJV column
+	13	      adaptiveVar = '--adaptive-main-width';
+	14	      break;
+	15	    case 'cross-refs': // Cross Refs column
+	16	      adaptiveVar = '--adaptive-cross-width';
+	17	      break;
+	18	    default:
+	19	      adaptiveVar = '--adaptive-default-width'; // Fallback if needed
+	20	  }
+	21	  // Return calc string for dynamic evaluation
+	22	  return `calc(var(${adaptiveVar}) * var(--column-width-mult, 1))`;
+	23	}
+	24	
+	25	Update Inline Styles in NewColumnHeaders.tsx (around lines 453-462):
+	◦	Apply the new dynamic width, and remove minWidth/maxWidth if they’re enforcing fixed values—let the calc handle bounds. If you need mins/maxes, make them calc-based too (e.g., minWidth: 'calc(var(--adaptive-min) * var(--column-width-mult, 1))').
+	26	Original (simplified):
+	27	  {/* Header content */}
+	28	
+	29	 Updated:
+	30	  {/* Header content */}
+	31	
+	32	
+	33	Ensure Re-Render on Variable Changes:
+	◦	In NewColumnHeaders.tsx, make sure the component re-renders when --column-width-mult changes. Since it’s a CSS var set via JS (document.documentElement.style.setProperty), it won’t auto-trigger React re-renders. Use the existing event system:
+	▪	Already listening for 'manualSizeChange'? Add a useEffect to force update if needed.
+	◦	useEffect(() => {
+	◦	  const handleMultiplierChange = () => {
+	◦	    setColumnWidthMult(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult')) || 1);
+	◦	    // Or force re-render with a dummy state if not already tied to state
+	◦	  };
+	◦	  window.addEventListener('manualSizeChange', handleMultiplierChange); // Assuming event is global
+	◦	  return () => window.removeEventListener('manualSizeChange', handleMultiplierChange);
+	◦	}, []);
+	◦	
+	◦	This syncs React state with the CSS var, ensuring getResponsiveWidth re-calcs if needed (though with calc inline, the browser might handle it even without re-render).
+	34	Sync with useAdaptivePortraitColumns Hook:
+	◦	In the hook file (wherever it is), confirm it updates --adaptive-*-width vars immediately on orientation/media query changes. Add a dispatch of 'columnWidthChange' after updates to notify components.
+	35	Clean Up CSS Overrides (Optional but Recommended):
+	◦	In client/src/index.css (lines 522-555), keep the calc() rules as fallback, but since inline will now match, you can remove !important if it causes conflicts elsewhere.
+	◦	Search codebase for any other fixed width/min-width on headers and convert to calc.
+Testing the Fix
+	•	Local/Preview: Build and run in mobile portrait emulator (e.g., Chrome DevTools device mode). Toggle to 2x via Presentation mode or ManualSizeController. Inspect headers: Computed width should be dynamic (e.g., base * 2), no fixed px overriding calc.
+	•	Orientations: Rotate to landscape/desktop—headers should adapt without clipping or dividers (the “divider” was likely a visual artifact from misalignment).
+	•	Edge Cases: Test at 0.5x, >1.1x, with localStorage cleared. Console.log CSS vars and inline styles before/after changes.
+	•	Tools: Use browser dev tools > Elements > Computed to verify no overrides. If misalignment persists, check for parent container constraints (e.g., table { max-width: 100vw; }—set to auto if needed).
+Potential Side Effects/Optimizations
+	•	Performance: Calc in inline is fine for small tables, but if many columns, consider moving all to CSS (remove inline widths) and rely on class-based rules for better browser optimization.
+	•	Fallbacks: Add defaults in CSS like var(--adaptive-main-width, 189px) to prevent breakage if vars unset.
+	•	Accessibility: Wider columns at 2x might affect readability on small screens—add media query caps if needed (e.g., @media (max-width: 768px) { :root { –column-width-mult: min(var(–column-width-mult), 1.5); } }).
+	•	Further Debug: If not fixed, add console.log(getResponsiveWidth(column)) and inspect for timing (e.g., mult not yet 2 when rendered).
+This should fully synchronize headers with the multiplier, eliminating the cap and divider issues. If you share the exact code from NewColumnHeaders.tsx or logs, I can refine further!
