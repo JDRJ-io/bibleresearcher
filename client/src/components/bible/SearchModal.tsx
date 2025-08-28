@@ -577,14 +577,14 @@ export function SearchModal({ isOpen, onClose, onNavigateToVerse, onSwitchTransl
               <Button 
                 variant="outline" 
                 onClick={getRandomVerse}
-                title="Random Verse (Ctrl+R)"
+                title="Random Verse"
               >
                 <Shuffle className="w-4 h-4" />
               </Button>
               <Button
                 variant={showHistory ? 'default' : 'outline'}
                 onClick={() => setShowHistory(!showHistory)}
-                title="Search History (Ctrl+H)"
+                title="Search History"
                 disabled={searchHistory.length === 0}
               >
                 <History className="w-4 h-4" />
