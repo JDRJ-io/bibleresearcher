@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef, useReducer } from 'react';
 import type { Translation } from '@/types/bible';
 import { useTranslationMaps } from '@/store/translationSlice';
 import { useBibleStore } from '@/App';
@@ -81,6 +81,9 @@ export function NewColumnHeaders({
 
   // Custom hook to track CSS variable changes for column width multiplier
   const [columnWidthMult, setColumnWidthMult] = useState(1);
+  
+  // Force update hook to trigger re-renders
+  const [, forceUpdate] = useReducer(x => x + 1, 0);
 
   // Presentation mode state
   const [isPresentationMode, setIsPresentationMode] = useState(false);
@@ -143,7 +146,7 @@ export function NewColumnHeaders({
       window.removeEventListener('manualSizeChange', handleManualSizeChange);
       cssObserver.disconnect();
     };
-  }, [columnWidthMult]); // Add columnWidthMult to deps to force re-renders when multiplier changes
+  }, []); // Remove columnWidthMult from deps to prevent infinite loops in mobile portrait
 
   // Presentation mode toggle - width x2, text x1.5, row height x1.35
   const togglePresentationMode = useCallback(async () => {
@@ -159,6 +162,9 @@ export function NewColumnHeaders({
       // Force immediate state update to ensure headers scale immediately
       setColumnWidthMult(2);
       console.log('🎛️ React columnWidthMult state set to: 2');
+      
+      // Force component re-render to apply new widths
+      forceUpdate();
 
       // Emit column change signal
       try {
@@ -180,6 +186,9 @@ export function NewColumnHeaders({
       // Force immediate state update to ensure headers scale immediately
       setColumnWidthMult(1);
       console.log('🎛️ React columnWidthMult state set to: 1');
+      
+      // Force component re-render to apply new widths
+      forceUpdate();
 
       // Emit column change signal
       try {
