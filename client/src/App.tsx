@@ -268,7 +268,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 7 ? { ...col, visible: newValue } : col // Slot 7 = Cross References (moved from 6)
+          col.slot === 6 ? { ...col, visible: newValue } : col // Slot 6 = Cross References
         )
       }
     };
@@ -312,7 +312,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          (col.slot >= 8 && col.slot <= 10) ? { ...col, visible: newValue } : col // Slots 8-10 = Prophecy P/F/V (moved from 7-9)
+          (col.slot >= 7 && col.slot <= 9) ? { ...col, visible: newValue } : col // Slots 7-9 = Prophecy P/F/V
         )
       }
     };
@@ -328,7 +328,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 8 ? { ...col, visible: newValue } : col // Slot 8 = Prediction
+          col.slot === 7 ? { ...col, visible: newValue } : col // Slot 7 = Prediction
         )
       }
     };
@@ -344,7 +344,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 9 ? { ...col, visible: newValue } : col // Slot 9 = Fulfillment
+          col.slot === 8 ? { ...col, visible: newValue } : col // Slot 8 = Fulfillment
         )
       }
     };
@@ -360,7 +360,7 @@ export const useBibleStore = create<{
       columnState: {
         ...state.columnState,
         columns: state.columnState.columns.map(col => 
-          col.slot === 10 ? { ...col, visible: newValue } : col // Slot 10 = Verification
+          col.slot === 9 ? { ...col, visible: newValue } : col // Slot 9 = Verification
         )
       }
     };
