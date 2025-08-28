@@ -30,10 +30,6 @@ body {
   color-scheme: light;
 }
 
-.dark {
-  color-scheme: dark;
-}
-
 /* Optimized component styling using CSS variables */
 .theme-aware {
   background-color: var(--bg-primary);

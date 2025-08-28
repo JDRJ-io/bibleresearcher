@@ -49,15 +49,17 @@ export function applyTheme(name: ThemeName) {
 }
 
 export function initTheme(defaultName: ThemeName = 'light') {
-  const saved = (localStorage.getItem(LS_KEY) as ThemeName) || defaultName;
-  applyTheme(saved);
-  return saved;
+  // Always apply light theme
+  applyTheme('light');
+  return 'light';
 }
 
 export function getCurrentTheme(): ThemeName {
-  return (localStorage.getItem(LS_KEY) as ThemeName) || 'light';
+  // Always return light theme
+  return 'light';
 }
 
 export function getAvailableThemes(): ThemeName[] {
-  return Object.keys(THEMES) as ThemeName[];
+  // Only light theme is available
+  return ['light'];
 }

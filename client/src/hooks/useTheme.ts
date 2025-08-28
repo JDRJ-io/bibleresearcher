@@ -1,24 +1,23 @@
 import { useState, useEffect } from 'react';
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light';
 
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    // Get initial theme from localStorage or default to light
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    const initialTheme = savedTheme || 'light';
-    setThemeState(initialTheme);
+    // Always use light theme
+    setThemeState('light');
     
-    // Apply theme to document
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    // Ensure light theme is applied to document
+    document.documentElement.classList.remove('dark');
   }, []);
 
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    // Only light theme is supported
+    setThemeState('light');
+    localStorage.setItem('theme', 'light');
+    document.documentElement.classList.remove('dark');
   };
 
   return { theme, setTheme };

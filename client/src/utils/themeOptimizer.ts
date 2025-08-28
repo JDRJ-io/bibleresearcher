@@ -22,7 +22,7 @@ export class ThemeManager {
     memoryUsage: 0
   };
 
-  // Simplified theme definitions - only light and dark
+  // Simplified theme definitions - only light theme
   private themes: OptimizedTheme[] = [
     {
       id: 'light',
@@ -48,32 +48,6 @@ export class ThemeManager {
         '--secondary': 'hsl(210, 40%, 98%)',
         '--card': 'hsl(0, 0%, 100%)',
         '--popover': 'hsl(0, 0%, 100%)'
-      }
-    },
-    {
-      id: 'dark',
-      name: 'Dark',
-      priority: 'essential',
-      memoryFootprint: 'low',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      variables: {
-        // Core theme variables
-        '--bg-primary': 'hsl(222, 20%, 11%)',
-        '--bg-secondary': 'hsl(222, 15%, 8%)',
-        '--text-primary': 'hsl(213, 31%, 91%)',
-        '--text-secondary': 'hsl(215, 20%, 65%)',
-        '--border-color': 'hsl(217, 33%, 17%)',
-        '--accent-color': 'hsl(217, 91%, 65%)',
-        '--header-bg': 'hsl(222, 20%, 11%)',
-        '--column-bg': 'hsl(222, 20%, 11%)',
-        '--highlight-bg': 'hsl(215, 27%, 32%)',
-        '--text-color': 'hsl(213, 31%, 91%)',
-        // Tailwind aliases to guarantee consistency
-        '--background': 'hsl(222, 20%, 11%)',
-        '--primary': 'hsl(222, 20%, 11%)',
-        '--secondary': 'hsl(222, 15%, 8%)',
-        '--card': 'hsl(222, 20%, 11%)',
-        '--popover': 'hsl(222, 20%, 11%)'
       }
     }
   ];
