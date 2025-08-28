@@ -59,7 +59,7 @@ export function NewColumnHeaders({
   isGuest = true,
   bodyRef
 }: NewColumnHeadersProps) {
-  const { main, alternates } = useTranslationMaps();
+  const { main, alternates, setMain, setAlternates } = useTranslationMaps();
 
   // Track alternate translation changes (logging removed for performance)
   const store = useBibleStore();
@@ -150,23 +150,51 @@ export function NewColumnHeaders({
         console.warn('Could not emit column change signal');
       }
     } else {
-      // Exit presentation mode - reset to defaults
+      // Exit presentation mode AND reset everything to default layout state
       document.documentElement.style.setProperty('--column-width-mult', '1');
       document.documentElement.style.setProperty('--text-size-mult', '1');
       document.documentElement.style.setProperty('--row-height-mult', '1');
       setIsPresentationMode(false);
-      console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+      console.log('🔄 RESET TO DEFAULTS: Resetting layout, translations, and toggles to default state');
+
+      // Reset all layout toggles to default state (matching new user defaults)
+      store.setShowCrossRefs(true);     // ON for default layout
+      store.setShowProphecies(false);   // OFF for default layout
+      store.setShowPrediction(false);   // OFF for default layout
+      store.setShowFulfillment(false);  // OFF for default layout
+      store.setShowVerification(false); // OFF for default layout
+      store.setShowNotes(false);        // OFF for default layout
+      store.setShowDates(false);        // OFF for default layout
+      store.setShowContext(false);      // OFF for default layout
+
+      // Reset translations to default (main = KJV, no alternates)
+      setMain('KJV');
+      setAlternates([]);
+
+      // Reset column state to default visibility (matching App.tsx defaults)
+      if (store.columnState?.setVisible) {
+        store.columnState.setVisible(0, true);   // Reference - always visible
+        store.columnState.setVisible(1, false);  // Dates - OFF
+        store.columnState.setVisible(2, false);  // Notes - OFF
+        store.columnState.setVisible(3, true);   // Main translation - ON
+        store.columnState.setVisible(7, true);   // Cross References - ON
+        store.columnState.setVisible(8, false);  // Prophecy P - OFF
+        store.columnState.setVisible(9, false);  // Prophecy F - OFF
+        store.columnState.setVisible(10, false); // Prophecy V - OFF
+        store.columnState.setVisible(11, false); // Context - OFF
+        // Slots 12-19 (alternates) will be hidden when alternates array is cleared
+      }
 
       // Emit column change signal
       try {
         const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
         const signal = useColumnChangeEmitter();
-        signal('multiplier', { multiplier: 1, presentationMode: false });
+        signal('reset', { resetToDefaults: true, presentationMode: false });
       } catch (error) {
         console.warn('Could not emit column change signal');
       }
     }
-  }, [isPresentationMode]);
+  }, [isPresentationMode, store, setMain, setAlternates]);
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
