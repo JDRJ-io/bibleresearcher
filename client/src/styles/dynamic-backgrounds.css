@@ -84,8 +84,8 @@ body::before {
   transition: opacity 0.3s ease;
 }
 
-/* Show flicker only for monastery theme */
-.monastery-candlelight .flicker-overlay {
+/* Show flicker only for monastery theme - only when monastery is active */
+:root.monastery-candlelight .flicker-overlay {
   opacity: 1;
 }
 
@@ -108,8 +108,8 @@ body::before {
   transition: opacity 0.3s ease;
 }
 
-/* Show orbs only for mystical meadow theme */
-.mystical-meadow .orb-overlay {
+/* Show orbs only for mystical meadow theme - only when meadow is active */
+:root.mystical-meadow .orb-overlay {
   opacity: 1;
 }
 
@@ -130,77 +130,77 @@ body::before {
   100% { transform: translateY(0) translateX(0); }
 }
 
-/* Make main content areas more transparent for monastery theme */
-.monastery-candlelight .cell-content,
-.monastery-candlelight [class*="cell-"] {
+/* Make main content areas more transparent for monastery theme - only when monastery is active */
+:root.monastery-candlelight .cell-content,
+:root.monastery-candlelight [class*="cell-"] {
   background: rgba(62, 45, 26, 0.1) !important;
 }
 
-.monastery-candlelight .glass-morphism {
+:root.monastery-candlelight .glass-morphism {
   background: rgba(62, 45, 26, 0.15) !important;
   border: 1px solid rgba(255, 165, 0, 0.2) !important;
 }
 
-/* Fix monastery theme modal/dialog backgrounds */
-.monastery-candlelight [role="dialog"],
-.monastery-candlelight [data-radix-popper-content-wrapper],
-.monastery-candlelight .bg-background,
-.monastery-candlelight .bg-popover {
+/* Fix monastery theme modal/dialog backgrounds - only when monastery is active */
+:root.monastery-candlelight [role="dialog"],
+:root.monastery-candlelight [data-radix-popper-content-wrapper],
+:root.monastery-candlelight .bg-background,
+:root.monastery-candlelight .bg-popover {
   background: rgba(62, 45, 26, 0.95) !important;
   color: hsl(40, 10%, 95%) !important;
   border-color: rgba(255, 165, 0, 0.3) !important;
 }
 
-/* Fix dropdown menu items in monastery theme */
-.monastery-candlelight .text-muted-foreground {
+/* Fix dropdown menu items in monastery theme - only when monastery is active */
+:root.monastery-candlelight .text-muted-foreground {
   color: hsl(40, 5%, 80%) !important;
 }
 
-/* Fix monastery theme text contrast */
-.monastery-candlelight .text-foreground,
-.monastery-candlelight .text-popover-foreground {
+/* Fix monastery theme text contrast - only when monastery is active */
+:root.monastery-candlelight .text-foreground,
+:root.monastery-candlelight .text-popover-foreground {
   color: hsl(40, 10%, 95%) !important;
 }
 
-/* Fix mystical meadow theme modal/dialog backgrounds */
-.mystical-meadow [role="dialog"],
-.mystical-meadow [data-radix-popper-content-wrapper],
-.mystical-meadow .bg-background,
-.mystical-meadow .bg-popover {
+/* Fix mystical meadow theme modal/dialog backgrounds - only when meadow is active */
+:root.mystical-meadow [role="dialog"],
+:root.mystical-meadow [data-radix-popper-content-wrapper],
+:root.mystical-meadow .bg-background,
+:root.mystical-meadow .bg-popover {
   background: rgba(240, 248, 240, 0.95) !important;
   color: hsl(120, 50%, 20%) !important;
   border-color: rgba(120, 180, 120, 0.3) !important;
 }
 
-/* Fix dropdown menu items in mystical meadow theme */
-.mystical-meadow .text-muted-foreground {
+/* Fix dropdown menu items in mystical meadow theme - only when meadow is active */
+:root.mystical-meadow .text-muted-foreground {
   color: hsl(120, 30%, 40%) !important;
 }
 
-/* Fix mystical meadow theme text contrast */
-.mystical-meadow .text-foreground,
-.mystical-meadow .text-popover-foreground {
+/* Fix mystical meadow theme text contrast - only when meadow is active */
+:root.mystical-meadow .text-foreground,
+:root.mystical-meadow .text-popover-foreground {
   color: hsl(120, 50%, 20%) !important;
 }
 
-/* Fix electric voodoo theme modal/dialog backgrounds */
-.electric-voodoo [role="dialog"],
-.electric-voodoo [data-radix-popper-content-wrapper],
-.electric-voodoo .bg-background,
-.electric-voodoo .bg-popover {
+/* Fix electric voodoo theme modal/dialog backgrounds - only when electric-voodoo is active */
+:root.electric-voodoo [role="dialog"],
+:root.electric-voodoo [data-radix-popper-content-wrapper],
+:root.electric-voodoo .bg-background,
+:root.electric-voodoo .bg-popover {
   background: rgba(23, 89, 147, 0.95) !important;
   color: hsl(0, 0%, 98%) !important;
   border-color: rgba(246, 207, 87, 0.4) !important;
 }
 
-/* Fix dropdown menu items in electric voodoo theme */
-.electric-voodoo .text-muted-foreground {
+/* Fix dropdown menu items in electric voodoo theme - only when electric-voodoo is active */
+:root.electric-voodoo .text-muted-foreground {
   color: hsl(0, 0%, 80%) !important;
 }
 
-/* Fix electric voodoo theme text contrast */
-.electric-voodoo .text-foreground,
-.electric-voodoo .text-popover-foreground {
+/* Fix electric voodoo theme text contrast - only when electric-voodoo is active */
+:root.electric-voodoo .text-foreground,
+:root.electric-voodoo .text-popover-foreground {
   color: hsl(0, 0%, 98%) !important;
 }
 
