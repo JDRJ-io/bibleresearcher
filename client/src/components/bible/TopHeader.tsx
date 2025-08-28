@@ -210,7 +210,7 @@ export function TopHeader({
                              border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                              flex items-center justify-center relative overflow-hidden"
                    style={{ width: '36px', height: '36px' }}>
-                <Scroll className="w-5 h-5 text-white dark:text-blue-50 transform rotate-180" />
+                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
               </div>
               <span
                 className="font-bold text-gray-900 dark:text-gray-300"
@@ -269,7 +269,7 @@ export function TopHeader({
               <Button
                 variant="outline"
                 size="sm"
-                className={`w-9 h-9 p-0 ${!canGoBack ? 'opacity-50' : ''}`}
+                className={`w-8 h-8 p-0 ${!canGoBack ? 'opacity-50' : ''}`}
                 onClick={() => {
                   console.log('🖥️ Desktop Back button clicked, canGoBack:', canGoBack);
                   onBack();
@@ -282,7 +282,7 @@ export function TopHeader({
               <Button
                 variant="outline"
                 size="sm"
-                className={`w-9 h-9 p-0 ${!canGoForward ? 'opacity-50' : ''}`}
+                className={`w-8 h-8 p-0 ${!canGoForward ? 'opacity-50' : ''}`}
                 onClick={() => {
                   console.log('🖥️ Desktop Forward button clicked, canGoForward:', canGoForward);
                   onForward();
@@ -300,11 +300,11 @@ export function TopHeader({
                              border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                              flex items-center justify-center relative overflow-hidden"
                    style={{ width: '36px', height: '36px' }}>
-                <Scroll className="w-5 h-5 text-white dark:text-blue-50 transform rotate-180" />
+                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
               </div>
               <span
                 style={{
-                  fontSize: '22px',
+                  fontSize: '20px',
                   fontWeight: '700',
                   color: '#111',
                   letterSpacing: '-0.01em'
