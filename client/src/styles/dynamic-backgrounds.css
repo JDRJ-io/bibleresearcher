@@ -100,6 +100,27 @@ body::before {
   border: 1px solid rgba(255, 165, 0, 0.2) !important;
 }
 
+/* Fix monastery theme modal/dialog backgrounds */
+.monastery-candlelight [role="dialog"],
+.monastery-candlelight [data-radix-popper-content-wrapper],
+.monastery-candlelight .bg-background,
+.monastery-candlelight .bg-popover {
+  background: rgba(62, 45, 26, 0.95) !important;
+  color: hsl(40, 10%, 95%) !important;
+  border-color: rgba(255, 165, 0, 0.3) !important;
+}
+
+/* Fix dropdown menu items in monastery theme */
+.monastery-candlelight .text-muted-foreground {
+  color: hsl(40, 5%, 80%) !important;
+}
+
+/* Fix monastery theme text contrast */
+.monastery-candlelight .text-foreground,
+.monastery-candlelight .text-popover-foreground {
+  color: hsl(40, 10%, 95%) !important;
+}
+
 @keyframes flicker {
   0%, 100% { 
     opacity: 0.8; 

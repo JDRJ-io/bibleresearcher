@@ -14,6 +14,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Monastery theme text color utilities */
+.monastery-candlelight\:text-amber-200 {
+  color: rgb(251 211 141) !important;
+}
+
+.monastery-candlelight\:text-amber-100 {
+  color: rgb(254 243 199) !important;
+}
+
 /* Vertical text for portrait mode */
 .vertical-text {
   writing-mode: vertical-rl;

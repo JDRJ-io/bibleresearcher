@@ -371,10 +371,9 @@ export function TopHeader({
                 style={{
                   fontSize: '20px',
                   fontWeight: '700',
-                  color: '#111',
                   letterSpacing: '-0.01em'
                 }}
-                className="dark:text-gray-100"
+                className="text-gray-900 dark:text-gray-100 monastery-candlelight:text-amber-200"
               >Anointed.io</span>
             </div>
           </div>

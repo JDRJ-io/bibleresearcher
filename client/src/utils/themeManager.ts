@@ -56,7 +56,7 @@ export function applyTheme(name: ThemeName) {
   set('--ring', t.accentColor);
   set('--card', t.columnBg);
   set('--card-foreground', t.textPrimary);
-  set('--popover', t.headerBg);
+  set('--popover', name === 'monastery-candlelight' ? 'rgba(62, 45, 26, 0.9)' : t.headerBg);
   set('--popover-foreground', t.textPrimary);
 
   localStorage.setItem(LS_KEY, name);
