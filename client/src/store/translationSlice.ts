@@ -27,36 +27,13 @@ interface TranslationState {
   toggleAlternate: (id: string) => void;
   /** reset to mobile defaults: main + no alternates */
   resetMobileDefaults: (mainId: string) => void;
-  /** reset to default state for new users */
-  resetToDefaults: () => void;
 }
-
-// Helper to check if user is authenticated
-function getIsAuthenticated(): boolean {
-  try {
-    // Check for active user session in Supabase client
-    if (typeof window !== 'undefined') {
-      // Try to get auth state from various sources
-      const authCookie = document.cookie.includes('supabase-auth-token');
-      const authLocalStorage = localStorage.getItem('sb-') !== null;
-      return authCookie || authLocalStorage;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
-
-// Default state for new users (KJV only, no alternates)
-const getDefaultState = () => ({
-  main: 'KJV',
-  alternates: [],
-});
 
 export const useTranslationMaps = create<TranslationState>()(
   persist(
     (set, get) => ({
-      ...getDefaultState(),
+      main: 'KJV',
+      alternates: [],  // -- not the whole list
       setMain: (id: string) => {
         const current = get();
         if (id === current.main) return;  // no-op
@@ -115,36 +92,8 @@ export const useTranslationMaps = create<TranslationState>()(
           alternates: []
         });
       },
-      resetToDefaults: () => {
-        // Reset to default state for new users
-        set(getDefaultState());
-      },
     }),
-    { 
-      name: 'translation-state',
-      // Only persist if user is authenticated
-      storage: {
-        getItem: (name) => {
-          const isAuthenticated = getIsAuthenticated();
-          if (!isAuthenticated) {
-            // For new users, always return null to use defaults
-            return null;
-          }
-          const value = localStorage.getItem(name);
-          return value ? JSON.parse(value) : null;
-        },
-        setItem: (name, value) => {
-          const isAuthenticated = getIsAuthenticated();
-          if (isAuthenticated) {
-            localStorage.setItem(name, JSON.stringify(value));
-          }
-          // For new users, don't save to localStorage
-        },
-        removeItem: (name) => {
-          localStorage.removeItem(name);
-        },
-      },
-    }
+    { name: 'translation-state' }
   )
 );
 

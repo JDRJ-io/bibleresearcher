@@ -188,14 +188,14 @@ export const useBibleStore = create<{
   setSearchOpen: (open: boolean) => set({ isSearchOpen: open }),
   setCrossRefs: (refs: Record<string, string[]>) => set({ crossRefs: refs }),
   store: { crossRefs: {}, prophecies: {} },
-  showCrossRefs: true,  // Default ON for new users - as requested
-  showProphecies: false, // Default OFF for new users
-  showPrediction: false, // Individual Prediction column toggle - OFF by default for new users
-  showFulfillment: false, // Individual Fulfillment column toggle - OFF by default for new users
-  showVerification: false, // Individual Verification column toggle - OFF by default for new users
+  showCrossRefs: true,  // Default ON for all users
+  showProphecies: true, // Default ON for all users
+  showPrediction: true, // Individual Prediction column toggle - ON by default
+  showFulfillment: true, // Individual Fulfillment column toggle - ON by default
+  showVerification: true, // Individual Verification column toggle - ON by default
   showNotes: false,     // Notes column toggle (paid feature)
-  showDates: false,      // Dates column toggle - OFF by default for new users
-  showContext: false,   // Context boundaries toggle - OFF by default for new users
+  showDates: true,      // Dates column toggle - ON by default
+  showContext: true,   // Context boundaries toggle - ON by default
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
   isChronological: false,   // Verse order toggle (canonical vs chronological)
@@ -547,18 +547,18 @@ export const useBibleStore = create<{
     set({ activeLabels: labels });
   },
 
-  // Complete 20-Column Layout Spec - Default for new users: main translation + cross-refs + KJV only
+  // Complete 20-Column Layout Spec - All slots pre-assigned (keeping current working assignments)
   columnState: {
     columns: [
       { slot: 0, visible: true, widthRem: 5, displayOrder: 0 },     // Reference (always visible)
-      { slot: 1, visible: false, widthRem: 4, displayOrder: 1 },   // Dates - OFF by default for new users
+      { slot: 1, visible: true, widthRem: 4, displayOrder: 1 },   // Dates - ON by default
       { slot: 2, visible: false, widthRem: 16, displayOrder: 2 },   // Notes (paid feature)
-      { slot: 3, visible: true, widthRem: 20, displayOrder: 3 },    // Main translation - KJV by default
-      { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - ON for new users as requested
-      { slot: 8, visible: false, widthRem: 18, displayOrder: 8 },   // Prophecy P - OFF by default for new users
-      { slot: 9, visible: false, widthRem: 18, displayOrder: 9 },   // Prophecy F - OFF by default for new users
-      { slot: 10, visible: false, widthRem: 18, displayOrder: 10 }, // Prophecy V - OFF by default for new users
-      { slot: 11, visible: false, widthRem: 8, displayOrder: 11 },  // Context - OFF by default for new users
+      { slot: 3, visible: true, widthRem: 20, displayOrder: 3 },    // Main translation (moved here) 
+      { slot: 7, visible: true, widthRem: 18, displayOrder: 7 },    // Cross References - SAME WIDTH AS ALTERNATE TRANSLATIONS
+      { slot: 8, visible: true, widthRem: 18, displayOrder: 8 },   // Prophecy P - ON by default
+      { slot: 9, visible: true, widthRem: 18, displayOrder: 9 },   // Prophecy F - ON by default
+      { slot: 10, visible: true, widthRem: 18, displayOrder: 10 }, // Prophecy V - ON by default
+      { slot: 11, visible: true, widthRem: 8, displayOrder: 11 },  // Context - ON by default
       { slot: 12, visible: false, widthRem: 18, displayOrder: 12 }, // Alt translation 5 (T₅)
       { slot: 13, visible: false, widthRem: 18, displayOrder: 13 }, // Alt translation 6 (T₆)
       { slot: 14, visible: false, widthRem: 18, displayOrder: 14 }, // Alt translation 7 (T₇)
