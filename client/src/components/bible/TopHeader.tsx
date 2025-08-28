@@ -211,7 +211,14 @@ export function TopHeader({
                              flex items-center justify-center relative overflow-hidden">
                 <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
               </div>
-              <span className="font-black text-2xl text-gray-900 dark:text-gray-300">Anointed</span>
+              <span 
+                className="font-black text-gray-900 dark:text-gray-300"
+                style={{
+                  fontSize: `calc(1.5rem * var(--adaptive-header-scale, 1.0))`,
+                }}
+              >
+                Anointed
+              </span>
             </div>
           </div>
 
@@ -262,7 +269,14 @@ export function TopHeader({
                 <Scroll className="w-6 h-6 text-white dark:text-blue-50" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-4xl text-gray-1200 dark:text-gray-100">Anointed.io</span>
+                <span 
+                  className="font-bold text-gray-1200 dark:text-gray-100"
+                  style={{
+                    fontSize: `calc(2.25rem * var(--adaptive-header-scale, 1.0))`,
+                  }}
+                >
+                  Anointed.io
+                </span>
               </div>
             </div>
 
