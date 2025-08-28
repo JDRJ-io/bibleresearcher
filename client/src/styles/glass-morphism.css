@@ -69,22 +69,22 @@
   -webkit-backdrop-filter: blur(2px);
 }
 
-/* Mystical meadow glass styling - light and ethereal */
+/* Mystical meadow glass styling - transparent, no glassmorphism */
 :root.mystical-meadow .glass-morphism {
-  background: var(--glass-bg-meadow);
-  border: 1px solid var(--glass-border-meadow);
-  box-shadow: 0 2px 8px rgba(120, 180, 120, 0.1), inset 0 1px 0 rgba(255, 255, 200, 0.2);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-/* Electric voodoo glass styling - vibrant and electric */
+/* Electric voodoo glass styling - transparent, no glassmorphism */
 :root.electric-voodoo .glass-morphism {
-  background: var(--glass-bg-voodoo);
-  border: 1px solid var(--glass-border-voodoo);
-  box-shadow: 0 2px 8px rgba(246, 207, 87, 0.2), inset 0 1px 0 rgba(246, 207, 87, 0.1);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Simple verse cell - just a touch more prominence */
