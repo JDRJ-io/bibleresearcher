@@ -7,7 +7,6 @@ export function ThemeSwitcher() {
 
   const themeNames = {
     light: 'Light',
-    dark: 'Dark', 
     'ancient-dark': 'Ancient Scroll'
   } as const;
 

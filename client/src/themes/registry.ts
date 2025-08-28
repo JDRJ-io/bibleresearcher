@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'dark' | 'ancient-dark';
+export type ThemeName = 'light' | 'ancient-dark';
 
 type ThemeVars = {
   // surfaces
@@ -42,22 +42,6 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     accentColor: 'hsl(221, 83%, 53%)',
     linkColor: 'hsl(221, 83%, 53%)',
     linkHoverColor: 'hsl(221, 83%, 43%)',
-  },
-  dark: {
-    bgPrimary: 'hsl(222, 20%, 11%)',
-    bgSecondary: 'hsl(222, 15%, 8%)',
-    headerBg: 'hsl(222, 20%, 11%)',
-    columnBg: 'hsl(222, 20%, 11%)',
-    highlightBg: 'hsl(215, 27%, 32%)',
-    grad0: 'hsl(222, 15%, 9%)',
-    grad1: 'hsl(217, 20%, 7%)',
-    glassBg: 'rgba(30, 39, 59, 0.92)',
-    textPrimary: 'hsl(213, 31%, 91%)',
-    textSecondary: 'hsl(215, 20%, 65%)',
-    borderColor: 'hsl(217, 33%, 17%)',
-    accentColor: 'hsl(217, 91%, 65%)',
-    linkColor: 'hsl(217, 91%, 65%)',
-    linkHoverColor: 'hsl(217, 91%, 75%)',
   },
   'ancient-dark': {
     bgPrimary: 'hsl(220, 25%, 8%)',
