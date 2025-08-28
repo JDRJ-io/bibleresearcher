@@ -7,11 +7,11 @@ export function applyTheme(name: ThemeName) {
   const t = THEMES[name];
   const root = document.documentElement;
 
-  // remove previous theme-* class
+  // remove previous theme classes
   Array.from(root.classList)
-    .filter(c => c.startsWith('theme-'))
+    .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark', 'monastery-candlelight'].includes(c))
     .forEach(c => root.classList.remove(c));
-  root.classList.add(`theme-${name}`);
+  root.classList.add(name); // Add the theme name directly as class
 
   const set = (k: string, v: string) => root.style.setProperty(k, v);
 
@@ -49,7 +49,7 @@ export function applyTheme(name: ThemeName) {
   set('--muted-foreground', t.textSecondary);
   set('--accent', t.highlightBg);
   set('--accent-foreground', t.textPrimary);
-  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : 'hsl(0, 84.2%, 60.2%)');
+  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : name === 'monastery-candlelight' ? 'hsl(10, 40%, 25%)' : 'hsl(0, 84.2%, 60.2%)');
   set('--destructive-foreground', t.textPrimary);
   set('--border', t.borderColor);
   set('--input', t.borderColor);

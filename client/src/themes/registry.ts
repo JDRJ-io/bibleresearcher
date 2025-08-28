@@ -60,19 +60,19 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(40, 70%, 55%)',
   },
   'monastery-candlelight': {
-    bgPrimary: 'hsl(30, 20%, 10%)', // Deep wooden brown, monastery desk
-    bgSecondary: 'hsl(30, 15%, 15%)', // Subtle wood grain
-    headerBg: 'hsl(30, 20%, 12%)', // Warm dark header
-    columnBg: 'hsl(30, 15%, 15%)', // Wood-like column background
-    highlightBg: 'hsl(35, 50%, 30%)', // Soft orange highlight
-    grad0: 'hsl(30, 20%, 7%)', // Deep shadow gradient start
-    grad1: 'hsl(30, 25%, 5%)', // Even deeper shadow gradient end
-    glassBg: 'rgba(62, 45, 26, 0.95)', // Warm brown glass effect
+    bgPrimary: 'rgba(48, 34, 17, 0.3)', // Transparent wooden brown
+    bgSecondary: 'rgba(48, 34, 17, 0.2)', // Even more transparent
+    headerBg: 'rgba(48, 34, 17, 0.4)', // Slightly less transparent header
+    columnBg: 'rgba(48, 34, 17, 0.2)', // Very transparent columns
+    highlightBg: 'rgba(255, 140, 0, 0.2)', // Transparent orange highlight
+    grad0: 'rgba(30, 20, 10, 0.8)', // Dark gradient start
+    grad1: 'rgba(20, 15, 8, 0.9)', // Darker gradient end
+    glassBg: 'rgba(62, 45, 26, 0.15)', // Very transparent glass
     textPrimary: 'hsl(40, 10%, 95%)', // Warm parchment off-white
-    textSecondary: 'hsl(40, 5%, 70%)', // Muted warm secondary text
-    borderColor: 'hsl(30, 10%, 25%)', // Warm sepia borders
-    accentColor: 'hsl(25, 60%, 40%)', // Amber glow like candle flame
-    linkColor: 'hsl(25, 60%, 40%)', // Amber links
-    linkHoverColor: 'hsl(25, 60%, 50%)', // Brighter amber on hover
+    textSecondary: 'hsl(40, 5%, 80%)', // Brighter secondary text
+    borderColor: 'rgba(255, 165, 0, 0.3)', // Transparent amber borders
+    accentColor: 'hsl(25, 60%, 50%)', // Brighter amber accent
+    linkColor: 'hsl(25, 70%, 60%)', // Brighter amber links
+    linkHoverColor: 'hsl(25, 80%, 70%)', // Even brighter on hover
   },
 };

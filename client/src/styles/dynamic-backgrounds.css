@@ -21,6 +21,13 @@ body::before {
     var(--bg-grad-0) 0%,
     var(--bg-grad-1) 100%
   );
+  /* Make more transparent for monastery theme */
+  opacity: 0.8;
+}
+
+/* More transparent gradient for monastery theme */
+.monastery-candlelight body::before {
+  opacity: 0.3;
 }
 
 /* Ensure app content sits above the gradient */
@@ -80,6 +87,17 @@ body::before {
 /* Show flicker only for monastery theme */
 .monastery-candlelight .flicker-overlay {
   opacity: 1;
+}
+
+/* Make main content areas more transparent for monastery theme */
+.monastery-candlelight .cell-content,
+.monastery-candlelight [class*="cell-"] {
+  background: rgba(62, 45, 26, 0.1) !important;
+}
+
+.monastery-candlelight .glass-morphism {
+  background: rgba(62, 45, 26, 0.15) !important;
+  border: 1px solid rgba(255, 165, 0, 0.2) !important;
 }
 
 @keyframes flicker {

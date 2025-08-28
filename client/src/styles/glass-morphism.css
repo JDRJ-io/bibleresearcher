@@ -52,11 +52,13 @@
   border: 1px solid var(--glass-border-dark);
 }
 
-/* Monastery theme glass styling - warm and glowing */
+/* Monastery theme glass styling - warm and glowing with transparency */
 :root.monastery-candlelight .glass-morphism {
-  background: var(--glass-bg-monastery);
-  border: 1px solid var(--glass-border-monastery);
-  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.1), inset 0 1px 0 rgba(255, 165, 0, 0.1);
+  background: rgba(62, 45, 26, 0.3); /* Much more transparent */
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15), inset 0 1px 0 rgba(255, 165, 0, 0.1);
+  backdrop-filter: blur(2px); /* Reduced blur */
+  -webkit-backdrop-filter: blur(2px);
 }
 
 /* Simple verse cell - just a touch more prominence */
