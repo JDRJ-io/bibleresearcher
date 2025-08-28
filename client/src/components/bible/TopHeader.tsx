@@ -10,6 +10,7 @@ import { AuthModals } from '@/components/auth/AuthModals';
 import { useState } from 'react';
 import { useWindowSize } from 'react-use';
 import { useBibleStore } from '@/App';
+import { useTranslationMaps } from '@/store/translationSlice';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
@@ -46,6 +47,7 @@ export function TopHeader({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const bibleStore = useBibleStore();
+  const translationStore = useTranslationMaps();
 
   const { width, height } = useWindowSize();
   const isMobile = width <= 640;
@@ -53,6 +55,48 @@ export function TopHeader({
 
   // Apply adaptive scaling for responsive header sizing
   useAdaptiveScaling();
+
+  // Reset to default state function
+  const handleResetToDefault = () => {
+    console.log('🔄 Resetting to default state: KJV + Cross-references only');
+    
+    // Reset translation store to defaults
+    translationStore.setMain('KJV');
+    // Clear all alternate translations
+    translationStore.alternates.forEach(altId => {
+      translationStore.toggleAlternate(altId);
+    });
+    
+    // Reset Bible store toggles to default
+    const defaultState = {
+      showCrossRefs: true,
+      showProphecies: false,
+      showPrediction: false,
+      showFulfillment: false,
+      showVerification: false,
+      showNotes: false,
+      showDates: false,
+      showContext: false,
+      isChronological: false,
+    };
+    
+    // Apply all the default settings
+    Object.entries(defaultState).forEach(([key, value]) => {
+      if (key in bibleStore && bibleStore[key] !== value) {
+        const toggleFunction = `toggle${key.replace('show', '').replace('is', '')}`;
+        if (typeof bibleStore[toggleFunction] === 'function') {
+          bibleStore[toggleFunction]();
+        } else if (key === 'isChronological') {
+          bibleStore.setChronological(value);
+        }
+      }
+    });
+    
+    toast({
+      title: "Reset to Default",
+      description: "Application reset to KJV + Cross-references view",
+    });
+  };
 
   // Get the current central verse from table ref or fallback
   const getCurrentCentralVerse = () => {
@@ -206,12 +250,17 @@ export function TopHeader({
           {/* Center: Anointed Logo */}
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-700 to-blue-900
-                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
-                             flex items-center justify-center relative overflow-hidden"
-                   style={{ width: '36px', height: '36px' }}>
+              <button 
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-700 to-blue-900
+                           border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
+                           flex items-center justify-center relative overflow-hidden
+                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                style={{ width: '36px', height: '36px' }}
+                onClick={handleResetToDefault}
+                title="Reset to default view (KJV + Cross-references only)"
+              >
                 <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
-              </div>
+              </button>
               <span
                 className="font-bold text-gray-900 dark:text-gray-300"
                 style={{
@@ -307,12 +356,17 @@ export function TopHeader({
 
             {/* Brand group: Logo + Text */}
             <div className="flex items-center space-x-2">
-              <div className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
-                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
-                             flex items-center justify-center relative overflow-hidden"
-                   style={{ width: '36px', height: '36px' }}>
+              <button 
+                className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
+                           border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
+                           flex items-center justify-center relative overflow-hidden
+                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                style={{ width: '36px', height: '36px' }}
+                onClick={handleResetToDefault}
+                title="Reset to default view (KJV + Cross-references only)"
+              >
                 <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
-              </div>
+              </button>
               <span
                 style={{
                   fontSize: '20px',
