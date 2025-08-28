@@ -206,12 +206,12 @@ export function TopHeader({
           {/* Center: Anointed Logo */}
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 
                              border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400 
                              flex items-center justify-center relative overflow-hidden">
-                <Scroll className="w-4 h-4 text-white dark:text-blue-50" />
+                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
               </div>
-              <span className="font-black text-xl text-gray-900 dark:text-gray-300">Anointed</span>
+              <span className="font-black text-2xl text-gray-900 dark:text-gray-300">Anointed</span>
             </div>
           </div>
 
@@ -256,13 +256,13 @@ export function TopHeader({
           {/* Left Section: Logo + Navigation */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 
                              border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400 
                              flex items-center justify-center relative overflow-hidden">
-                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
+                <Scroll className="w-6 h-6 text-white dark:text-blue-50" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-3xl text-gray-1200 dark:text-gray-100">Anointed.io</span>
+                <span className="font-bold text-4xl text-gray-1200 dark:text-gray-100">Anointed.io</span>
               </div>
             </div>
 
