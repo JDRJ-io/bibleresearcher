@@ -102,7 +102,10 @@ export function NewColumnHeaders({
         .trim();
       const numericMult = parseFloat(mult) || 1;
       
+      console.log('🎛️ HEADERS: Column width multiplier read from CSS:', numericMult, 'current state:', columnWidthMult);
+      
       if (Math.abs(numericMult - columnWidthMult) > 0.01) {
+        console.log('🎛️ HEADERS: Updating columnWidthMult state from', columnWidthMult, 'to', numericMult);
         setColumnWidthMult(numericMult);
       }
     };
@@ -140,7 +143,7 @@ export function NewColumnHeaders({
       window.removeEventListener('manualSizeChange', handleManualSizeChange);
       cssObserver.disconnect();
     };
-  }, []); // Remove columnWidthMult from deps to prevent infinite loops
+  }, [columnWidthMult]); // Add columnWidthMult to deps to force re-renders when multiplier changes
 
   // Presentation mode toggle - width x2, text x1.5, row height x1.35
   const togglePresentationMode = useCallback(async () => {
@@ -154,6 +157,9 @@ export function NewColumnHeaders({
       
       // Force immediate state update to ensure headers scale immediately
       setColumnWidthMult(2);
+      
+      // Trigger a re-render by forcing component update
+      setTimeout(() => updateColumnWidthMult(), 10);
 
       // Emit column change signal
       try {
@@ -173,6 +179,9 @@ export function NewColumnHeaders({
       
       // Force immediate state update to ensure headers scale immediately
       setColumnWidthMult(1);
+      
+      // Trigger a re-render by forcing component update
+      setTimeout(() => updateColumnWidthMult(), 10);
 
       // Emit column change signal
       try {
@@ -220,7 +229,12 @@ export function NewColumnHeaders({
     // Apply column width multiplier to get actual pixel width
     const actualWidth = baseWidth * columnWidthMult;
     
-    // Debug logging removed for performance
+    console.log(`🎛️ HEADERS: ${columnType} width calculation:`, {
+      baseWidth,
+      columnWidthMult,
+      actualPixelWidth: actualWidth,
+      cssCalc: `calc(var(--adaptive-${columnType.replace('-', '-')}-width) * var(--column-width-mult, 1))`
+    });
     
     return `${actualWidth}px`;
   };
