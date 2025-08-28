@@ -40,26 +40,40 @@ export function applyTheme(name: ThemeName) {
 
   // Tailwind-facing aliases
   set('--background', t.bgPrimary);
-  set('--primary', t.bgPrimary);
+  set('--foreground', t.textPrimary);
+  set('--primary', t.accentColor);
+  set('--primary-foreground', name === 'light' ? '#ffffff' : t.bgPrimary);
   set('--secondary', t.bgSecondary);
+  set('--secondary-foreground', t.textPrimary);
+  set('--muted', t.bgSecondary);
+  set('--muted-foreground', t.textSecondary);
+  set('--accent', t.highlightBg);
+  set('--accent-foreground', t.textPrimary);
+  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : 'hsl(0, 84.2%, 60.2%)');
+  set('--destructive-foreground', t.textPrimary);
+  set('--border', t.borderColor);
+  set('--input', t.borderColor);
+  set('--ring', t.accentColor);
   set('--card', t.columnBg);
+  set('--card-foreground', t.textPrimary);
   set('--popover', t.headerBg);
+  set('--popover-foreground', t.textPrimary);
 
   localStorage.setItem(LS_KEY, name);
 }
 
 export function initTheme(defaultName: ThemeName = 'light') {
-  // Always apply light theme
-  applyTheme('light');
-  return 'light';
+  const saved = localStorage.getItem(LS_KEY) as ThemeName;
+  const themeName = saved && saved in THEMES ? saved : defaultName;
+  applyTheme(themeName);
+  return themeName;
 }
 
 export function getCurrentTheme(): ThemeName {
-  // Always return light theme
-  return 'light';
+  const saved = localStorage.getItem(LS_KEY) as ThemeName;
+  return saved && saved in THEMES ? saved : 'light';
 }
 
 export function getAvailableThemes(): ThemeName[] {
-  // Only light theme is available
-  return ['light'];
+  return Object.keys(THEMES) as ThemeName[];
 }

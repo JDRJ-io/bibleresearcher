@@ -8,10 +8,7 @@ export function ThemeSwitcher() {
   const themeNames = {
     light: 'Light',
     dark: 'Dark', 
-    aurora: 'Aurora',
-    sepia: 'Sepia',
-    forest: 'Forest',
-    cyberpunk: 'Cyberpunk'
+    'ancient-dark': 'Ancient Scroll'
   } as const;
 
   return (

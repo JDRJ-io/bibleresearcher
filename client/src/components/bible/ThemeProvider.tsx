@@ -23,24 +23,22 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<ThemeName>(() => {
-    initTheme(defaultTheme);
-    return 'light';
+    return initTheme(defaultTheme);
   });
 
   // Initialize theme on mount
   useEffect(() => {
-    // Always use light theme
-    setThemeState('light');
-    applyTheme('light');
+    const currentTheme = getCurrentTheme();
+    setThemeState(currentTheme);
+    applyTheme(currentTheme);
   }, []);
 
   // Handle theme changes
   const setTheme = useCallback((newTheme: ThemeName) => {
-    // Only light theme is supported
     try {
-      applyTheme('light');
-      setThemeState('light');
-      console.log('🎨 Theme applied: light');
+      applyTheme(newTheme);
+      setThemeState(newTheme);
+      console.log(`🎨 Theme applied: ${newTheme}`);
     } catch (error) {
       console.error('Failed to apply theme:', error);
       // Fallback to light theme
