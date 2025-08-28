@@ -189,13 +189,13 @@ export const useBibleStore = create<{
   setCrossRefs: (refs: Record<string, string[]>) => set({ crossRefs: refs }),
   store: { crossRefs: {}, prophecies: {} },
   showCrossRefs: true,  // Default ON for all users
-  showProphecies: true, // Default ON for all users
-  showPrediction: true, // Individual Prediction column toggle - ON by default
-  showFulfillment: true, // Individual Fulfillment column toggle - ON by default
-  showVerification: true, // Individual Verification column toggle - ON by default
+  showProphecies: false, // Default OFF for non-users
+  showPrediction: false, // Individual Prediction column toggle - OFF by default
+  showFulfillment: false, // Individual Fulfillment column toggle - OFF by default
+  showVerification: false, // Individual Verification column toggle - OFF by default
   showNotes: false,     // Notes column toggle (paid feature)
-  showDates: true,      // Dates column toggle - ON by default
-  showContext: true,   // Context boundaries toggle - ON by default
+  showDates: false,      // Dates column toggle - OFF by default
+  showContext: false,   // Context boundaries toggle - OFF by default
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
   isChronological: false,   // Verse order toggle (canonical vs chronological)
