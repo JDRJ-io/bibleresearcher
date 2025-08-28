@@ -183,6 +183,27 @@ body::before {
   color: hsl(120, 50%, 20%) !important;
 }
 
+/* Fix electric voodoo theme modal/dialog backgrounds */
+.electric-voodoo [role="dialog"],
+.electric-voodoo [data-radix-popper-content-wrapper],
+.electric-voodoo .bg-background,
+.electric-voodoo .bg-popover {
+  background: rgba(23, 89, 147, 0.95) !important;
+  color: hsl(0, 0%, 98%) !important;
+  border-color: rgba(246, 207, 87, 0.4) !important;
+}
+
+/* Fix dropdown menu items in electric voodoo theme */
+.electric-voodoo .text-muted-foreground {
+  color: hsl(0, 0%, 80%) !important;
+}
+
+/* Fix electric voodoo theme text contrast */
+.electric-voodoo .text-foreground,
+.electric-voodoo .text-popover-foreground {
+  color: hsl(0, 0%, 98%) !important;
+}
+
 @keyframes flicker {
   0%, 100% { 
     opacity: 0.8; 

@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow';
+export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-voodoo';
 
 type ThemeVars = {
   // surfaces
@@ -90,5 +90,21 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     accentColor: 'hsl(45, 80%, 60%)', // Golden orb yellow for buttons
     linkColor: 'hsl(45, 70%, 50%)', // Golden links
     linkHoverColor: 'hsl(45, 80%, 40%)', // Darker gold on hover
+  },
+  'electric-voodoo': {
+    bgPrimary: 'hsl(208, 73%, 33%)', // Vibrant Voodoo Blue
+    bgSecondary: 'hsl(208, 60%, 28%)', // Deeper blue for elevation
+    headerBg: 'hsl(208, 70%, 30%)', // Electric blue header
+    columnBg: 'hsl(208, 60%, 28%)', // Deep blue columns
+    highlightBg: 'hsl(45, 90%, 75%)', // Bright yellow highlights
+    grad0: 'hsl(208, 80%, 35%)', // Vibrant gradient start
+    grad1: 'hsl(208, 60%, 25%)', // Darker gradient end
+    glassBg: 'rgba(23, 89, 147, 0.85)', // Electric blue glass
+    textPrimary: 'hsl(0, 0%, 98%)', // Crisp white text
+    textSecondary: 'hsl(0, 0%, 80%)', // Light gray secondary text
+    borderColor: 'hsl(208, 50%, 45%)', // Lighter blue borders
+    accentColor: 'hsl(45, 90%, 65%)', // Bright Pikachu Yellow
+    linkColor: 'hsl(45, 90%, 65%)', // Yellow links
+    linkHoverColor: 'hsl(45, 95%, 75%)', // Brighter yellow on hover
   },
 };

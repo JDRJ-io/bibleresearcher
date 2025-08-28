@@ -9,7 +9,8 @@ export function ThemeSwitcher() {
     light: 'Light',
     'ancient-dark': 'Ancient Scroll',
     'monastery-candlelight': 'Monastery Candlelight',
-    'mystical-meadow': 'Mystical Meadow'
+    'mystical-meadow': 'Mystical Meadow',
+    'electric-voodoo': 'Electric Voodoo'
   } as const;
 
   return (

@@ -26,6 +26,10 @@
   /* Mystical meadow glass variables - light and airy */
   --glass-bg-meadow: rgba(240, 248, 240, 0.8);
   --glass-border-meadow: rgba(120, 180, 120, 0.3);
+  
+  /* Electric voodoo glass variables - vibrant electric */
+  --glass-bg-voodoo: rgba(23, 89, 147, 0.85);
+  --glass-border-voodoo: rgba(246, 207, 87, 0.4);
 }
 
 /* Base glass morphism class - minimal and peaceful */
@@ -72,6 +76,15 @@
   box-shadow: 0 2px 8px rgba(120, 180, 120, 0.1), inset 0 1px 0 rgba(255, 255, 200, 0.2);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
+}
+
+/* Electric voodoo glass styling - vibrant and electric */
+:root.electric-voodoo .glass-morphism {
+  background: var(--glass-bg-voodoo);
+  border: 1px solid var(--glass-border-voodoo);
+  box-shadow: 0 2px 8px rgba(246, 207, 87, 0.2), inset 0 1px 0 rgba(246, 207, 87, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 /* Simple verse cell - just a touch more prominence */
