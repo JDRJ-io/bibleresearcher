@@ -468,6 +468,9 @@ export function NewColumnHeaders({
         `}
         style={{
           ...style,
+          width: column.width,
+          minWidth: column.width,
+          maxWidth: column.width,
           boxSizing: 'border-box',
           backgroundColor: column.type === 'main-translation' ? 'var(--highlight-bg)' : 'var(--bg-primary)',
           color: 'var(--text-primary)',
