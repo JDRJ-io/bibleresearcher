@@ -206,18 +206,12 @@ export function TopHeader({
           {/* Center: Anointed Logo */}
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
-                             border border-yellow-400/30 flex items-center justify-center relative overflow-hidden">
-                {/* Holy Light Particles */}
-                <div className="absolute inset-0">
-                  <div className="absolute left-1/4 top-1/2 w-0.5 h-0.5 bg-yellow-400/60 rounded-full blur-sm animate-pulse" />
-                  <div className="absolute right-1/3 top-1/2 w-0.5 h-0.5 bg-purple-400/80 rounded-full blur-sm animate-pulse delay-500" />
-                </div>
-                <Scroll className="w-4 h-4 text-yellow-400 relative z-10" />
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-50 to-white 
+                             border border-blue-200 dark:from-blue-900/20 dark:to-blue-800/20 dark:border-blue-700/30 
+                             flex items-center justify-center relative overflow-hidden">
+                <Scroll className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <span className="font-black text-lg bg-gradient-to-r from-yellow-500 to-purple-500 
-                            dark:from-yellow-400 dark:to-purple-400 
-                            bg-clip-text text-transparent">Anointed</span>
+              <span className="font-black text-lg text-gray-900 dark:text-gray-100">Anointed</span>
             </div>
           </div>
 
@@ -262,19 +256,13 @@ export function TopHeader({
           {/* Left Section: Logo + Navigation */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
-                             border border-yellow-400/30 flex items-center justify-center relative overflow-hidden">
-                {/* Holy Light Particles */}
-                <div className="absolute inset-0">
-                  <div className="absolute left-1/4 top-1/2 w-1 h-1 bg-yellow-400/60 rounded-full blur-sm animate-pulse" />
-                  <div className="absolute right-1/3 top-1/2 w-0.5 h-0.5 bg-purple-400/80 rounded-full blur-sm animate-pulse delay-500" />
-                </div>
-                <Scroll className="w-5 h-5 text-yellow-400 relative z-10" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-50 to-white 
+                             border border-blue-200 dark:from-blue-900/20 dark:to-blue-800/20 dark:border-blue-700/30 
+                             flex items-center justify-center relative overflow-hidden">
+                <Scroll className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg bg-gradient-to-r from-yellow-500 to-purple-500 
-                              dark:from-yellow-400 dark:to-purple-400 
-                              bg-clip-text text-transparent">Anointed.io</span>
+                <span className="font-bold text-lg text-gray-900 dark:text-gray-100">Anointed.io</span>
               </div>
             </div>
 
