@@ -29,6 +29,12 @@ interface TranslationState {
   resetMobileDefaults: (mainId: string) => void;
 }
 
+// Check if user is a guest (no authentication) to reset to defaults
+const isGuestUser = () => {
+  // For guests, always use defaults - ignore localStorage
+  return true; // Since this is for non-users/guests, always reset to defaults
+};
+
 export const useTranslationMaps = create<TranslationState>()(
   persist(
     (set, get) => ({
@@ -93,7 +99,16 @@ export const useTranslationMaps = create<TranslationState>()(
         });
       },
     }),
-    { name: 'translation-state' }
+    { 
+      name: 'translation-state',
+      onRehydrateStorage: () => (state) => {
+        // For guest users, reset to defaults ignoring localStorage
+        if (isGuestUser() && state) {
+          state.main = 'KJV';
+          state.alternates = [];
+        }
+      }
+    }
   )
 );
 
