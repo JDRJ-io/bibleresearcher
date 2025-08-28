@@ -278,7 +278,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       measureColumns();
     }, 100); // Small delay to ensure DOM is ready
     
-  }, [showCrossRefs, showProphecies, showNotes, showPrediction, showFulfillment, showVerification, translationState.alternates, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
+  }, [showCrossRefs, showProphecies, showNotes, showPrediction, showFulfillment, showVerification, translationState.alternates, translationState.main, setFixedColumns, setNavigableColumns, setColumnWidthPx]);
 
   // PERFORMANCE FIX: Preload notes for visible verses when notes column is enabled
   useEffect(() => {
