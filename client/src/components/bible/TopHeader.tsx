@@ -262,7 +262,7 @@ export function TopHeader({
                 <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-gray-900 dark:text-gray-100" style={{ fontSize: 'var(--text-size-large, 1.5rem)' }}>Anointed.io</span>
+                <span className="font-bold text-2xl text-gray-900 dark:text-gray-100">Anointed.io</span>
               </div>
             </div>
 

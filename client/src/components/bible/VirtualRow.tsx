@@ -48,7 +48,7 @@ function ReferenceCell({ verse }: CellProps) {
 
   return (
     <div 
-      className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
+      className={`${isMobile ? 'cell-ref' : 'w-20 px-1 py-1 text-xs'} font-medium glass-morphism glass-reference-cell flex-shrink-0 border-r`}
       style={{
         color: 'var(--text-primary)',
         borderColor: 'var(--border-color)'
@@ -117,7 +117,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
   // Cross-reference rendering debug removed for performance
 
   return (
-    <div className="px-2 py-1 cell-content cross-ref-cell" style={{ fontSize: 'var(--text-size-base, 1rem)' }}>
+    <div className="px-2 py-1 text-sm cell-content cross-ref-cell">
       {crossRefs.length > 0 ? (
         <div className="space-y-0">
           {crossRefs.map((ref, i) => {
@@ -131,7 +131,7 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
               <div key={i} className="cross-ref-item block w-full mb-1" style={{background: 'none', border: 'none', padding: '0'}}>
                 <button
                   type="button"
-                  className="font-mono font-semibold cursor-pointer"
+                  className="font-mono text-sm font-semibold cursor-pointer"
                   style={{
                     color: 'var(--link-color)', 
                     background: 'none', 
@@ -156,8 +156,8 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
                 >
                   {ref}
                 </button>
-                <div className="leading-tight whitespace-normal break-words" style={{color: 'var(--text-primary)', background: 'none', padding: '0', fontSize: 'var(--text-size-base, 1rem)'}}>
-                  <div className="leading-tight h-full" style={{background: 'none', padding: '0', border: 'none', boxShadow: 'none', fontSize: 'var(--text-size-base, 1rem)'}}>
+                <div className="text-sm leading-tight whitespace-normal break-words" style={{color: 'var(--text-primary)', background: 'none', padding: '0'}}>
+                  <div className="text-sm leading-tight h-full" style={{background: 'none', padding: '0', border: 'none', boxShadow: 'none'}}>
                     {refText ? renderTextWithLabels(refText, ref) : '—'}
                   </div>
                 </div>
@@ -165,13 +165,13 @@ function CrossReferencesCell({ verse, getVerseText, mainTranslation, onVerseClic
             );
           })}
           {crossRefs.length > 3 && (
-            <div className="text-center text-gray-400" style={{ fontSize: 'var(--text-size-small, 0.9rem)' }}>
+            <div className="text-center text-sm text-gray-400">
               {crossRefs.length} references
             </div>
           )}
         </div>
       ) : (
-        <span className="text-gray-400 italic" style={{ fontSize: 'var(--text-size-small, 0.9rem)' }}>—</span>
+        <span className="text-gray-400 italic text-sm">—</span>
       )}
     </div>
   );
@@ -188,8 +188,8 @@ function ProphecyCell({ verse, type, getVerseText, mainTranslation, onVerseClick
 
   if (!verseRoles) {
     return (
-      <div className="px-2 py-1 cell-content" style={{ fontSize: 'var(--text-size-base, 1rem)' }}>
-        <div className="text-gray-400 text-center" style={{ fontSize: 'var(--text-size-small, 0.9rem)' }}>—</div>
+      <div className="px-2 py-1 text-sm cell-content">
+        <div className="text-gray-400 text-center text-sm">—</div>
       </div>
     );
   }

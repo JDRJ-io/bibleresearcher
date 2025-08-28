@@ -90,45 +90,22 @@ body {
   }
 }
 
-/* Scalable text sizing system */
-:root {
-  --text-size-base: 1rem;
-  --text-size-small: 0.9rem;
-  --text-size-large: 1.2rem;
-  --text-scale-factor: 1;
-}
-
-/* Memory-efficient responsive design with larger base sizes */
+/* Memory-efficient responsive design */
 @media (max-width: 639px) {
   body {
-    font-size: calc(1rem * var(--text-scale-factor, 1));
-  }
-  :root {
-    --text-size-base: calc(1rem * var(--text-scale-factor, 1));
-    --text-size-small: calc(0.9rem * var(--text-scale-factor, 1));
-    --text-size-large: calc(1.2rem * var(--text-scale-factor, 1));
+    font-size: 0.875rem;
   }
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
   body {
-    font-size: calc(1.125rem * var(--text-scale-factor, 1));
-  }
-  :root {
-    --text-size-base: calc(1.125rem * var(--text-scale-factor, 1));
-    --text-size-small: calc(1rem * var(--text-scale-factor, 1));
-    --text-size-large: calc(1.35rem * var(--text-scale-factor, 1));
+    font-size: 1rem;
   }
 }
 
 @media (min-width: 1024px) {
   body {
-    font-size: calc(1.25rem * var(--text-scale-factor, 1));
-  }
-  :root {
-    --text-size-base: calc(1.25rem * var(--text-scale-factor, 1));
-    --text-size-small: calc(1.125rem * var(--text-scale-factor, 1));
-    --text-size-large: calc(1.5rem * var(--text-scale-factor, 1));
+    font-size: 1.125rem;
   }
 }
 
