@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { signUpWithProfile, getMyProfile } from '@/lib/userDataApi';
 import type { User } from '@shared/schema';
 
 export function useAuth() {
@@ -12,13 +13,26 @@ export function useAuth() {
       try {
         const { data: { user: supabaseUser } } = await supabase.auth.getUser();
         if (supabaseUser) {
-          const mappedUser: User = {
-            id: supabaseUser.id,
-            email: supabaseUser.email || '',
-            name: supabaseUser.user_metadata?.name || 'User',
-            createdAt: new Date(supabaseUser.created_at || '')
-          };
-          setUser(mappedUser);
+          // Get profile data for complete user info
+          try {
+            const profile = await getMyProfile();
+            const mappedUser: User = {
+              id: supabaseUser.id,
+              email: supabaseUser.email || '',
+              name: profile?.display_name || profile?.username || supabaseUser.user_metadata?.name || 'User',
+              createdAt: new Date(supabaseUser.created_at || '')
+            };
+            setUser(mappedUser);
+          } catch (profileError) {
+            // Fallback to basic user data if profile fetch fails
+            const mappedUser: User = {
+              id: supabaseUser.id,
+              email: supabaseUser.email || '',
+              name: supabaseUser.user_metadata?.name || 'User',
+              createdAt: new Date(supabaseUser.created_at || '')
+            };
+            setUser(mappedUser);
+          }
         }
       } catch (error) {
         console.info('Auth check completed, no active session');
@@ -54,22 +68,15 @@ export function useAuth() {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (email: string, password: string, username: string, displayName?: string) => {
     try {
-      const { data: { user: supabaseUser }, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name }
-        }
-      });
-
-      if (error) throw error;
+      const supabaseUser = await signUpWithProfile(email, password, username, displayName);
+      
       if (supabaseUser) {
         const mappedUser: User = {
           id: supabaseUser.id,
           email: supabaseUser.email || '',
-          name: name,
+          name: displayName || username,
           createdAt: new Date(supabaseUser.created_at || '')
         };
         setUser(mappedUser);
@@ -97,5 +104,6 @@ export function useAuth() {
     signUp,
     signOut,
     isLoggedIn: !!user,
+    getProfile: getMyProfile,
   };
 }

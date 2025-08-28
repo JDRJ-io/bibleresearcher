@@ -4,6 +4,7 @@
  */
 
 import { supabase } from './supabaseClient';
+import { addToHistory as addToHistoryApi } from './userDataApi';
 import type { NavigationHistory, InsertNavigationHistory } from '@shared/schema';
 
 interface HistoryEntry {
@@ -56,25 +57,14 @@ class NavigationHistoryManager {
    */
   async addToHistory(verseReference: string, translation: string = 'KJV') {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       // Don't add duplicate consecutive entries
       const lastEntry = this.history[0];
       if (lastEntry && lastEntry.verse_reference === verseReference && lastEntry.translation === translation) {
         return;
       }
 
-      // Add to database
-      const { error } = await supabase
-        .from('navigation_history')
-        .insert({
-          user_id: user.id,
-          verse_reference: verseReference,
-          translation: translation
-        });
-
-      if (error) throw error;
+      // Use the simplified API
+      await addToHistoryApi(verseReference, translation);
 
       // Add to local history
       const newEntry: HistoryEntry = {

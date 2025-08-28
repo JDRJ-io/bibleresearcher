@@ -11,15 +11,36 @@ export const users = pgTable("users", {
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().references(() => users.id),
-  name: text("name"), // Nullable for incomplete profiles
+  email: text("email").notNull(),
+  username: text("username").unique(),
+  display_name: text("display_name"),
+  avatar_url: text("avatar_url"),
   bio: text("bio"),
-  tier: text("tier").default("free"), // 'free' or 'premium'
+  tier: text("tier").default("free"), // 'free' or 'premium' or 'staff'
+  role: text("role").default("user"), // 'user' or 'mod' or 'admin'
+  premium_until: timestamp("premium_until"),
+  stripe_customer_id: text("stripe_customer_id"),
   recovery_passkey_hash: text("recovery_passkey_hash"),
   marketing_opt_in: boolean("marketing_opt_in").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User notes table
+export const userNotes = pgTable("user_notes", {
+  id: serial("id").primaryKey(),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
+  translation: text("translation").notNull(),
+  verse_key: text("verse_key").notNull(),
+  note_text: text("note_text").notNull(),
+  server_rev: integer("server_rev").notNull().default(1),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userTranslationVerse: primaryKey({ columns: [table.user_id, table.translation, table.verse_key] }),
+}));
+
+// Legacy notes table (for migration compatibility)
 export const notes = pgTable("notes", {
   id: serial("id").primaryKey(),
   user_id: uuid("user_id").references(() => users.id).notNull(),
@@ -42,7 +63,7 @@ export const bookmarks = pgTable("bookmarks", {
 // New user-specific bookmarks table
 export const userBookmarks = pgTable("user_bookmarks", {
   id: serial("id").primaryKey(),
-  user_id: uuid("user_id").references(() => users.id).notNull().default("auth.uid()"),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
   translation: text("translation").notNull(),
   verse_key: text("verse_key").notNull(),
   created_at: timestamp("created_at").defaultNow(),
@@ -65,11 +86,10 @@ export const highlights = pgTable("highlights", {
 // New user-specific highlights table with segments
 export const userHighlights = pgTable("user_highlights", {
   id: serial("id").primaryKey(),
-  user_id: uuid("user_id").references(() => users.id).notNull().default("auth.uid()"),
+  user_id: uuid("user_id").references(() => users.id).notNull(),
   translation: text("translation").notNull(),
   verse_key: text("verse_key").notNull(),
   segments: text("segments").notNull(), // JSON array of {start, end, color}
-  server_rev: integer("server_rev").notNull().default(1),
   text_len: integer("text_len"),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
@@ -131,6 +151,7 @@ export const userSessions = pgTable("user_sessions", {
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertProfileSchema = createInsertSchema(profiles).omit({ createdAt: true, updatedAt: true });
 export const insertNoteSchema = createInsertSchema(notes).omit({ id: true });
+export const insertUserNoteSchema = createInsertSchema(userNotes).omit({ id: true, user_id: true, created_at: true, updated_at: true });
 export const insertBookmarkSchema = createInsertSchema(bookmarks).omit({ created_at: true });
 export const insertHighlightSchema = createInsertSchema(highlights).omit({ id: true });
 export const insertUserBookmarkSchema = createInsertSchema(userBookmarks).omit({ id: true, user_id: true, created_at: true });
@@ -146,6 +167,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Profile = typeof profiles.$inferSelect;
 export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type Note = typeof notes.$inferSelect;
+export type UserNote = typeof userNotes.$inferSelect;
+export type InsertUserNote = z.infer<typeof insertUserNoteSchema>;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type InsertBookmark = z.infer<typeof insertBookmarkSchema>;

@@ -4,6 +4,7 @@
  */
 
 import { supabase } from './supabaseClient';
+import { saveSession } from './userDataApi';
 import type { UserSession, InsertUserSession } from '@shared/schema';
 
 interface SessionData {
@@ -80,7 +81,9 @@ class AutosaveManager {
    * Debounced save - waits for inactivity before saving
    */
   private debouncedSave() {
-    clearTimeout(this.saveTimeout);
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
     this.saveTimeout = setTimeout(() => {
       this.performSave();
     }, this.saveDelayMs);
@@ -100,21 +103,15 @@ class AutosaveManager {
 
       const sessionData = this.gatherSessionData();
       
-      const { error } = await supabase
-        .from('user_sessions')
-        .upsert({
-          user_id: user.id,
-          last_verse_position: sessionData.lastVersePosition,
-          current_translation: sessionData.currentTranslation,
-          layout_preferences: JSON.stringify(sessionData.layoutPreferences),
-          scroll_position: sessionData.scrollPosition,
-          session_data: JSON.stringify(sessionData.additionalData),
-          last_active: new Date().toISOString()
-        }, {
-          onConflict: 'user_id'
-        });
-
-      if (error) throw error;
+      await supabase.from('user_sessions').upsert({
+        user_id: user.id,
+        last_verse_position: sessionData.lastVersePosition,
+        current_translation: sessionData.currentTranslation,
+        layout_preferences: JSON.stringify(sessionData.layoutPreferences),
+        scroll_position: sessionData.scrollPosition,
+        session_data: JSON.stringify(sessionData.additionalData),
+        last_active: new Date().toISOString()
+      }, { onConflict: 'user_id' });
 
       this.pendingChanges = false;
       this.lastSaveTime = Date.now();
@@ -243,11 +240,11 @@ class AutosaveManager {
       if (error || !data) return null;
 
       const sessionData: SessionData = {
-        lastVersePosition: data.last_verse_position || 'Gen.1:1',
-        currentTranslation: data.current_translation || 'KJV',
-        layoutPreferences: data.layout_preferences ? JSON.parse(data.layout_preferences) : {},
-        scrollPosition: data.scroll_position || 0,
-        additionalData: data.session_data ? JSON.parse(data.session_data) : {}
+        lastVersePosition: (data.last_verse_position as string) || 'Gen.1:1',
+        currentTranslation: (data.current_translation as string) || 'KJV',
+        layoutPreferences: data.layout_preferences ? JSON.parse(data.layout_preferences as string) : {},
+        scrollPosition: (data.scroll_position as number) || 0,
+        additionalData: data.session_data ? JSON.parse(data.session_data as string) : {}
       };
 
       console.log('📥 Session data loaded:', sessionData.lastVersePosition);

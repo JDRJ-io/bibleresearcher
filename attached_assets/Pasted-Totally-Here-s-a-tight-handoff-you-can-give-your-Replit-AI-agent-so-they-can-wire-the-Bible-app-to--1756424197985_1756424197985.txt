@@ -1,0 +1,241 @@
+Totally. Here’s a tight handoff you can give your Replit AI agent so they can wire the Bible app to your Supabase exactly the way your DB is set up now.
+
+Handoff: create real user profiles + wire data
+
+What exists (use these tables)
+	•	Auth (Supabase built-in): auth.users (stores email + password securely)
+	•	Profiles (public): public.profiles — source of truth for app profile fields
+	•	id (uuid PK) = auth.users.id
+	•	email, username, display_name, avatar_url
+	•	tier ('free'|'premium'|'staff'), role ('user'|'mod'|'admin')
+	•	premium_until, subscription_*, stripe_customer_id
+	•	timestamps
+	•	Username protection: public.reserved_usernames
+	•	Bible app data: public.user_notes, public.user_highlights, public.user_bookmarks, public.user_sessions, public.navigation_history
+	•	Forum: forum.posts, forum.comments, forum.reactions, forum.mentions, forum.categories, forum.tags, forum.notifications (and more)
+	•	Billing mirror: billing.* (read-only from client; server/webhooks write)
+	•	Comms: comm.* (for emails later)
+
+Row-Level Security (RLS) is already in place. Client can only touch their own rows; premium gates are enforced in policies.
+
+⸻
+
+Required client flows
+
+1) Sign up (email + password) → create/finish profile
+	•	Call supabase.auth.signUp({ email, password, options: { data: { username, display_name }}})
+	•	After signup (or first login), ensure public.profiles is filled and username is unique.
+
+Username rules you should enforce in UI (match DB checks):
+	•	3–32 chars, only a-z 0-9 _ .
+	•	Must be unique (case-insensitive)
+
+Agent: implement
+
+// 1) check availability
+async function isUsernameAvailable(username: string) {
+  const clean = username.trim().toLowerCase();
+  if (!/^[a-z0-9_.]{3,32}$/.test(clean)) return { ok:false, reason:'invalid' };
+
+  // reserved or taken?
+  const { data: r1 } = await supabase
+    .from('reserved_usernames')
+    .select('username')
+    .eq('username', clean)
+    .maybeSingle();
+
+  const { data: r2 } = await supabase
+    .from('profiles')
+    .select('id')
+    .ilike('username', clean) // case-insensitive
+    .maybeSingle();
+
+  return { ok: !r1 && !r2 };
+}
+
+// 2) sign up
+async function signUp(email: string, password: string, username: string, display?: string) {
+  const { data, error } = await supabase.auth.signUp({
+    email, password,
+    options: { data: { username, display_name: display ?? username } }
+  });
+  if (error) throw error;
+
+  // upsert profile for safety (server trigger also does this)
+  const user = data.user!;
+  const { error: upErr } = await supabase.from('profiles').upsert({
+    id: user.id,
+    email: user.email,
+    username,
+    display_name: display ?? username
+  }, { onConflict: 'id' });
+  if (upErr) throw upErr;
+
+  return user;
+}
+
+2) Login & get current profile
+
+async function getMyProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+3) Update profile (display name, avatar)
+
+async function updateMyProfile(patch: { display_name?: string; avatar_url?: string; }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq('id', user!.id);
+  if (error) throw error;
+}
+
+4) Username set/rename (one place)
+	•	Validate with isUsernameAvailable()
+	•	Upsert into profiles.username
+	•	(Optional) insert into reserved_usernames so it can’t be squatted later
+
+async function setUsername(username: string) {
+  const ok = await isUsernameAvailable(username);
+  if (!ok.ok) throw new Error('Username not available');
+  const { data: { user } } = await supabase.auth.getUser();
+  const clean = username.trim().toLowerCase();
+
+  const { error } = await supabase.from('profiles')
+    .update({ username: clean, display_name: clean })
+    .eq('id', user!.id);
+  if (error) throw error;
+
+  // reserve it (best effort; ignore unique error)
+  await supabase.from('reserved_usernames')
+    .insert({ username: clean })
+    .then(() => null).catch(() => null);
+}
+
+
+⸻
+
+Bible app data wiring (client)
+
+Notes
+
+async function saveNote(translation: string, verse_key: string, text: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('user_notes').upsert({
+    user_id: user!.id, translation, verse_key,
+    note_text: text, updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id,translation,verse_key' });
+}
+
+Highlights
+
+async function saveHighlight(translation: string, verse_key: string, segments: any[], textLen: number) {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('user_highlights').upsert({
+    user_id: user!.id, translation, verse_key,
+    segments, text_len: textLen, updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id,translation,verse_key' });
+}
+
+Bookmarks
+
+async function toggleBookmark(translation: string, verse_key: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('user_bookmarks').upsert(
+    { user_id: user!.id, translation, verse_key },
+    { onConflict: 'user_id,translation,verse_key' }
+  );
+}
+
+Navigation history & session autosave
+
+async function addToHistory(verse_ref: string, translation='KJV') {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('navigation_history').insert({
+    user_id: user!.id, verse_reference: verse_ref, translation
+  });
+}
+
+async function saveSession(payload: {
+  last_verse_position?: string;
+  current_translation?: string;
+  layout_preferences?: any;
+  scroll_position?: number;
+  session_data?: any;
+}) {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('user_sessions').upsert({
+    user_id: user!.id,
+    last_verse_position: payload.last_verse_position,
+    current_translation: payload.current_translation ?? 'KJV',
+    layout_preferences: JSON.stringify(payload.layout_preferences ?? {}),
+    scroll_position: payload.scroll_position ?? 0,
+    session_data: JSON.stringify(payload.session_data ?? {}),
+    last_active: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+}
+
+
+⸻
+
+Forum basics (client)
+
+Your RLS gates writes to premium for posts/comments/reactions. Reading is public.
+
+// create a post (text/link)
+// (If you later add media/polls, you’ll call the related tables after this.)
+async function createPost(title: string, content: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  // If RLS blocks (not premium), you’ll get an error.
+  const { error } = await supabase.from('posts').insert({
+    user_id: user!.id,
+    title,
+    body_md: content,       // your schema uses body_md for text body
+    visibility: 'public'
+  });
+  if (error) throw error;
+}
+
+async function comment(post_id: string, body: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase.from('comments').insert({
+    post_id, user_id: user!.id, body_md: body
+  });
+  if (error) throw error;
+}
+
+async function reactToPost(post_id: string, code: 'amen'|'love'|'prayer'|'thinking'|'concern') {
+  const { data: { user } } = await supabase.auth.getUser();
+  await supabase.from('reactions').upsert({
+    user_id: user!.id, target_type: 'post', target_id: post_id, reaction: code
+  }, { onConflict: 'user_id,target_type,target_id,reaction' });
+}
+
+
+⸻
+
+What the agent should NOT change
+	•	Do not store or handle passwords manually. Supabase Auth handles that.
+	•	Do not set profiles.tier from the client. Billing/webhook or admin only.
+	•	Keep all writes within the existing tables; RLS will enforce safety.
+
+⸻
+
+Optional polish (safe to add, nice UX)
+	•	If user didn’t set a display name, show @username or email prefix.
+	•	On first login, show a “Pick your handle” screen: validate and set profiles.username.
+	•	Save session every N seconds and on route change.
+	•	Use .select().single() everywhere you expect exactly one row (clear errors).
+
+⸻
+
+That’s it. Give this to your agent and they can start wiring sign-up, profiles, and all Bible-app data collection right now, cleanly aligned with your existing Supabase schemas and RLS.
