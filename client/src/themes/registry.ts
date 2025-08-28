@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'ancient-dark';
+export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight';
 
 type ThemeVars = {
   // surfaces
@@ -58,5 +58,21 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     accentColor: 'hsl(40, 70%, 45%)',
     linkColor: 'hsl(40, 70%, 45%)',
     linkHoverColor: 'hsl(40, 70%, 55%)',
+  },
+  'monastery-candlelight': {
+    bgPrimary: 'hsl(30, 20%, 10%)', // Deep wooden brown, monastery desk
+    bgSecondary: 'hsl(30, 15%, 15%)', // Subtle wood grain
+    headerBg: 'hsl(30, 20%, 12%)', // Warm dark header
+    columnBg: 'hsl(30, 15%, 15%)', // Wood-like column background
+    highlightBg: 'hsl(35, 50%, 30%)', // Soft orange highlight
+    grad0: 'hsl(30, 20%, 7%)', // Deep shadow gradient start
+    grad1: 'hsl(30, 25%, 5%)', // Even deeper shadow gradient end
+    glassBg: 'rgba(62, 45, 26, 0.95)', // Warm brown glass effect
+    textPrimary: 'hsl(40, 10%, 95%)', // Warm parchment off-white
+    textSecondary: 'hsl(40, 5%, 70%)', // Muted warm secondary text
+    borderColor: 'hsl(30, 10%, 25%)', // Warm sepia borders
+    accentColor: 'hsl(25, 60%, 40%)', // Amber glow like candle flame
+    linkColor: 'hsl(25, 60%, 40%)', // Amber links
+    linkHoverColor: 'hsl(25, 60%, 50%)', // Brighter amber on hover
   },
 };

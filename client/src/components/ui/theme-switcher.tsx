@@ -7,7 +7,8 @@ export function ThemeSwitcher() {
 
   const themeNames = {
     light: 'Light',
-    'ancient-dark': 'Ancient Scroll'
+    'ancient-dark': 'Ancient Scroll',
+    'monastery-candlelight': 'Monastery Candlelight'
   } as const;
 
   return (
