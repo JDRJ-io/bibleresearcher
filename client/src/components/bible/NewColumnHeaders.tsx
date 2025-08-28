@@ -131,20 +131,9 @@ export function NewColumnHeaders({
     };
     window.addEventListener('manualSizeChange', handleManualSizeChange);
 
-    // Add a direct CSS variable observer using MutationObserver on documentElement
-    const cssObserver = new MutationObserver(() => {
-      updateColumnWidthMult();
-    });
-    
-    cssObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
-
     return () => {
       window.removeEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
       window.removeEventListener('manualSizeChange', handleManualSizeChange);
-      cssObserver.disconnect();
     };
   }, []); // Remove columnWidthMult from deps to prevent infinite loops in mobile portrait
 
