@@ -102,10 +102,7 @@ export function NewColumnHeaders({
         .trim();
       const numericMult = parseFloat(mult) || 1;
       
-      console.log('🎛️ HEADERS: Column width multiplier read from CSS:', numericMult, 'current state:', columnWidthMult);
-      
       if (Math.abs(numericMult - columnWidthMult) > 0.01) {
-        console.log('🎛️ HEADERS: Updating columnWidthMult state from', columnWidthMult, 'to', numericMult);
         setColumnWidthMult(numericMult);
       }
     };
@@ -124,7 +121,6 @@ export function NewColumnHeaders({
 
     // Listen for manual size controller changes
     const handleManualSizeChange = () => {
-      console.log('🔄 NewColumnHeaders: Received manual size change signal');
       updateColumnWidthMult();
     };
     window.addEventListener('manualSizeChange', handleManualSizeChange);
@@ -224,12 +220,7 @@ export function NewColumnHeaders({
     // Apply column width multiplier to get actual pixel width
     const actualWidth = baseWidth * columnWidthMult;
     
-    console.log(`🎛️ HEADERS: ${columnType} width calculation:`, {
-      baseWidth,
-      columnWidthMult,
-      actualPixelWidth: actualWidth,
-      cssCalc: `calc(var(--adaptive-${columnType.replace('-', '-')}-width) * var(--column-width-mult, 1))`
-    });
+    // Debug logging removed for performance
     
     return `${actualWidth}px`;
   };

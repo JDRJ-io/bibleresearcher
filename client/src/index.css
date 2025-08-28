@@ -611,14 +611,19 @@ body {
   height: 0 !important;
 }
 
-/* Mobile portrait mode: use full multiplier for complete header-cell synchronization */
+/* Mobile portrait mode: remove CSS width constraints, let inline styles control headers */
 @media (max-width: 768px) and (orientation: portrait) {
-  .column-header-cell[data-column="reference"],
+  /* Data cells still use CSS calc for scaling */
   .bible-verse-row > div:first-child,
   [data-verse-ref] > div:first-child {
     width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
     min-width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
     max-width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
+  }
+  
+  /* Header cells now controlled by inline styles - remove CSS width constraints */
+  .column-header-cell[data-column="reference"] {
+    /* Width controlled by inline styles in NewColumnHeaders.tsx */
   }
 }
 
