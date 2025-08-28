@@ -52,18 +52,14 @@
     overflow: hidden !important;
   }
 
-  /* Column header cells responsive sizing - inherit universal alignment */
+  /* Column header cells responsive sizing - all width restraints removed */
   .column-header-cell {
-    flex-shrink: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     font-weight: 600 !important;
     height: var(--column-header-height) !important;
-    /* box-sizing, padding, margin, border inherited from universal alignment in index.css */
-    /* Prevent horizontal overflow on mobile */
-    overflow: hidden !important;
-    /* Remove max-width constraint to allow full multiplier scaling */
+    /* All flex, width, min-width, max-width restraints removed */
   }
 
   /* Mobile column headers - let inline styles control width completely */
@@ -89,13 +85,7 @@
     /* Width now controlled by inline styles in NewColumnHeaders.tsx */
   }
 
-  /* Context column mobile sizing - hidden in mobile portrait */
-  .column-header-cell[data-column="context"] {
-    width: 0 !important;  /* Hidden in mobile portrait mode */
-    min-width: 0 !important;
-    max-width: 0 !important;
-    display: none !important;  /* Completely hide context columns */
-  }
+  /* Context column mobile sizing - removed all restraints */
 
   /* Landscape phone adjustments - inline styles control all widths now */
   @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
@@ -106,13 +96,7 @@
   @media (min-width: 769px) {
     /* Width now controlled by inline styles in NewColumnHeaders.tsx */
     
-    /* Context column always hidden in mobile */
-    .column-header-cell[data-column="context"] {
-      width: 0 !important;  /* Hidden in mobile portrait mode */
-      min-width: 0 !important;
-      max-width: 0 !important;
-      display: none !important;  /* Completely hide context columns */
-    }
+    /* Context column restraints removed */
   }
 }
 

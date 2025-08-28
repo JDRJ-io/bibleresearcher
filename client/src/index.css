@@ -482,33 +482,7 @@ body {
   line-height: 1 !important;
 }
 
-/* Hide context columns in mobile portrait mode */
-@media (max-width: 640px) and (orientation: portrait) {
-  .column-header-cell[data-column="context"],
-  .bible-column[data-column="context"],
-  .cell[data-column="context"],
-  div[data-column="context"],
-  [data-col-key*="context"] {
-    display: none !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    flex: 0 0 0 !important;
-  }
-  
-  /* Also hide any dates-related columns that might be showing */
-  .column-header-cell[data-column="dates"],
-  .bible-column[data-column="dates"],
-  .cell[data-column="dates"],
-  div[data-column="dates"],
-  [data-col-key*="dates"] {
-    display: none !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    flex: 0 0 0 !important;
-  }
-}
+/* All mobile column header restraints removed */
 
 /* Dark mode border color */
 .dark .column-header-cell,
