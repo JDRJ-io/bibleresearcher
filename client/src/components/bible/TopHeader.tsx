@@ -224,7 +224,7 @@ export function TopHeader({
             </div>
           </div>
 
-          {/* Right: Search + Bookmark + Menu */}
+          {/* Right: Search + Bookmark + Sign In + Menu */}
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
@@ -248,6 +248,17 @@ export function TopHeader({
             >
               <Bookmark className="w-3 h-3" />
             </Button>
+            {!user && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-8 h-8 p-0"
+                onClick={() => setIsSignInOpen(true)}
+                title="Sign In"
+              >
+                <KeyRound className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -316,20 +327,18 @@ export function TopHeader({
 
           {/* Center: Search */}
           <div className="flex-1 max-w-2xl mx-6">
-            <div
-              className="relative cursor-pointer"
-              onClick={onSearchChange}
-              title="Open Advanced Search"
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-8 h-8 p-0"
+              onClick={() => {
+                console.log('🔍 TopHeader: Search button clicked (Desktop)');
+                onSearchChange();
+              }}
+              title="Open Search Modal"
             >
-              <Input
-                type="text"
-                placeholder="Search verses..."
-                value=""
-                readOnly
-                className="pl-10 pr-4 h-10 cursor-pointer"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            </div>
+              <Search className="w-4 h-4" />
+            </Button>
           </div>
 
           {/* Right Section: Bookmark + Auth + Menu */}
@@ -337,13 +346,12 @@ export function TopHeader({
             <Button
               variant="outline"
               size="sm"
+              className="w-8 h-8 p-0"
               onClick={handleSaveBookmark}
               disabled={createBookmarkMutation.isPending}
-              className="px-3 py-2 h-9 text-sm flex items-center gap-2"
               title="Save current reading position as bookmark"
             >
               <Bookmark className="w-4 h-4" />
-              {createBookmarkMutation.isPending ? 'Saving...' : 'Save Position'}
             </Button>
 
             {user ? (
