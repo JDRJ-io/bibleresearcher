@@ -3,6 +3,25 @@ import { THEMES, ThemeName } from '@/themes/registry';
 
 const LS_KEY = 'bible-theme-optimized';
 
+function clearThemeProperties() {
+  const root = document.documentElement;
+  
+  // Clear all theme-related CSS custom properties
+  const themeProperties = [
+    '--bg-primary', '--bg-secondary', '--header-bg', '--column-bg', '--highlight-bg',
+    '--bg-grad-angle', '--bg-grad-0', '--bg-grad-1', '--glass-bg',
+    '--text-primary', '--text-secondary', '--border-color', '--accent-color', 
+    '--link-color', '--link-hover-color',
+    '--background', '--foreground', '--primary', '--primary-foreground',
+    '--secondary', '--secondary-foreground', '--muted', '--muted-foreground',
+    '--accent', '--accent-foreground', '--destructive', '--destructive-foreground',
+    '--border', '--input', '--ring', '--card', '--card-foreground',
+    '--popover', '--popover-foreground'
+  ];
+  
+  themeProperties.forEach(prop => root.style.removeProperty(prop));
+}
+
 export function applyTheme(name: ThemeName) {
   const t = THEMES[name];
   const root = document.documentElement;
@@ -11,6 +30,10 @@ export function applyTheme(name: ThemeName) {
   Array.from(root.classList)
     .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark', 'monastery-candlelight'].includes(c))
     .forEach(c => root.classList.remove(c));
+  
+  // Clear all previous theme CSS properties
+  clearThemeProperties();
+  
   root.classList.add(name); // Add the theme name directly as class
 
   const set = (k: string, v: string) => root.style.setProperty(k, v);
