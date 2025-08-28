@@ -50,7 +50,7 @@ export function TopHeader({
   const { width, height } = useWindowSize();
   const isMobile = width <= 640;
   const isPortrait = height > width;
-  
+
   // Apply adaptive scaling for responsive header sizing
   useAdaptiveScaling();
 
@@ -62,13 +62,13 @@ export function TopHeader({
         console.log('🔖 TopHeader getCurrentCentralVerse from table:', verseInfo);
         return verseInfo;
       }
-      
+
       // Fallback to reading state
       const saved = JSON.parse(localStorage.getItem('readingState') ?? 'null');
       const anchorIndex = saved?.anchorIndex || 0;
       const currentKeys = bibleStore?.currentVerseKeys || [];
       const currentRef = currentKeys[anchorIndex] || currentKeys[0] || 'Gen.1:1';
-      
+
       console.log('🔖 TopHeader getCurrentCentralVerse fallback:', { anchorIndex, currentRef, totalVerses: currentKeys.length });
       return { reference: currentRef, index: anchorIndex };
     } catch (error) {
@@ -119,7 +119,7 @@ export function TopHeader({
     onError: (error) => {
       console.error('🔖 TopHeader: Bookmark creation failed:', error);
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Failed to save bookmark. Please try again.",
         variant: "destructive",
       });
@@ -128,7 +128,7 @@ export function TopHeader({
 
   const handleSaveBookmark = () => {
     console.log('🔖 TopHeader: Save bookmark button clicked');
-    
+
     if (!user) {
       console.log('🔖 TopHeader: No user found, showing sign-in message');
       toast({
@@ -150,20 +150,20 @@ export function TopHeader({
 
 
   return (
-    <header 
+    <header
       className={`top-header sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between max-w-full shadow-sm ${
         isMobile ? 'top-header-mobile' : ''
       }`}
-      style={{ 
+      style={{
         // Apply dynamic height based on adaptive scaling
-        height: isMobile 
-          ? 'var(--top-header-height-mobile)' 
+        height: isMobile
+          ? 'var(--top-header-height-mobile)'
           : 'var(--top-header-height-desktop)',
-        minHeight: isMobile 
-          ? 'var(--top-header-height-mobile)' 
+        minHeight: isMobile
+          ? 'var(--top-header-height-mobile)'
           : 'var(--top-header-height-desktop)',
-        maxHeight: isMobile 
-          ? 'var(--top-header-height-mobile)' 
+        maxHeight: isMobile
+          ? 'var(--top-header-height-mobile)'
           : 'var(--top-header-height-desktop)',
         padding: isPortrait && isMobile ? '0 6px' : isMobile ? '0 8px' : '0 16px',
         pointerEvents: 'auto' // Ensure events are contained
@@ -206,19 +206,17 @@ export function TopHeader({
           {/* Center: Anointed Logo */}
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 
-                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400 
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-blue-800
+                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                              flex items-center justify-center relative overflow-hidden">
-                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
+                <Scroll className="w-6 h-6 text-white dark:text-blue-50" />
               </div>
-              <span 
+              <span
                 className="font-black text-gray-900 dark:text-gray-300"
                 style={{
-                  fontSize: `calc(1.5rem * var(--adaptive-header-scale, 1.0))`,
+                  fontSize: `calc(1.75rem * var(--adaptive-header-scale, 1.0))`,
                 }}
-              >
-                Anointed
-              </span>
+              ></span>
             </div>
           </div>
 
@@ -263,20 +261,18 @@ export function TopHeader({
           {/* Left Section: Logo + Navigation */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 
-                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400 
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800
+                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                              flex items-center justify-center relative overflow-hidden">
-                <Scroll className="w-6 h-6 text-white dark:text-blue-50" />
+                <Scroll className="w-7 h-7 text-white dark:text-blue-50" />
               </div>
               <div className="flex flex-col">
-                <span 
+                <span
                   className="font-bold text-gray-1200 dark:text-gray-100"
                   style={{
-                    fontSize: `calc(2.25rem * var(--adaptive-header-scale, 1.0))`,
+                    fontSize: `calc(2.5rem * var(--adaptive-header-scale, 1.0))`,
                   }}
-                >
-                  Anointed.io
-                </span>
+                ></span>
               </div>
             </div>
 
@@ -312,8 +308,8 @@ export function TopHeader({
 
           {/* Center: Search */}
           <div className="flex-1 max-w-2xl mx-6">
-            <div 
-              className="relative cursor-pointer" 
+            <div
+              className="relative cursor-pointer"
               onClick={onSearchChange}
               title="Open Advanced Search"
             >
