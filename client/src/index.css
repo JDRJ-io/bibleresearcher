@@ -96,6 +96,40 @@ body {
   border-color: rgba(0, 0, 0, 0.5);
 }
 
+/* Ancient Dark theme scrollbar styling */
+.ancient-dark .unified-scroll-container::-webkit-scrollbar-track {
+  background: rgba(169, 111, 40, 0.03); /* Subtle gold tint */
+  border-color: rgba(169, 111, 40, 0.08);
+}
+
+.ancient-dark .unified-scroll-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(169, 111, 40, 0.6), rgba(139, 91, 30, 0.7)); /* Gold tones */
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.ancient-dark .unified-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(169, 111, 40, 0.8), rgba(139, 91, 30, 0.9));
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+.ancient-dark .unified-scroll-container::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, rgba(199, 131, 60, 0.9), rgba(169, 111, 40, 1));
+  border-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Ancient Dark cell content scrollbars */
+.ancient-dark .cell-content {
+  scrollbar-color: rgba(169, 111, 40, 0.4) transparent;
+}
+
+.ancient-dark .cell-content::-webkit-scrollbar-thumb {
+  background-color: rgba(169, 111, 40, 0.4);
+}
+
+.ancient-dark .cell-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(169, 111, 40, 0.6);
+}
+
 /* Firefox scrollbar styling */
 .unified-scroll-container {
   scrollbar-width: thin;
@@ -678,6 +712,52 @@ body {
   --accent-foreground: hsl(213, 31%, 91%);
   --card: var(--column-bg);
   --popover: var(--header-bg);
+}
+
+/* Premium "Ancient Scroll" Dark Theme - Inspired by illuminated manuscripts */
+.ancient-dark {
+  /* Core Colors - Deep indigo-gray like aged manuscript ink */
+  --bg-primary: hsl(220, 25%, 8%);
+  --bg-secondary: hsl(220, 20%, 6%);
+  --text-primary: hsl(30, 5%, 92%); /* Warm off-white, evoking parchment */
+  --text-secondary: hsl(30, 5%, 70%); /* Subtle text */
+  --border-color: hsl(220, 10%, 18%); /* Soft gray-blue for dividers */
+  --accent-color: hsl(40, 70%, 45%); /* Muted gold, inspired by gold leaf illumination */
+  --header-bg: hsl(220, 25%, 8%);
+  --text-color: hsl(30, 5%, 92%);
+  --column-bg: hsl(220, 20%, 10%); /* Subtle elevation for cards/modals */
+  --highlight-bg: hsl(10, 40%, 25%); /* Muted vermilion red for highlights */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* UI Element Colors */
+  --card: hsl(220, 20%, 10%); /* Subtle elevation for cards/modals */
+  --card-foreground: hsl(30, 5%, 92%);
+  --popover: hsl(220, 25%, 9%); /* For tooltips/popovers */
+  --popover-foreground: hsl(30, 5%, 92%);
+
+  /* Interactive Elements */
+  --primary: hsl(40, 70%, 45%); /* Muted gold for primary actions */
+  --primary-foreground: hsl(220, 25%, 8%); /* Dark text on gold buttons */
+  --secondary: hsl(200, 15%, 15%); /* Muted teal-green, like malachite pigment */
+  --secondary-foreground: hsl(30, 5%, 92%);
+
+  /* State Colors */
+  --muted: hsl(220, 15%, 12%); /* For backgrounds like disabled states */
+  --muted-foreground: hsl(30, 5%, 70%); /* Subtle text */
+  --accent: hsl(10, 40%, 25%); /* Muted vermilion red for highlights */
+  --accent-foreground: hsl(30, 5%, 92%);
+  --destructive: hsl(0, 50%, 20%); /* Deep crimson for errors/warnings */
+  --destructive-foreground: hsl(30, 5%, 92%);
+
+  /* Borders & Outlines */
+  --input: hsl(220, 10%, 18%); /* For form borders */
+  --ring: hsl(40, 70%, 45%); /* Gold focus rings for accessibility */
+
+  /* Foreground variants for semantic tokens */
+  --foreground: hsl(30, 5%, 92%);
+
+  /* Radius (for completeness) */
+  --radius: 0.5rem;
 }
 
 
