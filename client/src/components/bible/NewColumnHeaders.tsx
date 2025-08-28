@@ -59,7 +59,8 @@ export function NewColumnHeaders({
   isGuest = true,
   bodyRef
 }: NewColumnHeadersProps) {
-  const { main, alternates, setMain, setAlternates } = useTranslationMaps();
+  const translationMaps = useTranslationMaps();
+  const { main, alternates, setMain } = translationMaps;
 
   // Track alternate translation changes (logging removed for performance)
   const store = useBibleStore();
@@ -158,18 +159,19 @@ export function NewColumnHeaders({
       console.log('🔄 RESET TO DEFAULTS: Resetting layout, translations, and toggles to default state');
 
       // Reset all layout toggles to default state (matching new user defaults)
-      store.setShowCrossRefs(true);     // ON for default layout
-      store.setShowProphecies(false);   // OFF for default layout
-      store.setShowPrediction(false);   // OFF for default layout
-      store.setShowFulfillment(false);  // OFF for default layout
-      store.setShowVerification(false); // OFF for default layout
-      store.setShowNotes(false);        // OFF for default layout
-      store.setShowDates(false);        // OFF for default layout
-      store.setShowContext(false);      // OFF for default layout
+      // Only toggle if current state differs from target state
+      if (!store.showCrossRefs) store.toggleCrossRefs();      // Ensure ON for default layout
+      if (store.showProphecies) store.toggleProphecies();     // Ensure OFF for default layout
+      if (store.showPrediction) store.togglePrediction();     // Ensure OFF for default layout
+      if (store.showFulfillment) store.toggleFulfillment();   // Ensure OFF for default layout
+      if (store.showVerification) store.toggleVerification(); // Ensure OFF for default layout
+      if (store.showNotes) store.toggleNotes();               // Ensure OFF for default layout
+      if (store.showDates) store.toggleDates();               // Ensure OFF for default layout
+      if (store.showContext) store.toggleContext();           // Ensure OFF for default layout
 
-      // Reset translations to default (main = KJV, no alternates)
+      // Reset translations to default (main = KJV)
       setMain('KJV');
-      setAlternates([]);
+      // Note: Alternate translations will be hidden when column state is reset
 
       // Reset column state to default visibility (matching App.tsx defaults)
       if (store.columnState?.setVisible) {
@@ -189,12 +191,12 @@ export function NewColumnHeaders({
       try {
         const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
         const signal = useColumnChangeEmitter();
-        signal('reset', { resetToDefaults: true, presentationMode: false });
+        signal('multiplier', { resetToDefaults: true, presentationMode: false });
       } catch (error) {
         console.warn('Could not emit column change signal');
       }
     }
-  }, [isPresentationMode, store, setMain, setAlternates]);
+  }, [isPresentationMode, store, setMain, translationMaps]);
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
