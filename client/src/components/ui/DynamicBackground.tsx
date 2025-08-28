@@ -16,9 +16,9 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
   const [videoError, setVideoError] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
-  // Show video background only for monastery theme
+  // Show video background for monastery and meadow themes
   useEffect(() => {
-    setShowVideo(theme === 'monastery-candlelight' && !videoError);
+    setShowVideo((theme === 'monastery-candlelight' || theme === 'mystical-meadow') && !videoError);
   }, [theme, videoError]);
 
   const backgroundClasses = [
@@ -37,10 +37,10 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
 
   return (
     <>
-      {/* Video background for monastery theme */}
+      {/* Video background for monastery and meadow themes */}
       {showVideo && (
         <video
-          className="background-video"
+          className={`background-video ${theme === 'mystical-meadow' ? 'meadow-filter' : ''}`}
           autoPlay
           loop
           muted
@@ -48,23 +48,51 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
           onError={handleVideoError}
           onLoadedData={handleVideoLoad}
         >
-          <source src="/monastery-library.mp4" type="video/mp4" />
-          <source src="/monastery-library.webm" type="video/webm" />
+          {theme === 'mystical-meadow' ? (
+            <>
+              <source src="/meadow-fireflies.mp4" type="video/mp4" />
+              <source src="/meadow-fireflies.webm" type="video/webm" />
+            </>
+          ) : (
+            <>
+              <source src="/monastery-library.mp4" type="video/mp4" />
+              <source src="/monastery-library.webm" type="video/webm" />
+            </>
+          )}
         </video>
       )}
       
-      {/* Fallback image for monastery theme when video fails */}
-      {theme === 'monastery-candlelight' && (videoError || !showVideo) && (
+      {/* Fallback images when video fails */}
+      {(theme === 'monastery-candlelight' || theme === 'mystical-meadow') && (videoError || !showVideo) && (
         <div 
           className="background-image-fallback"
           style={{
-            backgroundImage: 'url("/monastery-fallback.jpg")'
+            backgroundImage: theme === 'mystical-meadow' 
+              ? 'url("/meadow-fallback.jpg")' 
+              : 'url("/monastery-fallback.jpg")'
           }}
         />
       )}
       
       {/* Candlelight flicker overlay */}
       <div className="flicker-overlay" />
+      
+      {/* Mystical orb overlay */}
+      <div className="orb-overlay">
+        {Array.from({ length: 15 }, (_, i) => (
+          <div 
+            key={i}
+            className="orb"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `-${Math.random() * 15}s`,
+              width: `${15 + Math.random() * 10}px`,
+              height: `${15 + Math.random() * 10}px`
+            }}
+          />
+        ))}
+      </div>
       
       {/* Standard gradient background */}
       <div className={backgroundClasses} />

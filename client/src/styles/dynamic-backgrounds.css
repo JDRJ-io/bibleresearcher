@@ -89,6 +89,47 @@ body::before {
   opacity: 1;
 }
 
+/* Mystical meadow video filter */
+.meadow-filter {
+  filter: brightness(1.1) saturate(1.2) !important; /* Enhance vibrant meadow feel */
+}
+
+/* Mystical orb overlay system */
+.orb-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Over video, under content */
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show orbs only for mystical meadow theme */
+.mystical-meadow .orb-overlay {
+  opacity: 1;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 200, 0.8), rgba(255, 255, 100, 0.2));
+  box-shadow: 0 0 10px rgba(255, 255, 100, 0.6);
+  animation: float 15s infinite ease-in-out;
+  opacity: 0.7;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-10vh) translateX(3vw); }
+  50% { transform: translateY(-20vh) translateX(5vw); }
+  75% { transform: translateY(-10vh) translateX(2vw); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
 /* Make main content areas more transparent for monastery theme */
 .monastery-candlelight .cell-content,
 .monastery-candlelight [class*="cell-"] {
@@ -119,6 +160,27 @@ body::before {
 .monastery-candlelight .text-foreground,
 .monastery-candlelight .text-popover-foreground {
   color: hsl(40, 10%, 95%) !important;
+}
+
+/* Fix mystical meadow theme modal/dialog backgrounds */
+.mystical-meadow [role="dialog"],
+.mystical-meadow [data-radix-popper-content-wrapper],
+.mystical-meadow .bg-background,
+.mystical-meadow .bg-popover {
+  background: rgba(240, 248, 240, 0.95) !important;
+  color: hsl(120, 50%, 20%) !important;
+  border-color: rgba(120, 180, 120, 0.3) !important;
+}
+
+/* Fix dropdown menu items in mystical meadow theme */
+.mystical-meadow .text-muted-foreground {
+  color: hsl(120, 30%, 40%) !important;
+}
+
+/* Fix mystical meadow theme text contrast */
+.mystical-meadow .text-foreground,
+.mystical-meadow .text-popover-foreground {
+  color: hsl(120, 50%, 20%) !important;
 }
 
 @keyframes flicker {
@@ -152,6 +214,10 @@ body::before {
   }
   .background-video {
     filter: brightness(0.7); /* Static dim for calm */
+  }
+  .orb {
+    animation: none !important;
+    opacity: 0.5; /* Static glow */
   }
 }
 

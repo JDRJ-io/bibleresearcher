@@ -373,7 +373,7 @@ export function TopHeader({
                   fontWeight: '700',
                   letterSpacing: '-0.01em'
                 }}
-                className="text-gray-900 dark:text-gray-100 monastery-candlelight:text-amber-200"
+                className="text-gray-900 dark:text-gray-100 monastery-candlelight:text-amber-200 mystical-meadow:text-green-800"
               >Anointed.io</span>
             </div>
           </div>

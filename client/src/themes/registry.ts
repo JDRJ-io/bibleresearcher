@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight';
+export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow';
 
 type ThemeVars = {
   // surfaces
@@ -74,5 +74,21 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     accentColor: 'hsl(25, 60%, 50%)', // Brighter amber accent
     linkColor: 'hsl(25, 70%, 60%)', // Brighter amber links
     linkHoverColor: 'hsl(25, 80%, 70%)', // Even brighter on hover
+  },
+  'mystical-meadow': {
+    bgPrimary: 'hsl(120, 30%, 95%)', // Light grassy green, like sunlit meadow
+    bgSecondary: 'hsl(120, 25%, 98%)', // Even lighter grass tone
+    headerBg: 'hsl(120, 30%, 96%)', // Soft meadow header
+    columnBg: 'hsl(120, 25%, 98%)', // Pale elevation for columns
+    highlightBg: 'hsl(30, 70%, 85%)', // Warm orange glow for highlights
+    grad0: 'hsl(120, 40%, 96%)', // Light meadow gradient start
+    grad1: 'hsl(100, 30%, 94%)', // Soft blue-green gradient end
+    glassBg: 'rgba(240, 248, 240, 0.85)', // Light green glass effect
+    textPrimary: 'hsl(120, 50%, 20%)', // Deep green text for contrast
+    textSecondary: 'hsl(120, 30%, 40%)', // Medium green secondary text
+    borderColor: 'hsl(120, 20%, 80%)', // Subtle green borders
+    accentColor: 'hsl(45, 80%, 60%)', // Golden orb yellow for buttons
+    linkColor: 'hsl(45, 70%, 50%)', // Golden links
+    linkHoverColor: 'hsl(45, 80%, 40%)', // Darker gold on hover
   },
 };

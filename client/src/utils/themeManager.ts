@@ -49,14 +49,14 @@ export function applyTheme(name: ThemeName) {
   set('--muted-foreground', t.textSecondary);
   set('--accent', t.highlightBg);
   set('--accent-foreground', t.textPrimary);
-  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : name === 'monastery-candlelight' ? 'hsl(10, 40%, 25%)' : 'hsl(0, 84.2%, 60.2%)');
+  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : name === 'monastery-candlelight' ? 'hsl(10, 40%, 25%)' : name === 'mystical-meadow' ? 'hsl(0, 50%, 70%)' : 'hsl(0, 84.2%, 60.2%)');
   set('--destructive-foreground', t.textPrimary);
   set('--border', t.borderColor);
   set('--input', t.borderColor);
   set('--ring', t.accentColor);
   set('--card', t.columnBg);
   set('--card-foreground', t.textPrimary);
-  set('--popover', name === 'monastery-candlelight' ? 'rgba(62, 45, 26, 0.9)' : t.headerBg);
+  set('--popover', name === 'monastery-candlelight' ? 'rgba(62, 45, 26, 0.9)' : name === 'mystical-meadow' ? 'rgba(240, 248, 240, 0.95)' : t.headerBg);
   set('--popover-foreground', t.textPrimary);
 
   localStorage.setItem(LS_KEY, name);
