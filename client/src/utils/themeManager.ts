@@ -28,7 +28,7 @@ export function applyTheme(name: ThemeName) {
 
   // remove previous theme classes
   Array.from(root.classList)
-    .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark', 'monastery-candlelight'].includes(c))
+    .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark', 'monastery-candlelight', 'mystical-meadow', 'electric-voodoo'].includes(c))
     .forEach(c => root.classList.remove(c));
   
   // Clear all previous theme CSS properties
