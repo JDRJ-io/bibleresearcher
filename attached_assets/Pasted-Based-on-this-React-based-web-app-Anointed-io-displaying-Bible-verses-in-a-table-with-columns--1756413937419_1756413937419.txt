@@ -1,0 +1,15 @@
+Based on this React-based web app (Anointed.io) displaying Bible verses in a table with columns (#, KJV, Cross Refs), the column headers are not fully scaling when the –column-width-mult CSS variable is set to 2x (e.g., via Presentation mode or ManualSizeController). The content in the Cross Refs column expands partially but hits a visible divider or boundary that prevents full adaptation, leading to misalignment on mobile portrait mode. Headers remain at default width, while data cells adapt somewhat.
+Here’s the full context:
+•  Screenshots show: At 1x multiplier, layout is fine. At 2x, headers (#, KJV, Cross Refs) don’t widen, Cross Refs content grows but is clipped by a divider.
+•  Previous fixes removed min(var(–column-width-mult, 1), 1.1) caps in client/src/styles/mobile-headers.css (lines 89-109) and client/src/index.css (lines 615-626), setting to full var(–column-width-mult, 1).
+•  Multiplier is controlled via JS setters in ManualSizeController.tsx, NewColumnHeaders.tsx, and App.tsx, with range 0.5x-2.0x, persisted in localStorage, and emitted via ‘manualSizeChange’ events.
+•  Inline styles in NewColumnHeaders.tsx (getResponsiveWidth()), VirtualRow.tsx (getResponsiveColumnPixelWidth()), and ProphecyColumns.tsx use full multiplier without caps.
+•  CSS media queries for portrait (@media (max-width: 768px) and (orientation: portrait)) use !important but should now allow full scaling.
+•  Event flow: ManualSizeController → emits event → NewColumnHeaders updates state → useAdaptivePortraitColumns hook emits ‘columnWidthChange’.
+•  Specificity: Inline > JS setters > CSS !important > defaults.
+•  Despite fixes, issue persists on mobile preview.
+Analyze this setup, identify the exact root cause (e.g., missed CSS overrides, re-render failures, container constraints, or event issues), and provide:
+1.  Step-by-step debugging steps using browser dev tools and code logs.
+2.  Proposed code changes with exact file/line updates and snippets.
+3.  How to test the fix across orientations.
+4.  Any potential side effects or further optimizations.”

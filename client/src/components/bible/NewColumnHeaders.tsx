@@ -102,7 +102,10 @@ export function NewColumnHeaders({
         .trim();
       const numericMult = parseFloat(mult) || 1;
       
+      console.log('🎛️ HEADERS: Column width multiplier read from CSS:', numericMult, 'current state:', columnWidthMult);
+      
       if (Math.abs(numericMult - columnWidthMult) > 0.01) {
+        console.log('🎛️ HEADERS: Updating columnWidthMult state from', columnWidthMult, 'to', numericMult);
         setColumnWidthMult(numericMult);
       }
     };
@@ -121,13 +124,25 @@ export function NewColumnHeaders({
 
     // Listen for manual size controller changes
     const handleManualSizeChange = () => {
+      console.log('🔄 NewColumnHeaders: Received manual size change signal');
       updateColumnWidthMult();
     };
     window.addEventListener('manualSizeChange', handleManualSizeChange);
 
+    // Add a direct CSS variable observer using MutationObserver on documentElement
+    const cssObserver = new MutationObserver(() => {
+      updateColumnWidthMult();
+    });
+    
+    cssObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+
     return () => {
       window.removeEventListener('columnWidthChange', handleColumnWidthChange as EventListener);
       window.removeEventListener('manualSizeChange', handleManualSizeChange);
+      cssObserver.disconnect();
     };
   }, []); // Remove columnWidthMult from deps to prevent infinite loops
 
@@ -140,6 +155,9 @@ export function NewColumnHeaders({
       document.documentElement.style.setProperty('--row-height-mult', '1.35');
       setIsPresentationMode(true);
       console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
+      
+      // Force immediate state update to ensure headers scale immediately
+      setColumnWidthMult(2);
 
       // Emit column change signal
       try {
@@ -156,6 +174,9 @@ export function NewColumnHeaders({
       document.documentElement.style.setProperty('--row-height-mult', '1');
       setIsPresentationMode(false);
       console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
+      
+      // Force immediate state update to ensure headers scale immediately
+      setColumnWidthMult(1);
 
       // Emit column change signal
       try {
@@ -202,6 +223,13 @@ export function NewColumnHeaders({
     
     // Apply column width multiplier to get actual pixel width
     const actualWidth = baseWidth * columnWidthMult;
+    
+    console.log(`🎛️ HEADERS: ${columnType} width calculation:`, {
+      baseWidth,
+      columnWidthMult,
+      actualPixelWidth: actualWidth,
+      cssCalc: `calc(var(--adaptive-${columnType.replace('-', '-')}-width) * var(--column-width-mult, 1))`
+    });
     
     return `${actualWidth}px`;
   };
