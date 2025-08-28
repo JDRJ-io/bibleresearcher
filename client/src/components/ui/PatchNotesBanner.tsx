@@ -33,13 +33,16 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
 
   return (
     <>
-    <div className="relative w-full bg-gradient-to-r from-purple-900/20 via-yellow-400/10 to-purple-900/20 
-                    border-y border-yellow-400/20 backdrop-blur-sm
+    <div className="relative w-full border-y border-yellow-400/20 backdrop-blur-sm
                     transition-all duration-300 ease-out
                     max-w-full overflow-hidden
-                    px-2 sm:px-4 md:px-6 lg:px-8">
+                    px-2 sm:px-4 md:px-6 lg:px-8"
+         style={{
+           background: 'linear-gradient(90deg, #D8C4F8 0%, #FAEDC5 50%, #EEC8D7 100%)',
+           minHeight: '56px'
+         }}>
       {/* Divine Glow Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/5 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-white/20 to-white/10" />
       
       {/* Holy Light Particles */}
       <div className="absolute inset-0 overflow-hidden">
@@ -48,8 +51,8 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         <div className="absolute left-3/4 top-1/2 w-1.5 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse delay-1000" />
       </div>
 
-      <div className="relative px-4 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 md:py-3 lg:py-4 flex items-center justify-center 
-                      min-h-[36px] xs:min-h-[40px] sm:min-h-[44px] md:min-h-[48px] lg:min-h-[52px]">
+      <div className="relative px-4 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center justify-center 
+                      min-h-[56px]">
         {/* Mobile-Optimized Left Side */}
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0 justify-center">
           <div className="p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
@@ -58,13 +61,16 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 md:space-x-4 flex-1 min-w-0 text-center sm:text-left">
-            <h3 className="text-xs xs:text-xs sm:text-sm md:text-base lg:text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 
-                          dark:from-yellow-400 dark:to-purple-400 
-                          bg-clip-text text-transparent truncate">
+            <h3 className="text-xs xs:text-xs sm:text-sm md:text-base lg:text-lg truncate"
+                style={{
+                  color: '#D97706',
+                  fontWeight: '700'
+                }}>
               Divine Updates
             </h3>
-            <span className="hidden sm:inline text-xs md:text-sm text-gray-600 dark:text-white/60">•</span>
-            <p className="text-xs xs:text-xs sm:text-sm md:text-base text-gray-700 dark:text-white/70 truncate">
+            <span className="hidden sm:inline text-xs md:text-sm" style={{ color: '#6B7280' }}>•</span>
+            <p className="text-xs xs:text-xs sm:text-sm md:text-base truncate"
+               style={{ color: '#374151' }}>
               Latest sacred enhancements
             </p>
           </div>
@@ -76,16 +82,14 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`
-              px-2 xs:px-3 sm:px-4 md:px-5 lg:px-6 py-1 xs:py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
-              bg-gradient-to-r from-yellow-400/10 to-purple-400/10
-              border-yellow-400/30 hover:border-yellow-400/50
-              text-yellow-700 dark:text-yellow-200 hover:text-yellow-800 dark:hover:text-yellow-100 font-medium 
-              text-xs xs:text-xs sm:text-sm md:text-base
-              hover:shadow-lg hover:shadow-yellow-400/20
-              transform hover:scale-105
-              ${isHovered ? 'from-yellow-400/20 to-purple-400/20' : ''}
-            `}
+            className="px-2 xs:px-3 sm:px-4 md:px-5 lg:px-6 py-1 xs:py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
+                      bg-white/20 hover:bg-white/30 border-white/30 hover:border-white/50
+                      font-medium text-xs xs:text-xs sm:text-sm md:text-base
+                      hover:shadow-lg transform hover:scale-105"
+            style={{
+              color: '#D97706',
+              backdropFilter: 'blur(8px)'
+            }}
           >
             <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-2.5">
               <span className="hidden sm:inline md:text-base">View Updates</span>

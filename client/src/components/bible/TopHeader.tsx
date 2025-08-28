@@ -206,17 +206,21 @@ export function TopHeader({
           {/* Center: Anointed Logo */}
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
-              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-blue-800
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-700 to-blue-900
                              border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
-                             flex items-center justify-center relative overflow-hidden">
-                <Scroll className="w-6 h-6 text-white dark:text-blue-50" />
+                             flex items-center justify-center relative overflow-hidden"
+                   style={{ width: '36px', height: '36px' }}>
+                <Scroll className="w-5 h-5 text-white dark:text-blue-50 transform rotate-180" />
               </div>
               <span
-                className="font-black text-gray-900 dark:text-gray-300"
+                className="font-bold text-gray-900 dark:text-gray-300"
                 style={{
-                  fontSize: `calc(1.75rem * var(--adaptive-header-scale, 1.0))`,
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: '#111',
+                  letterSpacing: '-0.01em'
                 }}
-              ></span>
+              >Anointed.io</span>
             </div>
           </div>
 
@@ -258,24 +262,9 @@ export function TopHeader({
       ) : (
         /* Desktop Layout */
         <>
-          {/* Left Section: Logo + Navigation */}
+          {/* Left Section: Navigation + Logo */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-blue-800
-                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
-                             flex items-center justify-center relative overflow-hidden">
-                <Scroll className="w-7 h-7 text-white dark:text-blue-50" />
-              </div>
-              <div className="flex flex-col">
-                <span
-                  className="font-bold text-gray-1200 dark:text-gray-100"
-                  style={{
-                    fontSize: `calc(2.5rem * var(--adaptive-header-scale, 1.0))`,
-                  }}
-                ></span>
-              </div>
-            </div>
-
+            {/* Navigation buttons first */}
             <div className="flex space-x-2">
               <Button
                 variant="outline"
@@ -303,6 +292,25 @@ export function TopHeader({
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
+            </div>
+
+            {/* Brand group: Logo + Text */}
+            <div className="flex items-center space-x-2">
+              <div className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
+                             border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
+                             flex items-center justify-center relative overflow-hidden"
+                   style={{ width: '36px', height: '36px' }}>
+                <Scroll className="w-5 h-5 text-white dark:text-blue-50 transform rotate-180" />
+              </div>
+              <span
+                style={{
+                  fontSize: '22px',
+                  fontWeight: '700',
+                  color: '#111',
+                  letterSpacing: '-0.01em'
+                }}
+                className="dark:text-gray-100"
+              >Anointed.io</span>
             </div>
           </div>
 
