@@ -1,8 +1,8 @@
 import express from 'express';
 import { db } from '../db.js';
-import { userNotes, highlights, bookmarks, users, userPreferences, profiles } from '../../shared/schema.js';
+import { notes, highlights, bookmarks, users, userPreferences, profiles } from '../../shared/schema.js';
 import { eq, and } from 'drizzle-orm';
-import { insertUserNoteSchema, insertHighlightSchema, insertBookmarkSchema, insertUserPreferencesSchema, insertProfileSchema } from '../../shared/schema.js';
+import { insertNoteSchema, insertHighlightSchema, insertBookmarkSchema, insertUserPreferencesSchema, insertProfileSchema } from '../../shared/schema.js';
 
 const router = express.Router();
 
@@ -77,8 +77,8 @@ router.get('/notes', requireAuth, async (req: any, res) => {
   try {
     const notes = await db
       .select()
-      .from(userNotes)
-      .where(eq(userNotes.userId, req.userId));
+      .from(notes)
+      .where(eq(notes.user_id, req.userId));
     res.json(notes);
   } catch (error) {
     console.error('Error fetching notes:', error);
@@ -88,13 +88,13 @@ router.get('/notes', requireAuth, async (req: any, res) => {
 
 router.post('/notes', requireAuth, async (req: any, res) => {
   try {
-    const validatedData = insertUserNoteSchema.parse({
+    const validatedData = insertNoteSchema.parse({
       ...req.body,
-      userId: req.userId
+      user_id: req.userId
     });
     
     const [note] = await db
-      .insert(userNotes)
+      .insert(notes)
       .values(validatedData)
       .returning();
     
@@ -108,15 +108,15 @@ router.post('/notes', requireAuth, async (req: any, res) => {
 router.put('/notes/:id', requireAuth, async (req: any, res) => {
   try {
     const noteId = parseInt(req.params.id);
-    const validatedData = insertUserNoteSchema.parse({
+    const validatedData = insertNoteSchema.parse({
       ...req.body,
-      userId: req.userId
+      user_id: req.userId
     });
     
     const [note] = await db
-      .update(userNotes)
+      .update(notes)
       .set({ ...validatedData, updatedAt: new Date() })
-      .where(and(eq(userNotes.id, noteId), eq(userNotes.userId, req.userId)))
+      .where(and(eq(notes.id, noteId), eq(notes.user_id, req.userId)))
       .returning();
     
     if (!note) {
@@ -135,8 +135,8 @@ router.delete('/notes/:id', requireAuth, async (req: any, res) => {
     const noteId = parseInt(req.params.id);
     
     const [note] = await db
-      .delete(userNotes)
-      .where(and(eq(userNotes.id, noteId), eq(userNotes.userId, req.userId)))
+      .delete(notes)
+      .where(and(eq(notes.id, noteId), eq(notes.user_id, req.userId)))
       .returning();
     
     if (!note) {
@@ -299,7 +299,7 @@ router.put('/preferences', requireAuth, async (req: any, res) => {
   try {
     const validatedData = insertUserPreferencesSchema.parse({
       ...req.body,
-      userId: req.userId
+      user_id: req.userId
     });
     
     // Upsert preferences

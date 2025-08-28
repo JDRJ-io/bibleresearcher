@@ -40,7 +40,7 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
-  // Check username availability
+  // Check username availability - simplified for client-side approach
   const checkUsernameAvailability = async (username: string) => {
     if (!username.trim() || username.length < 3) {
       setUsernameStatus('idle')
@@ -48,12 +48,14 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
     }
 
     setUsernameStatus('checking')
+    
+    // For client-side only approach, we'll do basic validation
+    // In a full implementation, you'd query user metadata or use a Supabase Edge Function
     try {
-      const response = await fetch(`/api/auth/username-available?u=${encodeURIComponent(username)}`)
-      const result = await response.json()
-      
-      if (result.ok) {
-        setUsernameStatus(result.available ? 'available' : 'unavailable')
+      // Basic username validation
+      if (username.length >= 3 && username.length <= 24 && /^[a-zA-Z0-9_]+$/.test(username)) {
+        // For now, mark as available (in real implementation, check against user metadata)
+        setUsernameStatus('available')
       } else {
         setUsernameStatus('unavailable')
       }
@@ -94,29 +96,30 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
 
     setIsLoading(true)
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: signUpData.email,
-          password: signUpData.password,
-          username: signUpData.username,
-          displayName: signUpData.displayName
-        }),
+      // Sign up user directly with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: signUpData.email,
+        password: signUpData.password,
+        options: {
+          data: {
+            username: signUpData.username,
+            display_name: signUpData.displayName || signUpData.username,
+            marketing_opt_in: signUpData.marketingOptIn
+          }
+        }
       })
-
-      const result = await response.json()
       
-      if (!result.ok) {
+      if (error) {
         toast({
           title: "Sign Up Failed",
-          description: result.error || "Something went wrong",
+          description: error.message || "Something went wrong",
           variant: "destructive"
         })
       } else {
-        if (result.needsConfirmation) {
+        // Check if email confirmation is needed
+        const needsConfirmation = !data.session
+        
+        if (needsConfirmation) {
           toast({
             title: "Check Your Email! 📧",
             description: `We sent a confirmation link to ${signUpData.email}`,
