@@ -85,26 +85,26 @@
     width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;  /* Sync with table content */
   }
 
-  /* Mobile portrait mode: limit header scaling to match data cells */
+  /* Mobile portrait mode: use full multiplier to sync with data cells */
   @media (max-width: 768px) and (orientation: portrait) {
     .column-header-cell[data-column="reference"] {
-      width: calc((var(--adaptive-ref-width) + 4px) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+      width: calc((var(--adaptive-ref-width) + 4px) * var(--column-width-mult, 1)) !important;  /* Full multiplier sync with data cells */
     }
 
     .column-header-cell[data-column="main-translation"] {
-      width: calc(var(--adaptive-main-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+      width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;  /* Full multiplier sync with data cells */
     }
 
     .column-header-cell[data-column="cross-refs"] {
-      width: calc(var(--adaptive-cross-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+      width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;  /* Full multiplier sync with data cells */
     }
 
     .column-header-cell[data-column="prophecy"] {
-      width: calc(var(--adaptive-prophecy-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+      width: calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1)) !important;  /* Full multiplier sync with data cells */
     }
 
     .column-header-cell[data-column="notes"] {
-      width: calc(var(--adaptive-notes-width) * min(var(--column-width-mult, 1), 1.1)) !important;  /* Match data cell limit */
+      width: calc(var(--adaptive-notes-width) * var(--column-width-mult, 1)) !important;  /* Full multiplier sync with data cells */
     }
   }
 

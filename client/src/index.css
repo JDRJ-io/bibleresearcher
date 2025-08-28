@@ -611,14 +611,14 @@ body {
   height: 0 !important;
 }
 
-/* Mobile portrait mode: limit reference column scaling to prevent excessive width */
+/* Mobile portrait mode: use full multiplier for complete header-cell synchronization */
 @media (max-width: 768px) and (orientation: portrait) {
   .column-header-cell[data-column="reference"],
   .bible-verse-row > div:first-child,
   [data-verse-ref] > div:first-child {
-    width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
-    min-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
-    max-width: calc(var(--adaptive-ref-width) * min(var(--column-width-mult, 1), 1.1)) !important;
+    width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
+    min-width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
+    max-width: calc(var(--adaptive-ref-width) * var(--column-width-mult, 1)) !important;
   }
 }
 
