@@ -52,11 +52,13 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
     if (isUnified) {
       // Use textSize for all three variables in unified mode
       document.documentElement.style.setProperty('--text-size-mult', textSize.toString());
+      document.documentElement.style.setProperty('--text-scale-factor', textSize.toString());
       document.documentElement.style.setProperty('--row-height-mult', textSize.toString());
       document.documentElement.style.setProperty('--column-width-mult', textSize.toString());
     } else {
       // Use separate controls in split mode
       document.documentElement.style.setProperty('--text-size-mult', textSize.toString());
+      document.documentElement.style.setProperty('--text-scale-factor', textSize.toString());
       document.documentElement.style.setProperty('--row-height-mult', rowHeight.toString());
       document.documentElement.style.setProperty('--column-width-mult', columnWidth.toString());
     }
