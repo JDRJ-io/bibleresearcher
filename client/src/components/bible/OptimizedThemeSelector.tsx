@@ -21,7 +21,7 @@ export function OptimizedThemeSelector() {
     'monastery-candlelight': 'Monastery Candlelight',
     'mystical-meadow': 'Mystical Meadow',
     'electric-voodoo': 'Electric Voodoo',
-    'spectral-covenant': 'Spectral Covenant',
+    'rainbow': 'Rainbow',
     'celestial-veil': 'Celestial Veil'
   };
 
@@ -32,14 +32,14 @@ export function OptimizedThemeSelector() {
       case 'monastery-candlelight': return '🕯️';
       case 'mystical-meadow': return '🌿';
       case 'electric-voodoo': return '⚡';
-      case 'spectral-covenant': return '🌈';
+      case 'rainbow': return '🌈';
       case 'celestial-veil': return '🌌';
       default: return '🎨';
     }
   };
 
   const basicThemes: ThemeName[] = ['light', 'ancient-dark'];
-  const premiumThemes: ThemeName[] = ['monastery-candlelight', 'mystical-meadow', 'electric-voodoo', 'spectral-covenant', 'celestial-veil'];
+  const premiumThemes: ThemeName[] = ['monastery-candlelight', 'mystical-meadow', 'electric-voodoo', 'rainbow', 'celestial-veil'];
 
   return (
     <DropdownMenu>

@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-voodoo' | 'spectral-covenant' | 'celestial-veil';
+export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-voodoo' | 'rainbow' | 'celestial-veil';
 
 type ThemeVars = {
   // surfaces
@@ -107,7 +107,7 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkColor: 'hsl(45, 90%, 65%)', // Yellow links
     linkHoverColor: 'hsl(45, 95%, 75%)', // Brighter yellow on hover
   },
-  'spectral-covenant': {
+  'rainbow': {
     bgPrimary: 'rgba(255, 255, 255, 0.2)', // Transparent ivory to let rainbow show
     bgSecondary: 'rgba(240, 248, 240, 0.15)', // Transparent pale green
     headerBg: 'rgba(255, 255, 255, 0.1)', // Very transparent header

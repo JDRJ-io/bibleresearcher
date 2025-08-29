@@ -79,7 +79,7 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
       
       {/* Mystical orb overlay */}
       <div className="orb-overlay">
-        {Array.from({ length: 25 }, (_, i) => (
+        {Array.from({ length: 15 }, (_, i) => (
           <div 
             key={i}
             className="orb"
@@ -96,7 +96,7 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
       
       {/* Aurora orb overlay for celestial theme */}
       <div className="aurora-orb-overlay">
-        {Array.from({ length: 20 }, (_, i) => (
+        {Array.from({ length: 12 }, (_, i) => (
           <div 
             key={i}
             className="aurora-orb"

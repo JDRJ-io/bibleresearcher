@@ -167,12 +167,12 @@ body {
 /* REMOVED - Aurora orbs are now handled in dynamic-backgrounds.css */
 
 /* Show rainbow effects only for spectral covenant theme */
-:root.spectral-covenant .rainbow-overlay {
+:root.rainbow .rainbow-overlay {
   opacity: 1 !important;
 }
 
 /* Hide rainbow effects for all other themes */
-:root:not(.spectral-covenant) .rainbow-overlay {
+:root:not(.rainbow) .rainbow-overlay {
   opacity: 0 !important;
   display: none;
 }
@@ -220,16 +220,16 @@ body {
   height: 100%;
   background: linear-gradient(
     45deg,
-    rgba(255, 0, 0, 0.5),     /* BRIGHT Red */
-    rgba(255, 127, 0, 0.5),   /* BRIGHT Orange */
-    rgba(255, 255, 0, 0.5),   /* BRIGHT Yellow */
-    rgba(0, 255, 0, 0.5),     /* BRIGHT Green */
-    rgba(0, 0, 255, 0.5),     /* BRIGHT Blue */
-    rgba(75, 0, 130, 0.5),    /* Indigo */
-    rgba(148, 0, 211, 0.5)    /* Violet */
+    rgba(255, 0, 0, 0.8),     /* VERY BRIGHT Red */
+    rgba(255, 127, 0, 0.8),   /* VERY BRIGHT Orange */
+    rgba(255, 255, 0, 0.8),   /* VERY BRIGHT Yellow */
+    rgba(0, 255, 0, 0.8),     /* VERY BRIGHT Green */
+    rgba(0, 0, 255, 0.8),     /* VERY BRIGHT Blue */
+    rgba(75, 0, 130, 0.8),    /* VERY BRIGHT Indigo */
+    rgba(148, 0, 211, 0.8)    /* VERY BRIGHT Violet */
   );
-  background-size: 600%;
-  animation: rainbowShift 6s ease-in-out infinite;
+  background-size: 300%;
+  animation: rainbowShift 12s ease-in-out infinite;
 }
 
 /* Show aurora effects only for celestial veil theme */
