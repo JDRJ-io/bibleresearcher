@@ -23,9 +23,9 @@
   --glass-bg-monastery: rgba(62, 45, 26, 0.85);
   --glass-border-monastery: rgba(255, 165, 0, 0.2);
   
-  /* Mystical meadow glass variables - light and airy */
-  --glass-bg-meadow: rgba(240, 248, 240, 0.8);
-  --glass-border-meadow: rgba(120, 180, 120, 0.3);
+  /* Mystical meadow glass variables - sunset orange */
+  --glass-bg-meadow: rgba(255, 140, 60, 0.1);
+  --glass-border-meadow: rgba(255, 140, 60, 0.3);
   
   /* Electric voodoo glass variables - vibrant electric */
   --glass-bg-voodoo: rgba(23, 89, 147, 0.85);
@@ -78,8 +78,8 @@
   -webkit-backdrop-filter: none;
 }
 
-/* Electric voodoo glass styling - transparent, no glassmorphism */
-:root.electric-voodoo .glass-morphism {
+/* Electric blue glass styling - transparent, no glassmorphism */
+:root.electric-blue .glass-morphism {
   background: transparent;
   border: none;
   box-shadow: none;

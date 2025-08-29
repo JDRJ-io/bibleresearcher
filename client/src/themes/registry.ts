@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-voodoo' | 'rainbow' | 'celestial-veil';
+export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-blue' | 'rainbow' | 'celestial-veil';
 
 type ThemeVars = {
   // surfaces
@@ -76,36 +76,36 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(25, 80%, 70%)', // Even brighter on hover
   },
   'mystical-meadow': {
-    bgPrimary: 'rgba(240, 248, 240, 0.2)', // Transparent meadow green to let animations show
-    bgSecondary: 'rgba(240, 248, 240, 0.15)', // Transparent lighter grass
-    headerBg: 'rgba(240, 248, 240, 0.1)', // Very transparent header
-    columnBg: 'rgba(240, 248, 240, 0.1)', // Very transparent columns
-    highlightBg: 'rgba(255, 165, 0, 0.3)', // Semi-transparent orange highlights
-    grad0: 'hsl(120, 40%, 96%)', // Light meadow gradient start
-    grad1: 'hsl(100, 30%, 94%)', // Soft blue-green gradient end
-    glassBg: 'rgba(240, 248, 240, 0.05)', // Minimal glass effect
-    textPrimary: 'hsl(120, 50%, 20%)', // Deep green text for contrast
-    textSecondary: 'hsl(120, 50%, 30%)', // Darker secondary for better contrast
-    borderColor: 'rgba(100, 150, 100, 0.4)', // Semi-transparent green borders
-    accentColor: 'hsl(45, 80%, 60%)', // Golden orb yellow for buttons
-    linkColor: 'hsl(45, 70%, 50%)', // Golden links
-    linkHoverColor: 'hsl(45, 80%, 40%)', // Darker gold on hover
+    bgPrimary: 'rgba(255, 140, 60, 0.15)', // Transparent sunset orange
+    bgSecondary: 'rgba(255, 180, 120, 0.1)', // Transparent lighter orange
+    headerBg: 'rgba(255, 140, 60, 0.08)', // Very transparent orange header
+    columnBg: 'rgba(255, 180, 120, 0.08)', // Very transparent orange columns
+    highlightBg: 'rgba(255, 215, 0, 0.4)', // Bright gold highlights
+    grad0: 'hsl(25, 90%, 65%)', // Sunset orange gradient start
+    grad1: 'hsl(210, 80%, 70%)', // Sky blue gradient end
+    glassBg: 'rgba(255, 180, 120, 0.05)', // Minimal sunset glass effect
+    textPrimary: 'hsl(25, 40%, 25%)', // Warm brown text for contrast
+    textSecondary: 'hsl(25, 30%, 35%)', // Lighter brown secondary
+    borderColor: 'rgba(255, 140, 60, 0.5)', // Orange borders
+    accentColor: 'hsl(45, 100%, 50%)', // Pure gold for buttons
+    linkColor: 'hsl(45, 90%, 45%)', // Golden links
+    linkHoverColor: 'hsl(45, 100%, 40%)', // Darker gold on hover
   },
-  'electric-voodoo': {
-    bgPrimary: 'rgba(23, 89, 147, 0.2)', // Transparent voodoo blue to let effects show
-    bgSecondary: 'rgba(23, 89, 147, 0.15)', // Transparent deeper blue
-    headerBg: 'rgba(23, 89, 147, 0.1)', // Very transparent header
-    columnBg: 'rgba(23, 89, 147, 0.1)', // Very transparent columns
-    highlightBg: 'rgba(255, 255, 0, 0.3)', // Semi-transparent yellow highlights
-    grad0: 'hsl(208, 80%, 35%)', // Vibrant gradient start
-    grad1: 'hsl(208, 60%, 25%)', // Darker gradient end
-    glassBg: 'rgba(23, 89, 147, 0.05)', // Minimal glass effect
+  'electric-blue': {
+    bgPrimary: 'rgba(0, 34, 238, 0.15)', // Transparent electric blue (#0022EE)
+    bgSecondary: 'rgba(0, 34, 238, 0.1)', // Lighter electric blue
+    headerBg: 'rgba(0, 34, 238, 0.08)', // Very transparent blue header
+    columnBg: 'rgba(0, 34, 238, 0.08)', // Very transparent blue columns
+    highlightBg: 'rgba(255, 255, 0, 0.4)', // Bright yellow highlights
+    grad0: 'hsl(236, 100%, 47%)', // Electric blue gradient start (#0022EE)
+    grad1: 'hsl(236, 80%, 35%)', // Darker blue gradient end
+    glassBg: 'rgba(0, 34, 238, 0.05)', // Minimal blue glass effect
     textPrimary: 'hsl(0, 0%, 98%)', // Crisp white text
-    textSecondary: 'hsl(0, 0%, 90%)', // Brighter secondary for contrast
-    borderColor: 'rgba(100, 150, 255, 0.4)', // Semi-transparent blue borders
-    accentColor: 'hsl(45, 90%, 65%)', // Bright Pikachu Yellow
-    linkColor: 'hsl(45, 90%, 65%)', // Yellow links
-    linkHoverColor: 'hsl(45, 95%, 75%)', // Brighter yellow on hover
+    textSecondary: 'hsl(0, 0%, 90%)', // Bright secondary for contrast
+    borderColor: 'rgba(0, 34, 238, 0.4)', // Electric blue borders
+    accentColor: 'hsl(60, 100%, 50%)', // Bright electric yellow
+    linkColor: 'hsl(60, 100%, 50%)', // Yellow links
+    linkHoverColor: 'hsl(60, 100%, 60%)', // Brighter yellow on hover
   },
   'rainbow': {
     bgPrimary: 'rgba(255, 255, 255, 0.2)', // Transparent ivory to let rainbow show

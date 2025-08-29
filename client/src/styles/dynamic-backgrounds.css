@@ -237,34 +237,34 @@ body::before {
   color: hsl(120, 50%, 20%) !important;
 }
 
-/* Fix electric voodoo theme modal/dialog backgrounds - only when electric-voodoo is active */
-:root.electric-voodoo [role="dialog"],
-:root.electric-voodoo [data-radix-popper-content-wrapper],
-:root.electric-voodoo .bg-background,
-:root.electric-voodoo .bg-popover {
+/* Fix electric blue theme modal/dialog backgrounds - only when electric-blue is active */
+:root.electric-blue [role="dialog"],
+:root.electric-blue [data-radix-popper-content-wrapper],
+:root.electric-blue .bg-background,
+:root.electric-blue .bg-popover {
   background: rgba(23, 89, 147, 0.95) !important;
   color: hsl(0, 0%, 98%) !important;
   border-color: rgba(246, 207, 87, 0.4) !important;
 }
 
-/* Fix dropdown menu items in electric voodoo theme - only when electric-voodoo is active */
-:root.electric-voodoo .text-muted-foreground {
+/* Fix dropdown menu items in electric blue theme - only when electric-blue is active */
+:root.electric-blue .text-muted-foreground {
   color: hsl(0, 0%, 80%) !important;
 }
 
-/* Fix electric voodoo theme text contrast - only when electric-voodoo is active */
-:root.electric-voodoo .text-foreground,
-:root.electric-voodoo .text-popover-foreground {
+/* Fix electric blue theme text contrast - only when electric-blue is active */
+:root.electric-blue .text-foreground,
+:root.electric-blue .text-popover-foreground {
   color: hsl(0, 0%, 98%) !important;
 }
 
-/* Electric Voodoo Lightning Overlay */
-:root.electric-voodoo .electric-overlay {
+/* Electric Blue Lightning Overlay */
+:root.electric-blue .electric-overlay {
   opacity: 1 !important;
 }
 
 /* Hide electric effects for all other themes */
-:root:not(.electric-voodoo) .electric-overlay {
+:root:not(.electric-blue) .electric-overlay {
   opacity: 0 !important;
   display: none;
 }
@@ -281,13 +281,13 @@ body::before {
   transition: opacity 0.3s ease;
   background: linear-gradient(
     90deg,
-    rgba(0, 100, 255, 0.4),   /* Electric Blue */
-    rgba(255, 255, 0, 0.5),   /* Lightning Yellow */
-    rgba(200, 0, 255, 0.4),   /* Voodoo Purple */
-    rgba(0, 255, 150, 0.4)    /* Electric Green */
+    rgba(0, 34, 238, 0.5),    /* Electric Blue #0022EE */
+    rgba(255, 255, 0, 0.6),   /* Bright Electric Yellow */
+    rgba(0, 34, 238, 0.4),    /* Electric Blue again */
+    rgba(255, 255, 0, 0.5)    /* Electric Yellow again */
   );
   background-size: 400%;
-  animation: electricPulse 3s ease-in-out infinite;
+  animation: electricPulse 4s ease-in-out infinite;
 }
 
 @keyframes electricPulse {

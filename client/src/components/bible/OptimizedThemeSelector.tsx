@@ -20,7 +20,7 @@ export function OptimizedThemeSelector() {
     'ancient-dark': 'Ancient Dark',
     'monastery-candlelight': 'Monastery Candlelight',
     'mystical-meadow': 'Mystical Meadow',
-    'electric-voodoo': 'Electric Voodoo',
+    'electric-blue': 'Electric Blue',
     'rainbow': 'Rainbow',
     'celestial-veil': 'Celestial Veil'
   };
@@ -31,7 +31,7 @@ export function OptimizedThemeSelector() {
       case 'ancient-dark': return '🌙';
       case 'monastery-candlelight': return '🕯️';
       case 'mystical-meadow': return '🌿';
-      case 'electric-voodoo': return '⚡';
+      case 'electric-blue': return '⚡';
       case 'rainbow': return '🌈';
       case 'celestial-veil': return '🌌';
       default: return '🎨';
@@ -39,7 +39,7 @@ export function OptimizedThemeSelector() {
   };
 
   const basicThemes: ThemeName[] = ['light', 'ancient-dark'];
-  const premiumThemes: ThemeName[] = ['monastery-candlelight', 'mystical-meadow', 'electric-voodoo', 'rainbow', 'celestial-veil'];
+  const premiumThemes: ThemeName[] = ['monastery-candlelight', 'mystical-meadow', 'electric-blue', 'rainbow', 'celestial-veil'];
 
   return (
     <DropdownMenu>
