@@ -60,14 +60,14 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(40, 70%, 55%)',
   },
   'monastery-candlelight': {
-    bgPrimary: 'rgba(48, 34, 17, 0.3)', // Transparent wooden brown
-    bgSecondary: 'rgba(48, 34, 17, 0.2)', // Even more transparent
-    headerBg: 'rgba(48, 34, 17, 0.4)', // Slightly less transparent header
-    columnBg: 'rgba(48, 34, 17, 0.2)', // Very transparent columns
-    highlightBg: 'rgba(255, 140, 0, 0.2)', // Transparent orange highlight
-    grad0: 'rgba(30, 20, 10, 0.8)', // Dark gradient start
-    grad1: 'rgba(20, 15, 8, 0.9)', // Darker gradient end
-    glassBg: 'rgba(62, 45, 26, 0.15)', // Very transparent glass
+    bgPrimary: 'rgba(48, 34, 17, 0.05)', // Ultra transparent wooden brown
+    bgSecondary: 'rgba(48, 34, 17, 0.03)', // Ultra transparent
+    headerBg: 'rgba(48, 34, 17, 0.08)', // Ultra transparent header
+    columnBg: 'rgba(48, 34, 17, 0.03)', // Ultra transparent columns
+    highlightBg: 'rgba(255, 140, 0, 0.15)', // More transparent orange highlight
+    grad0: 'rgba(30, 20, 10, 0.3)', // Much more transparent gradient start
+    grad1: 'rgba(20, 15, 8, 0.4)', // Much more transparent gradient end
+    glassBg: 'rgba(62, 45, 26, 0.05)', // Ultra transparent glass
     textPrimary: 'hsl(40, 10%, 95%)', // Warm parchment off-white
     textSecondary: 'hsl(40, 5%, 80%)', // Brighter secondary text
     borderColor: 'rgba(255, 165, 0, 0.3)', // Transparent amber borders
@@ -76,14 +76,14 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(25, 80%, 70%)', // Even brighter on hover
   },
   'mystical-meadow': {
-    bgPrimary: 'rgba(255, 140, 60, 0.15)', // Transparent sunset orange
-    bgSecondary: 'rgba(255, 180, 120, 0.1)', // Transparent lighter orange
-    headerBg: 'rgba(255, 140, 60, 0.08)', // Very transparent orange header
-    columnBg: 'rgba(255, 180, 120, 0.08)', // Very transparent orange columns
-    highlightBg: 'rgba(255, 215, 0, 0.4)', // Bright gold highlights
-    grad0: 'hsl(25, 90%, 65%)', // Sunset orange gradient start
-    grad1: 'hsl(210, 80%, 70%)', // Sky blue gradient end
-    glassBg: 'rgba(255, 180, 120, 0.05)', // Minimal sunset glass effect
+    bgPrimary: 'rgba(255, 140, 60, 0.03)', // Ultra transparent sunset orange
+    bgSecondary: 'rgba(255, 180, 120, 0.02)', // Ultra transparent lighter orange
+    headerBg: 'rgba(255, 140, 60, 0.02)', // Ultra transparent orange header
+    columnBg: 'rgba(255, 180, 120, 0.02)', // Ultra transparent orange columns
+    highlightBg: 'rgba(255, 215, 0, 0.25)', // More transparent gold highlights
+    grad0: 'hsl(25, 30%, 30%)', // Much more transparent sunset gradient start
+    grad1: 'hsl(210, 30%, 30%)', // Much more transparent sky blue gradient end
+    glassBg: 'rgba(255, 180, 120, 0.01)', // Ultra minimal sunset glass effect
     textPrimary: 'hsl(25, 40%, 25%)', // Warm brown text for contrast
     textSecondary: 'hsl(25, 30%, 35%)', // Lighter brown secondary
     borderColor: 'rgba(255, 140, 60, 0.5)', // Orange borders
@@ -92,14 +92,14 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(45, 100%, 40%)', // Darker gold on hover
   },
   'electric-blue': {
-    bgPrimary: 'rgba(0, 34, 238, 0.15)', // Transparent electric blue (#0022EE)
-    bgSecondary: 'rgba(0, 34, 238, 0.1)', // Lighter electric blue
-    headerBg: 'rgba(0, 34, 238, 0.08)', // Very transparent blue header
-    columnBg: 'rgba(0, 34, 238, 0.08)', // Very transparent blue columns
-    highlightBg: 'rgba(255, 255, 0, 0.4)', // Bright yellow highlights
-    grad0: 'hsl(236, 100%, 47%)', // Electric blue gradient start (#0022EE)
-    grad1: 'hsl(236, 80%, 35%)', // Darker blue gradient end
-    glassBg: 'rgba(0, 34, 238, 0.05)', // Minimal blue glass effect
+    bgPrimary: 'rgba(0, 34, 238, 0.03)', // Ultra transparent electric blue (#0022EE)
+    bgSecondary: 'rgba(0, 34, 238, 0.02)', // Ultra transparent electric blue
+    headerBg: 'rgba(0, 34, 238, 0.02)', // Ultra transparent blue header
+    columnBg: 'rgba(0, 34, 238, 0.02)', // Ultra transparent blue columns
+    highlightBg: 'rgba(255, 255, 0, 0.25)', // More transparent yellow highlights
+    grad0: 'hsl(236, 40%, 20%)', // Much more transparent electric blue gradient start
+    grad1: 'hsl(236, 30%, 15%)', // Much more transparent darker blue gradient end
+    glassBg: 'rgba(0, 34, 238, 0.01)', // Ultra minimal blue glass effect
     textPrimary: 'hsl(0, 0%, 98%)', // Crisp white text
     textSecondary: 'hsl(0, 0%, 90%)', // Bright secondary for contrast
     borderColor: 'rgba(0, 34, 238, 0.4)', // Electric blue borders
@@ -108,14 +108,14 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(60, 100%, 60%)', // Brighter yellow on hover
   },
   'rainbow': {
-    bgPrimary: 'rgba(15, 15, 25, 0.3)', // Dark transparent background to let rainbow show
-    bgSecondary: 'rgba(20, 20, 30, 0.2)', // Darker transparent background
-    headerBg: 'rgba(15, 15, 25, 0.2)', // Dark transparent header
-    columnBg: 'rgba(20, 20, 30, 0.15)', // Dark transparent columns
-    highlightBg: 'rgba(255, 165, 0, 0.4)', // Bright orange highlights for contrast
-    grad0: 'hsl(0, 50%, 10%)', // Dark red gradient start
-    grad1: 'hsl(240, 50%, 10%)', // Dark blue gradient end
-    glassBg: 'rgba(15, 15, 25, 0.1)', // Dark minimal glass effect
+    bgPrimary: 'rgba(15, 15, 25, 0.05)', // Ultra transparent dark background to let rainbow show
+    bgSecondary: 'rgba(20, 20, 30, 0.03)', // Ultra transparent dark background
+    headerBg: 'rgba(15, 15, 25, 0.03)', // Ultra transparent dark header
+    columnBg: 'rgba(20, 20, 30, 0.03)', // Ultra transparent dark columns
+    highlightBg: 'rgba(255, 165, 0, 0.25)', // More transparent orange highlights for contrast
+    grad0: 'hsl(0, 20%, 5%)', // Ultra transparent dark red gradient start
+    grad1: 'hsl(240, 20%, 5%)', // Ultra transparent dark blue gradient end
+    glassBg: 'rgba(15, 15, 25, 0.02)', // Ultra transparent dark minimal glass effect
     textPrimary: 'hsl(0, 0%, 92%)', // Light text for contrast
     textSecondary: 'hsl(0, 0%, 75%)', // Lighter secondary text
     borderColor: 'rgba(153, 102, 204, 0.5)', // Brighter violet borders for visibility
@@ -124,14 +124,14 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(220, 85%, 75%)', // Even brighter blue on hover
   },
   'celestial-veil': {
-    bgPrimary: 'rgba(20, 40, 60, 0.2)', // Transparent midnight blue to let aurora show
-    bgSecondary: 'rgba(25, 50, 75, 0.15)', // Transparent dark blue
-    headerBg: 'rgba(20, 40, 60, 0.1)', // Very transparent header
-    columnBg: 'rgba(25, 50, 75, 0.1)', // Very transparent columns
-    highlightBg: 'rgba(180, 100, 200, 0.3)', // Semi-transparent purple highlights
-    grad0: 'hsl(160, 80%, 20%)', // Aurora green gradient start
-    grad1: 'hsl(280, 70%, 20%)', // Purple gradient end
-    glassBg: 'rgba(25, 50, 75, 0.05)', // Minimal glass effect
+    bgPrimary: 'rgba(20, 40, 60, 0.03)', // Ultra transparent midnight blue to let aurora show
+    bgSecondary: 'rgba(25, 50, 75, 0.02)', // Ultra transparent dark blue
+    headerBg: 'rgba(20, 40, 60, 0.02)', // Ultra transparent header
+    columnBg: 'rgba(25, 50, 75, 0.02)', // Ultra transparent columns
+    highlightBg: 'rgba(180, 100, 200, 0.2)', // More transparent purple highlights
+    grad0: 'hsl(160, 30%, 8%)', // Much more transparent aurora green gradient start
+    grad1: 'hsl(280, 25%, 8%)', // Much more transparent purple gradient end
+    glassBg: 'rgba(25, 50, 75, 0.01)', // Ultra minimal glass effect
     textPrimary: 'hsl(0, 0%, 96%)', // Soft white text
     textSecondary: 'hsl(0, 0%, 85%)', // Brighter secondary for contrast
     borderColor: 'rgba(100, 150, 200, 0.4)', // Semi-transparent blue borders
