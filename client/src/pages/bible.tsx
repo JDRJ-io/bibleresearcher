@@ -22,6 +22,7 @@ import { useReadingState } from '@/hooks/useReadingState';
 import type { VirtualBibleTableHandle } from '@/components/bible/VirtualBibleTable';
 import { PatchNotesBanner } from '@/components/ui/PatchNotesBanner';
 import { IntroOverlay } from '@/components/ui/IntroOverlay';
+import { MasterColumnPanel } from '@/components/bible/MasterColumnPanel';
 
 import type { BibleVerse } from '@/types/bible';
 
@@ -394,6 +395,15 @@ export default function BiblePage() {
             getGlobalVerseText={getGlobalVerseText}
             onVerseClick={goTo}
             onCurrentVerseChange={handleCurrentVerseChange}
+          />
+          
+          {/* Floating Master Column Panel */}
+          <MasterColumnPanel 
+            getVerseText={getGlobalVerseText}
+            mainTranslation={mainTranslation}
+            onVerseClick={goTo}
+            getVerseLabels={undefined}
+            currentVerse={currentVerse}
           />
           
           {/* Smart Loading Overlay */}

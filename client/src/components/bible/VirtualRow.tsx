@@ -975,23 +975,8 @@ export function VirtualRow({
         );
 
       case 'hybrid':
-        return (
-          <div 
-            key={slot} 
-            className="bible-column border-r border-gray-200 dark:border-gray-700" 
-            style={columnStyle}
-            data-column={config.type}
-            data-col-key={columnId}
-          >
-            <HybridCell 
-              centerVerseRef={centerVerseRef || verse.reference}
-              getVerseText={getVerseText}
-              mainTranslation={mainTranslation}
-              onVerseClick={onVerseClick}
-              getVerseLabels={getVerseLabels}
-            />
-          </div>
-        );
+        // Hybrid column is now handled by MasterColumnPanel - don't render here
+        return null;
 
       default:
         return null;
