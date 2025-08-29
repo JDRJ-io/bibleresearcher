@@ -79,16 +79,16 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
       
       {/* Mystical orb overlay */}
       <div className="orb-overlay">
-        {Array.from({ length: 15 }, (_, i) => (
+        {Array.from({ length: 25 }, (_, i) => (
           <div 
             key={i}
             className="orb"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `-${Math.random() * 15}s`,
-              width: `${15 + Math.random() * 10}px`,
-              height: `${15 + Math.random() * 10}px`
+              animationDelay: `-${Math.random() * 8}s`,
+              width: `${25 + Math.random() * 20}px`,
+              height: `${25 + Math.random() * 20}px`
             }}
           />
         ))}
@@ -96,14 +96,14 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
       
       {/* Aurora orb overlay for celestial theme */}
       <div className="aurora-orb-overlay">
-        {Array.from({ length: 10 }, (_, i) => (
+        {Array.from({ length: 20 }, (_, i) => (
           <div 
             key={i}
             className="aurora-orb"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animationDelay: `-${Math.random() * 10}s`
+              animationDelay: `-${Math.random() * 8}s`
             }}
           />
         ))}
@@ -114,6 +114,9 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
       
       {/* Aurora wave overlay for celestial veil */}
       <div className="aurora-overlay" />
+      
+      {/* Electric lightning overlay for electric voodoo */}
+      <div className="electric-overlay" />
       
       {/* Standard gradient background */}
       <div className={backgroundClasses} />

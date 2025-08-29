@@ -109,9 +109,11 @@ body {
 }
 
 @keyframes rainbowShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { background-position: 0% 50%; transform: scale(1) rotate(0deg); }
+  25% { background-position: 25% 25%; transform: scale(1.05) rotate(90deg); }
+  50% { background-position: 100% 50%; transform: scale(1.1) rotate(180deg); }
+  75% { background-position: 75% 75%; transform: scale(1.05) rotate(270deg); }
+  100% { background-position: 0% 50%; transform: scale(1) rotate(360deg); }
 }
 
 /* Aurora Theme Animation */
@@ -148,14 +150,18 @@ body {
 }
 
 @keyframes auroraWave {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { background-position: 0% 0%; transform: skewX(0deg); }
+  25% { background-position: 50% 25%; transform: skewX(3deg); }
+  50% { background-position: 100% 100%; transform: skewX(0deg); }
+  75% { background-position: 25% 75%; transform: skewX(-3deg); }
+  100% { background-position: 0% 0%; transform: skewX(0deg); }
 }
 
 @keyframes auroraPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.3; }
+  0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.9; }
+  33% { transform: translateY(-15vh) scale(1.4) rotate(120deg); opacity: 1; }
+  66% { transform: translateY(-8vh) translateX(10vw) scale(1.6) rotate(240deg); opacity: 0.95; }
+  100% { transform: translateY(0) scale(1) rotate(360deg); opacity: 0.9; }
 }
 
 /* Celestial orbs for Aurora theme */
@@ -203,6 +209,28 @@ body {
   transition: opacity 0.3s ease;
 }
 
+.rainbow-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at 60% 40%,
+    rgba(255, 100, 255, 0.4) 0%,
+    rgba(255, 200, 100, 0.3) 30%,
+    rgba(100, 255, 100, 0.3) 60%,
+    transparent 80%
+  );
+  animation: rainbowPulse 5s ease-in-out infinite;
+}
+
+@keyframes rainbowPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
+}
+
 .rainbow-overlay::before {
   content: '';
   position: absolute;
@@ -212,14 +240,16 @@ body {
   height: 100%;
   background: linear-gradient(
     45deg,
-    rgba(255, 100, 100, 0.1), /* Red */
-    rgba(255, 165, 0, 0.1),  /* Orange */
-    rgba(255, 255, 0, 0.1),  /* Yellow */
-    rgba(0, 128, 0, 0.1),    /* Green */
-    rgba(0, 128, 255, 0.1)   /* Blue */
+    rgba(255, 0, 0, 0.5),     /* BRIGHT Red */
+    rgba(255, 127, 0, 0.5),   /* BRIGHT Orange */
+    rgba(255, 255, 0, 0.5),   /* BRIGHT Yellow */
+    rgba(0, 255, 0, 0.5),     /* BRIGHT Green */
+    rgba(0, 0, 255, 0.5),     /* BRIGHT Blue */
+    rgba(75, 0, 130, 0.5),    /* Indigo */
+    rgba(148, 0, 211, 0.5)    /* Violet */
   );
-  background-size: 400%;
-  animation: rainbowShift 15s ease-in-out infinite;
+  background-size: 600%;
+  animation: rainbowShift 6s ease-in-out infinite;
 }
 
 /* Show aurora effects only for celestial veil theme */
@@ -248,12 +278,13 @@ body {
   height: 100%;
   background: linear-gradient(
     60deg,
-    rgba(0, 160, 120, 0.25), /* Green */
-    rgba(120, 80, 200, 0.25), /* Purple */
-    rgba(0, 120, 255, 0.25)  /* Blue */
+    rgba(0, 255, 150, 0.7), /* BRIGHT Green */
+    rgba(150, 100, 255, 0.7), /* BRIGHT Purple */
+    rgba(0, 150, 255, 0.7),  /* BRIGHT Blue */
+    rgba(255, 100, 200, 0.6) /* Pink */
   );
-  background-size: 300%;
-  animation: auroraWave 12s ease-in-out infinite;
+  background-size: 500%;
+  animation: auroraWave 4s ease-in-out infinite;
 }
 
 .aurora-overlay::after {
@@ -263,8 +294,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1), transparent 70%);
-  animation: auroraPulse 20s ease-in-out infinite;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.4), rgba(0, 255, 200, 0.3) 50%, transparent 80%);
+  animation: auroraPulse 8s ease-in-out infinite;
 }
 
 /* Accessibility: Reduced motion */
