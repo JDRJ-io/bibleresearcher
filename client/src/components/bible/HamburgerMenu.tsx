@@ -38,6 +38,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   const showNotes = bibleStore?.showNotes ?? false;
   const showDates = bibleStore?.showDates ?? false;
   const showContext = bibleStore?.showContext ?? false;
+  const showHybrid = bibleStore?.showHybrid ?? false;
   const isChronological = bibleStore?.isChronological ?? false;
   const unlockMode = bibleStore?.unlockMode ?? false;
   const toggleCrossRefs = bibleStore?.toggleCrossRefs ?? (() => {});
@@ -48,6 +49,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
   const toggleNotes = bibleStore?.toggleNotes ?? (() => {});
   const toggleDates = bibleStore?.toggleDates ?? (() => {});
   const toggleContext = bibleStore?.toggleContext ?? (() => {});
+  const toggleHybrid = bibleStore?.toggleHybrid ?? (() => {});
   const toggleChronological = bibleStore?.toggleChronological ?? (() => {});
   const toggleUnlockMode = bibleStore?.toggleUnlockMode ?? (() => {});
   const isInitialized = bibleStore?.isInitialized ?? false;
@@ -297,6 +299,18 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
                   }}
                 />
                 <Label htmlFor="context-boundaries" className="text-xs">Context Boundaries</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="master-column" 
+                  className="w-3 h-3"
+                  checked={showHybrid}
+                  onCheckedChange={(checked) => {
+                    console.log('🔴 Master Column toggle clicked! New state:', checked);
+                    toggleHybrid();
+                  }}
+                />
+                <Label htmlFor="master-column" className="text-xs">Master Column</Label>
               </div>
             </div>
 
