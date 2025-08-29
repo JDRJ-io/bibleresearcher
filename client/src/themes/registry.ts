@@ -108,33 +108,33 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(45, 95%, 75%)', // Brighter yellow on hover
   },
   'spectral-covenant': {
-    bgPrimary: 'hsl(0, 0%, 97%)', // Soft ivory for unity
-    bgSecondary: 'hsl(150, 30%, 90%)', // Pale green for cards
-    headerBg: 'hsl(0, 0%, 97%)', // Ivory header
-    columnBg: 'hsl(150, 30%, 90%)', // Pale green columns
-    highlightBg: 'hsl(30, 70%, 60%)', // Orange for highlights
+    bgPrimary: 'rgba(255, 255, 255, 0.2)', // Transparent ivory to let rainbow show
+    bgSecondary: 'rgba(240, 248, 240, 0.15)', // Transparent pale green
+    headerBg: 'rgba(255, 255, 255, 0.1)', // Very transparent header
+    columnBg: 'rgba(240, 248, 240, 0.1)', // Very transparent columns
+    highlightBg: 'rgba(255, 165, 0, 0.3)', // Semi-transparent orange highlights
     grad0: 'hsl(0, 100%, 85%)', // Red gradient start
     grad1: 'hsl(240, 100%, 85%)', // Blue gradient end
-    glassBg: 'rgba(255, 255, 255, 0.85)', // Light glass effect
+    glassBg: 'rgba(255, 255, 255, 0.05)', // Minimal glass effect
     textPrimary: 'hsl(0, 0%, 15%)', // Dark charcoal text
-    textSecondary: 'hsl(0, 0%, 40%)', // Medium gray secondary
-    borderColor: 'hsl(270, 50%, 80%)', // Soft violet borders
+    textSecondary: 'hsl(0, 0%, 25%)', // Darker secondary for contrast
+    borderColor: 'rgba(153, 102, 204, 0.4)', // Semi-transparent violet borders
     accentColor: 'hsl(220, 85%, 55%)', // Vibrant sky blue
     linkColor: 'hsl(220, 85%, 55%)', // Blue links
     linkHoverColor: 'hsl(220, 85%, 45%)', // Darker blue on hover
   },
   'celestial-veil': {
-    bgPrimary: 'hsl(200, 60%, 8%)', // Midnight blue
-    bgSecondary: 'hsl(200, 50%, 12%)', // Darker blue for cards
-    headerBg: 'hsl(200, 60%, 8%)', // Midnight blue header
-    columnBg: 'hsl(200, 50%, 12%)', // Dark blue columns
-    highlightBg: 'hsl(280, 70%, 40%)', // Purple highlights
+    bgPrimary: 'rgba(20, 40, 60, 0.2)', // Transparent midnight blue to let aurora show
+    bgSecondary: 'rgba(25, 50, 75, 0.15)', // Transparent dark blue
+    headerBg: 'rgba(20, 40, 60, 0.1)', // Very transparent header
+    columnBg: 'rgba(25, 50, 75, 0.1)', // Very transparent columns
+    highlightBg: 'rgba(180, 100, 200, 0.3)', // Semi-transparent purple highlights
     grad0: 'hsl(160, 80%, 20%)', // Aurora green gradient start
     grad1: 'hsl(280, 70%, 20%)', // Purple gradient end
-    glassBg: 'rgba(25, 50, 75, 0.85)', // Dark glass effect
+    glassBg: 'rgba(25, 50, 75, 0.05)', // Minimal glass effect
     textPrimary: 'hsl(0, 0%, 96%)', // Soft white text
-    textSecondary: 'hsl(0, 0%, 75%)', // Light gray secondary
-    borderColor: 'hsl(200, 45%, 20%)', // Subtle blue borders
+    textSecondary: 'hsl(0, 0%, 85%)', // Brighter secondary for contrast
+    borderColor: 'rgba(100, 150, 200, 0.4)', // Semi-transparent blue borders
     accentColor: 'hsl(160, 80%, 45%)', // Aurora green
     linkColor: 'hsl(160, 80%, 45%)', // Aurora green links
     linkHoverColor: 'hsl(160, 80%, 55%)', // Brighter green on hover
