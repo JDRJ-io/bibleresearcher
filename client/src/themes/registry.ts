@@ -108,20 +108,20 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(60, 100%, 60%)', // Brighter yellow on hover
   },
   'rainbow': {
-    bgPrimary: 'rgba(255, 255, 255, 0.2)', // Transparent ivory to let rainbow show
-    bgSecondary: 'rgba(240, 248, 240, 0.15)', // Transparent pale green
-    headerBg: 'rgba(255, 255, 255, 0.1)', // Very transparent header
-    columnBg: 'rgba(240, 248, 240, 0.1)', // Very transparent columns
-    highlightBg: 'rgba(255, 165, 0, 0.3)', // Semi-transparent orange highlights
-    grad0: 'hsl(0, 100%, 85%)', // Red gradient start
-    grad1: 'hsl(240, 100%, 85%)', // Blue gradient end
-    glassBg: 'rgba(255, 255, 255, 0.05)', // Minimal glass effect
-    textPrimary: 'hsl(0, 0%, 15%)', // Dark charcoal text
-    textSecondary: 'hsl(0, 0%, 25%)', // Darker secondary for contrast
-    borderColor: 'rgba(153, 102, 204, 0.4)', // Semi-transparent violet borders
-    accentColor: 'hsl(220, 85%, 55%)', // Vibrant sky blue
-    linkColor: 'hsl(220, 85%, 55%)', // Blue links
-    linkHoverColor: 'hsl(220, 85%, 45%)', // Darker blue on hover
+    bgPrimary: 'rgba(15, 15, 25, 0.3)', // Dark transparent background to let rainbow show
+    bgSecondary: 'rgba(20, 20, 30, 0.2)', // Darker transparent background
+    headerBg: 'rgba(15, 15, 25, 0.2)', // Dark transparent header
+    columnBg: 'rgba(20, 20, 30, 0.15)', // Dark transparent columns
+    highlightBg: 'rgba(255, 165, 0, 0.4)', // Bright orange highlights for contrast
+    grad0: 'hsl(0, 50%, 10%)', // Dark red gradient start
+    grad1: 'hsl(240, 50%, 10%)', // Dark blue gradient end
+    glassBg: 'rgba(15, 15, 25, 0.1)', // Dark minimal glass effect
+    textPrimary: 'hsl(0, 0%, 92%)', // Light text for contrast
+    textSecondary: 'hsl(0, 0%, 75%)', // Lighter secondary text
+    borderColor: 'rgba(153, 102, 204, 0.5)', // Brighter violet borders for visibility
+    accentColor: 'hsl(220, 85%, 65%)', // Bright sky blue
+    linkColor: 'hsl(220, 85%, 65%)', // Bright blue links
+    linkHoverColor: 'hsl(220, 85%, 75%)', // Even brighter blue on hover
   },
   'celestial-veil': {
     bgPrimary: 'rgba(20, 40, 60, 0.2)', // Transparent midnight blue to let aurora show
