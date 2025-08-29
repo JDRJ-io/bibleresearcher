@@ -4,7 +4,7 @@
 export interface ColumnSlot {
   id: string;
   name: string;
-  type: 'reference' | 'translation' | 'cross-ref' | 'prophecy' | 'notes' | 'context';
+  type: 'reference' | 'translation' | 'cross-ref' | 'prophecy' | 'notes' | 'context' | 'hybrid';
   width: string; // Tailwind width class
   mobileWidth: string; // Mobile-specific width
   position: number; // Slot position (0-19)
@@ -228,6 +228,18 @@ export const COLUMN_LAYOUT: ColumnSlot[] = [
     position: 19,
     defaultVisible: false,
     guestMode: true // Available to all users
+  },
+  
+  // Slot 20: Hybrid column - shows all data for center anchor verse
+  {
+    id: 'hybrid',
+    name: 'Master Column',
+    type: 'hybrid',
+    width: 'w-96',       // Wider to accommodate all data
+    mobileWidth: 'w-80', // Slightly narrower on mobile
+    position: 20,
+    defaultVisible: false,
+    guestMode: true
   }
 ];
 
@@ -254,6 +266,7 @@ export function getVisibleColumns(preferences: any, isGuest: boolean = true): Co
       if (col.type === 'prophecy' && preferences.showProphecy) return true;
       if (col.type === 'notes' && preferences.showNotes) return true;
       if (col.type === 'context' && preferences.showContext) return true;
+      if (col.type === 'hybrid' && preferences.showHybrid) return true;
       if (col.type === 'translation') return true; // All translations available
       
       return false;

@@ -43,7 +43,7 @@ interface NewColumnHeadersProps {
 interface SimpleColumn {
   id: string;
   name: string;
-  type: 'reference' | 'main-translation' | 'alt-translation' | 'cross-refs' | 'notes' | 'context' | 'prophecy';
+  type: 'reference' | 'main-translation' | 'alt-translation' | 'cross-refs' | 'notes' | 'context' | 'prophecy' | 'hybrid';
   visible: boolean;
   width: string;
 }
@@ -66,6 +66,7 @@ export function NewColumnHeaders({
   const { 
     isInitialized, 
     showNotes: storeShowNotes, 
+    showHybrid,
     unlockMode 
   } = store;
 
@@ -238,6 +239,8 @@ export function NewColumnHeaders({
       case 'context':
         adaptiveVar = '--adaptive-context-width';
         break;
+      case 'hybrid':
+        return 'calc(384px * var(--column-width-mult, 1))'; // Fixed width for hybrid column
       default:
         adaptiveVar = '--adaptive-alt-width'; // Fallback
     }
@@ -284,6 +287,9 @@ export function NewColumnHeaders({
     slotConfig[9] = { type: 'prophecy-f', header: 'Fulfillment', visible: store.showFulfillment };
     slotConfig[10] = { type: 'prophecy-v', header: 'Verification', visible: store.showVerification };
 
+    // Hybrid column (slot 20) - shows all data for center anchor verse
+    slotConfig[20] = { type: 'hybrid', header: 'Master', visible: showHybrid };
+
     // Alternate translation columns (slots 12-19)
     alternates
       .filter(code => code !== (main || 'KJV'))
@@ -328,6 +334,9 @@ export function NewColumnHeaders({
           case 'prophecy-v':
             id = 'prophecy-verification';
             break;
+          case 'hybrid':
+            id = 'hybrid';
+            break;
           case 'alt-translation':
             id = `alt-translation-${config.translationCode}`;
             break;
@@ -352,7 +361,7 @@ export function NewColumnHeaders({
     });
 
     return cols;
-  }, [main, alternates, showNotes, showCrossRefs, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths]);
+  }, [main, alternates, showNotes, showCrossRefs, showHybrid, store.showPrediction, store.showFulfillment, store.showVerification, adaptiveWidths]);
 
   // Sync columns with localColumns for drag and drop
   useMemo(() => {
@@ -390,6 +399,7 @@ export function NewColumnHeaders({
           'prophecy-fulfillment': 9,
           'prophecy-verification': 10,
           'alt-translation': 12, // base slot for alternates
+          'hybrid': 20,
         };
 
         // Update displayOrder in store to match new header order

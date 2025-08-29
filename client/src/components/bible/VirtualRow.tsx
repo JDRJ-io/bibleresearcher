@@ -16,6 +16,7 @@ import { NotesCell } from '@/components/user/NotesCell';
 import { VerseText } from '@/components/highlights/VerseText';
 import { HoverVerseBar } from './HoverVerseBar';
 import { InlineDateInfo } from './InlineDateInfo';
+import { HybridCell } from './HybridCell';
 
 
 
@@ -32,6 +33,7 @@ interface VirtualRowProps {
   onExpandVerse?: (verse: BibleVerse) => void;
   onDoubleClick?: () => void;
   getVerseLabels?: (verseReference: string) => Record<string, string[]>;
+  centerVerseRef?: string; // For hybrid column - always shows data for center anchor verse
 }
 
 // Cell Components
@@ -497,7 +499,8 @@ export function VirtualRow({
   onVerseClick,
   onExpandVerse,
   onDoubleClick,
-  getVerseLabels
+  getVerseLabels,
+  centerVerseRef
 }: VirtualRowProps) {
   // Track orientation changes for responsive date positioning
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
@@ -522,7 +525,7 @@ export function VirtualRow({
 
   // Debug translation store state (only for first verse to avoid spam)
   // Console logging removed for cleaner output
-  const { showCrossRefs, showNotes, showDates, showProphecies, columnState } = store;
+  const { showCrossRefs, showNotes, showDates, showProphecies, showHybrid, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
   useColumnData();
@@ -592,6 +595,10 @@ export function VirtualRow({
         case 10:
           // Prophecy V column (unchanged)
           slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+          break;
+        case 20:
+          // Hybrid column - shows all data for center anchor verse
+          slotConfig[20] = { type: 'hybrid', header: 'Master', visible: col.visible && showHybrid };
           break;
       }
     });
@@ -682,6 +689,7 @@ export function VirtualRow({
       case 8: case 9: case 10: return 10; // Prophecy columns
       case 12: case 13: case 14: case 15: 
       case 16: case 17: case 18: case 19: return 18; // Alternate translations (slots 12-19)
+      case 20: return 24; // Hybrid column - wider to accommodate all data
       default: return 10;
     }
   }
@@ -726,6 +734,8 @@ export function VirtualRow({
           return 'prophecy-verification';
         case 'alt-translation':
           return `alt-translation-${config.translationCode}`;
+        case 'hybrid':
+          return 'hybrid';
         default:
           return config.type;
       }
@@ -752,6 +762,7 @@ export function VirtualRow({
         if (slotNumber === 7 && config.type === 'cross-refs') return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
         if (slotNumber >= 8 && slotNumber <= 10 && (config.type === 'prophecy-p' || config.type === 'prophecy-f' || config.type === 'prophecy-v')) return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
         if (slotNumber >= 12 && slotNumber <= 19 && config.type === 'alt-translation') return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 20 && config.type === 'hybrid') return 'calc(384px * var(--column-width-mult, 1))'; // 384px = w-96
         return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
       } else {
         // Landscape mode - use adaptive CSS variables with column-width-mult scaling (IDENTICAL to NewColumnHeaders)
@@ -761,6 +772,7 @@ export function VirtualRow({
         if (slotNumber === 7) return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
         if (slotNumber >= 8 && slotNumber <= 10) return 'calc(var(--adaptive-prophecy-width) * var(--column-width-mult, 1))';
         if (slotNumber >= 12 && slotNumber <= 19) return 'calc(var(--adaptive-alt-width) * var(--column-width-mult, 1))';
+        if (slotNumber === 20 && config.type === 'hybrid') return 'calc(384px * var(--column-width-mult, 1))'; // 384px = w-96
         return 'calc(var(--adaptive-cross-width) * var(--column-width-mult, 1))';
       }
     };
@@ -962,6 +974,24 @@ export function VirtualRow({
           </div>
         );
 
+      case 'hybrid':
+        return (
+          <div 
+            key={slot} 
+            className="bible-column border-r border-gray-200 dark:border-gray-700" 
+            style={columnStyle}
+            data-column={config.type}
+            data-col-key={columnId}
+          >
+            <HybridCell 
+              centerVerseRef={centerVerseRef || verse.reference}
+              getVerseText={getVerseText}
+              mainTranslation={mainTranslation}
+              onVerseClick={onVerseClick}
+              getVerseLabels={getVerseLabels}
+            />
+          </div>
+        );
 
       default:
         return null;

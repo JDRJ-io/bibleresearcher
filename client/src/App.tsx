@@ -116,6 +116,8 @@ export const useBibleStore = create<{
   toggleContext: () => void;
   toggleChronological: () => void;
   showContext: boolean;
+  showHybrid: boolean;
+  toggleHybrid: () => void;
   columnState: ColumnState;
   sizeState: SizeState;
   isInitialized: boolean;
@@ -196,6 +198,7 @@ export const useBibleStore = create<{
   showNotes: false,     // Notes column toggle (paid feature)
   showDates: false,      // Dates column toggle - OFF by default
   showContext: false,   // Context boundaries toggle - OFF by default
+  showHybrid: false,    // Hybrid column toggle - OFF by default
   isSearchOpen: false,      // Search modal state
   activeLabels: [],         // Active semantic labels array
   isChronological: false,   // Verse order toggle (canonical vs chronological)
@@ -470,6 +473,22 @@ export const useBibleStore = create<{
     return { showContext: newValue };
   }),
 
+  toggleHybrid: () => set(state => {
+    console.log('🔄 TOGGLE HYBRID - Current:', state.showHybrid, '→ New:', !state.showHybrid);
+    const newValue = !state.showHybrid;
+    const newState = {
+      showHybrid: newValue,
+      columnState: {
+        ...state.columnState,
+        columns: state.columnState.columns.map(col => 
+          col.slot === 20 ? { ...col, visible: newValue } : col // Slot 20 = Hybrid
+        )
+      }
+    };
+    console.log('🔄 TOGGLE HYBRID - Updated columns:', newState.columnState.columns.filter(c => c.visible).map(c => `slot ${c.slot}`));
+    return newState;
+  }),
+
   // Toggle between canonical and chronological verse order
   toggleChronological: () => set(state => {
     const newChronological = !state.isChronological;
@@ -567,6 +586,7 @@ export const useBibleStore = create<{
       { slot: 17, visible: false, widthRem: 18, displayOrder: 17 }, // Alt translation 10 (T₁₀)
       { slot: 18, visible: false, widthRem: 18, displayOrder: 18 }, // Alt translation 11 (T₁₁)
       { slot: 19, visible: false, widthRem: 18, displayOrder: 19 }, // Alt translation 12 (T₁₂)
+      { slot: 20, visible: false, widthRem: 20, displayOrder: 20 }, // Hybrid column - shows all data for center verse
     ],
     setVisible: (slot: number, visible: boolean) => set(state => ({
       columnState: {
