@@ -76,33 +76,33 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     linkHoverColor: 'hsl(25, 80%, 70%)', // Even brighter on hover
   },
   'mystical-meadow': {
-    bgPrimary: 'hsl(120, 30%, 95%)', // Light grassy green, like sunlit meadow
-    bgSecondary: 'hsl(120, 25%, 98%)', // Even lighter grass tone
-    headerBg: 'hsl(120, 30%, 96%)', // Soft meadow header
-    columnBg: 'hsl(120, 25%, 98%)', // Pale elevation for columns
-    highlightBg: 'hsl(30, 70%, 85%)', // Warm orange glow for highlights
+    bgPrimary: 'rgba(240, 248, 240, 0.2)', // Transparent meadow green to let animations show
+    bgSecondary: 'rgba(240, 248, 240, 0.15)', // Transparent lighter grass
+    headerBg: 'rgba(240, 248, 240, 0.1)', // Very transparent header
+    columnBg: 'rgba(240, 248, 240, 0.1)', // Very transparent columns
+    highlightBg: 'rgba(255, 165, 0, 0.3)', // Semi-transparent orange highlights
     grad0: 'hsl(120, 40%, 96%)', // Light meadow gradient start
     grad1: 'hsl(100, 30%, 94%)', // Soft blue-green gradient end
-    glassBg: 'rgba(240, 248, 240, 0.85)', // Light green glass effect
+    glassBg: 'rgba(240, 248, 240, 0.05)', // Minimal glass effect
     textPrimary: 'hsl(120, 50%, 20%)', // Deep green text for contrast
-    textSecondary: 'hsl(120, 30%, 40%)', // Medium green secondary text
-    borderColor: 'hsl(120, 20%, 80%)', // Subtle green borders
+    textSecondary: 'hsl(120, 50%, 30%)', // Darker secondary for better contrast
+    borderColor: 'rgba(100, 150, 100, 0.4)', // Semi-transparent green borders
     accentColor: 'hsl(45, 80%, 60%)', // Golden orb yellow for buttons
     linkColor: 'hsl(45, 70%, 50%)', // Golden links
     linkHoverColor: 'hsl(45, 80%, 40%)', // Darker gold on hover
   },
   'electric-voodoo': {
-    bgPrimary: 'hsl(208, 73%, 33%)', // Vibrant Voodoo Blue
-    bgSecondary: 'hsl(208, 60%, 28%)', // Deeper blue for elevation
-    headerBg: 'hsl(208, 70%, 30%)', // Electric blue header
-    columnBg: 'hsl(208, 60%, 28%)', // Deep blue columns
-    highlightBg: 'hsl(45, 90%, 75%)', // Bright yellow highlights
+    bgPrimary: 'rgba(23, 89, 147, 0.2)', // Transparent voodoo blue to let effects show
+    bgSecondary: 'rgba(23, 89, 147, 0.15)', // Transparent deeper blue
+    headerBg: 'rgba(23, 89, 147, 0.1)', // Very transparent header
+    columnBg: 'rgba(23, 89, 147, 0.1)', // Very transparent columns
+    highlightBg: 'rgba(255, 255, 0, 0.3)', // Semi-transparent yellow highlights
     grad0: 'hsl(208, 80%, 35%)', // Vibrant gradient start
     grad1: 'hsl(208, 60%, 25%)', // Darker gradient end
-    glassBg: 'rgba(23, 89, 147, 0.85)', // Electric blue glass
+    glassBg: 'rgba(23, 89, 147, 0.05)', // Minimal glass effect
     textPrimary: 'hsl(0, 0%, 98%)', // Crisp white text
-    textSecondary: 'hsl(0, 0%, 80%)', // Light gray secondary text
-    borderColor: 'hsl(208, 50%, 45%)', // Lighter blue borders
+    textSecondary: 'hsl(0, 0%, 90%)', // Brighter secondary for contrast
+    borderColor: 'rgba(100, 150, 255, 0.4)', // Semi-transparent blue borders
     accentColor: 'hsl(45, 90%, 65%)', // Bright Pikachu Yellow
     linkColor: 'hsl(45, 90%, 65%)', // Yellow links
     linkHoverColor: 'hsl(45, 95%, 75%)', // Brighter yellow on hover
