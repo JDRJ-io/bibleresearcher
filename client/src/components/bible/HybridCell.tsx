@@ -140,7 +140,10 @@ export function HybridCell({
             {mainTranslation}
           </div>
           <HoverVerseBar
-            verseRef={centerVerseRef}
+            verse={{ 
+              reference: centerVerseRef,
+              text: { [mainTranslation]: mainVerseText }
+            }}
             translation={mainTranslation}
             onCopy={handleCopy}
             onBookmark={handleBookmark}
