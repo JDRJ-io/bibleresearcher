@@ -86,7 +86,13 @@ body::before {
 
 /* Show flicker only for monastery theme - only when monastery is active */
 :root.monastery-candlelight .flicker-overlay {
-  opacity: 1;
+  opacity: 1 !important;
+}
+
+/* Ensure flicker is hidden for all other themes */
+:root:not(.monastery-candlelight) .flicker-overlay {
+  opacity: 0 !important;
+  display: none;
 }
 
 /* Mystical meadow video filter */
@@ -110,12 +116,24 @@ body::before {
 
 /* Show orbs only for mystical meadow theme - only when meadow is active */
 :root.mystical-meadow .orb-overlay {
-  opacity: 1;
+  opacity: 1 !important;
+}
+
+/* Hide mystical orbs for all other themes */
+:root:not(.mystical-meadow) .orb-overlay {
+  opacity: 0 !important;
+  display: none;
 }
 
 /* Show aurora orbs only for celestial veil theme - only when celestial-veil is active */
 :root.celestial-veil .aurora-orb-overlay {
-  opacity: 1;
+  opacity: 1 !important;
+}
+
+/* Hide aurora orbs for all other themes */
+:root:not(.celestial-veil) .aurora-orb-overlay {
+  opacity: 0 !important;
+  display: none;
 }
 
 /* Hide aurora orbs for all other themes */
@@ -243,7 +261,13 @@ body::before {
 
 /* Electric Voodoo Lightning Overlay */
 :root.electric-voodoo .electric-overlay {
-  opacity: 1;
+  opacity: 1 !important;
+}
+
+/* Hide electric effects for all other themes */
+:root:not(.electric-voodoo) .electric-overlay {
+  opacity: 0 !important;
+  display: none;
 }
 
 .electric-overlay {

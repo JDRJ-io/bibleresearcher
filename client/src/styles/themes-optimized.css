@@ -164,37 +164,17 @@ body {
   100% { transform: translateY(0) scale(1) rotate(360deg); opacity: 0.9; }
 }
 
-/* Celestial orbs for Aurora theme */
-.aurora-orb {
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 255, 200, 0.7), rgba(0, 120, 255, 0.2));
-  box-shadow: 0 0 8px rgba(0, 255, 200, 0.5);
-  animation: floatOrb 10s infinite ease-in-out;
-  pointer-events: none;
-}
-
-.aurora-orb-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-}
-
-@keyframes floatOrb {
-  0% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-15vh) translateX(3vw); }
-  100% { transform: translateY(0) translateX(0); }
-}
+/* REMOVED - Aurora orbs are now handled in dynamic-backgrounds.css */
 
 /* Show rainbow effects only for spectral covenant theme */
 :root.spectral-covenant .rainbow-overlay {
-  opacity: 1;
+  opacity: 1 !important;
+}
+
+/* Hide rainbow effects for all other themes */
+:root:not(.spectral-covenant) .rainbow-overlay {
+  opacity: 0 !important;
+  display: none;
 }
 
 .rainbow-overlay {
@@ -254,7 +234,13 @@ body {
 
 /* Show aurora effects only for celestial veil theme */
 :root.celestial-veil .aurora-overlay {
-  opacity: 1;
+  opacity: 1 !important;
+}
+
+/* Hide aurora wave effects for all other themes */
+:root:not(.celestial-veil) .aurora-overlay {
+  opacity: 0 !important;
+  display: none;
 }
 
 .aurora-overlay {
