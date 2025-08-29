@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { BibleVerse } from '../../types/bible';
 import { useBibleStore } from '@/App';
 import { useTranslationMaps } from '@/store/translationSlice';
+import { useNotes } from '@/hooks/useNotes';
 import LabeledText from './LabeledText';
 import { LabelName } from '@/lib/labelBits';
 import { VerseText } from '@/components/highlights/VerseText';
@@ -9,20 +10,25 @@ import { HoverVerseBar } from './HoverVerseBar';
 import { NotesCell } from '@/components/user/NotesCell';
 
 interface HybridCellProps {
-  centerVerse: BibleVerse;
+  centerVerseRef: string;
   getVerseText: (verseID: string, translationCode: string) => string | undefined;
+  mainTranslation: string;
   onVerseClick?: (verseRef: string) => void;
   getVerseLabels?: (verseReference: string) => Record<string, string[]>;
 }
 
 export function HybridCell({ 
-  centerVerse, 
+  centerVerseRef, 
   getVerseText, 
+  mainTranslation,
   onVerseClick, 
   getVerseLabels 
 }: HybridCellProps) {
   const store = useBibleStore();
-  const { main: mainTranslation, alternates } = useTranslationMaps();
+  const { alternates } = useTranslationMaps();
+  
+  // Get notes for center verse
+  const { notes: centerNotes } = useNotes(centerVerseRef);
   
   const {
     crossRefs,
@@ -36,13 +42,10 @@ export function HybridCell({
   } = store;
 
   // Get all data for the center verse
-  const centerVerseRef = centerVerse.reference;
+  // centerVerseRef is already passed as a prop
   
   // Main verse text
-  const mainVerseText = getVerseText(centerVerseRef, mainTranslation) || 
-                       centerVerse.text?.[mainTranslation] || 
-                       centerVerse.text?.text || 
-                       '';
+  const mainVerseText = getVerseText(centerVerseRef, mainTranslation) || '';
 
   // Cross-references for center verse
   const centerCrossRefs = crossRefs[centerVerseRef] || [];
@@ -55,11 +58,9 @@ export function HybridCell({
     (centerProphecyRoles.V && centerProphecyRoles.V.length > 0)
   );
 
-  // Date data for center verse
-  let centerDateText = datesData?.[centerVerse.index ?? 0] || "";
-  if (centerDateText && centerDateText.includes('#')) {
-    centerDateText = centerDateText.split('#').slice(1).join('#').trim();
-  }
+  // Date data for center verse - we need to get the verse index
+  // For now, use empty string until we connect to BibleDataAPI
+  let centerDateText = "";
 
   // Helper function to render text with labels
   const renderTextWithLabels = (text: string, reference: string) => {
@@ -98,19 +99,19 @@ export function HybridCell({
   };
 
   const handleCopy = () => {
-    const text = `${centerVerse.reference} (${mainTranslation}) - ${mainVerseText}`;
+    const text = `${centerVerseRef} (${mainTranslation}) - ${mainVerseText}`;
     navigator.clipboard.writeText(text);
   };
 
   const handleBookmark = () => {
-    console.log('Bookmark verse:', centerVerse.reference);
+    console.log('Bookmark verse:', centerVerseRef);
   };
 
   const handleShare = () => {
-    const text = `${centerVerse.reference} (${mainTranslation}) - ${mainVerseText}`;
+    const text = `${centerVerseRef} (${mainTranslation}) - ${mainVerseText}`;
     if (navigator.share) {
       navigator.share({
-        title: `${centerVerse.reference} (${mainTranslation})`,
+        title: `${centerVerseRef} (${mainTranslation})`,
         text: text,
       });
     } else {
@@ -139,7 +140,7 @@ export function HybridCell({
             {mainTranslation}
           </div>
           <HoverVerseBar
-            verse={centerVerse}
+            verseRef={centerVerseRef}
             translation={mainTranslation}
             onCopy={handleCopy}
             onBookmark={handleBookmark}
