@@ -17,27 +17,29 @@ export function OptimizedThemeSelector() {
 
   const themeDisplayNames: Record<ThemeName, string> = {
     light: 'Light',
-    dark: 'Dark', 
-    aurora: 'Aurora',
-    sepia: 'Sepia',
-    forest: 'Forest',
-    cyberpunk: 'Cyberpunk'
+    'ancient-dark': 'Ancient Dark',
+    'monastery-candlelight': 'Monastery Candlelight',
+    'mystical-meadow': 'Mystical Meadow',
+    'electric-voodoo': 'Electric Voodoo',
+    'spectral-covenant': 'Spectral Covenant',
+    'celestial-veil': 'Celestial Veil'
   };
 
   const getThemeIcon = (themeName: ThemeName) => {
     switch (themeName) {
       case 'light': return '☀️';
-      case 'dark': return '🌙';
-      case 'aurora': return '🌌';
-      case 'sepia': return '📜';
-      case 'forest': return '🌲';
-      case 'cyberpunk': return '🌆';
+      case 'ancient-dark': return '🌙';
+      case 'monastery-candlelight': return '🕯️';
+      case 'mystical-meadow': return '🌿';
+      case 'electric-voodoo': return '⚡';
+      case 'spectral-covenant': return '🌈';
+      case 'celestial-veil': return '🌌';
       default: return '🎨';
     }
   };
 
-  const basicThemes: ThemeName[] = ['light', 'dark'];
-  const premiumThemes: ThemeName[] = ['aurora', 'sepia', 'forest', 'cyberpunk'];
+  const basicThemes: ThemeName[] = ['light', 'ancient-dark'];
+  const premiumThemes: ThemeName[] = ['monastery-candlelight', 'mystical-meadow', 'electric-voodoo', 'spectral-covenant', 'celestial-veil'];
 
   return (
     <DropdownMenu>

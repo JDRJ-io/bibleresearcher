@@ -1,5 +1,5 @@
 // client/src/themes/registry.ts
-export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-voodoo';
+export type ThemeName = 'light' | 'ancient-dark' | 'monastery-candlelight' | 'mystical-meadow' | 'electric-voodoo' | 'spectral-covenant' | 'celestial-veil';
 
 type ThemeVars = {
   // surfaces
@@ -106,5 +106,37 @@ export const THEMES: Record<ThemeName, ThemeVars> = {
     accentColor: 'hsl(45, 90%, 65%)', // Bright Pikachu Yellow
     linkColor: 'hsl(45, 90%, 65%)', // Yellow links
     linkHoverColor: 'hsl(45, 95%, 75%)', // Brighter yellow on hover
+  },
+  'spectral-covenant': {
+    bgPrimary: 'hsl(0, 0%, 97%)', // Soft ivory for unity
+    bgSecondary: 'hsl(150, 30%, 90%)', // Pale green for cards
+    headerBg: 'hsl(0, 0%, 97%)', // Ivory header
+    columnBg: 'hsl(150, 30%, 90%)', // Pale green columns
+    highlightBg: 'hsl(30, 70%, 60%)', // Orange for highlights
+    grad0: 'hsl(0, 100%, 85%)', // Red gradient start
+    grad1: 'hsl(240, 100%, 85%)', // Blue gradient end
+    glassBg: 'rgba(255, 255, 255, 0.85)', // Light glass effect
+    textPrimary: 'hsl(0, 0%, 15%)', // Dark charcoal text
+    textSecondary: 'hsl(0, 0%, 40%)', // Medium gray secondary
+    borderColor: 'hsl(270, 50%, 80%)', // Soft violet borders
+    accentColor: 'hsl(220, 85%, 55%)', // Vibrant sky blue
+    linkColor: 'hsl(220, 85%, 55%)', // Blue links
+    linkHoverColor: 'hsl(220, 85%, 45%)', // Darker blue on hover
+  },
+  'celestial-veil': {
+    bgPrimary: 'hsl(200, 60%, 8%)', // Midnight blue
+    bgSecondary: 'hsl(200, 50%, 12%)', // Darker blue for cards
+    headerBg: 'hsl(200, 60%, 8%)', // Midnight blue header
+    columnBg: 'hsl(200, 50%, 12%)', // Dark blue columns
+    highlightBg: 'hsl(280, 70%, 40%)', // Purple highlights
+    grad0: 'hsl(160, 80%, 20%)', // Aurora green gradient start
+    grad1: 'hsl(280, 70%, 20%)', // Purple gradient end
+    glassBg: 'rgba(25, 50, 75, 0.85)', // Dark glass effect
+    textPrimary: 'hsl(0, 0%, 96%)', // Soft white text
+    textSecondary: 'hsl(0, 0%, 75%)', // Light gray secondary
+    borderColor: 'hsl(200, 45%, 20%)', // Subtle blue borders
+    accentColor: 'hsl(160, 80%, 45%)', // Aurora green
+    linkColor: 'hsl(160, 80%, 45%)', // Aurora green links
+    linkHoverColor: 'hsl(160, 80%, 55%)', // Brighter green on hover
   },
 };
