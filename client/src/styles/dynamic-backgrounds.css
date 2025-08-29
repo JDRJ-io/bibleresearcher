@@ -113,6 +113,40 @@ body::before {
   opacity: 1;
 }
 
+/* Show aurora orbs only for celestial veil theme - only when celestial-veil is active */
+:root.celestial-veil .aurora-orb-overlay {
+  opacity: 1;
+}
+
+/* Hide aurora orbs for all other themes */
+.aurora-orb-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.aurora-orb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 255, 150, 0.8), rgba(0, 150, 255, 0.2));
+  box-shadow: 0 0 15px rgba(0, 255, 150, 0.6);
+  animation: floatOrb 15s infinite ease-in-out;
+}
+
+@keyframes floatOrb {
+  0% { transform: translateY(0) translateX(0) scale(1); }
+  50% { transform: translateY(-25vh) translateX(5vw) scale(1.2); opacity: 0.8; }
+  100% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+}
+
 .orb {
   position: absolute;
   border-radius: 50%;
@@ -202,6 +236,36 @@ body::before {
 :root.electric-voodoo .text-foreground,
 :root.electric-voodoo .text-popover-foreground {
   color: hsl(0, 0%, 98%) !important;
+}
+
+/* Fix spectral covenant theme modal/dialog backgrounds - only when spectral-covenant is active */
+:root.spectral-covenant [role="dialog"],
+:root.spectral-covenant [data-radix-popper-content-wrapper],
+:root.spectral-covenant .bg-background,
+:root.spectral-covenant .bg-popover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: hsl(0, 0%, 15%) !important;
+  border-color: rgba(153, 102, 204, 0.4) !important;
+}
+
+/* Fix spectral covenant theme text contrast */
+:root.spectral-covenant .text-muted-foreground {
+  color: hsl(0, 0%, 40%) !important;
+}
+
+/* Fix celestial veil theme modal/dialog backgrounds - only when celestial-veil is active */
+:root.celestial-veil [role="dialog"],
+:root.celestial-veil [data-radix-popper-content-wrapper],
+:root.celestial-veil .bg-background,
+:root.celestial-veil .bg-popover {
+  background: rgba(25, 50, 75, 0.95) !important;
+  color: hsl(0, 0%, 96%) !important;
+  border-color: rgba(100, 150, 200, 0.4) !important;
+}
+
+/* Fix celestial veil theme text contrast */
+:root.celestial-veil .text-muted-foreground {
+  color: hsl(0, 0%, 85%) !important;
 }
 
 @keyframes flicker {

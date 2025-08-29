@@ -94,6 +94,27 @@ export function DynamicBackground({ className = '' }: DynamicBackgroundProps) {
         ))}
       </div>
       
+      {/* Aurora orb overlay for celestial theme */}
+      <div className="aurora-orb-overlay">
+        {Array.from({ length: 10 }, (_, i) => (
+          <div 
+            key={i}
+            className="aurora-orb"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `-${Math.random() * 10}s`
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Rainbow gradient overlay for spectral covenant */}
+      <div className="rainbow-overlay" />
+      
+      {/* Aurora wave overlay for celestial veil */}
+      <div className="aurora-overlay" />
+      
       {/* Standard gradient background */}
       <div className={backgroundClasses} />
     </>
