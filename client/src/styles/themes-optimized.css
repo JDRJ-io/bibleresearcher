@@ -87,14 +87,14 @@ body {
 }
 
 /* Rainbow Theme Animation */
-.spectral-covenant::before {
+:root.rainbow::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -6; /* Behind content, above electric */
   background: linear-gradient(
     45deg,
     rgba(255, 100, 100, 0.1), /* Red */
@@ -117,14 +117,14 @@ body {
 }
 
 /* Aurora Theme Animation */
-.celestial-veil::before {
+:root.celestial-veil::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -5; /* Behind content, above rainbow */
   background: linear-gradient(
     60deg,
     rgba(0, 160, 120, 0.25), /* Green */
@@ -136,14 +136,14 @@ body {
   pointer-events: none;
 }
 
-.celestial-veil::after {
+:root.celestial-veil::after {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -4; /* Behind content, above aurora wave */
   background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1), transparent 70%);
   animation: auroraPulse 20s ease-in-out infinite;
   pointer-events: none;
@@ -183,7 +183,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -6; /* Behind content, above electric */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -249,7 +249,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -5; /* Behind content, above rainbow */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;

@@ -26,7 +26,7 @@ body::before {
 }
 
 /* More transparent gradient for monastery theme */
-.monastery-candlelight body::before {
+:root.monastery-candlelight body::before {
   opacity: 0.3;
 }
 
@@ -76,7 +76,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Over video, under content */
+  z-index: -10; /* Behind all content, above video */
   background: radial-gradient(circle at 50% 30%, rgba(255, 140, 0, 0.25) 0%, rgba(255, 80, 0, 0.15) 40%, rgba(0, 0, 0, 0.5) 90%);
   animation: flicker 3s infinite ease-in-out;
   pointer-events: none;
@@ -107,7 +107,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Over video, under content */
+  z-index: -9; /* Behind content, above flicker */
   pointer-events: none;
   overflow: hidden;
   opacity: 0;
@@ -143,7 +143,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -8; /* Behind content, above orbs */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -275,7 +275,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -7; /* Behind content, above aurora */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;

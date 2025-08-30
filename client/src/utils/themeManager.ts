@@ -28,7 +28,7 @@ export function applyTheme(name: ThemeName) {
 
   // remove previous theme classes
   Array.from(root.classList)
-    .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark', 'monastery-candlelight', 'mystical-meadow', 'electric-voodoo', 'spectral-covenant', 'celestial-veil'].includes(c))
+    .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark', 'monastery-candlelight', 'mystical-meadow', 'electric-blue', 'rainbow', 'celestial-veil'].includes(c))
     .forEach(c => root.classList.remove(c));
   
   // Clear all previous theme CSS properties
@@ -72,14 +72,14 @@ export function applyTheme(name: ThemeName) {
   set('--muted-foreground', t.textSecondary);
   set('--accent', t.highlightBg);
   set('--accent-foreground', t.textPrimary);
-  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : name === 'monastery-candlelight' ? 'hsl(10, 40%, 25%)' : name === 'mystical-meadow' ? 'hsl(0, 50%, 70%)' : name === 'electric-voodoo' ? 'hsl(0, 60%, 40%)' : name === 'spectral-covenant' ? 'hsl(0, 80%, 50%)' : name === 'celestial-veil' ? 'hsl(0, 60%, 30%)' : 'hsl(0, 84.2%, 60.2%)');
+  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : name === 'monastery-candlelight' ? 'hsl(10, 40%, 25%)' : name === 'mystical-meadow' ? 'hsl(0, 50%, 70%)' : name === 'electric-blue' ? 'hsl(0, 60%, 40%)' : name === 'rainbow' ? 'hsl(0, 80%, 50%)' : name === 'celestial-veil' ? 'hsl(0, 60%, 30%)' : 'hsl(0, 84.2%, 60.2%)');
   set('--destructive-foreground', t.textPrimary);
   set('--border', t.borderColor);
   set('--input', t.borderColor);
   set('--ring', t.accentColor);
   set('--card', t.columnBg);
   set('--card-foreground', t.textPrimary);
-  set('--popover', name === 'monastery-candlelight' ? 'rgba(62, 45, 26, 0.9)' : name === 'mystical-meadow' ? 'rgba(240, 248, 240, 0.95)' : name === 'electric-voodoo' ? 'rgba(23, 89, 147, 0.95)' : t.headerBg);
+  set('--popover', name === 'monastery-candlelight' ? 'rgba(62, 45, 26, 0.9)' : name === 'mystical-meadow' ? 'rgba(240, 248, 240, 0.95)' : name === 'electric-blue' ? 'rgba(23, 89, 147, 0.95)' : t.headerBg);
   set('--popover-foreground', t.textPrimary);
 
   localStorage.setItem(LS_KEY, name);
