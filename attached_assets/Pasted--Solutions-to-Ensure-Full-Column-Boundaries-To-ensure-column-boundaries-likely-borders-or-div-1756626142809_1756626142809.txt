@@ -1,0 +1,174 @@
+### Solutions to Ensure Full Column Boundaries
+
+To ensure column boundaries (likely borders or dividers) are fully rendered in all orientations, particularly in portrait or mobile modes, follow these steps:
+
+#### 1. Add Explicit Border Styling
+Ensure that `VirtualRow` and `NewColumnHeaders` explicitly define borders for all columns, and account for border widths in the `actualTotalWidth` calculation. Since `VirtualRow` isn’t provided, I’ll assume it uses CSS classes like `column` or `data-column` with `border-right` for boundaries.
+
+**Action**:
+- Add a global CSS rule to ensure borders are applied consistently:
+  ```css
+  /* In your global CSS or a styled component */
+  .virtual-bible-table [data-column] {
+    border-right: 1px solid rgba(0, 0, 0, 0.1); /* Adjust color as needed */
+    box-sizing: border-box; /* Ensure borders don’t add to width */
+  }
+  .virtual-bible-table [data-column]:last-child {
+    border-right: none; /* Remove border from last column to avoid double borders */
+  }
+  ```
+- Update `VirtualRow` to ensure each column cell has a `data-column` attribute matching the column type (e.g., `reference`, `main-translation`, `cross-refs`).
+
+#### 2. Include Border Widths in `actualTotalWidth`
+Modify the `actualTotalWidth` calculation to account for border widths, preventing clipping in portrait mode.
+
+**Modified Code**:
+```jsx
+const actualTotalWidth = useMemo(() => {
+  const { adaptiveWidths } = adaptiveConfig;
+  let width = 0;
+  const borderWidth = 1; // Assume 1px border per column
+  const columnCount = [
+    'reference',
+    'main-translation',
+    ...(showCrossRefs ? ['cross-refs'] : []),
+    ...(showProphecies ? ['prophecy-prediction', 'prophecy-fulfillment', 'prophecy-verification'] : []),
+    ...(showNotes ? ['notes'] : []),
+    ...activeTranslations.filter(t => t !== mainTranslation).map(t => `alt-translation-${t}`)
+  ].length;
+
+  width += adaptiveWidths.reference * columnWidthMult;
+  width += adaptiveWidths.mainTranslation * columnWidthMult;
+  if (showCrossRefs) width += adaptiveWidths.crossReference * columnWidthMult;
+  if (showProphecies) width += adaptiveWidths.prophecy * 3 * columnWidthMult;
+  if (showNotes) width += adaptiveWidths.notes * columnWidthMult;
+  const altCount = activeTranslations.filter(t => t !== mainTranslation).length;
+  if (altCount > 0) width += altCount * adaptiveWidths.alternate * columnWidthMult;
+
+  // Add border widths (1px per column, except the last one)
+  width += (columnCount - 1) * borderWidth;
+
+  return width;
+}, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, columnWidthMult, viewportWidth]);
+```
+
+**Explanation**:
+- Adds `borderWidth` for each column (except the last) to ensure the total width includes space for borders, preventing clipping.
+- Use `box-sizing: border-box` in CSS to ensure borders don’t increase the column width unexpectedly.
+
+#### 3. Adjust Overflow and Centering
+Prevent borders from being clipped by ensuring the parent container allows overflow and doesn’t interfere with centering.
+
+**Modified Code**:
+```jsx
+<div
+  className="tableInner flex"
+  style={{
+    minWidth: 'fit-content',
+    width: 'fit-content',
+    margin: isPortrait ? '0' : '0 auto', // Disable centering in portrait mode
+    overflow: 'visible',
+    padding: '0 1px' // Add padding to ensure borders are visible
+  }}
+>
+```
+
+**Explanation**:
+- Removes conditional centering based on `canSafelyCenterWithoutInterference` in portrait mode to prevent borders from being pushed outside the viewport.
+- Adds `padding: '0 1px'` to ensure borders aren’t clipped at the edges.
+
+#### 4. Optimize Portrait Mode Layout
+Since portrait mode forces a three-column layout, ensure the `adaptiveWidths` from `useAdaptivePortraitColumns` allocate enough space for borders.
+
+**Action**:
+- In `useAdaptivePortraitColumns` (not shown), ensure `adaptiveWidths.reference`, `adaptiveWidths.mainTranslation`, and `adaptiveWidths.crossReference` include a small buffer (e.g., +2px) for borders.
+- Example adjustment in the hook:
+  ```jsx
+  // In useAdaptivePortraitColumns
+  const adaptiveWidths = {
+    reference: calculatedWidth + 2, // Add buffer for borders
+    mainTranslation: calculatedWidth + 2,
+    crossReference: calculatedWidth + 2,
+    // ...
+  };
+  ```
+- Update CSS variables to reflect this:
+  ```jsx
+  React.useEffect(() => {
+    const root = document.documentElement;
+    const { adaptiveWidths } = adaptiveConfig;
+    root.style.setProperty('--adaptive-ref-width', `${adaptiveWidths.reference + 2}px`);
+    root.style.setProperty('--adaptive-main-width', `${adaptiveWidths.mainTranslation + 2}px`);
+    root.style.setProperty('--adaptive-cross-width', `${adaptiveWidths.crossReference + 2}px`);
+    // ...
+  }, [adaptiveConfig]);
+  ```
+
+#### 5. Debug Column Rendering
+Add a debug effect to log actual column widths and border styles in portrait mode to identify clipping issues.
+
+**Modified Code**:
+```jsx
+useEffect(() => {
+  const checkColumnStyles = () => {
+    const columns = document.querySelectorAll('[data-column]');
+    columns.forEach((el) => {
+      const styles = getComputedStyle(el);
+      console.log(`Column ${el.getAttribute('data-column')}: width=${styles.width}, border-right=${styles.borderRight}`);
+    });
+  };
+  checkColumnStyles();
+  const timer = setTimeout(checkColumnStyles, 200);
+  return () => clearTimeout(timer);
+}, [slice.verseIDs, isPortrait]);
+```
+
+**Explanation**:
+- Logs the computed width and border styles for each column to verify if borders are applied and if widths are sufficient.
+- Run after a 200ms delay to ensure DOM updates are complete.
+
+#### 6. Ensure VirtualRow Applies Borders
+Since `VirtualRow` renders the table cells, ensure it applies borders consistently. If `VirtualRow` uses a structure like `<div data-column="reference">`, add border styles explicitly.
+
+**Example VirtualRow Adjustment** (assuming `VirtualRow` structure):
+```jsx
+// In VirtualRow.tsx
+<div
+  data-column={columnType}
+  style={{
+    borderRight: columnType !== 'last-column' ? '1px solid rgba(0, 0, 0, 0.1)' : 'none',
+    boxSizing: 'border-box'
+  }}
+>
+  {/* Column content */}
+</div>
+```
+
+**Explanation**:
+- Applies a right border to all columns except the last to avoid double borders.
+- Uses `box-sizing: border-box` to ensure borders don’t increase the column width.
+
+#### 7. Test Mobile Browser Rendering
+- Use Chrome DevTools (Device Mode) to simulate portrait mode and check if borders render correctly.
+- Test on real mobile devices (iOS Safari, Android Chrome) to ensure borders aren’t skipped due to browser optimizations.
+- If borders are missing, add `will-change: border` to the column CSS to force rendering:
+  ```css
+  .virtual-bible-table [data-column] {
+    will-change: border;
+  }
+  ```
+
+### Testing and Validation
+- **Preview in Portrait Mode**: Use Chrome DevTools (Device Mode) to simulate portrait mode and verify that borders are rendered for all columns.
+- **Check CSS Variables**: Inspect `--adaptive-ref-width`, `--adaptive-main-width`, etc., to ensure they include the border buffer.
+- **Log Column Styles**: Use the debug `useEffect` to confirm borders are applied (e.g., `border-right: 1px solid`).
+- **Test on Real Devices**: Test on iOS and Android devices in portrait mode to ensure borders render consistently.
+- **Inspect VirtualRow**: If borders are still missing, inspect the `VirtualRow` component’s CSS to ensure it applies `border-right` to all columns except the last.
+
+### If the Issue Persists
+- **Share VirtualRow Code**: Provide the `VirtualRow.tsx` code to confirm how column boundaries are styled.
+- **Check NewColumnHeaders**: Verify if `NewColumnHeaders` applies consistent borders that align with `VirtualRow`.
+- **Screenshots**: Share screenshots of the table in landscape (where boundaries are correct) and portrait (where they’re incomplete) to visually identify the issue.
+- **Debug Adaptive Hooks**: Log the output of `useAdaptivePortraitColumns` and `useAdaptiveWidths` to ensure widths are sufficient.
+
+These changes should ensure column boundaries are fully rendered in all orientations. Let me know if you need further assistance or specific debugging steps!
