@@ -62,6 +62,12 @@
   border: 1px solid var(--glass-border-light);
 }
 
+/* Dark theme glass styling - very subtle */
+:root.dark .glass-morphism {
+  background: var(--glass-bg-dark);
+  border: 1px solid var(--glass-border-dark);
+}
+
 /* Ancient dark theme glass styling - transparent, no overlay */
 :root.ancient-dark .glass-morphism {
   background: transparent;
