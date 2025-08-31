@@ -251,8 +251,8 @@ export function TopHeader({
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
               <button 
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-200 to-blue-900
-                           border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-900
+                           border border-blue-500 dark:from-blue-400 dark:to-blue-900 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
                 style={{ width: '36px', height: '36px' }}
