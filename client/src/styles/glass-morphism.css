@@ -62,10 +62,13 @@
   border: 1px solid var(--glass-border-light);
 }
 
-/* Ancient dark theme glass styling - very subtle */
+/* Ancient dark theme glass styling - transparent, no overlay */
 :root.ancient-dark .glass-morphism {
-  background: var(--glass-bg-dark);
-  border: 1px solid var(--glass-border-dark);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Monastery theme glass styling - warm and glowing with transparency */
