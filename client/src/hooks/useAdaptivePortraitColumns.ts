@@ -19,7 +19,7 @@ interface AdaptivePortraitConfig {
   };
 }
 
-// DYNAMIC COLUMN PORTRAIT SYSTEM - User's Specification: equal width for all non-reference columns
+// FIXED COLUMN WIDTH SYSTEM - User's Specification: consistent width for all non-reference columns, horizontal scroll for extras
 function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight: number, navigableColumnCount: number = 2): AdaptivePortraitConfig['adaptiveWidths'] {
   const isPortrait = viewportHeight > viewportWidth;
 
@@ -37,10 +37,10 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   }
 
   // Portrait precision mode - USER'S EXACT SPECIFICATION:
-  // 1. Detect portrait viewport width automatically 
-  // 2. Subtract reference column width
-  // 3. Divide remaining space EQUALLY among ALL non-reference columns
-  console.log('🎯 DYNAMIC-COLUMN Portrait Mode:', { viewportWidth, viewportHeight, navigableColumnCount });
+  // 1. Keep reference column fixed size
+  // 2. Calculate standard column width based on remaining space for exactly 2 columns
+  // 3. All additional columns use the SAME width (horizontal scroll for extras)
+  console.log('🎯 FIXED-WIDTH Portrait Mode:', { viewportWidth, viewportHeight, navigableColumnCount });
 
   // Account for scrollbars, borders, padding - conservative margin
   const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
@@ -61,33 +61,35 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     refWidth = 60;
   }
 
-  // STEP 2: Calculate remaining space after reference column and divide EQUALLY among all navigable columns
+  // STEP 2: Calculate standard column width based on ONLY 2 columns fitting in viewport
+  // Additional columns will use this same width and scroll horizontally
   const remainingSpace = safeViewportWidth - refWidth;
-  const equalColumnWidth = navigableColumnCount > 0 ? Math.floor(remainingSpace / navigableColumnCount) : 0;
+  const standardColumnWidth = Math.floor(remainingSpace / 2); // Always divide by 2, not actual column count
 
-  // Ensure minimum readability (compress proportionally if needed)
+  // Ensure minimum readability
   const minColumnWidth = 80;  // Absolute minimum for any navigable column
-
+  
   let finalRef = refWidth;
-  let finalColumnWidth = Math.max(minColumnWidth, equalColumnWidth);
+  let finalColumnWidth = Math.max(minColumnWidth, standardColumnWidth);
 
-  // If minimum width would exceed available space, compress proportionally
-  const totalNeeded = finalRef + (finalColumnWidth * navigableColumnCount);
-  if (totalNeeded > safeViewportWidth) {
-    const compressionRatio = safeViewportWidth / totalNeeded;
+  // Only compress if the base 2-column setup doesn't fit
+  const baseTwoColumnWidth = finalRef + (finalColumnWidth * 2);
+  if (baseTwoColumnWidth > safeViewportWidth) {
+    const compressionRatio = safeViewportWidth / baseTwoColumnWidth;
     finalRef = Math.floor(finalRef * compressionRatio);
     finalColumnWidth = Math.floor(finalColumnWidth * compressionRatio);
   }
 
-  console.log('📐 DYNAMIC-COLUMN Adaptive Calculation:', {
+  console.log('📐 FIXED-WIDTH Adaptive Calculation:', {
     viewportWidth,
     safeViewportWidth,
     navigableColumnCount,
     refWidth: finalRef,
     remainingSpace: safeViewportWidth - finalRef,
-    equalColumnWidth: finalColumnWidth,
-    totalWidth: finalRef + (finalColumnWidth * navigableColumnCount),
-    perfectFit: (finalRef + (finalColumnWidth * navigableColumnCount)) <= safeViewportWidth
+    standardColumnWidth: finalColumnWidth,
+    baseTwoColumnWidth: finalRef + (finalColumnWidth * 2),
+    willFitTwoColumns: baseTwoColumnWidth <= safeViewportWidth,
+    additionalColumnsWillScroll: navigableColumnCount > 2
   });
 
   return {
