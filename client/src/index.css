@@ -341,9 +341,21 @@ body {
   font-size: inherit !important; /* Prevent child elements from manual scaling */
 }
 
-/* Exception: Allow anointed logo text to use its own size */
+/* Exception: Allow anointed logo text to use responsive dynamic sizing */
 .top-header .anointed-logo-text {
-  font-size: var(--anointed-text-size) !important;
+  font-size: 1.125rem !important; /* 18px base - matches text-lg */
+}
+
+@media (min-width: 768px) {
+  .top-header .anointed-logo-text {
+    font-size: 1.25rem !important; /* 20px - matches text-xl */
+  }
+}
+
+@media (min-width: 1024px) {
+  .top-header .anointed-logo-text {
+    font-size: 1.5rem !important; /* 24px - matches text-2xl */
+  }
 }
 
 @media (max-width: 640px) {
