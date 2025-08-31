@@ -56,12 +56,11 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
                       min-h-[56px]">
         {/* Mobile-Optimized Left Side */}
         <div className="flex items-center justify-center flex-1 min-w-0 pr-20 sm:pr-24 md:pr-32">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <h3 className="text-sm xs:text-base sm:text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+          <div className="text-center">
+            <h3 className="text-sm xs:text-base sm:text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight">
               Start with prayer
             </h3>
-            <span className="text-xs md:text-sm text-amber-800/70 dark:text-yellow-300/70">•</span>
-            <p className="text-xs sm:text-sm md:text-base text-amber-900/90 dark:text-yellow-100/90">
+            <p className="text-xs sm:text-sm md:text-base text-amber-900/90 dark:text-yellow-100/90 leading-tight mt-0.5">
               Welcome Holy Spirit
             </p>
           </div>
