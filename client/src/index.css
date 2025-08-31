@@ -97,39 +97,7 @@ body {
   border-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Ancient Dark theme scrollbar styling */
-.ancient-dark .unified-scroll-container::-webkit-scrollbar-track {
-  background: rgba(169, 111, 40, 0.03); /* Subtle gold tint */
-  border-color: rgba(169, 111, 40, 0.08);
-}
-
-.ancient-dark .unified-scroll-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(169, 111, 40, 0.6), rgba(139, 91, 30, 0.7)); /* Gold tones */
-  border-color: rgba(0, 0, 0, 0.3);
-}
-
-.ancient-dark .unified-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(169, 111, 40, 0.8), rgba(139, 91, 30, 0.9));
-  border-color: rgba(0, 0, 0, 0.4);
-}
-
-.ancient-dark .unified-scroll-container::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(180deg, rgba(199, 131, 60, 0.9), rgba(169, 111, 40, 1));
-  border-color: rgba(0, 0, 0, 0.5);
-}
-
-/* Ancient Dark cell content scrollbars */
-.ancient-dark .cell-content {
-  scrollbar-color: rgba(169, 111, 40, 0.4) transparent;
-}
-
-.ancient-dark .cell-content::-webkit-scrollbar-thumb {
-  background-color: rgba(169, 111, 40, 0.4);
-}
-
-.ancient-dark .cell-content::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(169, 111, 40, 0.6);
-}
+/* Only light and dark themes supported */
 
 /* Firefox scrollbar styling */
 .unified-scroll-container {

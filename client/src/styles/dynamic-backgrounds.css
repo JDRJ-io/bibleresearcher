@@ -21,7 +21,7 @@ body::before {
     var(--bg-grad-0) 0%,
     var(--bg-grad-1) 100%
   );
-  /* Make more transparent for monastery theme */
+  /* Background gradient opacity */
   opacity: 0.8;
 }
 
@@ -39,7 +39,7 @@ body::before {
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* Video background support for monastery theme */
+/* Video background support */
 .background-video {
   position: fixed;
   top: 0;

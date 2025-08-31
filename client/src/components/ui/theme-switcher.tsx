@@ -7,10 +7,7 @@ export function ThemeSwitcher() {
 
   const themeNames = {
     light: 'Light',
-    'ancient-dark': 'Ancient Scroll',
-    'monastery-candlelight': 'Monastery Candlelight',
-    'mystical-meadow': 'Mystical Meadow',
-    'electric-voodoo': 'Electric Voodoo'
+    dark: 'Dark'
   } as const;
 
   return (
