@@ -2151,3 +2151,12 @@ body.overlay-open {
 .bible-column:last-child {
   border-right: none;
 }
+
+/* Ensure horizontal row borders are always visible */
+.bible-verse-row {
+  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
+}
+
+.dark .bible-verse-row {
+  border-bottom: 1px solid var(--border-color, #374151) !important;
+}
