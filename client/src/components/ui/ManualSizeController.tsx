@@ -136,20 +136,6 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
             </Label>
           </div>
 
-          {/* Presentation Mode Preset Button */}
-          <Button
-            onClick={togglePresentationMode}
-            variant={isPresentationMode ? "default" : "outline"}
-            size="sm"
-            className={`flex items-center gap-1 text-xs ${
-              isPresentationMode
-                ? "bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-white"
-                : "hover:bg-[#1E90FF]/5 dark:hover:bg-[#1E90FF]/10"
-            }`}
-          >
-            {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
-            {isPresentationMode ? "Reset" : "Present"}
-          </Button>
         </div>
         <p className="text-xs text-gray-500 dark:text-gray-400">
           Manual controls for Bible content (excludes header/menu auto-sizing)

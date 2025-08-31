@@ -138,61 +138,6 @@ export function NewColumnHeaders({
     };
   }, []); // Remove columnWidthMult from deps to prevent infinite loops in mobile portrait
 
-  // Presentation mode toggle - width x2, text x1.5, row height x1.35
-  const togglePresentationMode = useCallback(async () => {
-    console.log('🔥 BUTTON CLICKED: togglePresentationMode called, current isPresentationMode:', isPresentationMode);
-    console.log('🔥 Current viewport:', window.innerWidth + 'x' + window.innerHeight, 'isPortrait:', window.innerHeight > window.innerWidth);
-    
-    if (!isPresentationMode) {
-      // Enter presentation mode
-      document.documentElement.style.setProperty('--column-width-mult', '2');
-      document.documentElement.style.setProperty('--text-size-mult', '1.5');
-      document.documentElement.style.setProperty('--row-height-mult', '1.35');
-      setIsPresentationMode(true);
-      console.log('🎛️ Presentation Mode: ON (width x2, text x1.5, row x1.35)');
-      console.log('🎛️ CSS --column-width-mult set to: 2');
-      
-      // Force immediate state update to ensure headers scale immediately
-      setColumnWidthMult(2);
-      console.log('🎛️ React columnWidthMult state set to: 2');
-      
-      // Force component re-render to apply new widths
-      forceUpdate();
-
-      // Emit column change signal
-      try {
-        const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
-        const signal = useColumnChangeEmitter();
-        signal('multiplier', { multiplier: 2, presentationMode: true });
-      } catch (error) {
-        console.warn('Could not emit column change signal');
-      }
-    } else {
-      // Exit presentation mode - reset to defaults
-      document.documentElement.style.setProperty('--column-width-mult', '1');
-      document.documentElement.style.setProperty('--text-size-mult', '1');
-      document.documentElement.style.setProperty('--row-height-mult', '1');
-      setIsPresentationMode(false);
-      console.log('🎛️ Presentation Mode: OFF (reset to defaults)');
-      console.log('🎛️ CSS --column-width-mult set to: 1');
-      
-      // Force immediate state update to ensure headers scale immediately
-      setColumnWidthMult(1);
-      console.log('🎛️ React columnWidthMult state set to: 1');
-      
-      // Force component re-render to apply new widths
-      forceUpdate();
-
-      // Emit column change signal
-      try {
-        const { useColumnChangeEmitter } = await import('@/hooks/useColumnChangeSignal');
-        const signal = useColumnChangeEmitter();
-        signal('multiplier', { multiplier: 1, presentationMode: false });
-      } catch (error) {
-        console.warn('Could not emit column change signal');
-      }
-    }
-  }, [isPresentationMode]);
 
   // Drag and drop state
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -516,34 +461,6 @@ export function NewColumnHeaders({
           overflow: 'hidden'
         }}
       >
-        {/* Navigation arrows positioned above the headers */}
-        <div 
-          className="flex justify-between items-center px-4 py-1 border-b"
-          style={{backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)'}}
-        >
-          {/* Presentation Mode Toggle */}
-          <Button
-            onClick={togglePresentationMode}
-            onTouchEnd={togglePresentationMode}
-            variant={isPresentationMode ? "default" : "outline"}
-            size="sm"
-            className="flex items-center gap-1 text-xs"
-            style={{
-              backgroundColor: isPresentationMode ? 'var(--accent-color)' : 'var(--bg-primary)',
-              color: isPresentationMode ? 'var(--bg-primary)' : 'var(--text-primary)',
-              borderColor: 'var(--border-color)',
-              minHeight: '32px',
-              minWidth: '64px',
-              touchAction: 'manipulation'
-            }}
-          >
-            {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
-            {isPresentationMode ? "Reset" : "Present"}
-          </Button>
-
-
-          <div className="flex-1" />
-        </div>
 
         {/* Column headers with drag and drop support */}
         <SortableContext 
