@@ -253,7 +253,7 @@ export function TopHeader({
               <button 
                 className="rounded-full bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600
                            dark:from-amber-500 dark:via-yellow-400 dark:to-amber-500
-                           shadow-lg shadow-amber-500/25 dark:shadow-amber-400/25
+                           shadow-lg shadow-amber-500/25 dark:shadow-amber-400/25 drop-shadow-lg
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-xl hover:shadow-amber-500/40 
                            dark:hover:shadow-amber-400/40 transition-all duration-300 cursor-pointer
@@ -277,12 +277,13 @@ export function TopHeader({
               <span
                 className="anointed-logo-text font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
                            dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
-                           bg-clip-text text-transparent"
+                           bg-clip-text text-transparent drop-shadow-lg"
                 style={{
                   fontSize: 'var(--anointed-text-size)',
                   fontWeight: '700',
                   letterSpacing: '-0.01em',
-                  marginLeft: 'var(--anointed-spacing)'
+                  marginLeft: 'var(--anointed-spacing)',
+                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(251,191,36,0.4))'
                 }}
               >Anointed.io</span>
             </div>
@@ -374,7 +375,7 @@ export function TopHeader({
               <button 
                 className="rounded-full bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600
                            dark:from-amber-500 dark:via-yellow-400 dark:to-amber-500
-                           shadow-lg shadow-amber-500/25 dark:shadow-amber-400/25
+                           shadow-lg shadow-amber-500/25 dark:shadow-amber-400/25 drop-shadow-lg
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-xl hover:shadow-amber-500/40 
                            dark:hover:shadow-amber-400/40 transition-all duration-300 cursor-pointer
@@ -398,12 +399,13 @@ export function TopHeader({
               <span
                 className="anointed-logo-text font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
                            dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
-                           bg-clip-text text-transparent"
+                           bg-clip-text text-transparent drop-shadow-lg"
                 style={{
                   fontSize: 'var(--anointed-text-size)',
                   fontWeight: '700',
                   letterSpacing: '-0.01em',
-                  marginLeft: 'var(--anointed-spacing)'
+                  marginLeft: 'var(--anointed-spacing)',
+                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(251,191,36,0.4))'
                 }}
               >Anointed.io</span>
             </div>
@@ -455,8 +457,8 @@ export function TopHeader({
                 onClick={() => setIsSignInOpen(true)}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
-                <KeyRound className="w-4 h-4 mr-2 relative z-10" />
-                <span className="relative z-10">Sign In</span>
+                <KeyRound className="w-4 h-4 mr-2 relative z-10 text-white drop-shadow-sm" />
+                <span className="relative z-10 text-white drop-shadow-sm">Sign In</span>
               </Button>
             )}
 
