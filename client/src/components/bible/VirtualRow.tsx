@@ -398,7 +398,7 @@ function MainTranslationCell({
   // Determine border classes based on context boundaries
   let contextClasses = '';
   if (showContext && contextBoundary) {
-    const borderColor = 'border-blue-300 dark:border-blue-700';
+    const borderColor = 'border-gray-300 dark:border-gray-600';
 
     // Top border for start of context
     if (isContextStart) {
@@ -413,8 +413,8 @@ function MainTranslationCell({
     // Left and right borders for all verses in context
     contextClasses += ` border-l-2 border-r-2 ${borderColor}`;
 
-    // Light background to show context grouping
-    contextClasses += ' bg-blue-50/30 dark:bg-blue-900/10';
+    // Subtle background to show context grouping
+    contextClasses += ' bg-gray-50/30 dark:bg-gray-800/10';
   }
 
   const handleCopy = () => {
