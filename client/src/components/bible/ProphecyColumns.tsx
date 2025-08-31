@@ -87,17 +87,21 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
   useEffect(() => {
     const loadProphecyDataForVerse = async () => {
       try {
+        console.log(`🔮 Loading prophecy data for verse: ${verseKey}`);
 
         // OPTIMIZATION: verseKey uses dot format - direct lookup
         const verseRoles = prophecyData[verseKey];
         const foundKey = verseKey;
 
         if (!verseRoles || (!verseRoles.P?.length && !verseRoles.F?.length && !verseRoles.V?.length)) {
+          console.log(`❌ No prophecy data found for ${verseKey}`);
+          console.log('Available prophecy data keys sample:', Object.keys(prophecyData).slice(0, 10));
           setProphecies([]);
           setIsLoading(false);
           return;
         }
 
+        console.log(`✅ Found prophecy data for ${verseKey} (key: ${foundKey}):`, verseRoles);
 
         // Get all unique prophecy IDs that reference this verse
         const allIds = [...(verseRoles.P || []), ...(verseRoles.F || []), ...(verseRoles.V || [])];
@@ -115,6 +119,7 @@ function ProphecyRow({ verseKey, onVerseClick, mainTranslation }: {
         for (const id of uniqueIds) {
           const prophecyDetails = prophecyIndex[id];
           if (!prophecyDetails) {
+            console.log(`⚠️ Missing prophecy details for ID ${id}`);
             continue;
           }
 

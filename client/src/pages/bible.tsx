@@ -208,10 +208,12 @@ export default function BiblePage() {
 
   // Prophecy drawer handlers
   const handleOpenProphecyDetail = useCallback((prophecyId: number) => {
+    console.log(`🔮 Opening prophecy detail for ID: ${prophecyId}`);
     setSelectedProphecyId(prophecyId);
   }, []);
 
   const handleCloseProphecyDetail = useCallback(() => {
+    console.log('🔮 Closing prophecy detail');
     setSelectedProphecyId(null);
   }, []);
 

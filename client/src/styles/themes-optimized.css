@@ -86,7 +86,7 @@ body {
   }
 }
 
-/* Rainbow Theme - Dark Prismatic Wave */
+/* Rainbow Theme Animation */
 :root.rainbow::before {
   content: '';
   position: fixed;
@@ -96,42 +96,24 @@ body {
   height: 100%;
   z-index: -6; /* Behind content, above electric */
   background: linear-gradient(
-    135deg,
-    rgba(20, 5, 35, 0.9),      /* Deep dark purple */
-    rgba(40, 15, 60, 0.8),     /* Dark violet */
-    rgba(60, 25, 90, 0.7),     /* Medium purple */
-    rgba(80, 40, 120, 0.6),    /* Lighter purple */
-    rgba(100, 60, 150, 0.5),   /* Bright purple */
-    rgba(120, 80, 180, 0.4),   /* Light violet */
-    rgba(80, 40, 120, 0.6),    /* Back to medium */
-    rgba(40, 15, 60, 0.8)      /* Back to dark violet */
+    45deg,
+    rgba(255, 100, 100, 0.1), /* Red */
+    rgba(255, 165, 0, 0.1),  /* Orange */
+    rgba(255, 255, 0, 0.1),  /* Yellow */
+    rgba(0, 128, 0, 0.1),    /* Green */
+    rgba(0, 128, 255, 0.1)   /* Blue */
   );
-  background-size: 800% 800%;
-  animation: prismaticWave 20s ease-in-out infinite;
+  background-size: 400%;
+  animation: rainbowShift 15s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes prismaticWave {
-  0% { 
-    background-position: 0% 0%; 
-    transform: translateY(0) scaleY(1); 
-  }
-  25% { 
-    background-position: 50% 25%; 
-    transform: translateY(-5vh) scaleY(1.1); 
-  }
-  50% { 
-    background-position: 100% 50%; 
-    transform: translateY(-10vh) scaleY(1.2); 
-  }
-  75% { 
-    background-position: 75% 75%; 
-    transform: translateY(-5vh) scaleY(1.1); 
-  }
-  100% { 
-    background-position: 0% 0%; 
-    transform: translateY(0) scaleY(1); 
-  }
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; transform: scale(1) rotate(0deg); }
+  25% { background-position: 25% 25%; transform: scale(1.05) rotate(90deg); }
+  50% { background-position: 100% 50%; transform: scale(1.1) rotate(180deg); }
+  75% { background-position: 75% 75%; transform: scale(1.05) rotate(270deg); }
+  100% { background-position: 0% 50%; transform: scale(1) rotate(360deg); }
 }
 
 /* Aurora Theme Animation */
@@ -214,33 +196,19 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(50, 20, 80, 0.6),     /* Deep purple */
-    rgba(70, 30, 100, 0.5),    /* Dark violet */
-    rgba(90, 50, 120, 0.4),    /* Medium purple */
-    rgba(110, 70, 140, 0.3),   /* Light purple */
-    rgba(90, 50, 120, 0.4),    /* Back to medium */
-    rgba(70, 30, 100, 0.5),    /* Back to dark violet */
-    rgba(50, 20, 80, 0.6)      /* Back to deep purple */
+  background: radial-gradient(
+    ellipse at 60% 40%,
+    rgba(255, 100, 255, 0.4) 0%,
+    rgba(255, 200, 100, 0.3) 30%,
+    rgba(100, 255, 100, 0.3) 60%,
+    transparent 80%
   );
-  background-size: 600% 100%;
-  animation: prismaticFlow 25s linear infinite;
+  animation: rainbowPulse 5s ease-in-out infinite;
 }
 
-@keyframes prismaticFlow {
-  0% { 
-    background-position: 0% 50%; 
-    transform: translateX(0) scaleX(1); 
-  }
-  50% { 
-    background-position: 100% 50%; 
-    transform: translateX(5%) scaleX(1.05); 
-  }
-  100% { 
-    background-position: 200% 50%; 
-    transform: translateX(0) scaleX(1); 
-  }
+@keyframes rainbowPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 1; }
 }
 
 .rainbow-overlay::before {
@@ -251,41 +219,17 @@ body {
   width: 100%;
   height: 100%;
   background: linear-gradient(
-    -45deg,
-    rgba(30, 10, 50, 0.7),     /* Very dark purple */
-    rgba(50, 20, 80, 0.6),     /* Deep purple */
-    rgba(70, 40, 110, 0.5),    /* Medium purple */
-    rgba(90, 60, 140, 0.4),    /* Light purple */
-    rgba(110, 80, 170, 0.3),   /* Bright purple */
-    rgba(90, 60, 140, 0.4),    /* Back to light purple */
-    rgba(70, 40, 110, 0.5),    /* Back to medium purple */
-    rgba(50, 20, 80, 0.6)      /* Back to deep purple */
+    45deg,
+    rgba(255, 0, 0, 0.8),     /* VERY BRIGHT Red */
+    rgba(255, 127, 0, 0.8),   /* VERY BRIGHT Orange */
+    rgba(255, 255, 0, 0.8),   /* VERY BRIGHT Yellow */
+    rgba(0, 255, 0, 0.8),     /* VERY BRIGHT Green */
+    rgba(0, 0, 255, 0.8),     /* VERY BRIGHT Blue */
+    rgba(75, 0, 130, 0.8),    /* VERY BRIGHT Indigo */
+    rgba(148, 0, 211, 0.8)    /* VERY BRIGHT Violet */
   );
-  background-size: 400% 400%;
-  animation: darkWaveShift 30s ease-in-out infinite;
-}
-
-@keyframes darkWaveShift {
-  0% { 
-    background-position: 0% 100%; 
-    transform: translateY(0) skewX(0deg); 
-  }
-  25% { 
-    background-position: 100% 0%; 
-    transform: translateY(-2vh) skewX(1deg); 
-  }
-  50% { 
-    background-position: 200% 100%; 
-    transform: translateY(-4vh) skewX(0deg); 
-  }
-  75% { 
-    background-position: 300% 0%; 
-    transform: translateY(-2vh) skewX(-1deg); 
-  }
-  100% { 
-    background-position: 400% 100%; 
-    transform: translateY(0) skewX(0deg); 
-  }
+  background-size: 300%;
+  animation: rainbowShift 12s ease-in-out infinite;
 }
 
 /* Show aurora effects only for celestial veil theme */
@@ -344,7 +288,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .rainbow-overlay::before {
     animation: none;
-    background: rgba(50, 20, 80, 0.3); /* Static dark purple tint */
+    background: rgba(0, 128, 255, 0.05); /* Static blue tint */
   }
   
   .aurora-overlay::before, .aurora-overlay::after, .aurora-orb {

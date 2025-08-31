@@ -251,8 +251,8 @@ export function TopHeader({
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center space-x-2">
               <button 
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-900
-                           border border-blue-500 dark:from-blue-400 dark:to-blue-900 dark:border-blue-400
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-200 to-blue-900
+                           border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
                 style={{ width: '36px', height: '36px' }}
@@ -359,11 +359,7 @@ export function TopHeader({
                 className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
                            border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
-                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer
-                           max-[640px]:from-blue-500 max-[640px]:to-blue-700 max-[640px]:border-blue-300 max-[640px]:shadow-xl
-                           max-[640px]:shadow-blue-400/40 max-[640px]:ring-2 max-[640px]:ring-blue-300/50
-                           dark:max-[640px]:from-blue-400 dark:max-[640px]:to-blue-600 dark:max-[640px]:border-blue-200
-                           dark:max-[640px]:shadow-blue-300/50 dark:max-[640px]:ring-blue-200/30"
+                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
                 style={{ width: '36px', height: '36px' }}
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
@@ -376,10 +372,7 @@ export function TopHeader({
                   fontWeight: '700',
                   letterSpacing: '-0.01em'
                 }}
-                className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent
-                           max-[640px]:from-orange-400 max-[640px]:to-fuchsia-500 max-[640px]:font-black max-[640px]:text-xl
-                           max-[640px]:drop-shadow-lg max-[640px]:filter max-[640px]:brightness-110 max-[640px]:saturate-200
-                           dark:max-[640px]:from-amber-300 dark:max-[640px]:to-pink-400 dark:max-[640px]:brightness-125"
+                className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent"
               >Anointed.io</span>
             </div>
           </div>

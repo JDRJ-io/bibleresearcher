@@ -164,6 +164,7 @@ const loadAdditionalData = async (verses: BibleVerse[]): Promise<void> => {
     if (prophecyData) {
       const prophecyText = await prophecyData.text();
       // Prophecy data will be loaded separately
+      console.log("Prophecy data found in Supabase");
     }
   } catch (err) {
     console.warn("Could not load prophecy data:", err);

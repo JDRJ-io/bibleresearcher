@@ -2130,33 +2130,3 @@ body.overlay-open {
   margin-left: 0 !important;
   transform: none !important;
 }
-
-/* Virtual Bible Table Column Boundaries - Ensure Full Borders in All Orientations */
-.virtual-bible-table [data-column] {
-  border-right: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
-  box-sizing: border-box; /* Ensure borders don't add to width */
-  will-change: border; /* Force rendering on mobile browsers */
-}
-
-.virtual-bible-table [data-column]:last-child {
-  border-right: none; /* Remove border from last column to avoid double borders */
-}
-
-/* Ensure column cells have consistent borders in all modes */
-.bible-column {
-  border-right: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
-  box-sizing: border-box;
-}
-
-.bible-column:last-child {
-  border-right: none;
-}
-
-/* Ensure horizontal row borders are always visible */
-.bible-verse-row {
-  border-bottom: 1px solid var(--border-color, #e5e7eb) !important;
-}
-
-.dark .bible-verse-row {
-  border-bottom: 1px solid var(--border-color, #374151) !important;
-}

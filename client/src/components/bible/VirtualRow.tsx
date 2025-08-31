@@ -983,58 +983,19 @@ export function VirtualRow({
     }
   };
 
-  // Calculate actual total width - USE SAME LOGIC as VirtualBibleTable
+  // Calculate actual total width from columnState - SAME as ColumnHeaders
   const actualTotalWidth = useMemo(() => {
-    if (!columnData?.adaptiveWidths) return 0;
+    if (!columnState?.columns) return 0;
 
-    const { adaptiveWidths } = columnData;
-    const columnWidthMult = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue('--column-width-mult') || '1'
-    );
-    
-    let width = 0;
-    const borderWidth = 1; // 1px border per column
-    let columnCount = 0;
-    
-    // Reference column
-    width += (adaptiveWidths.reference * columnWidthMult);
-    columnCount++;
-    
-    // Main translation
-    width += (adaptiveWidths.mainTranslation * columnWidthMult);
-    columnCount++;
-    
-    // Cross references (if shown)
-    if (visibleColumns.some(col => col.type === 'cross-refs')) {
-      width += (adaptiveWidths.crossReference * columnWidthMult);
-      columnCount++;
-    }
-    
-    // Prophecy columns (if shown)
-    const prophecyColumns = visibleColumns.filter(col => col.type?.includes('prophecy'));
-    if (prophecyColumns.length > 0) {
-      width += (adaptiveWidths.prophecy * prophecyColumns.length * columnWidthMult);
-      columnCount += prophecyColumns.length;
-    }
-    
-    // Notes column (if shown)
-    if (visibleColumns.some(col => col.type === 'notes')) {
-      width += (adaptiveWidths.notes * columnWidthMult);
-      columnCount++;
-    }
-    
-    // Alternate translations
-    const altColumns = visibleColumns.filter(col => col.type?.includes('alt-translation'));
-    if (altColumns.length > 0) {
-      width += (altColumns.length * adaptiveWidths.alternate * columnWidthMult);
-      columnCount += altColumns.length;
-    }
-    
-    // Add border widths (1px per column, except the last one)
-    width += (columnCount - 1) * borderWidth;
-    
-    return width;
-  }, [visibleColumns, columnData]);
+    return visibleColumns.reduce((total, col) => {
+      const columnInfo = columnState.columns.find(c => c.slot === col.slot);
+      if (columnInfo) {
+        // Convert rem to pixels (1rem = 16px)
+        return total + (columnInfo.widthRem * 16);
+      }
+      return total + 160; // fallback width
+    }, 0);
+  }, [visibleColumns, columnState]);
 
   const currentViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const shouldCenter = actualTotalWidth <= currentViewportWidth * 0.95;
@@ -1059,8 +1020,8 @@ export function VirtualRow({
       className="border-b border-gray-200 dark:border-gray-700 bible-verse-row transition-colors duration-200 hover:bg-gray-50/40 dark:hover:bg-gray-800/30"
       style={{ 
         height: rowHeight,
-        width: `${actualTotalWidth}px`,
-        minWidth: `${actualTotalWidth}px`,
+        width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
+        minWidth: `${responsiveMinWidth}px`,
         display: 'flex'
       }}
       data-verse-ref={verse.reference}

@@ -285,6 +285,7 @@ export const useBibleStore = create<{
 
     // Load prophecy data when toggling on - using prophecy_rows.txt and prophecy_index.json
     if (newValue && Object.keys(state.prophecyData).length === 0) {
+      console.log('🔮 Loading prophecy data from Supabase files...');
       import('@/data/BibleDataAPI').then(async ({ loadProphecyData }) => {
         try {
           const { verseRoles, prophecyIndex } = await loadProphecyData();
@@ -294,6 +295,7 @@ export const useBibleStore = create<{
           currentState.setProphecyData(verseRoles);
           currentState.setProphecyIndex(prophecyIndex);
 
+          console.log(`✅ Prophecy system loaded: ${Object.keys(verseRoles).length} verses with roles, ${Object.keys(prophecyIndex).length} prophecies`);
         } catch (error) {
           console.error('❌ Failed to load prophecy data:', error);
           // Set empty data to prevent repeated loading attempts
