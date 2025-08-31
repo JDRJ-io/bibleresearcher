@@ -360,9 +360,10 @@ export function TopHeader({
                            border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer
-                           max-[640px]:from-blue-600 max-[640px]:to-blue-800 max-[640px]:border-blue-400 max-[640px]:shadow-lg
-                           max-[640px]:shadow-blue-500/20 dark:max-[640px]:from-blue-300 dark:max-[640px]:to-blue-500
-                           dark:max-[640px]:border-blue-300 dark:max-[640px]:shadow-blue-400/30"
+                           max-[640px]:from-blue-500 max-[640px]:to-blue-700 max-[640px]:border-blue-300 max-[640px]:shadow-xl
+                           max-[640px]:shadow-blue-400/40 max-[640px]:ring-2 max-[640px]:ring-blue-300/50
+                           dark:max-[640px]:from-blue-400 dark:max-[640px]:to-blue-600 dark:max-[640px]:border-blue-200
+                           dark:max-[640px]:shadow-blue-300/50 dark:max-[640px]:ring-blue-200/30"
                 style={{ width: '36px', height: '36px' }}
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
@@ -376,8 +377,8 @@ export function TopHeader({
                   letterSpacing: '-0.01em'
                 }}
                 className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent
-                           max-[640px]:from-yellow-400 max-[640px]:to-purple-400 max-[640px]:drop-shadow-sm
-                           dark:max-[640px]:from-yellow-300 dark:max-[640px]:to-purple-300 max-[640px]:font-bold"
+                           max-[640px]:from-yellow-300 max-[640px]:to-pink-400 max-[640px]:font-extrabold max-[640px]:drop-shadow-md
+                           dark:max-[640px]:from-yellow-200 dark:max-[640px]:to-pink-300 max-[640px]:contrast-125 max-[640px]:saturate-150"
               >Anointed.io</span>
             </div>
           </div>
