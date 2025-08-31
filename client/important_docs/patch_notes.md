@@ -12,7 +12,7 @@
 
 
 
-**Beta-Features**
+**Pre-Launch Phase-Features**
 (we are in the process of upgrading)
 
 * **Labels** – Togglable textual overlays for easy analysis of verse formation.

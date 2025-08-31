@@ -21,7 +21,6 @@ You’re helping believers:
 
 * **One-time donation** – Any amount, as God leads.
 * **Monthly partner** – Join us for \$10/month and receive a personal Bible profile with notes, highlights, and bookmarks stored in the cloud.
-* **Gift a profile** – Pay it forward by providing a premium profile for someone else.
 
 **Where Your Gift Goes**
 — Licensing premium Bible translations
@@ -35,9 +34,10 @@ You’re helping believers:
 
 Your generosity is a seed that will bear fruit for generations. Thank you for standing with us.
 
+Donation features are not active during the closed beta (launching August 30, 2025) and will be implemented prior to public launch.
 ---
 
-## **Legal/Internal Donation Policy**
+## **Legal Donation Policy**
 
 **1. Nature of Donations**
 1.1 Donations made to Anointed.io (SongsFromGod LLC) are voluntary contributions intended to support the operation, maintenance, and development of the platform.
@@ -57,3 +57,4 @@ Your generosity is a seed that will bear fruit for generations. Thank you for st
 **5. No Goods or Services in Exchange**
 5.1 Except for designated subscription benefits (e.g., Bible profile access), donations do not constitute a purchase of goods or services and do not entitle the donor to ownership or control of the platform.
 
+### All donation features are inactive during the pre-launch phase (effective August 30, 2025) and will be activated prior to public launch.

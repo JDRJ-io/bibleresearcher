@@ -2,7 +2,7 @@
 
 # **Terms of Service**
 
-**Effective Date:** August 1, 2025
+**Effective Date:** August 30, 2025
 
 Welcome to **Anointed.io**. These Terms of Service (“Terms”) govern your access to and use of Anointed.io, including all features, content, tools, and services provided through our website, apps, and related platforms (collectively, the “Service”).
 
@@ -32,6 +32,7 @@ By creating an account, accessing, or using the Service, you agree to be bound b
 3.2 Our subscription pricing, billing terms, and refund policy are outlined in the [Pricing & Payments](/pricing) page, which is incorporated by reference into these Terms.
 3.3 Subscription fees are billed automatically to your selected payment method and will renew on a recurring basis until canceled.
 
+### Subscription features are not available during the pre-launch phase (effective August 30, 2025).
 ---
 
 ## **4. Refunds & Account Status**
@@ -40,6 +41,7 @@ By creating an account, accessing, or using the Service, you agree to be bound b
 4.2 Canceling your subscription will pause your Bible profile features but retain your account data for the retention period described in our [Data Retention Policy](/privacy_policy).
 4.3 Full account deletion will only occur upon verified request from the original account holder (“Original Signee”), following the process outlined in our Data Retention Policy.
 
+### During the pre-launch phase (effective August 30, 2025), payment features, including refunds, are not yet available as the platform is under development. Data retention details are outlined in the Privacy Policy, which may be refined as the platform evolves toward public launch.
 ---
 
 ## **5. Acceptable Use**
@@ -99,6 +101,7 @@ By creating an account, accessing, or using the Service, you agree to be bound b
 
 8.4 To the extent Anointed.io uses User Content under the licenses granted herein, such use is conditioned upon your representations and warranties in Section 6.4. Anointed.io will not be liable for using User Content that it reasonably believed to be lawfully submitted and licensed.
 
+Our DMCA Policy [/dmca] will be updated with registered Designated Agent information upon completion of registration (expected post-August 30, 2025).
 ---
 
 ## **9. Privacy**

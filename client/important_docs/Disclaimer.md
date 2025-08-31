@@ -23,3 +23,5 @@ Our site may link to external resources or reference third-party works. We do no
 ### 4️⃣ Limitation of Liability
 
 By using Anointed.io, you agree that the platform, its owners, and contributors are not liable for decisions you make based on content found here.
+
+### During the pre-launch phase (effective August 30, 2025), some features may be unstable due to ongoing development.

@@ -40,5 +40,7 @@ Anointed.io is a place for believers of every tradition who confess Jesus Christ
 
 We believe that as we grow in the Word and in fellowship, the Holy Spirit is preparing the Bride of Christ — the Church — to be made ready for His return (Revelation 19:7). Every verse we connect, every insight we share, and every truth we affirm together is part of this preparation.
 
+### During the pre-launch phase (effective August 30, 2025), some features may be limited as we refine the platform for public access.
+
 For God’s Magnificent Glory,
 **The Anointed.io Team**

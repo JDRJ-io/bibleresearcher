@@ -1,4 +1,4 @@
-**Payments**
+**Pricing & Payments**
 
 **1. Subscription Pricing**
 1.1 Anointed.io currently offers two plans:
@@ -8,7 +8,7 @@ $10/month Subscription – Unlocks licensed translations, a personal Bible profi
 
 **2. Billing & Renewal**
 2.1 Monthly Plan – Your card will be charged immediately upon signup and on the same calendar day each month thereafter.
-2.2 Annual Plan (if available) – Your card will be charged immediately upon signup and on the same calendar day each year thereafter.
+2.2 Annual Plan – Your card will be charged immediately upon signup and on the same calendar day each year thereafter.
 2.3 All subscriptions renew automatically unless canceled before the next billing date.
 2.4 Canceling stops future charges; you will retain full access until the end of your current paid period.
 
@@ -21,6 +21,8 @@ $10/month Subscription – Unlocks licensed translations, a personal Bible profi
 4.1 Refund Window – We offer a 7-day refund period for first-time subscription charges. If you request a refund within that time, we’ll return your full payment.
 4.2 After 7 Days – Subscription fees are non-refundable once the 7-day period has passed.
 4.3 Cancel Anytime – If you cancel, your Bible profile isn’t deleted — it’s paused. Your notes, highlights, and bookmarks are safely stored for up to 12 months so you can pick up right where you left off if you decide to return.
+
+### Payment and subscription features are not active during the pre-launch phase (effective August 30, 2025) and will be enabled once payment processing is fully implemented and tested prior to public access.
 
 Contact for Billing Questions:
 📧 billing@anointed.io

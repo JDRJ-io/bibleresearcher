@@ -34,7 +34,7 @@ Include:
 
 ⚠️ **Important:** For your safety, Anointed.io support will **never ask for your password**. If you receive a request for your password, please report it to [security@anointed.io](mailto:security@anointed.io).
 
-### 3️⃣ Community Help (Beta)
+### 3️⃣ Community Help (Pre-Launch)
 
 Join our **community channels** for user-to-user help:
 
@@ -42,6 +42,7 @@ Join our **community channels** for user-to-user help:
 
 *Note: Community spaces are public — please avoid sharing personal details.*
 
+### Community help features are in development during the pre-launch phase (effective August 30, 2025)
 ---
 
 ## **Refunds & Billing Questions**
@@ -49,6 +50,7 @@ Join our **community channels** for user-to-user help:
 * See our [Refund Policy](https://anointed.io/pricing) for timelines and eligibility.
 * Refund requests **must be emailed** to [support@anointed.io](mailto:support@anointed.io).
 
+### Refund and billing features are not active during the pre-launch phase (effective August 30, 2025).
 ---
 
 ## **Account & Data Requests**

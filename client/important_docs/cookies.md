@@ -53,6 +53,8 @@ Cookies are small text files placed on your device when you visit a website. The
 
 We may update this Cookie Policy from time to time. Major changes will be communicated on this page.
 
+### During the pre-launch phase (effective August 30, 2025), cookie usage may be limited to essential functions due to ongoing development.
+
 📩 Questions? Email us at **[support@anointed.io](mailto:support@anointed.io)**.
 
 ---

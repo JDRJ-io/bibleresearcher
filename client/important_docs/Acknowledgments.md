@@ -2,7 +2,7 @@
 
 *Anointed.io — Bible Study Tools & Data Integration*
 
-**As of:** August 1st, 2025
+**As of:** August 30, 2025
 
 At Anointed.io, we believe in transparency and honor toward those who have laid foundations in biblical study resources. All datasets and tools on this site have been built through extensive research, original design, and careful integration of publicly available data, community contributions, and in-house development.
 
@@ -57,9 +57,9 @@ Potential Free Translations we may add later;
 
 ---
 
-### **6. In-House Beta Features (Original Creative Work)**
+### **6. In-House Pre-Launch Features (Original Creative Work)**
 
-These features are 100% developed in-house and are currently in beta:
+These features are 100% developed in-house and are currently in pre-launch phase:
 
 * **Labels System** — Thematic and topical tagging across translations.
 * **Context Boundaries** — Visual & logical groupings of scripture passages.

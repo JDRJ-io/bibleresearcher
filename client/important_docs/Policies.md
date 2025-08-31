@@ -6,7 +6,7 @@
 
 ## **1. Privacy Policy**
 
-**Effective:** August 1st, 2025
+**Effective:** August 30, 2025
 
 We collect, store, and use information to provide and improve Anointed.io.
 
@@ -25,15 +25,15 @@ We collect, store, and use information to provide and improve Anointed.io.
 * Encrypted in transit (TLS) and at rest.
 * Role-Level Security ensures users only see their own data.
 
-### Sharing & Third Parties
+**Sharing & Third Parties**
 
 We share minimal data with:
-
-* **Stripe** – payments
-* **Postmark / Resend** – transactional emails
-* **Sentry** – crash reporting (anonymized IDs)
-
+* **Stripe** – payment processing (to be implemented prior to public launch).
+* **Postmark / Resend** – transactional email delivery (to be implemented prior to public launch).
+* **Sentry** – crash reporting (anonymized IDs, to be implemented prior to public launch).
 We do not sell or rent your personal info.
+
+### During the pre-launch phase (effective August 30, 2025), email delivery is currently handled via GoDaddy/Outlook, with a planned migration to AWS SES. This transition will maintain the same email addresses (e.g., support@anointed.io, privacy@anointed.io). Data sharing will be updated as additional services are deployed.
 
 ### Your Rights
 
@@ -108,6 +108,7 @@ If you believe content was removed in error, send a counter-notice with:
 
 We operate a **repeat infringer policy** and may terminate accounts accordingly.
 
+DMCA Agent information will be finalized upon registration (expected post-August 30, 2025) following the pre-launch phase.
 ---
 
 ## **4. Payment & Refund Policy**
@@ -127,6 +128,7 @@ We are not a 501(c)(3); contributions are not tax-deductible.
 5.3 All donations are **final and non-refundable**, except in cases of duplicate transactions or processing error.
 5.4 Donations do not entitle the donor to any ownership interest, governance role, or decision-making authority in Anointed.io. Allocation of donated funds is at the sole discretion of Anointed.io.
 
+Donation features are not active during the pre-launch phase (effective August 30, 2025) and will be implemented prior to public launch.
 ---
 
 ## **6. Security Policy**
@@ -198,4 +200,5 @@ Use of Anointed.io is at your own risk. While we strive for accuracy and complet
 
 We may update these policies from time to time. Changes will be posted here, and material changes will be announced in-app and by email at least 7 days before taking effect.
 
+Updates during the pre-launch phase (effective August 30, 2025) will reflect pre-launch-specific practices, including the planned SES migration.
 ---

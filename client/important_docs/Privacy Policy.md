@@ -55,14 +55,13 @@ We use your information to:
 ---
 
 ## **4. Sharing Your Information**
-
 We share minimal data with trusted third-party processors:
-
-* **Stripe** – payment processing
-* **Postmark / Resend** – transactional email delivery
-* **Sentry** – crash/error reporting (anonymized IDs)
-
+* **Stripe** – payment processing (to be implemented prior to public launch).
+* **Postmark / Resend** – transactional email delivery (to be implemented prior to public launch).
+* **Sentry** – crash/error reporting (anonymized IDs, to be implemented prior to public launch).
 We do not share your personal information with advertisers.
+
+### During the pre-launch phase (launching August 30, 2025), email delivery is handled via Outlook/Office 365, with a planned transition to AWS SES. No payment processing or error reporting integrations are active yet. Data sharing will be updated as these services are deployed.
 
 ---
 
@@ -104,6 +103,7 @@ You can adjust your browser settings to block or delete cookies, but some featur
 
 * We keep your personal data while your account is active. If you delete your account, we remove or anonymize your data unless retention is legally required (for tax, billing, or dispute purposes).
 
+### During the pre-launch phase (effective August 30, 2025), data retention may be adjusted, with details subject to change. See Section 9 for updates.
 ---
 
 ## **8. Children’s Privacy**
@@ -116,6 +116,7 @@ Anointed.io is not intended for children under 13 (or 16 in the EU). We do not k
 
 We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated “Effective Date.” Continued use of the Site means you accept the changes.
 
+### Updates during the pre-launch phase (effective August 30, 2025) will reflect pre-launch-specific data practices, including potential SES migration
 ---
 
 ## **10. Third-Party Links**
@@ -133,5 +134,6 @@ For questions, requests, or concerns:
 SongsFromGod LLC
 d/b/a Anointed.io
 
+### During the pre-launch phase (effective August 30, 2025), email delivery is currently handled via GoDaddy/Outlook, with a planned migration to AWS SES. This transition will maintain the same email addresses (e.g., support@anointed.io, privacy@anointed.io). Data sharing will be updated as additional services are deployed.
 ---
 
