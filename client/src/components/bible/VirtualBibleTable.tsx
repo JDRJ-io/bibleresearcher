@@ -589,9 +589,14 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       width += (adaptiveWidths.crossReference * columnWidthMult);
     }
     
-    // Prophecy columns (P, F, V) - use adaptive width with multiplier for each
-    if (showProphecies) {
-      width += (adaptiveWidths.prophecy * 3 * columnWidthMult); // 3 prophecy columns
+    // Prophecy columns (P, F, V) - count active prophecy columns and use adaptive width with multiplier for each
+    let prophecyColumnCount = 0;
+    if (showPrediction) prophecyColumnCount++;
+    if (showFulfillment) prophecyColumnCount++;
+    if (showVerification) prophecyColumnCount++;
+    
+    if (prophecyColumnCount > 0) {
+      width += (adaptiveWidths.prophecy * prophecyColumnCount * columnWidthMult);
     }
     
     // Notes column - use adaptive width with multiplier
@@ -609,7 +614,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     
     
     return width;
-  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, columnWidthMult, viewportWidth]);
+  }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showPrediction, showFulfillment, showVerification, showNotes, columnWidthMult, viewportWidth]);
   const orientation = useOrientation();
   const isPortrait = orientation === 'portrait';
 
