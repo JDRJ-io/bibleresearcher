@@ -500,7 +500,6 @@ export async function loadProphecyData(): Promise<{
   prophecyIndex: Record<number, { summary: string; prophecy: string[]; fulfillment: string[]; verification: string[] }>
 }> {
   try {
-    console.log('🔮 Loading prophecy data from Supabase...');
 
     // Load both files in parallel
     const [prophecyRowsData, prophecyIndexText] = await Promise.all([
@@ -508,14 +507,12 @@ export async function loadProphecyData(): Promise<{
       loadProphecyIndex() // Text from prophecy_index.txt
     ]);
 
-    console.log('📋 Raw prophecy files loaded, processing...');
 
     // Parse prophecy_index.txt first (verse -> prophecy mapping)
     const verseRoles: Record<string, { P: number[], F: number[], V: number[] }> = {};
     
     const indexLines = prophecyIndexText.split('\n').filter(line => line.trim());
     
-    console.log(`📋 Processing ${indexLines.length} prophecy index lines...`);
     
     for (const line of indexLines) {
       // Parse format: "Gen.1:28$664:V"
@@ -557,7 +554,6 @@ export async function loadProphecyData(): Promise<{
       };
     });
 
-    console.log(`✅ Prophecy data loaded: ${Object.keys(verseRoles).length} verses, ${Object.keys(prophecyIndex).length} prophecies`);
 
     return { verseRoles, prophecyIndex };
 
