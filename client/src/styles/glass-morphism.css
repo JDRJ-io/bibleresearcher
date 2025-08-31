@@ -164,8 +164,8 @@
   }
   
   :root.ancient-dark .glass-morphism {
-    background: rgba(0, 0, 0, 0.9);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: transparent;
+    border: none;
   }
   
   :root.monastery-candlelight .glass-morphism {
@@ -186,7 +186,8 @@
   }
   
   :root.ancient-dark .glass-morphism {
-    background: rgba(30, 41, 59, 0.95) !important;
+    background: transparent !important;
+    border: none !important;
   }
   
   :root.monastery-candlelight .glass-morphism {
