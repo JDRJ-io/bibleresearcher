@@ -251,10 +251,13 @@ export function TopHeader({
           <div className="flex-1 mx-2 flex items-center justify-center">
             <div className="flex items-center" style={{ gap: 'var(--anointed-spacing)' }}>
               <button 
-                className="rounded-full bg-gradient-to-br from-blue-200 to-blue-900
-                           border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
+                className="rounded-full bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600
+                           dark:from-amber-500 dark:via-yellow-400 dark:to-amber-500
+                           shadow-lg shadow-amber-500/25 dark:shadow-amber-400/25
                            flex items-center justify-center relative overflow-hidden
-                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                           hover:scale-105 hover:shadow-xl hover:shadow-amber-500/40 
+                           dark:hover:shadow-amber-400/40 transition-all duration-300 cursor-pointer
+                           border border-amber-300/30 dark:border-amber-400/30"
                 style={{ 
                   width: 'var(--anointed-logo-size)', 
                   height: 'var(--anointed-logo-size)' 
@@ -262,8 +265,9 @@ export function TopHeader({
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
               >
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-60" />
                 <Scroll 
-                  className="text-white dark:text-blue-50" 
+                  className="text-amber-900 dark:text-amber-100 relative z-10" 
                   style={{ 
                     width: 'var(--anointed-icon-size)', 
                     height: 'var(--anointed-icon-size)' 
@@ -271,7 +275,9 @@ export function TopHeader({
                 />
               </button>
               <span
-                className="font-bold text-black dark:text-white"
+                className="font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
+                           dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
+                           bg-clip-text text-transparent"
                 style={{
                   fontSize: 'var(--anointed-text-size)',
                   fontWeight: '700',
@@ -366,10 +372,13 @@ export function TopHeader({
             {/* Brand group: Logo + Text */}
             <div className="flex items-center" style={{ gap: 'var(--anointed-spacing)' }}>
               <button 
-                className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
-                           border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
+                className="rounded-full bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600
+                           dark:from-amber-500 dark:via-yellow-400 dark:to-amber-500
+                           shadow-lg shadow-amber-500/25 dark:shadow-amber-400/25
                            flex items-center justify-center relative overflow-hidden
-                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                           hover:scale-105 hover:shadow-xl hover:shadow-amber-500/40 
+                           dark:hover:shadow-amber-400/40 transition-all duration-300 cursor-pointer
+                           border border-amber-300/30 dark:border-amber-400/30"
                 style={{ 
                   width: 'var(--anointed-logo-size)', 
                   height: 'var(--anointed-logo-size)' 
@@ -377,8 +386,9 @@ export function TopHeader({
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
               >
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-60" />
                 <Scroll 
-                  className="text-white dark:text-blue-50" 
+                  className="text-amber-900 dark:text-amber-100 relative z-10" 
                   style={{ 
                     width: 'var(--anointed-icon-size)', 
                     height: 'var(--anointed-icon-size)' 
@@ -386,13 +396,15 @@ export function TopHeader({
                 />
               </button>
               <span
+                className="font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
+                           dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
+                           bg-clip-text text-transparent"
                 style={{
                   fontSize: 'var(--anointed-text-size)',
                   fontWeight: '700',
                   letterSpacing: '-0.01em',
                   marginLeft: 'var(--anointed-spacing)'
                 }}
-                className="font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent"
               >Anointed.io</span>
             </div>
           </div>

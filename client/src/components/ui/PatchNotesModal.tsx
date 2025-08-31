@@ -74,10 +74,13 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-purple-900/10 via-yellow-400/5 to-purple-900/10">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 border border-yellow-400/30">
-              <Scroll className="h-5 w-5 text-yellow-400" />
+            <div className="p-2 rounded-full bg-gradient-to-br from-amber-400/20 via-yellow-500/20 to-amber-600/20 
+                         border border-amber-400/30">
+              <Scroll className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <h3 className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
+                           dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
+                           bg-clip-text text-transparent">
               Divine Updates
             </h3>
           </div>
@@ -99,10 +102,10 @@ export const PatchNotesModal: React.FC<PatchNotesModalProps> = ({
             <div 
               className="prose prose-sm max-w-none dark:prose-invert 
                          prose-headings:text-foreground prose-headings:font-semibold
-                         prose-h1:text-2xl prose-h1:bg-gradient-to-r prose-h1:from-yellow-500 prose-h1:to-purple-500 
-                         dark:prose-h1:from-yellow-400 dark:prose-h1:to-purple-400 prose-h1:bg-clip-text prose-h1:text-transparent
+                         prose-h1:text-2xl prose-h1:bg-gradient-to-r prose-h1:from-amber-600 prose-h1:via-yellow-600 prose-h1:to-amber-700 
+                         dark:prose-h1:from-amber-400 dark:prose-h1:via-yellow-400 dark:prose-h1:to-amber-500 prose-h1:bg-clip-text prose-h1:text-transparent
                          prose-h2:text-xl prose-h2:text-foreground dark:prose-h2:text-foreground prose-h2:border-b prose-h2:border-border prose-h2:pb-2
-                         prose-h3:text-lg prose-h3:text-yellow-600 dark:prose-h3:text-yellow-400
+                         prose-h3:text-lg prose-h3:text-amber-600 dark:prose-h3:text-amber-400
                          prose-p:text-foreground dark:prose-p:text-foreground prose-strong:text-foreground dark:prose-strong:text-foreground prose-li:text-foreground dark:prose-li:text-foreground
                          prose-ul:list-disc prose-ol:list-decimal
                          prose-a:text-primary hover:prose-a:text-primary/80
