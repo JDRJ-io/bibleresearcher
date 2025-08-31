@@ -298,10 +298,10 @@ body {
   --column-header-height: 40px;
 
   /* Unified Logo & Icon Sizing Variables */
-  --anointed-logo-size: 44px;
-  --anointed-text-size: 24px;
-  --anointed-icon-size: 24px;
-  --anointed-spacing: 12px;
+  --anointed-logo-size: 32px;
+  --anointed-text-size: 28px;
+  --anointed-icon-size: 18px;
+  --anointed-spacing: 10px;
   
   /* Header rollup animation variables */
   --header-rollup-transform: translateY(0);
