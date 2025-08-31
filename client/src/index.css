@@ -341,6 +341,11 @@ body {
   font-size: inherit !important; /* Prevent child elements from manual scaling */
 }
 
+/* Exception: Allow anointed logo text to use its own size */
+.top-header .anointed-logo-text {
+  font-size: var(--anointed-text-size) !important;
+}
+
 @media (max-width: 640px) {
   .top-header {
     height: calc(var(--header-height-mobile) * var(--adaptive-header-scale)) !important;

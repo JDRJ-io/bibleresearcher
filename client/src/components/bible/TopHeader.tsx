@@ -275,7 +275,7 @@ export function TopHeader({
                 />
               </button>
               <span
-                className="font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
+                className="anointed-logo-text font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
                            dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
                            bg-clip-text text-transparent"
                 style={{
@@ -396,7 +396,7 @@ export function TopHeader({
                 />
               </button>
               <span
-                className="font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
+                className="anointed-logo-text font-bold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 
                            dark:from-amber-400 dark:via-yellow-400 dark:to-amber-500 
                            bg-clip-text text-transparent"
                 style={{
