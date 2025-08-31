@@ -28,35 +28,35 @@ type ThemeVars = {
 
 export const THEMES: Record<ThemeName, ThemeVars> = {
   light: {
-    bgPrimary: 'hsl(0, 0%, 100%)',
-    bgSecondary: 'hsl(210, 40%, 98%)',
-    headerBg: 'hsl(0, 0%, 100%)',
-    columnBg: 'hsl(0, 0%, 100%)',
-    highlightBg: 'hsl(214, 100%, 97%)',
-    grad0: 'hsl(210, 40%, 99%)',
-    grad1: 'hsl(200, 30%, 97%)',
-    glassBg: 'rgba(255,255,255,0.92)',
-    textPrimary: 'hsl(210, 24%, 16%)',
-    textSecondary: 'hsl(215, 20%, 35%)',
-    borderColor: 'hsl(214, 32%, 91%)',
-    accentColor: 'hsl(221, 83%, 53%)',
-    linkColor: 'hsl(221, 83%, 53%)',
-    linkHoverColor: 'hsl(221, 83%, 43%)',
+    bgPrimary: 'hsl(210, 14%, 95%)', // Cool White
+    bgSecondary: 'hsl(210, 14%, 93%)',
+    headerBg: 'hsl(210, 14%, 95%)',
+    columnBg: 'hsl(210, 14%, 95%)',
+    highlightBg: 'hsl(210, 19%, 27%)', // Slate Blue highlight
+    grad0: 'hsl(210, 14%, 96%)',
+    grad1: 'hsl(210, 14%, 94%)',
+    glassBg: 'rgba(240,242,245,0.92)',
+    textPrimary: 'hsl(26, 8%, 12%)', // Dark Rich Black for text
+    textSecondary: 'hsl(210, 19%, 27%)', // Slate Blue for secondary
+    borderColor: 'hsl(210, 14%, 85%)',
+    accentColor: 'hsl(210, 19%, 27%)', // Slate Blue primary
+    linkColor: 'hsl(50, 100%, 33%)', // Muted Gold for links
+    linkHoverColor: 'hsl(50, 100%, 28%)', // Darker gold on hover
   },
   dark: {
-    bgPrimary: 'hsl(220, 25%, 8%)',
-    bgSecondary: 'hsl(220, 20%, 6%)',
-    headerBg: 'hsl(220, 25%, 8%)',
-    columnBg: 'hsl(220, 20%, 10%)',
-    highlightBg: 'hsl(215, 27%, 32%)',
-    grad0: 'hsl(220, 20%, 7%)',
-    grad1: 'hsl(220, 25%, 5%)',
-    glassBg: 'rgba(26, 35, 62, 0.95)',
-    textPrimary: 'hsl(30, 5%, 92%)',
-    textSecondary: 'hsl(30, 5%, 70%)',
-    borderColor: 'hsl(220, 10%, 18%)',
-    accentColor: 'hsl(221, 83%, 53%)',
-    linkColor: 'hsl(221, 83%, 53%)',
-    linkHoverColor: 'hsl(221, 83%, 63%)',
+    bgPrimary: 'hsl(210, 11%, 11%)', // Deep Charcoal
+    bgSecondary: 'hsl(210, 11%, 9%)',
+    headerBg: 'hsl(210, 11%, 11%)',
+    columnBg: 'hsl(210, 11%, 13%)',
+    highlightBg: 'hsl(210, 19%, 27%)', // Slate Blue highlight
+    grad0: 'hsl(210, 11%, 10%)',
+    grad1: 'hsl(210, 11%, 8%)',
+    glassBg: 'rgba(26,28,32,0.95)',
+    textPrimary: 'hsl(210, 14%, 95%)', // Cool White for text
+    textSecondary: 'hsl(210, 14%, 75%)',
+    borderColor: 'hsl(210, 11%, 20%)',
+    accentColor: 'hsl(210, 19%, 27%)', // Slate Blue primary
+    linkColor: 'hsl(50, 100%, 33%)', // Muted Gold for links
+    linkHoverColor: 'hsl(50, 100%, 38%)', // Brighter gold on hover
   },
 };
