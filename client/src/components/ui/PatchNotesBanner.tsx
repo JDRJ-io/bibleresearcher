@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Scroll, ChevronRight, X } from 'lucide-react';
+import { FileText, ChevronRight, X } from 'lucide-react';
 import { PatchNotesModal } from './PatchNotesModal';
 
 interface PatchNotesBannerProps {
@@ -55,22 +55,22 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
                       min-h-[56px]">
         {/* Mobile-Optimized Left Side */}
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0 justify-center">
-          <div className="p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-full bg-gradient-to-br from-yellow-400/20 to-purple-400/20 
-                         border border-yellow-400/30 flex-shrink-0">
-            <Scroll className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 lg:h-5.5 lg:w-5.5 text-yellow-400" />
+          <div className="p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-full bg-gradient-to-br from-black/20 to-gray-800/20 
+                         border border-black/30 flex-shrink-0">
+            <FileText className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 lg:h-5.5 lg:w-5.5 text-black" />
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 md:space-x-4 flex-1 min-w-0 text-center sm:text-left">
             <h3 className="text-xs xs:text-xs sm:text-sm md:text-base lg:text-lg truncate"
                 style={{
-                  color: '#D97706',
+                  color: '#000000',
                   fontWeight: '700'
                 }}>
               Divine Updates
             </h3>
-            <span className="hidden sm:inline text-xs md:text-sm" style={{ color: '#6B7280' }}>•</span>
+            <span className="hidden sm:inline text-xs md:text-sm" style={{ color: '#000000' }}>•</span>
             <p className="text-xs xs:text-xs sm:text-sm md:text-base truncate"
-               style={{ color: '#374151' }}>
+               style={{ color: '#000000' }}>
               Latest sacred enhancements
             </p>
           </div>
@@ -87,7 +87,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
                       font-medium text-xs xs:text-xs sm:text-sm md:text-base
                       hover:shadow-lg transform hover:scale-105"
             style={{
-              color: '#D97706',
+              color: '#000000',
               backdropFilter: 'blur(8px)'
             }}
           >

@@ -262,11 +262,10 @@ export function TopHeader({
                 <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
               </button>
               <span
-                className="font-bold text-gray-900 dark:text-gray-300"
+                className="font-bold text-black dark:text-white"
                 style={{
                   fontSize: '20px',
                   fontWeight: '700',
-                  color: '#111',
                   letterSpacing: '-0.01em'
                 }}
               >Anointed.io</span>
