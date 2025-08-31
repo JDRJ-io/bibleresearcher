@@ -232,22 +232,22 @@ body {
 
 /* Simple Theme System - Light and Dark only */
 :root.light {
-  --header-bg: hsl(210, 14%, 95%);
-  --text-color: hsl(26, 8%, 12%);
-  --accent-color: hsl(210, 19%, 27%);
-  --column-bg: hsl(210, 14%, 95%);
-  --border-color: hsl(210, 14%, 85%);
-  --highlight-bg: hsl(210, 19%, 27%);
+  --header-bg: hsl(0, 0%, 100%);
+  --text-color: hsl(210, 24%, 16%);
+  --accent-color: hsl(221, 83%, 53%);
+  --column-bg: hsl(0, 0%, 100%);
+  --border-color: hsl(214, 32%, 91%);
+  --highlight-bg: hsl(214, 100%, 97%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.dark {
-  --header-bg: hsl(210, 11%, 11%);
-  --text-color: hsl(210, 14%, 95%);
-  --accent-color: hsl(210, 19%, 27%);
-  --column-bg: hsl(210, 11%, 13%);
-  --border-color: hsl(210, 11%, 20%);
-  --highlight-bg: hsl(210, 19%, 27%);
+  --header-bg: hsl(220, 25%, 8%);
+  --text-color: hsl(30, 5%, 92%);
+  --accent-color: hsl(221, 83%, 53%);
+  --column-bg: hsl(220, 20%, 10%);
+  --border-color: hsl(220, 10%, 18%);
+  --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -641,52 +641,52 @@ body {
 /* Professional theme mode classes */
 .light-mode, :root.light {
   /* Canonical "bg-" vars (source of truth) */
-  --bg-primary: hsl(210, 14%, 95%);
-  --bg-secondary: hsl(210, 14%, 93%);
-  --text-primary: hsl(26, 8%, 12%);
-  --text-secondary: hsl(210, 19%, 27%);
-  --border-color: hsl(210, 14%, 85%);
-  --accent-color: hsl(210, 19%, 27%);
-  --header-bg: hsl(210, 14%, 95%);
-  --text-color: hsl(26, 8%, 12%);
-  --column-bg: hsl(210, 14%, 95%);
-  --highlight-bg: hsl(210, 19%, 27%);
+  --bg-primary: hsl(0, 0%, 100%);
+  --bg-secondary: hsl(210, 40%, 98%);
+  --text-primary: hsl(210, 24%, 16%);
+  --text-secondary: hsl(215, 16%, 47%);
+  --border-color: hsl(214, 32%, 91%);
+  --accent-color: hsl(221, 83%, 53%);
+  --header-bg: hsl(0, 0%, 100%);
+  --text-color: hsl(210, 24%, 16%);
+  --column-bg: hsl(0, 0%, 100%);
+  --highlight-bg: hsl(214, 100%, 97%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Tailwind-facing aliases */
   --background: var(--bg-primary);
-  --primary: hsl(210, 19%, 27%);
-  --primary-foreground: hsl(210, 14%, 95%);
-  --secondary: hsl(210, 14%, 90%);
-  --secondary-foreground: hsl(26, 8%, 12%);
-  --accent: hsl(50, 100%, 33%);
-  --accent-foreground: hsl(210, 14%, 95%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(210, 24%, 16%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(210, 24%, 16%);
   --card: var(--column-bg);
   --popover: var(--header-bg);
 }
 
 .dark-mode, :root.dark {
   /* Canonical "bg-" vars (source of truth) */
-  --bg-primary: hsl(210, 11%, 11%);
-  --bg-secondary: hsl(210, 11%, 9%);
-  --text-primary: hsl(210, 14%, 95%);
-  --text-secondary: hsl(210, 14%, 75%);
-  --border-color: hsl(210, 11%, 20%);
-  --accent-color: hsl(210, 19%, 27%);
-  --header-bg: hsl(210, 11%, 11%);
-  --text-color: hsl(210, 14%, 95%);
-  --column-bg: hsl(210, 11%, 13%);
-  --highlight-bg: hsl(210, 19%, 27%);
+  --bg-primary: hsl(220, 25%, 8%);
+  --bg-secondary: hsl(220, 20%, 6%);
+  --text-primary: hsl(30, 5%, 92%);
+  --text-secondary: hsl(30, 5%, 70%);
+  --border-color: hsl(220, 10%, 18%);
+  --accent-color: hsl(221, 83%, 53%);
+  --header-bg: hsl(220, 25%, 8%);
+  --text-color: hsl(30, 5%, 92%);
+  --column-bg: hsl(220, 20%, 10%);
+  --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Tailwind-facing aliases */
   --background: var(--bg-primary);
-  --primary: hsl(210, 19%, 27%);
-  --primary-foreground: hsl(210, 14%, 95%);
-  --secondary: hsl(210, 11%, 15%);
-  --secondary-foreground: hsl(210, 14%, 95%);
-  --accent: hsl(50, 100%, 33%);
-  --accent-foreground: hsl(210, 14%, 95%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(220, 25%, 8%);
+  --secondary: hsl(220, 20%, 10%);
+  --secondary-foreground: hsl(30, 5%, 92%);
+  --accent: hsl(221, 83%, 53%);
+  --accent-foreground: hsl(30, 5%, 92%);
   --card: var(--column-bg);
   --popover: var(--header-bg);
 }

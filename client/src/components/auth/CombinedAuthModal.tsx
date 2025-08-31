@@ -182,7 +182,7 @@ export function CombinedAuthModal({ isOpen, onClose }: CombinedAuthModalProps) {
               
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-800 hover:to-slate-700"
+                className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
                 disabled={isLoading || magicLinkSent}
               >
                 {magicLinkSent ? (
