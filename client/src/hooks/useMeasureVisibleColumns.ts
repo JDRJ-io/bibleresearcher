@@ -24,9 +24,9 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
       const isPortrait = window.innerHeight > window.innerWidth;
       const isMobile = width <= 640;
       
-      if (isPortrait && isMobile) {
-        // In mobile portrait, show only essential columns to prevent layout issues
-        // Filter out very narrow columns (like context) that might cause the extra small column issue
+      if (isPortrait && isMobile && width <= 480) {
+        // Only limit columns on very small screens (480px or less)
+        // Filter out very narrow columns (like context) that might cause layout issues
         const essentialFixedColumns = fixedColumns.filter(id => {
           const w = columnWidthsPx[id] ?? 50;
           return w >= 30; // Filter out very narrow columns like context (40px)
@@ -39,7 +39,7 @@ export function useMeasureVisibleColumns(containerEl: HTMLElement | null) {
         
         const totalColumns = essentialFixedColumns.length + Math.min(essentialNavigableColumns.length, 2);
         
-        console.log(`📐 Mobile Portrait Mode: ${essentialFixedColumns.length} fixed + ${Math.min(essentialNavigableColumns.length, 2)} navigable = ${totalColumns} total`);
+        console.log(`📐 Very Small Mobile Portrait Mode: ${essentialFixedColumns.length} fixed + ${Math.min(essentialNavigableColumns.length, 2)} navigable = ${totalColumns} total`);
         
         // Log essential columns being displayed
         essentialFixedColumns.forEach(id => {
