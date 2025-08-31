@@ -83,9 +83,12 @@ Anointed.io complies with the U.S. Digital Millennium Copyright Act (17 U.S.C. Â
 ### DMCA Agent:
 
 **DMCA Agent**
-Anointed.io
-Email: **[dmca@anointed.io](mailto:dmca@anointed.io)**
-Mailing Address: *\[Your registered agent or PO box]*
+DMCA Agent â€“ SongsFromGod LLC
+SongsFromGod LLC
+22914 Colombard Lane, Unit 3
+Diamond Bar, CA 91765
+Phone: (714) 366-0433
+Email: dmca@anointed.io
 
 ### Filing a DMCA Takedown Notice
 
@@ -108,7 +111,6 @@ If you believe content was removed in error, send a counter-notice with:
 
 We operate a **repeat infringer policy** and may terminate accounts accordingly.
 
-DMCA Agent information will be finalized upon registration (expected post-August 30, 2025) following the pre-launch phase.
 ---
 
 ## **4. Payment & Refund Policy**

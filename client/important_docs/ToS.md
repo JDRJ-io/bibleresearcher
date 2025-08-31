@@ -101,7 +101,6 @@ By creating an account, accessing, or using the Service, you agree to be bound b
 
 8.4 To the extent Anointed.io uses User Content under the licenses granted herein, such use is conditioned upon your representations and warranties in Section 6.4. Anointed.io will not be liable for using User Content that it reasonably believed to be lawfully submitted and licensed.
 
-Our DMCA Policy [/dmca] will be updated with registered Designated Agent information upon completion of registration (expected post-August 30, 2025).
 ---
 
 ## **9. Privacy**

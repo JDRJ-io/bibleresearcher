@@ -1,8 +1,7 @@
----
 
 # **DMCA Takedown Policy**
 
-Anointed.io respects the intellectual property rights of others and expects our community to do the same. In accordance with the Digital Millennium Copyright Act (DMCA), 17 U.S.C. §512, we have adopted the following policy for handling copyright infringement claims.
+Anointed.io (operated by SongsFromGod LLC) respects the intellectual property rights of others and expects our community to do the same. In accordance with the Digital Millennium Copyright Act (DMCA), 17 U.S.C. §512, we have adopted the following policy for handling copyright infringement claims.
 
 ---
 
@@ -18,13 +17,16 @@ If you believe that content on Anointed.io infringes your copyright, please send
 * Your physical or electronic signature.
 
 **Designated DMCA Agent:**
-\[Full Legal Name / LLC Name]
-\[Mailing Address]
-\[City, State, ZIP]
-\[Phone Number]
-\[Email: [dmca@anointed.io](mailto:dmca@anointed.io)]
+DMCA Agent – SongsFromGod LLC
+SongsFromGod LLC
+22914 Colombard Lane, Unit 3
+2020 N Academy Blvd
+Ste 261 #2107
+Colorado Springs,  CO  80909
+Phone: (714) 366-0433
+Email: [dmca@anointed.io](mailto:dmca@anointed.io)
 
-*(Note: This information must also be registered with the U.S. Copyright Office at [https://dmca.copyright.gov/osp/](https://dmca.copyright.gov/osp/) for your safe-harbor protection.)*
+*(This Designated Agent information is also registered with the U.S. Copyright Office at [https://dmca.copyright.gov/osp/](https://dmca.copyright.gov/osp/) under Registration No. DMCA-1064787.)*
 
 ---
 
