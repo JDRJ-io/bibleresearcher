@@ -55,18 +55,13 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
       <div className="relative px-2 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center 
                       min-h-[56px]">
         {/* Mobile-Optimized Left Side */}
-        <div className="flex items-center space-x-1 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0 pr-20 sm:pr-24 md:pr-32">
-          <div className="p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-full bg-gradient-to-br from-amber-200/30 to-orange-200/40 dark:from-purple-800/40 dark:to-indigo-800/50 
-                         border border-amber-300/40 dark:border-purple-500/40 flex-shrink-0">
-            <FileText className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 lg:h-5.5 lg:w-5.5 text-amber-600 dark:text-yellow-400" />
-          </div>
-          
-          <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-2 sm:space-x-3 md:space-x-4 flex-1 min-w-0">
-            <h3 className="text-sm xs:text-base sm:text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
+        <div className="flex items-center justify-center flex-1 min-w-0 pr-20 sm:pr-24 md:pr-32">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <h3 className="text-sm xs:text-base sm:text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
               Divine Updates
             </h3>
-            <span className="hidden xs:inline text-xs md:text-sm text-amber-800/70 dark:text-yellow-300/70">•</span>
-            <p className="text-xs sm:text-sm md:text-base truncate text-amber-900/90 dark:text-yellow-100/90 leading-tight">
+            <span className="text-xs md:text-sm text-amber-800/70 dark:text-yellow-300/70">•</span>
+            <p className="text-xs sm:text-sm md:text-base text-amber-900/90 dark:text-yellow-100/90">
               Latest sacred enhancements
             </p>
           </div>
