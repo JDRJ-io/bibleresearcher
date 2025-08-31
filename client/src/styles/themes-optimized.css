@@ -21,8 +21,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* Optimized transitions - only essential properties */
-  transition: color 0.2s ease, background-color 0.3s ease;
+  /* No transitions for instant theme switching */
   /* Support for dynamic backgrounds */
   min-height: 100vh;
 }
