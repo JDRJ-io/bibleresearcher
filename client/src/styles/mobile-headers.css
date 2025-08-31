@@ -4,7 +4,7 @@
 :root {
   --top-header-height-desktop: 64px;
   --top-header-height-mobile: 48px;
-  --column-header-height: 48px;
+  --column-header-height: 60px;
 }
 
 /* Mobile-specific header positioning */

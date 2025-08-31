@@ -65,7 +65,7 @@ export function useAdaptiveScaling() {
       
       document.documentElement.style.setProperty('--top-header-height-desktop', `${actualDesktopHeight}px`);
       document.documentElement.style.setProperty('--top-header-height-mobile', `${actualMobileHeight}px`);
-      document.documentElement.style.setProperty('--column-header-height', isPortrait ? '32px' : '40px');
+      document.documentElement.style.setProperty('--column-header-height', isPortrait ? '60px' : '60px');
     };
     
     // Initial calculation
