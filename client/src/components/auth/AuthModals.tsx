@@ -478,11 +478,11 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           
           <Button 
             type="submit" 
-            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-500 to-blue-600 
-                       hover:from-blue-600 hover:to-blue-700 text-white 
+            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#1E90FF] to-[#1E90FF] 
+                       hover:from-[#1E90FF]/90 hover:to-[#1E90FF]/80 text-white 
                        shadow-lg hover:shadow-xl 
                        transform hover:scale-[1.02] transition-all duration-200 rounded-md
-                       border border-blue-400"
+                       border border-[#1E90FF]/60"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -492,8 +492,8 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
               </>
             ) : (
               <>
-                <Shield className="mr-2 h-4 w-4" />
-                Sign In ✨
+                <Shield className="mr-2 h-4 w-4 text-white" />
+                <span className="text-white">Sign In ✨</span>
               </>
             )}
           </Button>
