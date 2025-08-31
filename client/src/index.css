@@ -447,6 +447,12 @@ body {
   line-height: 1 !important;
 }
 
+/* Ensure column headers get proper height */
+.column-header-cell {
+  height: var(--column-header-height) !important;
+  min-height: var(--column-header-height) !important;
+}
+
 /* All mobile column header restraints removed */
 
 /* Dark mode border color */
