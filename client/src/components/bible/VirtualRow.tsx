@@ -1033,11 +1033,6 @@ export function VirtualRow({
       totalWidth += columnWidth;
     });
     
-    console.log('🔥 VirtualRow Total Width Calculation:', {
-      visibleColumns: visibleColumns.length,
-      totalWidth,
-      visibleColumnTypes: visibleColumns.map(col => slotConfig[col.slot]?.type).filter(Boolean)
-    });
     
     return totalWidth;
   }, [visibleColumns, slotConfig]);
