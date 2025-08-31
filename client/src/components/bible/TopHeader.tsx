@@ -283,7 +283,7 @@ export function TopHeader({
                   fontWeight: '700',
                   letterSpacing: '-0.01em',
                   marginLeft: 'var(--anointed-spacing)',
-                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(251,191,36,0.4))'
+                  filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.15))'
                 }}
               >Anointed.io</span>
             </div>
@@ -405,7 +405,7 @@ export function TopHeader({
                   fontWeight: '700',
                   letterSpacing: '-0.01em',
                   marginLeft: 'var(--anointed-spacing)',
-                  filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(251,191,36,0.4))'
+                  filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.15))'
                 }}
               >Anointed.io</span>
             </div>
