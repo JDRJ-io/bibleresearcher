@@ -1017,7 +1017,7 @@ export function VirtualRow({
   // RESPONSIVE COLUMN WIDTHS - Optimize space utilization
   return (
     <div 
-      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row transition-colors duration-200 hover:bg-gray-50/40 dark:hover:bg-gray-700/20"
+      className="border-b border-gray-200 dark:border-gray-700 bible-verse-row"
       style={{ 
         height: rowHeight,
         width: needsHorizontalScroll ? `${actualTotalWidth}px` : '100%',
