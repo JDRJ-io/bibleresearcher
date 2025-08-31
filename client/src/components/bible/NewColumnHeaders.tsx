@@ -472,7 +472,7 @@ export function NewColumnHeaders({
           font-bold 
           text-xs 
           leading-none
-          ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2 py-1'}
+          ${column.type === 'reference' ? 'text-sm p-0' : 'text-xs px-2'}
           ${isDragging ? 'opacity-50' : ''}
           ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}
         `}
