@@ -52,34 +52,34 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         <div className="absolute left-3/4 top-1/2 w-1.5 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse delay-1000" />
       </div>
 
-      <div className="relative px-2 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center 
+      <div className="relative px-2 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between 
                       min-h-[56px]">
-        {/* Mobile-Optimized Left Side */}
-        <div className="flex items-center justify-center flex-1 min-w-0 pr-14 sm:pr-16 md:pr-20">
-          {/* Single row on wider screens, two rows on mobile */}
-          <div className="hidden sm:flex items-center space-x-3">
-            <h3 className="text-lg md:text-xl font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+        {/* Centered Main Content */}
+        <div className="flex items-center justify-center flex-1 min-w-0">
+          {/* Single row on wider screens with better alignment */}
+          <div className="hidden sm:flex items-center justify-center space-x-4 text-center">
+            <h3 className="text-lg md:text-xl lg:text-2xl font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight tracking-wide">
               Start with prayer
             </h3>
-            <span className="text-amber-800/50 dark:text-yellow-300/50 text-lg">•</span>
-            <p className="text-sm md:text-base text-amber-900/90 dark:text-yellow-100/90 font-medium">
+            <span className="text-amber-800/60 dark:text-yellow-300/60 text-xl mx-2">•</span>
+            <p className="text-base md:text-lg lg:text-xl text-amber-900/90 dark:text-yellow-100/90 font-medium leading-tight tracking-wide">
               Welcome Holy Spirit
             </p>
           </div>
           
-          {/* Two rows on mobile for better readability */}
-          <div className="sm:hidden text-center space-y-1">
-            <h3 className="text-sm font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+          {/* Mobile layout with better vertical centering */}
+          <div className="sm:hidden text-center space-y-1.5 py-1">
+            <h3 className="text-base font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight tracking-wide">
               Start with prayer
             </h3>
-            <p className="text-xs text-amber-900/90 dark:text-yellow-100/90 font-medium">
+            <p className="text-sm text-amber-900/90 dark:text-yellow-100/90 font-medium leading-tight tracking-wide">
               Welcome Holy Spirit
             </p>
           </div>
         </div>
 
         {/* Adaptive Call to Action */}
-        <div className="flex items-center absolute right-1 xs:right-2 sm:right-4 md:right-6 lg:right-8 flex-shrink-0 space-x-1">
+        <div className="flex items-center flex-shrink-0 space-x-1 ml-4">
           <button
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
