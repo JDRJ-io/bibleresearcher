@@ -983,19 +983,64 @@ export function VirtualRow({
     }
   };
 
-  // Calculate actual total width from columnState - SAME as ColumnHeaders
+  // Calculate actual total width using CSS variables - SYNC with NewColumnHeaders
   const actualTotalWidth = useMemo(() => {
-    if (!columnState?.columns) return 0;
-
-    return visibleColumns.reduce((total, col) => {
-      const columnInfo = columnState.columns.find(c => c.slot === col.slot);
-      if (columnInfo) {
-        // Convert rem to pixels (1rem = 16px)
-        return total + (columnInfo.widthRem * 16);
+    if (typeof window === 'undefined') return 0;
+    
+    let totalWidth = 0;
+    
+    visibleColumns.forEach(col => {
+      const config = slotConfig[col.slot];
+      if (!config || !config.visible) return;
+      
+      let columnWidth = 0;
+      
+      // Use the same CSS variable logic as NewColumnHeaders
+      switch (config.type) {
+        case 'reference':
+          // Get reference width from CSS variable
+          const refWidthVar = getComputedStyle(document.documentElement).getPropertyValue('--adaptive-ref-width').trim();
+          columnWidth = refWidthVar ? parseInt(refWidthVar) : 50;
+          break;
+          
+        case 'main-translation':
+          // Get main translation width from CSS variable
+          const mainWidthVar = getComputedStyle(document.documentElement).getPropertyValue('--adaptive-main-width').trim();
+          columnWidth = mainWidthVar ? parseInt(mainWidthVar) : 300;
+          break;
+          
+        case 'cross-refs':
+          // Get cross-refs width from CSS variable
+          const crossWidthVar = getComputedStyle(document.documentElement).getPropertyValue('--adaptive-cross-width').trim();
+          columnWidth = crossWidthVar ? parseInt(crossWidthVar) : 300;
+          break;
+          
+        case 'alt-translation':
+        case 'prophecy-p':
+        case 'prophecy-f': 
+        case 'prophecy-v':
+        case 'notes':
+          // All other columns use the same width as main translation
+          const standardWidthVar = getComputedStyle(document.documentElement).getPropertyValue('--adaptive-main-width').trim();
+          columnWidth = standardWidthVar ? parseInt(standardWidthVar) : 300;
+          break;
+          
+        default:
+          columnWidth = 300; // fallback
+          break;
       }
-      return total + 160; // fallback width
-    }, 0);
-  }, [visibleColumns, columnState]);
+      
+      totalWidth += columnWidth;
+    });
+    
+    console.log('🔥 VirtualRow Total Width Calculation:', {
+      visibleColumns: visibleColumns.length,
+      totalWidth,
+      visibleColumnTypes: visibleColumns.map(col => slotConfig[col.slot]?.type).filter(Boolean)
+    });
+    
+    return totalWidth;
+  }, [visibleColumns, slotConfig]);
 
   const currentViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
   const shouldCenter = actualTotalWidth <= currentViewportWidth * 0.95;
