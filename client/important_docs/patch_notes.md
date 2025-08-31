@@ -54,7 +54,7 @@
 
 
 
-### 💬 Community (Early Beta)
+### 💬 Community 
 
 * **Forum Draft** – A space for sharing insights, asking questions, and encouraging others.
 * **Voting & Moderation** – Early version of feedback and community review built in.

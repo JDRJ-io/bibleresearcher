@@ -34,7 +34,7 @@ You’re helping believers:
 
 Your generosity is a seed that will bear fruit for generations. Thank you for standing with us.
 
-Donation features are not active during the closed beta (launching August 30, 2025) and will be implemented prior to public launch.
+Donation features are not active during the pre-launch phase (launching August 30, 2025) and will be implemented prior to public launch.
 ---
 
 ## **Legal Donation Policy**

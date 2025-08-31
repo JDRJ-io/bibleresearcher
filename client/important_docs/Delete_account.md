@@ -36,7 +36,7 @@ For security reasons, we cannot process deletion requests from any other email.
 
 If you’ve posted in public forums or shared insights, we may **anonymize** that content rather than deleting it entirely, to preserve the continuity of community discussions.
 
-### During the pre-launch phase (effective August 30, 2025), deletion processes may be adjusted based on beta feedback.
+### During the pre-launch phase (effective August 30, 2025), deletion processes may be adjusted based on pre-launch phase feedback.
 ---
 
 ### 5️⃣ Legal Compliance

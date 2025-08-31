@@ -95,10 +95,10 @@ export function IntroOverlay({ isVisible, onClose }: IntroOverlayProps) {
           {/* Call to Action Placeholder */}
           <div className="mt-8 p-6 rounded-xl bg-gradient-to-r from-yellow-400/10 to-purple-400/10 border border-yellow-400/20">
             <h3 className="text-lg font-semibold text-yellow-400 mb-2">
-              adventure with God
+              FOCUS ON ADVENTURE WITH GOD
             </h3>
             <p className="text-white/70 text-sm">
-              with tools to dig deep & scroll smart
+              Scroll Deeper / Navigate Faster
             </p>
           </div>
 
