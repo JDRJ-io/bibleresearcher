@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book, Bookmark, Scroll } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Menu, Sparkles, KeyRound, X, Book, Bookmark, Scroll, Save } from 'lucide-react';
 import { BookmarkButton } from '@/components/user/BookmarkButton';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,7 @@ import { useTranslationMaps } from '@/store/translationSlice';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
+import { saveAllUserData } from '@/lib/userDataApi';
 import { BookmarkModal } from './BookmarkModal';
 import { useAdaptiveScaling } from '@/hooks/useAdaptiveScaling';
 
@@ -191,6 +192,38 @@ export function TopHeader({
     createBookmarkMutation.mutate({ name, color });
   };
 
+  // Manual save mutation for all user data
+  const manualSaveMutation = useMutation({
+    mutationFn: saveAllUserData,
+    onSuccess: (result) => {
+      if (result.success) {
+        toast({
+          title: "Data Saved",
+          description: result.message,
+        });
+      } else {
+        toast({
+          title: "Save Failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('❌ Manual save failed:', error);
+      toast({
+        title: "Save Error",
+        description: "Failed to save your study data. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleManualSave = () => {
+    console.log('💾 Manual save button clicked');
+    manualSaveMutation.mutate();
+  };
+
 
 
   return (
@@ -273,7 +306,7 @@ export function TopHeader({
             </div>
           </div>
 
-          {/* Right: Search + Bookmark + Sign In + Menu */}
+          {/* Right: Search + Save + Bookmark + Sign In + Menu */}
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
@@ -286,6 +319,16 @@ export function TopHeader({
               title="Open Search Modal"
             >
               <Search className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-8 h-8 p-0"
+              onClick={handleManualSave}
+              disabled={manualSaveMutation.isPending}
+              title="Save all study data now"
+            >
+              <Save className="w-3 h-3" />
             </Button>
             <Button
               variant="outline"
@@ -394,8 +437,18 @@ export function TopHeader({
             </Button>
           </div>
 
-          {/* Right Section: Bookmark + Auth + Menu */}
+          {/* Right Section: Save + Bookmark + Auth + Menu */}
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-8 h-8 p-0"
+              onClick={handleManualSave}
+              disabled={manualSaveMutation.isPending}
+              title="Save all study data now"
+            >
+              <Save className="w-4 h-4" />
+            </Button>
             <Button
               variant="outline"
               size="sm"

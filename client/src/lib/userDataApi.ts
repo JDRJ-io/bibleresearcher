@@ -204,6 +204,66 @@ export const userBookmarksApi = {
   }
 };
 
+// ============= COMPREHENSIVE SAVE FUNCTION =============
+
+/**
+ * Save all user data at once - session, preferences, and current state
+ */
+export async function saveAllUserData(): Promise<{ success: boolean; message: string }> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { success: false, message: 'Please sign in to save your data.' };
+    }
+
+    // Gather current session data
+    const currentPath = window.location.pathname;
+    const verseMatch = currentPath.match(/\/([^\/]+)\.(\d+):(\d+)/);
+    const lastVersePosition = verseMatch ? `${verseMatch[1]}.${verseMatch[2]}:${verseMatch[3]}` : 'Gen.1:1';
+
+    // Get current translation and layout preferences
+    const currentTranslation = localStorage.getItem('currentTranslation') || 'KJV';
+    const layoutPreferences = {
+      showNotes: localStorage.getItem('showNotes') === 'true',
+      showProphecy: localStorage.getItem('showProphecy') === 'true',
+      showContext: localStorage.getItem('showContext') === 'true',
+      fontSize: localStorage.getItem('fontSize') || 'medium',
+      theme: localStorage.getItem('theme') || 'dark'
+    };
+
+    // Save session data
+    await supabase.from('user_sessions').upsert({
+      user_id: user.id,
+      last_verse_position: lastVersePosition,
+      current_translation: currentTranslation,
+      layout_preferences: JSON.stringify(layoutPreferences),
+      scroll_position: window.scrollY || 0,
+      session_data: JSON.stringify({ timestamp: Date.now() }),
+      last_active: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+
+    // Save user preferences
+    await supabase.from('user_preferences').upsert({
+      userId: user.id,
+      theme: layoutPreferences.theme,
+      selectedTranslations: [currentTranslation],
+      showNotes: layoutPreferences.showNotes,
+      showProphecy: layoutPreferences.showProphecy,
+      showContext: layoutPreferences.showContext,
+      fontSize: layoutPreferences.fontSize,
+      lastVersePosition: lastVersePosition,
+      updatedAt: new Date().toISOString()
+    }, { onConflict: 'userId' });
+
+    console.log('💾 All user data saved successfully:', lastVersePosition);
+    return { success: true, message: `Study data saved at ${lastVersePosition}` };
+
+  } catch (error) {
+    console.error('❌ Failed to save all user data:', error);
+    return { success: false, message: 'Failed to save. Please try again.' };
+  }
+}
+
 // ============= NAVIGATION & SESSION =============
 
 /**
