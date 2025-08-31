@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useBibleStore } from '@/App';
 
 interface AdaptivePortraitConfig {
   isPortrait: boolean;
@@ -18,8 +19,8 @@ interface AdaptivePortraitConfig {
   };
 }
 
-// EXACT THREE-COLUMN PORTRAIT SYSTEM - User's Specification
-function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight: number): AdaptivePortraitConfig['adaptiveWidths'] {
+// DYNAMIC COLUMN PORTRAIT SYSTEM - User's Specification: equal width for all non-reference columns
+function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight: number, navigableColumnCount: number = 2): AdaptivePortraitConfig['adaptiveWidths'] {
   const isPortrait = viewportHeight > viewportWidth;
 
   if (!isPortrait) {
@@ -38,8 +39,8 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   // Portrait precision mode - USER'S EXACT SPECIFICATION:
   // 1. Detect portrait viewport width automatically 
   // 2. Subtract reference column width
-  // 3. Divide remaining space EQUALLY between main translation and cross-references
-  console.log('🎯 THREE-COLUMN Portrait Mode:', { viewportWidth, viewportHeight });
+  // 3. Divide remaining space EQUALLY among ALL non-reference columns
+  console.log('🎯 DYNAMIC-COLUMN Portrait Mode:', { viewportWidth, viewportHeight, navigableColumnCount });
 
   // Account for scrollbars, borders, padding - conservative margin
   const safeViewportWidth = viewportWidth - 20; // 10px margin on each side
@@ -60,69 +61,55 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     refWidth = 60;
   }
 
-  // STEP 2: Calculate remaining space after reference column - MATCH CSS CALCULATIONS
-  let remainingSpace: number;
-  let mainWidth: number;
-  let crossWidth: number;
-
-  if (viewportWidth >= 768 && viewportWidth <= 1024) {
-    // Tablet portrait - match CSS calculation exactly: calc((100vw - 140px) * 0.44)
-    const cssRemainingSpace = viewportWidth - 140; // Matches CSS: 100vw - 140px
-    mainWidth = Math.floor(cssRemainingSpace * 0.44); // Matches CSS percentage
-    crossWidth = Math.floor(cssRemainingSpace * 0.44); // Equal to main
-    remainingSpace = mainWidth + crossWidth;
-  } else {
-    // Other sizes - use equal division approach
-    remainingSpace = safeViewportWidth - refWidth;
-    mainWidth = Math.floor(remainingSpace / 2);
-    crossWidth = Math.floor(remainingSpace / 2);
-  }
+  // STEP 2: Calculate remaining space after reference column and divide EQUALLY among all navigable columns
+  const remainingSpace = safeViewportWidth - refWidth;
+  const equalColumnWidth = navigableColumnCount > 0 ? Math.floor(remainingSpace / navigableColumnCount) : 0;
 
   // Ensure minimum readability (compress proportionally if needed)
-  const minMain = 100;  // Absolute minimum for main translation
-  const minCross = 80;  // Absolute minimum for cross-references
+  const minColumnWidth = 80;  // Absolute minimum for any navigable column
 
   let finalRef = refWidth;
-  let finalMain = Math.max(minMain, mainWidth);
-  let finalCross = Math.max(minCross, crossWidth);
+  let finalColumnWidth = Math.max(minColumnWidth, equalColumnWidth);
 
-  // If minimums exceed available space, compress proportionally
-  const totalNeeded = finalRef + finalMain + finalCross;
+  // If minimum width would exceed available space, compress proportionally
+  const totalNeeded = finalRef + (finalColumnWidth * navigableColumnCount);
   if (totalNeeded > safeViewportWidth) {
     const compressionRatio = safeViewportWidth / totalNeeded;
     finalRef = Math.floor(finalRef * compressionRatio);
-    finalMain = Math.floor(finalMain * compressionRatio);
-    finalCross = Math.floor(finalCross * compressionRatio);
+    finalColumnWidth = Math.floor(finalColumnWidth * compressionRatio);
   }
 
-  console.log('📐 THREE-COLUMN Adaptive Calculation:', {
+  console.log('📐 DYNAMIC-COLUMN Adaptive Calculation:', {
     viewportWidth,
     safeViewportWidth,
+    navigableColumnCount,
     refWidth: finalRef,
     remainingSpace: safeViewportWidth - finalRef,
-    mainWidth: finalMain,
-    crossWidth: finalCross,
-    totalWidth: finalRef + finalMain + finalCross,
-    perfectFit: (finalRef + finalMain + finalCross) <= safeViewportWidth,
-    equalMainCross: Math.abs(finalMain - finalCross) <= 1 // Should be equal or within 1px
+    equalColumnWidth: finalColumnWidth,
+    totalWidth: finalRef + (finalColumnWidth * navigableColumnCount),
+    perfectFit: (finalRef + (finalColumnWidth * navigableColumnCount)) <= safeViewportWidth
   });
 
   return {
     reference: finalRef,
-    mainTranslation: finalMain,
-    crossReference: finalCross,
-    alternate: finalMain, // Same width as main translation
-    prophecy: finalMain,  // Same width as main translation
-    notes: Math.floor(finalMain * 0.7), // 70% of main for notes  
-    context: 0  // Hide context column in mobile portrait mode to prevent extra thin columns
+    mainTranslation: finalColumnWidth,
+    crossReference: finalColumnWidth,
+    alternate: finalColumnWidth,     // Same width as all other columns
+    prophecy: finalColumnWidth,      // Same width as all other columns
+    notes: finalColumnWidth,         // Same width as all other columns  
+    context: viewportWidth <= 640 ? 0 : finalColumnWidth  // Hide context in mobile portrait mode
   };
 }
 
 export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
+  // Get navigable column count from store
+  const { navigableColumns } = useBibleStore();
+  const navigableColumnCount = navigableColumns.length || 2;
+
   const [config, setConfig] = useState<AdaptivePortraitConfig>(() => {
     if (typeof window === 'undefined') {
       // SSR fallback - assume iPhone SE dimensions
-      const fallbackWidths = calculatePrecisionPortraitWidths(375, 667);
+      const fallbackWidths = calculatePrecisionPortraitWidths(375, 667, 2);
       return {
         isPortrait: true,
         screenWidth: 375,
@@ -139,7 +126,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
     const isPortrait = screenHeight > screenWidth;
     const safeViewportWidth = screenWidth - 24;
 
-    const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight);
+    const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight, navigableColumnCount);
     const coreColumnsWidth = adaptiveWidths.reference + adaptiveWidths.mainTranslation + adaptiveWidths.crossReference;
     const guaranteedFit = coreColumnsWidth <= safeViewportWidth;
 
@@ -183,7 +170,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       const isPortrait = screenHeight > screenWidth;
       const safeViewportWidth = screenWidth - 24;
 
-      const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight);
+      const adaptiveWidths = calculatePrecisionPortraitWidths(screenWidth, screenHeight, navigableColumnCount);
       const coreColumnsWidth = adaptiveWidths.reference + adaptiveWidths.mainTranslation + adaptiveWidths.crossReference;
       const guaranteedFit = coreColumnsWidth <= safeViewportWidth;
 
@@ -191,6 +178,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
         dimensions: `${screenWidth}×${screenHeight}`,
         isPortrait,
         safeViewportWidth,
+        navigableColumnCount,
         coreColumnsWidth,
         guaranteedFit,
         widths: adaptiveWidths
@@ -225,7 +213,7 @@ export function useAdaptivePortraitColumns(): AdaptivePortraitConfig {
       window.removeEventListener('resize', updateConfig);
       window.removeEventListener('orientationchange', updateConfig);
     };
-  }, []);
+  }, [navigableColumnCount]); // Re-run when column count changes
 
   // Update CSS variables whenever config changes
   useEffect(() => {
