@@ -5,7 +5,9 @@
  */
 
 /* Reset and base styles for all themes */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -30,7 +32,7 @@ body {
   color-scheme: light;
 }
 
-.ancient-dark {
+.dark {
   color-scheme: dark;
 }
 
@@ -83,7 +85,10 @@ body {
 
 /* Reduced motion support for accessibility and performance */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -122,12 +127,29 @@ body {
 }
 
 /* Essential utility classes */
-.text-primary { color: var(--text-primary); }
-.text-secondary { color: var(--text-secondary); }
-.bg-primary { background-color: var(--bg-primary); }
-.bg-secondary { background-color: var(--bg-secondary); }
-.border-color { border-color: var(--border-color); }
-.accent-color { color: var(--accent-color); }
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.border-color {
+  border-color: var(--border-color);
+}
+
+.accent-color {
+  color: var(--accent-color);
+}
 
 /* Clean theme classes - only light and dark supported */
 .light-mode,

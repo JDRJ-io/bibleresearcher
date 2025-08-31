@@ -407,12 +407,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
               {themes.map((themeName) => {
                 const themeDisplayNames = {
                   light: 'Light',
-                  dark: 'Dark', 
-                  aurora: 'Aurora',
-                  sepia: 'Sepia',
-                  forest: 'Forest',
-                  cyberpunk: 'Cyberpunk',
-                  electric: 'Electric'
+                  dark: 'Dark'
                 } as const;
 
                 return (

@@ -718,7 +718,7 @@ body {
   /* Interactive Elements */
   --primary: hsl(221, 83%, 53%); /* Blue primary matching light mode */
   --primary-foreground: hsl(220, 25%, 8%); /* Dark text on gold buttons */
-  --secondary: hsl(200, 15%, 15%); /* Muted teal-green, like malachite pigment */
+  --secondary: hsl(221, 83%, 53%); /* Blue secondary matching light mode */
   --secondary-foreground: hsl(30, 5%, 92%);
 
   /* State Colors */
@@ -726,7 +726,7 @@ body {
   --muted-foreground: hsl(30, 5%, 70%); /* Subtle text */
   --accent: hsl(221, 83%, 53%); /* Blue accent matching light mode */
   --accent-foreground: hsl(30, 5%, 92%);
-  --destructive: hsl(0, 50%, 20%); /* Deep crimson for errors/warnings */
+  --destructive: hsl(221, 83%, 53%); /* Blue destructive matching light mode */
   --destructive-foreground: hsl(30, 5%, 92%);
 
   /* Borders & Outlines */
