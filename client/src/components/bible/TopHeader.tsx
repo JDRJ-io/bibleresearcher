@@ -82,10 +82,10 @@ export function TopHeader({
     
     // Apply all the default settings
     Object.entries(defaultState).forEach(([key, value]) => {
-      if (key in bibleStore && bibleStore[key] !== value) {
+      if (key in bibleStore && (bibleStore as any)[key] !== value) {
         const toggleFunction = `toggle${key.replace('show', '').replace('is', '')}`;
-        if (typeof bibleStore[toggleFunction] === 'function') {
-          bibleStore[toggleFunction]();
+        if (typeof (bibleStore as any)[toggleFunction] === 'function') {
+          (bibleStore as any)[toggleFunction]();
         } else if (key === 'isChronological') {
           bibleStore.setChronological(value);
         }
@@ -209,16 +209,16 @@ export function TopHeader({
         maxHeight: isMobile
           ? 'var(--top-header-height-mobile)'
           : 'var(--top-header-height-desktop)',
-        padding: isPortrait && isMobile ? '0 6px' : isMobile ? '0 8px' : '0 16px',
+        padding: isPortrait && isMobile ? '0 8px' : isMobile ? '0 12px' : '0 20px',
         pointerEvents: 'auto' // Ensure events are contained
       }}
       // Remove onWheel interference - let VirtualBibleTable handle all scrolling
     >
       {/* Mobile Layout */}
       {isMobile ? (
-        <div className="flex items-center justify-between w-full h-full">
+        <div className="flex items-center justify-between w-full h-full gap-2">
           {/* Left: Navigation */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -248,8 +248,8 @@ export function TopHeader({
           </div>
 
           {/* Center: Anointed Logo */}
-          <div className="flex-1 mx-2 flex items-center justify-center">
-            <div className="flex items-center" style={{ gap: 'var(--anointed-spacing)' }}>
+          <div className="flex-1 mx-3 flex items-center justify-center">
+            <div className="flex items-center justify-center" style={{ gap: 'var(--anointed-spacing)' }}>
               <button 
                 className="rounded-full bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600
                            dark:from-amber-500 dark:via-yellow-400 dark:to-amber-500
@@ -289,7 +289,7 @@ export function TopHeader({
           </div>
 
           {/* Right: Search + Bookmark + Sign In + Menu */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -410,7 +410,7 @@ export function TopHeader({
           </div>
 
           {/* Center: Search */}
-          <div className="flex-1 max-w-2xl mx-6">
+          <div className="flex-1 max-w-2xl mx-8 flex items-center justify-center">
             <Button
               variant="outline"
               size="sm"
@@ -426,7 +426,7 @@ export function TopHeader({
           </div>
 
           {/* Right Section: Bookmark + Auth + Menu */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 justify-end flex-shrink-0">
             <Button
               variant="outline"
               size="sm"

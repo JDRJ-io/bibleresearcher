@@ -36,7 +36,7 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
     <div className="relative w-full border-y border-yellow-400/20 dark:border-yellow-500/30 backdrop-blur-sm
                     transition-all duration-300 ease-out
                     max-w-full overflow-hidden
-                    px-2 sm:px-4 md:px-6 lg:px-8
+                    px-3 sm:px-6 md:px-8 lg:px-12
                     bg-gradient-to-r from-amber-100/80 via-yellow-50/90 to-orange-100/80
                     dark:from-slate-800/90 dark:via-purple-900/80 dark:to-indigo-900/90"
          style={{
@@ -52,11 +52,10 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         <div className="absolute left-3/4 top-1/2 w-1.5 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse delay-1000" />
       </div>
 
-      <div className="relative px-2 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center justify-between 
-                      min-h-[56px]">
-        {/* Centered Main Content */}
-        <div className="flex items-center justify-center flex-1 min-w-0">
-          {/* Single row on wider screens with better alignment */}
+      <div className="relative py-3 flex items-center min-h-[56px]">
+        {/* Perfectly Centered Main Content */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          {/* Single row on wider screens with perfect alignment */}
           <div className="hidden sm:flex items-center justify-center space-x-4 text-center">
             <h3 className="text-lg md:text-xl lg:text-2xl font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight tracking-wide">
               Start with prayer
@@ -67,8 +66,8 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
             </p>
           </div>
           
-          {/* Mobile layout with better vertical centering */}
-          <div className="sm:hidden text-center space-y-1.5 py-1">
+          {/* Mobile layout with perfect vertical centering */}
+          <div className="sm:hidden text-center">
             <h3 className="text-base font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight tracking-wide">
               Start with prayer
             </h3>
@@ -78,8 +77,8 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
           </div>
         </div>
 
-        {/* Adaptive Call to Action */}
-        <div className="flex items-center flex-shrink-0 space-x-1 ml-4">
+        {/* Call to Action - Positioned on the right */}
+        <div className="relative z-10 ml-auto flex items-center space-x-1">
           <button
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
