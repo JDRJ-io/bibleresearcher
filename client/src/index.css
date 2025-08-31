@@ -54,7 +54,7 @@ body {
 }
 
 .unified-scroll-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(100, 116, 139, 0.6), rgba(71, 85, 105, 0.7));
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.6), rgba(30, 144, 255, 0.8));
   border-radius: 8px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -62,13 +62,13 @@ body {
 }
 
 .unified-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(71, 85, 105, 0.8), rgba(51, 65, 85, 0.9));
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.8), rgba(30, 144, 255, 0.9));
   border-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .unified-scroll-container::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(180deg, rgba(51, 65, 85, 0.9), rgba(30, 41, 59, 1));
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.9), rgba(30, 144, 255, 1));
   border-color: rgba(255, 255, 255, 0.5);
 }
 
@@ -83,17 +83,17 @@ body {
 }
 
 .dark .unified-scroll-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(148, 163, 184, 0.6), rgba(100, 116, 139, 0.7));
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.7), rgba(30, 144, 255, 0.8));
   border-color: rgba(0, 0, 0, 0.3);
 }
 
 .dark .unified-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(148, 163, 184, 0.8), rgba(100, 116, 139, 0.9));
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.8), rgba(30, 144, 255, 0.9));
   border-color: rgba(0, 0, 0, 0.4);
 }
 
 .dark .unified-scroll-container::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(180deg, rgba(203, 213, 225, 0.9), rgba(148, 163, 184, 1));
+  background: linear-gradient(180deg, rgba(30, 144, 255, 0.9), rgba(30, 144, 255, 1));
   border-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -102,11 +102,11 @@ body {
 /* Firefox scrollbar styling */
 .unified-scroll-container {
   scrollbar-width: thin;
-  scrollbar-color: rgba(100, 116, 139, 0.6) rgba(0, 0, 0, 0.02);
+  scrollbar-color: rgba(30, 144, 255, 0.6) rgba(0, 0, 0, 0.02);
 }
 
 .dark .unified-scroll-container {
-  scrollbar-color: rgba(148, 163, 184, 0.6) rgba(255, 255, 255, 0.03);
+  scrollbar-color: rgba(30, 144, 255, 0.7) rgba(255, 255, 255, 0.03);
 }
 
 /* Virtual Table Viewport - Natural Axis-Locked Scrolling */
@@ -128,17 +128,17 @@ body {
 }
 
 .unified-scroll-container .cell-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(30, 144, 255, 0.6);
   border-radius: 4px;
 }
 
 .unified-scroll-container .cell-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(30, 144, 255, 0.8);
 }
 
 .unified-scroll-container .cell-content {
   scrollbar-width: thin !important;  /* Firefox */
-  scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important;
+  scrollbar-color: rgba(30, 144, 255, 0.6) transparent !important;
 }
 
 /* ============================================
