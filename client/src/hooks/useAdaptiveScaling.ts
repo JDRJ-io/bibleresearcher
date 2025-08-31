@@ -52,10 +52,10 @@ export function useAdaptiveScaling() {
       
       // Apply scaling to logo and icon sizes for consistency
       const logoScale = headerScale; // Use same scale as header
-      document.documentElement.style.setProperty('--anointed-logo-size', `${Math.round(32 * logoScale)}px`);
-      document.documentElement.style.setProperty('--anointed-text-size', `${Math.round(18 * logoScale)}px`);
-      document.documentElement.style.setProperty('--anointed-icon-size', `${Math.round(18 * logoScale)}px`);
-      document.documentElement.style.setProperty('--anointed-spacing', `${Math.round(8 * logoScale)}px`);
+      document.documentElement.style.setProperty('--anointed-logo-size', `${Math.round(44 * logoScale)}px`);
+      document.documentElement.style.setProperty('--anointed-text-size', `${Math.round(24 * logoScale)}px`);
+      document.documentElement.style.setProperty('--anointed-icon-size', `${Math.round(24 * logoScale)}px`);
+      document.documentElement.style.setProperty('--anointed-spacing', `${Math.round(12 * logoScale)}px`);
       
       // Update CSS variables for top header heights based on orientation and size
       const baseDesktopHeight = 52;
