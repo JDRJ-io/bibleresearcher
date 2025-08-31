@@ -39,6 +39,13 @@
     overscroll-behavior: contain !important; /* Prevent scroll chaining */
   }
 
+  /* Prevent unwanted scroll behavior on headers */
+  .top-header-mobile,
+  .top-header {
+    overscroll-behavior: contain !important; /* Prevent scroll chaining */
+    touch-action: manipulation !important; /* Prevent scroll interference on touch devices */
+  }
+
   /* Ensure no gap between headers */
   .top-header-mobile {
     height: var(--top-header-height-mobile) !important;
