@@ -1,6 +1,71 @@
+# Dependencies
 node_modules
+
+# Build outputs
 dist
-.DS_Store
 server/public
+build/
+public/build/
+
+# Environment files (CRITICAL - contains sensitive data)
+.env
+.env.*
+!.env.example
+
+# Supabase local development
+supabase/.temp/
+supabase/.branches/
+supabase/config.toml
+
+# Replit-specific files
+.replit
+.local/
+.config/
+replit.nix
+
+# Operating system files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Temporary files
+tmp/
+temp/
+
+# Config files that may contain sensitive data
 vite.config.ts.*
 *.tar.gz
+
+# Additional common web project ignores
+*.cache
+*.bak
+*.backup
+node_modules/
+.cache/
