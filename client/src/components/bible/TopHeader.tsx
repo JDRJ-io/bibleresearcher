@@ -409,8 +409,13 @@ export function TopHeader({
             </div>
           </div>
 
-          {/* Center: Search */}
-          <div className="flex-1 max-w-2xl mx-8 flex items-center justify-center">
+          {/* Center: Spacer */}
+          <div className="flex-1 max-w-2xl mx-8">
+            {/* Spacer for centered logo */}
+          </div>
+
+          {/* Right Section: Search + Bookmark + Auth + Menu */}
+          <div className="flex items-center gap-3 justify-end flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
@@ -423,10 +428,6 @@ export function TopHeader({
             >
               <Search className="w-4 h-4" />
             </Button>
-          </div>
-
-          {/* Right Section: Bookmark + Auth + Menu */}
-          <div className="flex items-center gap-3 justify-end flex-shrink-0">
             <Button
               variant="outline"
               size="sm"

@@ -54,14 +54,24 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
 
       <div className="relative py-3 flex items-center min-h-[56px]">
         {/* Perfectly Centered Main Content */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          {/* Single row on wider screens with perfect alignment */}
-          <div className="hidden sm:flex items-center justify-center space-x-4 text-center">
+        <div className="absolute inset-0 flex items-center justify-center px-4 md:px-8">
+          {/* Single row on larger screens with perfect alignment */}
+          <div className="hidden lg:flex items-center justify-center space-x-4 text-center">
             <h3 className="text-lg md:text-xl lg:text-2xl font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight tracking-wide">
               Start with prayer
             </h3>
             <span className="text-amber-800/60 dark:text-yellow-300/60 text-xl mx-2">•</span>
             <p className="text-base md:text-lg lg:text-xl text-amber-900/90 dark:text-yellow-100/90 font-medium leading-tight tracking-wide">
+              Welcome Holy Spirit
+            </p>
+          </div>
+          
+          {/* Tablet layout with stacked text to avoid overlap */}
+          <div className="hidden sm:block lg:hidden text-center space-y-0.5">
+            <h3 className="text-base md:text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-tight tracking-wide">
+              Start with prayer
+            </h3>
+            <p className="text-sm md:text-base text-amber-900/90 dark:text-yellow-100/90 font-medium leading-tight tracking-wide">
               Welcome Holy Spirit
             </p>
           </div>
@@ -77,23 +87,23 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
           </div>
         </div>
 
-        {/* Call to Action - Positioned on the right */}
-        <div className="relative z-10 ml-auto flex items-center space-x-1">
+        {/* Call to Action - Positioned on the right with better spacing */}
+        <div className="relative z-10 ml-auto flex items-center space-x-1 flex-shrink-0">
           <button
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="px-1.5 xs:px-2 sm:px-4 md:px-5 lg:px-6 py-1 xs:py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
+            className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
                       bg-amber-200/30 hover:bg-amber-300/40 dark:bg-purple-800/30 dark:hover:bg-purple-700/40
                       border-amber-300/50 hover:border-amber-400/70 dark:border-purple-500/50 dark:hover:border-purple-400/70
-                      font-medium text-xs sm:text-sm md:text-base
+                      font-medium text-xs sm:text-sm
                       text-amber-900 dark:text-yellow-100
                       hover:shadow-lg transform hover:scale-105 backdrop-blur-md"
           >
-            <div className="flex items-center space-x-0.5 xs:space-x-1 sm:space-x-2 md:space-x-2.5">
-              <span className="hidden sm:inline md:text-base">View Updates</span>
-              <span className="sm:hidden text-xs">Updates</span>
-              <ChevronRight className={`h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 transition-transform duration-300 text-amber-900 dark:text-yellow-100 ${isHovered ? 'translate-x-1' : ''}`} />
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="hidden md:inline">View Updates</span>
+              <span className="md:hidden">Updates</span>
+              <ChevronRight className={`h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-300 text-amber-900 dark:text-yellow-100 ${isHovered ? 'translate-x-1' : ''}`} />
             </div>
           </button>
           
