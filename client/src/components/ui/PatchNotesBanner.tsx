@@ -52,43 +52,43 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
         <div className="absolute left-3/4 top-1/2 w-1.5 h-1.5 bg-white/30 rounded-full blur-sm animate-pulse delay-1000" />
       </div>
 
-      <div className="relative px-4 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center justify-center 
+      <div className="relative px-2 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center 
                       min-h-[56px]">
         {/* Mobile-Optimized Left Side */}
-        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0 justify-center">
+        <div className="flex items-center space-x-1 sm:space-x-3 md:space-x-4 lg:space-x-5 flex-1 min-w-0 pr-20 sm:pr-24 md:pr-32">
           <div className="p-1.5 sm:p-2 md:p-2.5 lg:p-3 rounded-full bg-gradient-to-br from-amber-200/30 to-orange-200/40 dark:from-purple-800/40 dark:to-indigo-800/50 
                          border border-amber-300/40 dark:border-purple-500/40 flex-shrink-0">
             <FileText className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 lg:h-5.5 lg:w-5.5 text-amber-600 dark:text-yellow-400" />
           </div>
           
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 md:space-x-4 flex-1 min-w-0 text-center sm:text-left">
-            <h3 className="text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent xs:text-xs sm:text-sm md:text-base lg:text-lg truncate">
+          <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-2 sm:space-x-3 md:space-x-4 flex-1 min-w-0">
+            <h3 className="text-sm xs:text-base sm:text-lg font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
               Divine Updates
             </h3>
-            <span className="hidden sm:inline text-xs md:text-sm text-amber-800/70 dark:text-yellow-300/70">•</span>
-            <p className="text-xs xs:text-xs sm:text-sm md:text-base truncate text-amber-900/90 dark:text-yellow-100/90">
+            <span className="hidden xs:inline text-xs md:text-sm text-amber-800/70 dark:text-yellow-300/70">•</span>
+            <p className="text-xs sm:text-sm md:text-base truncate text-amber-900/90 dark:text-yellow-100/90 leading-tight">
               Latest sacred enhancements
             </p>
           </div>
         </div>
 
         {/* Adaptive Call to Action */}
-        <div className="flex items-center absolute right-4 sm:right-4 md:right-6 lg:right-8 flex-shrink-0 space-x-2">
+        <div className="flex items-center absolute right-1 xs:right-2 sm:right-4 md:right-6 lg:right-8 flex-shrink-0 space-x-1">
           <button
             onClick={() => setIsModalOpen(true)}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="px-2 xs:px-3 sm:px-4 md:px-5 lg:px-6 py-1 xs:py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
+            className="px-1.5 xs:px-2 sm:px-4 md:px-5 lg:px-6 py-1 xs:py-1.5 sm:py-2 md:py-2.5 rounded-full border transition-all duration-300
                       bg-amber-200/30 hover:bg-amber-300/40 dark:bg-purple-800/30 dark:hover:bg-purple-700/40
                       border-amber-300/50 hover:border-amber-400/70 dark:border-purple-500/50 dark:hover:border-purple-400/70
-                      font-medium text-xs xs:text-xs sm:text-sm md:text-base
+                      font-medium text-xs sm:text-sm md:text-base
                       text-amber-900 dark:text-yellow-100
                       hover:shadow-lg transform hover:scale-105 backdrop-blur-md"
           >
-            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-2.5">
+            <div className="flex items-center space-x-0.5 xs:space-x-1 sm:space-x-2 md:space-x-2.5">
               <span className="hidden sm:inline md:text-base">View Updates</span>
               <span className="sm:hidden text-xs">Updates</span>
-              <ChevronRight className={`h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 transition-transform duration-300 text-amber-900 dark:text-yellow-100 ${isHovered ? 'translate-x-1' : ''}`} />
+              <ChevronRight className={`h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5 transition-transform duration-300 text-amber-900 dark:text-yellow-100 ${isHovered ? 'translate-x-1' : ''}`} />
             </div>
           </button>
           
@@ -96,10 +96,10 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="p-1.5 rounded-full bg-amber-200/20 hover:bg-amber-300/30 dark:bg-purple-800/20 dark:hover:bg-purple-700/30
+              className="p-1 xs:p-1.5 sm:p-1.5 rounded-full bg-amber-200/20 hover:bg-amber-300/30 dark:bg-purple-800/20 dark:hover:bg-purple-700/30
                        text-amber-800/80 hover:text-amber-900 dark:text-yellow-200/80 dark:hover:text-yellow-100 transition-colors z-10"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4" />
             </button>
           )}
         </div>
