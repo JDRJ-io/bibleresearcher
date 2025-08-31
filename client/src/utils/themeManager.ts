@@ -28,7 +28,7 @@ export function applyTheme(name: ThemeName) {
 
   // remove previous theme classes
   Array.from(root.classList)
-    .filter(c => c.startsWith('theme-') || ['light', 'ancient-dark'].includes(c))
+    .filter(c => c.startsWith('theme-') || ['light', 'dark'].includes(c))
     .forEach(c => root.classList.remove(c));
   
   // Clear all previous theme CSS properties
@@ -72,7 +72,7 @@ export function applyTheme(name: ThemeName) {
   set('--muted-foreground', t.textSecondary);
   set('--accent', t.highlightBg);
   set('--accent-foreground', t.textPrimary);
-  set('--destructive', name === 'ancient-dark' ? 'hsl(0, 50%, 20%)' : 'hsl(0, 84.2%, 60.2%)');
+  set('--destructive', name === 'dark' ? 'hsl(221, 83%, 53%)' : 'hsl(0, 84.2%, 60.2%)');
   set('--destructive-foreground', t.textPrimary);
   set('--border', t.borderColor);
   set('--input', t.borderColor);
