@@ -14,32 +14,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Monastery theme text color utilities */
-.monastery-candlelight\:text-amber-200 {
-  color: rgb(251 211 141) !important;
-}
-
-.monastery-candlelight\:text-amber-100 {
-  color: rgb(254 243 199) !important;
-}
-
-/* Mystical meadow theme text utilities */
-.mystical-meadow\:text-green-800 {
-  color: rgb(22 101 52) !important;
-}
-
-.mystical-meadow\:text-yellow-600 {
-  color: rgb(202 138 4) !important;
-}
-
-/* Electric voodoo theme text utilities */
-.electric-voodoo\:text-yellow-300 {
-  color: rgb(253 224 71) !important;
-}
-
-.electric-voodoo\:text-blue-100 {
-  color: rgb(219 234 254) !important;
-}
 
 /* Vertical text for portrait mode */
 .vertical-text {

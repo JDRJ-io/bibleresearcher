@@ -17,29 +17,18 @@ export function OptimizedThemeSelector() {
 
   const themeDisplayNames: Record<ThemeName, string> = {
     light: 'Light',
-    'ancient-dark': 'Ancient Dark',
-    'monastery-candlelight': 'Monastery Candlelight',
-    'mystical-meadow': 'Mystical Meadow',
-    'electric-blue': 'Electric Blue',
-    'rainbow': 'Rainbow',
-    'celestial-veil': 'Celestial Veil'
+    'ancient-dark': 'Dark'
   };
 
   const getThemeIcon = (themeName: ThemeName) => {
     switch (themeName) {
       case 'light': return '☀️';
       case 'ancient-dark': return '🌙';
-      case 'monastery-candlelight': return '🕯️';
-      case 'mystical-meadow': return '🌿';
-      case 'electric-blue': return '⚡';
-      case 'rainbow': return '🌈';
-      case 'celestial-veil': return '🌌';
       default: return '🎨';
     }
   };
 
-  const basicThemes: ThemeName[] = ['light', 'ancient-dark'];
-  const premiumThemes: ThemeName[] = ['monastery-candlelight', 'mystical-meadow', 'electric-blue', 'rainbow', 'celestial-veil'];
+  const availableThemes: ThemeName[] = ['light', 'ancient-dark'];
 
   return (
     <DropdownMenu>
@@ -60,30 +49,7 @@ export function OptimizedThemeSelector() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-          Basic Themes
-        </DropdownMenuLabel>
-        {basicThemes.map((themeName) => (
-          <DropdownMenuItem
-            key={themeName}
-            onClick={() => setTheme(themeName)}
-            className="flex items-center justify-between gap-2"
-          >
-            <div className="flex items-center gap-2">
-              <span>{getThemeIcon(themeName)}</span>
-              <span>{themeDisplayNames[themeName]}</span>
-              {theme === themeName && (
-                <Badge variant="default" className="text-xs">Active</Badge>
-              )}
-            </div>
-          </DropdownMenuItem>
-        ))}
-
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-          Premium Themes
-        </DropdownMenuLabel>
-        {premiumThemes.map((themeName) => (
+        {availableThemes.map((themeName) => (
           <DropdownMenuItem
             key={themeName}
             onClick={() => setTheme(themeName)}

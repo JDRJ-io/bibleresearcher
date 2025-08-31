@@ -25,10 +25,6 @@ body::before {
   opacity: 0.8;
 }
 
-/* More transparent gradient for monastery theme */
-:root.monastery-candlelight body::before {
-  opacity: 0.3;
-}
 
 /* Ensure app content sits above the gradient */
 #root, .app-root {
@@ -69,304 +65,21 @@ body::before {
   filter: brightness(0.7);
 }
 
-/* Candlelight flicker overlay animation - MORE INTENSE */
-.flicker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -10; /* Behind all content, above video */
-  background: radial-gradient(circle at 50% 30%, rgba(255, 140, 0, 0.25) 0%, rgba(255, 80, 0, 0.15) 40%, rgba(0, 0, 0, 0.5) 90%);
-  animation: flicker 3s infinite ease-in-out;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
 
-/* Show flicker only for monastery theme - only when monastery is active */
-:root.monastery-candlelight .flicker-overlay {
-  opacity: 1 !important;
-}
 
-/* Ensure flicker is hidden for all other themes */
-:root:not(.monastery-candlelight) .flicker-overlay {
-  opacity: 0 !important;
-  display: none;
-}
 
-/* Mystical meadow video filter */
-.meadow-filter {
-  filter: brightness(1.1) saturate(1.2) !important; /* Enhance vibrant meadow feel */
-}
 
-/* Mystical orb overlay system */
-.orb-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -9; /* Behind content, above flicker */
-  pointer-events: none;
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
 
-/* Show orbs only for mystical meadow theme - only when meadow is active */
-:root.mystical-meadow .orb-overlay {
-  opacity: 1 !important;
-}
 
-/* Hide mystical orbs for all other themes */
-:root:not(.mystical-meadow) .orb-overlay {
-  opacity: 0 !important;
-  display: none;
-}
 
-/* Show aurora orbs only for celestial veil theme - only when celestial-veil is active */
-:root.celestial-veil .aurora-orb-overlay {
-  opacity: 1 !important;
-}
 
-/* Hide aurora orbs for all other themes */
-:root:not(.celestial-veil) .aurora-orb-overlay {
-  opacity: 0 !important;
-  display: none;
-}
 
-/* Hide aurora orbs for all other themes */
-.aurora-orb-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -8; /* Behind content, above orbs */
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
 
-.aurora-orb {
-  position: absolute;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 255, 150, 0.8), rgba(120, 80, 255, 0.5), rgba(0, 150, 255, 0.3));
-  box-shadow: 0 0 20px rgba(0, 255, 150, 0.6), 0 0 40px rgba(120, 80, 255, 0.3);
-  animation: floatOrb 12s infinite ease-in-out;
-}
-
-@keyframes floatOrb {
-  0% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
-  25% { transform: translateY(-15vh) translateX(8vw) scale(1.4); opacity: 0.9; }
-  50% { transform: translateY(-35vh) translateX(-5vw) scale(1.6); opacity: 1; }
-  75% { transform: translateY(-20vh) translateX(12vw) scale(1.3); opacity: 0.8; }
-  100% { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 1), rgba(255, 165, 0, 0.9), rgba(255, 140, 0, 0.6));
-  box-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 165, 0, 0.8), 0 0 120px rgba(255, 140, 0, 0.4);
-  animation: float 10s infinite ease-in-out;
-  opacity: 0.95;
-}
-
-@keyframes float {
-  0% { transform: translateY(0) translateX(0) scale(1) rotate(0deg); }
-  25% { transform: translateY(-12vh) translateX(6vw) scale(1.2) rotate(90deg); }
-  50% { transform: translateY(-20vh) translateX(-4vw) scale(1.3) rotate(180deg); }
-  75% { transform: translateY(-8vh) translateX(8vw) scale(1.1) rotate(270deg); }
-  100% { transform: translateY(0) translateX(0) scale(1) rotate(360deg); }
-}
-
-/* Make main content areas more transparent for monastery theme - only when monastery is active */
-:root.monastery-candlelight .cell-content,
-:root.monastery-candlelight [class*="cell-"] {
-  background: rgba(62, 45, 26, 0.1) !important;
-}
-
-:root.monastery-candlelight .glass-morphism {
-  background: rgba(62, 45, 26, 0.15) !important;
-  border: 1px solid rgba(255, 165, 0, 0.2) !important;
-}
-
-/* Fix monastery theme modal/dialog backgrounds - only when monastery is active */
-:root.monastery-candlelight [role="dialog"],
-:root.monastery-candlelight [data-radix-popper-content-wrapper],
-:root.monastery-candlelight .bg-background,
-:root.monastery-candlelight .bg-popover {
-  background: rgba(62, 45, 26, 0.95) !important;
-  color: hsl(40, 10%, 95%) !important;
-  border-color: rgba(255, 165, 0, 0.3) !important;
-}
-
-/* Fix dropdown menu items in monastery theme - only when monastery is active */
-:root.monastery-candlelight .text-muted-foreground {
-  color: hsl(40, 5%, 80%) !important;
-}
-
-/* Fix monastery theme text contrast - only when monastery is active */
-:root.monastery-candlelight .text-foreground,
-:root.monastery-candlelight .text-popover-foreground {
-  color: hsl(40, 10%, 95%) !important;
-}
-
-/* Fix mystical meadow theme modal/dialog backgrounds - only when meadow is active */
-:root.mystical-meadow [role="dialog"],
-:root.mystical-meadow [data-radix-popper-content-wrapper],
-:root.mystical-meadow .bg-background,
-:root.mystical-meadow .bg-popover {
-  background: rgba(240, 248, 240, 0.95) !important;
-  color: hsl(120, 50%, 20%) !important;
-  border-color: rgba(120, 180, 120, 0.3) !important;
-}
-
-/* Fix dropdown menu items in mystical meadow theme - only when meadow is active */
-:root.mystical-meadow .text-muted-foreground {
-  color: hsl(120, 30%, 40%) !important;
-}
-
-/* Fix mystical meadow theme text contrast - only when meadow is active */
-:root.mystical-meadow .text-foreground,
-:root.mystical-meadow .text-popover-foreground {
-  color: hsl(120, 50%, 20%) !important;
-}
-
-/* Fix electric blue theme modal/dialog backgrounds - only when electric-blue is active */
-:root.electric-blue [role="dialog"],
-:root.electric-blue [data-radix-popper-content-wrapper],
-:root.electric-blue .bg-background,
-:root.electric-blue .bg-popover {
-  background: rgba(23, 89, 147, 0.95) !important;
-  color: hsl(0, 0%, 98%) !important;
-  border-color: rgba(246, 207, 87, 0.4) !important;
-}
-
-/* Fix dropdown menu items in electric blue theme - only when electric-blue is active */
-:root.electric-blue .text-muted-foreground {
-  color: hsl(0, 0%, 80%) !important;
-}
-
-/* Fix electric blue theme text contrast - only when electric-blue is active */
-:root.electric-blue .text-foreground,
-:root.electric-blue .text-popover-foreground {
-  color: hsl(0, 0%, 98%) !important;
-}
-
-/* Electric Blue Lightning Overlay */
-:root.electric-blue .electric-overlay {
-  opacity: 1 !important;
-}
-
-/* Hide electric effects for all other themes */
-:root:not(.electric-blue) .electric-overlay {
-  opacity: 0 !important;
-  display: none;
-}
-
-.electric-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -7; /* Behind content, above aurora */
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 34, 238, 0.5),    /* Electric Blue #0022EE */
-    rgba(255, 255, 0, 0.6),   /* Bright Electric Yellow */
-    rgba(0, 34, 238, 0.4),    /* Electric Blue again */
-    rgba(255, 255, 0, 0.5)    /* Electric Yellow again */
-  );
-  background-size: 400%;
-  animation: electricPulse 4s ease-in-out infinite;
-}
-
-@keyframes electricPulse {
-  0% { background-position: 0% 50%; filter: brightness(1) contrast(1); }
-  25% { background-position: 25% 25%; filter: brightness(1.5) contrast(1.3); }
-  50% { background-position: 100% 50%; filter: brightness(2) contrast(1.5); }
-  75% { background-position: 75% 75%; filter: brightness(1.5) contrast(1.3); }
-  100% { background-position: 0% 50%; filter: brightness(1) contrast(1); }
-}
-
-/* Fix spectral covenant theme modal/dialog backgrounds - only when spectral-covenant is active */
-:root.rainbow [role="dialog"],
-:root.rainbow [data-radix-popper-content-wrapper],
-:root.rainbow .bg-background,
-:root.rainbow .bg-popover {
-  background: rgba(255, 255, 255, 0.95) !important;
-  color: hsl(0, 0%, 15%) !important;
-  border-color: rgba(153, 102, 204, 0.4) !important;
-}
-
-/* Fix spectral covenant theme text contrast */
-:root.rainbow .text-muted-foreground {
-  color: hsl(0, 0%, 40%) !important;
-}
-
-/* Fix celestial veil theme modal/dialog backgrounds - only when celestial-veil is active */
-:root.celestial-veil [role="dialog"],
-:root.celestial-veil [data-radix-popper-content-wrapper],
-:root.celestial-veil .bg-background,
-:root.celestial-veil .bg-popover {
-  background: rgba(25, 50, 75, 0.95) !important;
-  color: hsl(0, 0%, 96%) !important;
-  border-color: rgba(100, 150, 200, 0.4) !important;
-}
-
-/* Fix celestial veil theme text contrast */
-:root.celestial-veil .text-muted-foreground {
-  color: hsl(0, 0%, 85%) !important;
-}
-
-@keyframes flicker {
-  0%, 100% { 
-    opacity: 1; 
-    box-shadow: 0 0 40px rgba(255, 165, 0, 0.7), 0 0 80px rgba(255, 100, 0, 0.4); 
-  }
-  15% { 
-    opacity: 0.7; 
-    box-shadow: 0 0 30px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 100, 0, 0.3); 
-  }
-  30% { 
-    opacity: 1.2; 
-    box-shadow: 0 0 50px rgba(255, 165, 0, 0.8), 0 0 100px rgba(255, 100, 0, 0.5); 
-  }
-  45% { 
-    opacity: 0.8; 
-    box-shadow: 0 0 35px rgba(255, 165, 0, 0.6), 0 0 70px rgba(255, 100, 0, 0.35); 
-  }
-  60% { 
-    opacity: 1.1; 
-    box-shadow: 0 0 45px rgba(255, 165, 0, 0.75), 0 0 90px rgba(255, 100, 0, 0.45); 
-  }
-  80% { 
-    opacity: 0.9; 
-    box-shadow: 0 0 38px rgba(255, 165, 0, 0.65), 0 0 75px rgba(255, 100, 0, 0.4); 
-  }
-}
 
 /* Accessibility: Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .flicker-overlay {
-    animation: none !important;
-    opacity: 0.7;
-  }
   .background-video {
     filter: brightness(0.7); /* Static dim for calm */
-  }
-  .orb {
-    animation: none !important;
-    opacity: 0.5; /* Static glow */
   }
 }
 
@@ -375,11 +88,6 @@ body::before {
   .background-video {
     /* Use lower quality for mobile performance */
     filter: brightness(0.5) contrast(1.0);
-  }
-  
-  .flicker-overlay {
-    /* Subtle flicker on mobile */
-    background: radial-gradient(circle at 50% 30%, rgba(255, 140, 0, 0.1) 0%, rgba(0, 0, 0, 0.5) 80%);
   }
 }
 
