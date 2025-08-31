@@ -577,26 +577,33 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const { adaptiveWidths } = adaptiveConfig;
     
     let width = 0;
+    const borderWidth = 1; // 1px border per column
+    let columnCount = 0;
     
     // Reference column - use adaptive width with multiplier
     width += (adaptiveWidths.reference * columnWidthMult);
+    columnCount++;
     
     // Main translation - use adaptive width with multiplier
     width += (adaptiveWidths.mainTranslation * columnWidthMult);
+    columnCount++;
     
     // Cross references - use adaptive width with multiplier
     if (showCrossRefs) {
       width += (adaptiveWidths.crossReference * columnWidthMult);
+      columnCount++;
     }
     
     // Prophecy columns (P, F, V) - use adaptive width with multiplier for each
     if (showProphecies) {
       width += (adaptiveWidths.prophecy * 3 * columnWidthMult); // 3 prophecy columns
+      columnCount += 3;
     }
     
     // Notes column - use adaptive width with multiplier
     if (showNotes) {
       width += (adaptiveWidths.notes * columnWidthMult);
+      columnCount++;
     }
     
     // Context/dates - NO WIDTH ADDED (dates appear inline in reference column, not as separate column)
@@ -605,8 +612,11 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
     const altCount = activeTranslations.filter(t => t !== mainTranslation).length;
     if (altCount > 0) {
       width += (altCount * adaptiveWidths.alternate * columnWidthMult);
+      columnCount += altCount;
     }
     
+    // Add border widths (1px per column, except the last one)
+    width += (columnCount - 1) * borderWidth;
     
     return width;
   }, [adaptiveConfig, activeTranslations, mainTranslation, showCrossRefs, showProphecies, showNotes, columnWidthMult, viewportWidth]);
@@ -620,6 +630,7 @@ const VirtualBibleTable = forwardRef<VirtualBibleTableHandle, VirtualBibleTableP
       const root = document.documentElement;
       const { adaptiveWidths } = adaptiveConfig;
       
+      // CSS variables already include border buffer from adaptive widths calculation
       root.style.setProperty('--adaptive-ref-width', `${adaptiveWidths.reference}px`);
       root.style.setProperty('--adaptive-main-width', `${adaptiveWidths.mainTranslation}px`);
       root.style.setProperty('--adaptive-cross-width', `${adaptiveWidths.crossReference}px`);

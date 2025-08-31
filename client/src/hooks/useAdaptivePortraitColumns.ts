@@ -23,15 +23,16 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
   const isPortrait = viewportHeight > viewportWidth;
 
   if (!isPortrait) {
-    // Landscape - use standard comfortable widths
+    // Landscape - use standard comfortable widths with border buffer
+    const borderBuffer = 2; // 2px buffer for borders
     return {
-      reference: 72,    // 4.5rem equivalent
-      mainTranslation: 352, // 22rem equivalent  
-      crossReference: 288,  // 18rem equivalent
-      alternate: 352,   // Same as main translation
-      prophecy: 352,    // Same as main
-      notes: 320,
-      context: 120      // Thinner for landscape mode
+      reference: 72 + borderBuffer,    // 4.5rem equivalent
+      mainTranslation: 352 + borderBuffer, // 22rem equivalent  
+      crossReference: 288 + borderBuffer,  // 18rem equivalent
+      alternate: 352 + borderBuffer,   // Same as main translation
+      prophecy: 352 + borderBuffer,    // Same as main
+      notes: 320 + borderBuffer,
+      context: 120 + borderBuffer      // Thinner for landscape mode
     };
   }
 
@@ -107,13 +108,16 @@ function calculatePrecisionPortraitWidths(viewportWidth: number, viewportHeight:
     equalMainCross: Math.abs(finalMain - finalCross) <= 1 // Should be equal or within 1px
   });
 
+  // Add buffer for borders to ensure full column boundaries
+  const borderBuffer = 2; // 2px buffer for borders
+  
   return {
-    reference: finalRef,
-    mainTranslation: finalMain,
-    crossReference: finalCross,
-    alternate: finalMain, // Same width as main translation
-    prophecy: finalMain,  // Same width as main translation
-    notes: Math.floor(finalMain * 0.7), // 70% of main for notes  
+    reference: finalRef + borderBuffer,
+    mainTranslation: finalMain + borderBuffer,
+    crossReference: finalCross + borderBuffer,
+    alternate: finalMain + borderBuffer, // Same width as main translation
+    prophecy: finalMain + borderBuffer,  // Same width as main translation
+    notes: Math.floor(finalMain * 0.7) + borderBuffer, // 70% of main for notes  
     context: 0  // Hide context column in mobile portrait mode to prevent extra thin columns
   };
 }
