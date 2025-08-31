@@ -702,11 +702,11 @@ body {
   --text-primary: hsl(30, 5%, 92%); /* Warm off-white, evoking parchment */
   --text-secondary: hsl(30, 5%, 70%); /* Subtle text */
   --border-color: hsl(220, 10%, 18%); /* Soft gray-blue for dividers */
-  --accent-color: hsl(40, 70%, 45%); /* Muted gold, inspired by gold leaf illumination */
+  --accent-color: hsl(221, 83%, 53%); /* Blue accent matching light mode */
   --header-bg: hsl(220, 25%, 8%);
   --text-color: hsl(30, 5%, 92%);
   --column-bg: hsl(220, 20%, 10%); /* Subtle elevation for cards/modals */
-  --highlight-bg: hsl(10, 40%, 25%); /* Muted vermilion red for highlights */
+  --highlight-bg: hsl(215, 27%, 32%); /* Blue highlight matching dark mode */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* UI Element Colors */
@@ -716,7 +716,7 @@ body {
   --popover-foreground: hsl(30, 5%, 92%);
 
   /* Interactive Elements */
-  --primary: hsl(40, 70%, 45%); /* Muted gold for primary actions */
+  --primary: hsl(221, 83%, 53%); /* Blue primary matching light mode */
   --primary-foreground: hsl(220, 25%, 8%); /* Dark text on gold buttons */
   --secondary: hsl(200, 15%, 15%); /* Muted teal-green, like malachite pigment */
   --secondary-foreground: hsl(30, 5%, 92%);
@@ -724,14 +724,14 @@ body {
   /* State Colors */
   --muted: hsl(220, 15%, 12%); /* For backgrounds like disabled states */
   --muted-foreground: hsl(30, 5%, 70%); /* Subtle text */
-  --accent: hsl(10, 40%, 25%); /* Muted vermilion red for highlights */
+  --accent: hsl(221, 83%, 53%); /* Blue accent matching light mode */
   --accent-foreground: hsl(30, 5%, 92%);
   --destructive: hsl(0, 50%, 20%); /* Deep crimson for errors/warnings */
   --destructive-foreground: hsl(30, 5%, 92%);
 
   /* Borders & Outlines */
   --input: hsl(220, 10%, 18%); /* For form borders */
-  --ring: hsl(40, 70%, 45%); /* Gold focus rings for accessibility */
+  --ring: hsl(221, 83%, 53%); /* Blue focus rings matching light mode */
 
   /* Foreground variants for semantic tokens */
   --foreground: hsl(30, 5%, 92%);
