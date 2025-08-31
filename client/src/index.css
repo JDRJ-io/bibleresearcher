@@ -274,11 +274,11 @@ body {
 }
 
 :root.dark {
-  --header-bg: hsl(222, 20%, 11%);
-  --text-color: hsl(213, 31%, 91%);
-  --accent-color: hsl(217, 91%, 65%);
-  --column-bg: hsl(222, 20%, 11%);
-  --border-color: hsl(217, 33%, 17%);
+  --header-bg: hsl(220, 25%, 8%);
+  --text-color: hsl(30, 5%, 92%);
+  --accent-color: hsl(221, 83%, 53%);
+  --column-bg: hsl(220, 20%, 10%);
+  --border-color: hsl(220, 10%, 18%);
   --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -670,75 +670,30 @@ body {
 
 .dark-mode, :root.dark {
   /* Canonical "bg-" vars (source of truth) */
-  --bg-primary: hsl(222, 20%, 11%);
-  --bg-secondary: hsl(222, 15%, 8%);
-  --text-primary: hsl(213, 31%, 91%);
-  --text-secondary: hsl(215, 20%, 65%);
-  --border-color: hsl(217, 33%, 17%);
-  --accent-color: hsl(217, 91%, 65%);
-  --header-bg: hsl(222, 20%, 11%);
-  --text-color: hsl(213, 31%, 91%);
-  --column-bg: hsl(222, 20%, 11%);
+  --bg-primary: hsl(220, 25%, 8%);
+  --bg-secondary: hsl(220, 20%, 6%);
+  --text-primary: hsl(30, 5%, 92%);
+  --text-secondary: hsl(30, 5%, 70%);
+  --border-color: hsl(220, 10%, 18%);
+  --accent-color: hsl(221, 83%, 53%);
+  --header-bg: hsl(220, 25%, 8%);
+  --text-color: hsl(30, 5%, 92%);
+  --column-bg: hsl(220, 20%, 10%);
   --highlight-bg: hsl(215, 27%, 32%);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Tailwind-facing aliases */
   --background: var(--bg-primary);
-  --primary: hsl(217, 91%, 65%);
-  --primary-foreground: hsl(222, 20%, 11%);
-  --secondary: hsl(222, 15%, 15%);
-  --secondary-foreground: hsl(213, 31%, 91%);
-  --accent: hsl(222, 15%, 15%);
-  --accent-foreground: hsl(213, 31%, 91%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(220, 25%, 8%);
+  --secondary: hsl(220, 20%, 10%);
+  --secondary-foreground: hsl(30, 5%, 92%);
+  --accent: hsl(221, 83%, 53%);
+  --accent-foreground: hsl(30, 5%, 92%);
   --card: var(--column-bg);
   --popover: var(--header-bg);
 }
 
-/* Premium "Ancient Scroll" Dark Theme - Inspired by illuminated manuscripts */
-.ancient-dark {
-  /* Core Colors - Deep indigo-gray like aged manuscript ink */
-  --bg-primary: hsl(220, 25%, 8%);
-  --bg-secondary: hsl(220, 20%, 6%);
-  --text-primary: hsl(30, 5%, 92%); /* Warm off-white, evoking parchment */
-  --text-secondary: hsl(30, 5%, 70%); /* Subtle text */
-  --border-color: hsl(220, 10%, 18%); /* Soft gray-blue for dividers */
-  --accent-color: hsl(221, 83%, 53%); /* Blue accent matching light mode */
-  --header-bg: hsl(220, 25%, 8%);
-  --text-color: hsl(30, 5%, 92%);
-  --column-bg: hsl(220, 20%, 10%); /* Subtle elevation for cards/modals */
-  --highlight-bg: hsl(215, 27%, 32%); /* Blue highlight matching dark mode */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  /* UI Element Colors */
-  --card: hsl(220, 20%, 10%); /* Subtle elevation for cards/modals */
-  --card-foreground: hsl(30, 5%, 92%);
-  --popover: hsl(220, 25%, 9%); /* For tooltips/popovers */
-  --popover-foreground: hsl(30, 5%, 92%);
-
-  /* Interactive Elements */
-  --primary: hsl(221, 83%, 53%); /* Blue primary matching light mode */
-  --primary-foreground: hsl(220, 25%, 8%); /* Dark text on gold buttons */
-  --secondary: hsl(221, 83%, 53%); /* Blue secondary matching light mode */
-  --secondary-foreground: hsl(30, 5%, 92%);
-
-  /* State Colors */
-  --muted: hsl(220, 15%, 12%); /* For backgrounds like disabled states */
-  --muted-foreground: hsl(30, 5%, 70%); /* Subtle text */
-  --accent: hsl(221, 83%, 53%); /* Blue accent matching light mode */
-  --accent-foreground: hsl(30, 5%, 92%);
-  --destructive: hsl(221, 83%, 53%); /* Blue destructive matching light mode */
-  --destructive-foreground: hsl(30, 5%, 92%);
-
-  /* Borders & Outlines */
-  --input: hsl(220, 10%, 18%); /* For form borders */
-  --ring: hsl(221, 83%, 53%); /* Blue focus rings matching light mode */
-
-  /* Foreground variants for semantic tokens */
-  --foreground: hsl(30, 5%, 92%);
-
-  /* Radius (for completeness) */
-  --radius: 0.5rem;
-}
 
 
 

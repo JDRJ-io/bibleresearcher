@@ -17,20 +17,18 @@ export function OptimizedThemeSelector() {
 
   const themeDisplayNames: Record<ThemeName, string> = {
     light: 'Light',
-    dark: 'Dark',
-    'ancient-dark': 'Ancient Dark'
+    dark: 'Dark'
   };
 
   const getThemeIcon = (themeName: ThemeName) => {
     switch (themeName) {
       case 'light': return '☀️';
       case 'dark': return '🌙';
-      case 'ancient-dark': return '🌚';
       default: return '🎨';
     }
   };
 
-  const availableThemes: ThemeName[] = ['light', 'dark', 'ancient-dark'];
+  const availableThemes: ThemeName[] = ['light', 'dark'];
 
   return (
     <DropdownMenu>
