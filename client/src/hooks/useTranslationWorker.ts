@@ -22,9 +22,9 @@ export function useTranslationWorker() {
     workerRef.current = worker;
 
     // Initialize with API key from environment variables
-    const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseAnon = import.meta.env.SUPABASE_ANON_KEY;
     if (!supabaseAnon) {
-      console.error('Missing VITE_SUPABASE_ANON_KEY environment variable');
+      console.error('Missing SUPABASE_ANON_KEY environment variable');
       return;
     }
     

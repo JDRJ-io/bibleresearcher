@@ -7,7 +7,7 @@ import { useTranslationMaps as useTranslationStore } from '@/store/translationSl
  * TRANSLATION PIPELINE - MASTER IMPLEMENTATION
  * 
  * Step 1: Parse every .txt file into Map<string,string>, not plain object
- * Step 2: Point Supabase loader at anointed bucket (VITE_SUPABASE_BUCKET)
+ * Step 2: Point Supabase loader at anointed bucket (SUPABASE_BUCKET)
  * Step 3: Off-load parsing to translationWorker.js
  * Step 4: Make useBibleData single source of truth for mainTranslation & activeTranslations
  */

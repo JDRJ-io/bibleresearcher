@@ -2,12 +2,12 @@
 import { createClient } from '@supabase/supabase-js';
 
 // ✅ Vite reads only VITE_ vars
-const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl  = import.meta.env.SUPABASE_URL;
+const supabaseAnon = import.meta.env.SUPABASE_ANON_KEY;
 
 // Debug so we see them on every page load
-console.log('🔑 ENV DEBUG - VITE_SUPABASE_URL:',   supabaseUrl);
-console.log('🔑 ENV DEBUG - VITE_SUPABASE_ANON_KEY:',
+console.log('🔑 ENV DEBUG - SUPABASE_URL:',   supabaseUrl);
+console.log('🔑 ENV DEBUG - SUPABASE_ANON_KEY:',
             supabaseAnon ? supabaseAnon.substring(0, 20) + '…' : undefined);
 
 if (!supabaseUrl || !supabaseAnon) {

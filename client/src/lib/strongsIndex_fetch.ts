@@ -7,7 +7,7 @@ export { fetchInterlinearVerse, parseInterlinearVerse, type InterlinearCell } fr
 type Range = [number, number];
 let idxMap: Record<string, Range> | null = null;
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_URL = import.meta.env.SUPABASE_URL;
 
 async function getIdxMap(): Promise<Record<string, Range>> {
   if (!idxMap) {

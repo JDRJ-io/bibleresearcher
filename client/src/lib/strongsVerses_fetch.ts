@@ -5,7 +5,7 @@ import { masterCache } from './supabaseClient';
 type VRange = [number, number];
 let verseMap: Record<string, VRange> | null = null;
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_URL = import.meta.env.SUPABASE_URL;
 
 async function getVerseMap(): Promise<Record<string, VRange>> {
   if (!verseMap) {
