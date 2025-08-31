@@ -143,8 +143,8 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
             size="sm"
             className={`flex items-center gap-1 text-xs ${
               isPresentationMode
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                ? "bg-[#1E90FF] hover:bg-[#1E90FF]/90 text-white"
+                : "hover:bg-[#1E90FF]/5 dark:hover:bg-[#1E90FF]/10"
             }`}
           >
             {isPresentationMode ? <RotateCcw size={12} /> : <Monitor size={12} />}
@@ -186,7 +186,7 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
         <div className="space-y-4">
           {/* Text Size */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            <Label className="text-sm font-medium text-[#1E90FF] dark:text-[#1E90FF]">
               Text Size: {formatValue(textSize)}
             </Label>
             <input
@@ -196,7 +196,7 @@ export function ManualSizeController({ className = '' }: ManualSizeControllerPro
               step="0.05"
               value={textSize}
               onChange={(e) => setTextSize(parseFloat(e.target.value))}
-              className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer dark:bg-blue-700 slider-thumb-blue"
+              className="w-full h-2 bg-[#1E90FF]/20 rounded-lg appearance-none cursor-pointer dark:bg-[#1E90FF]/30 slider-thumb-blue"
             />
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Font size in verses and references

@@ -410,14 +410,14 @@ body {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #1E90FF;
   cursor: pointer;
   border: 2px solid #ffffff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .slider-thumb-blue::-webkit-slider-thumb {
-  background: #2563eb;
+  background: #1E90FF;
 }
 
 .slider-thumb-green::-webkit-slider-thumb {
@@ -428,7 +428,7 @@ body {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #1E90FF;
   cursor: pointer;
   border: 2px solid #ffffff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
