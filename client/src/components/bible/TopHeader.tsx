@@ -359,7 +359,10 @@ export function TopHeader({
                 className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
                            border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
-                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                           hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer
+                           max-[640px]:from-blue-600 max-[640px]:to-blue-800 max-[640px]:border-blue-400 max-[640px]:shadow-lg
+                           max-[640px]:shadow-blue-500/20 dark:max-[640px]:from-blue-300 dark:max-[640px]:to-blue-500
+                           dark:max-[640px]:border-blue-300 dark:max-[640px]:shadow-blue-400/30"
                 style={{ width: '36px', height: '36px' }}
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
@@ -372,7 +375,9 @@ export function TopHeader({
                   fontWeight: '700',
                   letterSpacing: '-0.01em'
                 }}
-                className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent"
+                className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent
+                           max-[640px]:from-yellow-400 max-[640px]:to-purple-400 max-[640px]:drop-shadow-sm
+                           dark:max-[640px]:from-yellow-300 dark:max-[640px]:to-purple-300 max-[640px]:font-bold"
               >Anointed.io</span>
             </div>
           </div>
