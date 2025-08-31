@@ -210,14 +210,9 @@ export function TopHeader({
           ? 'var(--top-header-height-mobile)'
           : 'var(--top-header-height-desktop)',
         padding: isPortrait && isMobile ? '0 6px' : isMobile ? '0 8px' : '0 16px',
-        pointerEvents: 'auto', // Ensure events are contained
-        overscrollBehavior: 'contain' // Prevent scroll chaining
+        pointerEvents: 'auto' // Ensure events are contained
       }}
-      onWheel={(e) => {
-        // Prevent scroll events on header from creating unwanted scroll space
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+      // Remove onWheel interference - let VirtualBibleTable handle all scrolling
     >
       {/* Mobile Layout */}
       {isMobile ? (
