@@ -52,8 +52,11 @@ export function useAdaptiveScaling() {
       
       // Apply scaling to logo and icon sizes for consistency
       const logoScale = headerScale; // Use same scale as header
+      // For mobile portrait, make text even smaller to prevent layout issues
+      const textScale = (isPortrait && width <= 640) ? logoScale * 0.7 : logoScale;
+      
       document.documentElement.style.setProperty('--anointed-logo-size', `${Math.round(32 * logoScale)}px`);
-      document.documentElement.style.setProperty('--anointed-text-size', `${Math.round(36 * logoScale)}px`);
+      document.documentElement.style.setProperty('--anointed-text-size', `${Math.round(36 * textScale)}px`);
       document.documentElement.style.setProperty('--anointed-icon-size', `${Math.round(18 * logoScale)}px`);
       document.documentElement.style.setProperty('--anointed-spacing', `${Math.round(10 * logoScale)}px`);
       
