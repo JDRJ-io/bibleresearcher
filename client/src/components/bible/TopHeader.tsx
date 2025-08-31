@@ -447,13 +447,11 @@ export function TopHeader({
               <Button
                 variant="default"
                 size="sm"
-                className="px-4 h-9 font-semibold border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg relative overflow-hidden"
-                style={{
-                  backgroundColor: 'var(--accent-color)',
-                  color: 'var(--bg-primary)',
-                  borderColor: 'var(--accent-color)',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                }}
+                className="px-4 h-9 font-semibold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 
+                           hover:from-indigo-500 hover:via-purple-500 hover:to-blue-500 text-white
+                           border-2 border-purple-400/50 transition-all duration-300 hover:scale-105 
+                           shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 
+                           relative overflow-hidden"
                 onClick={() => setIsSignInOpen(true)}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />

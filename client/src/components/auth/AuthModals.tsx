@@ -478,11 +478,11 @@ export function AuthModals({ isSignUpOpen, isSignInOpen, onCloseSignUp, onCloseS
           
           <Button 
             type="submit" 
-            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#1E90FF] to-[#1E90FF] 
-                       hover:from-[#1E90FF]/90 hover:to-[#1E90FF]/80 text-white 
-                       shadow-lg hover:shadow-xl 
-                       transform hover:scale-[1.02] transition-all duration-200 rounded-md
-                       border border-[#1E90FF]/60"
+            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 
+                       hover:from-indigo-500 hover:via-purple-500 hover:to-blue-500 text-white 
+                       shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40
+                       transform hover:scale-[1.02] transition-all duration-300 rounded-md
+                       border border-purple-400/50 relative overflow-hidden"
             disabled={isLoading}
           >
             {isLoading ? (
