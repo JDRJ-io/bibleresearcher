@@ -525,7 +525,7 @@ export function VirtualRow({
 
   // Debug translation store state (only for first verse to avoid spam)
   // Console logging removed for cleaner output
-  const { showCrossRefs, showNotes, showDates, showProphecies, showHybrid, columnState } = store;
+  const { showCrossRefs, showNotes, showDates, showProphecies, showHybrid, showPrediction, showFulfillment, showVerification, columnState } = store;
 
   // Ensure data loading is triggered when columns are enabled
   useColumnData();
@@ -585,16 +585,16 @@ export function VirtualRow({
           slotConfig[7] = { type: 'cross-refs', header: 'Cross Refs', visible: col.visible && showCrossRefs };
           break;
         case 8:
-          // Prophecy P column (unchanged)
-          slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showProphecies };
+          // Prophecy P column - use individual prediction flag
+          slotConfig[8] = { type: 'prophecy-p', header: 'P', visible: col.visible && showPrediction };
           break;
         case 9:
-          // Prophecy F column (unchanged)
-          slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showProphecies };
+          // Prophecy F column - use individual fulfillment flag
+          slotConfig[9] = { type: 'prophecy-f', header: 'F', visible: col.visible && showFulfillment };
           break;
         case 10:
-          // Prophecy V column (unchanged)
-          slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showProphecies };
+          // Prophecy V column - use individual verification flag
+          slotConfig[10] = { type: 'prophecy-v', header: 'V', visible: col.visible && showVerification };
           break;
         case 20:
           // Hybrid column - shows all data for center anchor verse
@@ -654,23 +654,21 @@ export function VirtualRow({
     allColumns.sort((a, b) => a.slot - b.slot);
   }
 
-  // Apply horizontal navigation filtering - match NewColumnHeaders logic
-  const { getVisibleSlice } = useBibleStore();
+  // FIXED: Show ALL active columns for horizontal scrolling support
+  // Don't use getVisibleSlice - it limits based on viewport width, but we want horizontal scrolling
   const fixedColumnTypes = ['reference']; // Always show reference column
 
   const fixedColumns = allColumns.filter(col => fixedColumnTypes.includes(col.config?.type));
   const navigableColumns = allColumns.filter(col => !fixedColumnTypes.includes(col.config?.type));
 
-  // FIXED: Always show all toggled columns for horizontal scrolling support
-  // Remove artificial limits that were preventing mobile users from seeing all their active columns
-  // But filter out context columns in mobile portrait mode to prevent extra thin columns
+  // Show all active columns - let horizontal scrolling handle overflow
+  let visibleColumns = [...fixedColumns, ...navigableColumns];
+  
+  // Only filter out context columns in mobile portrait mode to prevent extra thin columns
   const isPortraitMode = window.innerHeight > window.innerWidth;
   const isMobileMode = window.innerWidth <= 640;
   const isMobilePortraitMode = isPortraitMode && isMobileMode;
   
-  let visibleColumns = [...fixedColumns, ...navigableColumns];
-  
-  // Filter out context columns in mobile portrait mode
   if (isMobilePortraitMode) {
     visibleColumns = visibleColumns.filter(col => 
       col.config?.type !== 'context' && 
