@@ -17,18 +17,20 @@ export function OptimizedThemeSelector() {
 
   const themeDisplayNames: Record<ThemeName, string> = {
     light: 'Light',
-    'ancient-dark': 'Dark'
+    dark: 'Dark',
+    'ancient-dark': 'Ancient Dark'
   };
 
   const getThemeIcon = (themeName: ThemeName) => {
     switch (themeName) {
       case 'light': return '☀️';
-      case 'ancient-dark': return '🌙';
+      case 'dark': return '🌙';
+      case 'ancient-dark': return '🌚';
       default: return '🎨';
     }
   };
 
-  const availableThemes: ThemeName[] = ['light', 'ancient-dark'];
+  const availableThemes: ThemeName[] = ['light', 'dark', 'ancient-dark'];
 
   return (
     <DropdownMenu>
