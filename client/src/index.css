@@ -295,7 +295,7 @@ body {
   --header-height-mobile: 48px;
   --top-header-height-desktop: 52px;
   --top-header-height-mobile: 48px;
-  --column-header-height: 60px;
+  --column-header-height: 48px;
 
   /* Unified Logo & Icon Sizing Variables */
   --anointed-logo-size: 32px;
