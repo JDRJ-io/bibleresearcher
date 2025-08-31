@@ -377,8 +377,9 @@ export function TopHeader({
                   letterSpacing: '-0.01em'
                 }}
                 className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent
-                           max-[640px]:from-yellow-300 max-[640px]:to-pink-400 max-[640px]:font-extrabold max-[640px]:drop-shadow-md
-                           dark:max-[640px]:from-yellow-200 dark:max-[640px]:to-pink-300 max-[640px]:contrast-125 max-[640px]:saturate-150"
+                           max-[640px]:from-orange-400 max-[640px]:to-fuchsia-500 max-[640px]:font-black max-[640px]:text-xl
+                           max-[640px]:drop-shadow-lg max-[640px]:filter max-[640px]:brightness-110 max-[640px]:saturate-200
+                           dark:max-[640px]:from-amber-300 dark:max-[640px]:to-pink-400 dark:max-[640px]:brightness-125"
               >Anointed.io</span>
             </div>
           </div>
