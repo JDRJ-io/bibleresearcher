@@ -249,24 +249,34 @@ export function TopHeader({
 
           {/* Center: Anointed Logo */}
           <div className="flex-1 mx-2 flex items-center justify-center">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center" style={{ gap: 'var(--anointed-spacing)' }}>
               <button 
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-200 to-blue-900
+                className="rounded-full bg-gradient-to-br from-blue-200 to-blue-900
                            border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
-                style={{ width: '36px', height: '36px' }}
+                style={{ 
+                  width: 'var(--anointed-logo-size)', 
+                  height: 'var(--anointed-logo-size)' 
+                }}
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
               >
-                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
+                <Scroll 
+                  className="text-white dark:text-blue-50" 
+                  style={{ 
+                    width: 'var(--anointed-icon-size)', 
+                    height: 'var(--anointed-icon-size)' 
+                  }} 
+                />
               </button>
               <span
                 className="font-bold text-black dark:text-white"
                 style={{
-                  fontSize: '20px',
+                  fontSize: 'var(--anointed-text-size)',
                   fontWeight: '700',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.01em',
+                  marginLeft: 'var(--anointed-spacing)'
                 }}
               >Anointed.io</span>
             </div>
@@ -354,25 +364,35 @@ export function TopHeader({
             </div>
 
             {/* Brand group: Logo + Text */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center" style={{ gap: 'var(--anointed-spacing)' }}>
               <button 
                 className="rounded-full bg-gradient-to-br from-blue-700 to-blue-900
                            border border-blue-500 dark:from-blue-400 dark:to-blue-600 dark:border-blue-400
                            flex items-center justify-center relative overflow-hidden
                            hover:scale-105 hover:shadow-lg transition-all duration-200 cursor-pointer"
-                style={{ width: '36px', height: '36px' }}
+                style={{ 
+                  width: 'var(--anointed-logo-size)', 
+                  height: 'var(--anointed-logo-size)' 
+                }}
                 onClick={handleResetToDefault}
                 title="Reset to default view (KJV + Cross-references only)"
               >
-                <Scroll className="w-5 h-5 text-white dark:text-blue-50" />
+                <Scroll 
+                  className="text-white dark:text-blue-50" 
+                  style={{ 
+                    width: 'var(--anointed-icon-size)', 
+                    height: 'var(--anointed-icon-size)' 
+                  }} 
+                />
               </button>
               <span
                 style={{
-                  fontSize: '20px',
+                  fontSize: 'var(--anointed-text-size)',
                   fontWeight: '700',
-                  letterSpacing: '-0.01em'
+                  letterSpacing: '-0.01em',
+                  marginLeft: 'var(--anointed-spacing)'
                 }}
-                className="text-lg font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent"
+                className="font-semibold bg-gradient-to-r from-yellow-500 to-purple-500 dark:from-yellow-400 dark:to-purple-400 bg-clip-text text-transparent"
               >Anointed.io</span>
             </div>
           </div>

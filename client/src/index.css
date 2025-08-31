@@ -296,6 +296,12 @@ body {
   --top-header-height-desktop: 52px;
   --top-header-height-mobile: 48px;
   --column-header-height: 40px;
+
+  /* Unified Logo & Icon Sizing Variables */
+  --anointed-logo-size: 32px;
+  --anointed-text-size: 18px;
+  --anointed-icon-size: 18px;
+  --anointed-spacing: 8px;
   
   /* Header rollup animation variables */
   --header-rollup-transform: translateY(0);
