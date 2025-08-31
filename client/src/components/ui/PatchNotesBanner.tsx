@@ -55,12 +55,24 @@ export function PatchNotesBanner({ isVisible = true, onDismiss }: PatchNotesBann
       <div className="relative px-2 sm:px-4 md:px-6 lg:px-8 py-3 flex items-center 
                       min-h-[56px]">
         {/* Mobile-Optimized Left Side */}
-        <div className="flex items-center justify-center flex-1 min-w-0 pr-16 sm:pr-20 md:pr-24">
-          <div className="text-center space-y-0.5">
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent leading-none">
+        <div className="flex items-center justify-center flex-1 min-w-0 pr-14 sm:pr-16 md:pr-20">
+          {/* Single row on wider screens, two rows on mobile */}
+          <div className="hidden sm:flex items-center space-x-3">
+            <h3 className="text-lg md:text-xl font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
               Start with prayer
             </h3>
-            <p className="text-xs sm:text-sm md:text-base text-amber-900/80 dark:text-yellow-100/80 leading-none font-medium">
+            <span className="text-amber-800/50 dark:text-yellow-300/50 text-lg">•</span>
+            <p className="text-sm md:text-base text-amber-900/90 dark:text-yellow-100/90 font-medium">
+              Welcome Holy Spirit
+            </p>
+          </div>
+          
+          {/* Two rows on mobile for better readability */}
+          <div className="sm:hidden text-center space-y-1">
+            <h3 className="text-sm font-semibold bg-gradient-to-r from-amber-700 via-orange-600 to-yellow-600 dark:from-yellow-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+              Start with prayer
+            </h3>
+            <p className="text-xs text-amber-900/90 dark:text-yellow-100/90 font-medium">
               Welcome Holy Spirit
             </p>
           </div>
