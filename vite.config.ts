@@ -2,7 +2,6 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
-import { copy } from "fs-extra";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -13,21 +12,6 @@ export default defineConfig(({ mode }) => {
       ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
         ? [(async () => (await import("@replit/vite-plugin-cartographer")).cartographer())()]
         : []),
-      {
-        name: 'copy-important-docs',
-        apply: 'build',
-        writeBundle: async () => {
-          const sourcePath = path.resolve(__dirname, "client", "important docs"); // Explicit subfolder
-          const destPath = path.resolve(__dirname, "dist/public/important-docs");
-          try {
-            await copy(sourcePath, destPath);
-            console.log(`Copied important docs from ${sourcePath} to ${destPath}`);
-          } catch (err) {
-            console.error(`Copy failed: ${err.message}`);
-            throw err; // Fail build if copy fails
-          }
-        },
-      },
     ],
     resolve: {
       alias: {
