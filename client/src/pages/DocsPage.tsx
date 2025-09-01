@@ -27,8 +27,10 @@ const DOC_METADATA: Record<string, DocMetadata> = {
   'pricing': { title: 'Pricing', category: 'info' },
   'safety-scam-prevention': { title: 'Safety & Scam Prevention', category: 'support' },
   'cookies': { title: 'Cookie Policy', category: 'legal' },
-  'patch-notes': { title: 'Patch Notes', category: 'info' },
-  'support': { title: 'Support', category: 'support' }
+  'patch-notes': { title: 'Patch Notes', category: 'info', description: 'Latest updates and changes' },
+  'support': { title: 'Support', category: 'support' },
+  'contact': { title: 'Contact', category: 'support', description: 'Get in touch with us' },
+  'licenses': { title: 'Licenses', category: 'info', description: 'Software licenses and attributions' }
 };
 
 const FILENAME_MAP: Record<string, string> = {
@@ -48,7 +50,9 @@ const FILENAME_MAP: Record<string, string> = {
   'safety-scam-prevention': 'Safety & Scam Prevention.md',
   'cookies': 'cookies.md',
   'patch-notes': 'patch_notes.md',
-  'support': 'support.md'
+  'support': 'support.md',
+  'contact': 'Contact.md',
+  'licenses': 'Licenses.md'
 };
 
 export default function DocsPage() {

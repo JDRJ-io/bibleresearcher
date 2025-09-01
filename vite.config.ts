@@ -2,20 +2,27 @@ import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { copy } from "fs-extra";
 
 export default defineConfig(({ mode }) => {
-  // Load environment variables from .env
   const env = loadEnv(mode, process.cwd(), '');
-
   return {
     plugins: [
       react(),
       runtimeErrorOverlay(),
       ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
-        ? [
-            (async () => (await import("@replit/vite-plugin-cartographer")).cartographer())(),
-          ]
+        ? [(async () => (await import("@replit/vite-plugin-cartographer")).cartographer())()]
         : []),
+      {
+        name: 'copy-important-docs',
+        apply: 'build',
+        writeBundle: async () => {
+          await copy(
+            path.resolve(import.meta.dirname, "client/important docs"),
+            path.resolve(import.meta.dirname, "dist/public/important-docs")
+          );
+        },
+      },
     ],
     resolve: {
       alias: {
@@ -28,11 +35,14 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
+      rollupOptions: {
+        input: path.resolve(import.meta.dirname, "client/index.html"),
+      },
     },
     server: {
       host: "0.0.0.0",
       port: parseInt(process.env.PORT || "5000"),
-      allowedHosts: process.env.REPL_ID ? [".replit.dev"] : true, // Changed "all" to true
+      allowedHosts: process.env.REPL_ID ? [".replit.dev"] : true,
       fs: {
         strict: true,
         deny: ["**/.*"],

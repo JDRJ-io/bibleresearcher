@@ -78,10 +78,18 @@ export const availableDocuments = {
     filename: 'cookies.md',
     title: 'Cookie Policy'
   },
+  'contact': {
+    filename: 'Contact.md',
+    title: 'Contact'
+  },
+  'licenses': {
+    filename: 'Licenses.md',
+    title: 'Licenses'
+  },
   'patch-notes': {
     filename: 'patch_notes.md',
     title: 'Patch Notes'
-  }
+  },
 } as const;
 
 export type DocumentKey = keyof typeof availableDocuments;

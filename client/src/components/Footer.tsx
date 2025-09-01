@@ -57,22 +57,16 @@ const Footer = () => {
                 Policies
               </button>
               <button 
-                onClick={() => openDocument('privacy')}
+                onClick={() => openDocument('contact')}
                 className="hover:text-foreground transition-colors"
               >
-                Privacy
+                Contact
               </button>
               <button 
-                onClick={() => openDocument('pricing')}
+                onClick={() => openDocument('licenses')}
                 className="hover:text-foreground transition-colors"
               >
-                Pricing
-              </button>
-              <button 
-                onClick={() => window.open('/forum', '_blank')}
-                className="hover:text-foreground transition-colors"
-              >
-                Forum
+                Licenses
               </button>
               <button 
                 onClick={() => openAllDocs()}
@@ -120,13 +114,19 @@ const Footer = () => {
                 Pricing
               </button>
               <button 
-                onClick={() => window.open('/forum', '_blank')}
+                onClick={() => openDocument('contact')}
                 className="hover:text-foreground transition-colors"
               >
-                Forum
+                Contact
               </button>
             </div>
             <div className="flex justify-center items-center space-x-3 text-xs text-muted-foreground">
+              <button 
+                onClick={() => openDocument('licenses')}
+                className="hover:text-foreground transition-colors"
+              >
+                Licenses
+              </button>
               <button 
                 onClick={() => openAllDocs()}
                 className="hover:text-foreground transition-colors"

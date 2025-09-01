@@ -56,13 +56,15 @@ export const DocumentMenu: React.FC<DocumentMenuProps> = ({
     support: {
       title: 'Support & Information',
       docs: [
+        { key: 'contact' as DocumentKey, description: 'Get in touch with us' },
         { key: 'support' as DocumentKey, description: 'Get help with your account' },
         { key: 'acknowledgments' as DocumentKey, description: 'Credits and attributions' },
         { key: 'mission' as DocumentKey, description: 'Learn about our purpose' },
         { key: 'safety' as DocumentKey, description: 'Stay safe online' },
         { key: 'accessibility' as DocumentKey, description: 'Accessibility features' },
         { key: 'patch-notes' as DocumentKey, description: 'Latest updates and changes' },
-        { key: 'delete-account' as DocumentKey, description: 'How to delete your account' }
+         { key: 'delete-account' as DocumentKey, description: 'How to delete your account' },
+        { key: 'licenses' as DocumentKey, description: 'Software licenses and attributions' }
       ]
     },
     business: {
