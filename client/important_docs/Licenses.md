@@ -18,7 +18,7 @@ This platform uses the following open-source components, each under its respecti
 ## Content Licenses
 
 * **Biblical Texts** — Public Domain and Creative Commons sources.
-  See [Acknowledgments](/acknowledgments) for full details and source attributions.
+  See [Acknowledgments](./Acknowledgments.md) for full details and source attributions.
 
 * **Icons**
 

@@ -173,7 +173,6 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
     { id: "display-settings", label: "Display Settings", icon: Settings },
     { id: "color-theme", label: "Color Theme", icon: Palette },
     { id: "bookmarks", label: "Bookmarks", icon: Bookmark },
-    { id: "documentation", label: "Docs", icon: FileText },
   ];
 
   const renderTabContent = () => {
@@ -458,62 +457,7 @@ export function HamburgerMenu({ isOpen, onClose, onNavigateToVerse }: Horizontal
             />
           </div>
         );
-
-      case "documentation":
-        return (
-          <div className="space-y-3">
-            <h4 className="text-xs font-medium" style={{color: 'var(--text-primary)'}}>Important Documents</h4>
-            <div className="space-y-2">
-              <a 
-                href="/docs/acknowledgments" 
-                className="flex items-center gap-2 text-xs hover:underline"
-                style={{color: 'var(--accent-color)'}}
-                onClick={onClose}
-              >
-                <FileText className="w-3 h-3" />
-                Acknowledgments
-              </a>
-              <a 
-                href="/docs/privacy-policy" 
-                className="flex items-center gap-2 text-xs hover:underline"
-                style={{color: 'var(--accent-color)'}}
-                onClick={onClose}
-              >
-                <FileText className="w-3 h-3" />
-                Privacy Policy
-              </a>
-              <a 
-                href="/docs/tos" 
-                className="flex items-center gap-2 text-xs hover:underline"
-                style={{color: 'var(--accent-color)'}}
-                onClick={onClose}
-              >
-                <FileText className="w-3 h-3" />
-                Terms of Service
-              </a>
-              <a 
-                href="/docs/donate" 
-                className="flex items-center gap-2 text-xs hover:underline"
-                style={{color: 'var(--accent-color)'}}
-                onClick={onClose}
-              >
-                <FileText className="w-3 h-3" />
-                Support Our Mission
-              </a>
-              <hr style={{borderColor: 'var(--border-color)'}} />
-              <a 
-                href="/docs" 
-                className="flex items-center gap-2 text-xs hover:underline font-medium"
-                style={{color: 'var(--accent-color)'}}
-                onClick={onClose}
-              >
-                <FileText className="w-3 h-3" />
-                View All Documents
-              </a>
-            </div>
-          </div>
-        );
-
+        
       default:
         return null;
     }

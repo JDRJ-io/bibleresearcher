@@ -57,6 +57,12 @@ const Footer = () => {
                 Policies
               </button>
               <button 
+                onClick={() => openDocument('privacy')}
+                className="hover:text-foreground transition-colors"
+              >
+                Privacy
+              </button>
+              <button 
                 onClick={() => openDocument('contact')}
                 className="hover:text-foreground transition-colors"
               >
@@ -67,6 +73,18 @@ const Footer = () => {
                 className="hover:text-foreground transition-colors"
               >
                 Licenses
+              </button>
+              <button 
+                onClick={() => openDocument('acknowledgments')}
+                className="hover:text-foreground transition-colors"
+              >
+                Acknowledgments
+              </button>
+              <button 
+                onClick={() => openDocument('mission')}
+                className="hover:text-foreground transition-colors"
+              >
+                Our Mission
               </button>
               <button 
                 onClick={() => openAllDocs()}
@@ -82,7 +100,7 @@ const Footer = () => {
               </button>
             </div>
             <div className="text-right">
-              © 2025 Anointed.io
+              © 2025 Anointed.io™
             </div>
           </div>
 
@@ -114,18 +132,30 @@ const Footer = () => {
                 Pricing
               </button>
               <button 
-                onClick={() => openDocument('contact')}
-                className="hover:text-foreground transition-colors"
-              >
-                Contact
-              </button>
-            </div>
-            <div className="flex justify-center items-center space-x-3 text-xs text-muted-foreground">
-              <button 
                 onClick={() => openDocument('licenses')}
                 className="hover:text-foreground transition-colors"
               >
                 Licenses
+              </button>
+              <button 
+                onClick={() => openDocument('acknowledgments')}
+                className="hover:text-foreground transition-colors"
+              >
+                Acknowledgments
+              </button>
+            </div>
+            <div className="flex justify-center items-center space-x-3 text-xs text-muted-foreground">
+              <button 
+                onClick={() => openDocument('mission')}
+                className="hover:text-foreground transition-colors"
+              >
+                Our Mission
+              </button>
+              <button 
+                onClick={() => openDocument('contact')}
+                className="hover:text-foreground transition-colors"
+              >
+                Contact
               </button>
               <button 
                 onClick={() => openAllDocs()}
@@ -133,7 +163,7 @@ const Footer = () => {
               >
                 All Docs
               </button>
-              <span>© 2025 Anointed.io</span>
+              <span>© 2025 Anointed.io™</span>
               <button 
                 onClick={() => openDocument('donate')}
                 className="hover:text-foreground transition-colors"
