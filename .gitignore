@@ -8,7 +8,6 @@ build/
 public/build/
 
 # Environment files (CRITICAL - contains sensitive data)
-.env
 .env.*
 !.env.example
 

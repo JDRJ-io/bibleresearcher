@@ -1,25 +1,21 @@
-// client/src/lib/supabaseClient.ts
 import { createClient } from '@supabase/supabase-js';
 
-// ✅ Vite reads only VITE_ vars
-const supabaseUrl  = import.meta.env.SUPABASE_URL;
-const supabaseAnon = import.meta.env.SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.SUPABASE_URL || (typeof process !== 'undefined' ? process.env.SUPABASE_URL : undefined);
+const supabaseAnon = import.meta.env.SUPABASE_ANON_KEY || (typeof process !== 'undefined' ? process.env.SUPABASE_ANON_KEY : undefined);
 
-// Debug so we see them on every page load
-console.log('🔑 ENV DEBUG - SUPABASE_URL:',   supabaseUrl);
-console.log('🔑 ENV DEBUG - SUPABASE_ANON_KEY:',
-            supabaseAnon ? supabaseAnon.substring(0, 20) + '…' : undefined);
+console.log('🔑 ENV DEBUG - SUPABASE_URL:', supabaseUrl);
+console.log('🔑 ENV DEBUG - SUPABASE_ANON_KEY:', supabaseAnon ? supabaseAnon.substring(0, 20) + '…' : undefined);
 
 if (!supabaseUrl || !supabaseAnon) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// -------- Singleton pattern to avoid multiple GoTrue warnings
 export const supabase = (() => {
-  // @ts-ignore — attach to globalThis only in browser
   const g = globalThis as any;
   if (!g.__supabase__) {
-    g.__supabase__ = createClient(supabaseUrl, supabaseAnon);
+    g.__supabase__ = createClient(supabaseUrl, supabaseAnon, {
+      auth: { persistSession: true },
+    });
   }
   return g.__supabase__ as ReturnType<typeof createClient>;
 })();
