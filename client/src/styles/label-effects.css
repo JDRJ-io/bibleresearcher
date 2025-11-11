@@ -1,0 +1,83 @@
+/* Label Effects CSS - Semantic highlighting visual styles */
+
+/* who → elegant cursive font (system-dependent) */
+.fx-hand {
+  font-family: 'Brush Script MT', 'Lucida Calligraphy', 'Lucida Handwriting', 'Apple Chancery', cursive;
+  color: currentColor;
+}
+
+/* what → drop shadow using current text color */  
+.fx-shadow {
+  color: currentColor;
+  text-shadow: 1px 1px 2px currentColor;
+}
+
+/* when → text-matching underline (not green) */
+.fx-under {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: currentColor;
+}
+
+/* where → square brackets (not curly braces) */
+.fx-bracket {
+  color: currentColor;
+}
+.fx-bracket::before {
+  content: '[';
+  opacity: 0.6;
+  color: currentColor;
+}
+.fx-bracket::after {
+  content: ']';
+  opacity: 0.6;
+  color: currentColor;
+}
+
+/* command → simple bold (no glow) */
+.fx-bold {
+  font-weight: 700;
+  color: currentColor;
+}
+
+/* action → normal italic (not blue) */
+.fx-ital {
+  font-style: italic;
+  color: currentColor;
+}
+
+/* why → true hollow outline text (transparent fill with visible border) */
+.fx-outline {
+  font-weight: 400; /* Standard weight for better outline visibility */
+  -webkit-text-fill-color: transparent;
+  /* Use currentColor for stroke so it works with highlights */
+  -webkit-text-stroke: 0.5px currentColor;
+  text-stroke: 0.5px currentColor;
+}
+
+/* seed → text-matching color superscript * */
+.sup-seed::before {
+  content: '*';
+  vertical-align: super;
+  font-size: 0.7em;
+  margin-right: 2px;
+  color: currentColor;
+}
+
+/* harvest → text-matching color superscript = */
+.sup-harvest::before {
+  content: '=';
+  vertical-align: super;
+  font-size: 0.7em;
+  margin-right: 2px;
+  color: currentColor;
+}
+
+/* prediction → superscript ~ (keeping as is) */
+.sup-predict::before {
+  content: '~';
+  vertical-align: super;
+  font-size: 0.7em;
+  margin-right: 2px;
+  color: currentColor;
+}

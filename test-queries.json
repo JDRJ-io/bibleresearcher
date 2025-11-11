@@ -1,0 +1,380 @@
+[
+  {
+    "category": "Standard References",
+    "query": "John 3:16",
+    "expected": "John.3.16",
+    "description": "Classic verse reference"
+  },
+  {
+    "category": "Standard References",
+    "query": "Psalm 23:1",
+    "expected": "Ps.23.1",
+    "description": "Full book name with verse"
+  },
+  {
+    "category": "Standard References",
+    "query": "Revelation 7:9-10",
+    "expected": "Rev.7.9",
+    "description": "Verse range in same chapter"
+  },
+  {
+    "category": "Standard References",
+    "query": "Genesis 1:1",
+    "expected": "Gen.1.1",
+    "description": "Beginning of Bible"
+  },
+  {
+    "category": "Standard References",
+    "query": "Matthew 5:3",
+    "expected": "Matt.5.3",
+    "description": "Beginning of NT"
+  },
+  {
+    "category": "Chapter Only",
+    "query": "1 Samuel 17",
+    "expected": "1Sam.17.1",
+    "description": "Chapter-only reference (David and Goliath)"
+  },
+  {
+    "category": "Chapter Only",
+    "query": "Psalm 119",
+    "expected": "Ps.119.1",
+    "description": "Longest chapter reference"
+  },
+  {
+    "category": "Chapter Only",
+    "query": "Romans 8",
+    "expected": "Rom.8.1",
+    "description": "Popular chapter reference"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "Jn 3:16",
+    "expected": "John.3.16",
+    "description": "Two-letter book abbreviation"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "1 Co 13:4",
+    "expected": "1Cor.13.4",
+    "description": "Numbered book abbreviation"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "Psa 23:1",
+    "expected": "Ps.23.1",
+    "description": "Three-letter abbreviation"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "Gen 1:1",
+    "expected": "Gen.1.1",
+    "description": "Common abbreviation"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "Matt 6:9",
+    "expected": "Matt.6.9",
+    "description": "NT abbreviation"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "Phil 4:13",
+    "expected": "Phil.4.13",
+    "description": "Four-letter abbreviation"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "1 Sam 16:7",
+    "expected": "1Sam.16.7",
+    "description": "Abbreviated numbered book"
+  },
+  {
+    "category": "Abbreviations",
+    "query": "2 Tim 3:16",
+    "expected": "2Tim.3.16",
+    "description": "Second Timothy abbreviation"
+  },
+  {
+    "category": "OSIS Format",
+    "query": "John.3.16",
+    "expected": "John.3.16",
+    "description": "OSIS dot notation"
+  },
+  {
+    "category": "OSIS Format",
+    "query": "Rev.7.9-10",
+    "expected": "Rev.7.9",
+    "description": "OSIS with range"
+  },
+  {
+    "category": "OSIS Format",
+    "query": "Ps.23.1",
+    "expected": "Ps.23.1",
+    "description": "OSIS Psalm format"
+  },
+  {
+    "category": "OSIS Format",
+    "query": "1Sam.17.45",
+    "expected": "1Sam.17.45",
+    "description": "OSIS numbered book"
+  },
+  {
+    "category": "Cross-Chapter Ranges",
+    "query": "Isaiah 52:13-53:3",
+    "expected": "Isa.52.13",
+    "description": "Suffering servant prophecy"
+  },
+  {
+    "category": "Cross-Chapter Ranges",
+    "query": "Matthew 5-7",
+    "expected": "Matt.5.1",
+    "description": "Sermon on the Mount"
+  },
+  {
+    "category": "Cross-Chapter Ranges",
+    "query": "Genesis 1-2",
+    "expected": "Gen.1.1",
+    "description": "Creation narrative"
+  },
+  {
+    "category": "Typos and Fuzzy",
+    "query": "Jhon 3:16",
+    "expected": "John.3.16",
+    "description": "Common typo (h before o)"
+  },
+  {
+    "category": "Typos and Fuzzy",
+    "query": "Pslm 23",
+    "expected": "Ps.23.1",
+    "description": "Missing vowel"
+  },
+  {
+    "category": "Typos and Fuzzy",
+    "query": "Isaih 53:5",
+    "expected": "Isa.53.5",
+    "description": "Misspelled Isaiah"
+  },
+  {
+    "category": "Typos and Fuzzy",
+    "query": "Mathew 5:3",
+    "expected": "Matt.5.3",
+    "description": "Single 't' typo"
+  },
+  {
+    "category": "Typos and Fuzzy",
+    "query": "Revelations 22:21",
+    "expected": "Rev.22.21",
+    "description": "Plural form (common mistake)"
+  },
+  {
+    "category": "Compact Format",
+    "query": "John316",
+    "expected": "John.3.16",
+    "description": "No spaces or punctuation"
+  },
+  {
+    "category": "Compact Format",
+    "query": "Gen1:1",
+    "expected": "Gen.1.1",
+    "description": "Book name with colon only"
+  },
+  {
+    "category": "Compact Format",
+    "query": "Ps23",
+    "expected": "Ps.23.1",
+    "description": "Ultra-compact chapter reference"
+  },
+  {
+    "category": "Compact Format",
+    "query": "Rom8:28",
+    "expected": "Rom.8.28",
+    "description": "Compact with colon"
+  },
+  {
+    "category": "Alternate Book Names",
+    "query": "Song of Solomon 2:4",
+    "expected": "Song.2.4",
+    "description": "Full alternate name"
+  },
+  {
+    "category": "Alternate Book Names",
+    "query": "Canticles 2:4",
+    "expected": "Song.2.4",
+    "description": "Latin name for Song"
+  },
+  {
+    "category": "Alternate Book Names",
+    "query": "Apocalypse 22:21",
+    "expected": "Rev.22.21",
+    "description": "Alternate name for Revelation"
+  },
+  {
+    "category": "Alternate Book Names",
+    "query": "Song of Songs 1:1",
+    "expected": "Song.1.1",
+    "description": "Alternate Song name"
+  },
+  {
+    "category": "Edge Formats",
+    "query": "Rev. 7:9-10",
+    "expected": "Rev.7.9",
+    "description": "Period after abbreviation"
+  },
+  {
+    "category": "Edge Formats",
+    "query": "1 Cor. 13:13",
+    "expected": "1Cor.13.13",
+    "description": "Period in numbered book"
+  },
+  {
+    "category": "Edge Formats",
+    "query": "Ps. 23:1",
+    "expected": "Ps.23.1",
+    "description": "Period after Psalm abbreviation"
+  },
+  {
+    "category": "Multiple Verses",
+    "query": "John 3:16-17",
+    "expected": "John.3.16",
+    "description": "Consecutive verses"
+  },
+  {
+    "category": "Multiple Verses",
+    "query": "Romans 12:1-2",
+    "expected": "Rom.12.1",
+    "description": "Living sacrifice passage"
+  },
+  {
+    "category": "Multiple Verses",
+    "query": "Ephesians 2:8-9",
+    "expected": "Eph.2.8",
+    "description": "Salvation by grace"
+  },
+  {
+    "category": "Popular Verses",
+    "query": "Jeremiah 29:11",
+    "expected": "Jer.29.11",
+    "description": "Plans to prosper"
+  },
+  {
+    "category": "Popular Verses",
+    "query": "Philippians 4:13",
+    "expected": "Phil.4.13",
+    "description": "I can do all things"
+  },
+  {
+    "category": "Popular Verses",
+    "query": "Proverbs 3:5-6",
+    "expected": "Prov.3.5",
+    "description": "Trust in the Lord"
+  },
+  {
+    "category": "Popular Verses",
+    "query": "Isaiah 40:31",
+    "expected": "Isa.40.31",
+    "description": "Mount up with wings"
+  },
+  {
+    "category": "Popular Verses",
+    "query": "Romans 8:28",
+    "expected": "Rom.8.28",
+    "description": "All things work together"
+  },
+  {
+    "category": "Numbers Book",
+    "query": "1 John 4:8",
+    "expected": "1John.4.8",
+    "description": "God is love"
+  },
+  {
+    "category": "Numbers Book",
+    "query": "2 Corinthians 5:17",
+    "expected": "2Cor.5.17",
+    "description": "New creation"
+  },
+  {
+    "category": "Numbers Book",
+    "query": "3 John 1:2",
+    "expected": "3John.1.2",
+    "description": "Prosper and be in health"
+  },
+  {
+    "category": "Numbers Book",
+    "query": "1 Peter 5:7",
+    "expected": "1Pet.5.7",
+    "description": "Cast your cares"
+  },
+  {
+    "category": "Numbers Book",
+    "query": "2 Peter 3:9",
+    "expected": "2Pet.3.9",
+    "description": "Not willing any should perish"
+  },
+  {
+    "category": "Short Books",
+    "query": "Obadiah 1:1",
+    "expected": "Obad.1.1",
+    "description": "Single chapter book"
+  },
+  {
+    "category": "Short Books",
+    "query": "Philemon 1:6",
+    "expected": "Phlm.1.6",
+    "description": "Short letter"
+  },
+  {
+    "category": "Short Books",
+    "query": "2 John 1:6",
+    "expected": "2John.1.6",
+    "description": "Walking in truth"
+  },
+  {
+    "category": "Short Books",
+    "query": "Jude 1:24",
+    "expected": "Jude.1.24",
+    "description": "Keep you from falling"
+  },
+  {
+    "category": "Mixed Format",
+    "query": "jn 3 16",
+    "expected": "John.3.16",
+    "description": "Lowercase with spaces"
+  },
+  {
+    "category": "Mixed Format",
+    "query": "JOHN 3:16",
+    "expected": "John.3.16",
+    "description": "All caps"
+  },
+  {
+    "category": "Mixed Format",
+    "query": "psalm 23",
+    "expected": "Ps.23.1",
+    "description": "Lowercase full name"
+  },
+  {
+    "category": "Mixed Format",
+    "query": "1cor13",
+    "expected": "1Cor.13.1",
+    "description": "Compact lowercase numbered"
+  },
+  {
+    "category": "Wisdom Literature",
+    "query": "Job 19:25",
+    "expected": "Job.19.25",
+    "description": "I know my redeemer lives"
+  },
+  {
+    "category": "Wisdom Literature",
+    "query": "Ecclesiastes 3:1",
+    "expected": "Eccl.3.1",
+    "description": "A time for everything"
+  },
+  {
+    "category": "Wisdom Literature",
+    "query": "Proverbs 31:10",
+    "expected": "Prov.31.10",
+    "description": "Virtuous woman"
+  }
+]

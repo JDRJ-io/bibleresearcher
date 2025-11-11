@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anointed.io Logo Export</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #f3f4f6;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #1f2937;
+      margin-bottom: 20px;
+    }
+    .info {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .logo-item {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .logo-item h3 {
+      margin: 0 0 20px 0;
+      font-size: 14px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .logo-wrapper {
+      display: inline-block;
+      position: relative;
+    }
+    .logo-icon {
+      width: 128px;
+      height: 128px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #fbbf24 0%, #eab308 50%, #f59e0b 100%);
+      box-shadow: 0 10px 25px rgba(251, 191, 36, 0.25), 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border: 1.5px solid rgba(252, 211, 77, 0.3);
+    }
+    .logo-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+      opacity: 0.6;
+    }
+    .logo-icon svg {
+      width: 64px;
+      height: 64px;
+      stroke: #78350f;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    .logo-icon.large {
+      width: 256px;
+      height: 256px;
+      border-radius: 32px;
+    }
+    .logo-icon.large svg {
+      width: 128px;
+      height: 128px;
+      stroke-width: 1.5;
+    }
+    .dark-bg {
+      background: #1f2937;
+      padding: 30px;
+      border-radius: 12px;
+    }
+    .dark-bg .logo-icon {
+      background: linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #f59e0b 100%);
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3), 0 4px 12px rgba(0,0,0,0.2);
+      border-color: rgba(251, 191, 36, 0.4);
+    }
+    button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Anointed.io Logo Export</h1>
+    
+    <div class="info">
+      <p><strong>Instructions:</strong></p>
+      <ul>
+        <li>Right-click on any logo and select "Save image as..." to save</li>
+        <li>Or use your screenshot tool to capture the logo</li>
+        <li>The SVG file is available at: <code>client/public/anointed-logo.svg</code></li>
+        <li>For PNG: Right-click the logo below and "Copy Image" or use a screenshot tool</li>
+      </ul>
+    </div>
+
+    <div class="logo-grid">
+      <!-- Standard size - Light -->
+      <div class="logo-item">
+        <h3>Standard (128px)</h3>
+        <div class="logo-wrapper">
+          <div class="logo-icon" id="logo-128">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 2v16a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2M8 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2M8 2v4m0 8v4m10-8h-2m2-4h-2m2 8h-2"/>
+            </svg>
+          </div>
+        </div>
+        <button onclick="downloadLogo('logo-128', 'anointed-logo-128.png')">Download PNG</button>
+      </div>
+
+      <!-- Standard size - Dark background -->
+      <div class="logo-item dark-bg">
+        <h3 style="color: #d1d5db;">Dark Mode (128px)</h3>
+        <div class="logo-wrapper">
+          <div class="logo-icon" id="logo-128-dark">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 2v16a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2M8 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2M8 2v4m0 8v4m10-8h-2m2-4h-2m2 8h-2"/>
+            </svg>
+          </div>
+        </div>
+        <button onclick="downloadLogo('logo-128-dark', 'anointed-logo-128-dark.png')">Download PNG</button>
+      </div>
+
+      <!-- Large size -->
+      <div class="logo-item" style="grid-column: 1 / -1;">
+        <h3>Large (256px)</h3>
+        <div class="logo-wrapper">
+          <div class="logo-icon large" id="logo-256">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 2v16a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2M8 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2M8 2v4m0 8v4m10-8h-2m2-4h-2m2 8h-2"/>
+            </svg>
+          </div>
+        </div>
+        <button onclick="downloadLogo('logo-256', 'anointed-logo-256.png')">Download PNG</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function downloadLogo(elementId, filename) {
+      const element = document.getElementById(elementId);
+      const size = element.classList.contains('large') ? 256 : 128;
+      
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      const scale = 2; // 2x for retina displays
+      canvas.width = size * scale;
+      canvas.height = size * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+      
+      // Draw rounded rectangle with gradient
+      const isDark = elementId.includes('dark');
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      if (isDark) {
+        gradient.addColorStop(0, '#f59e0b');
+        gradient.addColorStop(0.5, '#eab308');
+        gradient.addColorStop(1, '#f59e0b');
+      } else {
+        gradient.addColorStop(0, '#fbbf24');
+        gradient.addColorStop(0.5, '#eab308');
+        gradient.addColorStop(1, '#f59e0b');
+      }
+      
+      // Draw rounded rect background
+      const radius = size === 256 ? 32 : 16;
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, radius);
+      ctx.fill();
+      
+      // Draw shine overlay
+      const shine = ctx.createLinearGradient(0, 0, size, size);
+      shine.addColorStop(0, 'rgba(255,255,255,0.3)');
+      shine.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = shine;
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, radius);
+      ctx.fill();
+      
+      // Draw scroll icon (simplified)
+      const iconSize = size === 256 ? 128 : 64;
+      const iconX = (size - iconSize) / 2;
+      const iconY = (size - iconSize) / 2;
+      const scale_icon = iconSize / 24;
+      
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = size === 256 ? 3 : 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      ctx.save();
+      ctx.translate(iconX, iconY);
+      ctx.scale(scale_icon, scale_icon);
+      
+      // Scroll path
+      ctx.beginPath();
+      ctx.moveTo(8, 2);
+      ctx.lineTo(8, 18);
+      ctx.bezierCurveTo(8, 19.1, 8.9, 20, 10, 20);
+      ctx.lineTo(16, 20);
+      ctx.bezierCurveTo(17.1, 20, 18, 19.1, 18, 18);
+      ctx.lineTo(18, 2);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(8, 2);
+      ctx.bezierCurveTo(8, 0.9, 8.9, 0, 10, 0);
+      ctx.lineTo(14, 0);
+      ctx.bezierCurveTo(15.1, 0, 16, 0.9, 16, 2);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(8, 2);
+      ctx.lineTo(8, 6);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(8, 14);
+      ctx.lineTo(8, 18);
+      ctx.stroke();
+      
+      // Lines on right
+      ctx.beginPath();
+      ctx.moveTo(18, 6);
+      ctx.lineTo(16, 6);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(18, 2);
+      ctx.lineTo(16, 2);
+      ctx.stroke();
+      
+      ctx.beginPath();
+      ctx.moveTo(18, 10);
+      ctx.lineTo(16, 10);
+      ctx.stroke();
+      
+      ctx.restore();
+      
+      // Download
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+  </script>
+</body>
+</html>

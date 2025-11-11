@@ -1,0 +1,35 @@
+
+/* Prophecy column styling */
+.prophecy-block {
+  /* Remove transition effects */
+}
+
+.prophecy-body {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.prophecy-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+/* Dark mode adjustments - removed anchor effects */
+
+.dark .prophecy-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive column widths */
+@media (max-width: 768px) {
+  .prophecy-columns {
+    flex-direction: column;
+  }
+  
+  .prophecy-columns > div {
+    width: 100% !important;
+    min-height: 40px;
+  }
+}

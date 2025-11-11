@@ -1,0 +1,173 @@
+/* Mobile Column Header Positioning Fix */
+
+/* Top header heights */
+:root {
+  --top-header-height-desktop: 64px;
+  --top-header-height-mobile: 48px;
+  --column-header-height: 56px;
+}
+
+/* Mobile-specific header positioning */
+@media (max-width: 640px) {
+  /* Position column headers below TopHeader, not overlapping */
+  .column-headers-container,
+  .column-headers-wrapper {
+    position: sticky !important; /* Use sticky to prevent scroll hiding */
+    top: var(--top-header-height-mobile) !important; /* Stay below TopHeader */
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 45 !important; /* Higher than content, lower than top header */
+    background: white !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    min-height: var(--column-header-height) !important;
+    height: var(--column-header-height) !important;
+    overflow: hidden !important; /* Hide all scrollbars */
+    pointer-events: auto !important; /* Allow interaction with headers */
+  }
+
+  /* Dark mode support */
+  .dark .column-headers-container,
+  .dark .column-headers-wrapper {
+    background: #1f2937 !important;
+    border-bottom-color: #374151 !important;
+  }
+
+  /* The scroll area - vertical scrolling only for smooth mobile experience */
+  .bible-content-container {
+    margin-top: calc(var(--top-header-height-mobile) + var(--column-header-height)) !important;
+    height: calc(100vh - var(--top-header-height-mobile) - var(--column-header-height)) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;    /* Disable horizontal scrolling */
+    /* touch-action handled by unified-scroll-container in index.css */
+    overscroll-behavior: contain !important; /* Prevent scroll chaining */
+  }
+
+  /* Ensure no gap between headers */
+  .top-header-mobile {
+    height: var(--top-header-height-mobile) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    /* Prevent touch scrolling between header and content */
+    touch-action: manipulation !important;
+    overflow-x: hidden !important; /* Hide horizontal overflow only */
+    overflow-y: visible !important; /* Allow crown to show vertically */
+  }
+
+  /* Column header cells responsive sizing - all width restraints removed */
+  .column-header-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+    min-height: 28px !important; /* Allow space for navigation controls while keeping headers compact */
+    /* All flex, width, min-width, max-width restraints removed */
+  }
+
+  /* Mobile column headers - let inline styles control width completely */
+  .column-header-cell[data-column="reference"] {
+    box-sizing: border-box !important;
+    padding: 0 !important; /* NO PADDING - match data cell */
+    margin: 0 !important; /* NO MARGIN - match data cell */
+    border-left: none !important; /* NO EXTRA BORDERS - match data cell */
+    /* Width now controlled by inline styles in NewColumnHeaders.tsx */
+  }
+
+  /* Remove all CSS width constraints - let inline styles take full control */
+  .column-header-cell[data-column="main-translation"],
+  .column-header-cell[data-column="cross-refs"] {
+    /* Width now controlled by inline styles in NewColumnHeaders.tsx */
+  }
+
+  /* Remove portrait mode media query overrides - inline styles handle everything */
+
+  /* Prophecy and Notes columns - width controlled by inline styles */
+  .column-header-cell[data-column="prophecy"],
+  .column-header-cell[data-column="notes"] {
+    /* Width now controlled by inline styles in NewColumnHeaders.tsx */
+  }
+
+  /* Context column mobile sizing - removed all restraints */
+
+  /* Landscape phone adjustments - inline styles control all widths now */
+  @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
+    /* Width now controlled by inline styles in NewColumnHeaders.tsx */
+  }
+
+  /* Tablet and larger screens - inline styles control all widths now */
+  @media (min-width: 769px) {
+    /* Width now controlled by inline styles in NewColumnHeaders.tsx */
+    
+    /* Context column restraints removed */
+  }
+}
+
+/* Mobile reference column - match data cell rotation exactly */
+/* Rotate on narrower portrait screens for better readability */
+@media (max-width: 900px) and (orientation: portrait) {
+  .column-header-cell[data-column="reference"] {
+    writing-mode: vertical-rl !important;
+    transform: rotate(180deg) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.65rem !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    /* Width now handled by unified system in index.css */
+  }
+}
+
+/* Tablet portrait and wider - keep horizontal verse references */
+@media (min-width: 769px) {
+  .column-header-cell[data-column="reference"] {
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Desktop positioning (ensure no conflicts) */
+@media (min-width: 769px) {
+  .column-headers-container,
+  .column-headers-wrapper {
+    position: sticky !important; /* Use sticky for consistency */
+    top: var(--top-header-height-desktop) !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 45 !important; /* Higher than content, lower than top header */
+    min-height: var(--column-header-height) !important;
+    height: var(--column-header-height) !important;
+    overflow: hidden !important; /* Hide all scrollbars */
+    pointer-events: auto !important; /* Allow interaction with headers */
+  }
+
+  .bible-content-container {
+    margin-top: var(--top-header-height-desktop) !important;
+    height: calc(100vh - var(--top-header-height-desktop)) !important;
+  }
+}
+
+/* Additional protection against rollup behavior */
+.column-headers-container,
+.column-headers-wrapper {
+  /* Prevent any scroll behavior that could cause rollup */
+  touch-action: none !important; /* Disable touch scrolling on headers */
+  overscroll-behavior: none !important; /* Prevent scroll chaining */
+  will-change: auto !important; /* Don't promote to composite layer unnecessarily */
+}
+
+/* Ensure content scrolls properly with fixed headers */
+.bible-content-container {
+  /* Prevent scroll interference with fixed headers */
+  overscroll-behavior: contain !important;
+}

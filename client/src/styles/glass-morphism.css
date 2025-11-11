@@ -1,0 +1,363 @@
+/**
+ * Subtle Glass Effect System
+ * Creates gentle, translucent verse cells optimized for peaceful Bible study
+ * Minimal memory usage, no animations, maximum readability
+ */
+
+/* Minimal glass effect variables - optimized for performance */
+:root {
+  /* Very subtle glass effects */
+  --glass-blur: 4px;
+  --glass-opacity: 0.95;
+  --glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  
+  /* Light theme glass variables - very subtle */
+  --glass-bg-light: rgba(255, 255, 255, 0.92);
+  --glass-border-light: rgba(255, 255, 255, 0.6);
+  
+  /* Dark theme glass variables - very subtle */
+  --glass-bg-dark: rgba(0, 0, 0, 0.15);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  
+  /* Only light and dark themes supported */
+}
+
+/* Base glass morphism class - transparent */
+.glass-morphism {
+  /* No backdrop blur for cleaner appearance */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  
+  /* Gentle rounded corners */
+  border-radius: 4px;
+  
+  /* No shadow for cleaner appearance */
+  box-shadow: none;
+  
+  /* No transitions - instant for performance */
+  position: relative;
+}
+
+/* Light theme glass styling - transparent */
+:root.light .glass-morphism {
+  background: transparent;
+  border: none;
+}
+
+/* Dark theme glass styling - transparent */
+:root.dark .glass-morphism {
+  background: transparent;
+  border: none;
+}
+
+/* Aurora theme - solid mystical purple */
+:root.aurora .glass-morphism {
+  background: rgb(33, 15, 45) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 204, 0, 0.2) !important;
+  box-shadow: none !important;
+}
+
+/* Rainbow theme - solid deep navy */
+:root.rainbow .glass-morphism {
+  background: rgb(20, 20, 40) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(0, 255, 204, 0.25) !important;
+  box-shadow: none !important;
+}
+
+/* Electric theme - solid deep blue */
+:root.electric .glass-morphism {
+  background: rgb(16, 22, 70) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(247, 242, 50, 0.3) !important;
+  box-shadow: none !important;
+}
+
+/* Eden theme - solid forest green */
+:root.eden .glass-morphism {
+  background: rgb(20, 40, 34) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(125, 211, 169, 0.25) !important;
+  box-shadow: none !important;
+}
+
+/* Verse cells and reference cells should be transparent - override solid backgrounds */
+:root.aurora .cell-content,
+:root.aurora .glass-verse-cell,
+:root.aurora .cell-ref,
+:root.aurora .glass-reference-cell,
+:root.rainbow .cell-content,
+:root.rainbow .glass-verse-cell,
+:root.rainbow .cell-ref,
+:root.rainbow .glass-reference-cell,
+:root.electric .cell-content,
+:root.electric .glass-verse-cell,
+:root.electric .cell-ref,
+:root.electric .glass-reference-cell,
+:root.eden .cell-content,
+:root.eden .glass-verse-cell,
+:root.eden .cell-ref,
+:root.eden .glass-reference-cell {
+  background: transparent !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Menu components styling for FX themes */
+/* Aurora theme - menu elements */
+:root.aurora .bg-gray-50,
+:root.aurora .bg-blue-100,
+:root.aurora .bg-green-100,
+:root.aurora .bg-orange-100 {
+  background-color: rgba(60, 25, 80, 0.6) !important;
+}
+
+:root.aurora .dark\:bg-gray-800\/50,
+:root.aurora .dark\:bg-blue-900\/40,
+:root.aurora .dark\:bg-green-900\/40,
+:root.aurora .dark\:bg-orange-900\/40 {
+  background-color: rgba(60, 25, 80, 0.6) !important;
+}
+
+/* Aurora theme - button overrides for display settings */
+:root.aurora .bg-blue-600,
+:root.aurora .bg-green-600,
+:root.aurora .bg-orange-600 {
+  background-color: rgba(100, 50, 150, 0.8) !important;
+}
+
+:root.aurora .hover\:bg-blue-700:hover,
+:root.aurora .hover\:bg-green-700:hover,
+:root.aurora .hover\:bg-orange-700:hover {
+  background-color: rgba(120, 70, 170, 0.9) !important;
+}
+
+:root.aurora .hover\:bg-blue-900:hover,
+:root.aurora .hover\:bg-green-900:hover,
+:root.aurora .hover\:bg-orange-900:hover {
+  background-color: rgba(60, 25, 80, 0.4) !important;
+}
+
+:root.aurora .dark\:hover\:bg-blue-50:hover,
+:root.aurora .dark\:hover\:bg-green-50:hover,
+:root.aurora .dark\:hover\:bg-orange-50:hover {
+  background-color: rgba(60, 25, 80, 0.4) !important;
+}
+
+/* Rainbow theme - menu elements */
+:root.rainbow .bg-gray-50,
+:root.rainbow .bg-blue-100,
+:root.rainbow .bg-green-100,
+:root.rainbow .bg-orange-100 {
+  background-color: rgba(35, 35, 60, 0.6) !important;
+}
+
+:root.rainbow .dark\:bg-gray-800\/50,
+:root.rainbow .dark\:bg-blue-900\/40,
+:root.rainbow .dark\:bg-green-900\/40,
+:root.rainbow .dark\:bg-orange-900\/40 {
+  background-color: rgba(35, 35, 60, 0.6) !important;
+}
+
+/* Rainbow theme - button overrides for display settings */
+:root.rainbow .bg-blue-600,
+:root.rainbow .bg-green-600,
+:root.rainbow .bg-orange-600 {
+  background-color: rgba(60, 60, 100, 0.8) !important;
+}
+
+:root.rainbow .hover\:bg-blue-700:hover,
+:root.rainbow .hover\:bg-green-700:hover,
+:root.rainbow .hover\:bg-orange-700:hover {
+  background-color: rgba(80, 80, 120, 0.9) !important;
+}
+
+:root.rainbow .hover\:bg-blue-900:hover,
+:root.rainbow .hover\:bg-green-900:hover,
+:root.rainbow .hover\:bg-orange-900:hover {
+  background-color: rgba(35, 35, 60, 0.4) !important;
+}
+
+:root.rainbow .dark\:hover\:bg-blue-50:hover,
+:root.rainbow .dark\:hover\:bg-green-50:hover,
+:root.rainbow .dark\:hover\:bg-orange-50:hover {
+  background-color: rgba(35, 35, 60, 0.4) !important;
+}
+
+/* Electric theme - menu elements */
+:root.electric .bg-gray-50,
+:root.electric .bg-blue-100,
+:root.electric .bg-green-100,
+:root.electric .bg-orange-100 {
+  background-color: rgba(25, 35, 100, 0.6) !important;
+}
+
+:root.electric .dark\:bg-gray-800\/50,
+:root.electric .dark\:bg-blue-900\/40,
+:root.electric .dark\:bg-green-900\/40,
+:root.electric .dark\:bg-orange-900\/40 {
+  background-color: rgba(25, 35, 100, 0.6) !important;
+}
+
+/* Electric theme - button overrides for display settings */
+:root.electric .bg-blue-600,
+:root.electric .bg-green-600,
+:root.electric .bg-orange-600 {
+  background-color: rgba(40, 60, 150, 0.8) !important;
+}
+
+:root.electric .hover\:bg-blue-700:hover,
+:root.electric .hover\:bg-green-700:hover,
+:root.electric .hover\:bg-orange-700:hover {
+  background-color: rgba(60, 80, 170, 0.9) !important;
+}
+
+:root.electric .hover\:bg-blue-900:hover,
+:root.electric .hover\:bg-green-900:hover,
+:root.electric .hover\:bg-orange-900:hover {
+  background-color: rgba(25, 35, 100, 0.4) !important;
+}
+
+:root.electric .dark\:hover\:bg-blue-50:hover,
+:root.electric .dark\:hover\:bg-green-50:hover,
+:root.electric .dark\:hover\:bg-orange-50:hover {
+  background-color: rgba(25, 35, 100, 0.4) !important;
+}
+
+/* Eden theme - menu elements */
+:root.eden .bg-gray-50,
+:root.eden .bg-blue-100,
+:root.eden .bg-green-100,
+:root.eden .bg-orange-100 {
+  background-color: rgba(30, 55, 45, 0.6) !important;
+}
+
+:root.eden .dark\:bg-gray-800\/50,
+:root.eden .dark\:bg-blue-900\/40,
+:root.eden .dark\:bg-green-900\/40,
+:root.eden .dark\:bg-orange-900\/40 {
+  background-color: rgba(30, 55, 45, 0.6) !important;
+}
+
+/* Eden theme - button overrides for display settings */
+:root.eden .bg-blue-600,
+:root.eden .bg-green-600,
+:root.eden .bg-orange-600 {
+  background-color: rgba(50, 90, 70, 0.8) !important;
+}
+
+:root.eden .hover\:bg-blue-700:hover,
+:root.eden .hover\:bg-green-700:hover,
+:root.eden .hover\:bg-orange-700:hover {
+  background-color: rgba(70, 110, 90, 0.9) !important;
+}
+
+:root.eden .hover\:bg-blue-900:hover,
+:root.eden .hover\:bg-green-900:hover,
+:root.eden .hover\:bg-orange-900:hover {
+  background-color: rgba(30, 55, 45, 0.4) !important;
+}
+
+:root.eden .dark\:hover\:bg-blue-50:hover,
+:root.eden .dark\:hover\:bg-green-50:hover,
+:root.eden .dark\:hover\:bg-orange-50:hover {
+  background-color: rgba(30, 55, 45, 0.4) !important;
+}
+
+/* Simple verse cell - just a touch more prominence */
+.glass-verse-cell {
+  /* No additional effects - keep it simple */
+}
+
+/* Simple reference cell */
+.glass-reference-cell {
+  border-radius: 3px;
+}
+
+/* Simple cross-reference cell */
+.glass-cross-ref-cell {
+  border-radius: 3px;
+}
+
+/* No hover effects - keep it peaceful and simple */
+
+/* Simple focus states for accessibility */
+.glass-morphism:focus-within {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+/* Mobile adjustments - optimized glass effects */
+@media (max-width: 768px) {
+  :root {
+    /* Reduce blur on mobile for performance */
+    --glass-blur: 2px;
+  }
+  
+  .glass-morphism {
+    border-radius: 3px;
+  }
+  
+  /* Mobile - keep solid colors, no blur */
+  :root.aurora .glass-morphism,
+  :root.rainbow .glass-morphism,
+  :root.electric .glass-morphism,
+  :root.eden .glass-morphism {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* High contrast mode - remove glass effects entirely */
+@media (prefers-contrast: high) {
+  .glass-morphism {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  
+  :root.light .glass-morphism {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Only light and dark themes supported */
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-morphism {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+  }
+  
+  :root.light .glass-morphism {
+    background: rgba(255, 255, 255, 0.98) !important;
+  }
+  
+  :root.dark .glass-morphism {
+    background: rgba(0, 0, 0, 0.92) !important;
+  }
+  
+  :root.aurora .glass-morphism {
+    background: rgb(33, 15, 45) !important;
+  }
+  
+  :root.rainbow .glass-morphism {
+    background: rgb(20, 20, 40) !important;
+  }
+  
+  :root.electric .glass-morphism {
+    background: rgb(16, 22, 70) !important;
+  }
+  
+  :root.eden .glass-morphism {
+    background: rgb(20, 40, 34) !important;
+  }
+}

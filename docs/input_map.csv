@@ -1,0 +1,42 @@
+component,file,eventType,propOrListener,handlerFn,navigationOrMenu,notes
+HoverVerseBar,client/src/components/bible/HoverVerseBar.tsx,onMouseEnter,prop,setIsHovered(true),menu,Desktop hover trigger
+HoverVerseBar,client/src/components/bible/HoverVerseBar.tsx,onMouseLeave,prop,setIsHovered(false),menu,Desktop hover end
+HoverVerseBar,client/src/components/bible/HoverVerseBar.tsx,onTouchStart,prop,handleTouchStart,menu,Mobile tap start detection
+HoverVerseBar,client/src/components/bible/HoverVerseBar.tsx,onTouchMove,prop,handleTouchMove,menu,Mobile scroll vs tap detection
+HoverVerseBar,client/src/components/bible/HoverVerseBar.tsx,onTouchEnd,prop,handleTouchEnd,menu,Mobile tap completion - SHOWS BLANK OVERLAY
+HoverVerseBar,client/src/components/bible/HoverVerseBar.tsx,touchstart,listener,handleClickOutside,menu,Close mobile toolbar outside tap
+VirtualRow,client/src/components/bible/VirtualRow.tsx,onDoubleClick,prop,handleDoubleTap,navigation,Opens StrongsOverlay
+VirtualRow,client/src/components/bible/VirtualRow.tsx,onVerseClick,prop,passed down,navigation,Verse reference navigation
+VerseText,client/src/components/highlights/VerseText.tsx,selection,context,captureSelection,text_interaction,Text selection for highlighting
+HighlightableText,client/src/components/user/HighlightableText.tsx,onMouseUp,prop,handleMouseUp,text_interaction,Text selection DISABLED on mobile
+MainTranslationCell,client/src/components/bible/VirtualRow.tsx,wrapped,integration,HoverVerseBar,menu,Main text wrapped by HoverVerseBar
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,scroll,navigation,useNaturalAxisLock,navigation,Axis-locked scrolling
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,swipe,navigation,useColumnSwipeNavigation,navigation,Horizontal column swipes
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,wheel,navigation,useTwoFingerSwipeNavigation,navigation,Two-finger verse navigation
+useNaturalAxisLock,client/src/hooks/useNaturalAxisLock.ts,touchstart,listener,onTouchStart,navigation,Axis lock touch start
+useNaturalAxisLock,client/src/hooks/useNaturalAxisLock.ts,touchmove,listener,onTouchMove,navigation,Axis lock touch move
+useNaturalAxisLock,client/src/hooks/useNaturalAxisLock.ts,touchend,listener,onTouchEnd,navigation,Axis lock touch end
+useNaturalAxisLock,client/src/hooks/useNaturalAxisLock.ts,wheel,listener,onWheel,navigation,Axis lock wheel events
+useColumnSwipeNavigation,client/src/hooks/useColumnSwipeNavigation.ts,touchstart,listener,handleTouchStart,navigation,Column swipe start
+useColumnSwipeNavigation,client/src/hooks/useColumnSwipeNavigation.ts,touchmove,listener,handleTouchMove,navigation,Column swipe move
+useColumnSwipeNavigation,client/src/hooks/useColumnSwipeNavigation.ts,touchend,listener,handleTouchEnd,navigation,Column swipe end
+useTwoFingerSwipeNavigation,client/src/hooks/useTwoFingerSwipeNavigation.ts,wheel,listener,handleWheel,navigation,Two-finger navigation
+ScrollAxisClamp,client/src/utils/ScrollAxisClamp.ts,wheel,listener,wheel,navigation,Low-level scroll control
+ScrollAxisClamp,client/src/utils/ScrollAxisClamp.ts,pointerdown,listener,down,navigation,Pointer tracking start
+ScrollAxisClamp,client/src/utils/ScrollAxisClamp.ts,pointermove,listener,move,navigation,Pointer movement tracking
+ScrollAxisClamp,client/src/utils/ScrollAxisClamp.ts,pointerup,listener,up,navigation,Pointer tracking end
+ScrollAxisClamp,client/src/utils/ScrollAxisClamp.ts,pointercancel,listener,up,navigation,Pointer tracking cancel
+safeScrollUtils,client/src/utils/safeScrollUtils.ts,pointerdown,listener,markUserScrolling,navigation,User scroll state
+safeScrollUtils,client/src/utils/safeScrollUtils.ts,touchstart,listener,markUserScrolling,navigation,User scroll state
+safeScrollUtils,client/src/utils/safeScrollUtils.ts,wheel,listener,markUserScrolling,navigation,User scroll state
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,mousemove,listener,handleMouseMove,text_interaction,Text selection drag
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,mouseup,listener,handleMouseUp,text_interaction,Text selection end
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,touchmove,listener,handleTouchMove,text_interaction,Touch selection drag
+VirtualBibleTable,client/src/components/bible/VirtualBibleTable.tsx,touchend,listener,handleTouchEnd,text_interaction,Touch selection end
+CrossReferencesCell,client/src/components/bible/VirtualRow.tsx,onClick,prop,setAnchorByRef,navigation,Cross-reference navigation
+ProphecyCell,client/src/components/bible/VirtualRow.tsx,onClick,prop,onVerseClick,navigation,Prophecy verse navigation
+NotesCell,client/src/components/user/NotesCell.tsx,mousedown,listener,handleClickOutside,text_interaction,Exit edit mode
+HybridCell,client/src/components/bible/HybridCell.tsx,wrapped,integration,HoverVerseBar,menu,Detailed verse info with menu
+ExpandedVerseOverlay,client/src/components/bible/ExpandedVerseOverlay.tsx,onClick,prop,onStrongsClick,text_interaction,Strong's word lookup
+StrongsDetailDrawer,client/src/components/bible/StrongsDetailDrawer.tsx,onClick,prop,handleVerseClick,navigation,Strong's verse navigation
+ProphecyDetailDrawer,client/src/components/bible/ProphecyDetailDrawer.tsx,onClick,prop,handleVerseClick,navigation,Prophecy verse navigation

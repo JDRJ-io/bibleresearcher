@@ -1,0 +1,2 @@
+[functions.billing_portal]
+verify_jwt = true

@@ -1,0 +1,2 @@
+[functions.billing_webhook]
+verify_jwt = false  # Stripe will not send a Supabase JWT

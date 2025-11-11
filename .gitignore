@@ -1,0 +1,16 @@
+# secrets & env
+.env
+.env.*
+
+# local/runtime
+.vercel/
+dist/
+node_modules/
+.replit
+replit.nix
+.local/
+logs/
+*.out
+
+# build artifacts
+coverage/

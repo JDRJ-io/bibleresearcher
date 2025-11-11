@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Explore the Bible with powerful research tools including multi-translation comparison, cross-references, Strong's concordance, prophecy tracking, and community insights." />
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Anointed.io - Biblical Research Platform" />
+    <meta property="og:description" content="Explore the Bible with powerful research tools including multi-translation comparison, cross-references, Strong's concordance, prophecy tracking, and community insights." />
+    <meta property="og:image" content="https://anointed.io/og-image.png" />
+    <meta property="og:image:alt" content="Anointed.io Logo" />
+    <meta property="og:url" content="https://anointed.io" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Anointed.io" />
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@AnointedIO" />
+    <meta name="twitter:title" content="Anointed.io - Biblical Research Platform" />
+    <meta name="twitter:description" content="Explore the Bible with powerful research tools including multi-translation comparison, cross-references, Strong's concordance, prophecy tracking, and community insights." />
+    <meta name="twitter:image" content="https://anointed.io/og-image.png" />
+    
+    <link rel="canonical" href="https://anointed.io/">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Source+Sans+Pro:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Anointed Bible</title>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Anointed.io",
+      "url": "https://anointed.io",
+      "logo": "https://anointed.io/logo.png"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Anointed.io",
+      "url": "https://anointed.io/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://anointed.io/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <script>
+      (function(){
+        var k='bible-theme-optimized';
+        var t=localStorage.getItem(k);
+        if(!t){
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.classList.add(t);
+        if(document.body){
+          document.body.classList.add(t + '-mode');
+        }else{
+          document.addEventListener('DOMContentLoaded',function(){
+            document.body.classList.add(t + '-mode');
+          });
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="theme-fx" aria-hidden="true"></div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>

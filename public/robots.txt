@@ -1,0 +1,11 @@
+# Robots.txt for Anointed.io Biblical Research Platform
+# This file is served statically but can be overridden by /api/robots.txt for environment-specific rules
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://anointed.io/sitemap.xml
+
+# Crawl-delay to be respectful
+Crawl-delay: 1

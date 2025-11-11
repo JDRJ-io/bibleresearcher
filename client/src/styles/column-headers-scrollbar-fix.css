@@ -1,0 +1,46 @@
+/* Specific scrollbar removal for column headers */
+
+/* Hide all scrollbars in column headers section */
+.column-headers-wrapper,
+.column-headers-inner,
+.column-headers-container {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+
+/* Hide webkit scrollbars */
+.column-headers-wrapper::-webkit-scrollbar,
+.column-headers-inner::-webkit-scrollbar,
+.column-headers-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Allow navigation arrows section to scroll horizontally */
+.column-headers-wrapper .flex.justify-between {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+}
+
+/* Allow inner flex container to scroll horizontally */
+.column-headers-inner.flex {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+}
+
+/* Prevent any child elements from causing scrollbars */
+.column-headers-wrapper * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.column-headers-wrapper *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

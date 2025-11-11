@@ -1,0 +1,75 @@
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { clientsClaim } from 'workbox-core';
+import { registerRoute } from 'workbox-routing';
+import { CacheFirst } from 'workbox-strategies';
+
+declare let self: ServiceWorkerGlobalScope & {
+  skipWaiting(): void;
+  addEventListener(type: string, listener: (event: any) => void): void;
+};
+
+// Precache and route
+precacheAndRoute(self.__WB_MANIFEST);
+
+// Clean up outdated caches
+cleanupOutdatedCaches();
+
+// Take control of all open clients  
+self.skipWaiting();
+clientsClaim();
+
+// 🚨 PHASE 0.2: Cache signed URLs for translations
+registerRoute(
+  ({ url }) => {
+    const isSupabaseStorage = url.hostname.includes('.supabase.co');
+    const isTranslationFile = url.pathname.includes('/storage/v1/object/');
+    const hasSignOrPublic = url.pathname.includes('/sign/') || url.pathname.includes('/public/');
+    const isTranslation = url.pathname.includes('translations/') && 
+                         (url.pathname.endsWith('.txt') || url.pathname.endsWith('.json'));
+    
+    const shouldCache = isSupabaseStorage && isTranslationFile && hasSignOrPublic && isTranslation;
+    
+    if (shouldCache) {
+      console.log('[TX-SW] CACHE HIT for signed translation URL:', url.pathname);
+    } else if (isSupabaseStorage && isTranslationFile) {
+      console.log('[TX-SW] Pattern match: ❌ CACHE MISS -', url.pathname, 'criteria:', {
+        isSupabaseStorage,
+        isTranslationFile, 
+        hasSignOrPublic,
+        isTranslation
+      });
+    }
+    
+    return shouldCache;
+  },
+  new CacheFirst({
+    cacheName: 'supabase-translations',
+    plugins: [
+      {
+        cacheKeyWillBeUsed: async ({ request }) => {
+          // Remove query parameters to create stable cache keys
+          const url = new URL(request.url);
+          url.search = '';
+          return url.toString();
+        },
+      },
+    ],
+  })
+);
+
+// Background sync for offline data
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'anointed-sync') {
+    event.waitUntil(
+      // Dynamic import to load the sync logic
+      import('./offline/queueSync.js').then(module => module.pushPending())
+        .catch(error => console.error('Background sync failed:', error))
+    );
+  }
+});
+
+// Handle fetch events for offline support
+self.addEventListener('fetch', (event) => {
+  // Let workbox handle the caching strategy
+  // Additional custom logic can be added here if needed
+});

@@ -1,0 +1,106 @@
+/**
+ * Simple Background System
+ * Creates peaceful, static backgrounds for Bible study
+ * Minimal memory usage, no animations
+ */
+
+/* Root element setup for static backgrounds */
+html {
+  min-height: 100vh;
+}
+
+/* Global gradient via body::before driven by CSS variables */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: linear-gradient(
+    var(--bg-grad-angle, 180deg),
+    var(--bg-grad-0) 0%,
+    var(--bg-grad-1) 100%
+  );
+  /* Background gradient opacity */
+  opacity: 0.8;
+}
+
+/* Hide body::before for FX themes so #theme-fx layer shows through */
+body.rainbow-mode::before,
+body.aurora-mode::before,
+body.electric-mode::before,
+body.sepia-mode::before,
+body.eden-mode::before,
+body.desk-mode::before,
+body.torch-mode::before {
+  content: none !important;
+  display: none !important;
+}
+
+
+/* Ensure app content sits above the gradient */
+#root, .app-root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Glass morphism helper */
+.glass-morphism { 
+  background: var(--glass-bg); 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Video background support */
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -2; /* Behind gradient and content */
+  filter: brightness(0.6) contrast(1.1); /* Moody lofi feel */
+}
+
+/* Fallback for browsers without video support */
+.background-image-fallback {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  z-index: -2;
+  filter: brightness(0.7);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Accessibility: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .background-video {
+    filter: brightness(0.7); /* Static dim for calm */
+  }
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .background-video {
+    /* Use lower quality for mobile performance */
+    filter: brightness(0.5) contrast(1.0);
+  }
+}
+
+/* Clean and simple - no heavy processing, perfect for peaceful Bible study */

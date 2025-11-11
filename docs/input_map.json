@@ -1,0 +1,161 @@
+{
+  "verse_interaction_system": {
+    "primary_components": {
+      "HoverVerseBar": {
+        "file": "client/src/components/bible/HoverVerseBar.tsx",
+        "description": "Main verse interaction component with unified desktop/mobile handling",
+        "events": {
+          "desktop": {
+            "onMouseEnter": "setIsHovered(true)",
+            "onMouseLeave": "setIsHovered(false)",
+            "hover_card": "Radix HoverCard with ToolbarContent"
+          },
+          "mobile": {
+            "onTouchStart": "handleTouchStart - track start position/time",
+            "onTouchMove": "handleTouchMove - detect scrolling vs tap",
+            "onTouchEnd": "handleTouchEnd - toggle isMobileToolbarVisible on quick tap",
+            "click_outside": "document.addEventListener('touchstart', handleClickOutside)"
+          }
+        },
+        "issue": "Mobile shows blank overlay instead of toolbar content",
+        "toolbar_actions": ["Copy", "Bookmark", "Share", "Highlight", "Delete highlights"]
+      },
+      "VirtualRow": {
+        "file": "client/src/components/bible/VirtualRow.tsx",
+        "description": "Row container that wraps MainTranslationCell with HoverVerseBar",
+        "events": {
+          "onDoubleClick": "handleDoubleTap -> onExpandVerse (opens StrongsOverlay)",
+          "verse_click": "onVerseClick prop passed down",
+          "main_translation_cell": "Wrapped by HoverVerseBar for verse menu"
+        }
+      },
+      "VirtualBibleTable": {
+        "file": "client/src/components/bible/VirtualBibleTable.tsx",
+        "description": "Main table with scroll/navigation handling",
+        "navigation_hooks": [
+          "useNaturalAxisLock",
+          "useColumnSwipeNavigation", 
+          "useTwoFingerSwipeNavigation"
+        ],
+        "events": {
+          "scroll_handling": "Multiple axis-lock and swipe navigation systems",
+          "verse_callbacks": ["onExpandVerse", "onVerseClick", "onCurrentVerseChange"]
+        }
+      }
+    },
+    "text_interaction_components": {
+      "VerseText": {
+        "file": "client/src/components/highlights/VerseText.tsx",
+        "description": "Core verse text rendering with selection support",
+        "events": {
+          "selection": "captureSelection -> useVerseSelection context",
+          "highlight_rendering": "Smart contrast highlights with WCAG compliance"
+        }
+      },
+      "HighlightableText": {
+        "file": "client/src/components/user/HighlightableText.tsx", 
+        "description": "Text selection for highlighting (DISABLED on mobile)",
+        "events": {
+          "onMouseUp": "handleMouseUp -> text selection and color picker",
+          "mobile_behavior": "Explicitly disabled to prevent scroll interference"
+        },
+        "issue": "Mobile text selection disabled, limiting verse interaction"
+      },
+      "MainTranslationCell": {
+        "file": "client/src/components/bible/VirtualRow.tsx",
+        "description": "Main translation text wrapped by HoverVerseBar",
+        "integration": "Wrapped by HoverVerseBar for verse menu access"
+      }
+    },
+    "navigation_hooks": {
+      "useNaturalAxisLock": {
+        "file": "client/src/hooks/useNaturalAxisLock.ts",
+        "events": {
+          "touchstart": "onTouchStart",
+          "touchmove": "onTouchMove", 
+          "touchend": "onTouchEnd",
+          "wheel": "onWheel"
+        },
+        "purpose": "Prevent diagonal scrolling, axis locking"
+      },
+      "useColumnSwipeNavigation": {
+        "file": "client/src/hooks/useColumnSwipeNavigation.ts",
+        "events": {
+          "touchstart": "handleTouchStart",
+          "touchmove": "handleTouchMove",
+          "touchend": "handleTouchEnd"
+        },
+        "purpose": "Horizontal column swiping navigation"
+      },
+      "useTwoFingerSwipeNavigation": {
+        "file": "client/src/hooks/useTwoFingerSwipeNavigation.ts",
+        "events": {
+          "wheel": "handleWheel"
+        },
+        "purpose": "Two-finger verse navigation"
+      }
+    },
+    "raw_event_listeners": {
+      "document_level": [
+        {
+          "component": "HoverVerseBar",
+          "event": "touchstart",
+          "handler": "handleClickOutside", 
+          "purpose": "Close mobile toolbar on outside tap"
+        },
+        {
+          "component": "HighlightableText",
+          "event": "mousedown",
+          "handler": "handleClickOutside",
+          "purpose": "Close color picker"
+        },
+        {
+          "component": "VirtualBibleTable", 
+          "event": "mousemove/mouseup/touchmove/touchend",
+          "handler": "Selection and drag handling",
+          "purpose": "Text selection and highlighting"
+        }
+      ],
+      "utility_functions": [
+        {
+          "file": "client/src/utils/ScrollAxisClamp.ts",
+          "events": ["wheel", "pointerdown", "pointermove", "pointerup", "pointercancel"],
+          "purpose": "Low-level scroll control"
+        },
+        {
+          "file": "client/src/utils/safeScrollUtils.ts", 
+          "events": ["pointerdown", "touchstart", "wheel"],
+          "purpose": "Mark user scrolling state"
+        }
+      ]
+    }
+  },
+  "interaction_flow": {
+    "desktop_hover": {
+      "trigger": "Mouse enter verse text",
+      "component": "HoverVerseBar -> Radix HoverCard",
+      "result": "ToolbarContent with actions displayed"
+    },
+    "mobile_tap": {
+      "trigger": "Touch tap on verse text", 
+      "component": "HoverVerseBar touch handlers",
+      "expected": "ToolbarContent with same actions",
+      "actual": "Blank overlay (issue to fix)"
+    },
+    "verse_expansion": {
+      "trigger": "Double tap/click on verse",
+      "component": "VirtualRow -> handleDoubleTap",
+      "result": "StrongsOverlay opens"
+    },
+    "text_selection": {
+      "desktop": "VerseText -> captureSelection -> highlight toolbar",
+      "mobile": "DISABLED in HighlightableText"
+    }
+  },
+  "conflicts_identified": {
+    "radix_hovercard_mobile": "HoverCard doesn't open on touch by default",
+    "touch_event_conflicts": "Multiple touch handlers may interfere",
+    "axis_lock_interference": "Navigation hooks may prevent tap detection",
+    "positioning_issues": "Mobile toolbar positioned at 'top-[-50px]' may be off-screen"
+  }
+}

@@ -1,0 +1,3441 @@
+/* Import optimized theme system first */
+@import './styles/themes-optimized.css';
+
+/* Import glass morphism effects */
+@import './styles/glass-morphism.css';
+
+/* Import dynamic backgrounds */
+@import './styles/dynamic-backgrounds.css';
+
+/* Import label effects first */
+@import './styles/label-effects.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LANDSCAPE MOBILE OPTIMIZATION: Dynamic Viewport & Focus Mode
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --vh-px: 100vh;
+}
+
+/* Fullscreen area for main scroll container */
+.fullscreen-area {
+  height: var(--vh-px);
+  height: 100dvh;
+  height: -webkit-fill-available;
+}
+
+/* When dvh is supported, prefer it over pixel fallback */
+.has-dvh .fullscreen-area {
+  height: 100dvh;
+}
+
+/* Focus Mode: Hide header and footer on mobile */
+html.focus-mode body .site-header,
+html.focus-mode body .site-footer {
+  display: none !important;
+}
+
+/* Focus Mode: Ensure main content fills screen */
+html.focus-mode body .app-root,
+html.focus-mode body .fullscreen-area {
+  height: var(--vh-px);
+  height: 100dvh;
+}
+
+/* Safe area padding utilities for iOS notches and home indicators */
+.pad-safe {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+.pad-safe-bottom {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.pad-safe-left {
+  padding-left: max(12px, env(safe-area-inset-left));
+}
+
+.pad-safe-right {
+  padding-right: max(12px, env(safe-area-inset-right));
+}
+
+.pad-safe-top {
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* Compact mode for mobile landscape and small viewport heights */
+@media (max-height: 500px) {
+  /* Reduce padding on modal containers */
+  .fixed [class*="backdrop"] > div[class*="p-"],
+  .fixed > div[class*="backdrop"] > div[class*="p-"],
+  [data-testid="document-menu"],
+  [data-testid="popover-color-picker"] {
+    padding: 0.5rem !important;
+  }
+  
+  /* Compact dialog headers */
+  .fixed h1, .fixed h2, .fixed h3 {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Reduce spacing in forms */
+  .fixed form > div,
+  .fixed .space-y-4 > *,
+  .fixed .space-y-3 > * {
+    margin-top: 0.5rem !important;
+  }
+  
+  /* Compact buttons */
+  .fixed button {
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+  }
+  
+  /* Compact input fields */
+  .fixed input,
+  .fixed select,
+  .fixed textarea {
+    height: 2.25rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+
+/* Upward vertical text (characters stacked, reading upward) */
+.vertical-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  transform-origin: center;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Temporary override to force horizontal measurement without flicker */
+.measure-horizontal {
+  writing-mode: initial !important;
+  transform: none !important;
+  position: absolute !important;
+  visibility: hidden !important;
+}
+
+/* Hide main document scrollbars */
+html::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Subtle scrollbar styling for the main virtual table */
+.unified-scroll-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.unified-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Very subtle gray scrollbar - no blue flash */
+.unified-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12); /* Very light gray instead of bright blue */
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease; /* Faster transition to reduce flash */
+}
+
+.unified-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.unified-scroll-container::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.unified-scroll-container::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode scrollbar styling */
+.dark .unified-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.dark .unified-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark .unified-scroll-container::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar styling */
+.unified-scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+  position: relative;
+  z-index: 40;
+  touch-action: pan-y; /* Allow smooth vertical scrolling only */
+  overscroll-behavior: contain; /* Prevent scroll chaining */
+  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+}
+
+/* Prevent double-tap zoom on tappables; keep vertical scroll */
+#virtual-bible-scroll { 
+  touch-action: pan-y; 
+}
+
+button, a, [role="button"] { 
+  touch-action: manipulation; 
+}
+
+.dark .unified-scroll-container {
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+/* Prophecy cell scrollbar styling */
+.prophecy-cell-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.prophecy-cell-scroll::-webkit-scrollbar-track {
+  background: rgb(243, 244, 246);
+  border-radius: 4px;
+}
+
+.prophecy-cell-scroll::-webkit-scrollbar-thumb {
+  background: rgb(156, 163, 175);
+  border-radius: 4px;
+}
+
+.prophecy-cell-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(107, 114, 128);
+}
+
+.dark .prophecy-cell-scroll::-webkit-scrollbar-track {
+  background: rgb(31, 41, 55);
+}
+
+.dark .prophecy-cell-scroll::-webkit-scrollbar-thumb {
+  background: rgb(75, 85, 99);
+}
+
+.dark .prophecy-cell-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(107, 114, 128);
+}
+
+/* Firefox scrollbar styling for prophecy cells */
+.prophecy-cell-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156, 163, 175) rgb(243, 244, 246);
+}
+
+.dark .prophecy-cell-scroll {
+  scrollbar-color: rgb(75, 85, 99) rgb(31, 41, 55);
+}
+
+/* Master column scrollbar styling - neutral light blue */
+.master-column-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.master-column-scroll::-webkit-scrollbar-track {
+  background: rgba(38, 155, 247, 0.1);
+  border-radius: 4px;
+}
+
+.master-column-scroll::-webkit-scrollbar-thumb {
+  background: rgba(38, 155, 247, 0.5);
+  border-radius: 4px;
+}
+
+.master-column-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(38, 155, 247, 0.7);
+}
+
+.dark .master-column-scroll::-webkit-scrollbar-track {
+  background: rgba(38, 155, 247, 0.15);
+}
+
+.dark .master-column-scroll::-webkit-scrollbar-thumb {
+  background: rgba(38, 155, 247, 0.6);
+}
+
+.dark .master-column-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(38, 155, 247, 0.8);
+}
+
+/* Firefox scrollbar styling for master column */
+.master-column-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(38, 155, 247, 0.5) rgba(38, 155, 247, 0.1);
+}
+
+.dark .master-column-scroll {
+  scrollbar-color: rgba(38, 155, 247, 0.6) rgba(38, 155, 247, 0.15);
+}
+
+/* Bold scrollbar styling for Prophecy Overlay - Enhanced visibility with solid design */
+.prophecy-overlay-scroll::-webkit-scrollbar {
+  width: 16px;
+  scrollbar-gutter: stable both;
+}
+
+.prophecy-overlay-scroll::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.15);
+  border-radius: 8px;
+}
+
+.prophecy-overlay-scroll::-webkit-scrollbar-thumb {
+  background: rgb(59, 130, 246);
+  background-clip: padding-box;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+              0 1px 3px rgba(0, 0, 0, 0.15);
+  min-height: 40px;
+}
+
+.prophecy-overlay-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(96, 165, 250);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+              0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.prophecy-overlay-scroll::-webkit-scrollbar-thumb:active {
+  background: rgb(37, 99, 235);
+}
+
+.dark .prophecy-overlay-scroll::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+.dark .prophecy-overlay-scroll::-webkit-scrollbar-thumb {
+  background: rgb(96, 165, 250);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3),
+              0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .prophecy-overlay-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(125, 211, 252);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+              0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.dark .prophecy-overlay-scroll::-webkit-scrollbar-thumb:active {
+  background: rgb(59, 130, 246);
+}
+
+/* Firefox scrollbar styling for prophecy overlay */
+.prophecy-overlay-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: #3b82f6 rgba(15, 23, 42, 0.15);
+}
+
+.dark .prophecy-overlay-scroll {
+  scrollbar-color: #60a5fa rgba(148, 163, 184, 0.25);
+}
+
+/* Responsive scaling for mobile - reduce to 12px on smaller screens */
+@media (max-width: 640px) {
+  .prophecy-overlay-scroll::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  .prophecy-overlay-scroll::-webkit-scrollbar-thumb {
+    min-height: 36px;
+  }
+}
+
+/* Custom styling for Radix UI ScrollArea in Prophecy Overlay ONLY */
+/* Hide native browser scrollbar on the viewport */
+.prophecy-scrollarea [data-radix-scroll-area-viewport] {
+  scrollbar-width: none;
+}
+
+.prophecy-scrollarea [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+  display: none;
+}
+
+/* Stronger Scrollbar Styling for Prophecy Overlay */
+.prophecy-scrollarea [data-radix-scroll-area-scrollbar] {
+  width: 14px !important; /* wider track */
+  background: rgba(30, 41, 59, 0.2); /* subtle background */
+  border-radius: 8px;
+  padding: 2px;
+}
+
+/* Force larger thumb */
+.prophecy-scrollarea [data-radix-scroll-area-scrollbar] [data-radix-scroll-area-thumb] {
+  background: rgba(148, 163, 184, 0.6); /* lighter slate color */
+  border-radius: 8px;
+  min-height: 80px !important; /* visible chunk */
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+/* Hover effect for better visual feedback */
+.prophecy-scrollarea [data-radix-scroll-area-scrollbar] [data-radix-scroll-area-thumb]:hover {
+  background: rgba(203, 213, 225, 0.8);
+  transform: scaleX(1.1);
+}
+
+/* Aesthetic menu scrollbar styling for better mobile experience */
+.menu-scrollable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.menu-scrollable::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  margin: 4px;
+}
+
+.menu-scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.7), rgba(139, 92, 246, 0.8));
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.menu-scrollable::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(139, 92, 246, 1));
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.menu-scrollable::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 1), rgba(139, 92, 246, 0.9));
+  transform: scale(0.95);
+}
+
+/* Dark mode menu scrollbar styling */
+.dark .menu-scrollable::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .menu-scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(139, 92, 246, 0.9));
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark .menu-scrollable::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 1), rgba(139, 92, 246, 1));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Firefox menu scrollbar styling */
+.menu-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.7) rgba(0, 0, 0, 0.05);
+}
+
+.dark .menu-scrollable {
+  scrollbar-color: rgba(59, 130, 246, 0.8) rgba(255, 255, 255, 0.05);
+}
+
+/* Mobile horizontal/landscape specific enhancements */
+@media (max-height: 600px) and (orientation: landscape) {
+  .menu-scrollable {
+    /* Smaller scrollbar for mobile landscape */
+    scrollbar-width: auto;
+  }
+
+  .menu-scrollable::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .menu-scrollable::-webkit-scrollbar-track {
+    margin: 2px;
+  }
+
+  /* Make hamburger menu content more compact in landscape */
+  .hamburger-menu .menu-scrollable {
+    max-height: calc(100vh - 100px);
+  }
+
+  /* Reduce DocumentMenu height in landscape */
+  .document-menu-landscape {
+    max-height: calc(100vh - 80px);
+  }
+
+  /* Optimize hamburger menu positioning for landscape - super aesthetic */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .hamburger-menu {
+      top: 14px;
+      right: 4px;
+    }
+  }
+
+  /* Ultra compact and aesthetic tab styling for landscape */
+  .hamburger-menu .flex.backdrop-blur-xl {
+    padding: 2px !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .hamburger-menu .flex.backdrop-blur-xl button {
+    padding: 4px 8px !important;
+    font-size: 0.6rem !important;
+    border-radius: 8px !important;
+  }
+
+  /* Compact dropdown for landscape */
+  .hamburger-menu .mt-2 {
+    margin-top: 0.25rem !important;
+  }
+
+  .hamburger-menu .w-72,
+  .hamburger-menu .sm\\:w-80 {
+    width: 16rem !important;
+    max-width: calc(100vw - 12px) !important;
+  }
+
+  /* Tighter spacing for menu items in landscape */
+  .hamburger-menu .space-y-3>*+* {
+    margin-top: 0.25rem !important;
+  }
+
+  .hamburger-menu .space-y-2>*+* {
+    margin-top: 0.125rem !important;
+  }
+
+  .hamburger-menu .space-y-1>*+* {
+    margin-top: 0.0625rem !important;
+  }
+
+  /* Compact padding for dropdown content */
+  .hamburger-menu .p-3,
+  .hamburger-menu .sm\\:p-4 {
+    padding: 0.5rem !important;
+  }
+
+  .hamburger-menu .max-h-72,
+  .hamburger-menu .sm\\:max-h-80 {
+    max-height: calc(100vh - 80px) !important;
+  }
+
+  /* Reduce BottomSheet padding in landscape */
+  .bs-content {
+    padding: 0 12px 12px !important;
+    max-height: calc(100vh - 80px) !important;
+  }
+
+  .bs-title {
+    margin: 4px 12px 6px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Enhanced mobile landscape for very short screens */
+@media (max-height: 480px) and (orientation: landscape) {
+  .hamburger-menu .menu-scrollable {
+    max-height: calc(100vh - 100px);
+  }
+
+  .document-menu-landscape {
+    max-height: calc(100vh - 80px);
+  }
+
+  /* Super compact menu items for very short screens */
+  .hamburger-menu .p-3 {
+    padding: 0.5rem !important;
+  }
+
+  .hamburger-menu .sm\\:p-4 {
+    padding: 0.5rem !important;
+  }
+
+  /* Smaller font sizes for landscape */
+  .hamburger-menu .text-xs {
+    font-size: 0.7rem !important;
+  }
+
+  .bs-content {
+    max-height: calc(100vh - 60px) !important;
+  }
+}
+
+/* Touch-friendly scrollbar areas for mobile */
+@media (max-width: 768px) {
+  .menu-scrollable::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  .menu-scrollable::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    margin: 6px;
+  }
+
+  .menu-scrollable::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    min-height: 40px;
+    /* Ensure thumb is large enough for touch */
+  }
+
+  /* Adjust main scrollbar for mobile portrait to prevent column overlap */
+  .unified-scroll-container::-webkit-scrollbar {
+    width: 8px;
+    /* Narrower scrollbar for mobile */
+  }
+
+  .unified-scroll-container::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Thinner border */
+  }
+}
+
+/* Virtual Table Viewport - Natural Axis-Locked Scrolling */
+.virtualTableViewport {
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+  /* allow both, JS locks later */
+  -webkit-overflow-scrolling: touch;
+  /* smooth inertia */
+}
+
+/* EXCEPTION: Show scrollbars specifically for cell content */
+.unified-scroll-container .cell-content::-webkit-scrollbar {
+  display: block !important;
+  width: 8px;
+}
+
+.unified-scroll-container .cell-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.unified-scroll-container .cell-content::-webkit-scrollbar-thumb {
+  background: rgba(30, 144, 255, 0.6);
+  border-radius: 4px;
+}
+
+.unified-scroll-container .cell-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 144, 255, 0.8);
+}
+
+.unified-scroll-container .cell-content {
+  scrollbar-width: thin !important;
+  /* Firefox */
+  scrollbar-color: rgba(30, 144, 255, 0.6) transparent !important;
+}
+
+/* ============================================
+   PROPHECY EFFECTS REMOVED
+   ============================================ */
+
+/* All prophecy row effects removed */
+
+/* Holy magical button effects */
+@keyframes divine-shimmer {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateX(300%) rotate(45deg);
+  }
+}
+
+@keyframes holy-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.holy-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.holy-button:hover {
+  animation: holy-glow 2s ease-in-out infinite;
+  transform: translateY(-2px);
+}
+
+.holy-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent);
+  transition: all 0.5s;
+}
+
+.holy-button:active::before {
+  animation: divine-shimmer 0.8s ease-out;
+}
+
+/* Divine sparkle effect */
+@keyframes sparkle {
+
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+.divine-sparkle {
+  position: relative;
+}
+
+.divine-sparkle::after {
+  content: '✨';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  animation: sparkle 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Mobile touch event fixes for cross-reference cells only */
+.cross-ref-item {
+  touch-action: manipulation;
+  overscroll-behavior: contain;
+  /* Remove isolation to prevent stacking conflicts with HoverVerseBar */
+}
+
+/* Only apply isolation to cross-reference cell content, not all cells */
+.cross-ref-cell .cell-content {
+  touch-action: auto;
+  /* Allow natural scrolling within cross-ref cells */
+  overscroll-behavior: contain;
+  /* Remove isolation to prevent stacking conflicts with HoverVerseBar */
+}
+
+/* Prevent parent scroll when cross-ref content is scrolling */
+.cross-ref-scrollable {
+  touch-action: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Simple Theme System - Light and Dark only */
+:root.light {
+  --header-bg: hsl(0, 0%, 100%);
+  --text-color: hsl(210, 24%, 16%);
+  --accent-color: hsl(221, 83%, 53%);
+  --column-bg: hsl(0, 0%, 100%);
+  --border-color: hsl(214, 32%, 91%);
+  --highlight-bg: hsl(214, 100%, 97%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root.dark {
+  --header-bg: hsl(220, 25%, 8%);
+  --text-color: hsl(30, 5%, 92%);
+  --accent-color: hsl(221, 83%, 53%);
+  --column-bg: hsl(220, 20%, 10%);
+  --border-color: hsl(220, 10%, 18%);
+  --highlight-bg: hsl(215, 27%, 32%);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* UI Layout Spec CSS Foundation - Device-responsive sizing */
+@media (max-width: 640px) {
+  :root {
+    --baseRem: 0.875rem;
+    --baseColW: 420px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  :root {
+    --baseRem: 1rem;
+    --baseColW: 480px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --baseRem: 1.125rem;
+    --baseColW: 520px;
+  }
+}
+
+:root {
+  /* Safe area variables for iOS Safari notch and safe areas */
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+
+  /* Header height variables - initial values, dynamically updated by useAdaptiveScaling */
+  --top-header-height-mobile: 48px;
+  --top-header-height-desktop: 64px;
+  --top-header-total-height: 192px;
+  --column-header-height: 20px;
+
+  /* Manual controls - user adjustable */
+  --text-size-mult: 1.0;
+  /* Text size in Bible content */
+  --row-height-mult: 1.0;
+  /* Row spacing in Bible table */
+  --column-width-mult: 1.0;
+  /* Universal column width expansion */
+
+  /* Automatic adaptive sizing - screen resolution based */
+  --adaptive-header-scale: 1.0;
+  /* Top header auto-sizing */
+  --adaptive-menu-scale: 1.0;
+  /* Menu and UI chrome auto-sizing */
+  --font-size-multiplier: 1.0;
+  --base-font-size: 14px;
+  --text-sm: calc(var(--base-font-size) * 0.875 * var(--text-size-mult));
+  --text-base: calc(var(--base-font-size) * var(--text-size-mult));
+  --text-lg: calc(var(--base-font-size) * 1.125 * var(--text-size-mult));
+  /* --row-height is now set directly by JavaScript (VirtualBibleTable) as single source of truth */
+  --row-height: 120px;
+  /* Fallback only; JS sets this dynamically based on ROW_HEIGHT * externalSizeMult */
+
+  /* Unified Logo & Icon Sizing Variables */
+  --anointed-logo-size: 32px;
+  --anointed-text-size: 36px;
+  --anointed-icon-size: 18px;
+  --anointed-spacing: 10px;
+
+  /* Header rollup animation variables */
+  --header-rollup-transform: translateY(0);
+  --header-rollup-transition: transform 0.3s ease-out;
+}
+
+/* Highlight color picker animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Apply manual sizing only to Bible content, not UI chrome */
+.bible-content-area {
+  font-size: calc(var(--baseRem) * var(--text-size-mult));
+}
+
+/* Top header uses automatic adaptive scaling, not manual controls */
+.top-header {
+  font-size: calc(var(--base-font-size) * var(--adaptive-header-scale)) !important;
+  height: calc(var(--top-header-height-desktop) * var(--adaptive-header-scale)) !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  transform: var(--header-rollup-transform);
+  transition: var(--header-rollup-transition);
+}
+
+.top-header * {
+  font-size: inherit !important;
+  /* Prevent child elements from manual scaling */
+}
+
+/* Exception: Allow anointed logo text to use responsive dynamic sizing */
+.top-header .anointed-logo-text {
+  font-size: 0.875rem !important;
+  /* 14px on mobile - compact */
+}
+
+@media (min-width: 640px) {
+  .top-header .anointed-logo-text {
+    font-size: 1.125rem !important;
+    /* 18px - matches text-lg */
+  }
+}
+
+@media (min-width: 768px) {
+  .top-header .anointed-logo-text {
+    font-size: 1.25rem !important;
+    /* 20px - matches text-xl */
+  }
+}
+
+@media (min-width: 1024px) {
+  .top-header .anointed-logo-text {
+    font-size: 1.5rem !important;
+    /* 24px - matches text-2xl */
+  }
+}
+
+@media (max-width: 640px) {
+  .top-header {
+    height: calc(var(--top-header-height-mobile) * var(--adaptive-header-scale)) !important;
+    /* Disable header rollup animation on mobile to prevent rollup into top header */
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Menu uses automatic adaptive scaling, isolated from manual controls */
+.hamburger-menu {
+  font-size: calc(var(--base-font-size) * var(--adaptive-menu-scale)) !important;
+}
+
+.hamburger-menu * {
+  font-size: inherit !important;
+  /* Prevent menu from manual scaling */
+}
+
+/* Column width scaling - separate from overall UI scaling */
+.bible-column {
+  width: calc(var(--column-width, 18rem) * var(--column-width-mult));
+}
+
+/* Reference column now scales with column width multiplier in landscape mode */
+.bible-column.reference-column {
+  width: calc(var(--w-ref) * var(--column-width-mult));
+}
+
+/* Main translation column */
+.bible-column.main-translation-column {
+  width: calc(20rem * var(--column-width-mult));
+}
+
+/* Adaptive text sizing for all text columns */
+.cell-content,
+.cell-content .text-sm {
+  font-size: var(--text-sm);
+  /* Reduced line height scaling - less dramatic increase when text size grows */
+  line-height: calc(1.25 - (var(--text-size-mult, 1) - 1) * 0.05);
+}
+
+/* Row height scaling based on external size multiplier */
+.bible-verse-row {
+  height: var(--row-height);
+  min-height: var(--row-height);
+  /* DESKTOP PERF FIX: Contain layout/paint to prevent thrashing during scroll */
+  contain: content;
+}
+
+/* Slider styling for advanced size controls */
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #1E90FF;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider-thumb-blue::-webkit-slider-thumb {
+  background: #1E90FF;
+}
+
+.slider-thumb-green::-webkit-slider-thumb {
+  background: #16a34a;
+}
+
+.slider-thumb::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #1E90FF;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* UNIVERSAL COLUMN ALIGNMENT - Headers and data cells must match exactly */
+.column-header-cell,
+.virtual-row>div,
+.bible-verse-row>div,
+[data-verse-ref]>div {
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-right: 1px solid #e5e7eb !important;
+  font-size: var(--table-font-size, 0.75rem) !important;
+  line-height: 1 !important;
+}
+
+/* Ensure column headers get proper height */
+.column-header-cell {
+  height: var(--column-header-height) !important;
+  min-height: var(--column-header-height) !important;
+}
+
+/* All mobile column header restraints removed */
+
+/* Dark mode border color */
+.dark .column-header-cell,
+.dark .virtual-row>div,
+.dark .bible-verse-row>div,
+.dark [data-verse-ref]>div {
+  border-right-color: #374151 !important;
+}
+
+/* Ensure identical width calculations for all column elements */
+.column-header-cell[data-column="reference"],
+.bible-verse-row>div:first-child,
+[data-verse-ref]>div:first-child {
+  width: var(--adaptive-ref-width) !important;
+  min-width: var(--adaptive-ref-width) !important;
+  max-width: var(--adaptive-ref-width) !important;
+}
+
+/* Main translation only */
+.column-header-cell[data-column="main-translation"] {
+  width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+}
+
+/* Alt translations */
+.column-header-cell[data-column="alt-translation"] {
+  width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+}
+
+.cell[data-column="alt-translation"] {
+  flex: 0 0 calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+}
+
+.column-header-cell[data-column="cross-refs"],
+.column-header-cell[data-column*="cross"] {
+  width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+}
+
+/* Cross-refs data cells */
+.cell[data-column="cross-refs"],
+.bible-column[data-column="cross-refs"] {
+  width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  flex: 0 0 calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+}
+
+/* Main translation data cells */
+.cell[data-column="main-translation"],
+.bible-column[data-column="main-translation"] {
+  width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  min-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  max-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  flex: 0 0 calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+}
+
+.dark .column-header-cell,
+.dark .virtual-row>div {
+  border-right-color: #374151 !important;
+}
+
+/* Cell scrollbar styling - only show when content overflows */
+.cell-content {
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Remove scrollbars from reference column cells */
+.cell-ref {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.cell-ref::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Also prevent scrollbars in reference column cell content */
+.cell-ref .cell-content {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.cell-ref .cell-content::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Mobile portrait mode: remove CSS width constraints, let inline styles control headers */
+@media (max-width: 768px) and (orientation: portrait) {
+
+  /* Data cells - reference column doesn't scale with column width multiplier */
+  .bible-verse-row>div:first-child,
+  [data-verse-ref]>div:first-child {
+    width: var(--adaptive-ref-width) !important;
+    min-width: var(--adaptive-ref-width) !important;
+    max-width: var(--adaptive-ref-width) !important;
+  }
+
+  /* Header cells now controlled by inline styles - remove CSS width constraints */
+  .column-header-cell[data-column="reference"] {
+    /* Width controlled by inline styles in NewColumnHeaders.tsx */
+  }
+}
+
+/* Apply text scaling to reference column content */
+.cell-ref {
+  font-size: calc(var(--text-sm) * var(--text-size-mult)) !important;
+}
+
+.cell-ref span,
+.cell-ref .text-xs {
+  font-size: calc(0.75rem * var(--text-size-mult)) !important;
+}
+
+/* Scale date text specifically in reference column */
+.cell-ref .text-\[10px\] {
+  font-size: calc(10px * var(--text-size-mult)) !important;
+}
+
+/* Make date text responsive to preset scaling */
+.text-\[10px\] {
+  font-size: calc(10px * var(--text-size-mult));
+}
+
+/* Specific overflow handling for translation cells */
+.virtual-row>div {
+  overflow: visible;
+  /* Allow child scrollbars to show */
+  max-width: 100%;
+}
+
+.virtual-row>div>div {
+  height: var(--row-height);
+  max-height: var(--row-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  hyphens: auto;
+  box-sizing: border-box;
+}
+
+/* Force individual cell scrollbars in mobile portrait mode */
+@media (max-width: 768px) and (orientation: portrait) {
+
+  /* Strict row height containment - all possible row selectors */
+  .bible-verse-row,
+  .virtual-row,
+  [data-verse-ref] {
+    height: var(--row-height) !important;
+    max-height: var(--row-height) !important;
+    overflow: visible !important;
+    /* Allow nested cell scrollbars to show while constraining row height */
+    box-sizing: border-box;
+  }
+
+  /* Individual cell containers with proper height constraints - all possible containers */
+  .bible-column,
+  .columnGroup,
+  .cell,
+  .bible-column>*,
+  .columnGroup>* {
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: visible !important;
+    /* Allow child scrollbars to show */
+    min-height: 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* HoverVerseBar wrapper - ensure it doesn't interfere */
+  .hover-verse-bar,
+  [class*="HoverVerseBar"],
+  .bible-column>*>*,
+  .columnGroup>*>* {
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Cell content with individual scrollbars - comprehensive targeting */
+  .cell-content,
+  .glass-verse-cell,
+  .bible-column .cell-content,
+  .columnGroup .cell-content,
+  [data-column="main-translation"] .cell-content {
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: 0 !important;
+    word-wrap: break-word;
+    hyphens: auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
+    flex: 1 !important;
+    /* Fill available space */
+  }
+}
+
+.cell-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cell-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cell-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.cell-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Dark mode scrollbar */
+.dark .cell-content {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.dark .cell-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dark .cell-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Theme colors now managed by ThemeProvider + tokens.ts */
+/* JS applies all theme CSS variables dynamically via style.setProperty() */
+
+
+
+
+
+/* Apply theme variables to elements - SCOPED TO LIGHT/DARK ONLY */
+html.light body,
+html.dark body {
+  background: var(--background);
+  /* resolves to --bg-primary via alias */
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-family: var(--font-family, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  /* No transitions for instant theme switching */
+}
+
+/* No global transitions - instant theme switching */
+
+/* Font smoothing for better readability */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Specific font applications for themed content */
+.verse-text {
+  font-family: inherit;
+  /* Reduced line height scaling - less dramatic increase when text size grows */
+  line-height: calc(1.25 - (var(--text-size-mult, 1) - 1) * 0.05);
+  /* Starts at 1.25, decreases slightly as text gets bigger */
+}
+
+/* Verse text styling for remaining themes only */
+
+
+
+/* Expert's CSS-first adaptive column system */
+:root {
+  --ref-w: 72px;
+  /* Reference column - fixed width */
+  --col-w: auto;
+  /* Default for desktop columns */
+
+  /* Dynamic CSS variables set by useAdaptivePortraitColumns hook */
+  --adaptive-ref-width: 72px;
+  /* Reference column - will be dynamically updated */
+  --adaptive-main-width: 320px;
+  /* Main translation - will be dynamically updated */
+  --adaptive-cross-width: 280px;
+  /* Cross-reference - will be dynamically updated */
+  --adaptive-alt-width: 300px;
+  /* Alternate translations - will be dynamically updated */
+  --adaptive-prophecy-width: 320px;
+  /* Prophecy columns - will be dynamically updated */
+  --adaptive-notes-width: 300px;
+  /* Notes column - will be dynamically updated */
+  --adaptive-context-width: 180px;
+  /* Context/dates - will be dynamically updated */
+
+  /* Fallback baseline widths - expert's clamp() approach for landscape */
+  --w-ref: 4.5rem;
+  /* reference # column */
+  --w-main: clamp(14rem, 35vw, 22rem);
+  /* primary translation */
+  --w-xref: clamp(10rem, 45vw, 18rem);
+  /* cross-ref column */
+  --w-alt: clamp(12rem, 30vw, 20rem);
+  /* alternate translations */
+  --w-prophecy: clamp(14rem, 35vw, 22rem);
+  /* prophecy columns - same as main */
+
+  /* UNIFIED COLUMN WIDTHS - Final calculated values used everywhere */
+  --ref-col-width: calc(var(--w-ref) * var(--column-width-mult));
+  /* Reference column now scales in landscape mode */
+  --main-col-width: calc(var(--w-main) * var(--column-width-mult));
+  --xref-col-width: calc(var(--w-xref) * var(--column-width-mult));
+  --alt-col-width: calc(var(--w-alt) * var(--column-width-mult));
+  --prophecy-col-width: calc(var(--w-prophecy) * var(--column-width-mult));
+}
+
+/* Re-usable utility classes for perfect column alignment */
+.ref-col {
+  width: var(--ref-col-width);
+  min-width: var(--ref-col-width);
+  max-width: var(--ref-col-width);
+  box-sizing: border-box;
+}
+
+.main-col {
+  width: var(--main-col-width);
+  min-width: var(--main-col-width);
+  max-width: var(--main-col-width);
+  box-sizing: border-box;
+}
+
+.alt-col {
+  width: var(--alt-col-width);
+  min-width: var(--alt-col-width);
+  max-width: var(--alt-col-width);
+  box-sizing: border-box;
+}
+
+.bibleTable {
+  display: grid;
+  grid-auto-columns: max-content;
+  /* keeps desktop sizing logic */
+  grid-auto-flow: column;
+}
+
+/* Landscape mode - reference column scales with column width multiplier */
+@media (orientation: landscape) {
+  :root {
+    --adaptive-ref-width: calc(var(--w-ref) * var(--column-width-mult));
+  }
+}
+
+/* Expert's adaptive portrait rule */
+@media (orientation: portrait) {
+  :root {
+    /* JS will update --vw-free in real time via useAdaptiveWidths hook */
+    --main-xref-w: calc(var(--vw-free) / 2);
+    /* Reference column width is set by JavaScript in useAdaptivePortraitColumns */
+  }
+
+  .bibleTable {
+    /* Let columns auto-flow horizontally; reference will be made sticky-left in cells */
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    /* Do NOT pin main/xref as fixed columns here */
+    overflow-x: auto;
+    /* scrollbar for "extra" cols */
+
+    /* Expert's scroll enhancements */
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .bibleTable>* {
+    scroll-snap-align: start;
+    /* Snap to column boundaries */
+  }
+}
+
+/* Expert's physically separated scroll axes */
+.scroll-container {
+  position: relative;
+}
+
+.v-scroll {
+  /* Vertical scroller: entire verse stack */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  contain: layout paint style;
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
+}
+
+.h-scroll {
+  /* Horizontal scroller: extra columns */
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  contain: layout paint style;
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table wrapper - expert's flexbox centering with auto-scroll */
+.tableWrapper {
+  display: flex;
+  justify-content: center;
+  /* centering in landscape */
+  overflow-x: auto;
+  /* scrollbar only if needed */
+  overflow-y: auto;
+  /* enable vertical scrolling */
+  scrollbar-gutter: stable;
+  /* prevents width-jump when bar appears */
+
+  /* Expert's smooth scrolling enhancements */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Prevent scroll bounce bubbling */
+}
+
+/* Table inner content - natural width scaling */
+.tableInner {
+  inline-size: max-content;
+}
+
+/* PORTRAIT MODE - Expert's orientation-aware layout */
+@media (orientation: portrait) {
+
+  /* Switch to left-aligned layout in portrait ONLY when more than 3 columns */
+  .tableWrapper:not(.center-wrapper) {
+    justify-content: flex-start;
+    /* hug the left */
+  }
+}
+
+:root {
+  --w-ref: 2rem;
+  --w-main: clamp(45vw, 60vw, 80vw);
+  /* main fills most of the width */
+  --w-xref: clamp(40vw, 55vw, 70vw);
+  /* equal importance with main */
+  --w-alt: clamp(35vw, 50vw, 65vw);
+  /* alternate translations */
+  --w-prophecy: clamp(45vw, 60vw, 80vw);
+  /* prophecy columns - same as main */
+}
+
+/* Tiny phones - expert's fixed widths to prevent crumbs */
+@media (max-width: 480px) {
+  :root {
+    --w-ref: 2rem;
+    --w-main: 18rem;
+    /* fixed width for readability */
+    --w-xref: 18rem;
+    /* equal width with main */
+    --w-alt: 16rem;
+    /* slightly smaller alternates */
+    --w-prophecy: 18rem;
+    /* prophecy columns - same as main */
+  }
+}
+
+/* Expert's Refined Scrolling Logic - One-axis-at-a-time */
+
+/* Bible page container - allow both horizontal and vertical scroll */
+.biblePage {
+  overflow-y: auto;
+  overflow-x: auto;
+  height: 100dvh;
+  /* full viewport */
+  touch-action: auto;
+  /* allow all scrolling directions */
+  overscroll-behavior: contain;
+  /* no scroll chaining */
+}
+
+/* Table wrapper - horizontal scroll only */
+.tableWrapper {
+  overflow-x: auto;
+  /* shows bar only if needed */
+  overflow-y: hidden;
+  scrollbar-gutter: stable;
+  /* prevents width-jump when bar appears */
+  touch-action: pan-x pinch-zoom;
+  /* allow X-panning only */
+  overscroll-behavior: contain;
+  /* stop bounce from bubbling up */
+  scroll-snap-type: x mandatory;
+  /* neat column snap */
+  -webkit-overflow-scrolling: touch;
+  /* momentum on iOS */
+}
+
+/* Portrait mode - axis-locked scrolling with left alignment */
+.tableWrapper.twPortrait:not(.center-wrapper) {
+  justify-content: flex-start;
+  /* hug the left in portrait ONLY when more than 3 columns */
+}
+
+/* Landscape mode - smart centering with overflow support */
+.tableWrapper.twLandscape {
+  overflow-x: auto;
+  /* horizontal scroll when needed */
+}
+
+.tableWrapper.twLandscape .bibleTable {
+  width: max-content;
+  /* shrink-wrap to columns */
+  margin: 0 auto;
+  /* center while columns fit viewport */
+}
+
+/* Column groups for snap alignment */
+.columnGroup {
+  scroll-snap-align: start;
+  /* every column bundle snaps cleanly */
+}
+
+/* Accessibility - disable snap for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .tableWrapper {
+    scroll-snap-type: none;
+  }
+}
+
+/* Legacy support for existing bible-table-wrapper class */
+.bible-table-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-gutter: stable;
+  touch-action: pan-x pinch-zoom;
+  overscroll-behavior: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bible-table-wrapper .flex {
+  width: max-content;
+  margin: 0 auto;
+}
+
+@media (orientation: portrait) {
+  .bible-table-wrapper .flex {
+    margin: 0;
+    /* Remove centering in portrait */
+  }
+}
+
+/* Apply font size scaling to verse content AND row height */
+/* .verse-text font-size now inherited from parent .cell-content to avoid double scaling */
+
+/* Remove double scaling - .verse-text inherits size from parent .cell-content */
+
+/* .verse-text.text-lg also removed to prevent double scaling */
+
+/* Scale the entire verse row based on font size */
+.bible-verse-row {
+  font-size: calc(var(--text-base) * var(--font-size-multiplier, 1));
+  height: calc(var(--row-height, 60px) * var(--font-size-multiplier, 1));
+  min-height: calc(var(--row-height, 60px) * var(--font-size-multiplier, 1));
+}
+
+.bible-verse-row .verse-content {
+  font-size: inherit;
+}
+
+/* Scale column widths with font size */
+.w-80 {
+  width: calc(20rem * var(--font-size-multiplier, 1));
+}
+
+.w-60 {
+  width: calc(15rem * var(--font-size-multiplier, 1));
+}
+
+.w-20 {
+  width: calc(5rem * var(--font-size-multiplier, 1));
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+  /* Mobile .verse-text sizing also removed to prevent double scaling */
+
+  .bible-verse-row {
+    padding: 0.5rem 0.25rem;
+  }
+
+  /* UNIFIED COLUMN ALIGNMENT - Headers and data cells use identical CSS variables */
+  /* Fix for rotation mismatch between horizontal headers and vertical-rl data cells */
+
+  /* Force both header and data cells to reference the SAME physical dimension */
+  .column-header-cell,
+  .row .cell {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    border-right: 1px solid #e5e7eb !important;
+  }
+
+  /* Headers should have minimal padding for text alignment */
+  .column-header-cell {
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  /* Data cells should have consistent content padding */
+  .row .cell {
+    padding: 0 !important;
+    /* Container has no padding, content inside has padding */
+  }
+
+  /* Reference column - unified width for header and rotated data */
+  .column-header-cell[data-column="reference"],
+  .cell[data-column="reference"],
+  .cell-ref {
+    flex: 0 0 var(--adaptive-ref-width) !important;
+    width: var(--adaptive-ref-width) !important;
+    max-width: var(--adaptive-ref-width) !important;
+    min-width: var(--adaptive-ref-width) !important;
+  }
+
+  /* Main translation column - unified width with column width multiplier */
+  .column-header-cell[data-column="main-translation"],
+  .cell[data-column="main-translation"],
+  .cell-main {
+    flex: 0 0 calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+    width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+    max-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+    min-width: calc(var(--adaptive-main-width) * var(--column-width-mult, 1)) !important;
+  }
+
+  /* Cross reference column - unified width with column width multiplier */
+  .column-header-cell[data-column="cross-refs"],
+  .cell[data-column="cross-refs"],
+  .cell-cross {
+    flex: 0 0 calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+    width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+    max-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+    min-width: calc(var(--adaptive-cross-width) * var(--column-width-mult, 1)) !important;
+  }
+
+  /* Alternate translation columns - unified width with column width multiplier */
+  .column-header-cell[data-column="alt-translation"],
+  .cell[data-column="alt-translation"],
+  .cell-alt {
+    flex: 0 0 calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+    width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+    max-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+    min-width: calc(var(--adaptive-alt-width) * var(--column-width-mult, 1)) !important;
+  }
+
+  /* Mobile header optimizations */
+  @media (max-width: 767px) {
+    .top-header {
+      height: 48px !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+      width: 100% !important;
+      min-width: 100% !important;
+      max-width: 100% !important;
+      z-index: 50 !important;
+      margin-bottom: 0px !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Let the mobile-headers.css file handle column header positioning */
+    /* Remove conflicting rules that override our proper CSS */
+
+    /* Remove Tailwind class overrides - headers now use inline styles */
+
+    /* Remove ALL gaps between headers and content */
+    .top-header+*,
+    .top-header~*,
+    .top-header+*>*,
+    .top-header~*>* {
+      margin-top: 0px !important;
+      padding-top: 0px !important;
+    }
+
+    /* Specifically target VirtualBibleTable container */
+    [class*="VirtualBibleTable"],
+    [class*="virtual-bible-table"] {
+      margin-top: 0px !important;
+      padding-top: 0px !important;
+    }
+  }
+
+/* DESKTOP PERF FIX: Isolate table layout/paint to prevent full-page reflows during scroll */
+.virtual-bible-table {
+  contain: layout paint style;
+}
+
+/* DESKTOP PERF FIX: Skip rendering offscreen content in heavy columns */
+.bible-column[data-column="main-translation"],
+.bible-column[data-column="cross-refs"], 
+.bible-column[data-column="prophecy"],
+.bible-column[data-column="alt-translation"],
+.bible-column[data-column="notes"] {
+  content-visibility: auto;
+  contain-intrinsic-size: 16px 220px; /* Reserve space for offscreen cells */
+}
+
+/* DESKTOP PERF FIX: Remove permanent layer promotion from cells */
+.bible-column,
+.cell-content,
+.bible-verse-row {
+  will-change: auto !important;
+}
+
+/* DESKTOP PERF FIX: Belt-and-suspenders blur kill - prevent backdrop-filter in table */
+/* Ensures no future theme changes accidentally add expensive blur effects to cells */
+.virtual-bible-table .glass-morphism,
+.virtual-bible-table [class*="blur"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+  /* Ensure proper spacing and text wrapping */
+  .cell-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    padding: 0.25rem 0.5rem;
+    line-height: 1.3;
+  }
+
+  /* Override cell-content padding for reference cells */
+  .cell-ref.cell-content,
+  .cell-content.cell-ref {
+    padding: 0 !important;
+  }
+
+  .cell-ref {
+    font-size: 12px !important;
+    /* Even bigger text for mobile readability */
+    font-weight: bold !important;
+    /* Make reference text bold */
+    text-align: center;
+    padding: 0 !important;
+    /* No padding - match header */
+    margin: 0 !important;
+    /* NO MARGIN ANYWHERE */
+    line-height: 1.2 !important;
+    /* Better line height for readability */
+    writing-mode: horizontal-tb;
+    /* Normal horizontal text */
+    text-orientation: mixed;
+    white-space: nowrap;
+    overflow: hidden;
+    color: var(--text-primary) !important;
+    /* Ensure good contrast */
+    display: flex !important;
+    /* Use flexbox for better alignment */
+    align-items: center !important;
+    /* Center vertically */
+    justify-content: center !important;
+    /* Center horizontally */
+  }
+
+  /* Adaptive reference text for different screen sizes */
+  @media (min-width: 667px) and (max-width: 896px) and (orientation: landscape) {
+    .cell-ref {
+      font-size: 12px !important;
+      /* Even bigger for landscape */
+      padding: 0 !important;
+      /* No padding - match header */
+      margin: 0 !important;
+      /* NO MARGIN */
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .cell-ref {
+      font-size: 14px !important;
+      /* Tablet size */
+      padding: 0 !important;
+      /* No padding - match header */
+      margin: 0 !important;
+      /* NO MARGIN */
+    }
+  }
+
+  /* Mobile cross-reference styling */
+  .cross-ref-container {
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 11px;
+    scrollbar-width: thin;
+  }
+
+  .cross-ref-item {
+    margin-bottom: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    border-radius: 2px;
+    background: var(--flash-bg);
+  }
+
+  .cross-ref-item:hover {
+    background: var(--highlight-overlay);
+  }
+}
+
+
+
+/* Enhanced scroll behavior for mobile */
+.bible-table-wrapper {
+  overscroll-behavior: contain;
+}
+
+/* PERFECTED CROSS-REFERENCE NAVIGATION AESTHETICS */
+/* Lightweight cross-reference feedback */
+.cross-ref-clicked {
+  background-color: var(--highlight-overlay) !important;
+}
+
+/* Simple verse highlight after navigation */
+.verse-highlight-flash {
+  background-color: var(--flash-bg);
+  border-left: 2px solid var(--highlight-border);
+}
+
+/* Cross-reference button enhanced aesthetics */
+.cross-ref-button {
+  transition: all 0.1s ease;
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+
+.cross-ref-button:hover {
+  background-color: var(--highlight-overlay);
+  transform: translateY(-1px);
+}
+
+.cross-ref-button:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+.scroll-container {
+  overscroll-behavior: auto;
+  scroll-behavior: smooth;
+}
+
+/* Prevent diagonal scrolling on mobile */
+@media (max-width: 768px) {
+  .bible-table-wrapper[data-scroll-direction="horizontal"] {
+    overflow-y: hidden;
+  }
+
+  .bible-table-wrapper[data-scroll-direction="vertical"] {
+    overflow-x: hidden;
+  }
+
+  /* Prevent default touch selection behavior that creates black overlays */
+  .verse-text {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent touch selection on verse elements when HoverVerseBar is active */
+  .verse-text:active {
+    -webkit-tap-highlight-color: transparent;
+    background-color: transparent !important;
+  }
+
+  /* Prevent tap highlights on cell containers that contain verses */
+  .cell-content,
+  .glass-verse-cell,
+  .cell-content:active,
+  .glass-verse-cell:active {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none;
+    outline: none;
+  }
+
+  /* Additional prevention for glass morphism elements */
+  .glass-morphism:active {
+    -webkit-tap-highlight-color: transparent !important;
+    background-color: inherit !important;
+  }
+}
+
+/* Mobile-optimized column widths and touch behavior */
+@media (max-width: 640px) {
+  .bible-table-wrapper {
+    touch-action: pan-y manipulation;
+  }
+
+  /* Ensure column headers stay sticky in mobile portrait */
+  .column-headers-wrapper {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 50 !important;
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Enhanced cell scrolling for mobile portrait */
+  .cell-content {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: auto;
+    /* Changed from pan-y to auto to allow scrollbar interaction on mobile */
+  }
+
+  /* Make cell scrollbars more visible on mobile */
+  .cell-content::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .cell-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+
+  .cell-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    min-height: 30px;
+  }
+
+  .cell-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .col-ref {
+    width: calc(48px * var(--font-size-multiplier, 1));
+    flex-shrink: 0;
+  }
+
+  .col-main {
+    width: calc(300px * var(--font-size-multiplier, 1));
+    flex-shrink: 0;
+  }
+
+  .col-cross {
+    width: calc(280px * var(--font-size-multiplier, 1));
+    flex-shrink: 0;
+  }
+
+  .virtualbible-table {
+    overflow-x: auto;
+  }
+}
+
+/* Tablet responsive breakpoint */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .col-ref {
+    width: calc(56px * var(--font-size-multiplier, 1));
+  }
+
+  .col-main {
+    width: calc(400px * var(--font-size-multiplier, 1));
+  }
+
+  .col-cross {
+    width: calc(320px * var(--font-size-multiplier, 1));
+  }
+}
+
+/* Desktop responsive breakpoint */
+@media (min-width: 1024px) {
+  .col-ref {
+    width: calc(64px * var(--font-size-multiplier, 1));
+  }
+
+  .col-main {
+    width: calc(480px * var(--font-size-multiplier, 1));
+  }
+
+  .col-cross {
+    width: calc(400px * var(--font-size-multiplier, 1));
+  }
+}
+
+/* Desktop column widths */
+@media (min-width: 641px) {
+  .col-ref {
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  .col-main {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .col-cross {
+    width: 300px;
+    flex-shrink: 0;
+  }
+}
+
+/* Virtual scrolling styles for optimal performance */
+.verse-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  box-sizing: border-box;
+}
+
+/* 3-C. Keep ROW_HEIGHT constant, allow inner wrapping - CSS only - inside your verse cell */
+.verse-cell {
+  min-height: 120px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* Scrollbar tooltip animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+/* Glass morphism effects for hamburger menu */
+.glass-menu {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 8px 16px -8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.glass-section {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .glass-menu {
+  background: rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .glass-section {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Prevent body scroll when menu is open and ensure header stays on top */
+body.menu-open {
+  overflow: hidden;
+}
+
+
+
+/* Adjust menu z-index to be below header but above content */
+.glass-menu {
+  z-index: 50 !important;
+}
+
+/* Horizontal menu positioning */
+.horizontal-menu {
+  z-index: 40 !important;
+}
+
+/* Responsive horizontal menu */
+@media (max-width: 768px) {
+  .horizontal-menu {
+    margin: 0.5rem;
+    top: 4.5rem;
+  }
+}
+
+/* Why: virtualization math depends on fixed outer height; inner div can grow & wrap naturally. */
+
+/* ①  base rule – works on every viewport width */
+.bible-table-wrapper {
+  min-width: fit-content;
+  margin-inline: auto;
+  /* centre until wider than viewport */
+  overflow: auto;
+  /* always show both axes */
+}
+
+/* ②  mobile dual‑column tweaks */
+:root {
+  --colW: 640px;
+}
+
+/* or whatever your column width function returns */
+
+@media (max-width:639px) {
+  .dual-col {
+    width: calc(var(--colW)*2);
+    /* ref + one column */
+    scroll-snap-type: x mandatory;
+  }
+
+  .dual-col::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  /* keep bar visible */
+
+  .cell-ref {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: inherit;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .cell-ref span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+}
+
+/* Force horizontal scrollbar visibility - guarantee appears when content overflows */
+.bible-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+  display: block !important;
+}
+
+.bible-table-wrapper::-webkit-scrollbar-track {
+  background: rgb(243 244 246);
+  /* bg-gray-100 */
+  border-radius: 4px;
+}
+
+.bible-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgb(156 163 175);
+  /* bg-gray-400 */
+  border-radius: 4px;
+  min-width: 40px;
+  /* Ensure thumb is visible when scrollable */
+}
+
+.bible-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+  /* bg-gray-500 */
+}
+
+/* Dark mode scrollbar */
+.dark .bible-table-wrapper::-webkit-scrollbar-track {
+  background: rgb(55 65 81);
+  /* bg-gray-700 */
+}
+
+.dark .bible-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+  /* bg-gray-600 */
+}
+
+.dark .bible-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgb(156 163 175);
+  /* bg-gray-400 */
+}
+
+/* Reference column styling for proper layout */
+.cell-ref {
+  background: inherit;
+}
+
+/* Removed verse highlighting and hover effects for mobile scroll optimization */
+
+/* Smooth scrolling behavior for verse navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Minimal axis-clamped scrolling */
+.scroll-area {
+  touch-action: auto;
+}
+
+/* Custom scrollbar for cross-reference cells */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) rgba(243, 244, 246, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+/* Enhanced cross-reference cell styling */
+.cross-ref-container {
+  max-height: 120px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.cross-ref-item {
+  background: rgba(249, 250, 251, 0.5);
+  margin-bottom: 8px;
+  position: relative;
+  pointer-events: auto;
+}
+
+/* Base font sizes for scaling */
+:root {
+  --xref-font-base: 0.75rem;
+  /* ~12px default for link labels */
+  --prop-id-font-base: 0.8125rem;
+  /* ~13px default for prophecy # */
+}
+
+/* Cross-ref buttons scale with text control (not row height) */
+.cross-ref-cell .xref-btn {
+  font-size: calc(var(--xref-font-base) * var(--text-size-mult)) !important;
+  line-height: 1.15;
+  /* keep the anti-stretch seatbelts */
+  display: inline-block;
+  height: auto;
+  min-height: 0;
+  align-self: flex-start;
+  position: relative;
+  z-index: 20;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+/* Prophecy ID number scales too */
+.prophecy-id {
+  font-size: calc(var(--prop-id-font-base) * var(--text-size-mult)) !important;
+  line-height: 1.15;
+}
+
+/* Portrait mode: prevent button stretching with row height */
+@media (orientation: portrait) {
+  [data-column='cross-refs'] .cell-content {
+    display: block !important;
+  }
+
+  [data-column='cross-refs'] .xref-btn {
+    display: inline-block !important;
+    align-self: flex-start !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Unified Prophecy column */
+  [data-column='prophecy'] .cell-content {
+    display: block !important;
+  }
+}
+
+.dark .cross-ref-item {
+  background: rgba(31, 41, 55, 0.5);
+}
+
+/* Mobile optimization: better row height and font sizes */
+@media (max-width: 640px) {
+  .virtual-row {
+    line-height: 1.35rem;
+    flex-wrap: wrap;
+  }
+
+  .virtual-row .text-xs {
+    font-size: 0.80rem;
+  }
+
+  /* Stack cross-reference column below main verse on mobile */
+  .w-80,
+  .w-60 {
+    width: 100vw;
+  }
+
+  .w-60 {
+    order: 2;
+    /* stack cross-ref under verse */
+  }
+}
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+
+  /* Bible Theme Variables */
+  --font-size-base: 16px;
+  --font-size-scale: 1;
+  --spacing-unit: 0.5rem;
+  --transition-speed: 0.3s;
+  --header-height: 60px;
+  --footer-height: 50px;
+  --button-radius: 8px;
+  --button-size: 40px;
+  --popup-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+
+
+
+
+
+/* Header responsive design */
+.top-header {
+  height: 48px !important;
+  min-height: 48px !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 768px) {
+  .top-header {
+    height: 60px !important;
+    min-height: 60px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Mobile verse reference rotation - always applied */
+.verse-row .transform.-rotate-90 {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(-90deg);
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+@keyframes verseExpand {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes highlightFlash {
+  0% {
+    background-color: var(--accent-color);
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes themeTransition {
+  from {
+    opacity: 0.8;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Overlay scroll lock - Task 3.3 */
+body.overlay-open {
+  overflow: hidden;
+}
+
+/* Bible table wrapper centering */
+.bible-table-wrapper {
+  margin-inline: auto;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--column-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--link-color);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--button-hover);
+}
+
+/* Base Typography and Layout */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html.light body,
+  html.dark body {
+    @apply font-sans antialiased;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Roboto', sans-serif;
+    font-size: calc(var(--font-size-base) * var(--font-size-scale));
+    line-height: 1.6;
+    transition: all var(--transition-speed) ease;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    :root {
+      --header-height: 70px;
+      --font-size-base: 14px;
+    }
+  }
+}
+
+/* Old label effects removed - using label-effects.css instead */
+
+/* Bible Table Cell Styling */
+.bible-cell {
+  height: var(--row-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.bible-cell-content {
+  line-height: 1.4;
+  padding: 8px;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+}
+
+.verse-text {
+  width: 100%;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+  /* Consistent with cell-content */
+}
+
+/* Custom scrollbar for cells */
+.bible-cell::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bible-cell::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bible-cell::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.bible-cell::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .bible-table-wrapper.dual-col {
+    justify-content: flex-start;
+    width: calc(var(--colW) * 2.2);
+    /* Slightly wider for better proportions */
+  }
+
+  /* Responsive column scaling */
+  .w-12 {
+    width: calc(3rem * var(--font-size-multiplier, 1));
+  }
+
+  .w-14 {
+    width: calc(3.5rem * var(--font-size-multiplier, 1));
+  }
+
+  .w-16 {
+    width: calc(4rem * var(--font-size-multiplier, 1));
+  }
+
+  .w-20 {
+    width: calc(5rem * var(--font-size-multiplier, 1));
+  }
+
+  .w-48 {
+    width: calc(12rem * var(--font-size-multiplier, 1));
+  }
+
+  .w-64 {
+    width: calc(16rem * var(--font-size-multiplier, 1));
+  }
+
+  .w-80 {
+    width: calc(20rem * var(--font-size-multiplier, 1));
+  }
+
+  /* Mobile column width overrides - use CSS variables for consistency */
+  .dual-col .w-80 {
+    width: calc(var(--colW) * 1) !important;
+  }
+
+  .dual-col .w-60 {
+    width: calc(var(--colW) * 0.75) !important;
+  }
+
+  .dual-col .w-20 {
+    width: calc(var(--colW) * 0.25) !important;
+  }
+
+  .dual-col .w-16 {
+    width: calc(var(--colW) * 0.2) !important;
+  }
+
+  .dual-col .w-14 {
+    width: calc(var(--colW) * 0.175) !important;
+  }
+
+  .dual-col .w-12 {
+    width: calc(var(--colW) * 0.15) !important;
+  }
+}
+
+/* ADAPTIVE VERSE REFERENCE ROTATION - Based on Text Overflow Detection */
+/* Default: horizontal display - no need to force it, let .vertical-text override when needed */
+.cell-ref span:not(.vertical-text) {
+  writing-mode: horizontal-tb;
+  transform: none;
+}
+
+/* Conflicting styles removed - using label-effects.css instead */
+
+/* Old multiple label combinations removed */
+
+/* Prevent FOUC during label loading */
+.verse-text {
+  visibility: visible;
+}
+
+.verse-text.loading {
+  visibility: hidden;
+}
+
+.verse-text.loaded {
+  visibility: visible;
+}
+
+/* Hide scrollbars for scroll wheel selector */
+.scrollbar-hide {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* WebKit */
+}
+
+/* Mobile Footer and Bottom Sheet Styles */
+.footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 6px;
+  padding: 8px calc(12px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-right));
+  background: rgba(8, 10, 15, 0.85);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 30;
+}
+
+.footer-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: hsl(var(--muted-foreground));
+  font: 500 14px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.footer button:hover {
+  color: hsl(var(--foreground));
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.footer button:active {
+  transform: scale(0.98);
+}
+
+.footer .muted {
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  margin-left: auto;
+}
+
+
+.docs-menu {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.docs-menu button {
+  text-align: left;
+  padding: 12px;
+  border-radius: 10px;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  transition: all 0.2s ease;
+}
+
+.docs-menu button:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.sheet-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.sheet-actions p {
+  color: hsl(var(--muted-foreground));
+  line-height: 1.5;
+  margin: 0;
+}
+
+.sheet-actions .primary {
+  display: inline-block;
+  text-align: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.sheet-actions .primary:hover {
+  background: hsl(var(--primary)/0.9);
+  transform: translateY(-1px);
+}
+
+.doc-body {
+  line-height: 1.6;
+  font-size: 14px;
+  color: hsl(var(--foreground));
+}
+
+.doc-body h1,
+.doc-body h2,
+.doc-body h3 {
+  margin: 1em 0 .5em;
+  color: hsl(var(--foreground));
+}
+
+.doc-body h1 {
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.doc-body h2 {
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.doc-body h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.doc-body p {
+  margin: 0.5em 0;
+}
+
+.doc-body a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+
+.doc-body a:hover {
+  color: hsl(var(--primary)/0.8);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 20px;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* HOTFIX: when an alt translation is active, do NOT indent the body */
+.has-alt .virtual-rows,
+.has-alt .virtual-row,
+.has-alt .row-grid {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
+}
+
+/* SAFETY NET: let grid see cells if there are wrappers */
+.row-grid>.cell-wrap {
+  display: contents;
+}
+
+/* Keep # column always visible */
+.column-header-cell[data-column="reference"],
+.bible-column[data-column="reference"] {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  /* above neighbors */
+  background: var(--header-bg, var(--background));
+}
+
+/* cell-level stickiness for fixed columns */
+.header-cell.reference,
+.data-cell.reference,
+.column-header-cell[data-column="reference"],
+.cell[data-column="reference"],
+.cell-ref {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 3 !important;
+  background: var(--bg-primary, white) !important;
+  border-right: 1px solid var(--border-color, #e5e7eb) !important;
+}
+
+.header-cell.index,
+.data-cell.index,
+.column-header-cell[data-column="index"],
+.cell[data-column="index"] {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 4 !important;
+  background: var(--bg-primary, white) !important;
+}
+
+.header-cell.reference,
+.data-cell.reference,
+.column-header-cell[data-column="reference"],
+.cell[data-column="reference"] {
+  /* Reference column should always be at left edge */
+  left: 0 !important;
+}
+
+/* hard kill any legacy "pillar" padding that appears in certain modes */
+.virtual-rows,
+.virtual-row,
+.bibleTable {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  transform: none !important;
+}
+
+/* Confetti animation for congratulations overlay */
+@keyframes confetti {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti {
+  animation: confetti linear infinite;
+}
+
+/* ===== iOS Safari Portrait-Only Fixes ===== */
+/* These rules only affect mobile portrait mode (viewport ≤ 900px in portrait) */
+
+/* Make BODY the scroller so iOS Safari can auto-hide the top/bottom bars */
+.is-portrait body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* Use dynamic viewport height on modern iOS; fallback uses --vh set in JS */
+  min-block-size: 100dvh;
+
+  /* Ensure scrollbar is always visible on right side and properly styled */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) rgba(243, 244, 246, 0.3);
+}
+
+/* Custom scrollbar styling for body in mobile portrait mode */
+.is-portrait body::-webkit-scrollbar {
+  width: 12px;
+}
+
+.is-portrait body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+.is-portrait body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  min-height: 40px;
+  /* Ensure thumb is large enough for touch */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.is-portrait body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark mode scrollbar for mobile portrait body */
+.dark.is-portrait body {
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+.dark.is-portrait body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dark.is-portrait body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+@supports not (height: 100dvh) {
+  .is-portrait body {
+    min-block-size: calc(var(--vh, 1vh) * 100);
+  }
+}
+
+/* App chrome padding that respects the notch only in portrait */
+.is-portrait .virtual-bible-table {
+  padding-inline: var(--safe-left) max(8px, var(--safe-right));
+  /* Left flush, right with safe area */
+  padding-top: max(0px, var(--safe-top));
+  padding-bottom: max(8px, var(--safe-bottom));
+}
+
+/* Headers should remain fixed in portrait mode - don't override mobile-headers.css */
+/* The mobile-headers.css file handles proper fixed positioning for portrait mode */
+/* Removed sticky positioning that was causing header rollup */
+
+/* PORTRAIT MODE: Position scroll container below fixed header */
+.is-portrait .unified-scroll-container {
+  margin-top: var(--top-header-height-mobile) !important;
+  /* Push container below fixed header without changing scroll mode */
+}
+
+/* Column header positioning handled by mobile-headers.css */
+
+/* Top header positioning handled by mobile-headers.css */
+
+/* Make sure the scrollbar is always accessible above all content */
+.is-portrait body::-webkit-scrollbar {
+  z-index: 999 !important;
+  position: relative !important;
+}
+
+/* Ensure proper stacking order for sticky headers with global scrollbar */
+.is-portrait .top-header {
+  position: fixed !important;
+  z-index: 50 !important;
+  right: 0 !important;
+  /* Avoid overlap with scrollbar */
+  padding-right: max(12px, env(safe-area-inset-right)) !important;
+}
+
+/* Portrait mode: Prevent body scroll (container scrolls instead) */
+.is-portrait body {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+/* REMOVED: Problematic min-height that caused 3.7M pixel balloon
+   Virtual scrolling now uses an internal spacer div to create scroll space
+   without ballooning the table container itself */
+
+/* Use full inline width in portrait */
+.is-portrait .virtual-bible-table,
+.is-portrait .bible-content-container {
+  inline-size: 100%;
+  max-inline-size: 100%;
+}
+
+/* Tables/grids breathe in portrait without breaking other modes */
+.is-portrait .virtual-bible-table {
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* ============================================================================
+   BULLETPROOF THEME VISUAL EFFECTS - Aurora, Rainbow, Electric & Sepia
+   ============================================================================ */
+
+/* Note: Base #theme-fx definition is at end of file for final cascade enforcement */
+
+/* Global FX tuning tokens */
+:root {
+  --fx-sat: .92;         /* global saturation */
+  --fx-ctr: 1.04;        /* global contrast   */
+  --fx-brt: .98;         /* global brightness */
+}
+
+/* ====== RAINBOW THEME - Seamless Conveyor Animation ====== */
+:root {
+  --fx-speed-rainbow: 20s;
+}
+
+/* Two sliding layers for seamless infinite scroll */
+.rainbow-mode #theme-fx::before,
+.rainbow-mode #theme-fx::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  width: 200%;
+  left: 0;
+  will-change: transform;
+  background: linear-gradient(90deg, #1a0033, #003366, #660014, #663300, #330066);
+  filter: saturate(1.15) contrast(1.05);
+}
+
+/* First copy slides from visible position */
+.rainbow-mode #theme-fx::before {
+  transform: translateX(0);
+  animation: fx-slide-rainbow var(--fx-speed-rainbow) linear infinite;
+}
+
+/* Second copy starts after the first, same animation */
+.rainbow-mode #theme-fx::after {
+  transform: translateX(100%);
+  animation: fx-slide-rainbow var(--fx-speed-rainbow) linear infinite;
+}
+
+.rainbow-mode a {
+  color: #000;
+}
+
+/* ====== AURORA THEME - Calm Drift (No White Trail) ====== */
+:root {
+  --fx-speed-aurora: 90s;
+}
+
+/* Soft, slow aurora with gentle drift - wider gradients to avoid banding */
+.aurora-mode #theme-fx::before {
+  content: "";
+  position: absolute;
+  width: 220%;
+  left: -60%;
+  top: -10%;
+  height: 120%;
+  will-change: transform;
+  background:
+    radial-gradient(120% 80% at 20% 40%, rgba(84, 0, 255, .18) 0%, rgba(84, 0, 255, 0) 60%),
+    radial-gradient(110% 70% at 80% 60%, rgba(0, 220, 255, .18) 0%, rgba(0, 220, 255, 0) 60%),
+    linear-gradient(135deg, #0a0e1a, #11152a 60%, #0e1020);
+  filter: saturate(.85) contrast(1.03) brightness(.98);
+  animation: auroraDrift var(--fx-speed-aurora) linear infinite;
+}
+
+.aurora-mode a {
+  color: #ffcc00;
+}
+
+/* ====== ELECTRIC THEME - Neon Calm Drift ====== */
+:root {
+  --fx-speed-electric: 20s;
+}
+
+/* Calmer neon theme with slower, smoother motion */
+.electric-mode #theme-fx::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  left: -50%;
+  height: 110%;
+  top: -5%;
+  will-change: transform, background-position;
+  background: linear-gradient(135deg,
+      rgb(16, 22, 70) 0%,
+      rgb(26, 35, 126) 25%,
+      rgb(62, 43, 247) 50%,
+      rgb(0, 212, 255) 75%,
+      rgb(16, 22, 70) 100%);
+  background-size: 300% 100%;
+  filter: saturate(.88) contrast(1.05) brightness(.96);
+  animation: electricDrift var(--fx-speed-electric) linear infinite;
+}
+
+.electric-mode a {
+  color: #f7f232;
+  text-shadow: 0 0 8px rgba(247, 242, 50, 0.5);
+}
+
+/* ====== CALM FX ANIMATION KEYFRAMES ====== */
+
+/* Aurora: Gentle drift */
+@keyframes auroraDrift {
+  0%   { transform: translateX(0%); }
+  50%  { transform: translateX(25%); }
+  100% { transform: translateX(0%); }
+}
+
+/* Rainbow: Seamless conveyor slide */
+@keyframes fx-slide-rainbow {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+/* Electric: Neon calm drift */
+@keyframes electricDrift {
+  0%   { background-position: 0% 0%;   transform: translateX(0); }
+  50%  { background-position: 100% 0%; transform: translateX(8%); }
+  100% { background-position: 0% 0%;   transform: translateX(0); }
+}
+
+/* ====== EDEN THEME - Earthy greens below, windy skies above ====== */
+:root {
+  --fx-speed-eden: 130s;
+  --fx-eden-sat: .85;
+  --fx-eden-blur: 34px;
+}
+
+.eden-mode #theme-fx { overflow: hidden; }
+
+/* base horizon wash (static) */
+.eden-mode #theme-fx::before {
+  content: "";
+  position: absolute;
+  inset: -6% -10%;
+  background: linear-gradient(180deg,
+    #dfe8ff 0%,
+    #bcd5fb 30%,
+    #8fb9f1 50%,
+    #77a5d7 60%,
+    #5a8a9a 70%,
+    #3d6f64 78%,
+    #26573f 86%,
+    #1f4a36 92%,
+    #1a3e2f 100%);
+  filter: saturate(var(--fx-eden-sat)) contrast(1.02) brightness(.98);
+}
+
+/* windy sky strokes + meadow shimmer (slow upward conveyor) */
+.eden-mode #theme-fx::after {
+  content: "";
+  position: absolute;
+  inset: -12% -18%;
+  width: 260%;
+  left: -80%;
+  background:
+    radial-gradient(120% 40% at 40% 15%, rgba(255,255,255,.4), transparent 70%),
+    radial-gradient(120% 40% at 65% 10%, rgba(255,255,255,.25), transparent 72%),
+    radial-gradient(120% 40% at 30% 8%,  rgba(255,255,255,.18), transparent 74%),
+    radial-gradient(70% 40% at 50% 88%, rgba(114,196,133,.18), transparent 70%),
+    radial-gradient(70% 40% at 30% 92%, rgba(94,168,120,.18),  transparent 72%),
+    radial-gradient(70% 40% at 70% 94%, rgba(72,142,102,.18),  transparent 74%);
+  filter: blur(var(--fx-eden-blur));
+  mix-blend-mode: overlay;
+  will-change: transform, opacity;
+  animation:
+    edenDrift var(--fx-speed-eden) linear infinite,
+    edenBreathe 22s ease-in-out infinite;
+}
+
+@keyframes edenDrift {
+  0%   { transform: translateX(-6%) translateY(0%); }
+  50%  { transform: translateX( 6%) translateY(-8%); }
+  100% { transform: translateX(-6%) translateY(0%); }
+}
+
+@keyframes edenBreathe {
+  0%, 100% { opacity: .55; }
+  50%      { opacity: .82; }
+}
+
+/* Respect reduced motion preferences - pause all FX animations */
+@media (prefers-reduced-motion: reduce) {
+
+  .rainbow-mode #theme-fx::before,
+  .rainbow-mode #theme-fx::after,
+  .aurora-mode #theme-fx::before,
+  .electric-mode #theme-fx::before,
+  .eden-mode #theme-fx::after {
+    animation: none !important;
+  }
+}
+
+/* Kill any body::before that might create white trail in FX themes */
+.aurora-mode body::before,
+.rainbow-mode body::before,
+.electric-mode body::before,
+.eden-mode body::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* ============================================================================
+   COLUMN TRANSPARENCY - Let FX gradients shine through
+   ============================================================================ */
+
+/* AURORA - 72% opacity with subtle backdrop blur */
+.aurora-mode .bible-column,
+.aurora-mode .cell-content,
+.aurora-mode .glass-morphism,
+.aurora-mode .glass-reference-cell {
+  background: rgba(var(--column-bg-rgb, 255 255 255), 0.72) !important;
+  backdrop-filter: saturate(110%) blur(3px);
+}
+
+/* RAINBOW - 65% opacity with enhanced saturation */
+.rainbow-mode .bible-column,
+.rainbow-mode .cell-content,
+.rainbow-mode .glass-morphism,
+.rainbow-mode .glass-reference-cell {
+  background: rgba(var(--column-bg-rgb, 255 255 255), 0.65) !important;
+  backdrop-filter: saturate(115%) blur(3px);
+}
+
+/* ELECTRIC - 68% opacity with sharp contrast */
+.electric-mode .bible-column,
+.electric-mode .cell-content,
+.electric-mode .glass-morphism,
+.electric-mode .glass-reference-cell {
+  background: rgba(var(--column-bg-rgb, 255 255 255), 0.68) !important;
+  backdrop-filter: saturate(120%) blur(2px);
+}
+
+/* EDEN - 70% opacity with gentle blur */
+.eden-mode .bible-column,
+.eden-mode .cell-content,
+.eden-mode .glass-morphism,
+.eden-mode .glass-reference-cell {
+  background: rgba(var(--column-bg-rgb, 255 255 255), 0.70) !important;
+  backdrop-filter: saturate(108%) blur(3px);
+}
+
+/* ============================================================================
+   BULLETPROOF BODY TRANSPARENCY FOR FX THEMES
+   ============================================================================
+   CRITICAL: This MUST be last in the CSS cascade to override earlier body backgrounds.
+   Without this, the FX gradient layer is hidden behind body's opaque background.
+   
+   Strategy: Neutralize the --interactive-background variable used by inline styles
+   so that `html, body { background: var(--interactive-background) }` becomes transparent.
+*/
+
+body.rainbow-mode,
+html.rainbow,
+body.aurora-mode,
+html.aurora,
+body.electric-mode,
+html.electric,
+body.eden-mode,
+html.eden {
+  --interactive-background: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ============================================================================
+   FX THEMES: TRANSPARENT APP SHELLS & TOKEN OVERRIDES
+   ============================================================================
+   Make main app containers transparent so the animated FX layer shows through.
+   Override surface tokens to use semi-transparent values for readability.
+*/
+
+/* Core app shells must be transparent for FX visibility */
+.rainbow-mode #root,
+.rainbow-mode .app,
+.rainbow-mode main,
+.rainbow-mode .layout-root,
+.rainbow-mode .bible-page,
+.aurora-mode #root,
+.aurora-mode .app,
+.aurora-mode main,
+.aurora-mode .layout-root,
+.aurora-mode .bible-page,
+.electric-mode #root,
+.electric-mode .app,
+.electric-mode main,
+.electric-mode .layout-root,
+.electric-mode .bible-page,
+.eden-mode #root,
+.eden-mode .app,
+.eden-mode main,
+.eden-mode .layout-root,
+.eden-mode .bible-page {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Token overrides for automatic semi-transparent surfaces in FX themes */
+.rainbow-mode {
+  --bg-primary: transparent !important;
+  --column-bg: rgba(20, 20, 40, 0.65) !important;
+  --header-bg: rgba(20, 20, 40, 0.65) !important;
+}
+
+.aurora-mode {
+  --bg-primary: transparent !important;
+  --column-bg: rgba(33, 15, 45, 0.70) !important;
+  --header-bg: rgba(33, 15, 45, 0.70) !important;
+}
+
+.electric-mode {
+  --bg-primary: transparent !important;
+  --column-bg: rgba(15, 25, 45, 0.68) !important;
+  --header-bg: rgba(15, 25, 45, 0.68) !important;
+}
+
+.eden-mode {
+  --bg-primary: transparent !important;
+  --column-bg: rgba(20, 40, 34, 0.70) !important;
+  --header-bg: rgba(20, 40, 34, 0.70) !important;
+}
+
+/* ============================================================================
+   BULLETPROOF FX LAYER SYSTEM - Final Transparency Enforcement
+   ============================================================================ */
+
+/* FX layer must be behind everything, animating freely */
+#theme-fx {
+  position: fixed !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  overflow: hidden !important;
+  will-change: transform, background-position, opacity;
+}
+
+/* App chrome must be transparent above FX */
+html, body { 
+  min-height: 100%; 
+}
+
+#root, .app, main, .layout-root { 
+  position: relative; 
+  z-index: 1; 
+  background: transparent !important; 
+}
+
+/* Neutralize any legacy inline vars for FX themes */
+html.rainbow, 
+html.aurora, 
+html.electric,
+html.eden { 
+  background: transparent !important;
+  --bg-primary: transparent !important;
+  --background: transparent !important;
+  --interactive-background: transparent !important; 
+}
+
+/* Body absolutely transparent in FX themes */
+body.rainbow-mode,
+body.aurora-mode,
+body.electric-mode,
+body.eden-mode {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Surface transparency tuning variables */
+:root {
+  --fx-surface-alpha: .78;
+  --fx-border-alpha: .22;
+  --fx-vignette-opacity: .18;
+}
+
+/* Glass utility for manual application */
+.fx-glass {
+  background-color: rgb(var(--surface-rgb, 10 12 20) / var(--fx-surface-alpha));
+  backdrop-filter: blur(6px) saturate(1.05);
+  border: 1px solid rgb(255 255 255 / var(--fx-border-alpha));
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / .25),
+    0 12px 24px rgb(0 0 0 / .18);
+}
+
+/* Gentle vignette overlay for FX themes that don't already have ::after effects */
+#theme-fx-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(120% 140% at 50% 50%, transparent 55%, rgb(0 0 0 / var(--fx-vignette-opacity)));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.rainbow-mode #theme-fx-vignette,
+.aurora-mode #theme-fx-vignette,
+.electric-mode #theme-fx-vignette {
+  opacity: 1;
+}
+/* Suppress exit animation during dropdown toggle guard window */
+.rdx-no-exit[data-state="closed"] {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Expanded hit area for scrollbar control buttons */
+.sb-hit {
+  position: relative;
+}
+
+.sb-hit::before {
+  content: "";
+  position: absolute;
+  inset: -10px -12px;
+  cursor: pointer;
+}
